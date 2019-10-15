@@ -106,18 +106,17 @@ public interface Exceptions
     {
         PreCondition.assertNotNull(error, "error");
 
-        while (error != null)
+        Throwable result = error;
+        Throwable cause = result.getCause();
+        while (cause != null && defaultErrorTypesToGoPast.contains(result.getClass()))
         {
-            if (defaultErrorTypesToGoPast.contains(error.getClass()))
-            {
-                error = error.getCause();
-            }
-            else
-            {
-                break;
-            }
+            result = cause;
+            cause = result.getCause();
         }
-        return error;
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     static Result<Void> writeErrorString(CharacterWriteStream stream, Throwable error)

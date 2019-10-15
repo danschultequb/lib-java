@@ -425,6 +425,47 @@ public interface ExceptionsTests
                     });
                 });
             });
+
+            runner.testGroup("unwrap()", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Exceptions.unwrap(null),
+                        new PreConditionFailure("error cannot be null."));
+                });
+
+                runner.test("with RuntimeException with null cause", (Test test) ->
+                {
+                    final RuntimeException error = new RuntimeException("spam");
+                    test.assertSame(error, Exceptions.unwrap(error));
+                });
+
+                runner.test("with RuntimeException with non-null cause", (Test test) ->
+                {
+                    final Exception cause = new Exception("hello");
+                    final RuntimeException error = new RuntimeException(cause);
+                    test.assertSame(cause, Exceptions.unwrap(error));
+                });
+
+                runner.test("with AwaitException with null cause", (Test test) ->
+                {
+                    final AwaitException error = new AwaitException(null);
+                    test.assertSame(error, Exceptions.unwrap(error));
+                });
+
+                runner.test("with AwaitException with non-null cause", (Test test) ->
+                {
+                    final Exception cause = new Exception("hello");
+                    final AwaitException error = new AwaitException(cause);
+                    test.assertSame(cause, Exceptions.unwrap(error));
+                });
+
+                runner.test("with Exception with null cause", (Test test) ->
+                {
+                    final Exception error = new Exception("spam");
+                    test.assertSame(error, Exceptions.unwrap(error));
+                });
+            });
         });
     }
 }

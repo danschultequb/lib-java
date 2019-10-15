@@ -85,15 +85,15 @@ public interface FakeProcessFactoryTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final FakeProcessFactory factory = new FakeProcessFactory(test.getParallelAsyncRunner(), "/working/");
-                    test.assertSame(factory, factory.add(new FakeProcessRun("/executable/file").setFunction(20)));
+                    test.assertSame(factory, factory.add(FakeProcessRun.get("/executable/file").setFunction(20)));
                     test.assertEqual(20, factory.getProcessBuilder("/executable/file").await().run().await());
                 });
 
                 runner.test("with non-null executablePath that already exists", (Test test) ->
                 {
                     final FakeProcessFactory factory = new FakeProcessFactory(test.getParallelAsyncRunner(), "/working/");
-                    test.assertSame(factory, factory.add(new FakeProcessRun("/executable/file").setFunction(20)));
-                    test.assertSame(factory, factory.add(new FakeProcessRun("/executable/file").setFunction(21)));
+                    test.assertSame(factory, factory.add(FakeProcessRun.get("/executable/file").setFunction(20)));
+                    test.assertSame(factory, factory.add(FakeProcessRun.get("/executable/file").setFunction(21)));
                     test.assertEqual(21, factory.getProcessBuilder("/executable/file").await().run().await());
                 });
             });
@@ -125,7 +125,7 @@ public interface FakeProcessFactoryTests
                 runner.test("with no matching fakeProcessRuns", (Test test) ->
                 {
                     final FakeProcessFactory factory = new FakeProcessFactory(test.getParallelAsyncRunner(), "/working/")
-                        .add(new FakeProcessRun("/other/exe"));
+                        .add(FakeProcessRun.get("/other/exe"));
                     final ProcessBuilder builder = factory.getProcessBuilder("/executable/file").await();
                     test.assertThrows(() -> builder.run().await(),
                         new NotFoundException("No fake process run found for \"/working/: /executable/file\"."));
@@ -134,7 +134,7 @@ public interface FakeProcessFactoryTests
                 runner.test("with not all matching arguments", (Test test) ->
                 {
                     final FakeProcessFactory factory = new FakeProcessFactory(test.getParallelAsyncRunner(), "/working/")
-                        .add(new FakeProcessRun("/executable/file")
+                        .add(FakeProcessRun.get("/executable/file")
                             .addArguments("a", "b"));
                     final ProcessBuilder builder = factory.getProcessBuilder("/executable/file").await()
                         .addArguments("a", "b", "c");
@@ -145,7 +145,7 @@ public interface FakeProcessFactoryTests
                 runner.test("with too many arguments", (Test test) ->
                 {
                     final FakeProcessFactory factory = new FakeProcessFactory(test.getParallelAsyncRunner(), "/working/")
-                        .add(new FakeProcessRun("/executable/file")
+                        .add(FakeProcessRun.get("/executable/file")
                             .addArguments("a", "b"));
                     final ProcessBuilder builder = factory.getProcessBuilder("/executable/file").await()
                         .addArguments("a");
@@ -156,7 +156,7 @@ public interface FakeProcessFactoryTests
                 runner.test("with fully matching fakeProcessRun with no function set", (Test test) ->
                 {
                     final FakeProcessFactory factory = new FakeProcessFactory(test.getParallelAsyncRunner(), "/working/")
-                        .add(new FakeProcessRun("/other/exe")
+                        .add(FakeProcessRun.get("/other/exe")
                             .setWorkingFolder("/working/")
                             .addArguments("apples", "ban anas"));
                     final ProcessBuilder builder = factory.getProcessBuilder("/other/exe").await()
@@ -167,7 +167,7 @@ public interface FakeProcessFactoryTests
                 runner.test("with fully matching fakeProcessRun", (Test test) ->
                 {
                     final FakeProcessFactory factory = new FakeProcessFactory(test.getParallelAsyncRunner(), "/working/")
-                        .add(new FakeProcessRun("/other/exe")
+                        .add(FakeProcessRun.get("/other/exe")
                             .setWorkingFolder("/working/")
                             .addArguments("apples", "ban anas")
                             .setFunction(() -> 3));
@@ -179,10 +179,10 @@ public interface FakeProcessFactoryTests
                 runner.test("with multiple partial matches", (Test test) ->
                 {
                     final FakeProcessFactory factory = new FakeProcessFactory(test.getParallelAsyncRunner(), "/working/")
-                        .add(new FakeProcessRun("/other/exe")
+                        .add(FakeProcessRun.get("/other/exe")
                             .addArguments("a", "b")
                             .setFunction(() -> 3))
-                        .add(new FakeProcessRun("/other/exe")
+                        .add(FakeProcessRun.get("/other/exe")
                             .addArguments("a", "b")
                             .setFunction(() -> 4));
                     final ProcessBuilder builder = factory.getProcessBuilder("/other/exe").await()
@@ -193,10 +193,10 @@ public interface FakeProcessFactoryTests
                 runner.test("with non-matching working folder path matches", (Test test) ->
                 {
                     final FakeProcessFactory factory = new FakeProcessFactory(test.getParallelAsyncRunner(), "/working/")
-                        .add(new FakeProcessRun("/other/exe")
+                        .add(FakeProcessRun.get("/other/exe")
                             .addArguments("a", "b")
                             .setFunction(() -> 3))
-                        .add(new FakeProcessRun("/other/exe")
+                        .add(FakeProcessRun.get("/other/exe")
                             .setWorkingFolder("/other/working/")
                             .addArguments("a", "b")
                             .setFunction(() -> 4));
@@ -208,7 +208,7 @@ public interface FakeProcessFactoryTests
                 runner.test("with function that throws", (Test test) ->
                 {
                     final FakeProcessFactory factory = new FakeProcessFactory(test.getParallelAsyncRunner(), "/working/")
-                        .add(new FakeProcessRun("/executable/file")
+                        .add(FakeProcessRun.get("/executable/file")
                             .setFunction(() ->
                             {
                                 throw new ParseException("blah");
@@ -222,7 +222,7 @@ public interface FakeProcessFactoryTests
                 {
                     final IntegerValue value = new IntegerValue(10);
                     final FakeProcessFactory factory = new FakeProcessFactory(test.getParallelAsyncRunner(), "/working/")
-                        .add(new FakeProcessRun("/executable/file")
+                        .add(FakeProcessRun.get("/executable/file")
                             .setFunction(() ->
                             {
                                 value.set(20);
@@ -236,7 +236,7 @@ public interface FakeProcessFactoryTests
                 runner.test("with function that reads from the fake process's standard input", (Test test) ->
                 {
                     final FakeProcessFactory factory = new FakeProcessFactory(test.getParallelAsyncRunner(), "/working/")
-                        .add(new FakeProcessRun("/executable/file")
+                        .add(FakeProcessRun.get("/executable/file")
                             .setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) ->
                             {
                                 return input.readAllBytes().await().length;
@@ -249,7 +249,7 @@ public interface FakeProcessFactoryTests
                 runner.test("with function that writes to the fake process's standard output", (Test test) ->
                 {
                     final FakeProcessFactory factory = new FakeProcessFactory(test.getParallelAsyncRunner(), "/working/")
-                        .add(new FakeProcessRun("/executable/file")
+                        .add(FakeProcessRun.get("/executable/file")
                             .setFunction((ByteWriteStream output) ->
                             {
                                 output.writeBytes(new byte[] { 10, 9, 8, 7 }).await();
@@ -268,7 +268,7 @@ public interface FakeProcessFactoryTests
                 runner.test("with function that writes to the fake process's standard error", (Test test) ->
                 {
                     final FakeProcessFactory factory = new FakeProcessFactory(test.getParallelAsyncRunner(), "/working/")
-                        .add(new FakeProcessRun("/executable/file")
+                        .add(FakeProcessRun.get("/executable/file")
                             .setFunction((ByteWriteStream output, ByteWriteStream error) ->
                             {
                                 error.writeBytes(new byte[] { 9, 8, 7, 6 }).await();

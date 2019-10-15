@@ -6,23 +6,24 @@ public interface FakeProcessRunTests
     {
         runner.testGroup(FakeProcessRun.class, () ->
         {
-            runner.testGroup("constructor(String)", () ->
+            runner.testGroup("get(String)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> new FakeProcessRun((String)null),
-                        new PreConditionFailure("pathString cannot be null."));
+                    test.assertThrows(() -> FakeProcessRun.get((String)null),
+                        new PreConditionFailure("executablePath cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    test.assertThrows(() -> new FakeProcessRun(""),
-                        new PreConditionFailure("pathString cannot be empty."));
+                    test.assertThrows(() -> FakeProcessRun.get(""),
+                        new PreConditionFailure("executablePath cannot be empty."));
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("testFile.exe");
+                    final FakeProcessRun fakeProcessRun = FakeProcessRun.get("testFile.exe");
+                    test.assertInstanceOf(fakeProcessRun, BasicFakeProcessRun.class);
                     test.assertEqual(Path.parse("testFile.exe"), fakeProcessRun.getExecutablePath());
                     test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
                     test.assertNull(fakeProcessRun.getWorkingFolderPath());
@@ -31,7 +32,8 @@ public interface FakeProcessRunTests
 
                 runner.test("with rooted path", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("/testFile.exe");
+                    final FakeProcessRun fakeProcessRun = FakeProcessRun.get("/testFile.exe");
+                    test.assertInstanceOf(fakeProcessRun, BasicFakeProcessRun.class);
                     test.assertEqual(Path.parse("/testFile.exe"), fakeProcessRun.getExecutablePath());
                     test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
                     test.assertNull(fakeProcessRun.getWorkingFolderPath());
@@ -39,17 +41,18 @@ public interface FakeProcessRunTests
                 });
             });
 
-            runner.testGroup("constructor(Path)", () ->
+            runner.testGroup("get(Path)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> new FakeProcessRun((Path)null),
+                    test.assertThrows(() -> FakeProcessRun.get((Path)null),
                         new PreConditionFailure("executableFilePath cannot be null."));
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun(Path.parse("testFile.exe"));
+                    final FakeProcessRun fakeProcessRun = FakeProcessRun.get(Path.parse("testFile.exe"));
+                    test.assertInstanceOf(fakeProcessRun, BasicFakeProcessRun.class);
                     test.assertEqual(Path.parse("testFile.exe"), fakeProcessRun.getExecutablePath());
                     test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
                     test.assertNull(fakeProcessRun.getWorkingFolderPath());
@@ -58,7 +61,8 @@ public interface FakeProcessRunTests
 
                 runner.test("with rooted path", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun(Path.parse("/testFile.exe"));
+                    final FakeProcessRun fakeProcessRun = FakeProcessRun.get(Path.parse("/testFile.exe"));
+                    test.assertInstanceOf(fakeProcessRun, BasicFakeProcessRun.class);
                     test.assertEqual(Path.parse("/testFile.exe"), fakeProcessRun.getExecutablePath());
                     test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
                     test.assertNull(fakeProcessRun.getWorkingFolderPath());
@@ -66,31 +70,38 @@ public interface FakeProcessRunTests
                 });
             });
 
-            runner.testGroup("constructor(File)", () ->
+            runner.testGroup("get(File)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> new FakeProcessRun((File)null),
-                        new NullPointerException());
+                    test.assertThrows(() -> FakeProcessRun.get((File)null),
+                        new PreConditionFailure("executableFile cannot be null."));
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     final File file = fileSystem.getFile("/testFile2.exe").await();
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun(file);
+                    final FakeProcessRun fakeProcessRun = FakeProcessRun.get(file);
+                    test.assertInstanceOf(fakeProcessRun, BasicFakeProcessRun.class);
                     test.assertEqual(Path.parse("/testFile2.exe"), fakeProcessRun.getExecutablePath());
                     test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
                     test.assertNull(fakeProcessRun.getWorkingFolderPath());
                     test.assertNull(fakeProcessRun.getFunction());
                 });
             });
+        });
+    }
 
+    static void test(TestRunner runner, Function1<String,FakeProcessRun> creator)
+    {
+        runner.testGroup(FakeProcessRun.class, () ->
+        {
             runner.testGroup("addArgument(String)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertThrows(() -> fakeProcessRun.addArgument(null),
                         new PreConditionFailure("argument cannot be null."));
                     test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
@@ -98,7 +109,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertThrows(() -> fakeProcessRun.addArgument(""),
                         new PreConditionFailure("argument cannot be empty."));
                     test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
@@ -106,14 +117,14 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.addArgument("apples"));
                     test.assertEqual(Iterable.create("apples"), fakeProcessRun.getArguments());
                 });
 
                 runner.test("with non-empty with spaces", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.addArgument("ap pl es"));
                     test.assertEqual(Iterable.create("ap pl es"), fakeProcessRun.getArguments());
                 });
@@ -123,7 +134,7 @@ public interface FakeProcessRunTests
             {
                 runner.test("with null array", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertThrows(() -> fakeProcessRun.addArguments((String[])null),
                         new PreConditionFailure("arguments cannot be null."));
                     test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
@@ -131,42 +142,42 @@ public interface FakeProcessRunTests
 
                 runner.test("with empty array", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.addArguments(new String[0]));
                     test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
                 });
 
                 runner.test("with one-element array", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.addArguments(new String[] { "a" }));
                     test.assertEqual(Iterable.create("a"), fakeProcessRun.getArguments());
                 });
 
                 runner.test("with two-element array", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.addArguments(new String[] { "a", "b" }));
                     test.assertEqual(Iterable.create("a", "b"), fakeProcessRun.getArguments());
                 });
 
                 runner.test("with no arguments", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.addArguments());
                     test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
                 });
 
                 runner.test("with one value", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.addArguments("a"));
                     test.assertEqual(Iterable.create("a"), fakeProcessRun.getArguments());
                 });
 
                 runner.test("with two values", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.addArguments("a", "b"));
                     test.assertEqual(Iterable.create("a", "b"), fakeProcessRun.getArguments());
                 });
@@ -176,7 +187,7 @@ public interface FakeProcessRunTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertThrows(() -> fakeProcessRun.addArguments((Iterable<String>)null),
                         new PreConditionFailure("arguments cannot be null."));
                     test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
@@ -184,21 +195,21 @@ public interface FakeProcessRunTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.addArguments(Iterable.create()));
                     test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
                 });
 
                 runner.test("with one value", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.addArguments(Iterable.create("a")));
                     test.assertEqual(Iterable.create("a"), fakeProcessRun.getArguments());
                 });
 
                 runner.test("with two values", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.addArguments(Iterable.create("a", "b")));
                     test.assertEqual(Iterable.create("a", "b"), fakeProcessRun.getArguments());
                 });
@@ -208,14 +219,14 @@ public interface FakeProcessRunTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setWorkingFolder((String)null));
                     test.assertNull(fakeProcessRun.getWorkingFolderPath());
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertThrows(() -> fakeProcessRun.setWorkingFolder(""),
                         new PreConditionFailure("workingFolderPath (\"\") must be either null or not empty."));
                     test.assertNull(fakeProcessRun.getWorkingFolderPath());
@@ -223,7 +234,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with relative path", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertThrows(() -> fakeProcessRun.setWorkingFolder("folder"),
                         new PreConditionFailure("workingFolderPath == null || workingFolderPath.isRooted() cannot be false."));
                     test.assertNull(fakeProcessRun.getWorkingFolderPath());
@@ -231,7 +242,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with rooted path", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setWorkingFolder("/folder"));
                     test.assertEqual(Path.parse("/folder"), fakeProcessRun.getWorkingFolderPath());
                 });
@@ -241,14 +252,14 @@ public interface FakeProcessRunTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setWorkingFolder((Path)null));
                     test.assertNull(fakeProcessRun.getWorkingFolderPath());
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertThrows(() -> fakeProcessRun.setWorkingFolder(Path.parse("folder")),
                         new PreConditionFailure("workingFolderPath == null || workingFolderPath.isRooted() cannot be false."));
                     test.assertNull(fakeProcessRun.getWorkingFolderPath());
@@ -256,7 +267,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with rooted path", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setWorkingFolder(Path.parse("/folder")));
                     test.assertEqual(Path.parse("/folder"), fakeProcessRun.getWorkingFolderPath());
                 });
@@ -266,7 +277,7 @@ public interface FakeProcessRunTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setWorkingFolder((Folder)null));
                     test.assertNull(fakeProcessRun.getWorkingFolderPath());
                 });
@@ -275,7 +286,7 @@ public interface FakeProcessRunTests
                 {
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     final Folder folder = fileSystem.getFolder("/folder").await();
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setWorkingFolder(folder));
                     test.assertEqual(Path.parse("/folder"), fakeProcessRun.getWorkingFolderPath());
                 });
@@ -283,7 +294,7 @@ public interface FakeProcessRunTests
 
             runner.test("setFunction(int)", (Test test) ->
             {
-                final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                final FakeProcessRun fakeProcessRun = creator.run("exe");
                 test.assertSame(fakeProcessRun, fakeProcessRun.setFunction(17));
                 test.assertNotNull(fakeProcessRun.getFunction());
                 final InMemoryByteStream input = new InMemoryByteStream();
@@ -298,7 +309,7 @@ public interface FakeProcessRunTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertThrows(() -> fakeProcessRun.setFunction((Action0)null),
                         new PreConditionFailure("action cannot be null."));
                     test.assertNull(fakeProcessRun.getFunction());
@@ -306,7 +317,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     final IntegerValue value = new IntegerValue(5);
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction(() -> { value.set(20); }));
                     test.assertNotNull(fakeProcessRun.getFunction());
@@ -321,7 +332,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-null that throws", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction(() -> { throw new ParseException("blah"); }));
                     test.assertNotNull(fakeProcessRun.getFunction());
                     final InMemoryByteStream input = new InMemoryByteStream();
@@ -338,7 +349,7 @@ public interface FakeProcessRunTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertThrows(() -> fakeProcessRun.setFunction((Function0<Integer>)null),
                         new PreConditionFailure("function cannot be null."));
                     test.assertNull(fakeProcessRun.getFunction());
@@ -346,7 +357,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     final IntegerValue value = new IntegerValue(5);
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction(() -> { value.set(20); return 7; }));
                     test.assertNotNull(fakeProcessRun.getFunction());
@@ -361,7 +372,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-null that throws", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((Function0<Integer>)() -> { throw new ParseException("blah"); }));
                     test.assertNotNull(fakeProcessRun.getFunction());
                     final InMemoryByteStream input = new InMemoryByteStream();
@@ -378,7 +389,7 @@ public interface FakeProcessRunTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertThrows(() -> fakeProcessRun.setFunction((Action1<ByteWriteStream>)null),
                         new PreConditionFailure("action cannot be null."));
                     test.assertNull(fakeProcessRun.getFunction());
@@ -386,7 +397,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteWriteStream output) -> { output.writeBytes(new byte[] { 1, 2, 3 }).await(); }));
                     test.assertNotNull(fakeProcessRun.getFunction());
                     final InMemoryByteStream input = new InMemoryByteStream();
@@ -399,7 +410,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-null that throws", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((Action1<ByteWriteStream>)(ByteWriteStream output) -> { throw new ParseException("blah"); }));
                     test.assertNotNull(fakeProcessRun.getFunction());
                     final InMemoryByteStream input = new InMemoryByteStream();
@@ -416,7 +427,7 @@ public interface FakeProcessRunTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertThrows(() -> fakeProcessRun.setFunction((Function1<ByteWriteStream,Integer>)null),
                         new PreConditionFailure("function cannot be null."));
                     test.assertNull(fakeProcessRun.getFunction());
@@ -424,7 +435,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteWriteStream output) -> { output.writeBytes(new byte[] { 1, 2 }).await(); return 100; }));
                     test.assertNotNull(fakeProcessRun.getFunction());
                     final InMemoryByteStream input = new InMemoryByteStream();
@@ -437,7 +448,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-null that throws", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((Function1<ByteWriteStream,Integer>)(ByteWriteStream output) -> { throw new ParseException("blah"); }));
                     test.assertNotNull(fakeProcessRun.getFunction());
                     final InMemoryByteStream input = new InMemoryByteStream();
@@ -454,7 +465,7 @@ public interface FakeProcessRunTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertThrows(() -> fakeProcessRun.setFunction((Action2<ByteWriteStream,ByteWriteStream>)null),
                         new PreConditionFailure("action cannot be null."));
                     test.assertNull(fakeProcessRun.getFunction());
@@ -462,7 +473,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteWriteStream output, ByteWriteStream error) ->
                     {
                         output.writeBytes(new byte[] { 1, 2, 3 }).await();
@@ -479,7 +490,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-null that throws", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((Action2<ByteWriteStream,ByteWriteStream>)(ByteWriteStream output, ByteWriteStream error) ->
                     {
                         throw new ParseException("blah");
@@ -499,7 +510,7 @@ public interface FakeProcessRunTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertThrows(() -> fakeProcessRun.setFunction((Function2<ByteWriteStream,ByteWriteStream,Integer>)null),
                         new PreConditionFailure("function cannot be null."));
                     test.assertNull(fakeProcessRun.getFunction());
@@ -507,7 +518,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteWriteStream output, ByteWriteStream error) ->
                     {
                         output.writeBytes(new byte[] { 1, 2, 3 }).await();
@@ -525,7 +536,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-null that throws", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((Function2<ByteWriteStream,ByteWriteStream,Integer>)(ByteWriteStream output, ByteWriteStream error) ->
                     {
                         throw new ParseException("blah");
@@ -545,7 +556,7 @@ public interface FakeProcessRunTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertThrows(() -> fakeProcessRun.setFunction((Action3<ByteReadStream,ByteWriteStream,ByteWriteStream>)null),
                         new PreConditionFailure("action cannot be null."));
                     test.assertNull(fakeProcessRun.getFunction());
@@ -553,7 +564,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) ->
                     {
                         output.writeAllBytes(input).await();
@@ -570,7 +581,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-null that throws", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((Action3<ByteReadStream,ByteWriteStream,ByteWriteStream>)(ByteReadStream input, ByteWriteStream output, ByteWriteStream error) ->
                     {
                         throw new ParseException("blah");
@@ -590,7 +601,7 @@ public interface FakeProcessRunTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertThrows(() -> fakeProcessRun.setFunction((Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer>)null),
                         new PreConditionFailure("function cannot be null."));
                     test.assertNull(fakeProcessRun.getFunction());
@@ -598,7 +609,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) ->
                     {
                         output.writeAllBytes(input).await();
@@ -616,7 +627,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-null that throws", (Test test) ->
                 {
-                    final FakeProcessRun fakeProcessRun = new FakeProcessRun("exe");
+                    final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer>)(ByteReadStream input, ByteWriteStream output, ByteWriteStream error) ->
                     {
                         throw new ParseException("blah");

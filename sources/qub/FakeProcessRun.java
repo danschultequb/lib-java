@@ -3,109 +3,73 @@ package qub;
 /**
  * A fake run of a process.
  */
-public class FakeProcessRun
+public interface FakeProcessRun
 {
-    private final Path executablePath;
-    private final List<String> arguments;
-    private Path workingFolderPath;
-    private Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer> function;
-    private Integer exitCode;
-
     /**
      * Create a new FakeProcessRun from the provided executablePath.
      * @param executablePath The path to the executable.
      */
-    public FakeProcessRun(String executablePath)
+    static FakeProcessRun get(String executablePath)
     {
-        this(Path.parse(executablePath));
+        PreCondition.assertNotNullAndNotEmpty(executablePath, "executablePath");
+
+        return FakeProcessRun.get(Path.parse(executablePath));
     }
 
     /**
      * Create a new FakeProcessRun from the provided executablePath.
      * @param executablePath The path to the executable.
      */
-    public FakeProcessRun(Path executablePath)
+    static FakeProcessRun get(Path executablePath)
     {
         PreCondition.assertNotNull(executablePath, "executableFilePath");
 
-        this.executablePath = executablePath;
-        this.arguments = List.create();
+        return new BasicFakeProcessRun(executablePath);
     }
 
     /**
      * Create a new FakeProcessRun from the provided executableFile.
      * @param executableFile The file to execute.
      */
-    public FakeProcessRun(File executableFile)
+    static FakeProcessRun get(File executableFile)
     {
-        this(executableFile.getPath());
+        PreCondition.assertNotNull(executableFile, "executableFile");
+
+        return FakeProcessRun.get(executableFile.getPath());
     }
 
     /**
      * Get the path to the executable.
      * @return The path to the executable.
      */
-    public Path getExecutablePath()
-    {
-        return this.executablePath;
-    }
+    Path getExecutablePath();
 
     /**
      * Add an argument to this FakeProcessRun.
      * @param argument The argument to add.
      * @return This object for method chaining.
      */
-    public FakeProcessRun addArgument(String argument)
-    {
-        PreCondition.assertNotNullAndNotEmpty(argument, "argument");
-
-        this.arguments.add(argument);
-
-        return this;
-    }
+    FakeProcessRun addArgument(String argument);
 
     /**
      * Add the provided arguments to this FakeProcessRun.
      * @param arguments The arguments to add.
      * @return This object for method chaining.
      */
-    public FakeProcessRun addArguments(String... arguments)
-    {
-        PreCondition.assertNotNull(arguments, "arguments");
-
-        for (final String argument : arguments)
-        {
-            this.addArgument(argument);
-        }
-
-        return this;
-    }
+    FakeProcessRun addArguments(String... arguments);
 
     /**
      * Add the provided arguments to this FakeProcessRun.
      * @param arguments The arguments to add.
      * @return This object for method chaining.
      */
-    public FakeProcessRun addArguments(Iterable<String> arguments)
-    {
-        PreCondition.assertNotNull(arguments, "arguments");
-
-        for (final String argument : arguments)
-        {
-            this.addArgument(argument);
-        }
-
-        return this;
-    }
+    FakeProcessRun addArguments(Iterable<String> arguments);
 
     /**
      * Get the arguments that have been added to this process.
      * @return The arguments that have been added to this process.
      */
-    public Iterable<String> getArguments()
-    {
-        return this.arguments;
-    }
+    Iterable<String> getArguments();
 
     /**
      * Set the folder path that the process will be run from. If null is provided, then this will
@@ -113,12 +77,7 @@ public class FakeProcessRun
      * @param workingFolderPath The folder path that the process was run from.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setWorkingFolder(String workingFolderPath)
-    {
-        PreCondition.assertNullOrNotEmpty(workingFolderPath, "workingFolderPath");
-
-        return this.setWorkingFolder(workingFolderPath == null ? null : Path.parse(workingFolderPath));
-    }
+    FakeProcessRun setWorkingFolder(String workingFolderPath);
 
     /**
      * Set the folder path that the process will be run from. If null is provided, then this will
@@ -126,14 +85,7 @@ public class FakeProcessRun
      * @param workingFolderPath The folder path that the process was run from.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setWorkingFolder(Path workingFolderPath)
-    {
-        PreCondition.assertTrue(workingFolderPath == null || workingFolderPath.isRooted(), "workingFolderPath == null || workingFolderPath.isRooted()");
-
-        this.workingFolderPath = workingFolderPath;
-
-        return this;
-    }
+    FakeProcessRun setWorkingFolder(Path workingFolderPath);
 
     /**
      * Set the folder that the process will be run from. If null is provided, then this will match
@@ -141,139 +93,81 @@ public class FakeProcessRun
      * @param workingFolder The folder that the process was run from.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setWorkingFolder(Folder workingFolder)
-    {
-        return this.setWorkingFolder(workingFolder == null ? null : workingFolder.getPath());
-    }
+    FakeProcessRun setWorkingFolder(Folder workingFolder);
 
     /**
      * Get the folder path that a matching process will run in. If this is null, then this will
      * match a process regardless of where it is run from.
-     * @return
+     * @return The folder that the process will run in.
      */
-    public Path getWorkingFolderPath()
-    {
-        return this.workingFolderPath;
-    }
+    Path getWorkingFolderPath();
 
     /**
      * Set the exit code that will be returned when this FakeProcessRun is invoked.
      * @param exitCode The exit code that will be returned by the fake process.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setFunction(int exitCode)
-    {
-        return this.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) -> exitCode);
-    }
+    FakeProcessRun setFunction(int exitCode);
 
     /**
      * Set the action that will be run when this FakeProcessRun is invoked.
      * @param action The action that will be run when this FakeProcessRun is invoked.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setFunction(Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        return this.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) -> action.run());
-    }
+    FakeProcessRun setFunction(Action0 action);
 
     /**
      * Set the action that will be run when this FakeProcessRun is invoked.
      * @param function The action that will be run when this FakeProcessRun is invoked.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setFunction(Function0<Integer> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        return this.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) -> function.run());
-    }
+    FakeProcessRun setFunction(Function0<Integer> function);
 
     /**
      * Set the action that will be run when this FakeProcessRun is invoked.
      * @param action The action that will be run when this FakeProcessRun is invoked.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setFunction(Action1<ByteWriteStream> action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        return this.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) -> action.run(output));
-    }
+    FakeProcessRun setFunction(Action1<ByteWriteStream> action);
 
     /**
      * Set the action that will be run when this FakeProcessRun is invoked.
      * @param function The action that will be run when this FakeProcessRun is invoked.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setFunction(Function1<ByteWriteStream,Integer> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        return this.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) -> function.run(output));
-    }
+    FakeProcessRun setFunction(Function1<ByteWriteStream,Integer> function);
 
     /**
      * Set the action that will be run when this FakeProcessRun is invoked.
      * @param action The action that will be run when this FakeProcessRun is invoked.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setFunction(Action2<ByteWriteStream,ByteWriteStream> action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        return this.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) -> action.run(output, error));
-    }
+    FakeProcessRun setFunction(Action2<ByteWriteStream,ByteWriteStream> action);
 
     /**
      * Set the action that will be run when this FakeProcessRun is invoked.
      * @param function The action that will be run when this FakeProcessRun is invoked.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setFunction(Function2<ByteWriteStream,ByteWriteStream,Integer> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        return this.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) -> function.run(output, error));
-    }
+    FakeProcessRun setFunction(Function2<ByteWriteStream,ByteWriteStream,Integer> function);
 
     /**
      * Set the action that will be run when this FakeProcessRun is invoked.
      * @param action The action that will be run when this FakeProcessRun is invoked.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setFunction(Action3<ByteReadStream,ByteWriteStream,ByteWriteStream> action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        return this.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) ->
-        {
-            action.run(input, output, error);
-            return 0;
-        });
-    }
+    FakeProcessRun setFunction(Action3<ByteReadStream,ByteWriteStream,ByteWriteStream> action);
 
     /**
      * Set the action that will be run when this FakeProcessRun is invoked.
      * @param function The action that will be run when this FakeProcessRun is invoked.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setFunction(Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        this.function = function;
-
-        return this;
-    }
+    FakeProcessRun setFunction(Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer> function);
 
     /**
      * The action that will be run when this FakeProcessRun is invoked.
      * @return The action that will be run when this FakeProcessRun is invoked.
      */
-    public Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer> getFunction()
-    {
-        return this.function;
-    }
+    Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer> getFunction();
 }
