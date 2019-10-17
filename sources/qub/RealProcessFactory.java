@@ -38,23 +38,24 @@ public class RealProcessFactory implements ProcessFactory
 
         return Result.create(() ->
         {
-            final File executableFile = findExecutableFile(executablePath, true)
-                .catchError(FileNotFoundException.class, () -> findExecutableFile(executablePath, false).await())
-                .await();
-            return new BasicProcessBuilder(this, executableFile.getPath(), this.currentFolder.getPath());
+            return new BasicProcessBuilder(this, executablePath, this.currentFolder.getPath());
         });
     }
 
     @Override
     public Result<Integer> run(Path executablePath, Iterable<String> arguments, Path workingFolderPath, ByteReadStream redirectedInputStream, Action1<ByteReadStream> redirectOutputAction, Action1<ByteReadStream> redirectErrorAction)
     {
-        PreCondition.assertNotNull(executablePath, "executableFile");
+        PreCondition.assertNotNull(executablePath, "executablePath");
         PreCondition.assertNotNull(arguments, "arguments");
         PreCondition.assertNotNull(workingFolderPath, "workingFolderPath");
 
         return Result.create(() ->
         {
-            final java.lang.ProcessBuilder builder = new java.lang.ProcessBuilder(executablePath.toString());
+            final File executableFile = findExecutableFile(executablePath, true)
+                .catchError(FileNotFoundException.class, () -> findExecutableFile(executablePath, false).await())
+                .await();
+
+            final java.lang.ProcessBuilder builder = new java.lang.ProcessBuilder(executableFile.toString());
 
             if (arguments.any())
             {

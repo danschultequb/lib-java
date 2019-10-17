@@ -98,20 +98,6 @@ public interface FakeProcessFactoryTests
                 });
             });
 
-            runner.testGroup("getProcessBuilder(File)", () ->
-            {
-                runner.test("with non-matching file", (Test test) ->
-                {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
-                    final File executableFile = fileSystem.getFile("/executable").await();
-
-                    final FakeProcessFactory factory = new FakeProcessFactory(test.getParallelAsyncRunner(), fileSystem.getFolder("/working/").await());
-                    final ProcessBuilder builder = factory.getProcessBuilder(executableFile).await();
-                    test.assertThrows(() -> builder.run().await(),
-                        new NotFoundException("No fake process run found for \"/working/: /executable\"."));
-                });
-            });
-
             runner.testGroup("run()", () ->
             {
                 runner.test("with no fakeProcessRuns", (Test test) ->

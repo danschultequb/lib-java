@@ -137,8 +137,6 @@ public interface AssertionMessages
 
     static <T> String oneOf(T value, T[] possibleValues, String expressionName)
     {
-        PreCondition.assertNotNullAndNotEmpty(possibleValues, "possibleValues");
-
         final StringBuilder builder = new StringBuilder();
         builder.append(expressionName + " (" + Objects.toString(value) + ") must be ");
         if (possibleValues.length == 1)
@@ -162,19 +160,30 @@ public interface AssertionMessages
         return builder.toString();
     }
 
-    static <T> String oneOf(T value, Iterable<T> values, String expressionName)
+    static <T> String oneOf(T value, Iterable<T> possibleValues, String expressionName)
     {
         final StringBuilder builder = new StringBuilder();
-        builder.append(expressionName + " (" + value + ") must be either");
-        for (final T acceptableValue : values.skipLast())
+        builder.append(expressionName + " (" + Objects.toString(value) + ") must be ");
+        final int possibleValuesCount = possibleValues.getCount();
+        final T lastPossibleValue = possibleValues.last();
+        if (possibleValuesCount == 1)
         {
-            builder.append(" " + acceptableValue);
-            if (values.getCount() > 2)
-            {
-                builder.append(",");
-            }
+            builder.append(lastPossibleValue);
         }
-        builder.append(" or " + values.last() + ".");
+        else
+        {
+            builder.append("either");
+            for (final T possibleValue : possibleValues.skipLast())
+            {
+                builder.append(" " + possibleValue);
+                if (possibleValuesCount > 2)
+                {
+                    builder.append(",");
+                }
+            }
+            builder.append(" or " + lastPossibleValue);
+        }
+        builder.append(".");
         return builder.toString();
     }
 }

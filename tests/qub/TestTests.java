@@ -2176,6 +2176,50 @@ public interface TestTests
                     "Actual value (z) must be either a, b, or c.")));
             });
 
+            runner.testGroup("assertOneOf(Iterable<T>,T)", () ->
+            {
+                final Action3<Iterable<String>,String,Throwable> assertOneOfTest = (Iterable<String> possibleValues, String value, Throwable expectedError) ->
+                {
+                    runner.test("with " + Objects.toString(possibleValues) + " and " + value, (Test test) ->
+                    {
+                        final Test t = createTest("abc", test);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(() -> t.assertOneOf(possibleValues, value), expectedError);
+                        }
+                        else
+                        {
+                            t.assertOneOf(possibleValues, value);
+                        }
+                    });
+                };
+
+                assertOneOfTest.run(null, null, new PreConditionFailure("possibleValues cannot be null."));
+                assertOneOfTest.run(Iterable.create(), null, new PreConditionFailure("possibleValues cannot be empty."));
+                assertOneOfTest.run(Iterable.create((String)null), null, null);
+                assertOneOfTest.run(Iterable.create("a"), null, new TestError("abc", Iterable.create(
+                    "Actual value (null) must be a.")));
+                assertOneOfTest.run(Iterable.create("a", "b"), null, new TestError("abc", Iterable.create(
+                    "Actual value (null) must be either a or b.")));
+                assertOneOfTest.run(Iterable.create("a", "b", "c"), null, new TestError("abc", Iterable.create(
+                    "Actual value (null) must be either a, b, or c.")));
+
+                assertOneOfTest.run(Iterable.create((String)null), "a", new TestError("abc", Iterable.create(
+                    "Actual value (a) must be null.")));
+                assertOneOfTest.run(Iterable.create("a"), "a", null);
+                assertOneOfTest.run(Iterable.create("a"), "z", new TestError("abc", Iterable.create(
+                    "Actual value (z) must be a.")));
+                assertOneOfTest.run(Iterable.create("a", "b"), "a", null);
+                assertOneOfTest.run(Iterable.create("a", "b"), "b", null);
+                assertOneOfTest.run(Iterable.create("a", "b"), "z", new TestError("abc", Iterable.create(
+                    "Actual value (z) must be either a or b.")));
+                assertOneOfTest.run(Iterable.create("a", "b", "c"), "a", null);
+                assertOneOfTest.run(Iterable.create("a", "b", "c"), "b", null);
+                assertOneOfTest.run(Iterable.create("a", "b", "c"), "c", null);
+                assertOneOfTest.run(Iterable.create("a", "b", "c"), "z", new TestError("abc", Iterable.create(
+                    "Actual value (z) must be either a, b, or c.")));
+            });
+
             runner.testGroup("fail(String)", () ->
             {
                 runner.test("with null", (Test test) ->

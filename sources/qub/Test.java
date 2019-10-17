@@ -1165,9 +1165,21 @@ public class Test
 
     public <T> void assertOneOf(T[] possibleValues, T value)
     {
-        PreCondition.assertNotNull(possibleValues, "possibleValues");
+        PreCondition.assertNotNullAndNotEmpty(possibleValues, "possibleValues");
 
         if (!Array.contains(possibleValues, value))
+        {
+            throw new TestError(
+                getFullName(),
+                AssertionMessages.oneOf(value, possibleValues, "Actual value"));
+        }
+    }
+
+    public <T> void assertOneOf(Iterable<T> possibleValues, T value)
+    {
+        PreCondition.assertNotNullAndNotEmpty(possibleValues, "possibleValues");
+
+        if (!possibleValues.contains(value))
         {
             throw new TestError(
                 getFullName(),

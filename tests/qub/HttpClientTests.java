@@ -34,7 +34,7 @@ public class HttpClientTests
                         test.assertEqual("OK", httpResponse.getReasonPhrase());
                         test.assertNotNull(httpResponse.getHeaders());
                         final String contentLength = httpResponse.getHeaders().getValue("content-length").await();
-                        test.assertEqual("606", contentLength);
+                        test.assertOneOf(Iterable.create("648", "1256"), contentLength);
                         try (final ByteReadStream responseBody = httpResponse.getBody())
                         {
                             test.assertNotNull(responseBody);
@@ -56,7 +56,7 @@ public class HttpClientTests
                         test.assertEqual("OK", httpResponse.getReasonPhrase());
                         test.assertNotNull(httpResponse.getHeaders());
                         final String contentLength = httpResponse.getHeaders().getValue("content-length").await();
-                        test.assertOneOf(new String[]{"1164", "1270"}, contentLength);
+                        test.assertOneOf(Iterable.create("1164", "1256", "1270"), contentLength);
                         test.assertNotNull(httpResponse.getBody());
                         final String bodyString = httpResponse.getBody().asCharacterReadStream().readEntireString().await();
                         test.assertNotNull(bodyString);

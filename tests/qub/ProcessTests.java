@@ -464,7 +464,7 @@ public interface ProcessTests
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("pom.xml").await();
                         test.assertNotNull(builder);
-                        test.assertEqual(process.getCurrentFolder().await().getFile("pom.xml").await().getPath(), builder.getExecutablePath());
+                        test.assertEqual(Path.parse("pom.xml"), builder.getExecutablePath());
                         test.assertEqual(Iterable.create(), builder.getArguments());
                     }
                 });
@@ -475,7 +475,7 @@ public interface ProcessTests
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("pom").await();
                         test.assertNotNull(builder, "The builder not have been null.");
-                        test.assertEqual(process.getCurrentFolder().await().getFile("pom.xml").await().getPath(), builder.getExecutablePath());
+                        test.assertEqual(Path.parse("pom"), builder.getExecutablePath());
                         test.assertEqual(Iterable.create(), builder.getArguments());
                     }
                 });
@@ -487,7 +487,7 @@ public interface ProcessTests
                         final Path executablePath = process.getCurrentFolder().await().getFile("pom.xml").await().getPath();
                         final ProcessBuilder builder = process.getProcessBuilder(executablePath).await();
                         test.assertNotNull(builder);
-                        test.assertEqual(process.getCurrentFolder().await().getFile("pom.xml").await().getPath(), builder.getExecutablePath());
+                        test.assertEqual(executablePath, builder.getExecutablePath());
                         test.assertEqual(Iterable.create(), builder.getArguments());
                     }
                 });
@@ -499,7 +499,7 @@ public interface ProcessTests
                         final Path executablePath = process.getCurrentFolder().await().getFile("pom").await().getPath();
                         final ProcessBuilder builder = process.getProcessBuilder(executablePath).await();
                         test.assertNotNull(builder);
-                        test.assertEqual(process.getCurrentFolder().await().getFile("pom.xml").await().getPath(), builder.getExecutablePath());
+                        test.assertEqual(executablePath, builder.getExecutablePath());
                         test.assertEqual(Iterable.create(), builder.getArguments());
                     }
                 });
@@ -668,7 +668,7 @@ public interface ProcessTests
                         if (process.onWindows())
                         {
                             final ProcessBuilder builder = process.getProcessBuilder("qub").await();
-                            test.assertTrue(builder.getExecutablePath().getSegments().last().contains("qub."));
+                            test.assertEqual(Path.parse("qub"), builder.getExecutablePath());
                             test.assertEqual(Iterable.create(), builder.getArguments());
 
                             final InMemoryByteStream output = new InMemoryByteStream();

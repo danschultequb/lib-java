@@ -2,17 +2,19 @@ package qub;
 
 public interface RealProcessFactoryTests
 {
+    static RealProcessFactory create(Test test)
+    {
+        final AsyncRunner parallelAsyncRunner = test.getParallelAsyncRunner();
+        final EnvironmentVariables environmentVariables = test.getProcess().getEnvironmentVariables();
+        final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+        return new RealProcessFactory(parallelAsyncRunner, environmentVariables, currentFolder);
+    }
+
     static void test(TestRunner runner)
     {
         runner.testGroup(RealProcessFactory.class, () ->
         {
-            ProcessFactoryTests.test(runner, (Test test) ->
-            {
-                final AsyncRunner parallelAsyncRunner = test.getParallelAsyncRunner();
-                final EnvironmentVariables environmentVariables = test.getProcess().getEnvironmentVariables();
-                final Folder currentFolder = test.getProcess().getCurrentFolder().await();
-                return new RealProcessFactory(parallelAsyncRunner, environmentVariables, currentFolder);
-            });
+            ProcessFactoryTests.test(runner, RealProcessFactoryTests::create);
 
             runner.testGroup("constructor", () ->
             {
@@ -50,6 +52,16 @@ public interface RealProcessFactoryTests
                     final Folder currentFolder = test.getProcess().getCurrentFolder().await();
                     final RealProcessFactory factory = new RealProcessFactory(parallelAsyncRunner, environmentVariables, currentFolder);
                     test.assertNotNull(factory);
+                });
+            });
+
+            runner.testGroup("run()", () ->
+            {
+                runner.test("with not found executablePath", (Test test) ->
+                {
+                    final RealProcessFactory factory = RealProcessFactoryTests.create(test);
+                    test.assertThrows(() -> factory.run(Path.parse("doesntExist"), Iterable.create(), test.getProcess().getCurrentFolderPath(), null, null, null).await(),
+                        new FileNotFoundException("doesntExist"));
                 });
             });
         });
