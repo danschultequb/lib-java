@@ -6,6 +6,18 @@ package qub;
 public interface ProcessArguments<T>
 {
     /**
+     * Get the path to the executable that this ProcessBuilder will invoke.
+     * @return The path to the executable that this ProcessBuilder will invoke.
+     */
+    Path getExecutablePath();
+
+    /**
+     * Get the path to the folder that this ProcessBuilder will run the executable in.
+     * @return The path to the folder that this ProcessBuilder will run the executable in.
+     */
+    Path getWorkingFolderPath();
+
+    /**
      * Add the provided argument to the list of arguments that will be provided to the executable
      * when this ProcessBuilder is run.
      * @param argument The argument to add.
