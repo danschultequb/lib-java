@@ -3,7 +3,7 @@ package qub;
 /**
  * A fake run of a process.
  */
-public interface FakeProcessRun extends ProcessArguments<FakeProcessRun>
+public interface FakeProcessRun
 {
     /**
      * Create a new FakeProcessRun from the provided executablePath.

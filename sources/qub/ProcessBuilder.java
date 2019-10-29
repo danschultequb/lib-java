@@ -3,7 +3,7 @@ package qub;
 /**
  * A builder that can be used to initialize the parameters needed to invoke an external process.
  */
-public interface ProcessBuilder extends ProcessArguments<ProcessBuilder>
+public interface ProcessBuilder
 {
     /**
      * Run the executable path with the provided arguments. Return the process's exit code.
