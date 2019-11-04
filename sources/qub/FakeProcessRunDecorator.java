@@ -27,7 +27,7 @@ public class FakeProcessRunDecorator<T extends FakeProcessRun> implements FakePr
 
     @Override
     @SuppressWarnings("unchecked")
-    public FakeProcessRun addArguments(String... arguments)
+    public T addArguments(String... arguments)
     {
         this.fakeProcessRun.addArguments(arguments);
         return (T)this;
@@ -35,7 +35,7 @@ public class FakeProcessRunDecorator<T extends FakeProcessRun> implements FakePr
 
     @Override
     @SuppressWarnings("unchecked")
-    public FakeProcessRun addArguments(Iterable<String> arguments)
+    public T addArguments(Iterable<String> arguments)
     {
         this.fakeProcessRun.addArguments(arguments);
         return (T)this;
