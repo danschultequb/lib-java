@@ -16,7 +16,6 @@ public class Process implements Disposable
     private final Value<CharacterReadStream> inputCharacterReadStream;
     private final Value<CharacterEncoding> characterEncoding;
     private final Value<String> lineSeparator;
-
     private final Value<Random> random;
     private final Value<FileSystem> fileSystem;
     private final Value<Network> network;
@@ -27,6 +26,7 @@ public class Process implements Disposable
     private final Value<Clock> clock;
     private final Value<Iterable<Display>> displays;
     private final Value<ProcessFactory> processFactory;
+    private final Value<DefaultApplicationLauncher> defaultApplicationLauncher;
 
     private final AsyncScheduler mainAsyncRunner;
     private final AsyncScheduler parallelAsyncRunner;
@@ -80,6 +80,7 @@ public class Process implements Disposable
         clock = Value.create();
         displays = Value.create();
         processFactory = Value.create();
+        this.defaultApplicationLauncher = Value.create();
 
         this.mainAsyncRunner = mainAsyncRunner;
         CurrentThread.setAsyncRunner(mainAsyncRunner);
@@ -691,6 +692,76 @@ public class Process implements Disposable
         PreCondition.assertNotNull(executableFile, "executableFile");
 
         return this.getProcessFactory().getProcessBuilder(executableFile);
+    }
+
+    /**
+     * Get the DefaultApplicationLauncher that will be used to open files with their registered
+     * default application.
+     * @return The DefaultApplicationLauncher that will be used to open files with their registered
+     * default application.
+     */
+    public DefaultApplicationLauncher getDefaultApplicationLauncher()
+    {
+        if (!this.defaultApplicationLauncher.hasValue())
+        {
+            this.defaultApplicationLauncher.set(new RealDefaultApplicationLauncher());
+        }
+        return this.defaultApplicationLauncher.get();
+    }
+
+    /**
+     * Set the DefaultApplicationLauncher that will be used to open files with their registered
+     * default application.
+     * @param defaultApplicationLauncher The DefaultApplicationLauncher that will be used to open files with their
+     *                                   registered default application.
+     * @return This object for method chaining.
+     */
+    public Process setDefaultApplicationLauncher(DefaultApplicationLauncher defaultApplicationLauncher)
+    {
+        PreCondition.assertNotNull(defaultApplicationLauncher, "defaultApplicationLauncher");
+
+        this.defaultApplicationLauncher.set(defaultApplicationLauncher);
+
+        return this;
+    }
+
+    /**
+     * Open the provided file path with the registered default application.
+     * @param filePathToOpen The file path to open.
+     * @return The result of opening the file path.
+     */
+    public Result<Void> openFileWithDefaultApplication(String filePathToOpen)
+    {
+        PreCondition.assertNotNullAndNotEmpty(filePathToOpen, "file");
+
+        final DefaultApplicationLauncher launcher = this.getDefaultApplicationLauncher();
+        return launcher.openFileWithDefaultApplication(filePathToOpen);
+    }
+
+    /**
+     * Open the provided file path with the registered default application.
+     * @param filePathToOpen The file path to open.
+     * @return The result of opening the file path.
+     */
+    public Result<Void> openFileWithDefaultApplication(Path filePathToOpen)
+    {
+        PreCondition.assertNotNull(filePathToOpen, "file");
+
+        final DefaultApplicationLauncher launcher = this.getDefaultApplicationLauncher();
+        return launcher.openFileWithDefaultApplication(filePathToOpen);
+    }
+
+    /**
+     * Open the provided file with the registered default application.
+     * @param file The file to open.
+     * @return The result of opening the file.
+     */
+    public Result<Void> openFileWithDefaultApplication(File file)
+    {
+        PreCondition.assertNotNull(file, "file");
+
+        final DefaultApplicationLauncher launcher = this.getDefaultApplicationLauncher();
+        return launcher.openFileWithDefaultApplication(file);
     }
 
     /**

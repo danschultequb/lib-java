@@ -8,7 +8,7 @@ public interface AsyncSchedulerTests
         {
             runner.testGroup("schedule(Action0)", () ->
             {
-                runner.test("with null action", (Test test) ->
+                runner.test("with null  action", (Test test) ->
                 {
                     CurrentThread.withAsyncScheduler(creator, (AsyncScheduler asyncScheduler) ->
                     {
