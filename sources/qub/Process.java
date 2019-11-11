@@ -253,7 +253,7 @@ public class Process implements Disposable
     {
         if (!lineSeparator.hasValue())
         {
-            lineSeparator.set(onWindows() ? "\r\n" : "\n");
+            lineSeparator.set(this.onWindows().await() ? "\r\n" : "\n");
         }
         return lineSeparator.get();
     }
@@ -765,13 +765,40 @@ public class Process implements Disposable
     }
 
     /**
+     * Get the System property with the provided name.
+     * @param systemPropertyName The name of the System property to get.
+     * @return The value of the System property.
+     */
+    public Result<String> getSystemProperty(String systemPropertyName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(systemPropertyName, "systemPropertyName");
+
+        final String systemPropertyValue = java.lang.System.getProperty(systemPropertyName);
+        return systemPropertyValue == null
+            ? Result.error(new NotFoundException("No system property found with the name " + Strings.escapeAndQuote(systemPropertyName) + "."))
+            : Result.success(systemPropertyValue);
+    }
+
+    /**
      * Get whether or not this application is running in a Windows environment.
      * @return Whether or not this application is running in a Windows environment.
      */
-    public boolean onWindows()
+    public Result<Boolean> onWindows()
     {
-        final String osName = System.getProperty("os.name");
-        return osName.toLowerCase().contains("windows");
+        return Result.create(() ->
+        {
+            final String osName = this.getSystemProperty("os.name").await();
+            return osName.toLowerCase().contains("windows");
+        });
+    }
+
+    /**
+     * Get the classpath that was provided to this application's JVM when it was started.
+     * @return The classpath that was provided to this application's JVM when it was started.
+     */
+    public Result<String> getJVMClasspath()
+    {
+        return this.getSystemProperty("java.class.path");
     }
 
     @Override

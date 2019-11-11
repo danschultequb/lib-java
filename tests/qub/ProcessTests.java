@@ -77,7 +77,7 @@ public interface ProcessTests
             runner.test("getLineSeparator()", (Test test) ->
             {
                 final Process process = creator.run();
-                test.assertEqual(process.onWindows() ? "\r\n" : "\n", process.getLineSeparator());
+                test.assertEqual(process.onWindows().await() ? "\r\n" : "\n", process.getLineSeparator());
 
                 process.setLineSeparator("\r\n");
                 test.assertEqual("\r\n", process.getLineSeparator());
@@ -508,7 +508,7 @@ public interface ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        if (process.onWindows())
+                        if (process.onWindows().await())
                         {
                             final ProcessBuilder builder = process.getProcessBuilder("C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe").await();
                             test.assertEqual("javac.exe", builder.getExecutablePath().getSegments().last());
@@ -522,7 +522,7 @@ public interface ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        if (process.onWindows())
+                        if (process.onWindows().await())
                         {
                             final FileSystem fileSystem = process.getFileSystem();
                             final File executableFile = fileSystem.getFile("C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe").await();
@@ -541,7 +541,7 @@ public interface ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        if (process.onWindows())
+                        if (process.onWindows().await())
                         {
                             final ProcessBuilder builder = process.getProcessBuilder("javac.exe").await();
                             test.assertEqual("javac.exe", builder.getExecutablePath().getSegments().last());
@@ -555,7 +555,7 @@ public interface ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        if (process.onWindows())
+                        if (process.onWindows().await())
                         {
                             process.setProcessFactory(new FakeProcessFactory(test.getParallelAsyncRunner(), process.getCurrentFolderPath())
                                 .add(FakeProcessRun.get("javac.exe")
@@ -572,7 +572,7 @@ public interface ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        if (process.onWindows())
+                        if (process.onWindows().await())
                         {
                             final ProcessBuilder builder = process.getProcessBuilder("javac").await();
                             test.assertTrue(builder.getExecutablePath().getSegments().last().startsWith("javac"));
@@ -665,7 +665,7 @@ public interface ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        if (process.onWindows())
+                        if (process.onWindows().await())
                         {
                             final ProcessBuilder builder = process.getProcessBuilder("qub").await();
                             test.assertEqual(Path.parse("qub"), builder.getExecutablePath());
@@ -687,7 +687,7 @@ public interface ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        if (process.onWindows())
+                        if (process.onWindows().await())
                         {
                             final ProcessBuilder builder = process.getProcessBuilder("javac").await();
                             builder.addArgument("notfound.java");
@@ -702,6 +702,60 @@ public interface ProcessTests
                         }
                     }
                 });
+            });
+
+            runner.testGroup("getSystemProperty()", () ->
+            {
+                runner.test("with null systemPropertyName", (Test test) ->
+                {
+                    try (final Process process = creator.run())
+                    {
+                        test.assertThrows(() -> process.getSystemProperty(null),
+                            new PreConditionFailure("systemPropertyName cannot be null."));
+                    }
+                });
+
+                runner.test("with empty systemPropertyName", (Test test) ->
+                {
+                    try (final Process process = creator.run())
+                    {
+                        test.assertThrows(() -> process.getSystemProperty(""),
+                            new PreConditionFailure("systemPropertyName cannot be empty."));
+                    }
+                });
+
+                runner.test("with not-found systemPropertyName", (Test test) ->
+                {
+                    try (final Process process = creator.run())
+                    {
+                        test.assertThrows(() -> process.getSystemProperty("apples-and-bananas").await(),
+                            new NotFoundException("No system property found with the name \"apples-and-bananas\"."));
+                    }
+                });
+
+                runner.test("with found systemPropertyName", (Test test) ->
+                {
+                    try (final Process process = creator.run())
+                    {
+                        test.assertNotNullAndNotEmpty(process.getSystemProperty("os.name").await());
+                    }
+                });
+            });
+
+            runner.test("onWindows()", (Test test) ->
+            {
+                try (final Process process = creator.run())
+                {
+                    test.assertNotNull(process.onWindows().await());
+                }
+            });
+
+            runner.test("getJVMClasspath()", (Test test) ->
+            {
+                try (final Process process = creator.run())
+                {
+                    test.assertNotNullAndNotEmpty(process.getJVMClasspath().await());
+                }
             });
         });
     }
