@@ -757,6 +757,20 @@ public interface ProcessTests
                     test.assertNotNullAndNotEmpty(process.getJVMClasspath().await());
                 }
             });
+
+            runner.test("setJVMClasspath()", (Test test) ->
+            {
+                final String originalJvmClassPath = test.getProcess().getJVMClasspath().await();
+                try (final Process process = creator.run())
+                {
+                    test.assertEqual(originalJvmClassPath, process.getJVMClasspath().await());
+
+                    test.assertSame(process, process.setJVMClasspath("hello"));
+
+                    test.assertEqual("hello", process.getJVMClasspath().await());
+                    test.assertEqual(originalJvmClassPath, test.getProcess().getJVMClasspath().await());
+                }
+            });
         });
     }
 }

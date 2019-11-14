@@ -39,7 +39,7 @@ public interface CommandLineParametersTests
                 });
             });
 
-            runner.testGroup("addString(String,String)", () ->
+            runner.testGroup("addString(String)", () ->
             {
                 runner.test("with null parameterName", (Test test) ->
                 {
@@ -70,7 +70,38 @@ public interface CommandLineParametersTests
                 });
             });
 
-            runner.testGroup("addPositionString(String,String)", () ->
+            runner.testGroup("addString(String,String)", () ->
+            {
+                runner.test("with null parameterName", (Test test) ->
+                {
+                    final CommandLineParameters parameters = new CommandLineParameters();
+                    test.assertThrows(() -> parameters.addString(null, "hello"),
+                        new PreConditionFailure("parameterName cannot be null."));
+                });
+
+                runner.test("with empty parameterName", (Test test) ->
+                {
+                    final CommandLineParameters parameters = new CommandLineParameters();
+                    test.assertThrows(() -> parameters.addString("", "hello"),
+                        new PreConditionFailure("parameterName cannot be empty."));
+                });
+
+                runner.test("with non-empty parameterName", (Test test) ->
+                {
+                    final CommandLineParameters parameters = new CommandLineParameters();
+                    final CommandLineParameter<String> parameter = parameters.addString("fakeName", "hello");
+                    test.assertNotNull(parameter);
+                    test.assertEqual("fakeName", parameter.getName());
+                    test.assertNull(parameter.getDescription());
+                    test.assertNull(parameter.getIndex());
+                    test.assertEqual(Iterable.create(), parameter.getAliases());
+                    test.assertFalse(parameter.isRequired());
+                    test.assertTrue(parameter.isValueRequired());
+                    test.assertNull(parameter.getArguments());
+                });
+            });
+
+            runner.testGroup("addPositionString(String)", () ->
             {
                 runner.test("with null parameterName", (Test test) ->
                 {

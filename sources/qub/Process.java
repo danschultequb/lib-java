@@ -27,6 +27,7 @@ public class Process implements Disposable
     private final Value<Iterable<Display>> displays;
     private final Value<ProcessFactory> processFactory;
     private final Value<DefaultApplicationLauncher> defaultApplicationLauncher;
+    private final MutableMap<String,String> systemProperties;
 
     private final AsyncScheduler mainAsyncRunner;
     private final AsyncScheduler parallelAsyncRunner;
@@ -61,26 +62,27 @@ public class Process implements Disposable
 
         this.commandLineArguments = commandLineArguments;
 
-        outputByteWriteStream = Value.create();
-        errorByteWriteStream = Value.create();
-        inputByteReadStream = Value.create();
-        outputCharacterWriteStream = Value.create();
-        errorCharacterWriteStream = Value.create();
-        inputCharacterReadStream = Value.create();
-        characterEncoding = Value.create();
-        lineSeparator = Value.create();
+        this.outputByteWriteStream = Value.create();
+        this.errorByteWriteStream = Value.create();
+        this.inputByteReadStream = Value.create();
+        this.outputCharacterWriteStream = Value.create();
+        this.errorCharacterWriteStream = Value.create();
+        this.inputCharacterReadStream = Value.create();
+        this.characterEncoding = Value.create();
+        this.lineSeparator = Value.create();
 
-        random = Value.create();
-        fileSystem = Value.create();
-        network = Value.create();
-        currentFolderPathString = Value.create();
-        environmentVariables = Value.create();
-        synchronization = Value.create();
-        stopwatchCreator = Value.create();
-        clock = Value.create();
-        displays = Value.create();
-        processFactory = Value.create();
+        this.random = Value.create();
+        this.fileSystem = Value.create();
+        this.network = Value.create();
+        this.currentFolderPathString = Value.create();
+        this.environmentVariables = Value.create();
+        this.synchronization = Value.create();
+        this.stopwatchCreator = Value.create();
+        this.clock = Value.create();
+        this.displays = Value.create();
+        this.processFactory = Value.create();
         this.defaultApplicationLauncher = Value.create();
+        this.systemProperties = Map.create();
 
         this.mainAsyncRunner = mainAsyncRunner;
         CurrentThread.setAsyncRunner(mainAsyncRunner);
@@ -507,14 +509,7 @@ public class Process implements Disposable
     {
         if (!stopwatchCreator.hasValue())
         {
-            stopwatchCreator.set(new Function0<Stopwatch>()
-            {
-                @Override
-                public Stopwatch run()
-                {
-                    return new JavaStopwatch();
-                }
-            });
+            stopwatchCreator.set(JavaStopwatch::new);
         }
         return stopwatchCreator.get() == null ? null : stopwatchCreator.get().run();
     }
@@ -764,6 +759,16 @@ public class Process implements Disposable
         return launcher.openFileWithDefaultApplication(file);
     }
 
+    public Process setSystemProperty(String systemPropertyName, String systemPropertyValue)
+    {
+        PreCondition.assertNotNullAndNotEmpty(systemPropertyName, "systemPropertyName");
+        PreCondition.assertNotNull(systemPropertyValue, "systemPropertyValue");
+
+        this.systemProperties.set(systemPropertyName, systemPropertyValue);
+
+        return this;
+    }
+
     /**
      * Get the System property with the provided name.
      * @param systemPropertyName The name of the System property to get.
@@ -773,10 +778,16 @@ public class Process implements Disposable
     {
         PreCondition.assertNotNullAndNotEmpty(systemPropertyName, "systemPropertyName");
 
-        final String systemPropertyValue = java.lang.System.getProperty(systemPropertyName);
-        return systemPropertyValue == null
-            ? Result.error(new NotFoundException("No system property found with the name " + Strings.escapeAndQuote(systemPropertyName) + "."))
-            : Result.success(systemPropertyValue);
+        return this.systemProperties.get(systemPropertyName)
+                .catchError(NotFoundException.class, () ->
+                {
+                    final String systemPropertyValue = java.lang.System.getProperty(systemPropertyName);
+                    if (systemPropertyValue == null)
+                    {
+                        throw new NotFoundException("No system property found with the name " + Strings.escapeAndQuote(systemPropertyName) + ".");
+                    }
+                    return systemPropertyValue;
+                });
     }
 
     /**
@@ -799,6 +810,18 @@ public class Process implements Disposable
     public Result<String> getJVMClasspath()
     {
         return this.getSystemProperty("java.class.path");
+    }
+
+    /**
+     * Set the java.class.path system property. This will not change the classpath of the running
+     * JVM, but rather will only modify the system property.
+     * @return This object for method chaining.
+     */
+    public Process setJVMClasspath(String jvmClasspath)
+    {
+        PreCondition.assertNotNull(jvmClasspath, "jvmClasspath");
+
+        return this.setSystemProperty("java.class.path", jvmClasspath);
     }
 
     @Override

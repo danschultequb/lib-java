@@ -217,8 +217,40 @@ public class CommandLineParameters
     {
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
 
-        return add(parameterName, Result::success)
-            .setValueRequired(true);
+        return this.addString(parameterName, (String)null);
+    }
+
+    /**
+     * Add an optional String-valued command line parameter.
+     * @param parameterName The name of the parameter.
+     * @param defaultValue The value that will be assigned to this parameter if no matching argument
+     *                     is specified.
+     * @return The new command line parameter.
+     */
+    public CommandLineParameter<String> addString(String parameterName, String defaultValue)
+    {
+        PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
+
+        return this.addString(parameterName, () -> defaultValue);
+    }
+
+    /**
+     * Add an optional String-valued command line parameter.
+     * @param parameterName The name of the parameter.
+     * @param defaultValueFunction The function that will be run to get the value that will be
+     *                             assigned to this parameter if no matching argument is specified.
+     * @return The new command line parameter.
+     */
+    public CommandLineParameter<String> addString(String parameterName, Function0<String> defaultValueFunction)
+    {
+        PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
+        PreCondition.assertNotNull(defaultValueFunction, "defaultValueFunction");
+
+        final CommandLineParameter<String> result = this.add(parameterName, (String argumentValue) ->
+        {
+            return Result.success(argumentValue == null ? defaultValueFunction.run() : argumentValue);
+        });
+        return result.setValueRequired(true);
     }
 
     /**
