@@ -659,6 +659,148 @@ public interface PathTests
                 equalsTest.run("/a", "/b", false);
                 equalsTest.run("/a", "\\a", true);
             });
+
+            runner.testGroup("isAncestorOf(String)", () ->
+            {
+                final Action3<String,String,Throwable> isAncestorOfErrorTest = (String lhsPathString, String rhsPath, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(lhsPathString) + " and " + Strings.escapeAndQuote(rhsPath), (Test test) ->
+                    {
+                        final Path lhsPath = Path.parse(lhsPathString);
+                        test.assertThrows(expectedError, () -> lhsPath.isAncestorOf(rhsPath).await());
+                    });
+                };
+
+                isAncestorOfErrorTest.run("/", null, new PreConditionFailure("possibleDescendantPathString cannot be null."));
+                isAncestorOfErrorTest.run("/../hello", "/im/here", new java.lang.IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                isAncestorOfErrorTest.run("/a/b/c/", "/a/b/c/d/../../../../../f", new java.lang.IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+
+                final Action3<String,String,Boolean> isAncestorOfTest = (String lhsPathString, String rhsPathString, Boolean expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(lhsPathString) + " and " + Strings.escapeAndQuote(rhsPathString), (Test test) ->
+                    {
+                        final Path lhsPath = Path.parse(lhsPathString);
+                        test.assertEqual(expected, lhsPath.isAncestorOf(rhsPathString).await());
+                    });
+                };
+
+                isAncestorOfTest.run("/", "/", false);
+                isAncestorOfTest.run("/", "/hello", true);
+                isAncestorOfTest.run("/hello", "/", false);
+                isAncestorOfTest.run("/hello/there/", "C:/hello/there/you", false);
+                isAncestorOfTest.run("/hello/", "/HELLO/there", false);
+                isAncestorOfTest.run("/a/b/c/", "/a/b/c/d/e/f", true);
+                isAncestorOfTest.run("/a/b/c/", "/a/b/c/d/../f", true);
+                isAncestorOfTest.run("/a/b/c/", "/a/b/c/d/./f", true);
+                isAncestorOfTest.run("/a/b/c/", "/a/b/c/d/../../../f", false);
+            });
+
+            runner.testGroup("isAncestorOf(Path)", () ->
+            {
+                final Action3<String,Path,Throwable> isAncestorOfErrorTest = (String lhsPathString, Path rhsPath, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(lhsPathString) + " and " + Strings.escapeAndQuote(Objects.toString(rhsPath)), (Test test) ->
+                    {
+                        final Path lhsPath = Path.parse(lhsPathString);
+                        test.assertThrows(expectedError, () -> lhsPath.isAncestorOf(rhsPath).await());
+                    });
+                };
+
+                isAncestorOfErrorTest.run("/", null, new PreConditionFailure("possibleDescendantPath cannot be null."));
+                isAncestorOfErrorTest.run("/../hello", Path.parse("/im/here"), new java.lang.IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                isAncestorOfErrorTest.run("/a/b/c/", Path.parse("/a/b/c/d/../../../../../f"), new java.lang.IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+
+                final Action3<String,String,Boolean> isAncestorOfTest = (String lhsPathString, String rhsPathString, Boolean expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(lhsPathString) + " and " + Strings.escapeAndQuote(rhsPathString), (Test test) ->
+                    {
+                        final Path lhsPath = Path.parse(lhsPathString);
+                        final Path rhsPath = Path.parse(rhsPathString);
+                        test.assertEqual(expected, lhsPath.isAncestorOf(rhsPath).await());
+                    });
+                };
+
+                isAncestorOfTest.run("/", "/", false);
+                isAncestorOfTest.run("/", "/hello", true);
+                isAncestorOfTest.run("/hello", "/", false);
+                isAncestorOfTest.run("/hello/there/", "C:/hello/there/you", false);
+                isAncestorOfTest.run("/hello/", "/HELLO/there", false);
+                isAncestorOfTest.run("/a/b/c/", "/a/b/c/d/e/f", true);
+                isAncestorOfTest.run("/a/b/c/", "/a/b/c/d/../f", true);
+                isAncestorOfTest.run("/a/b/c/", "/a/b/c/d/./f", true);
+                isAncestorOfTest.run("/a/b/c/", "/a/b/c/d/../../../f", false);
+            });
+
+            runner.testGroup("isDescendantOf(String)", () ->
+            {
+                final Action3<String,String,Throwable> isDescendantOfErrorTest = (String lhsPathString, String rhsPath, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(lhsPathString) + " and " + Strings.escapeAndQuote(rhsPath), (Test test) ->
+                    {
+                        final Path lhsPath = Path.parse(lhsPathString);
+                        test.assertThrows(expectedError, () -> lhsPath.isDescendantOf(rhsPath).await());
+                    });
+                };
+
+                isDescendantOfErrorTest.run("/", null, new PreConditionFailure("possibleAncestorPathString cannot be null."));
+                isDescendantOfErrorTest.run("/../hello", "/im/here", new java.lang.IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                isDescendantOfErrorTest.run("/a/b/c/", "/a/b/c/d/../../../../../f", new java.lang.IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+
+                final Action3<String,String,Boolean> isDescendantOfTest = (String lhsPathString, String rhsPathString, Boolean expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(lhsPathString) + " and " + Strings.escapeAndQuote(rhsPathString), (Test test) ->
+                    {
+                        final Path lhsPath = Path.parse(lhsPathString);
+                        test.assertEqual(expected, lhsPath.isDescendantOf(rhsPathString).await());
+                    });
+                };
+
+                isDescendantOfTest.run("/", "/", false);
+                isDescendantOfTest.run("/", "/hello", false);
+                isDescendantOfTest.run("/hello", "/", true);
+                isDescendantOfTest.run("/hello/there/", "C:/hello/there/you", false);
+                isDescendantOfTest.run("/hello/", "/HELLO/there", false);
+                isDescendantOfTest.run("/a/b/c/", "/a/b/c/d/e/f", false);
+                isDescendantOfTest.run("/a/b/c/", "/a/b/c/d/../f", false);
+                isDescendantOfTest.run("/a/b/c/", "/a/b/c/d/./f", false);
+                isDescendantOfTest.run("/a/b/c/", "/a/b/c/d/../../../f", false);
+            });
+
+            runner.testGroup("isDescendantOf(Path)", () ->
+            {
+                final Action3<String,Path,Throwable> isDescendantOfErrorTest = (String lhsPathString, Path rhsPath, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(lhsPathString) + " and " + Strings.escapeAndQuote(Objects.toString(rhsPath)), (Test test) ->
+                    {
+                        final Path lhsPath = Path.parse(lhsPathString);
+                        test.assertThrows(expectedError, () -> lhsPath.isDescendantOf(rhsPath).await());
+                    });
+                };
+
+                isDescendantOfErrorTest.run("/", null, new PreConditionFailure("possibleAncestorPath cannot be null."));
+                isDescendantOfErrorTest.run("/../hello", Path.parse("/im/here"), new java.lang.IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                isDescendantOfErrorTest.run("/a/b/c/", Path.parse("/a/b/c/d/../../../../../f"), new java.lang.IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+
+                final Action3<String,String,Boolean> isDescendantOfTest = (String lhsPathString, String rhsPathString, Boolean expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(lhsPathString) + " and " + Strings.escapeAndQuote(rhsPathString), (Test test) ->
+                    {
+                        final Path lhsPath = Path.parse(lhsPathString);
+                        final Path rhsPath = Path.parse(rhsPathString);
+                        test.assertEqual(expected, lhsPath.isDescendantOf(rhsPath).await());
+                    });
+                };
+
+                isDescendantOfTest.run("/", "/", false);
+                isDescendantOfTest.run("/", "/hello", false);
+                isDescendantOfTest.run("/hello", "/", true);
+                isDescendantOfTest.run("/hello/there/", "C:/hello/there/you", false);
+                isDescendantOfTest.run("/hello/", "/HELLO/there", false);
+                isDescendantOfTest.run("/a/b/c/", "/a/b/c/d/e/f", false);
+                isDescendantOfTest.run("/a/b/c/", "/a/b/c/d/../f", false);
+                isDescendantOfTest.run("/a/b/c/", "/a/b/c/d/./f", false);
+                isDescendantOfTest.run("/a/b/c/", "/a/b/c/d/../../../f", false);
+            });
         });
     }
 }

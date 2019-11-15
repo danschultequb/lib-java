@@ -49,6 +49,54 @@ public abstract class FileSystemEntry
     }
 
     /**
+     * Get whether or not this entry is a descendant of the provided path.
+     * @param possibleAncestorPathString The path that may be an ancestor of this entry.
+     * @return Whether or not this entry is a descendant of the provided path.
+     */
+    public Result<Boolean> isDescendantOf(String possibleAncestorPathString)
+    {
+        PreCondition.assertNotNullAndNotEmpty(possibleAncestorPathString, "possibleAncestorPathString");
+
+        return this.isDescendantOf(Path.parse(possibleAncestorPathString));
+    }
+
+    /**
+     * Get whether or not this entry is a descendant of the provided path.
+     * @param possibleAncestorPath The path that may be an ancestor of this entry.
+     * @return Whether or not this entry is a descendant of the provided path.
+     */
+    public Result<Boolean> isDescendantOf(Path possibleAncestorPath)
+    {
+        PreCondition.assertNotNull(possibleAncestorPath, "possibleAncestorPath");
+
+        return this.getPath().isDescendantOf(possibleAncestorPath);
+    }
+
+    /**
+     * Get whether or not this entry is a descendant of the provided folder.
+     * @param possibleAncestorFolder The folder that may be an ancestor of this entry.
+     * @return Whether or not this entry is a descendant of the provided folder.
+     */
+    public Result<Boolean> isDescendantOf(Folder possibleAncestorFolder)
+    {
+        PreCondition.assertNotNull(possibleAncestorFolder, "possibleAncestorFolder");
+
+        return this.isDescendantOf(possibleAncestorFolder.getPath());
+    }
+
+    /**
+     * Get whether or not this entry is a descendant of the provided root.
+     * @param possibleAncestorRoot The root that may be an ancestor of this entry.
+     * @return Whether or not this entry is a descendant of the provided root.
+     */
+    public Result<Boolean> isDescendantOf(Root possibleAncestorRoot)
+    {
+        PreCondition.assertNotNull(possibleAncestorRoot, "possibleAncestorRoot");
+
+        return this.isDescendantOf(possibleAncestorRoot.getPath());
+    }
+
+    /**
      * Get whether or not this FileSystemEntry exists.
      */
     public abstract Result<Boolean> exists();

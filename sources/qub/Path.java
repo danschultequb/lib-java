@@ -645,6 +645,76 @@ public class Path
     }
 
     /**
+     * Get whether or not this path is an ancestor of the provided path.
+     * @param possibleDescendantPathString The path that may be a descendant of this path.
+     * @return Whether or not this path is an ancestor of the provided path.
+     */
+    public Result<Boolean> isAncestorOf(String possibleDescendantPathString)
+    {
+        PreCondition.assertNotNullAndNotEmpty(possibleDescendantPathString, "possibleDescendantPathString");
+
+        return this.isAncestorOf(Path.parse(possibleDescendantPathString));
+    }
+
+    /**
+     * Get whether or not this path is an ancestor of the provided path.
+     * @param possibleDescendantPath The path that may be a descendant of this path.
+     * @return Whether or not this path is an ancestor of the provided path.
+     */
+    public Result<Boolean> isAncestorOf(Path possibleDescendantPath)
+    {
+        PreCondition.assertNotNull(possibleDescendantPath, "possibleDescendantPath");
+
+        return Result.create(() ->
+        {
+            final Indexable<String> thisSegments = this.resolve().await().getSegments();
+            final int thisSegmentsCount = thisSegments.getCount();
+
+            final Indexable<String> possibleDescendantSegments = possibleDescendantPath.resolve().await().getSegments();
+            final int possibleDescendantSegmentsCount = possibleDescendantSegments.getCount();
+
+            boolean result = thisSegmentsCount < possibleDescendantSegmentsCount;
+            if (result)
+            {
+                for (int i = 0; i < thisSegmentsCount; ++i)
+                {
+                    if (!Comparer.equal(thisSegments.get(i), possibleDescendantSegments.get(i)))
+                    {
+                        result = false;
+                        break;
+                    }
+                }
+            }
+
+            return result;
+        });
+    }
+
+    /**
+     * Get whether or not this path is an descendant of the provided path.
+     * @param possibleAncestorPathString The path that may be a ancestor of this path.
+     * @return Whether or not this path is an descendant of the provided path.
+     */
+    public Result<Boolean> isDescendantOf(String possibleAncestorPathString)
+    {
+        PreCondition.assertNotNullAndNotEmpty(possibleAncestorPathString, "possibleAncestorPathString");
+
+        return this.isDescendantOf(Path.parse(possibleAncestorPathString));
+    }
+
+    /**
+     * Get whether or not this path is an descendant of the provided path.
+     * @param possibleAncestorPath The path that may be a ancestor of this path.
+     * @return Whether or not this path is an descendant of the provided path.
+     */
+    public Result<Boolean> isDescendantOf(Path possibleAncestorPath)
+    {
+        PreCondition.assertNotNull(possibleAncestorPath, "possibleAncestorPath");
+
+        return possibleAncestorPath.isAncestorOf(this);
+    }
+
+    /**
      * Parse a Path object create the provided pathString.
      * @param pathString The String representation of a Path.
      * @return The parsed Path object, or null if the provided pathString couldn't be parsed.

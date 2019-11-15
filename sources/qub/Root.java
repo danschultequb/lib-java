@@ -25,6 +25,42 @@ public class Root
         return folder.getPath();
     }
 
+    /**
+     * Get whether or not this root is an ancestor of the provided path.
+     * @param possibleDescendantPathString The path that may be a descendant of this root.
+     * @return Whether or not this root is an ancestor of the provided path.
+     */
+    public Result<Boolean> isAncestorOf(String possibleDescendantPathString)
+    {
+        PreCondition.assertNotNullAndNotEmpty(possibleDescendantPathString, "possibleDescendantPathString");
+
+        return this.isAncestorOf(Path.parse(possibleDescendantPathString));
+    }
+
+    /**
+     * Get whether or not this root is an ancestor of the provided path.
+     * @param possibleDescendantPath The path that may be a descendant of this root.
+     * @return Whether or not this root is an ancestor of the provided path.
+     */
+    public Result<Boolean> isAncestorOf(Path possibleDescendantPath)
+    {
+        PreCondition.assertNotNull(possibleDescendantPath, "possibleDescendantPath");
+
+        return this.getPath().isAncestorOf(possibleDescendantPath);
+    }
+
+    /**
+     * Get whether or not this root is an ancestor of the provided file system entry.
+     * @param entry The file system entry that may be a descendant of this root.
+     * @return Whether or not this root is an ancestor of the provided file system entry.
+     */
+    public Result<Boolean> isAncestorOf(FileSystemEntry entry)
+    {
+        PreCondition.assertNotNull(entry, "entry");
+
+        return this.isAncestorOf(entry.getPath());
+    }
+
     @Override
     public String toString()
     {

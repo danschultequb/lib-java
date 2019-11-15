@@ -329,6 +329,42 @@ public class Folder extends FileSystemEntry
         return getFileSystem().getFilesAndFoldersRecursively(getPath());
     }
 
+    /**
+     * Get whether or not this folder is an ancestor of the provided path.
+     * @param possibleDescendantPathString The path that may be a descendant of this folder.
+     * @return Whether or not this folder is an ancestor of the provided path.
+     */
+    public Result<Boolean> isAncestorOf(String possibleDescendantPathString)
+    {
+        PreCondition.assertNotNullAndNotEmpty(possibleDescendantPathString, "possibleDescendantPathString");
+
+        return this.isAncestorOf(Path.parse(possibleDescendantPathString));
+    }
+
+    /**
+     * Get whether or not this folder is an ancestor of the provided path.
+     * @param possibleDescendantPath The path that may be a descendant of this folder.
+     * @return Whether or not this folder is an ancestor of the provided path.
+     */
+    public Result<Boolean> isAncestorOf(Path possibleDescendantPath)
+    {
+        PreCondition.assertNotNull(possibleDescendantPath, "possibleDescendantPath");
+
+        return this.getPath().isAncestorOf(possibleDescendantPath);
+    }
+
+    /**
+     * Get whether or not this folder is an ancestor of the provided file system entry.
+     * @param entry The file system entry that may be a descendant of this folder.
+     * @return Whether or not this folder is an ancestor of the provided file system entry.
+     */
+    public Result<Boolean> isAncestorOf(FileSystemEntry entry)
+    {
+        PreCondition.assertNotNull(entry, "entry");
+
+        return this.isAncestorOf(entry.getPath());
+    }
+
     private Path getChildPath(Path relativePath)
     {
         return getPath().concatenateSegment(relativePath);
