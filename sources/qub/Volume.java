@@ -825,6 +825,26 @@ public class Volume implements Comparable<Volume>
         return result;
     }
 
+    public Volume dividedBy(double value)
+    {
+        PreCondition.assertNotEqual(value, 0, "value");
+
+        Volume result;
+        if (this.value == 0 || value == 1)
+        {
+            result = this;
+        }
+        else
+        {
+            result = new Volume(this.value / value, this.units);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(this.units, result.getUnits(), "result.getUnits()");
+
+        return result;
+    }
+
     @Override
     public String toString()
     {

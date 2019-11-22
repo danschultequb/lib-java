@@ -64,14 +64,14 @@ public class Display
      * Get the width of this Display.
      * @return The width of this Display.
      */
-    public Distance getWidth()
+    public Length getWidth()
     {
-        return Distance.inches(widthInPixels / getHorizontalDpi());
+        return Length.inches(widthInPixels / getHorizontalDpi());
     }
 
-    public Distance getHeight()
+    public Length getHeight()
     {
-        return Distance.inches(heightInPixels / getVerticalDpi());
+        return Length.inches(heightInPixels / getVerticalDpi());
     }
 
     public double getHorizontalScale()
@@ -84,50 +84,50 @@ public class Display
         return verticalScale;
     }
 
-    public double convertHorizontalDistanceToPixels(Distance horizontalDistance)
+    public double convertHorizontalDistanceToPixels(Length horizontalLength)
     {
-        PreCondition.assertNotNull(horizontalDistance, "horizontalDistance");
+        PreCondition.assertNotNull(horizontalLength, "horizontalDistance");
 
-        final Distance horizontalDistanceInInches = horizontalDistance.toInches();
-        final double result = horizontalDistanceInInches.getValue() * getHorizontalDpi();
+        final Length horizontalLengthInInches = horizontalLength.toInches();
+        final double result = horizontalLengthInInches.getValue() * getHorizontalDpi();
 
         PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
 
         return result;
     }
 
-    public Distance convertHorizontalPixelsToDistance(double horizontalPixels)
+    public Length convertHorizontalPixelsToDistance(double horizontalPixels)
     {
         PreCondition.assertGreaterThanOrEqualTo(horizontalPixels, 0, "horizontalPixels");
 
         final double distanceValue = horizontalPixels / getHorizontalDpi();
-        final Distance result = Distance.inches(distanceValue);
+        final Length result = Length.inches(distanceValue);
 
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
+        PostCondition.assertGreaterThanOrEqualTo(result, Length.zero, "result");
 
         return result;
     }
 
-    public double convertVerticalDistanceToPixels(Distance verticalDistance)
+    public double convertVerticalDistanceToPixels(Length verticalLength)
     {
-        PreCondition.assertNotNull(verticalDistance, "verticalDistance");
+        PreCondition.assertNotNull(verticalLength, "verticalDistance");
 
-        final Distance verticalDistanceInInches = verticalDistance.toInches();
-        final double result = verticalDistanceInInches.getValue() * getVerticalDpi();
+        final Length verticalLengthInInches = verticalLength.toInches();
+        final double result = verticalLengthInInches.getValue() * getVerticalDpi();
 
         PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
 
         return result;
     }
 
-    public Distance convertVerticalPixelsToDistance(double verticalPixels)
+    public Length convertVerticalPixelsToDistance(double verticalPixels)
     {
         PreCondition.assertGreaterThanOrEqualTo(verticalPixels, 0, "verticalPixels");
 
         final double distanceValue = verticalPixels / getVerticalDpi();
-        final Distance result = Distance.inches(distanceValue);
+        final Length result = Length.inches(distanceValue);
 
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
+        PostCondition.assertGreaterThanOrEqualTo(result, Length.zero, "result");
 
         return result;
     }
@@ -137,9 +137,9 @@ public class Display
         PreCondition.assertGreaterThanOrEqualTo(horizontalPixels, 0, "horizontalPixels");
         PreCondition.assertGreaterThanOrEqualTo(verticalPixels, 0, "verticalPixels");
 
-        final Distance horizontalDistance = convertHorizontalPixelsToDistance(horizontalPixels);
-        final Distance verticalDistance = convertVerticalPixelsToDistance(verticalPixels);
-        final Size2D result = new Size2D(horizontalDistance, verticalDistance);
+        final Length horizontalLength = convertHorizontalPixelsToDistance(horizontalPixels);
+        final Length verticalLength = convertVerticalPixelsToDistance(verticalPixels);
+        final Size2D result = new Size2D(horizontalLength, verticalLength);
 
         PostCondition.assertNotNull(result, "result");
 

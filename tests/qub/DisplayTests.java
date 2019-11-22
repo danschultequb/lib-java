@@ -20,13 +20,13 @@ public class DisplayTests
             runner.test("getWidth()", (Test test) ->
             {
                 final Display display = new Display(100, 200, 20, 25, 2, 5);
-                test.assertEqual(Distance.inches(10), display.getWidth());
+                test.assertEqual(Length.inches(10), display.getWidth());
             });
 
             runner.test("getWidth()", (Test test) ->
             {
                 final Display display = new Display(100, 200, 20, 25, 2, 5);
-                test.assertEqual(Distance.inches(40), display.getHeight());
+                test.assertEqual(Length.inches(40), display.getHeight());
             });
         });
     }

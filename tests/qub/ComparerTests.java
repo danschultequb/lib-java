@@ -73,7 +73,7 @@ public class ComparerTests
 
             runner.testGroup("compare(T,T)", () ->
             {
-                final Action3<Distance,Distance,Comparison> compareTest = (Distance lhs, Distance rhs, Comparison expected) ->
+                final Action3<Length,Length,Comparison> compareTest = (Length lhs, Length rhs, Comparison expected) ->
                 {
                     runner.test("with " + lhs + " and " + rhs, (Test test) ->
                     {
@@ -82,11 +82,11 @@ public class ComparerTests
                 };
 
                 compareTest.run(null, null, Comparison.Equal);
-                compareTest.run(null, Distance.inches(-5), Comparison.LessThan);
-                compareTest.run(Distance.zero, null, Comparison.GreaterThan);
-                compareTest.run(Distance.feet(5), Distance.feet(7), Comparison.LessThan);
-                compareTest.run(Distance.feet(4), Distance.feet(4), Comparison.Equal);
-                compareTest.run(Distance.miles(10), Distance.miles(1), Comparison.GreaterThan);
+                compareTest.run(null, Length.inches(-5), Comparison.LessThan);
+                compareTest.run(Length.zero, null, Comparison.GreaterThan);
+                compareTest.run(Length.feet(5), Length.feet(7), Comparison.LessThan);
+                compareTest.run(Length.feet(4), Length.feet(4), Comparison.Equal);
+                compareTest.run(Length.miles(10), Length.miles(1), Comparison.GreaterThan);
             });
 
             runner.testGroup("lessThan(int,int)", () ->
@@ -311,12 +311,12 @@ public class ComparerTests
 
                 runner.test("with one argument", (Test test) ->
                 {
-                    test.assertEqual(Distance.zero, Comparer.maximum(Distance.zero));
+                    test.assertEqual(Length.zero, Comparer.maximum(Length.zero));
                 });
 
                 runner.test("with multiple arguments", (Test test) ->
                 {
-                    test.assertEqual(Distance.inches(5), Comparer.maximum(Distance.inches(1), Distance.inches(5)));
+                    test.assertEqual(Length.inches(5), Comparer.maximum(Length.inches(1), Length.inches(5)));
                 });
             });
 

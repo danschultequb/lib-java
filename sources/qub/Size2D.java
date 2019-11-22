@@ -2,28 +2,28 @@ package qub;
 
 public class Size2D
 {
-    public static final Size2D zero = new Size2D(Distance.zero, Distance.zero);
+    public static final Size2D zero = new Size2D(Length.zero, Length.zero);
 
-    private final Distance width;
-    private final Distance height;
+    private final Length width;
+    private final Length height;
 
-    public Size2D(Distance width, Distance height)
+    public Size2D(Length width, Length height)
     {
-        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
-        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
+        PreCondition.assertGreaterThanOrEqualTo(width, Length.zero, "width");
+        PreCondition.assertGreaterThanOrEqualTo(height, Length.zero, "height");
 
         this.width = width;
         this.height = height;
     }
 
-    public Distance getWidth()
+    public Length getWidth()
     {
         return width;
     }
 
-    public Size2D changeWidth(Distance width)
+    public Size2D changeWidth(Length width)
     {
-        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
+        PreCondition.assertGreaterThanOrEqualTo(width, Length.zero, "width");
 
         final Size2D result = (this.width.equals(width) ? this : new Size2D(width, height));
 
@@ -33,14 +33,14 @@ public class Size2D
         return result;
     }
 
-    public Distance getHeight()
+    public Length getHeight()
     {
         return height;
     }
 
-    public Size2D changeHeight(Distance height)
+    public Size2D changeHeight(Length height)
     {
-        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
+        PreCondition.assertGreaterThanOrEqualTo(height, Length.zero, "height");
 
         final Size2D result = (this.height.equals(height) ? this : new Size2D(width, height));
 

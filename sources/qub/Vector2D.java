@@ -5,17 +5,17 @@ package qub;
  */
 public class Vector2D
 {
-    public static final Vector2D zero = new Vector2D(Distance.zero, Distance.zero);
+    public static final Vector2D zero = new Vector2D(Length.zero, Length.zero);
 
-    private final Distance x;
-    private final Distance y;
+    private final Length x;
+    private final Length y;
 
     /**
      * Create a new Vector2D object.
      * @param x The x-coordinate of the vector.
      * @param y The y-coordinate of the vector.
      */
-    public Vector2D(Distance x, Distance y)
+    public Vector2D(Length x, Length y)
     {
         PreCondition.assertNotNull(x, "x");
         PreCondition.assertNotNull(y, "y");
@@ -28,7 +28,7 @@ public class Vector2D
      * Get the x-coordinate of the vector.
      * @return The x-coordinate of the vector.
      */
-    public Distance getX()
+    public Length getX()
     {
         return x;
     }
@@ -37,15 +37,15 @@ public class Vector2D
      * Get the y-coordinate of the vector.
      * @return The y-coordinate of the vector.
      */
-    public Distance getY()
+    public Length getY()
     {
         return y;
     }
 
     public Vector2D negate()
     {
-        final Distance resultX = x.negate();
-        final Distance resultY = y.negate();
+        final Length resultX = x.negate();
+        final Length resultY = y.negate();
         Vector2D result;
         if (resultX == x && resultY == y)
         {
@@ -70,8 +70,8 @@ public class Vector2D
     {
         PreCondition.assertNotNull(rhs, "rhs");
 
-        final Distance resultX = x.plus(rhs.getX());
-        final Distance resultY = y.plus(rhs.getY());
+        final Length resultX = x.plus(rhs.getX());
+        final Length resultY = y.plus(rhs.getY());
         final Point2D result = new Point2D(resultX, resultY);
 
         PostCondition.assertNotNull(result, "result");
@@ -85,13 +85,13 @@ public class Vector2D
      * @param y The y-coordinate of the point to add this vector to.
      * @return The sum of adding this vector to the provided point.
      */
-    public Point2D plusPoint(Distance x, Distance y)
+    public Point2D plusPoint(Length x, Length y)
     {
         PreCondition.assertNotNull(x, "x");
         PreCondition.assertNotNull(y, "y");
 
-        final Distance resultX = this.x.plus(x);
-        final Distance resultY = this.y.plus(y);
+        final Length resultX = this.x.plus(x);
+        final Length resultY = this.y.plus(y);
         final Point2D result = new Point2D(resultX, resultY);
 
         PostCondition.assertNotNull(result, "result");
@@ -105,13 +105,13 @@ public class Vector2D
      * @param y The y-coordinate of the vector to add.
      * @return The sum of adding this vector and the provided vector coordinates.
      */
-    public Vector2D plusVector(Distance x, Distance y)
+    public Vector2D plusVector(Length x, Length y)
     {
         PreCondition.assertNotNull(x, "x");
         PreCondition.assertNotNull(y, "y");
 
-        final Distance resultX = this.x.plus(x);
-        final Distance resultY = this.y.plus(y);
+        final Length resultX = this.x.plus(x);
+        final Length resultY = this.y.plus(y);
         final Vector2D result = new Vector2D(resultX, resultY);
 
         PostCondition.assertNotNull(result, "result");
@@ -128,8 +128,8 @@ public class Vector2D
     {
         PreCondition.assertNotNull(rhs, "rhs");
 
-        final Distance resultX = x.plus(rhs.x);
-        final Distance resultY = y.plus(rhs.y);
+        final Length resultX = x.plus(rhs.x);
+        final Length resultY = y.plus(rhs.y);
         final Vector2D result = new Vector2D(resultX, resultY);
 
         PostCondition.assertNotNull(result, "result");

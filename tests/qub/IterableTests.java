@@ -36,67 +36,67 @@ public class IterableTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Iterable<Distance> values = null;
+                    final Iterable<Length> values = null;
                     test.assertThrows(() -> Iterable.order(values), new PreConditionFailure("values cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final Iterable<Distance> values = Iterable.create();
-                    final Iterable<Distance> orderedValues = Iterable.order(values);
+                    final Iterable<Length> values = Iterable.create();
+                    final Iterable<Length> orderedValues = Iterable.order(values);
                     test.assertNotSame(orderedValues, values);
                     test.assertEqual(orderedValues, values);
                 });
 
                 runner.test("with one value", (Test test) ->
                 {
-                    final Iterable<Distance> values = Iterable.create(Distance.feet(1));
-                    final Iterable<Distance> orderedValues = Iterable.order(values);
+                    final Iterable<Length> values = Iterable.create(Length.feet(1));
+                    final Iterable<Length> orderedValues = Iterable.order(values);
                     test.assertNotSame(orderedValues, values);
                     test.assertEqual(orderedValues, values);
                 });
 
                 runner.test("with two values in sorted order", (Test test) ->
                 {
-                    final Iterable<Distance> values = Iterable.create(Distance.feet(1), Distance.inches(13));
-                    final Iterable<Distance> orderedValues = Iterable.order(values);
+                    final Iterable<Length> values = Iterable.create(Length.feet(1), Length.inches(13));
+                    final Iterable<Length> orderedValues = Iterable.order(values);
                     test.assertNotSame(orderedValues, values);
                     test.assertEqual(orderedValues, values);
                 });
 
                 runner.test("with two values in reverse-sorted order", (Test test) ->
                 {
-                    final Iterable<Distance> values = Iterable.create(Distance.feet(10), Distance.inches(1));
-                    final Iterable<Distance> orderedValues = Iterable.order(values);
+                    final Iterable<Length> values = Iterable.create(Length.feet(10), Length.inches(1));
+                    final Iterable<Length> orderedValues = Iterable.order(values);
                     test.assertNotSame(orderedValues, values);
-                    test.assertEqual(Iterable.create(Distance.feet(10), Distance.inches(1)), values);
-                    test.assertEqual(Iterable.create(Distance.inches(1), Distance.feet(10)), orderedValues);
+                    test.assertEqual(Iterable.create(Length.feet(10), Length.inches(1)), values);
+                    test.assertEqual(Iterable.create(Length.inches(1), Length.feet(10)), orderedValues);
                 });
 
                 runner.test("with three values in sorted order", (Test test) ->
                 {
-                    final Iterable<Distance> values = Iterable.create(Distance.feet(1), Distance.inches(13), Distance.miles(0.1));
-                    final Iterable<Distance> orderedValues = Iterable.order(values);
+                    final Iterable<Length> values = Iterable.create(Length.feet(1), Length.inches(13), Length.miles(0.1));
+                    final Iterable<Length> orderedValues = Iterable.order(values);
                     test.assertNotSame(orderedValues, values);
                     test.assertEqual(orderedValues, values);
                 });
 
                 runner.test("with three values in reverse-sorted order", (Test test) ->
                 {
-                    final Iterable<Distance> values = Iterable.create(Distance.miles(0.5), Distance.feet(10), Distance.inches(1));
-                    final Iterable<Distance> orderedValues = Iterable.order(values);
+                    final Iterable<Length> values = Iterable.create(Length.miles(0.5), Length.feet(10), Length.inches(1));
+                    final Iterable<Length> orderedValues = Iterable.order(values);
                     test.assertNotSame(orderedValues, values);
-                    test.assertEqual(Iterable.create(Distance.miles(0.5), Distance.feet(10), Distance.inches(1)), values);
-                    test.assertEqual(Iterable.create(Distance.inches(1), Distance.feet(10), Distance.miles(0.5)), orderedValues);
+                    test.assertEqual(Iterable.create(Length.miles(0.5), Length.feet(10), Length.inches(1)), values);
+                    test.assertEqual(Iterable.create(Length.inches(1), Length.feet(10), Length.miles(0.5)), orderedValues);
                 });
 
                 runner.test("with three values in mixed-sorted order", (Test test) ->
                 {
-                    final Iterable<Distance> values = Iterable.create(Distance.feet(10), Distance.miles(2), Distance.inches(1));
-                    final Iterable<Distance> orderedValues = Iterable.order(values);
+                    final Iterable<Length> values = Iterable.create(Length.feet(10), Length.miles(2), Length.inches(1));
+                    final Iterable<Length> orderedValues = Iterable.order(values);
                     test.assertNotSame(values, orderedValues);
-                    test.assertEqual(Iterable.create(Distance.feet(10), Distance.miles(2), Distance.inches(1)), values);
-                    test.assertEqual(Iterable.create(Distance.inches(1), Distance.feet(10), Distance.miles(2)), orderedValues);
+                    test.assertEqual(Iterable.create(Length.feet(10), Length.miles(2), Length.inches(1)), values);
+                    test.assertEqual(Iterable.create(Length.inches(1), Length.feet(10), Length.miles(2)), orderedValues);
                 });
             });
 
@@ -1132,61 +1132,61 @@ public class IterableTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final Iterable<Distance> values = Iterable.create();
-                    final Iterable<Distance> orderedValues = values.order(Comparer::lessThan);
+                    final Iterable<Length> values = Iterable.create();
+                    final Iterable<Length> orderedValues = values.order(Comparer::lessThan);
                     test.assertNotSame(values, orderedValues);
                     test.assertEqual(values, orderedValues);
                 });
 
                 runner.test("with one value", (Test test) ->
                 {
-                    final Iterable<Distance> values = Iterable.create(Distance.feet(1));
-                    final Iterable<Distance> orderedValues = values.order(Comparer::lessThan);
+                    final Iterable<Length> values = Iterable.create(Length.feet(1));
+                    final Iterable<Length> orderedValues = values.order(Comparer::lessThan);
                     test.assertNotSame(values, orderedValues);
                     test.assertEqual(values, orderedValues);
                 });
 
                 runner.test("with two values in sorted order", (Test test) ->
                 {
-                    final Iterable<Distance> values = Iterable.create(Distance.feet(1), Distance.inches(13));
-                    final Iterable<Distance> orderedValues = values.order(Comparer::lessThan);
+                    final Iterable<Length> values = Iterable.create(Length.feet(1), Length.inches(13));
+                    final Iterable<Length> orderedValues = values.order(Comparer::lessThan);
                     test.assertNotSame(values, orderedValues);
                     test.assertEqual(values, orderedValues);
                 });
 
                 runner.test("with two values in reverse-sorted order", (Test test) ->
                 {
-                    final Iterable<Distance> values = Iterable.create(Distance.feet(10), Distance.inches(1));
-                    final Iterable<Distance> orderedValues = values.order(Comparer::lessThan);
+                    final Iterable<Length> values = Iterable.create(Length.feet(10), Length.inches(1));
+                    final Iterable<Length> orderedValues = values.order(Comparer::lessThan);
                     test.assertNotSame(values, orderedValues);
-                    test.assertEqual(Iterable.create(Distance.feet(10), Distance.inches(1)), values);
-                    test.assertEqual(Iterable.create(Distance.inches(1), Distance.feet(10)), orderedValues);
+                    test.assertEqual(Iterable.create(Length.feet(10), Length.inches(1)), values);
+                    test.assertEqual(Iterable.create(Length.inches(1), Length.feet(10)), orderedValues);
                 });
 
                 runner.test("with three values in sorted order", (Test test) ->
                 {
-                    final Iterable<Distance> values = Iterable.create(Distance.feet(1), Distance.inches(13), Distance.miles(0.1));
-                    final Iterable<Distance> orderedValues = values.order(Comparer::lessThan);
+                    final Iterable<Length> values = Iterable.create(Length.feet(1), Length.inches(13), Length.miles(0.1));
+                    final Iterable<Length> orderedValues = values.order(Comparer::lessThan);
                     test.assertNotSame(values, orderedValues);
                     test.assertEqual(values, orderedValues);
                 });
 
                 runner.test("with three values in reverse-sorted order", (Test test) ->
                 {
-                    final Iterable<Distance> values = Iterable.create(Distance.miles(0.5), Distance.feet(10), Distance.inches(1));
-                    final Iterable<Distance> orderedValues = values.order(Comparer::lessThan);
+                    final Iterable<Length> values = Iterable.create(Length.miles(0.5), Length.feet(10), Length.inches(1));
+                    final Iterable<Length> orderedValues = values.order(Comparer::lessThan);
                     test.assertNotSame(values, orderedValues);
-                    test.assertEqual(Iterable.create(Distance.miles(0.5), Distance.feet(10), Distance.inches(1)), values);
-                    test.assertEqual(Iterable.create(Distance.inches(1), Distance.feet(10), Distance.miles(0.5)), orderedValues);
+                    test.assertEqual(Iterable.create(Length.miles(0.5), Length.feet(10), Length.inches(1)), values);
+                    test.assertEqual(Iterable.create(Length.inches(1), Length.feet(10), Length.miles(0.5)), orderedValues);
                 });
 
                 runner.test("with three values in mixed-sorted order", (Test test) ->
                 {
-                    final Iterable<Distance> values = Iterable.create(Distance.feet(10), Distance.miles(2), Distance.inches(1));
-                    final Iterable<Distance> orderedValues = values.order(Comparer::lessThan);
+                    final Iterable<Length> values = Iterable.create(Length.feet(10), Length.miles(2), Length.inches(1));
+                    final Iterable<Length> orderedValues = values.order(Comparer::lessThan);
                     test.assertNotSame(values, orderedValues);
-                    test.assertEqual(Iterable.create(Distance.feet(10), Distance.miles(2), Distance.inches(1)), values);
-                    test.assertEqual(Iterable.create(Distance.inches(1), Distance.feet(10), Distance.miles(2)), orderedValues);
+                    test.assertEqual(Iterable.create(Length.feet(10), Length.miles(2), Length.inches(1)), values);
+                    test.assertEqual(Iterable.create(Length.inches(1), Length.feet(10), Length.miles(2)), orderedValues);
                 });
             });
         });

@@ -259,7 +259,7 @@ public class RangeTests
                 runner.test("with different Range type", (Test test) ->
                 {
                     final Range<Integer> range = Range.between(1, 100);
-                    test.assertFalse(range.equals((Object)Range.between(Distance.miles(1), Distance.miles(100))));
+                    test.assertFalse(range.equals((Object)Range.between(Length.miles(1), Length.miles(100))));
                 });
 
                 runner.test("with different lowerBound", (Test test) ->

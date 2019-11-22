@@ -830,13 +830,13 @@ public interface TestTests
                 runner.test("with equal objects", (Test test) ->
                 {
                     final Test t = createTest("abc", test);
-                    t.assertEqual(Distance.meters(1), Distance.centimeters(100));
+                    t.assertEqual(Length.meters(1), Length.centimeters(100));
                 });
 
                 runner.test("with not equal objects", (Test test) ->
                 {
                     final Test t = createTest("abc", test);
-                    test.assertThrows(() -> t.assertEqual(Distance.meters(10), Distance.centimeters(100)),
+                    test.assertThrows(() -> t.assertEqual(Length.meters(10), Length.centimeters(100)),
                         new TestError("abc", Iterable.create(
                             "Expected: 10.0 Meters",
                             "Actual:   100.0 Centimeters")));
@@ -1517,7 +1517,7 @@ public interface TestTests
 
             runner.testGroup("assertLessThan(T,T)", () ->
             {
-                Action3<Distance,Distance,Throwable> assertLessThanTest = (Distance value, Distance upperBound, Throwable expectedError) ->
+                Action3<Length,Length,Throwable> assertLessThanTest = (Length value, Length upperBound, Throwable expectedError) ->
                 {
                     runner.test("with " + Objects.toString(value) + " and " + Objects.toString(upperBound), (Test test) ->
                     {
@@ -1536,22 +1536,22 @@ public interface TestTests
                 assertLessThanTest.run(null, null, new TestError("abc", Iterable.create(
                     "Expected: \"less than null\"",
                     "Actual:   null")));
-                assertLessThanTest.run(Distance.inches(1), null, new TestError("abc", Iterable.create(
+                assertLessThanTest.run(Length.inches(1), null, new TestError("abc", Iterable.create(
                     "Expected: \"less than null\"",
                     "Actual:   1.0 Inches")));
-                assertLessThanTest.run(null, Distance.miles(5), null);
-                assertLessThanTest.run(Distance.inches(5), Distance.miles(3), null);
-                assertLessThanTest.run(Distance.miles(1), Distance.miles(1), new TestError("abc", Iterable.create(
+                assertLessThanTest.run(null, Length.miles(5), null);
+                assertLessThanTest.run(Length.inches(5), Length.miles(3), null);
+                assertLessThanTest.run(Length.miles(1), Length.miles(1), new TestError("abc", Iterable.create(
                     "Expected: \"less than 1.0 Miles\"",
                     "Actual:   1.0 Miles")));
-                assertLessThanTest.run(Distance.miles(4), Distance.inches(1), new TestError("abc", Iterable.create(
+                assertLessThanTest.run(Length.miles(4), Length.inches(1), new TestError("abc", Iterable.create(
                     "Expected: \"less than 1.0 Inches\"",
                     "Actual:   4.0 Miles")));
             });
 
             runner.testGroup("assertLessThanOrEqualTo(T,T)", () ->
             {
-                Action3<Distance,Distance,Throwable> assertLessThanOrEqualToTest = (Distance value, Distance upperBound, Throwable expectedError) ->
+                Action3<Length,Length,Throwable> assertLessThanOrEqualToTest = (Length value, Length upperBound, Throwable expectedError) ->
                 {
                     runner.test("with " + Objects.toString(value) + " and " + Objects.toString(upperBound), (Test test) ->
                     {
@@ -1568,20 +1568,20 @@ public interface TestTests
                 };
 
                 assertLessThanOrEqualToTest.run(null, null, null);
-                assertLessThanOrEqualToTest.run(Distance.inches(1), null, new TestError("abc", Iterable.create(
+                assertLessThanOrEqualToTest.run(Length.inches(1), null, new TestError("abc", Iterable.create(
                     "Expected: \"less than or equal to null\"",
                     "Actual:   1.0 Inches")));
-                assertLessThanOrEqualToTest.run(null, Distance.miles(5), null);
-                assertLessThanOrEqualToTest.run(Distance.inches(5), Distance.miles(3), null);
-                assertLessThanOrEqualToTest.run(Distance.miles(1), Distance.miles(1), null);
-                assertLessThanOrEqualToTest.run(Distance.miles(4), Distance.inches(1), new TestError("abc", Iterable.create(
+                assertLessThanOrEqualToTest.run(null, Length.miles(5), null);
+                assertLessThanOrEqualToTest.run(Length.inches(5), Length.miles(3), null);
+                assertLessThanOrEqualToTest.run(Length.miles(1), Length.miles(1), null);
+                assertLessThanOrEqualToTest.run(Length.miles(4), Length.inches(1), new TestError("abc", Iterable.create(
                     "Expected: \"less than or equal to 1.0 Inches\"",
                     "Actual:   4.0 Miles")));
             });
 
             runner.testGroup("assertGreaterThanOrEqualTo(T,T)", () ->
             {
-                Action3<Distance,Distance,Throwable> assertGreaterThanOrEqualToTest = (Distance value, Distance upperBound, Throwable expectedError) ->
+                Action3<Length,Length,Throwable> assertGreaterThanOrEqualToTest = (Length value, Length upperBound, Throwable expectedError) ->
                 {
                     runner.test("with " + Objects.toString(value) + " and " + Objects.toString(upperBound), (Test test) ->
                     {
@@ -1598,15 +1598,15 @@ public interface TestTests
                 };
 
                 assertGreaterThanOrEqualToTest.run(null, null, null);
-                assertGreaterThanOrEqualToTest.run(Distance.inches(1), null, null);
-                assertGreaterThanOrEqualToTest.run(null, Distance.miles(5), new TestError("abc", Iterable.create(
+                assertGreaterThanOrEqualToTest.run(Length.inches(1), null, null);
+                assertGreaterThanOrEqualToTest.run(null, Length.miles(5), new TestError("abc", Iterable.create(
                     "Expected: \"greater than or equal to 5.0 Miles\"",
                     "Actual:   null")));
-                assertGreaterThanOrEqualToTest.run(Distance.inches(5), Distance.miles(3), new TestError("abc", Iterable.create(
+                assertGreaterThanOrEqualToTest.run(Length.inches(5), Length.miles(3), new TestError("abc", Iterable.create(
                     "Expected: \"greater than or equal to 3.0 Miles\"",
                     "Actual:   5.0 Inches")));
-                assertGreaterThanOrEqualToTest.run(Distance.miles(1), Distance.miles(1), null);
-                assertGreaterThanOrEqualToTest.run(Distance.miles(4), Distance.inches(1), null);
+                assertGreaterThanOrEqualToTest.run(Length.miles(1), Length.miles(1), null);
+                assertGreaterThanOrEqualToTest.run(Length.miles(4), Length.inches(1), null);
             });
 
             runner.testGroup("assertGreaterThanOrEqualTo(double,double)", () ->
@@ -1636,7 +1636,7 @@ public interface TestTests
 
             runner.testGroup("assertGreaterThan(T,T)", () ->
             {
-                Action3<Distance,Distance,Throwable> assertGreaterThanTest = (Distance value, Distance upperBound, Throwable expectedError) ->
+                Action3<Length,Length,Throwable> assertGreaterThanTest = (Length value, Length upperBound, Throwable expectedError) ->
                 {
                     runner.test("with " + Objects.toString(value) + " and " + Objects.toString(upperBound), (Test test) ->
                     {
@@ -1655,22 +1655,22 @@ public interface TestTests
                 assertGreaterThanTest.run(null, null, new TestError("abc", Iterable.create(
                     "Expected: \"greater than null\"",
                     "Actual:   null")));
-                assertGreaterThanTest.run(Distance.inches(1), null, null);
-                assertGreaterThanTest.run(null, Distance.miles(5), new TestError("abc", Iterable.create(
+                assertGreaterThanTest.run(Length.inches(1), null, null);
+                assertGreaterThanTest.run(null, Length.miles(5), new TestError("abc", Iterable.create(
                     "Expected: \"greater than 5.0 Miles\"",
                     "Actual:   null")));
-                assertGreaterThanTest.run(Distance.inches(5), Distance.miles(3), new TestError("abc", Iterable.create(
+                assertGreaterThanTest.run(Length.inches(5), Length.miles(3), new TestError("abc", Iterable.create(
                     "Expected: \"greater than 3.0 Miles\"",
                     "Actual:   5.0 Inches")));
-                assertGreaterThanTest.run(Distance.miles(1), Distance.miles(1), new TestError("abc", Iterable.create(
+                assertGreaterThanTest.run(Length.miles(1), Length.miles(1), new TestError("abc", Iterable.create(
                     "Expected: \"greater than 1.0 Miles\"",
                     "Actual:   1.0 Miles")));
-                assertGreaterThanTest.run(Distance.miles(4), Distance.inches(1), null);
+                assertGreaterThanTest.run(Length.miles(4), Length.inches(1), null);
             });
 
             runner.testGroup("assertBetween(T,T,T)", () ->
             {
-                final Action4<Distance,Distance,Distance,Throwable> assertBetweenTest = (Distance lowerBound, Distance value, Distance upperBound, Throwable expectedError) ->
+                final Action4<Length,Length,Length,Throwable> assertBetweenTest = (Length lowerBound, Length value, Length upperBound, Throwable expectedError) ->
                 {
                     runner.test("with " + Objects.toString(lowerBound) + ", " + Objects.toString(value) + ", and " + Objects.toString(upperBound), (Test test) ->
                     {
@@ -1687,34 +1687,34 @@ public interface TestTests
                 };
 
                 assertBetweenTest.run(null, null, null, null);
-                assertBetweenTest.run(null, null, Distance.miles(0.6), null);
-                assertBetweenTest.run(null, Distance.miles(0.5), null, new TestError("abc", Iterable.create(
+                assertBetweenTest.run(null, null, Length.miles(0.6), null);
+                assertBetweenTest.run(null, Length.miles(0.5), null, new TestError("abc", Iterable.create(
                     "Expected: \"between null and null\"",
                     "Actual:   0.5 Miles")));
-                assertBetweenTest.run(null, Distance.miles(0.5), Distance.miles(0.4), new TestError("abc", Iterable.create(
+                assertBetweenTest.run(null, Length.miles(0.5), Length.miles(0.4), new TestError("abc", Iterable.create(
                     "Expected: \"between null and 0.4 Miles\"",
                     "Actual:   0.5 Miles")));
-                assertBetweenTest.run(null, Distance.miles(0.5), Distance.miles(0.5), null);
-                assertBetweenTest.run(null, Distance.miles(0.5), Distance.miles(0.6), null);
-                assertBetweenTest.run(Distance.miles(1), null, null, new TestError("abc", Iterable.create(
+                assertBetweenTest.run(null, Length.miles(0.5), Length.miles(0.5), null);
+                assertBetweenTest.run(null, Length.miles(0.5), Length.miles(0.6), null);
+                assertBetweenTest.run(Length.miles(1), null, null, new TestError("abc", Iterable.create(
                     "Expected: \"between 1.0 Miles and null\"",
                     "Actual:   null")));
-                assertBetweenTest.run(Distance.miles(1), Distance.miles(0.5), null, new TestError("abc", Iterable.create(
+                assertBetweenTest.run(Length.miles(1), Length.miles(0.5), null, new TestError("abc", Iterable.create(
                     "Expected: \"between 1.0 Miles and null\"",
                     "Actual:   0.5 Miles")));
-                assertBetweenTest.run(Distance.miles(1), Distance.miles(1.0), null, new TestError("abc", Iterable.create(
+                assertBetweenTest.run(Length.miles(1), Length.miles(1.0), null, new TestError("abc", Iterable.create(
                     "Expected: \"between 1.0 Miles and null\"",
                     "Actual:   1.0 Miles")));
-                assertBetweenTest.run(Distance.miles(1), Distance.miles(1.2), null, new TestError("abc", Iterable.create(
+                assertBetweenTest.run(Length.miles(1), Length.miles(1.2), null, new TestError("abc", Iterable.create(
                     "Expected: \"between 1.0 Miles and null\"",
                     "Actual:   1.2 Miles")));
-                assertBetweenTest.run(Distance.miles(1), null, Distance.miles(0.6), new TestError("abc", Iterable.create(
+                assertBetweenTest.run(Length.miles(1), null, Length.miles(0.6), new TestError("abc", Iterable.create(
                     "Expected: \"between 1.0 Miles and 0.6 Miles\"",
                     "Actual:   null")));
-                assertBetweenTest.run(Distance.miles(1), null, Distance.miles(1), new TestError("abc", Iterable.create(
+                assertBetweenTest.run(Length.miles(1), null, Length.miles(1), new TestError("abc", Iterable.create(
                     "Expected: \"between 1.0 Miles and 1.0 Miles\"",
                     "Actual:   null")));
-                assertBetweenTest.run(Distance.miles(1), null, Distance.miles(2), new TestError("abc", Iterable.create(
+                assertBetweenTest.run(Length.miles(1), null, Length.miles(2), new TestError("abc", Iterable.create(
                     "Expected: \"between 1.0 Miles and 2.0 Miles\"",
                     "Actual:   null")));
             });

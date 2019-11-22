@@ -577,6 +577,31 @@ public interface VolumeTests
                 timesTest.run(Volume.zero, 49.0, Volume.zero);
                 timesTest.run(Volume.usFluidOunces(0), -13.0, Volume.usFluidOunces(0));
             });
+
+            runner.testGroup("dividedBy(double)", () ->
+            {
+                runner.test("with 1.0 Liters and 0.0", (Test test) ->
+                {
+                    test.assertThrows(() -> Volume.liters(1).dividedBy(0),
+                        new PreConditionFailure("value (0.0) must not be 0.0."));
+                });
+
+                final Action3<Volume,Double,Volume> dividedByTest = (Volume volume, Double value, Volume expected) ->
+                {
+                    runner.test("with " + volume + " and " + value, (Test test) ->
+                    {
+                        final Volume quotient = volume.dividedBy(value);
+                        test.assertNotNull(quotient);
+                        test.assertEqual(expected.getValue(), quotient.getValue());
+                        test.assertEqual(expected.getUnits(), quotient.getUnits());
+                    });
+                };
+
+                dividedByTest.run(Volume.milliliters(1), -1.0, Volume.milliliters(-1));
+                dividedByTest.run(Volume.liters(3), 10.0, Volume.liters(0.3));
+                dividedByTest.run(Volume.zero, 49.0, Volume.zero);
+                dividedByTest.run(Volume.usFluidOunces(0), -13.0, Volume.usFluidOunces(0));
+            });
         });
     }
 }
