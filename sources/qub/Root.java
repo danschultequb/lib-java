@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A root (also known as Volume or Drive) reference within a file system.
+ * A root (also known as a Drive) reference within a file system.
  */
 public class Root
 {

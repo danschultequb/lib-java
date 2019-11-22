@@ -1,7 +1,5 @@
 package qub;
 
-import java.text.DecimalFormat;
-
 /**
  * A measurement between two points.
  */
@@ -550,7 +548,7 @@ public class Distance implements Comparable<Distance>
     {
         PreCondition.assertNotNull(format, "format");
 
-        return new DecimalFormat(format).format(value) + " " + units;
+        return new java.text.DecimalFormat(format).format(value) + " " + units;
     }
 
     @Override
