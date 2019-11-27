@@ -1,8 +1,8 @@
 package qub;
 
-public class JavaClockTests
+public interface JavaClockTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(JavaClock.class, () ->
         {
@@ -114,13 +114,13 @@ public class JavaClockTests
                     final Duration duration = endTime.minus(startTime);
                     test.assertTrue(value.hasValue());
                     test.assertTrue(value.get());
-                    test.assertGreaterThanOrEqualTo(duration, delay);
+                    test.assertGreaterThanOrEqualTo(duration, delay, Duration.nanoseconds(1));
                 });
             });
         });
     }
 
-    private static JavaClock createClock(Test test)
+    static JavaClock createClock(Test test)
     {
         return new JavaClock(test.getParallelAsyncRunner());
     }

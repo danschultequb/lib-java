@@ -1,15 +1,118 @@
 package qub;
 
-import java.time.ZoneId;
-import java.util.Calendar;
-
+/**
+ * A date and time value.
+ */
 public class DateTime implements Comparable<DateTime>
 {
-    private final java.util.Calendar calendar;
+    private final java.time.OffsetDateTime offsetDateTime;
 
-    private DateTime(java.util.Calendar calendar)
+    private DateTime(java.time.OffsetDateTime offsetDateTime)
     {
-        this.calendar = calendar;
+        PreCondition.assertNotNull(offsetDateTime, "offsetDateTime");
+
+        this.offsetDateTime = offsetDateTime;
+    }
+
+    private static java.time.ZoneOffset getZoneOffset(Duration timeZoneOffset)
+    {
+        PreCondition.assertNotNull(timeZoneOffset, "timeZoneOffset");
+
+        final java.time.ZoneOffset result = java.time.ZoneOffset.ofTotalSeconds((int)timeZoneOffset.toSeconds().getValue());
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    public static DateTime createFromDurationSinceEpoch(Duration durationSinceEpoch)
+    {
+        PreCondition.assertNotNull(durationSinceEpoch, "durationSinceEpoch");
+
+        return DateTime.createFromDurationSinceEpoch(durationSinceEpoch, Duration.zero);
+    }
+
+    public static DateTime createFromDurationSinceEpoch(Duration durationSinceEpoch, Duration offset)
+    {
+        PreCondition.assertNotNull(durationSinceEpoch, "durationSinceEpoch");
+        PreCondition.assertNotNull(offset, "offset");
+
+        final long durationSinceEpochSeconds = (long)durationSinceEpoch.toSeconds().getValue();
+        final long durationSinceEpochNanosecondAdjustment = (long)durationSinceEpoch.minus(Duration.seconds(durationSinceEpochSeconds)).toNanoseconds().getValue();
+        final java.time.Instant instant = java.time.Instant.ofEpochSecond(durationSinceEpochSeconds, durationSinceEpochNanosecondAdjustment);
+        final java.time.ZoneOffset zoneOffset = DateTime.getZoneOffset(offset);
+        final java.time.OffsetDateTime offsetDateTime = java.time.OffsetDateTime.ofInstant(instant, zoneOffset);
+        final DateTime result = new DateTime(offsetDateTime);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(durationSinceEpoch, result.getDurationSinceEpoch(), Duration.nanoseconds(1), "result.getDurationSinceEpoch()");
+        PostCondition.assertEqual(offset, result.getOffset(), "result.getTimeZoneOffset()");
+
+        return result;
+    }
+
+    public static DateTime create(int year, int month, int dayOfMonth)
+    {
+        return DateTime.create(year, month, dayOfMonth, Duration.zero);
+    }
+
+    public static DateTime create(int year, int month, int dayOfMonth, Duration offset)
+    {
+        PreCondition.assertNotNull(offset, "offset");
+
+        return DateTime.create(year, month, dayOfMonth, 0, 0, offset);
+    }
+
+    public static DateTime create(int year, int month, int dayOfMonth, int hourOfDay, int minute)
+    {
+        return DateTime.create(year, month, dayOfMonth, hourOfDay, minute, Duration.zero);
+    }
+
+    public static DateTime create(int year, int month, int dayOfMonth, int hourOfDay, int minute, Duration offset)
+    {
+        PreCondition.assertNotNull(offset, "offset");
+
+        return DateTime.create(year, month, dayOfMonth, hourOfDay, minute, 0, offset);
+    }
+
+    public static DateTime create(int year, int month, int dayOfMonth, int hourOfDay, int minute, int second)
+    {
+        return DateTime.create(year, month, dayOfMonth, hourOfDay, minute, second, Duration.zero);
+    }
+
+    public static DateTime create(int year, int month, int dayOfMonth, int hourOfDay, int minute, int second, Duration offset)
+    {
+        PreCondition.assertNotNull(offset, "offset");
+
+        return DateTime.create(year, month, dayOfMonth, hourOfDay, minute, second, 0, offset);
+    }
+
+    public static DateTime create(int year, int month, int dayOfMonth, int hourOfDay, int minute, int second, int millisecond)
+    {
+        return DateTime.create(year, month, dayOfMonth, hourOfDay, minute, second, millisecond, Duration.zero);
+    }
+
+    public static DateTime create(int year, int month, int dayOfMonth, int hourOfDay, int minute, int second, int millisecond, Duration offset)
+    {
+        PreCondition.assertNotNull(offset, "offset");
+
+        final java.time.ZoneOffset zoneOffset = DateTime.getZoneOffset(offset);
+        final java.time.LocalDateTime localDateTime = java.time.LocalDateTime.of(year, month, dayOfMonth, hourOfDay, minute, second, (int)Duration.milliseconds(millisecond).toNanoseconds().getValue());
+        final java.time.Instant instant = localDateTime.toInstant(zoneOffset);
+        final java.time.OffsetDateTime offsetDateTime = java.time.OffsetDateTime.ofInstant(instant, zoneOffset);
+        final DateTime result = new DateTime(offsetDateTime);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(year, result.getYear(), "result.getYear()");
+        PostCondition.assertEqual(month, result.getMonth(), "result.getMonth()");
+        PostCondition.assertEqual(dayOfMonth, result.getDayOfMonth(), "result.getDayOfMonth()");
+        PostCondition.assertEqual(hourOfDay, result.getHourOfDay(), "result.getHourOfDay()");
+        PostCondition.assertEqual(minute, result.getMinute(), "result.getMinute()");
+        PostCondition.assertEqual(second, result.getSecond(), "result.getSecond()");
+        PostCondition.assertEqual(millisecond, result.getMillisecond(), "result.getMillisecond()");
+        PostCondition.assertEqual(offset, result.getOffset(), "result.getTimeZoneOffset()");
+
+        return result;
     }
 
     /**
@@ -18,7 +121,7 @@ public class DateTime implements Comparable<DateTime>
      */
     public int getYear()
     {
-        return calendar.get(java.util.Calendar.YEAR);
+        return this.offsetDateTime.getYear();
     }
 
     /**
@@ -27,44 +130,107 @@ public class DateTime implements Comparable<DateTime>
      */
     public int getMonth()
     {
-        return calendar.get(java.util.Calendar.MONTH) + 1;
+        return this.offsetDateTime.getMonth().getValue();
     }
 
     public int getDayOfMonth()
     {
-        return calendar.get(java.util.Calendar.DAY_OF_MONTH);
+        return this.offsetDateTime.getDayOfMonth();
     }
 
     public int getHourOfDay()
     {
-        return calendar.get(java.util.Calendar.HOUR_OF_DAY);
+        return this.offsetDateTime.getHour();
     }
 
     public int getMinute()
     {
-        return calendar.get(java.util.Calendar.MINUTE);
+        return this.offsetDateTime.getMinute();
     }
 
     public int getSecond()
     {
-        return calendar.get(java.util.Calendar.SECOND);
+        return this.offsetDateTime.getSecond();
+    }
+
+    private int scopeNanosecondAdjustment(int nanosecondModifier, int resultScope)
+    {
+        final int nanosecondAdjustment = this.offsetDateTime.getNano();
+        final int result = (nanosecondAdjustment / nanosecondModifier) % resultScope;
+
+        PostCondition.assertBetween(0, result, resultScope, "result");
+
+        return result;
     }
 
     public int getMillisecond()
     {
-        return calendar.get(java.util.Calendar.MILLISECOND);
+        return this.scopeNanosecondAdjustment(Duration.MillisecondsToNanoseconds, Duration.SecondsToMilliseconds);
     }
 
+    public int getMicrosecond()
+    {
+        return this.scopeNanosecondAdjustment(Duration.MicrosecondsToNanoseconds, Duration.MillisecondsToMicroseconds);
+    }
+
+    public int getNanosecond()
+    {
+        return this.scopeNanosecondAdjustment(1, Duration.MicrosecondsToNanoseconds);
+    }
+
+    /**
+     * Get the duration that has passed since the epoch (1970-01-01 UTC).
+     * @return The duration that has passed since the epoch (1970-01-01 UTC).
+     */
+    public Duration getDurationSinceEpoch()
+    {
+        final java.time.Instant instant = this.offsetDateTime.toInstant();
+        final long secondsSinceEpoch = instant.getEpochSecond();
+        final int nanosecondAdjustment = instant.getNano();
+        final Duration result = Duration.seconds(secondsSinceEpoch).plus(Duration.nanoseconds(nanosecondAdjustment));
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * Get the number of milliseconds that have passed since the epoch (1970-01-01 UTC).
+     * @return The number of milliseconds that have passed since the epoch (1970-01-01 UTC).
+     */
     public long getMillisecondsSinceEpoch()
     {
-        return calendar.getTimeInMillis();
+        return (long)this.getDurationSinceEpoch().toMilliseconds().getValue();
     }
 
-    public Duration getTimeZoneOffset()
+    /**
+     * Get the offset of this date time.
+     * @return The offset of this date time.
+     */
+    public Duration getOffset()
     {
-        final java.util.TimeZone timeZone = calendar.getTimeZone();
-        final int offsetInMilliseconds = timeZone.getOffset(getMillisecondsSinceEpoch());
-        return Duration.milliseconds(offsetInMilliseconds);
+        return Duration.seconds(this.offsetDateTime.getOffset().getTotalSeconds());
+    }
+
+    /**
+     * Convert this DateTime object to the provided offset.
+     * @param offset The offset to convert this DateTime object to.
+     * @return The converted DateTime object.
+     */
+    public DateTime toOffset(Duration offset)
+    {
+        PreCondition.assertNotNull(offset, "offset");
+
+        DateTime result = this;
+        if (!offset.equals(this.getOffset()))
+        {
+            result = DateTime.createFromDurationSinceEpoch(this.getDurationSinceEpoch(), offset);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(offset, result.getOffset(), "result.getTimeZoneOffset()");
+
+        return result;
     }
 
     /**
@@ -73,17 +239,7 @@ public class DateTime implements Comparable<DateTime>
      */
     public DateTime toUTC()
     {
-        DateTime result = this;
-        final Duration timeZoneOffset = getTimeZoneOffset();
-        if (!timeZoneOffset.equals(Duration.zero))
-        {
-            result = DateTime.utc((long)(getMillisecondsSinceEpoch() - timeZoneOffset.toMilliseconds().getValue()));
-        }
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(Duration.zero, result.getTimeZoneOffset(), "result.getTimeZoneOffset()");
-
-        return result;
+        return this.toOffset(Duration.zero);
     }
 
     /**
@@ -96,16 +252,14 @@ public class DateTime implements Comparable<DateTime>
         PreCondition.assertNotNull(duration, "duration");
 
         DateTime result;
-        final int durationValue = (int)duration.toMilliseconds().getValue();
-        if (durationValue == 0)
+        final long durationNanoseconds = (long)duration.toNanoseconds().getValue();
+        if (durationNanoseconds == 0)
         {
             result = this;
         }
         else
         {
-            final java.util.Calendar resultCalendar = (java.util.Calendar)calendar.clone();
-            resultCalendar.add(java.util.Calendar.MILLISECOND, durationValue);
-            result = new DateTime(resultCalendar);
+            result = new DateTime(this.offsetDateTime.plusNanos(durationNanoseconds));
         }
 
         return result;
@@ -118,7 +272,7 @@ public class DateTime implements Comparable<DateTime>
      */
     public DateTime minus(Duration duration)
     {
-        return plus(duration.negate());
+        return this.plus(duration.negate());
     }
 
     /**
@@ -128,28 +282,27 @@ public class DateTime implements Comparable<DateTime>
      */
     public Duration minus(DateTime rhs)
     {
-        final long millisecondDifference = getMillisecondsSinceEpoch() - rhs.getMillisecondsSinceEpoch();
-        return Duration.milliseconds(millisecondDifference);
+        return this.getDurationSinceEpoch().minus(rhs.getDurationSinceEpoch());
     }
 
     @Override
     public String toString()
     {
         final StringBuilder builder = new StringBuilder();
-        builder.append(Strings.padLeft(getYear(), 4, '0'));
+        builder.append(Strings.padLeft(this.getYear(), 4, '0'));
         builder.append('-');
-        builder.append(Strings.padLeft(getMonth(), 2, '0'));
+        builder.append(Strings.padLeft(this.getMonth(), 2, '0'));
         builder.append('-');
-        builder.append(Strings.padLeft(getDayOfMonth(), 2, '0'));
+        builder.append(Strings.padLeft(this.getDayOfMonth(), 2, '0'));
         builder.append('T');
-        builder.append(Strings.padLeft(getHourOfDay(), 2, '0'));
+        builder.append(Strings.padLeft(this.getHourOfDay(), 2, '0'));
         builder.append(':');
-        builder.append(Strings.padLeft(getMinute(), 2, '0'));
+        builder.append(Strings.padLeft(this.getMinute(), 2, '0'));
         builder.append(':');
-        builder.append(Strings.padLeft(getSecond(), 2, '0'));
+        builder.append(Strings.padLeft(this.getSecond(), 2, '0'));
         builder.append('.');
-        builder.append(Strings.padLeft(getMillisecond(), 3, '0'));
-        final Duration timeZoneOffset = getTimeZoneOffset();
+        builder.append(Strings.padLeft(this.getMillisecond(), 3, '0'));
+        final Duration timeZoneOffset = this.getOffset();
         builder.append(timeZoneOffset.lessThan(Duration.zero) ? '-' : '+');
         final Duration positiveTimeZoneOffset = timeZoneOffset.absoluteValue();
         builder.append(Strings.padLeft((int)positiveTimeZoneOffset.toHours().getValue(), 2, '0'));
@@ -158,60 +311,10 @@ public class DateTime implements Comparable<DateTime>
         return builder.toString();
     }
 
-    public static DateTime local(long millisecondsSinceEpoch)
-    {
-        final java.util.Calendar calendar = java.util.Calendar.getInstance();
-        calendar.setTimeInMillis(millisecondsSinceEpoch);
-        return new DateTime(calendar);
-    }
-
-    public static DateTime utc(long millisecondsSinceEpoch)
-    {
-        final java.util.Calendar calendar = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"));
-        calendar.setTimeInMillis(millisecondsSinceEpoch);
-        return new DateTime(calendar);
-    }
-
-    public static DateTime local(int year, int month, int dayOfMonth, int hourOfDay, int minute, int second, int millisecond)
-    {
-        final java.util.Calendar calendar = java.util.Calendar.getInstance();
-        calendar.set(java.util.Calendar.YEAR, year);
-        calendar.set(java.util.Calendar.MONTH, month - 1);
-        calendar.set(java.util.Calendar.DAY_OF_MONTH, dayOfMonth);
-        calendar.set(java.util.Calendar.HOUR_OF_DAY, hourOfDay);
-        calendar.set(java.util.Calendar.MINUTE, minute);
-        calendar.set(java.util.Calendar.SECOND, second);
-        calendar.set(java.util.Calendar.MILLISECOND, millisecond);
-        return new DateTime(calendar);
-    }
-
-    public static DateTime utcNow()
-    {
-        return new DateTime(java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC")));
-    }
-
-    public static DateTime utc(int year, int month, int dayOfMonth, int hourOfDay, int minute, int second, int millisecond)
-    {
-        final java.util.Calendar calendar = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("UTC"));
-        calendar.set(java.util.Calendar.YEAR, year);
-        calendar.set(java.util.Calendar.MONTH, month - 1);
-        calendar.set(java.util.Calendar.DAY_OF_MONTH, dayOfMonth);
-        calendar.set(java.util.Calendar.HOUR_OF_DAY, hourOfDay);
-        calendar.set(java.util.Calendar.MINUTE, minute);
-        calendar.set(java.util.Calendar.SECOND, second);
-        calendar.set(java.util.Calendar.MILLISECOND, millisecond);
-        return new DateTime(calendar);
-    }
-
-    public static DateTime date(int year, int month, int dayOfMonth)
-    {
-        return utc(year, month, dayOfMonth, 0, 0, 0, 0);
-    }
-
     @Override
     public Comparison compareTo(DateTime value)
     {
-        return value == null ? Comparison.GreaterThan : Comparison.from(getMillisecondsSinceEpoch() - value.getMillisecondsSinceEpoch());
+        return value == null ? Comparison.GreaterThan : Comparison.from(this.offsetDateTime.compareTo(value.offsetDateTime));
     }
 
     @Override

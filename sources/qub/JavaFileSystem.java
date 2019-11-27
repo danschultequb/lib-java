@@ -220,23 +220,27 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return Result.createResult(() ->
+        return Result.create(() ->
         {
-            Result<DateTime> result;
+            DateTime result;
             try
             {
                 final String rootedFilePathString = rootedFilePath.toString();
                 final java.nio.file.Path filePath = java.nio.file.Paths.get(rootedFilePathString);
                 final java.nio.file.attribute.FileTime lastModifiedTime = java.nio.file.Files.getLastModifiedTime(filePath);
-                result = Result.success(DateTime.local(lastModifiedTime.toMillis()));
+                final java.time.Instant lastModifiedInstant = lastModifiedTime.toInstant();
+                final long secondsSinceEpoch = lastModifiedInstant.getEpochSecond();
+                final int nanosecondAdjustment = lastModifiedInstant.getNano();
+                final Duration durationSinceEpoch = Duration.seconds(secondsSinceEpoch).plus(Duration.nanoseconds(nanosecondAdjustment));
+                result = DateTime.createFromDurationSinceEpoch(durationSinceEpoch);
             }
             catch (java.nio.file.NoSuchFileException e)
             {
-                result = Result.error(new FileNotFoundException(rootedFilePath));
+                throw new FileNotFoundException(rootedFilePath);
             }
-            catch (java.io.IOException e)
+            catch (Throwable e)
             {
-                result = Result.error(e);
+                throw Exceptions.asRuntime(e);
             }
             return result;
         });

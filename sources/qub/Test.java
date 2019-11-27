@@ -309,6 +309,34 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
+            throw new TestError(this.getFullName(), Test.getMessageLines(message, expected, actual));
+        }
+    }
+
+    /**
+     * Assert that the provided values are equal. If they are not equal, then a TestError
+     * will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param <T> The type of values to compare.
+     */
+    public <T> void assertEqual(ComparableWithError<T> expected, T actual, T marginOfError)
+    {
+        this.assertEqual(expected, actual, marginOfError, null);
+    }
+
+    /**
+     * Assert that the provided values are equal. If they are not equal, then a TestError
+     * will be thrown with the provided message.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     * @param message The message to show if the values are not equal
+     * @param <T> The type of values to compare.
+     */
+    public <T> void assertEqual(ComparableWithError<T> expected, T actual, T marginOfError, String message)
+    {
+        if (!Comparer.equal(expected, actual, marginOfError))
+        {
             throw new TestError(getFullName(), getMessageLines(message, expected, actual));
         }
     }
@@ -966,16 +994,29 @@ public class Test
         }
     }
 
-    public <T extends Comparable<T>> void assertGreaterThanOrEqualTo(T value, T lowerBound)
+    public <T> void assertGreaterThanOrEqualTo(Comparable<T> value, T lowerBound)
     {
         assertGreaterThanOrEqualTo(value, lowerBound, null);
     }
 
-    public <T extends Comparable<T>> void assertGreaterThanOrEqualTo(T value, T lowerBound, String message)
+    public <T> void assertGreaterThanOrEqualTo(Comparable<T> value, T lowerBound, String message)
     {
         if (!Comparer.greaterThanOrEqualTo(value, lowerBound))
         {
             throw new TestError(getFullName(), getMessageLines(message, "greater than or equal to " + Objects.toString(lowerBound), value));
+        }
+    }
+
+    public <T> void assertGreaterThanOrEqualTo(ComparableWithError<T> value, T lowerBound, T marginOfError)
+    {
+        assertGreaterThanOrEqualTo(value, lowerBound, marginOfError, null);
+    }
+
+    public <T> void assertGreaterThanOrEqualTo(ComparableWithError<T> value, T lowerBound, T marginOfError, String message)
+    {
+        if (!Comparer.greaterThanOrEqualTo(value, lowerBound, marginOfError))
+        {
+            throw new TestError(getFullName(), getMessageLines(message, "greater than or equal to " + Objects.toString(lowerBound) + "(+/- " + marginOfError + ")", value));
         }
     }
 

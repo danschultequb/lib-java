@@ -1,8 +1,8 @@
 package qub;
 
-public class DurationTests
+public interface DurationTests
 {
-    public static void test(final TestRunner runner)
+    static void test(final TestRunner runner)
     {
         runner.testGroup(Duration.class, () ->
         {
@@ -428,33 +428,117 @@ public class DurationTests
                 test.assertEqual("123.0 Microseconds", Duration.microseconds(123).toString("#0.0#"));
             });
 
-            runner.test("equals()", (Test test) ->
+            runner.testGroup("equals(Object)", () ->
             {
-                final Duration duration = Duration.milliseconds(123);
+                final Action3<Duration,Object,Boolean> equalsTest = (Duration duration, Object rhs, Boolean expected) ->
+                {
+                    runner.test("with " + duration + " and " + rhs, (Test test) ->
+                    {
+                        test.assertEqual(expected, duration.equals(rhs));
+                    });
+                };
 
-                test.assertFalse(duration.equals((Object)null));
-                test.assertFalse(duration.equals((Duration)null));
+                equalsTest.run(Duration.milliseconds(1), null, false);
+                equalsTest.run(Duration.milliseconds(1), "1", false);
+                equalsTest.run(Duration.milliseconds(1000), Duration.milliseconds(10), false);
+                equalsTest.run(Duration.milliseconds(1), Duration.seconds(1), false);
+                equalsTest.run(Duration.milliseconds(1000), Duration.seconds(1), true);
+                equalsTest.run(Duration.milliseconds(1), Duration.seconds(0.001), true);
+                equalsTest.run(Duration.seconds(1), Duration.milliseconds(1000), true);
+                equalsTest.run(Duration.seconds(0.001), Duration.milliseconds(1), true);
+                equalsTest.run(Duration.milliseconds(60000), Duration.minutes(1), true);
+                equalsTest.run(Duration.minutes(1), Duration.milliseconds(60000), true);
+            });
 
-                test.assertFalse(duration.equals((Object)"123"));
+            runner.testGroup("equals(Duration)", () ->
+            {
+                final Action3<Duration,Duration,Boolean> equalsTest = (Duration duration, Duration rhs, Boolean expected) ->
+                {
+                    runner.test("with " + duration + " and " + rhs, (Test test) ->
+                    {
+                        test.assertEqual(expected, duration.equals(rhs));
+                    });
+                };
 
-                test.assertTrue(duration.equals((Object)duration));
-                test.assertTrue(duration.equals(duration));
+                equalsTest.run(Duration.milliseconds(1), null, false);
+                equalsTest.run(Duration.milliseconds(1000), Duration.milliseconds(10), false);
+                equalsTest.run(Duration.milliseconds(1), Duration.seconds(1), false);
+                equalsTest.run(Duration.milliseconds(1000), Duration.seconds(1), true);
+                equalsTest.run(Duration.milliseconds(1), Duration.seconds(0.001), true);
+                equalsTest.run(Duration.seconds(1), Duration.milliseconds(1000), true);
+                equalsTest.run(Duration.seconds(0.001), Duration.milliseconds(1), true);
+                equalsTest.run(Duration.milliseconds(60000), Duration.minutes(1), true);
+                equalsTest.run(Duration.minutes(1), Duration.milliseconds(60000), true);
+            });
 
-                test.assertFalse(duration.equals(Duration.milliseconds(122)));
+            runner.testGroup("compareTo(Duration)", () ->
+            {
+                final Action3<Duration,Duration,Comparison> compareToTest = (Duration duration, Duration rhs, Comparison expected) ->
+                {
+                    runner.test("with " + duration + " and " + rhs, (Test test) ->
+                    {
+                        test.assertEqual(expected, duration.compareTo(rhs));
+                    });
+                };
 
-                test.assertFalse(duration.equals(Duration.microseconds(123)));
+                compareToTest.run(Duration.milliseconds(1), null, Comparison.GreaterThan);
+                compareToTest.run(Duration.milliseconds(1000), Duration.milliseconds(10), Comparison.GreaterThan);
+                compareToTest.run(Duration.milliseconds(1), Duration.seconds(1), Comparison.LessThan);
+                compareToTest.run(Duration.milliseconds(1000), Duration.seconds(1), Comparison.Equal);
+                compareToTest.run(Duration.milliseconds(1), Duration.seconds(0.001), Comparison.Equal);
+                compareToTest.run(Duration.seconds(1), Duration.milliseconds(1000), Comparison.Equal);
+                compareToTest.run(Duration.seconds(0.001), Duration.milliseconds(1), Comparison.Equal);
+                compareToTest.run(Duration.milliseconds(60000), Duration.minutes(1), Comparison.Equal);
+                compareToTest.run(Duration.minutes(1), Duration.milliseconds(60000), Comparison.Equal);
+            });
+
+            runner.testGroup("compareTo(Duration,Duration)", () ->
+            {
+                runner.test("with null marginOfError", (Test test) ->
+                {
+                    test.assertThrows(() -> Duration.seconds(1).compareTo(Duration.seconds(2), null),
+                        new PreConditionFailure("marginOfError cannot be null."));
+                });
+
+                runner.test("with negative marginOfError", (Test test) ->
+                {
+                    test.assertThrows(() -> Duration.seconds(1).compareTo(Duration.seconds(2), Duration.nanoseconds(-1)),
+                        new PreConditionFailure("marginOfError (-1.0 Nanoseconds) must be greater than or equal to 0.0 Seconds."));
+                });
+
+                final Action4<Duration,Duration,Duration,Comparison> compareToTest = (Duration duration, Duration rhs, Duration marginOfError, Comparison expected) ->
+                {
+                    runner.test("with " + duration + " and " + rhs + " (+/-" + marginOfError + ")", (Test test) ->
+                    {
+                        test.assertEqual(expected, duration.compareTo(rhs, marginOfError));
+                    });
+                };
+
+                compareToTest.run(Duration.milliseconds(1), null, Duration.nanoseconds(1), Comparison.GreaterThan);
+                compareToTest.run(Duration.milliseconds(1000), Duration.milliseconds(10), Duration.nanoseconds(1), Comparison.GreaterThan);
+                compareToTest.run(Duration.milliseconds(1), Duration.seconds(1), Duration.nanoseconds(1), Comparison.LessThan);
+                compareToTest.run(Duration.milliseconds(1000), Duration.seconds(1), Duration.nanoseconds(1), Comparison.Equal);
+                compareToTest.run(Duration.milliseconds(1), Duration.seconds(0.001), Duration.nanoseconds(1), Comparison.Equal);
+                compareToTest.run(Duration.seconds(1), Duration.milliseconds(1000), Duration.nanoseconds(1), Comparison.Equal);
+                compareToTest.run(Duration.seconds(0.001), Duration.milliseconds(1), Duration.nanoseconds(1), Comparison.Equal);
+                compareToTest.run(Duration.milliseconds(60000), Duration.minutes(1), Duration.nanoseconds(1), Comparison.Equal);
+                compareToTest.run(Duration.minutes(1), Duration.milliseconds(60000), Duration.nanoseconds(1), Comparison.Equal);
+
+                compareToTest.run(Duration.seconds(1), Duration.seconds(1.1), Duration.seconds(0.05), Comparison.LessThan);
+                compareToTest.run(Duration.seconds(1), Duration.seconds(1.1), Duration.seconds(0.5), Comparison.Equal);
+                compareToTest.run(Duration.seconds(1.1), Duration.seconds(1), Duration.seconds(0.099), Comparison.GreaterThan);
             });
         });
     }
 
-    private static void assertDuration(Test test, Duration duration, double expectedValue, DurationUnit expectedUnits)
+    static void assertDuration(Test test, Duration duration, double expectedValue, DurationUnit expectedUnits)
     {
         test.assertNotNull(duration);
         test.assertEqual(expectedValue, duration.getValue());
         test.assertEqual(expectedUnits, duration.getUnits());
     }
 
-    private static void assertDuration(Test test, Duration duration, double expectedValue, DurationUnit expectedUnits, double marginOfError)
+    static void assertDuration(Test test, Duration duration, double expectedValue, DurationUnit expectedUnits, double marginOfError)
     {
         test.assertNotNull(duration);
         test.assertEqual(expectedValue, duration.getValue(), marginOfError);

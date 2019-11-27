@@ -28,11 +28,28 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
                compare(lhs.intValue(), rhs.intValue());
     }
 
-    static <T extends Comparable<T>> Comparison compare(T lhs, T rhs)
+    static <T> Comparison compare(Comparable<T> lhs, T rhs)
     {
         return lhs == rhs ? Comparison.Equal :
                lhs == null ? Comparison.LessThan :
                lhs.compareTo(rhs);
+    }
+
+    static <T> Comparison compare(ComparableWithError<T> lhs, T rhs, T marginOfError)
+    {
+        return lhs == rhs ? Comparison.Equal :
+               lhs == null ? Comparison.LessThan :
+               lhs.compareTo(rhs, marginOfError);
+    }
+
+    static <T> boolean equal(Comparable<T> lhs, T rhs)
+    {
+        return Comparer.compare(lhs, rhs) == Comparison.Equal;
+    }
+
+    static <T> boolean equal(ComparableWithError<T> lhs, T rhs, T marginOfError)
+    {
+        return Comparer.compare(lhs, rhs, marginOfError) == Comparison.Equal;
     }
 
     /**
@@ -619,9 +636,22 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
      * @param <T> The type of the values to compare.
      * @return Whether or not the value is greater than or equal to the provided lowerBound.
      */
-    static <T extends Comparable<T>> boolean greaterThanOrEqualTo(T value, T lowerBound)
+    static <T> boolean greaterThanOrEqualTo(Comparable<T> value, T lowerBound)
     {
         return value == lowerBound || (value != null && value.greaterThanOrEqualTo(lowerBound));
+    }
+
+    /**
+     * Get whether or not the provided value is greater than or equal to the lowerBound.
+     * @param value The value to compare.
+     * @param lowerBound The second value to compare.
+     * @param marginOfError The margin of error allowed
+     * @param <T> The type of the values to compare.
+     * @return Whether or not the value is greater than or equal to the provided lowerBound.
+     */
+    static <T> boolean greaterThanOrEqualTo(ComparableWithError<T> value, T lowerBound, T marginOfError)
+    {
+        return value == lowerBound || (value != null && value.greaterThanOrEqualTo(lowerBound, marginOfError));
     }
 
     /**
@@ -631,7 +661,7 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
      * @param <T> The type of the values to compare.
      * @return Whether or not the value is null or greater than or equal to the provided lowerBound.
      */
-    static <T extends Comparable<T>> boolean nullOrGreaterThanOrEqualTo(T value, T lowerBound)
+    static <T> boolean nullOrGreaterThanOrEqualTo(Comparable<T> value, T lowerBound)
     {
         return value == null || greaterThanOrEqualTo(value, lowerBound);
     }

@@ -35,6 +35,11 @@ public interface AssertionMessages
         return expressionName + " (" + value + ") must be " + expectedValue + ".";
     }
 
+    static <T> String equal(T expectedValue, T value, T marginOfError, String expressionName)
+    {
+        return expressionName + " (" + value + ") must be " + expectedValue + " (+/- " + marginOfError + ").";
+    }
+
     static <T> String notEqual(T expectedValue, T value, String expressionName)
     {
         return expressionName + " (" + value + ") must not be " + expectedValue + ".";

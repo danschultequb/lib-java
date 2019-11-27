@@ -109,6 +109,20 @@ public class PostCondition
      * @param value The value that should equal expectedValue.
      * @param variableName The name of the variable that contains the value.
      */
+    public static <T> void assertEqual(ComparableWithError<T> expectedValue, T value, T marginOfError, String variableName)
+    {
+        if (!Comparer.equal(expectedValue, value, marginOfError))
+        {
+            throw new PostConditionFailure(AssertionMessages.equal(expectedValue, value, marginOfError, variableName));
+        }
+    }
+
+    /**
+     * Assert that value is equal to the provided expectedValue.
+     * @param expectedValue The expected value that value should be equal to.
+     * @param value The value that should equal expectedValue.
+     * @param variableName The name of the variable that contains the value.
+     */
     public static void assertEqual(int expectedValue, int value, String variableName)
     {
         if (!Comparer.equal(expectedValue, value))

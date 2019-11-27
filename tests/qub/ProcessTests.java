@@ -414,7 +414,7 @@ public interface ProcessTests
                 runner.test("with manual", (Test test) ->
                 {
                     final Process process = creator.run();
-                    process.setClock(new ManualClock(DateTime.date(123, 4, 5), test.getMainAsyncRunner()));
+                    process.setClock(new ManualClock(DateTime.create(123, 4, 5), test.getMainAsyncRunner()));
                     final Clock clock = process.getClock();
                     test.assertNotNull(clock);
                     test.assertTrue(clock instanceof ManualClock);

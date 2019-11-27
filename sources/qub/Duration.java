@@ -1,63 +1,61 @@
 package qub;
 
-import java.text.DecimalFormat;
-
 /**
  * A period of time.
  */
-public class Duration implements Comparable<Duration>
+public class Duration implements ComparableWithError<Duration>
 {
     public static final Duration zero = Duration.seconds(0);
 
-    private static final double WeeksToDays = 7.0;
-    private static final double DaysToHours = 24.0;
-    private static final double HoursToMinutes = 60.0;
-    private static final double MinutesToSeconds = 60.0;
-    private static final double SecondsToMilliseconds = 1000.0;
-    private static final double MillisecondsToMicroseconds = 1000.0;
-    private static final double MicrosecondsToNanoseconds = 1000.0;
+    public static final int WeeksToDays = 7;
+    public static final int DaysToHours = 24;
+    public static final int HoursToMinutes = 60;
+    public static final int MinutesToSeconds = 60;
+    public static final int SecondsToMilliseconds = 1000;
+    public static final int MillisecondsToMicroseconds = 1000;
+    public static final int MicrosecondsToNanoseconds = 1000;
 
-    private static final double WeeksToHours = WeeksToDays * DaysToHours;
-    private static final double WeeksToMinutes = WeeksToHours * HoursToMinutes;
-    private static final double WeeksToSeconds = WeeksToMinutes * MinutesToSeconds;
-    private static final double WeeksToMilliseconds = WeeksToSeconds * SecondsToMilliseconds;
-    private static final double WeeksToMicroseconds = WeeksToMilliseconds * MillisecondsToMicroseconds;
-    private static final double WeeksToNanoseconds = WeeksToMicroseconds * MicrosecondsToNanoseconds;
+    public static final int WeeksToHours = WeeksToDays * DaysToHours;
+    private static final int WeeksToMinutes = WeeksToHours * HoursToMinutes;
+    private static final int WeeksToSeconds = WeeksToMinutes * MinutesToSeconds;
+    private static final long WeeksToMilliseconds = WeeksToSeconds * SecondsToMilliseconds;
+    private static final long WeeksToMicroseconds = WeeksToMilliseconds * MillisecondsToMicroseconds;
+    private static final long WeeksToNanoseconds = WeeksToMicroseconds * MicrosecondsToNanoseconds;
 
     private static final double DaysToWeeks = 1.0 / WeeksToDays;
-    private static final double DaysToMinutes = DaysToHours * HoursToMinutes;
-    private static final double DaysToSeconds = DaysToMinutes * MinutesToSeconds;
-    private static final double DaysToMilliseconds = DaysToSeconds * SecondsToMilliseconds;
-    private static final double DaysToMicroseconds = DaysToMilliseconds * MillisecondsToMicroseconds;
-    private static final double DaysToNanoseconds = DaysToMicroseconds * MicrosecondsToNanoseconds;
+    private static final int DaysToMinutes = DaysToHours * HoursToMinutes;
+    private static final int DaysToSeconds = DaysToMinutes * MinutesToSeconds;
+    private static final long DaysToMilliseconds = DaysToSeconds * SecondsToMilliseconds;
+    private static final long DaysToMicroseconds = DaysToMilliseconds * MillisecondsToMicroseconds;
+    private static final long DaysToNanoseconds = DaysToMicroseconds * MicrosecondsToNanoseconds;
 
     private static final double HoursToWeeks = 1.0 / WeeksToHours;
     private static final double HoursToDays = 1.0 / DaysToHours;
-    private static final double HoursToSeconds = HoursToMinutes * MinutesToSeconds;
-    private static final double HoursToMilliseconds = HoursToSeconds * SecondsToMilliseconds;
-    private static final double HoursToMicroseconds = HoursToMilliseconds * MillisecondsToMicroseconds;
-    private static final double HoursToNanoseconds = HoursToMicroseconds * MicrosecondsToNanoseconds;
+    private static final int HoursToSeconds = HoursToMinutes * MinutesToSeconds;
+    private static final long HoursToMilliseconds = HoursToSeconds * SecondsToMilliseconds;
+    private static final long HoursToMicroseconds = HoursToMilliseconds * MillisecondsToMicroseconds;
+    private static final long HoursToNanoseconds = HoursToMicroseconds * MicrosecondsToNanoseconds;
 
     private static final double MinutesToWeeks = 1.0 / WeeksToMinutes;
     private static final double MinutesToDays = 1.0 / DaysToMinutes;
     private static final double MinutesToHours = 1.0 / HoursToMinutes;
-    private static final double MinutesToMilliseconds = MinutesToSeconds * SecondsToMilliseconds;
-    private static final double MinutesToMicroseconds = MinutesToMilliseconds * MillisecondsToMicroseconds;
-    private static final double MinutesToNanoseconds = MinutesToMicroseconds * MicrosecondsToNanoseconds;
+    private static final int MinutesToMilliseconds = MinutesToSeconds * SecondsToMilliseconds;
+    private static final long MinutesToMicroseconds = MinutesToMilliseconds * MillisecondsToMicroseconds;
+    private static final long MinutesToNanoseconds = MinutesToMicroseconds * MicrosecondsToNanoseconds;
 
     private static final double SecondsToWeeks = 1.0 / WeeksToSeconds;
     private static final double SecondsToDays = 1.0 / DaysToSeconds;
     private static final double SecondsToHours = 1.0 / HoursToSeconds;
     private static final double SecondsToMinutes = 1.0 / MinutesToSeconds;
-    private static final double SecondsToMicroseconds = SecondsToMilliseconds * MillisecondsToMicroseconds;
-    private static final double SecondsToNanoseconds = SecondsToMicroseconds * MicrosecondsToNanoseconds;
+    public static final int SecondsToMicroseconds = SecondsToMilliseconds * MillisecondsToMicroseconds;
+    public static final int SecondsToNanoseconds = SecondsToMicroseconds * MicrosecondsToNanoseconds;
 
     private static final double MillisecondsToWeeks = 1.0 / WeeksToMilliseconds;
     private static final double MillisecondsToDays = 1.0 / DaysToMilliseconds;
     private static final double MillisecondsToHours = 1.0 / HoursToMilliseconds;
     private static final double MillisecondsToMinutes = 1.0 / MinutesToMilliseconds;
     private static final double MillisecondsToSeconds = 1.0 / SecondsToMilliseconds;
-    private static final double MillisecondsToNanoseconds = MillisecondsToMicroseconds * MicrosecondsToNanoseconds;
+    public static final int MillisecondsToNanoseconds = MillisecondsToMicroseconds * MicrosecondsToNanoseconds;
 
     private static final double MicrosecondsToWeeks = 1.0 / WeeksToMicroseconds;
     private static final double MicrosecondsToDays = 1.0 / DaysToMicroseconds;
@@ -472,6 +470,13 @@ public class Duration implements Comparable<Duration>
         return result;
     }
 
+    public Duration minus(Duration rhs)
+    {
+        PreCondition.assertNotNull(rhs, "rhs");
+
+        return this.plus(rhs.negate());
+    }
+
     public Duration times(double rhs)
     {
         return rhs == 1 ? this : new Duration(value * rhs, units);
@@ -553,29 +558,43 @@ public class Duration implements Comparable<Duration>
 
     public String toString(String format)
     {
-        return new DecimalFormat(format).format(value) + " " + units;
+        return new java.text.DecimalFormat(format).format(value) + " " + units;
     }
 
     @Override
     public boolean equals(Object value)
     {
-        return value instanceof Duration && equals((Duration)value);
+        return value instanceof Duration && this.equals((Duration)value);
     }
 
     public boolean equals(Duration rhs)
     {
-        boolean result = false;
-        if (rhs != null)
-        {
-            final Duration convertedRhs = rhs.convertTo(units);
-            result = value == convertedRhs.value;
-        }
-        return result;
+        return Comparer.equal(this, rhs);
     }
 
     @Override
-    public Comparison compareTo(Duration value)
+    public Comparison compareTo(Duration rhs)
     {
-        return value == null ? Comparison.GreaterThan : Comparison.from(getValue() - value.convertTo(getUnits()).getValue());
+        return this.compareTo(rhs, Duration.zero);
+    }
+
+    @Override
+    public Comparison compareTo(Duration rhs, Duration marginOfError)
+    {
+        PreCondition.assertNotNull(marginOfError, "marginOfError");
+        PreCondition.assertGreaterThanOrEqualTo(marginOfError, Duration.zero, "marginOfError");
+
+        Comparison result = Comparison.GreaterThan;
+        if (rhs != null)
+        {
+            final double thisValue = this.getValue();
+            final double convertedRhsValue = rhs.convertTo(this.getUnits()).getValue();
+            final double convertedMarginOfErrorValue = marginOfError.convertTo(this.getUnits()).getValue();
+            result = Comparison.from(thisValue - convertedRhsValue, convertedMarginOfErrorValue);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 }

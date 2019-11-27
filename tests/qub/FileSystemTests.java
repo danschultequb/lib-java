@@ -1,8 +1,8 @@
 package qub;
 
-public class FileSystemTests
+public interface FileSystemTests
 {
-    public static void test(TestRunner runner, Function1<Test,FileSystem> creator)
+    static void test(TestRunner runner, Function1<Test,FileSystem> creator)
     {
         runner.testGroup(FileSystem.class, () ->
         {
@@ -1486,7 +1486,7 @@ public class FileSystemTests
 
                     final DateTime result = fileSystem.getFileLastModified("/thing.txt").await();
                     test.assertNotNull(result);
-                    test.assertGreaterThan(result, DateTime.local(2018, 1, 1, 0, 0, 0, 0));
+                    test.assertGreaterThan(result, DateTime.create(2018, 1, 1, 0, 0, 0, 0));
                 });
             });
 
@@ -1546,7 +1546,7 @@ public class FileSystemTests
 
                     final DateTime result = fileSystem.getFileLastModified(Path.parse("/thing.txt")).await();
                     test.assertNotNull(result);
-                    test.assertGreaterThan(result, DateTime.local(2018, 1, 1, 0, 0, 0, 0));
+                    test.assertGreaterThan(result, DateTime.create(2018, 1, 1, 0, 0, 0, 0));
                 });
             });
 

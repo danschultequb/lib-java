@@ -209,7 +209,7 @@ public interface MutexTests
                 runner.test("with null Clock", (Test test) ->
                 {
                     final Mutex mutex = create(creator);
-                    test.assertThrows(() -> mutex.acquire(DateTime.date(2018, 1, 1)),
+                    test.assertThrows(() -> mutex.acquire(DateTime.create(2018, 1, 1)),
                         new PreConditionFailure("clock cannot be null."));
                     test.assertFalse(mutex.isAcquired());
                 });
