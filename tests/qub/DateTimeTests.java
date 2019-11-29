@@ -1168,10 +1168,22 @@ public interface DateTimeTests
                     test.assertTrue(dateTime.equals(dateTime));
                 });
 
-                runner.test("with equal", (Test test) ->
+                runner.test("with equal (10 Milliseconds)", (Test test) ->
                 {
                     final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
                     test.assertTrue(dateTime.equals(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10))));
+                });
+
+                runner.test("with equal (1.57379537769488179E18 Nanoseconds)", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1.57379537769488179E18));
+                    test.assertTrue(dateTime.equals(DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1.57379537769488179E18))));
+                });
+
+                runner.test("with equal (1574907047894711040 Nanoseconds)", (Test test) ->
+                {
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1574907047894711040.0));
+                    test.assertTrue(dateTime.equals(DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1574907047894711040.0))));
                 });
 
                 runner.test("with greater", (Test test) ->
@@ -1326,7 +1338,7 @@ public interface DateTimeTests
             {
                 runner.test("with UTC time", (Test test) ->
                 {
-                    test.assertEqual("2009-02-13T23:31:30.123+00:00", DateTime.createFromDurationSinceEpoch(Duration.milliseconds(1234567890123L)).toString());
+                    test.assertEqual("2009-02-13T23:31:30.123Z", DateTime.createFromDurationSinceEpoch(Duration.milliseconds(1234567890123L)).toString());
                 });
 
                 runner.test("with negative offset", (Test test) ->
@@ -1334,9 +1346,19 @@ public interface DateTimeTests
                     test.assertEqual("2009-02-13T16:31:30.123-07:00", DateTime.createFromDurationSinceEpoch(Duration.milliseconds(1234567890123L), Duration.hours(-7)).toString());
                 });
 
-                runner.test("with positive offset", (Test test) ->
+                runner.test("with milliseconds and positive offset", (Test test) ->
                 {
                     test.assertEqual("2009-02-14T10:01:30.123+10:30", DateTime.createFromDurationSinceEpoch(Duration.milliseconds(1234567890123L), Duration.hours(10.5)).toString());
+                });
+
+                runner.test("with microseconds and positive offset", (Test test) ->
+                {
+                    test.assertEqual("1970-01-15T17:26:07.890123+10:30", DateTime.createFromDurationSinceEpoch(Duration.microseconds(1234567890123L), Duration.hours(10.5)).toString());
+                });
+
+                runner.test("with nanoseconds and positive offset", (Test test) ->
+                {
+                    test.assertEqual("1970-01-01T10:50:34.567890123+10:30", DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1234567890123L), Duration.hours(10.5)).toString());
                 });
             });
         });

@@ -527,6 +527,7 @@ public interface DurationTests
                 compareToTest.run(Duration.seconds(1), Duration.seconds(1.1), Duration.seconds(0.05), Comparison.LessThan);
                 compareToTest.run(Duration.seconds(1), Duration.seconds(1.1), Duration.seconds(0.5), Comparison.Equal);
                 compareToTest.run(Duration.seconds(1.1), Duration.seconds(1), Duration.seconds(0.099), Comparison.GreaterThan);
+                compareToTest.run(Duration.seconds(0.04999995231628418), Duration.milliseconds(50), Duration.microseconds(1), Comparison.Equal);
             });
         });
     }

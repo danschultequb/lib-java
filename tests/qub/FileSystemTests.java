@@ -1482,11 +1482,15 @@ public interface FileSystemTests
                 runner.test("with existing rooted path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
+                    final DateTime beforeFileCreated = test.getClock().getCurrentDateTime().toUTC();
                     fileSystem.createFile("/thing.txt").await();
+                    final DateTime afterFileCreated = test.getClock().getCurrentDateTime().toUTC();
 
-                    final DateTime result = fileSystem.getFileLastModified("/thing.txt").await();
+                    final DateTime result = fileSystem.getFileLastModified("/thing.txt").await().toUTC();
                     test.assertNotNull(result);
-                    test.assertGreaterThan(result, DateTime.create(2018, 1, 1, 0, 0, 0, 0));
+                    test.assertGreaterThanOrEqualTo(result, beforeFileCreated);
+                    test.assertEqual(afterFileCreated.getDurationSinceEpoch(), result.getDurationSinceEpoch(), Duration.milliseconds(5));
+                    test.assertEqual(fileSystem.getFileLastModified("/thing.txt").await().toUTC(), result);
                 });
             });
 

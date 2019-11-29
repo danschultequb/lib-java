@@ -12,45 +12,14 @@ public class JavaClock implements Clock
         this.parallelAsyncRunner = parallelAsyncRunner;
     }
 
-    /**
-     * Get the current time zone offset.
-     * @return The current time zone offset.
-     */
-    public Duration getCurrentTimeZoneOffset()
-    {
-        final java.time.OffsetDateTime now = java.time.OffsetDateTime.now();
-        final Duration result = JavaClock.getTimeZoneOffset(now);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    /**
-     * Get the time zone offset of the provided date time.
-     * @param offsetDateTime The date time to get the time zone offset of.
-     * @return The time zone offset of the provided date time.
-     */
-    private static Duration getTimeZoneOffset(java.time.OffsetDateTime offsetDateTime)
-    {
-        PreCondition.assertNotNull(offsetDateTime, "offsetDateTime");
-
-        final Duration zoneOffset = Duration.seconds(offsetDateTime.getOffset().getTotalSeconds());
-
-        PostCondition.assertNotNull(zoneOffset, "zoneOffset");
-
-        return zoneOffset;
-    }
-
     @Override
     public DateTime getCurrentDateTime()
     {
         final java.time.OffsetDateTime now = java.time.OffsetDateTime.now();
-        final long secondsSinceEpoch = now.toEpochSecond();
-        final int nanosecondAdjustment = now.getNano();
-        final Duration durationSinceEpoch = Duration.seconds(secondsSinceEpoch).plus(Duration.nanoseconds(nanosecondAdjustment));
+        final long millisecondsSinceEpoch = now.toInstant().toEpochMilli();
+        final Duration durationSinceEpoch = Duration.milliseconds(millisecondsSinceEpoch);
 
-        final Duration zoneOffset = JavaClock.getTimeZoneOffset(now);
+        final Duration zoneOffset = Duration.seconds(now.getOffset().getTotalSeconds());
 
         final DateTime result = DateTime.createFromDurationSinceEpoch(durationSinceEpoch, zoneOffset);
 

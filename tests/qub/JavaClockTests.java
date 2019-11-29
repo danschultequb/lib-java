@@ -51,7 +51,7 @@ public interface JavaClockTests
                     final Duration duration = endTime.minus(startTime);
                     test.assertTrue(value.hasValue());
                     test.assertTrue(value.get());
-                    test.assertGreaterThanOrEqualTo(duration, delay);
+                    test.assertGreaterThanOrEqualTo(duration, delay, Duration.microseconds(1));
                 });
             });
 
@@ -114,7 +114,7 @@ public interface JavaClockTests
                     final Duration duration = endTime.minus(startTime);
                     test.assertTrue(value.hasValue());
                     test.assertTrue(value.get());
-                    test.assertGreaterThanOrEqualTo(duration, delay, Duration.nanoseconds(1));
+                    test.assertGreaterThanOrEqualTo(duration, delay, Duration.microseconds(1));
                 });
             });
         });

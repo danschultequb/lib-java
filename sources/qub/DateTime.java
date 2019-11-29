@@ -288,27 +288,7 @@ public class DateTime implements Comparable<DateTime>
     @Override
     public String toString()
     {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(Strings.padLeft(this.getYear(), 4, '0'));
-        builder.append('-');
-        builder.append(Strings.padLeft(this.getMonth(), 2, '0'));
-        builder.append('-');
-        builder.append(Strings.padLeft(this.getDayOfMonth(), 2, '0'));
-        builder.append('T');
-        builder.append(Strings.padLeft(this.getHourOfDay(), 2, '0'));
-        builder.append(':');
-        builder.append(Strings.padLeft(this.getMinute(), 2, '0'));
-        builder.append(':');
-        builder.append(Strings.padLeft(this.getSecond(), 2, '0'));
-        builder.append('.');
-        builder.append(Strings.padLeft(this.getMillisecond(), 3, '0'));
-        final Duration timeZoneOffset = this.getOffset();
-        builder.append(timeZoneOffset.lessThan(Duration.zero) ? '-' : '+');
-        final Duration positiveTimeZoneOffset = timeZoneOffset.absoluteValue();
-        builder.append(Strings.padLeft((int)positiveTimeZoneOffset.toHours().getValue(), 2, '0'));
-        builder.append(':');
-        builder.append(Strings.padLeft((int)positiveTimeZoneOffset.toMinutes().getValue() % 60, 2, '0'));
-        return builder.toString();
+        return this.offsetDateTime.toString();
     }
 
     @Override
@@ -326,5 +306,12 @@ public class DateTime implements Comparable<DateTime>
     public boolean equals(DateTime value)
     {
         return Comparable.equals(this, value);
+    }
+
+    public boolean equals(DateTime value, Duration marginOfError)
+    {
+        PreCondition.assertNotNull(marginOfError, "marginOfError");
+
+        return value != null && this.getDurationSinceEpoch().equals(value.getDurationSinceEpoch(), marginOfError);
     }
 }

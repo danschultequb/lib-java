@@ -7,6 +7,15 @@ package qub;
 public interface Clock
 {
     /**
+     * Get the current time zone offset.
+     * @return The current time zone offset.
+     */
+    default Duration getCurrentOffset()
+    {
+        return this.getCurrentDateTime().getOffset();
+    }
+
+    /**
      * Get a DateTime object for the current date and time.
      * @return A DateTime object for the current date and time.
      */
