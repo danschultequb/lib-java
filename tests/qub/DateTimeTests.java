@@ -1150,47 +1150,111 @@ public interface DateTimeTests
 
             runner.testGroup("equals(DateTime)", () ->
             {
-                runner.test("with null", (Test test) ->
+                final Action3<DateTime,DateTime,Boolean> equalsTest = (DateTime lhs, DateTime rhs, Boolean expected) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
-                    test.assertFalse(dateTime.equals(null));
+                    runner.test("with " + lhs + " and " + rhs, (Test test) ->
+                    {
+                        test.assertEqual(expected, lhs.equals(rhs));
+                    });
+                };
+
+                equalsTest.run(
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    null,
+                    false);
+                equalsTest.run(
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(9)),
+                    false);
+                equalsTest.run(
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    true);
+                equalsTest.run(
+                    DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1.57379537769488179E18)),
+                    DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1.57379537769488179E18)),
+                    true);
+                equalsTest.run(
+                    DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1574907047894711040.0)),
+                    DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1574907047894711040.0)),
+                    true);
+                equalsTest.run(
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(11)),
+                    false);
+            });
+
+            runner.testGroup("equals(DateTime,Duration)", () ->
+            {
+                runner.test("with null marginOfError", (Test test) ->
+                {
+                    test.assertThrows(() -> DateTime.create(1, 2, 3).equals(null, null),
+                        new PreConditionFailure("marginOfError cannot be null."));
                 });
 
-                runner.test("with lesser", (Test test) ->
+                final Action4<DateTime,DateTime,Duration,Boolean> equalsTest = (DateTime lhs, DateTime rhs, Duration marginOfError, Boolean expected) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
-                    test.assertFalse(dateTime.equals(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(9))));
-                });
+                    runner.test("with " + lhs + ", " + rhs + ", and " + marginOfError, (Test test) ->
+                    {
+                        test.assertEqual(expected, lhs.equals(rhs, marginOfError));
+                    });
+                };
 
-                runner.test("with same", (Test test) ->
-                {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
-                    test.assertTrue(dateTime.equals(dateTime));
-                });
-
-                runner.test("with equal (10 Milliseconds)", (Test test) ->
-                {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
-                    test.assertTrue(dateTime.equals(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10))));
-                });
-
-                runner.test("with equal (1.57379537769488179E18 Nanoseconds)", (Test test) ->
-                {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1.57379537769488179E18));
-                    test.assertTrue(dateTime.equals(DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1.57379537769488179E18))));
-                });
-
-                runner.test("with equal (1574907047894711040 Nanoseconds)", (Test test) ->
-                {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1574907047894711040.0));
-                    test.assertTrue(dateTime.equals(DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1574907047894711040.0))));
-                });
-
-                runner.test("with greater", (Test test) ->
-                {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
-                    test.assertFalse(dateTime.equals(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(11))));
-                });
+                equalsTest.run(
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    null,
+                    Duration.zero,
+                    false);
+                equalsTest.run(
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    null,
+                    Duration.minutes(5),
+                    false);
+                equalsTest.run(
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(9)),
+                    Duration.zero,
+                    false);
+                equalsTest.run(
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(9)),
+                    Duration.milliseconds(0.001),
+                    false);
+                equalsTest.run(
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(9)),
+                    Duration.milliseconds(1),
+                    true);
+                equalsTest.run(
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    Duration.zero,
+                    true);
+                equalsTest.run(
+                    DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1.57379537769488179E18)),
+                    DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1.57379537769488179E18)),
+                    Duration.zero,
+                    true);
+                equalsTest.run(
+                    DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1574907047894711040.0)),
+                    DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1574907047894711040.0)),
+                    Duration.zero,
+                    true);
+                equalsTest.run(
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(11)),
+                    Duration.zero,
+                    false);
+                equalsTest.run(
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(11)),
+                    Duration.milliseconds(0.9999),
+                    false);
+                equalsTest.run(
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(11)),
+                    Duration.milliseconds(1.00001),
+                    true);
             });
 
             runner.testGroup("greaterThanOrEqualTo(DateTime)", () ->
@@ -1360,6 +1424,35 @@ public interface DateTimeTests
                 {
                     test.assertEqual("1970-01-01T10:50:34.567890123+10:30", DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1234567890123L), Duration.hours(10.5)).toString());
                 });
+            });
+
+            runner.testGroup("parse(String)", () ->
+            {
+                final Action2<String,Throwable> parseErrorTest = (String text, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
+                    {
+                        test.assertThrows(() -> DateTime.parse(text).await(), expected);
+                    });
+                };
+
+                parseErrorTest.run(null, new PreConditionFailure("text cannot be null."));
+                parseErrorTest.run("", new PreConditionFailure("text cannot be empty."));
+                parseErrorTest.run("2009-02-13", new java.time.format.DateTimeParseException("Text '2009-02-13' could not be parsed at index 10", "2009-02-13", 10));
+                parseErrorTest.run("2009/02/13", new java.time.format.DateTimeParseException("Text '2009/02/13' could not be parsed at index 4", "2009/02/13", 4));
+
+                final Action2<String,DateTime> parseTest = (String text, DateTime expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
+                    {
+                        test.assertEqual(expected, DateTime.parse(text).await());
+                    });
+                };
+
+                parseTest.run("2009-02-13T23:31:30Z", DateTime.create(2009, 2, 13, 23, 31, 30));
+                parseTest.run("2009-02-13T23:31:30.123Z", DateTime.create(2009, 2, 13, 23, 31, 30, 123));
+                parseTest.run("2009-02-13T16:31:30.123-07:00", DateTime.create(2009, 2, 13, 16, 31, 30, 123, Duration.hours(-7)));
+                parseTest.run("2019-11-17T00:53:34.400000Z", DateTime.create(2019, 11, 17, 0, 53, 34, 400));
             });
         });
     }

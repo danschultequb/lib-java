@@ -144,7 +144,7 @@ public abstract class Trace
             if (Trace.writeTimestamps)
             {
                 final DateTime timestamp = clock.getCurrentDateTime();
-                final long millisecondsSinceEpoch = timestamp.getMillisecondsSinceEpoch();
+                final long millisecondsSinceEpoch = (long)timestamp.getDurationSinceEpoch().toMilliseconds().getValue();
                 writeStream.write(millisecondsSinceEpoch + ",");
             }
             writeStream.write(logType + "," + Strings.escapeAndQuote(message) + "\n");

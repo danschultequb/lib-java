@@ -195,15 +195,6 @@ public class DateTime implements Comparable<DateTime>
     }
 
     /**
-     * Get the number of milliseconds that have passed since the epoch (1970-01-01 UTC).
-     * @return The number of milliseconds that have passed since the epoch (1970-01-01 UTC).
-     */
-    public long getMillisecondsSinceEpoch()
-    {
-        return (long)this.getDurationSinceEpoch().toMilliseconds().getValue();
-    }
-
-    /**
      * Get the offset of this date time.
      * @return The offset of this date time.
      */
@@ -313,5 +304,20 @@ public class DateTime implements Comparable<DateTime>
         PreCondition.assertNotNull(marginOfError, "marginOfError");
 
         return value != null && this.getDurationSinceEpoch().equals(value.getDurationSinceEpoch(), marginOfError);
+    }
+
+    /**
+     * Parse the provided text into a DateTime object.
+     * @param text The text to parse.
+     * @return The parsed DateTime object.
+     */
+    public static Result<DateTime> parse(String text)
+    {
+        PreCondition.assertNotNullAndNotEmpty(text, "text");
+
+        return Result.create(() ->
+        {
+            return new DateTime(java.time.OffsetDateTime.parse(text));
+        });
     }
 }
