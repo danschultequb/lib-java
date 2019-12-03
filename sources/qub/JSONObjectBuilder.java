@@ -1,11 +1,19 @@
 package qub;
 
+/**
+ * A type that can be used to build a JSON object.
+ */
 public class JSONObjectBuilder implements Disposable
 {
     private final CharacterWriteStream stream;
     private final BasicDisposable disposable;
     private boolean wroteFirstProperty;
 
+    /**
+     * Create a new JSONObjectBuilder that will write JSON object characters to the provided
+     * CharacterWriteStream.
+     * @param stream The stream that the JSON object characters will be written to.
+     */
     public JSONObjectBuilder(CharacterWriteStream stream)
     {
         PreCondition.assertNotNull(stream, "stream");
@@ -72,11 +80,30 @@ public class JSONObjectBuilder implements Disposable
         property(propertyName, Strings.escapeAndQuote(propertyValue));
     }
 
+    /**
+     * Write a null property.
+     * @param propertyName The name of the property.
+     */
     public void nullProperty(String propertyName)
     {
         PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
 
         property(propertyName, "null");
+    }
+
+    /**
+     * Write a string or null property.
+     * @param propertyName The name of the property.
+     * @param propertyValue The value of the property.
+     */
+    public Result<Void> stringOrNullProperty(String propertyName, String propertyValue)
+    {
+        PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
+
+        return Result.create(() ->
+        {
+            this.property(propertyName, propertyValue == null ? "null" : Strings.escapeAndQuote(propertyValue));
+        });
     }
 
     public void objectProperty(String propertyName)
