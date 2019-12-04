@@ -37,6 +37,16 @@ public interface JSONObjectTests
                     2,
                     2);
 
+                constructorTest.run("{\"a\":\"b\"",
+                    JSONToken.leftCurlyBracket(0),
+                    new JSONProperty[]
+                        {
+                            JSON.parseProperty("\"a\":\"b\"", 1)
+                        },
+                    null,
+                    8,
+                    8);
+
                 constructorTest.run("{\"a\":\"b\"}",
                     JSONToken.leftCurlyBracket(0),
                     new JSONProperty[]
@@ -154,14 +164,14 @@ public interface JSONObjectTests
                 getQuotedStringPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "b", JSONToken.quotedString("\"2\"", 14, true), null);
             });
 
-            runner.testGroup("getUnquotedStringPropertyValue(String)", () ->
+            runner.testGroup("getStringPropertyValue(String)", () ->
             {
-                final Action4<String,String,String,Throwable> getUnquotedStringPropertyValueTest = (String objectText, String propertyName, String expectedPropertyValue, Throwable expectedError) ->
+                final Action4<String,String,String,Throwable> getStringPropertyValueTest = (String objectText, String propertyName, String expectedPropertyValue, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(objectText) + " and " + Strings.escapeAndQuote(propertyName), (Test test) ->
                     {
                         final JSONObject jsonObject = JSON.parseObject(objectText);
-                        final Result<String> result = jsonObject.getUnquotedStringPropertyValue(propertyName);
+                        final Result<String> result = jsonObject.getStringPropertyValue(propertyName);
                         if (expectedError != null)
                         {
                             test.assertThrows(result::await, expectedError);
@@ -173,12 +183,44 @@ public interface JSONObjectTests
                     });
                 };
 
-                getUnquotedStringPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "c", null, new NotFoundException("No property was found with the name \"c\"."));
-                getUnquotedStringPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "\"c\"", null, new NotFoundException("No property was found with the name \"\\\"c\\\"\"."));
-                getUnquotedStringPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "\"a\"", null, new NotFoundException("No property was found with the name \"\\\"a\\\"\"."));
-                getUnquotedStringPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a quoted-string."));
-                getUnquotedStringPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "\"b\"", null, new NotFoundException("No property was found with the name \"\\\"b\\\"\"."));
-                getUnquotedStringPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "b", "2", null);
+                getStringPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "c", null, new NotFoundException("No property was found with the name \"c\"."));
+                getStringPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "\"c\"", null, new NotFoundException("No property was found with the name \"\\\"c\\\"\"."));
+                getStringPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "\"a\"", null, new NotFoundException("No property was found with the name \"\\\"a\\\"\"."));
+                getStringPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a quoted-string."));
+                getStringPropertyValueTest.run("{ \"a\":null, \"b\": \"2\" }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a quoted-string."));
+                getStringPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "\"b\"", null, new NotFoundException("No property was found with the name \"\\\"b\\\"\"."));
+                getStringPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "b", "2", null);
+            });
+
+            runner.testGroup("getStringOrNullPropertyValue(String)", () ->
+            {
+                final Action4<String,String,String,Throwable> getStringOrNullPropertyValueTest = (String objectText, String propertyName, String expectedPropertyValue, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(objectText) + " and " + Strings.escapeAndQuote(propertyName), (Test test) ->
+                    {
+                        final JSONObject jsonObject = JSON.parseObject(objectText);
+                        final Result<String> result = jsonObject.getStringOrNullPropertyValue(propertyName);
+                        if (expectedError != null)
+                        {
+                            test.assertThrows(result::await, expectedError);
+                        }
+                        else
+                        {
+                            test.assertEqual(expectedPropertyValue, result.await());
+                        }
+                    });
+                };
+
+                getStringOrNullPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "c", null, new NotFoundException("No property was found with the name \"c\"."));
+                getStringOrNullPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "\"c\"", null, new NotFoundException("No property was found with the name \"\\\"c\\\"\"."));
+                getStringOrNullPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "\"a\"", null, new NotFoundException("No property was found with the name \"\\\"a\\\"\"."));
+                getStringOrNullPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a quoted-string."));
+                getStringOrNullPropertyValueTest.run("{ \"a\":false, \"b\": \"2\" }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a quoted-string."));
+                getStringOrNullPropertyValueTest.run("{ \"a\":[], \"b\": \"2\" }", "a", null, new WrongTypeException("Expected the value of the property named \"a\" to be a quoted-string."));
+                getStringOrNullPropertyValueTest.run("{ \"a\":null, \"b\": \"2\" }", "a", null, null);
+                getStringOrNullPropertyValueTest.run("{ \"a\":\"A\", \"b\": \"2\" }", "a", "A", null);
+                getStringOrNullPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "\"b\"", null, new NotFoundException("No property was found with the name \"\\\"b\\\"\"."));
+                getStringOrNullPropertyValueTest.run("{ \"a\":1, \"b\": \"2\" }", "b", "2", null);
             });
 
             runner.testGroup("getObjectPropertyValue(String)", () ->
@@ -348,6 +390,51 @@ public interface JSONObjectTests
                 getBooleanPropertyValueTest.run("{ \"a\":\"1\", \"b\": false }", "b", false, null);
                 getBooleanPropertyValueTest.run("{ \"a\":\"1\", \"b\": TRUE }", "b", true, null);
                 getBooleanPropertyValueTest.run("{ \"a\":\"1\", \"b\": FalSE }", "b", false, null);
+            });
+
+            runner.testGroup("equals(Object)", () ->
+            {
+                final Action3<JSONObject,Object,Boolean> equalsTest = (JSONObject jsonObject, Object rhs, Boolean expected) ->
+                {
+                    runner.test("with " + jsonObject + " and " + rhs, (Test test) ->
+                    {
+                        test.assertEqual(expected, jsonObject.equals(rhs));
+                    });
+                };
+
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), null, false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), "hello", false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), JSON.parseObject("{}"), false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), JSON.parseObject("{\"a\":\"b\"}"), false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), JSON.parseObject("{\"hello\":\"b\"}"), false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), JSON.parseObject("{\"a\":\"there\"}"), false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), JSON.parseObject("{\"hello\":\"there\""), false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), JSON.parseObject("{\"hello\":\"there\",}"), false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), JSON.parseObject("{\"hello\":\"there\",\"a\":\"b\"}"), false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), JSON.parseObject("{\"hello\" : \"there\"}"), false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), JSON.parseObject("{\"hello\":\"there\"}"), true);
+            });
+
+            runner.testGroup("equals(JSONObject)", () ->
+            {
+                final Action3<JSONObject,JSONObject,Boolean> equalsTest = (JSONObject jsonObject, JSONObject rhs, Boolean expected) ->
+                {
+                    runner.test("with " + jsonObject + " and " + rhs, (Test test) ->
+                    {
+                        test.assertEqual(expected, jsonObject.equals(rhs));
+                    });
+                };
+
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), null, false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), JSON.parseObject("{}"), false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), JSON.parseObject("{\"a\":\"b\"}"), false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), JSON.parseObject("{\"hello\":\"b\"}"), false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), JSON.parseObject("{\"a\":\"there\"}"), false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), JSON.parseObject("{\"hello\":\"there\""), false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), JSON.parseObject("{\"hello\":\"there\",}"), false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), JSON.parseObject("{\"hello\":\"there\",\"a\":\"b\"}"), false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), JSON.parseObject("{\"hello\" : \"there\"}"), false);
+                equalsTest.run(JSON.parseObject("{\"hello\":\"there\"}"), JSON.parseObject("{\"hello\":\"there\"}"), true);
             });
         });
     }

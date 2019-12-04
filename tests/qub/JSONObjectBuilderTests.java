@@ -285,8 +285,6 @@ public interface JSONObjectBuilderTests
                 });
             });
 
-
-
             runner.testGroup("stringOrNullProperty(String,String)", () ->
             {
                 runner.test("with null property name", (Test test) ->
@@ -377,6 +375,256 @@ public interface JSONObjectBuilderTests
                     final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
                     builder.stringOrNullProperty("hello", "\r");
                     test.assertEqual("{\"hello\":\"\\r\"", stream.getText().await());
+                });
+            });
+
+            runner.testGroup("objectProperty(String)", () ->
+            {
+                runner.test("with null property name", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    test.assertThrows(() -> builder.objectProperty(null),
+                        new PreConditionFailure("propertyName cannot be null."));
+                    test.assertEqual("{", stream.getText().await());
+                });
+
+                runner.test("with empty property name", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    test.assertThrows(() -> builder.objectProperty(""),
+                        new PreConditionFailure("propertyName cannot be empty."));
+                    test.assertEqual("{", stream.getText().await());
+                });
+
+                runner.test("with non-empty property name", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    builder.objectProperty("hello");
+                    test.assertEqual("{\"hello\":{}", stream.getText().await());
+                });
+            });
+
+            runner.testGroup("objectProperty(String,Action1<JSONObjectBuilder>)", () ->
+            {
+                runner.test("with null property name", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    test.assertThrows(() -> builder.objectProperty(null, json -> {}),
+                        new PreConditionFailure("propertyName cannot be null."));
+                    test.assertEqual("{", stream.getText().await());
+                });
+
+                runner.test("with empty property name", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    test.assertThrows(() -> builder.objectProperty("", json -> {}),
+                        new PreConditionFailure("propertyName cannot be empty."));
+                    test.assertEqual("{", stream.getText().await());
+                });
+
+                runner.test("with null action", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    test.assertThrows(() -> builder.objectProperty("hello", null),
+                        new PreConditionFailure("action cannot be null."));
+                    test.assertEqual("{", stream.getText().await());
+                });
+
+                runner.test("with empty action", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    builder.objectProperty("hello", json -> {});
+                    test.assertEqual("{\"hello\":{}", stream.getText().await());
+                });
+
+                runner.test("with non-empty action", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    builder.objectProperty("hello", json -> { json.stringProperty("a", "b"); });
+                    test.assertEqual("{\"hello\":{\"a\":\"b\"}", stream.getText().await());
+                });
+            });
+
+            runner.testGroup("arrayProperty(String)", () ->
+            {
+                runner.test("with null property name", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    test.assertThrows(() -> builder.arrayProperty(null),
+                        new PreConditionFailure("propertyName cannot be null."));
+                    test.assertEqual("{", stream.getText().await());
+                });
+
+                runner.test("with empty property name", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    test.assertThrows(() -> builder.arrayProperty(""),
+                        new PreConditionFailure("propertyName cannot be empty."));
+                    test.assertEqual("{", stream.getText().await());
+                });
+
+                runner.test("with non-empty property name", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    builder.arrayProperty("hello");
+                    test.assertEqual("{\"hello\":[]", stream.getText().await());
+                });
+            });
+
+            runner.testGroup("arrayProperty(String,Action1<JSONObjectBuilder>)", () ->
+            {
+                runner.test("with null property name", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    test.assertThrows(() -> builder.arrayProperty(null, json -> {}),
+                        new PreConditionFailure("propertyName cannot be null."));
+                    test.assertEqual("{", stream.getText().await());
+                });
+
+                runner.test("with empty property name", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    test.assertThrows(() -> builder.arrayProperty("", json -> {}),
+                        new PreConditionFailure("propertyName cannot be empty."));
+                    test.assertEqual("{", stream.getText().await());
+                });
+
+                runner.test("with null action", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    test.assertThrows(() -> builder.arrayProperty("hello", null),
+                        new PreConditionFailure("action cannot be null."));
+                    test.assertEqual("{", stream.getText().await());
+                });
+
+                runner.test("with empty action", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    builder.arrayProperty("hello", json -> {});
+                    test.assertEqual("{\"hello\":[]", stream.getText().await());
+                });
+
+                runner.test("with non-empty action", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    builder.arrayProperty("hello", json -> { json.stringElement("a"); });
+                    test.assertEqual("{\"hello\":[\"a\"]", stream.getText().await());
+                });
+            });
+
+            runner.testGroup("stringArrayProperty(String)", () ->
+            {
+                runner.test("with null property name", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    test.assertThrows(() -> builder.stringArrayProperty(null),
+                        new PreConditionFailure("propertyName cannot be null."));
+                    test.assertEqual("{", stream.getText().await());
+                });
+
+                runner.test("with empty property name", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    test.assertThrows(() -> builder.stringArrayProperty(""),
+                        new PreConditionFailure("propertyName cannot be empty."));
+                    test.assertEqual("{", stream.getText().await());
+                });
+
+                runner.test("with non-empty property name", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    builder.stringArrayProperty("hello");
+                    test.assertEqual("{\"hello\":[]", stream.getText().await());
+                });
+            });
+
+            runner.testGroup("stringArrayProperty(String,Iterable<String>)", () ->
+            {
+                runner.test("with null property name", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    test.assertThrows(() -> builder.stringArrayProperty(null),
+                        new PreConditionFailure("propertyName cannot be null."));
+                    test.assertEqual("{", stream.getText().await());
+                });
+
+                runner.test("with empty property name", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    test.assertThrows(() -> builder.stringArrayProperty(""),
+                        new PreConditionFailure("propertyName cannot be empty."));
+                    test.assertEqual("{", stream.getText().await());
+                });
+
+                runner.test("with null stringElements", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    test.assertThrows(() -> builder.stringArrayProperty("hello", null),
+                        new PreConditionFailure("stringElements cannot be null."));
+                    test.assertEqual("{", stream.getText().await());
+                });
+
+                runner.test("with empty stringElements", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    builder.stringArrayProperty("hello", Iterable.create());
+                    test.assertEqual("{\"hello\":[]", stream.getText().await());
+                });
+
+                runner.test("with non-empty stringElements", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    builder.stringArrayProperty("hello", Iterable.create("a"));
+                    test.assertEqual("{\"hello\":[\"a\"]", stream.getText().await());
+                });
+            });
+
+            runner.testGroup("dispose()", () ->
+            {
+                runner.test("when not disposed", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    test.assertTrue(builder.dispose().await());
+                    test.assertTrue(builder.isDisposed());
+                    test.assertEqual("{}", stream.getText().await());
+                });
+
+                runner.test("when disposed", (Test test) ->
+                {
+                    final InMemoryCharacterStream stream = new InMemoryCharacterStream();
+                    final JSONObjectBuilder builder = new JSONObjectBuilder(stream);
+                    test.assertTrue(builder.dispose().await());
+                    test.assertTrue(builder.isDisposed());
+                    test.assertEqual("{}", stream.getText().await());
+
+                    test.assertFalse(builder.dispose().await());
+                    test.assertTrue(builder.isDisposed());
+                    test.assertEqual("{}", stream.getText().await());
                 });
             });
         });

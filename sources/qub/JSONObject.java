@@ -4,16 +4,28 @@ public class JSONObject extends JSONSegment
 {
     private final Iterable<JSONSegment> segments;
 
+    /**
+     * Create a new JSONObject from the provided parsed JSONSegments.
+     * @param segments The segments that make up the new JSONObject.
+     */
     public JSONObject(Iterable<JSONSegment> segments)
     {
         this.segments = segments;
     }
 
+    /**
+     * Get the left curly bracket ('{') JSONToken of this object.
+     * @return The left curly bracket ('{') JSONToken of this object.
+     */
     public JSONToken getLeftCurlyBracket()
     {
         return (JSONToken)segments.first();
     }
 
+    /**
+     * Get the right curly bracket ('}') JSONToken of this object.
+     * @return The right curly bracket ('}') JSONToken of this object.
+     */
     public JSONToken getRightCurlyBracket()
     {
         JSONToken result = null;
@@ -78,7 +90,7 @@ public class JSONObject extends JSONSegment
      */
     public Result<JSONQuotedString> getQuotedStringPropertyValue(String propertyName)
     {
-        return getPropertyValue(propertyName)
+        return this.getPropertyValue(propertyName)
             .thenResult((JSONSegment propertyValue) ->
             {
                 return propertyValue instanceof JSONQuotedString
@@ -88,16 +100,45 @@ public class JSONObject extends JSONSegment
     }
 
     /**
-     * Get the quoted-string value of the property in this JSON object with the provided
+     * Get the un-quoted-string value of the property in this JSON object with the provided
      * propertyName.
      * @param propertyName The name of the property to look for.
-     * @return The quoted-string value of the property in this JSON object with the provided
+     * @return The un-quoted-string value of the property in this JSON object with the provided
      * propertyName.
      */
-    public Result<String> getUnquotedStringPropertyValue(String propertyName)
+    public Result<String> getStringPropertyValue(String propertyName)
     {
-        return getQuotedStringPropertyValue(propertyName)
+        return this.getQuotedStringPropertyValue(propertyName)
             .then(JSONQuotedString::toUnquotedString);
+    }
+
+    /**
+     * Get the un-quoted-string value of the property in this JSON object with the provided
+     * propertyName.
+     * @param propertyName The name of the property to look for.
+     * @return The un-quoted-string value of the property in this JSON object with the provided
+     * propertyName.
+     */
+    public Result<String> getStringOrNullPropertyValue(String propertyName)
+    {
+        return Result.create(() ->
+        {
+            String result;
+            final JSONSegment propertyValue = this.getPropertyValue(propertyName).await();
+            if (propertyValue instanceof JSONQuotedString)
+            {
+                result = ((JSONQuotedString)propertyValue).toUnquotedString();
+            }
+            else if (propertyValue instanceof JSONToken && ((JSONToken)propertyValue).getType() == JSONTokenType.Null)
+            {
+                result = null;
+            }
+            else
+            {
+                throw new WrongTypeException("Expected the value of the property named " + Strings.escapeAndQuote(propertyName) + " to be a quoted-string.");
+            }
+            return result;
+        });
     }
 
     /**
