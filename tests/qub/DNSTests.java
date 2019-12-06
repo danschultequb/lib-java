@@ -28,7 +28,7 @@ public class DNSTests
                     test.assertEqual(IPv4Address.parse("1.2.3.4"), dns.resolveHost("1.2.3.4").await());
                 });
 
-                runner.test("with \"www.example.com\"", runner.skip(!runner.hasNetworkConnection().await()), (Test test) ->
+                runner.test("with \"www.example.com\"", runner.skipIfNoNetworkConnection(), (Test test) ->
                 {
                     final DNS dns = creator.run();
                     test.assertEqual(IPv4Address.parse("93.184.216.34"), dns.resolveHost("www.example.com").await());
@@ -41,7 +41,7 @@ public class DNSTests
                         new RuntimeException(new java.net.UnknownHostException("spam.example.com")));
                 });
 
-                runner.test("with \"example.com\"", runner.skip(!runner.hasNetworkConnection().await()), (Test test) ->
+                runner.test("with \"example.com\"", runner.skipIfNoNetworkConnection(), (Test test) ->
                 {
                     final DNS dns = creator.run();
                     test.assertEqual(IPv4Address.parse("93.184.216.34"), dns.resolveHost("example.com").await());

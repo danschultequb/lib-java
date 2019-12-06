@@ -111,6 +111,26 @@ public interface BasicTestRunnerTests
                 });
             });
 
+            runner.testGroup("skipIfNoNetworkConnection()", () ->
+            {
+                runner.test("with no network connection", (Test test) ->
+                {
+                    final BasicTestRunner btr = BasicTestRunnerTests.create(test)
+                        .setHasNetworkConnection(false);
+                    final Skip skip = btr.skipIfNoNetworkConnection();
+                    test.assertNotNull(skip);
+                    test.assertEqual("No network connection available.", skip.getMessage());
+                });
+
+                runner.test("with network connection", (Test test) ->
+                {
+                    final BasicTestRunner btr = BasicTestRunnerTests.create(test)
+                        .setHasNetworkConnection(true);
+                    final Skip skip = btr.skipIfNoNetworkConnection();
+                    test.assertNull(skip);
+                });
+            });
+
             runner.testGroup("testGroup(Class<?>,Action0)", () ->
             {
                 runner.test("with null class and null action", (Test test) ->

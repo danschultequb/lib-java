@@ -72,6 +72,12 @@ public final class BasicTestRunner implements TestRunner
     }
 
     @Override
+    public Skip skipIfNoNetworkConnection()
+    {
+        return this.skip(!this.hasNetworkConnection().await(), "No network connection available.");
+    }
+
+    @Override
     public Result<Void> testClass(String fullClassName)
     {
         PreCondition.assertNotNullAndNotEmpty(fullClassName, "fullClassName");
@@ -385,14 +391,38 @@ public final class BasicTestRunner implements TestRunner
         this.afterTestAction = Action1.sequence(this.afterTestAction, afterTestAction);
     }
 
-    @Override
+    /**
+     * Get whether or not this TestRunner has a connection to the internet.
+     * @return Whether or not this TestRunner has a connection to the internet.
+     */
     public Result<Boolean> hasNetworkConnection()
     {
-        if (hasNetworkConnection == null)
+        if (this.hasNetworkConnection == null)
         {
-            hasNetworkConnection = process.getNetwork().isConnected();
+            this.setHasNetworkConnection(this.process.getNetwork().isConnected());
         }
-        return hasNetworkConnection;
+        return this.hasNetworkConnection;
+    }
+
+    /**
+     * Set whether or not this BasicTestRunner has a network connection.
+     * @param hasNetworkConnection Whether or not this BasicTestRunner has a network connection.
+     * @return This object for method chaining.
+     */
+    public BasicTestRunner setHasNetworkConnection(boolean hasNetworkConnection)
+    {
+        return this.setHasNetworkConnection(Result.success(hasNetworkConnection));
+    }
+
+    /**
+     * Set whether or not this BasicTestRunner has a network connection.
+     * @param hasNetworkConnection Whether or not this BasicTestRunner has a network connection.
+     * @return This object for method chaining.
+     */
+    public BasicTestRunner setHasNetworkConnection(Result<Boolean> hasNetworkConnection)
+    {
+        this.hasNetworkConnection = hasNetworkConnection;
+        return this;
     }
 
     /**

@@ -40,6 +40,12 @@ public interface TestRunner
     Skip skip(String message);
 
     /**
+     * A method that returns a Skip if no network connection is present.
+     * @return Skip if no network connection is present, null if a network connection is present.
+     */
+    Skip skipIfNoNetworkConnection();
+
+    /**
      * Attempt to run the tests that are found in the Class associated with the provided
      * fullClassName.
      * @param fullClassName The full name of the class to run the tests of.
@@ -171,10 +177,4 @@ public interface TestRunner
      * @param afterTestAction The action that will be run after each test within this test group.
      */
     void afterTest(Action1<Test> afterTestAction);
-
-    /**
-     * Get whether or not this TestRunner has a connection to the internet.
-     * @return Whether or not this TestRunner has a connection to the internet.
-     */
-    Result<Boolean> hasNetworkConnection();
 }
