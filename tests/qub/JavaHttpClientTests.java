@@ -29,10 +29,8 @@ public class JavaHttpClientTests
                     test.assertEqual("application/json;charset=UTF-8", httpResponse.getHeaders().getValue("content-type").await());
                     test.assertNotNull(httpResponse.getBody());
                     final String responseBody = CharacterEncoding.UTF_8.decodeAsString(httpResponse.getBody().readAllBytes().await()).await();
-                    final JSONDocument document = JSON.parse(responseBody);
-                    test.assertNotNull(document);
-                    final JSONSegment root = document.getRoot().await();
-                    test.assertEqual(JSONArray.class, root.getClass());
+                    test.assertStartsWith(responseBody, "[");
+                    test.assertEndsWith(responseBody, "]");
                 });
             });
         });
