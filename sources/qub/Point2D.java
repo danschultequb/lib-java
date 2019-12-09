@@ -5,17 +5,17 @@ package qub;
  */
 public class Point2D
 {
-    public static final Point2D zero = new Point2D(Length.zero, Length.zero);
+    public static final Point2D zero = new Point2D(Distance.zero, Distance.zero);
 
-    private final Length x;
-    private final Length y;
+    private final Distance x;
+    private final Distance y;
 
     /**
      * Create a new Point2D object.
      * @param x The x-coordinate of the point.
      * @param y The y-coordinate of the point.
      */
-    public Point2D(Length x, Length y)
+    public Point2D(Distance x, Distance y)
     {
         PreCondition.assertNotNull(x, "x");
         PreCondition.assertNotNull(y, "y");
@@ -28,7 +28,7 @@ public class Point2D
      * Get the x-coordinate of the point.
      * @return The x-coordinate of the point.
      */
-    public Length getX()
+    public Distance getX()
     {
         return x;
     }
@@ -37,7 +37,7 @@ public class Point2D
      * Get the y-coordinate of the point.
      * @return The y-coordinate of the point.
      */
-    public Length getY()
+    public Distance getY()
     {
         return y;
     }

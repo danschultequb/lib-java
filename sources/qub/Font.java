@@ -2,16 +2,16 @@ package qub;
 
 public class Font
 {
-    private final Length size;
+    private final Distance size;
 
-    public Font(Length size)
+    public Font(Distance size)
     {
-        PreCondition.assertGreaterThanOrEqualTo(size, Length.zero, "size");
+        PreCondition.assertGreaterThanOrEqualTo(size, Distance.zero, "size");
 
         this.size = size;
     }
 
-    public Length getSize()
+    public Distance getSize()
     {
         return size;
     }
@@ -21,9 +21,9 @@ public class Font
      * @param size The size of the new Font.
      * @return The new Font with the provided size.
      */
-    public Font changeSize(Length size)
+    public Font changeSize(Distance size)
     {
-        PreCondition.assertGreaterThanOrEqualTo(size, Length.zero, "size");
+        PreCondition.assertGreaterThanOrEqualTo(size, Distance.zero, "size");
 
         Font result = this;
         if (!this.size.equals(size))

@@ -3,7 +3,7 @@ package qub;
 /**
  * A measurement between two points.
  */
-public class Length implements Comparable<Length>
+public class Distance implements Comparable<Distance>
 {
     private static final double KilometersToMeters = 1000;
     private static final double MetersToCentimeters = 100;
@@ -70,52 +70,52 @@ public class Length implements Comparable<Length>
     private static final double FontPointsToFeet = 1.0 / FeetToFontPoints;
     private static final double FontPointsToMiles = 1.0 / MilesToFontPoints;
 
-    public static final Length zero = Length.inches(0);
+    public static final Distance zero = Distance.inches(0);
 
-    public static Length miles(double value)
+    public static Distance miles(double value)
     {
-        return new Length(value, DistanceUnit.Miles);
+        return new Distance(value, DistanceUnit.Miles);
     }
 
-    public static Length feet(double value)
+    public static Distance feet(double value)
     {
-        return new Length(value, DistanceUnit.Feet);
+        return new Distance(value, DistanceUnit.Feet);
     }
 
-    public static Length inches(double value)
+    public static Distance inches(double value)
     {
-        return new Length(value, DistanceUnit.Inches);
+        return new Distance(value, DistanceUnit.Inches);
     }
 
-    public static Length fontPoints(double value)
+    public static Distance fontPoints(double value)
     {
-        return new Length(value, DistanceUnit.FontPoints);
+        return new Distance(value, DistanceUnit.FontPoints);
     }
 
-    public static Length millimeters(double value)
+    public static Distance millimeters(double value)
     {
-        return new Length(value, DistanceUnit.Millimeters);
+        return new Distance(value, DistanceUnit.Millimeters);
     }
 
-    public static Length centimeters(double value)
+    public static Distance centimeters(double value)
     {
-        return new Length(value, DistanceUnit.Centimeters);
+        return new Distance(value, DistanceUnit.Centimeters);
     }
 
-    public static Length meters(double value)
+    public static Distance meters(double value)
     {
-        return new Length(value, DistanceUnit.Meters);
+        return new Distance(value, DistanceUnit.Meters);
     }
 
-    public static Length kilometers(double value)
+    public static Distance kilometers(double value)
     {
-        return new Length(value, DistanceUnit.Kilometers);
+        return new Distance(value, DistanceUnit.Kilometers);
     }
 
     private final double value;
     private final DistanceUnit units;
 
-    public Length(double value, DistanceUnit units)
+    public Distance(double value, DistanceUnit units)
     {
         PreCondition.assertNotNull(units, "units");
 
@@ -133,11 +133,11 @@ public class Length implements Comparable<Length>
         return units;
     }
 
-    public Length convertTo(DistanceUnit destinationUnits)
+    public Distance convertTo(DistanceUnit destinationUnits)
     {
         PreCondition.assertNotNull(destinationUnits, "destinationUnits");
 
-        Length result = this;
+        Distance result = this;
 
         switch (units)
         {
@@ -145,31 +145,31 @@ public class Length implements Comparable<Length>
                 switch (destinationUnits)
                 {
                     case Centimeters:
-                        result = new Length(value * MillimetersToCentimeters, destinationUnits);
+                        result = new Distance(value * MillimetersToCentimeters, destinationUnits);
                         break;
 
                     case Meters:
-                        result = new Length(value * MillimetersToMeters, destinationUnits);
+                        result = new Distance(value * MillimetersToMeters, destinationUnits);
                         break;
 
                     case Kilometers:
-                        result = new Length(value * MillimetersToKilometers, destinationUnits);
+                        result = new Distance(value * MillimetersToKilometers, destinationUnits);
                         break;
 
                     case Inches:
-                        result = new Length(value * MillimetersToInches, destinationUnits);
+                        result = new Distance(value * MillimetersToInches, destinationUnits);
                         break;
 
                     case Feet:
-                        result = new Length(value * MillimetersToFeet, destinationUnits);
+                        result = new Distance(value * MillimetersToFeet, destinationUnits);
                         break;
 
                     case Miles:
-                        result = new Length(value * MillimetersToMiles, destinationUnits);
+                        result = new Distance(value * MillimetersToMiles, destinationUnits);
                         break;
 
                     case FontPoints:
-                        result = new Length(value * MillimeterstoFontPoints, destinationUnits);
+                        result = new Distance(value * MillimeterstoFontPoints, destinationUnits);
                         break;
                 }
                 break;
@@ -178,31 +178,31 @@ public class Length implements Comparable<Length>
                 switch (destinationUnits)
                 {
                     case Millimeters:
-                        result = new Length(value * CentimetersToMillimeters, destinationUnits);
+                        result = new Distance(value * CentimetersToMillimeters, destinationUnits);
                         break;
 
                     case Meters:
-                        result = new Length(value * CentimetersToMeters, destinationUnits);
+                        result = new Distance(value * CentimetersToMeters, destinationUnits);
                         break;
 
                     case Kilometers:
-                        result = new Length(value * CentimetersToKilometers, destinationUnits);
+                        result = new Distance(value * CentimetersToKilometers, destinationUnits);
                         break;
 
                     case Inches:
-                        result = new Length(value * CentimeterstoInches, destinationUnits);
+                        result = new Distance(value * CentimeterstoInches, destinationUnits);
                         break;
 
                     case Feet:
-                        result = new Length(value * CentimetersToFeet, destinationUnits);
+                        result = new Distance(value * CentimetersToFeet, destinationUnits);
                         break;
 
                     case Miles:
-                        result = new Length(value * CentimetersToMiles, destinationUnits);
+                        result = new Distance(value * CentimetersToMiles, destinationUnits);
                         break;
 
                     case FontPoints:
-                        result = new Length(value * CentimetersToFontPoints, destinationUnits);
+                        result = new Distance(value * CentimetersToFontPoints, destinationUnits);
                         break;
                 }
                 break;
@@ -211,31 +211,31 @@ public class Length implements Comparable<Length>
                 switch (destinationUnits)
                 {
                     case Millimeters:
-                        result = new Length(value * MetersToMillimeters, destinationUnits);
+                        result = new Distance(value * MetersToMillimeters, destinationUnits);
                         break;
 
                     case Centimeters:
-                        result = new Length(value * MetersToCentimeters, destinationUnits);
+                        result = new Distance(value * MetersToCentimeters, destinationUnits);
                         break;
 
                     case Kilometers:
-                        result = new Length(value * MetersToKilometers, destinationUnits);
+                        result = new Distance(value * MetersToKilometers, destinationUnits);
                         break;
 
                     case Inches:
-                        result = new Length(value * MetersToInches, destinationUnits);
+                        result = new Distance(value * MetersToInches, destinationUnits);
                         break;
 
                     case Feet:
-                        result = new Length(value * MetersToFeet, destinationUnits);
+                        result = new Distance(value * MetersToFeet, destinationUnits);
                         break;
 
                     case Miles:
-                        result = new Length(value * MetersToMiles, destinationUnits);
+                        result = new Distance(value * MetersToMiles, destinationUnits);
                         break;
 
                     case FontPoints:
-                        result = new Length(value * MetersToFontPoints, destinationUnits);
+                        result = new Distance(value * MetersToFontPoints, destinationUnits);
                         break;
                 }
                 break;
@@ -244,31 +244,31 @@ public class Length implements Comparable<Length>
                 switch (destinationUnits)
                 {
                     case Millimeters:
-                        result = new Length(value * KilometersToMillimeters, destinationUnits);
+                        result = new Distance(value * KilometersToMillimeters, destinationUnits);
                         break;
 
                     case Centimeters:
-                        result = new Length(value * KilometersToCentimeters, destinationUnits);
+                        result = new Distance(value * KilometersToCentimeters, destinationUnits);
                         break;
 
                     case Meters:
-                        result = new Length(value * KilometersToMeters, destinationUnits);
+                        result = new Distance(value * KilometersToMeters, destinationUnits);
                         break;
 
                     case Inches:
-                        result = new Length(value * KilometersToInches, destinationUnits);
+                        result = new Distance(value * KilometersToInches, destinationUnits);
                         break;
 
                     case Feet:
-                        result = new Length(value * KilometersToFeet, destinationUnits);
+                        result = new Distance(value * KilometersToFeet, destinationUnits);
                         break;
 
                     case Miles:
-                        result = new Length(value * KilometersToMiles, destinationUnits);
+                        result = new Distance(value * KilometersToMiles, destinationUnits);
                         break;
 
                     case FontPoints:
-                        result = new Length(value * KilometersToFontPoints, destinationUnits);
+                        result = new Distance(value * KilometersToFontPoints, destinationUnits);
                         break;
                 }
                 break;
@@ -277,31 +277,31 @@ public class Length implements Comparable<Length>
                 switch (destinationUnits)
                 {
                     case Millimeters:
-                        result = new Length(value * InchesToMillimeters, destinationUnits);
+                        result = new Distance(value * InchesToMillimeters, destinationUnits);
                         break;
 
                     case Centimeters:
-                        result = new Length(value * InchesToCentimeters, destinationUnits);
+                        result = new Distance(value * InchesToCentimeters, destinationUnits);
                         break;
 
                     case Meters:
-                        result = new Length(value * InchesToMeters, destinationUnits);
+                        result = new Distance(value * InchesToMeters, destinationUnits);
                         break;
 
                     case Kilometers:
-                        result = new Length(value * InchesToKilometers, destinationUnits);
+                        result = new Distance(value * InchesToKilometers, destinationUnits);
                         break;
 
                     case Feet:
-                        result = new Length(value * InchesToFeet, destinationUnits);
+                        result = new Distance(value * InchesToFeet, destinationUnits);
                         break;
 
                     case Miles:
-                        result = new Length(value * InchesToMiles, destinationUnits);
+                        result = new Distance(value * InchesToMiles, destinationUnits);
                         break;
 
                     case FontPoints:
-                        result = new Length(value * InchesToFontPoints, destinationUnits);
+                        result = new Distance(value * InchesToFontPoints, destinationUnits);
                         break;
                 }
                 break;
@@ -310,31 +310,31 @@ public class Length implements Comparable<Length>
                 switch (destinationUnits)
                 {
                     case Millimeters:
-                        result = new Length(value * FeetToMillimeters, destinationUnits);
+                        result = new Distance(value * FeetToMillimeters, destinationUnits);
                         break;
 
                     case Centimeters:
-                        result = new Length(value * FeetToCentimeters, destinationUnits);
+                        result = new Distance(value * FeetToCentimeters, destinationUnits);
                         break;
 
                     case Meters:
-                        result = new Length(value * FeetToMeters, destinationUnits);
+                        result = new Distance(value * FeetToMeters, destinationUnits);
                         break;
 
                     case Kilometers:
-                        result = new Length(value * FeetToKilometers, destinationUnits);
+                        result = new Distance(value * FeetToKilometers, destinationUnits);
                         break;
 
                     case Inches:
-                        result = new Length(value * FeetToInches, destinationUnits);
+                        result = new Distance(value * FeetToInches, destinationUnits);
                         break;
 
                     case Miles:
-                        result = new Length(value * FeetToMiles, destinationUnits);
+                        result = new Distance(value * FeetToMiles, destinationUnits);
                         break;
 
                     case FontPoints:
-                        result = new Length(value * FeetToFontPoints, destinationUnits);
+                        result = new Distance(value * FeetToFontPoints, destinationUnits);
                         break;
                 }
                 break;
@@ -343,31 +343,31 @@ public class Length implements Comparable<Length>
                 switch (destinationUnits)
                 {
                     case Millimeters:
-                        result = new Length(value * MilesToMillimeters, destinationUnits);
+                        result = new Distance(value * MilesToMillimeters, destinationUnits);
                         break;
 
                     case Centimeters:
-                        result = new Length(value * MilesToCentimeters, destinationUnits);
+                        result = new Distance(value * MilesToCentimeters, destinationUnits);
                         break;
 
                     case Meters:
-                        result = new Length(value * MilesToMeters, destinationUnits);
+                        result = new Distance(value * MilesToMeters, destinationUnits);
                         break;
 
                     case Kilometers:
-                        result = new Length(value * MilesToKilometers, destinationUnits);
+                        result = new Distance(value * MilesToKilometers, destinationUnits);
                         break;
 
                     case Inches:
-                        result = new Length(value * MilesToInches, destinationUnits);
+                        result = new Distance(value * MilesToInches, destinationUnits);
                         break;
 
                     case Feet:
-                        result = new Length(value * MilesToFeet, destinationUnits);
+                        result = new Distance(value * MilesToFeet, destinationUnits);
                         break;
 
                     case FontPoints:
-                        result = new Length(value * MilesToFontPoints, destinationUnits);
+                        result = new Distance(value * MilesToFontPoints, destinationUnits);
                         break;
                 }
                 break;
@@ -376,31 +376,31 @@ public class Length implements Comparable<Length>
                 switch (destinationUnits)
                 {
                     case Millimeters:
-                        result = new Length(value * FontPointsToMillimeters, destinationUnits);
+                        result = new Distance(value * FontPointsToMillimeters, destinationUnits);
                         break;
 
                     case Centimeters:
-                        result = new Length(value * FontPointsToCentimeters, destinationUnits);
+                        result = new Distance(value * FontPointsToCentimeters, destinationUnits);
                         break;
 
                     case Meters:
-                        result = new Length(value * FontPointsToMeters, destinationUnits);
+                        result = new Distance(value * FontPointsToMeters, destinationUnits);
                         break;
 
                     case Kilometers:
-                        result = new Length(value * FontPointsToKilometers, destinationUnits);
+                        result = new Distance(value * FontPointsToKilometers, destinationUnits);
                         break;
 
                     case Inches:
-                        result = new Length(value * FontPointsToInches, destinationUnits);
+                        result = new Distance(value * FontPointsToInches, destinationUnits);
                         break;
 
                     case Feet:
-                        result = new Length(value * FontPointsToFeet, destinationUnits);
+                        result = new Distance(value * FontPointsToFeet, destinationUnits);
                         break;
 
                     case Miles:
-                        result = new Length(value * FontPointsToMiles, destinationUnits);
+                        result = new Distance(value * FontPointsToMiles, destinationUnits);
                         break;
                 }
                 break;
@@ -411,60 +411,60 @@ public class Length implements Comparable<Length>
         return result;
     }
 
-    public Length toMillimeters()
+    public Distance toMillimeters()
     {
         return convertTo(DistanceUnit.Millimeters);
     }
 
-    public Length toCentimeters()
+    public Distance toCentimeters()
     {
         return convertTo(DistanceUnit.Centimeters);
     }
 
-    public Length toMeters()
+    public Distance toMeters()
     {
         return convertTo(DistanceUnit.Meters);
     }
 
-    public Length toKilometers()
+    public Distance toKilometers()
     {
         return convertTo(DistanceUnit.Kilometers);
     }
 
-    public Length toInches()
+    public Distance toInches()
     {
         return convertTo(DistanceUnit.Inches);
     }
 
-    public Length toFeet()
+    public Distance toFeet()
     {
         return convertTo(DistanceUnit.Feet);
     }
 
-    public Length toMiles()
+    public Distance toMiles()
     {
         return convertTo(DistanceUnit.Miles);
     }
 
-    public Length toFontPoints()
+    public Distance toFontPoints()
     {
         return convertTo(DistanceUnit.FontPoints);
     }
 
-    public Length negate()
+    public Distance negate()
     {
-        final Length result = (value == 0 ? this : new Length(-value, units));
+        final Distance result = (value == 0 ? this : new Distance(-value, units));
 
         PostCondition.assertNotNull(result, "result");
 
         return result;
     }
 
-    public Length plus(Length rhs)
+    public Distance plus(Distance rhs)
     {
         PreCondition.assertNotNull(rhs, "rhs");
 
-        final Length result = (rhs.getValue() == 0 ? this : new Length(value + rhs.convertTo(units).getValue(), units));
+        final Distance result = (rhs.getValue() == 0 ? this : new Distance(value + rhs.convertTo(units).getValue(), units));
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertEqual(units, result.getUnits(), "result.getUnits()");
@@ -472,9 +472,9 @@ public class Length implements Comparable<Length>
         return result;
     }
 
-    public Length times(double value)
+    public Distance times(double value)
     {
-        final Length result = (value == 1 ? this : new Length(this.value * value, units));
+        final Distance result = (value == 1 ? this : new Distance(this.value * value, units));
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertEqual(units, result.getUnits(), "result.getUnits()");
@@ -482,42 +482,42 @@ public class Length implements Comparable<Length>
         return result;
     }
 
-    public Length dividedBy(double rhs)
+    public Distance dividedBy(double rhs)
     {
         PreCondition.assertNotEqual(0.0, rhs, "rhs");
 
-        final Length result = (rhs == 1 ? this : new Length(value / rhs, units));
+        final Distance result = (rhs == 1 ? this : new Distance(value / rhs, units));
 
         PostCondition.assertNotNull(result, "result");
 
         return result;
     }
 
-    public double dividedBy(Length rhs)
+    public double dividedBy(Distance rhs)
     {
         PreCondition.assertNotNull(rhs, "rhs");
         PreCondition.assertNotEqual(0, rhs.getValue(), "rhs.getValue()");
 
-        final Length convertedRhs = rhs.convertTo(units);
+        final Distance convertedRhs = rhs.convertTo(units);
         final double result = value / convertedRhs.value;
 
         return result;
     }
 
-    public Length round()
+    public Distance round()
     {
         final double roundedValue = Math.round(value);
-        return roundedValue == value ? this : new Length(roundedValue, units);
+        return roundedValue == value ? this : new Distance(roundedValue, units);
     }
 
-    public Length round(Length scale)
+    public Distance round(Distance scale)
     {
         PreCondition.assertNotNull(scale, "scale");
         PreCondition.assertNotEqual(0, scale.getValue(), "scale.getValue()");
 
-        final Length convertedLhs = this.convertTo(scale.units);
+        final Distance convertedLhs = this.convertTo(scale.units);
         final double roundedValue = Math.round(convertedLhs.value, scale.value);
-        final Length result = convertedLhs.value == roundedValue ? convertedLhs : new Length(roundedValue, scale.units);
+        final Distance result = convertedLhs.value == roundedValue ? convertedLhs : new Distance(roundedValue, scale.units);
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertEqual(scale.getUnits(), result.getUnits(), "result.getUnits()");
@@ -525,12 +525,12 @@ public class Length implements Comparable<Length>
         return result;
     }
 
-    public Length round(double scale)
+    public Distance round(double scale)
     {
         PreCondition.assertNotEqual(0, scale, "scale");
 
         final double roundedValue = Math.round(value, scale);
-        final Length result = value == roundedValue ? this : new Length(roundedValue, units);
+        final Distance result = value == roundedValue ? this : new Distance(roundedValue, units);
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertEqual(getUnits(), result.getUnits(), "result.getUnits()");
@@ -554,10 +554,10 @@ public class Length implements Comparable<Length>
     @Override
     public boolean equals(Object value)
     {
-        return value instanceof Length && equals((Length)value);
+        return value instanceof Distance && equals((Distance)value);
     }
 
-    public boolean equals(Length rhs)
+    public boolean equals(Distance rhs)
     {
         return rhs != null && rhs.convertTo(units).value == value;
     }
@@ -569,7 +569,7 @@ public class Length implements Comparable<Length>
     }
 
     @Override
-    public Comparison compareTo(Length value)
+    public Comparison compareTo(Distance value)
     {
         return value == null ? Comparison.GreaterThan : Comparison.from(getValue() - value.convertTo(getUnits()).getValue());
     }

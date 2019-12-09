@@ -73,7 +73,7 @@ public class ComparerTests
 
             runner.testGroup("compare(T,T)", () ->
             {
-                final Action3<Length,Length,Comparison> compareTest = (Length lhs, Length rhs, Comparison expected) ->
+                final Action3<Distance,Distance,Comparison> compareTest = (Distance lhs, Distance rhs, Comparison expected) ->
                 {
                     runner.test("with " + lhs + " and " + rhs, (Test test) ->
                     {
@@ -82,11 +82,11 @@ public class ComparerTests
                 };
 
                 compareTest.run(null, null, Comparison.Equal);
-                compareTest.run(null, Length.inches(-5), Comparison.LessThan);
-                compareTest.run(Length.zero, null, Comparison.GreaterThan);
-                compareTest.run(Length.feet(5), Length.feet(7), Comparison.LessThan);
-                compareTest.run(Length.feet(4), Length.feet(4), Comparison.Equal);
-                compareTest.run(Length.miles(10), Length.miles(1), Comparison.GreaterThan);
+                compareTest.run(null, Distance.inches(-5), Comparison.LessThan);
+                compareTest.run(Distance.zero, null, Comparison.GreaterThan);
+                compareTest.run(Distance.feet(5), Distance.feet(7), Comparison.LessThan);
+                compareTest.run(Distance.feet(4), Distance.feet(4), Comparison.Equal);
+                compareTest.run(Distance.miles(10), Distance.miles(1), Comparison.GreaterThan);
             });
 
             runner.testGroup("lessThan(int,int)", () ->
@@ -274,22 +274,22 @@ public class ComparerTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    test.assertNull(Comparer.minimum(Iterable.<VersionNumber>create()));
+                    test.assertNull(Comparer.minimum(Iterable.<Distance>create()));
                 });
 
                 runner.test("with one value", (Test test) ->
                 {
-                    test.assertEqual(VersionNumber.parse("1"), Comparer.minimum(Iterable.create(VersionNumber.parse("1"))));
+                    test.assertEqual(Distance.meters(1), Comparer.minimum(Iterable.create(Distance.meters(1))));
                 });
 
                 runner.test("with two values", (Test test) ->
                 {
-                    test.assertEqual(VersionNumber.parse("1"), Comparer.minimum(Iterable.create(VersionNumber.parse("1"), VersionNumber.parse("2"))));
+                    test.assertEqual(Distance.meters(1), Comparer.minimum(Iterable.create(Distance.meters(1), Distance.meters(2))));
                 });
 
                 runner.test("with three values", (Test test) ->
                 {
-                    test.assertEqual(VersionNumber.parse("0"), Comparer.minimum(Iterable.create(VersionNumber.parse("1"), VersionNumber.parse("0"), VersionNumber.parse("2"))));
+                    test.assertEqual(Distance.meters(0), Comparer.minimum(Iterable.create(Distance.meters(1), Distance.meters(0), Distance.meters(2))));
                 });
             });
 
@@ -311,12 +311,12 @@ public class ComparerTests
 
                 runner.test("with one argument", (Test test) ->
                 {
-                    test.assertEqual(Length.zero, Comparer.maximum(Length.zero));
+                    test.assertEqual(Distance.zero, Comparer.maximum(Distance.zero));
                 });
 
                 runner.test("with multiple arguments", (Test test) ->
                 {
-                    test.assertEqual(Length.inches(5), Comparer.maximum(Length.inches(1), Length.inches(5)));
+                    test.assertEqual(Distance.inches(5), Comparer.maximum(Distance.inches(1), Distance.inches(5)));
                 });
             });
 
@@ -324,28 +324,28 @@ public class ComparerTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Comparer.maximum((Iterable<VersionNumber>)null),
+                    test.assertThrows(() -> Comparer.maximum((Iterable<Distance>)null),
                         new PreConditionFailure("values cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    test.assertNull(Comparer.maximum(Iterable.<VersionNumber>create()));
+                    test.assertNull(Comparer.maximum(Iterable.<Distance>create()));
                 });
 
                 runner.test("with one value", (Test test) ->
                 {
-                    test.assertEqual(VersionNumber.parse("1"), Comparer.maximum(Iterable.create(VersionNumber.parse("1"))));
+                    test.assertEqual(Distance.meters(1), Comparer.maximum(Iterable.create(Distance.meters(1))));
                 });
 
                 runner.test("with two values", (Test test) ->
                 {
-                    test.assertEqual(VersionNumber.parse("2"), Comparer.maximum(Iterable.create(VersionNumber.parse("1"), VersionNumber.parse("2"))));
+                    test.assertEqual(Distance.meters(2), Comparer.maximum(Iterable.create(Distance.meters(1), Distance.meters(2))));
                 });
 
                 runner.test("with three values", (Test test) ->
                 {
-                    test.assertEqual(VersionNumber.parse("2"), Comparer.maximum(Iterable.create(VersionNumber.parse("1"), VersionNumber.parse("0"), VersionNumber.parse("2"))));
+                    test.assertEqual(Distance.meters(2), Comparer.maximum(Iterable.create(Distance.meters(2), Distance.meters(0), Distance.meters(1))));
                 });
             });
 

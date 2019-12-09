@@ -1,6 +1,6 @@
 package qub;
 
-public class JavaImage implements Image
+public class JavaImage
 {
     private final java.awt.Image awtImage;
 
