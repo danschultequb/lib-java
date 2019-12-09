@@ -661,28 +661,6 @@ public interface ProcessTests
                     }
                 });
 
-                runner.test("with path without file extension relative to PATH environment variable with redirected output", (Test test) ->
-                {
-                    try (final Process process = creator.run())
-                    {
-                        if (process.onWindows().await())
-                        {
-                            final ProcessBuilder builder = process.getProcessBuilder("qub").await();
-                            test.assertEqual(Path.parse("qub"), builder.getExecutablePath());
-                            test.assertEqual(Iterable.create(), builder.getArguments());
-
-                            final InMemoryByteStream output = new InMemoryByteStream();
-                            builder.redirectOutput(output);
-
-                            test.assertEqual(0, builder.run().await());
-
-                            final String outputString = new String(output.getBytes());
-                            test.assertNotNullAndNotEmpty(outputString);
-                            test.assertTrue(outputString.contains("qub <action> [<action-options>]"), "Process output (" + outputString + ") should have contained \"qub <action> [<action-options>]\".");
-                        }
-                    }
-                });
-
                 runner.test("with path without file extension relative to PATH environment variable with redirected error", (Test test) ->
                 {
                     try (final Process process = creator.run())
