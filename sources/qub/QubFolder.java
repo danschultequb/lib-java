@@ -1,58 +1,50 @@
 package qub;
 
-public class QubFolder
+public class QubFolder extends Folder
 {
-    private final Folder folder;
-
     /**
      * Create a new QubFolder object from the provided folder.
+     *
      * @param folder The folder that the QubFolder object will operate on.
      */
     public QubFolder(Folder folder)
     {
-        PreCondition.assertNotNull(folder, "folder");
-
-        this.folder = folder;
+        this(folder.getFileSystem(), folder.getPath());
     }
 
     /**
-     * Get the path to this QubFolder.
-     * @return The path to this QubFolder.
+     * Create a new QubFolder object from the provided folder.
+     *
+     * @param fileSystem The file system that contains this folder.
+     * @param path       The path to this folder.
      */
-    public Path getPath()
+    public QubFolder(FileSystem fileSystem, Path path)
     {
-        return this.folder.getPath();
-    }
-
-    /**
-     * Get whether or not this QubFolder exists.
-     * @return Whether or not this QubFolder exists.
-     */
-    public Result<Boolean> exists()
-    {
-        return this.folder.exists();
+        super(fileSystem, path);
     }
 
     public Result<File> getShortcutFile(String shortcutName)
     {
         PreCondition.assertNotNullAndNotEmpty(shortcutName, "shortcutName");
 
-        return this.folder.getFile(shortcutName);
+        return this.getFile(shortcutName);
     }
 
     /**
      * Get the publisher folders that are present in this QubFolder.
+     *
      * @return The publisher folders that are present in this QubFolder.
      */
     public Result<Iterable<QubPublisherFolder>> getPublisherFolders()
     {
-        return this.folder.getFolders()
+        return this.getFolders()
             .catchError(FolderNotFoundException.class, () -> Iterable.create())
             .then((Iterable<Folder> folders) -> folders.map(QubPublisherFolder::new));
     }
 
     /**
      * Get a QubPublisherFolder for the publisher with the provided name.
+     *
      * @param publisherName The name of the publisher.
      * @return The QubPublisherFolder for the publisher with the provided name.
      */
@@ -60,8 +52,8 @@ public class QubFolder
     {
         PreCondition.assertNotNullAndNotEmpty(publisherName, "publisherName");
 
-        return this.folder.getFolder(publisherName)
-            .then(QubPublisherFolder::new);
+        return this.getFolder(publisherName)
+            .then((Folder folder) -> new QubPublisherFolder(folder));
     }
 
     public Result<Iterable<QubProjectFolder>> getProjectFolders(String publisherName)
@@ -138,28 +130,5 @@ public class QubFolder
 
         return this.getProjectVersionFolder(publisherName, projectName, version)
             .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getCompiledTestsFile().await());
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return rhs instanceof QubFolder && this.equals((QubFolder)rhs);
-    }
-
-    /**
-     * Get whether or not this QubFolder is equal to the provided QubFolder.
-     * @param rhs The QubFolder to compare against this QubFolder.
-     * @return Whether or not this QubFolder is equal to the provided QubFolder.
-     */
-    public boolean equals(QubFolder rhs)
-    {
-        return rhs != null &&
-            this.folder.equals(rhs.folder);
-    }
-
-    @Override
-    public String toString()
-    {
-        return this.folder.toString();
     }
 }

@@ -1,32 +1,15 @@
 package qub;
 
-public class QubProjectFolder
+public class QubProjectFolder extends Folder
 {
-    private final Folder folder;
-
     public QubProjectFolder(Folder folder)
     {
-        PreCondition.assertNotNull(folder, "folder");
-
-        this.folder = folder;
+        this(folder.getFileSystem(), folder.getPath());
     }
 
-    /**
-     * Get the path to this QubProjectFolder.
-     * @return The path to this QubProjectFolder.
-     */
-    public Path getPath()
+    public QubProjectFolder(FileSystem fileSystem, Path path)
     {
-        return this.folder.getPath();
-    }
-
-    /**
-     * Get whether or not this QubProjectFolder exists.
-     * @return Whether or not this QubProjectFolder exists.
-     */
-    public Result<Boolean> exists()
-    {
-        return this.folder.exists();
+        super(fileSystem, path);
     }
 
     public Result<QubFolder> getQubFolder()
@@ -37,8 +20,8 @@ public class QubProjectFolder
 
     public Result<QubPublisherFolder> getPublisherFolder()
     {
-        return this.folder.getParentFolder()
-            .then(QubPublisherFolder::new);
+        return this.getParentFolder()
+            .then((Folder folder) -> new QubPublisherFolder(folder));
     }
 
     public Result<String> getPublisherName()
@@ -49,12 +32,12 @@ public class QubProjectFolder
 
     public String getProjectName()
     {
-        return this.folder.getName();
+        return this.getName();
     }
 
     public Result<Iterable<QubProjectVersionFolder>> getProjectVersionFolders()
     {
-        return this.folder.getFolders()
+        return this.getFolders()
             .catchError(FolderNotFoundException.class, () -> Iterable.create())
             .then((Iterable<Folder> folders) -> folders.map(QubProjectVersionFolder::new));
     }
@@ -63,30 +46,7 @@ public class QubProjectFolder
     {
         PreCondition.assertNotNullAndNotEmpty(version, "version");
 
-        return this.folder.getFolder(version)
-            .then(QubProjectVersionFolder::new);
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return rhs instanceof QubProjectFolder && this.equals((QubProjectFolder)rhs);
-    }
-
-    /**
-     * Get whether or not this QubProjectFolder is equal to the provided QubProjectFolder.
-     * @param rhs The QubProjectFolder to compare against this QubProjectFolder.
-     * @return Whether or not this QubProjectFolder is equal to the provided QubProjectFolder.
-     */
-    public boolean equals(QubProjectFolder rhs)
-    {
-        return rhs != null &&
-            this.folder.equals(rhs.folder);
-    }
-
-    @Override
-    public String toString()
-    {
-        return this.folder.toString();
+        return this.getFolder(version)
+            .then((Folder folder) -> new QubProjectVersionFolder(folder));
     }
 }

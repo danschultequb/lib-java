@@ -13,7 +13,7 @@ public interface QubPublisherFolderTests
                 runner.test("with null", (Test test) ->
                 {
                     test.assertThrows(() -> new QubPublisherFolder(null),
-                        new PreConditionFailure("folder cannot be null."));
+                        new NullPointerException());
                 });
 
                 runner.test("with folder that doesn't exist", (Test test) ->
