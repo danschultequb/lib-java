@@ -72,7 +72,7 @@ public interface CommandLineParameterHelpTests
 
                 runner.test("with qub-clean parameters", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineParameters parameters = new CommandLineParameters();
                         parameters.addPositionString("folder")
@@ -90,7 +90,7 @@ public interface CommandLineParameterHelpTests
 
                 runner.test("with qub-build parameters", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineParameters parameters = new CommandLineParameters();
                         parameters.addPositionString("folder")

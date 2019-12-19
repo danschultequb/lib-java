@@ -2,15 +2,15 @@ package qub;
 
 public class CommandLineParameterProfiler extends CommandLineParameterBoolean
 {
-    private final Process process;
+    private final IProcess process;
     private final Class<?> classToAttachTo;
 
-    public CommandLineParameterProfiler(Process process, Class<?> classToAttachTo)
+    public CommandLineParameterProfiler(IProcess process, Class<?> classToAttachTo)
     {
         this(process, classToAttachTo, false);
     }
 
-    public CommandLineParameterProfiler(Process process, Class<?> classToAttachTo, boolean unspecifiedValue)
+    public CommandLineParameterProfiler(IProcess process, Class<?> classToAttachTo, boolean unspecifiedValue)
     {
         super("profiler", unspecifiedValue);
 
@@ -98,15 +98,15 @@ public class CommandLineParameterProfiler extends CommandLineParameterBoolean
      */
     public void await()
     {
-        PreCondition.assertNotNull(process, "process");
-        PreCondition.assertNotNull(classToAttachTo, "classToAttachTo");
+        PreCondition.assertNotNull(this.process, "process");
+        PreCondition.assertNotNull(this.classToAttachTo, "classToAttachTo");
 
         if (getValue().await())
         {
-            process.getOutputCharacterWriteStream()
-                .writeLine("Attach a profiler now to " + Types.getTypeName(classToAttachTo) + ". Press enter to continue...")
+            this.process.getOutputCharacterWriteStream()
+                .writeLine("Attach a profiler now to " + Types.getTypeName(this.classToAttachTo) + ". Press enter to continue...")
                 .await();
-            process.getInputCharacterReadStream()
+            this.process.getInputCharacterReadStream()
                 .readLine()
                 .await();
         }

@@ -1,9 +1,9 @@
 package qub;
 
 /**
- * A Console platform that can be used to writeByte Console applications.
+ * A Process object that exposes the platform functionality that a Java application can use.
  */
-public class Process implements IConsole
+public class JavaProcess implements IConsole
 {
     private final CommandLineArguments commandLineArguments;
     private volatile int exitCode;
@@ -35,27 +35,51 @@ public class Process implements IConsole
     private volatile boolean disposed;
 
     /**
-     * Create a new Process that Console applications can be written with.
+     * Create a new JavaProcess object with the provided command line arguments.
+     * @param commandLineArgumentStrings The command line arguments provided to the new JavaProcess.
      */
-    public Process(String... commandLineArgumentStrings)
+    public static JavaProcess create(String... commandLineArgumentStrings)
     {
-        this(CommandLineArguments.create(commandLineArgumentStrings));
-    }
+        PreCondition.assertNotNull(commandLineArgumentStrings, "commandLineArgumentStrings");
 
-    public Process(Iterable<String> commandLineArgumentStrings)
-    {
-        this(CommandLineArguments.create(commandLineArgumentStrings));
+        return JavaProcess.create(CommandLineArguments.create(commandLineArgumentStrings));
     }
 
     /**
-     * Create a new Process that Console applications can be written with.
+     * Create a new JavaProcess object with the provided command line arguments.
+     * @param commandLineArgumentStrings The command line arguments provided to the new JavaProcess.
      */
-    public Process(CommandLineArguments commandLineArguments)
+    public static JavaProcess create(Iterable<String> commandLineArgumentStrings)
     {
-        this(commandLineArguments, new ManualAsyncRunner());
+        PreCondition.assertNotNull(commandLineArgumentStrings, "commandLineArgumentStrings");
+
+        return JavaProcess.create(CommandLineArguments.create(commandLineArgumentStrings));
     }
 
-    Process(CommandLineArguments commandLineArguments, AsyncScheduler mainAsyncRunner)
+    /**
+     * Create a new JavaProcess object with the provided command line arguments.
+     * @param commandLineArguments The command line arguments provided to the new JavaProcess.
+     */
+    public static JavaProcess create(CommandLineArguments commandLineArguments)
+    {
+        PreCondition.assertNotNull(commandLineArguments, "commandLineArguments");
+
+        return JavaProcess.create(commandLineArguments, new ManualAsyncRunner());
+    }
+
+    /**
+     * Create a new JavaProcess object with the provided command line arguments.
+     * @param commandLineArguments The command line arguments provided to the new JavaProcess.
+     */
+    public static JavaProcess create(CommandLineArguments commandLineArguments, AsyncScheduler mainAsyncRunner)
+    {
+        PreCondition.assertNotNull(commandLineArguments, "commandLineArguments");
+        PreCondition.assertNotNull(mainAsyncRunner, "mainAsyncRunner");
+
+        return new JavaProcess(commandLineArguments, mainAsyncRunner);
+    }
+
+    private JavaProcess(CommandLineArguments commandLineArguments, AsyncScheduler mainAsyncRunner)
     {
         PreCondition.assertNotNull(commandLineArguments, "commandLineArguments");
         PreCondition.assertNotNull(mainAsyncRunner, "mainAsyncRunner");
@@ -102,9 +126,9 @@ public class Process implements IConsole
     /**
      * Set the exit code that this process will return when it finishes.
      * @param exitCode The exit code that this process will return when it finishes.
-     * @return This Process for method chaining.
+     * @return This JavaProcess for method chaining.
      */
-    public Process setExitCode(int exitCode)
+    public JavaProcess setExitCode(int exitCode)
     {
         this.exitCode = exitCode;
         return this;
@@ -112,9 +136,9 @@ public class Process implements IConsole
 
     /**
      * Add one to the current exit code.
-     * @return This Process for method chaining.
+     * @return This JavaProcess for method chaining.
      */
-    public Process incrementExitCode()
+    public JavaProcess incrementExitCode()
     {
         return setExitCode(getExitCode() + 1);
     }
@@ -224,7 +248,7 @@ public class Process implements IConsole
         return errorCharacterWriteStream.get();
     }
 
-    public Process setCharacterEncoding(CharacterEncoding characterEncoding)
+    public JavaProcess setCharacterEncoding(CharacterEncoding characterEncoding)
     {
         this.characterEncoding.set(characterEncoding);
         outputCharacterWriteStream.clear();
@@ -242,7 +266,7 @@ public class Process implements IConsole
         return characterEncoding.get();
     }
 
-    public Process setLineSeparator(String lineSeparator)
+    public JavaProcess setLineSeparator(String lineSeparator)
     {
         this.lineSeparator.set(lineSeparator);
         outputCharacterWriteStream.clear();
@@ -265,7 +289,7 @@ public class Process implements IConsole
      * @param outputByteWriteStream The ByteWriteStream that is assigned to this Console's output.
      * @return This object for method chaining.
      */
-    public Process setOutputByteWriteStream(ByteWriteStream outputByteWriteStream)
+    public JavaProcess setOutputByteWriteStream(ByteWriteStream outputByteWriteStream)
     {
         this.outputByteWriteStream.set(outputByteWriteStream);
         outputCharacterWriteStream.clear();
@@ -278,7 +302,7 @@ public class Process implements IConsole
      *                                   output.
      * @return This object for method chaining.
      */
-    public Process setOutputCharacterWriteStream(CharacterWriteStream outputCharacterWriteStream)
+    public JavaProcess setOutputCharacterWriteStream(CharacterWriteStream outputCharacterWriteStream)
     {
         this.outputByteWriteStream.clear();
         this.outputCharacterWriteStream.set(outputCharacterWriteStream);
@@ -290,7 +314,7 @@ public class Process implements IConsole
      * @param errorByteWriteStream The ByteWriteStream that is assigned to this Console's error.
      * @return This object for method chaining.
      */
-    public Process setErrorByteWriteStream(ByteWriteStream errorByteWriteStream)
+    public JavaProcess setErrorByteWriteStream(ByteWriteStream errorByteWriteStream)
     {
         this.errorByteWriteStream.set(errorByteWriteStream);
         errorCharacterWriteStream.clear();
@@ -303,7 +327,7 @@ public class Process implements IConsole
      *                                  error.
      * @return This object for method chaining.
      */
-    public Process setErrorCharacterWriteStream(CharacterWriteStream errorCharacterWriteStream)
+    public JavaProcess setErrorCharacterWriteStream(CharacterWriteStream errorCharacterWriteStream)
     {
         this.errorByteWriteStream.clear();
         this.errorCharacterWriteStream.set(errorCharacterWriteStream);
@@ -315,7 +339,7 @@ public class Process implements IConsole
      * @param inputByteReadStream The ByteReadStream that is assigned to this Console's input.
      * @return This object for method chaining.
      */
-    public Process setInputByteReadStream(ByteReadStream inputByteReadStream)
+    public JavaProcess setInputByteReadStream(ByteReadStream inputByteReadStream)
     {
         this.inputByteReadStream.set(inputByteReadStream);
         inputCharacterReadStream.clear();
@@ -328,7 +352,7 @@ public class Process implements IConsole
      *                                 input.
      * @return This object for method chaining.
      */
-    public Process setInputCharacterReadStream(CharacterReadStream inputCharacterReadStream)
+    public JavaProcess setInputCharacterReadStream(CharacterReadStream inputCharacterReadStream)
     {
         this.inputByteReadStream.set(null);
         this.inputCharacterReadStream.set(inputCharacterReadStream);
@@ -339,7 +363,7 @@ public class Process implements IConsole
      * Set the Random number generator assigned to this Console.
      * @param random The Random number generator assigned to this Console.
      */
-    public Process setRandom(Random random)
+    public JavaProcess setRandom(Random random)
     {
         this.random.set(random);
         return this;
@@ -375,7 +399,7 @@ public class Process implements IConsole
      * Set the FileSystem that is assigned to this Console.
      * @param fileSystem The FileSystem that will be assigned to this Console.
      */
-    public Process setFileSystem(FileSystem fileSystem)
+    public JavaProcess setFileSystem(FileSystem fileSystem)
     {
         this.fileSystem.set(fileSystem);
         if (fileSystem == null)
@@ -398,7 +422,7 @@ public class Process implements IConsole
         return network.get();
     }
 
-    public Process setNetwork(Network network)
+    public JavaProcess setNetwork(Network network)
     {
         this.network.set(network);
         return this;
@@ -413,7 +437,7 @@ public class Process implements IConsole
         return currentFolderPathString.get();
     }
 
-    public Process setCurrentFolderPathString(String currentFolderPathString)
+    public JavaProcess setCurrentFolderPathString(String currentFolderPathString)
     {
         this.currentFolderPathString.set(currentFolderPathString);
         return this;
@@ -433,7 +457,7 @@ public class Process implements IConsole
      * Set the path to the folder that this Console is currently running in.
      * @param currentFolderPath The folder to the path that this Console is currently running in.
      */
-    public Process setCurrentFolderPath(Path currentFolderPath)
+    public JavaProcess setCurrentFolderPath(Path currentFolderPath)
     {
         currentFolderPathString.set(currentFolderPath == null ? null : currentFolderPath.toString());
         return this;
@@ -451,7 +475,7 @@ public class Process implements IConsole
      * Set the environment variables that will be used by this Application.
      * @param environmentVariables The environment variables that will be used by this application.
      */
-    public Process setEnvironmentVariables(EnvironmentVariables environmentVariables)
+    public JavaProcess setEnvironmentVariables(EnvironmentVariables environmentVariables)
     {
         this.environmentVariables.set(environmentVariables);
         return this;
@@ -499,7 +523,7 @@ public class Process implements IConsole
         return synchronization.get();
     }
 
-    public Process setStopwatchCreator(Function0<Stopwatch> stopwatchCreator)
+    public JavaProcess setStopwatchCreator(Function0<Stopwatch> stopwatchCreator)
     {
         this.stopwatchCreator.set(stopwatchCreator);
         return this;
@@ -554,10 +578,10 @@ public class Process implements IConsole
     }
 
     /**
-     * Set the Clock object that this Process will use.
-     * @param clock The Clock object that this Process will use.
+     * Set the Clock object that this JavaProcess will use.
+     * @param clock The Clock object that this JavaProcess will use.
      */
-    public Process setClock(Clock clock)
+    public JavaProcess setClock(Clock clock)
     {
         this.clock.set(clock);
         return this;
@@ -577,10 +601,10 @@ public class Process implements IConsole
     }
 
     /**
-     * Set the displays Iterable that this Process will use.
-     * @param displays The displays Iterable that this Process will use.
+     * Set the displays Iterable that this JavaProcess will use.
+     * @param displays The displays Iterable that this JavaProcess will use.
      */
-    public Process setDisplays(Iterable<Display> displays)
+    public JavaProcess setDisplays(Iterable<Display> displays)
     {
         this.displays.set(displays);
         return this;
@@ -644,7 +668,7 @@ public class Process implements IConsole
      * @param processFactory The object that can be used to invoke external processes.
      * @return This object for method chaining.
      */
-    public Process setProcessFactory(ProcessFactory processFactory)
+    public JavaProcess setProcessFactory(ProcessFactory processFactory)
     {
         PreCondition.assertNotNull(processFactory, "processFactory");
 
@@ -711,7 +735,7 @@ public class Process implements IConsole
      *                                   registered default application.
      * @return This object for method chaining.
      */
-    public Process setDefaultApplicationLauncher(DefaultApplicationLauncher defaultApplicationLauncher)
+    public JavaProcess setDefaultApplicationLauncher(DefaultApplicationLauncher defaultApplicationLauncher)
     {
         PreCondition.assertNotNull(defaultApplicationLauncher, "defaultApplicationLauncher");
 
@@ -759,7 +783,7 @@ public class Process implements IConsole
         return launcher.openFileWithDefaultApplication(file);
     }
 
-    public Process setSystemProperty(String systemPropertyName, String systemPropertyValue)
+    public JavaProcess setSystemProperty(String systemPropertyName, String systemPropertyValue)
     {
         PreCondition.assertNotNullAndNotEmpty(systemPropertyName, "systemPropertyName");
         PreCondition.assertNotNull(systemPropertyValue, "systemPropertyValue");
@@ -817,7 +841,7 @@ public class Process implements IConsole
      * JVM, but rather will only modify the system property.
      * @return This object for method chaining.
      */
-    public Process setJVMClasspath(String jvmClasspath)
+    public JavaProcess setJVMClasspath(String jvmClasspath)
     {
         PreCondition.assertNotNull(jvmClasspath, "jvmClasspath");
 

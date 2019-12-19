@@ -1,40 +1,87 @@
 package qub;
 
-public interface ConsoleTests
+public interface IConsoleTests
 {
-    static void test(final TestRunner runner)
+    static void test(TestRunner runner)
     {
-        runner.testGroup(Console.class, () ->
+        runner.testGroup(IConsole.class, () ->
         {
-            ProcessTests.test(runner, Console::new);
-
-            runner.testGroup("constructor()", () ->
+            runner.testGroup("create(String...)", () ->
             {
                 runner.test("with no arguments", (Test test) ->
                 {
-                    final Console console = new Console();
-                    test.assertEqual(Iterable.create(), console.getCommandLineArguments());
+                    final IProcess process = IProcess.create();
+                    test.assertEqual(Iterable.create(), process.getCommandLineArguments());
                 });
-                
-                runner.test("with null CommandLineArguments", (Test test) ->
+
+                runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> new Console((CommandLineArguments)null),
-                        new PreConditionFailure("commandLineArguments cannot be null."));
+                    test.assertThrows(() -> IProcess.create((String[])null),
+                        new PreConditionFailure("commandLineArgumentStrings cannot be null."));
                 });
-                
-                runner.test("with empty CommandLineArguments", (Test test) ->
+
+                runner.test("with empty", (Test test) ->
                 {
-                    final String[] commandLineArgumentStrings = new String[0];
-                    final Console console = new Console(CommandLineArguments.create());
-                    test.assertEqual(Iterable.create(), console.getCommandLineArguments());
+                    final IProcess process = IProcess.create(new String[0]);
+                    test.assertEqual(Iterable.create(), process.getCommandLineArguments());
                 });
-                
-                runner.test("with non-empty CommandLineArguments", (Test test) ->
+
+                runner.test("with non-empty", (Test test) ->
                 {
-                    final Console console = new Console(CommandLineArguments.create("a", "b", "c"));
-                    test.assertEqual("[a,b,c]", console.getCommandLineArguments().toString());
+                    final IProcess process = IProcess.create("hello", "there");
+                    test.assertEqual(Iterable.create("hello", "there"), process.getCommandLineArguments().map(CommandLineArgument::toString));
                 });
             });
+
+            runner.testGroup("create(Iterable<String>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> IProcess.create((Iterable<String>)null),
+                        new PreConditionFailure("commandLineArgumentStrings cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final IProcess process = IProcess.create(Iterable.create());
+                    test.assertEqual(Iterable.create(), process.getCommandLineArguments());
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    final IProcess process = IProcess.create(Iterable.create("hello", "there"));
+                    test.assertEqual(Iterable.create("hello", "there"), process.getCommandLineArguments().map(CommandLineArgument::toString));
+                });
+            });
+
+            runner.testGroup("create(CommandLineArguments)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> IProcess.create((CommandLineArguments)null),
+                        new PreConditionFailure("commandLineArguments cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final IProcess process = IProcess.create(CommandLineArguments.create());
+                    test.assertEqual(Iterable.create(), process.getCommandLineArguments());
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    final IProcess process = IProcess.create(CommandLineArguments.create("hello", "there"));
+                    test.assertEqual(Iterable.create("hello", "there"), process.getCommandLineArguments().map(CommandLineArgument::toString));
+                });
+            });
+        });
+    }
+    
+    static void test(TestRunner runner, Function0<? extends IConsole> creator)
+    {
+        runner.testGroup(IConsole.class, () ->
+        {
+            IProcessTests.test(runner, creator);
 
             runner.testGroup("writeByte(String,Object...)", () ->
             {
@@ -42,7 +89,7 @@ public interface ConsoleTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(toWrite) + " and no formatted string arguments", (Test test) ->
                     {
-                        final Console console = new Console();
+                        final IConsole console = creator.run();
                         final InMemoryCharacterStream output = new InMemoryCharacterStream();
                         console.setOutputCharacterWriteStream(output);
 
@@ -59,7 +106,7 @@ public interface ConsoleTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(toWrite) + " and no formatted string arguments", (Test test) ->
                     {
-                        final Console console = new Console();
+                        final IConsole console = creator.run();
                         final InMemoryCharacterStream output = new InMemoryCharacterStream();
                         console.setOutputCharacterWriteStream(output);
 
@@ -76,7 +123,7 @@ public interface ConsoleTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(toWrite) + " and " + (formattedStringArguments == null ? "null" : Array.create(formattedStringArguments).toString()) + " formatted string arguments", (Test test) ->
                     {
-                        final Console console = new Console();
+                        final IConsole console = creator.run();
                         final InMemoryCharacterStream output = new InMemoryCharacterStream();
                         console.setOutputCharacterWriteStream(output);
 
@@ -97,7 +144,7 @@ public interface ConsoleTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(toWrite) + " and " + (formattedStringArguments == null ? "null" : Array.create(formattedStringArguments).toString()) + " formatted string arguments", (Test test) ->
                     {
-                        final Console console = new Console();
+                        final IConsole console = creator.run();
                         final InMemoryCharacterStream output = new InMemoryCharacterStream();
                         console.setOutputCharacterWriteStream(output);
 
@@ -120,7 +167,7 @@ public interface ConsoleTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(toWrite) + " and " + (formattedStringArguments == null ? "null" : Array.create(formattedStringArguments).toString()) + " formatted string arguments", (Test test) ->
                     {
-                        final Console console = new Console();
+                        final IConsole console = creator.run();
                         final InMemoryCharacterStream output = new InMemoryCharacterStream();
                         console.setOutputCharacterWriteStream(output);
 

@@ -1,14 +1,89 @@
 package qub;
 
-public interface ProcessTests
+public interface IProcessTests
 {
-    static void test(TestRunner runner, Function0<Process> creator)
+    static void test(TestRunner runner)
     {
-        runner.testGroup(Process.class, () ->
+        runner.testGroup(IProcess.class, () ->
+        {
+            runner.testGroup("create(String...)", () ->
+            {
+                runner.test("with no arguments", (Test test) ->
+                {
+                    final IProcess process = IProcess.create();
+                    test.assertEqual(Iterable.create(), process.getCommandLineArguments());
+                });
+
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> IProcess.create((String[])null),
+                        new PreConditionFailure("commandLineArgumentStrings cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final IProcess process = IProcess.create(new String[0]);
+                    test.assertEqual(Iterable.create(), process.getCommandLineArguments());
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    final IProcess process = IProcess.create("hello", "there");
+                    test.assertEqual(Iterable.create("hello", "there"), process.getCommandLineArguments().map(CommandLineArgument::toString));
+                });
+            });
+
+            runner.testGroup("create(Iterable<String>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> IProcess.create((Iterable<String>)null),
+                        new PreConditionFailure("commandLineArgumentStrings cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final IProcess process = IProcess.create(Iterable.create());
+                    test.assertEqual(Iterable.create(), process.getCommandLineArguments());
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    final IProcess process = IProcess.create(Iterable.create("hello", "there"));
+                    test.assertEqual(Iterable.create("hello", "there"), process.getCommandLineArguments().map(CommandLineArgument::toString));
+                });
+            });
+
+            runner.testGroup("create(CommandLineArguments)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> IProcess.create((CommandLineArguments)null),
+                        new PreConditionFailure("commandLineArguments cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final IProcess process = IProcess.create(CommandLineArguments.create());
+                    test.assertEqual(Iterable.create(), process.getCommandLineArguments());
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    final IProcess process = IProcess.create(CommandLineArguments.create("hello", "there"));
+                    test.assertEqual(Iterable.create("hello", "there"), process.getCommandLineArguments().map(CommandLineArgument::toString));
+                });
+            });
+        });
+    }
+    
+    static void test(TestRunner runner, Function0<? extends IProcess> creator)
+    {
+        runner.testGroup(IProcess.class, () ->
         {
             runner.test("getExitCode()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 test.assertEqual(0, process.getExitCode());
             });
 
@@ -16,21 +91,21 @@ public interface ProcessTests
             {
                 runner.test("with negative", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     test.assertSame(process, process.setExitCode(-1));
                     test.assertEqual(-1, process.getExitCode());
                 });
 
                 runner.test("with zero", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     test.assertSame(process, process.setExitCode(0));
                     test.assertEqual(0, process.getExitCode());
                 });
 
                 runner.test("with positive", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     test.assertSame(process, process.setExitCode(2));
                     test.assertEqual(2, process.getExitCode());
                 });
@@ -38,7 +113,7 @@ public interface ProcessTests
 
             runner.test("incrementExitCode()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 test.assertEqual(0, process.getExitCode());
                 test.assertSame(process, process.incrementExitCode());
                 test.assertEqual(1, process.getExitCode());
@@ -46,7 +121,7 @@ public interface ProcessTests
 
             runner.test("getMainAsyncRunner()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 final AsyncScheduler mainAsyncRunner = process.getMainAsyncRunner();
                 test.assertNotNull(mainAsyncRunner);
                 test.assertSame(mainAsyncRunner, process.getMainAsyncRunner());
@@ -55,7 +130,7 @@ public interface ProcessTests
 
             runner.test("getResultParallelAsyncRunner()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 final AsyncScheduler parallelAsyncRunner = process.getParallelAsyncRunner();
                 test.assertNotNull(parallelAsyncRunner);
                 test.assertSame(parallelAsyncRunner, process.getParallelAsyncRunner() );
@@ -64,7 +139,7 @@ public interface ProcessTests
 
             runner.test("getCharacterEncoding()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 test.assertEqual(CharacterEncoding.UTF_8, process.getCharacterEncoding());
 
                 process.setCharacterEncoding(CharacterEncoding.US_ASCII);
@@ -76,7 +151,7 @@ public interface ProcessTests
 
             runner.test("getLineSeparator()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 test.assertEqual(process.onWindows().await() ? "\r\n" : "\n", process.getLineSeparator());
 
                 process.setLineSeparator("\r\n");
@@ -94,35 +169,35 @@ public interface ProcessTests
 
             runner.test("getOutputByteWriteStream()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 final ByteWriteStream writeStream = process.getOutputByteWriteStream();
                 test.assertNotNull(writeStream);
             });
 
             runner.test("getOutputCharacterWriteStream()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 final CharacterWriteStream writeStream = process.getOutputCharacterWriteStream();
                 test.assertNotNull(writeStream);
             });
 
             runner.test("getErrorByteWriteStream()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 final ByteWriteStream writeStream = process.getErrorByteWriteStream();
                 test.assertNotNull(writeStream);
             });
 
             runner.test("getErrorCharacterWriteStream()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 final CharacterWriteStream writeStream = process.getErrorCharacterWriteStream();
                 test.assertNotNull(writeStream);
             });
 
             runner.test("getInputByteWriteStream()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 final ByteReadStream readStream = process.getInputByteReadStream();
                 test.assertNotNull(readStream);
             });
@@ -131,14 +206,14 @@ public interface ProcessTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     process.setInputByteReadStream(null);
                     test.assertNull(process.getInputByteReadStream());
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     final InMemoryByteStream readStream = new InMemoryByteStream(CharacterEncoding.UTF_8.encode("hello there my good friend\nHow are you?\r\nI'm alright.").await());
                     process.setInputByteReadStream(readStream);
 
@@ -168,7 +243,7 @@ public interface ProcessTests
 
             runner.test("getInputCharacterReadStream()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 final CharacterReadStream readStream = process.getInputCharacterReadStream();
                 test.assertNotNull(readStream);
             });
@@ -177,14 +252,14 @@ public interface ProcessTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     process.setInputCharacterReadStream(null);
                     test.assertNull(process.getInputCharacterReadStream());
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     final InMemoryCharacterStream readStream = new InMemoryCharacterStream("ere my good friend\nHow are you?\r\nI'm alright.").endOfStream();
                     process.setInputCharacterReadStream(readStream);
 
@@ -206,7 +281,7 @@ public interface ProcessTests
 
             runner.test("getRandom()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 final Random random = process.getRandom();
                 test.assertNotNull(random);
                 test.assertTrue(random instanceof JavaRandom);
@@ -215,7 +290,7 @@ public interface ProcessTests
 
             runner.test("setRandom()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
 
                 process.setRandom(null);
                 test.assertNull(process.getRandom());
@@ -227,7 +302,7 @@ public interface ProcessTests
 
             runner.test("getFileSystem()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 final FileSystem defaultFileSystem = process.getFileSystem();
                 test.assertNotNull(defaultFileSystem);
                 test.assertTrue(defaultFileSystem instanceof JavaFileSystem);
@@ -237,7 +312,7 @@ public interface ProcessTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     process.setFileSystem((FileSystem)null);
                     test.assertNull(process.getFileSystem());
                     test.assertNull(process.getCurrentFolderPathString());
@@ -245,7 +320,7 @@ public interface ProcessTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     process.setFileSystem(fileSystem);
                     test.assertSame(fileSystem, process.getFileSystem());
@@ -254,7 +329,7 @@ public interface ProcessTests
 
             runner.test("getNetwork()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 final Network defaultNetwork = process.getNetwork();
                 test.assertNotNull(defaultNetwork);
                 test.assertTrue(defaultNetwork instanceof JavaNetwork);
@@ -265,14 +340,14 @@ public interface ProcessTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     process.setNetwork((Network)null);
                     test.assertNull(process.getNetwork());
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     final Network network = new JavaNetwork(test.getClock());
                     process.setNetwork(network);
                     test.assertSame(network, process.getNetwork());
@@ -281,7 +356,7 @@ public interface ProcessTests
 
             runner.test("getCurrentFolderPathString()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 final String currentFolderPathString = process.getCurrentFolderPathString();
                 test.assertNotNull(currentFolderPathString);
                 test.assertFalse(currentFolderPathString.isEmpty());
@@ -292,21 +367,21 @@ public interface ProcessTests
             {
                 runner.test("with null string", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     process.setCurrentFolderPathString(null);
                     test.assertNull(process.getCurrentFolderPathString());
                 });
 
                 runner.test("with empty string", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     process.setCurrentFolderPathString("");
                     test.assertEqual("", process.getCurrentFolderPathString());
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     process.setCurrentFolderPathString("hello there");
                     test.assertEqual("hello there", process.getCurrentFolderPathString());
                 });
@@ -314,7 +389,7 @@ public interface ProcessTests
 
             runner.test("getCurrentFolderPath()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 final Path currentFolderPath = process.getCurrentFolderPath();
                 test.assertNotNull(currentFolderPath);
                 test.assertTrue(currentFolderPath.isRooted());
@@ -323,14 +398,14 @@ public interface ProcessTests
 
             runner.test("setCurrentFolderPath(Path) with null", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 process.setCurrentFolderPath(null);
                 test.assertNull(process.getCurrentFolderPath());
             });
 
             runner.test("getCurrentFolder()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 final Folder currentFolder = process.getCurrentFolder().await();
                 test.assertNotNull(currentFolder);
                 test.assertTrue(currentFolder.exists().await());
@@ -340,28 +415,28 @@ public interface ProcessTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     test.assertThrows(() -> process.getEnvironmentVariable(null),
                         new PreConditionFailure("variableName cannot be null."));
                 });
 
                 runner.test("with empty string", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     test.assertThrows(() -> process.getEnvironmentVariable(""),
                         new PreConditionFailure("variableName cannot be empty."));
                 });
 
                 runner.test("with non-existing variable name", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     test.assertThrows(() -> process.getEnvironmentVariable("Can't find me").await(),
                         new NotFoundException("No environment variable named \"Can't find me\" found."));
                 });
 
                 runner.test("with existing variable name", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     final String path = process.getEnvironmentVariable("path").await();
                     test.assertNotNull(path);
                     test.assertFalse(path.isEmpty());
@@ -370,7 +445,7 @@ public interface ProcessTests
 
             runner.test("setEnvironmentVariables()", (Test test) ->
             {
-                final Process process = creator.run();
+                final IProcess process = creator.run();
                 final EnvironmentVariables envVars = new EnvironmentVariables();
                 test.assertSame(process, process.setEnvironmentVariables(envVars));
                 test.assertSame(envVars, process.getEnvironmentVariables());
@@ -380,7 +455,7 @@ public interface ProcessTests
             {
                 runner.test("with default creator", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     final Stopwatch stopwatch = process.getStopwatch();
                     test.assertNotNull(stopwatch);
                     test.assertTrue(stopwatch instanceof JavaStopwatch);
@@ -388,7 +463,7 @@ public interface ProcessTests
 
                 runner.test("with null creator", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     process.setStopwatchCreator(null);
                     test.assertNull(process.getStopwatch());
                 });
@@ -398,7 +473,7 @@ public interface ProcessTests
             {
                 runner.test("with default", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     final Clock clock = process.getClock();
                     test.assertNotNull(clock);
                     test.assertTrue(clock instanceof JavaClock);
@@ -406,14 +481,14 @@ public interface ProcessTests
 
                 runner.test("with null", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     process.setClock(null);
                     test.assertNull(process.getClock());
                 });
 
                 runner.test("with manual", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     process.setClock(new ManualClock(DateTime.create(123, 4, 5), test.getMainAsyncRunner()));
                     final Clock clock = process.getClock();
                     test.assertNotNull(clock);
@@ -425,7 +500,7 @@ public interface ProcessTests
             {
                 runner.test("with default", (Test test) ->
                 {
-                    final Process process = creator.run();
+                    final IProcess process = creator.run();
                     final Iterable<Display> displays = process.getDisplays();
                     test.assertNotNull(displays);
                     test.assertGreaterThanOrEqualTo(displays.getCount(), 1);
@@ -444,7 +519,7 @@ public interface ProcessTests
             {
                 runner.test("with null string", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         test.assertThrows(() -> process.getProcessBuilder((String)null), new PreConditionFailure("executablePath cannot be null."));
                     }
@@ -452,7 +527,7 @@ public interface ProcessTests
 
                 runner.test("with empty string", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         test.assertThrows(() -> process.getProcessBuilder(""), new PreConditionFailure("executablePath cannot be empty."));
                     }
@@ -460,7 +535,7 @@ public interface ProcessTests
 
                 runner.test("with path with file extension relative to the current folder", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("pom.xml").await();
                         test.assertNotNull(builder);
@@ -471,7 +546,7 @@ public interface ProcessTests
 
                 runner.test("with path without file extension relative to the current folder", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("pom").await();
                         test.assertNotNull(builder, "The builder not have been null.");
@@ -482,7 +557,7 @@ public interface ProcessTests
 
                 runner.test("with rooted path with file extension", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         final Path executablePath = process.getCurrentFolder().await().getFile("pom.xml").await().getPath();
                         final ProcessBuilder builder = process.getProcessBuilder(executablePath).await();
@@ -494,7 +569,7 @@ public interface ProcessTests
 
                 runner.test("with rooted path without file extension", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         final Path executablePath = process.getCurrentFolder().await().getFile("pom").await().getPath();
                         final ProcessBuilder builder = process.getProcessBuilder(executablePath).await();
@@ -506,7 +581,7 @@ public interface ProcessTests
 
                 runner.test("with rooted path to executable", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         if (process.onWindows().await())
                         {
@@ -520,7 +595,7 @@ public interface ProcessTests
 
                 runner.test("with rooted path to executable with fake process", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         if (process.onWindows().await())
                         {
@@ -539,7 +614,7 @@ public interface ProcessTests
 
                 runner.test("with path with file extension relative to PATH environment variable", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         if (process.onWindows().await())
                         {
@@ -553,7 +628,7 @@ public interface ProcessTests
 
                 runner.test("with path with file extension relative to PATH environment variable with fake process runner", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         if (process.onWindows().await())
                         {
@@ -570,7 +645,7 @@ public interface ProcessTests
 
                 runner.test("with path without file extension relative to PATH environment variable", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         if (process.onWindows().await())
                         {
@@ -594,7 +669,7 @@ public interface ProcessTests
 
                 runner.test("with non-existing working folder", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("javac").await();
                         final StringBuilder output = new StringBuilder();
@@ -614,7 +689,7 @@ public interface ProcessTests
 
                 runner.test("with existing working folder (a child folder of the current folder)", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("javac").await();
                         final StringBuilder output = new StringBuilder();
@@ -642,7 +717,7 @@ public interface ProcessTests
 
                 runner.test("with existing working folder (the current folder)", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("javac").await();
 
@@ -663,7 +738,7 @@ public interface ProcessTests
 
                 runner.test("with path without file extension relative to PATH environment variable with redirected error", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         if (process.onWindows().await())
                         {
@@ -686,7 +761,7 @@ public interface ProcessTests
             {
                 runner.test("with null systemPropertyName", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         test.assertThrows(() -> process.getSystemProperty(null),
                             new PreConditionFailure("systemPropertyName cannot be null."));
@@ -695,7 +770,7 @@ public interface ProcessTests
 
                 runner.test("with empty systemPropertyName", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         test.assertThrows(() -> process.getSystemProperty(""),
                             new PreConditionFailure("systemPropertyName cannot be empty."));
@@ -704,7 +779,7 @@ public interface ProcessTests
 
                 runner.test("with not-found systemPropertyName", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         test.assertThrows(() -> process.getSystemProperty("apples-and-bananas").await(),
                             new NotFoundException("No system property found with the name \"apples-and-bananas\"."));
@@ -713,7 +788,7 @@ public interface ProcessTests
 
                 runner.test("with found systemPropertyName", (Test test) ->
                 {
-                    try (final Process process = creator.run())
+                    try (final IProcess process = creator.run())
                     {
                         test.assertNotNullAndNotEmpty(process.getSystemProperty("os.name").await());
                     }
@@ -722,7 +797,7 @@ public interface ProcessTests
 
             runner.test("onWindows()", (Test test) ->
             {
-                try (final Process process = creator.run())
+                try (final IProcess process = creator.run())
                 {
                     test.assertNotNull(process.onWindows().await());
                 }
@@ -730,7 +805,7 @@ public interface ProcessTests
 
             runner.test("getJVMClasspath()", (Test test) ->
             {
-                try (final Process process = creator.run())
+                try (final IProcess process = creator.run())
                 {
                     test.assertNotNullAndNotEmpty(process.getJVMClasspath().await());
                 }
@@ -739,7 +814,7 @@ public interface ProcessTests
             runner.test("setJVMClasspath()", (Test test) ->
             {
                 final String originalJvmClassPath = test.getProcess().getJVMClasspath().await();
-                try (final Process process = creator.run())
+                try (final IProcess process = creator.run())
                 {
                     test.assertEqual(originalJvmClassPath, process.getJVMClasspath().await());
 

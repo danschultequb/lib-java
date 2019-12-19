@@ -63,12 +63,12 @@ public class CommandLineParameterHelp extends CommandLineParameterBoolean
 
     /**
      * Show the help lines that explain how to run this application from the command line if a help
-     * command line argument was provided the Process.
+     * command line argument was provided the IProcess.
      * @param process The process that contains a CharacterWriteStream that the help lines will be
      *                written to.
      * @return The result of writing the help lines.
      */
-    public Result<Boolean> showApplicationHelpLines(Process process)
+    public Result<Boolean> showApplicationHelpLines(IProcess process)
     {
         PreCondition.assertNotNull(process, "process");
 

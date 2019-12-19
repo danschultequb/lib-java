@@ -319,9 +319,9 @@ public interface CommandLineParametersTests
                 });
             });
 
-            runner.testGroup("addFolder(String,Process)", () ->
+            runner.testGroup("addFolder(String,IProcess)", () ->
             {
-                runner.test("with null Process", (Test test) ->
+                runner.test("with null IProcess", (Test test) ->
                 {
                     final CommandLineParameters parameters = new CommandLineParameters();
                     test.assertThrows(() -> parameters.addFolder("hello", null),
@@ -330,7 +330,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with null", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineParameters parameters = new CommandLineParameters();
                         test.assertThrows(() -> parameters.addFolder(null, process),
@@ -340,7 +340,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineParameters parameters = new CommandLineParameters();
                         test.assertThrows(() -> parameters.addFolder("", process),
@@ -350,7 +350,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that doesn't exist in arguments", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create();
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -361,7 +361,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that doesn't have a value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -372,7 +372,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that has an empty value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -383,7 +383,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that has a relative file path value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=folder/subfolder/");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -394,7 +394,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that has a rooted folder path value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=/folder/");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -404,11 +404,11 @@ public interface CommandLineParametersTests
                 });
             });
 
-            runner.testGroup("addPositionalFolder(String,Process)", () ->
+            runner.testGroup("addPositionalFolder(String,IProcess)", () ->
             {
                 runner.test("with null parameter name", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineParameters parameters = new CommandLineParameters();
                         test.assertThrows(() -> parameters.addPositionalFolder(null, process),
@@ -418,7 +418,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with empty parameter name", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineParameters parameters = new CommandLineParameters();
                         test.assertThrows(() -> parameters.addPositionalFolder("", process),
@@ -435,7 +435,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that doesn't exist in arguments", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create();
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -446,7 +446,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that has a positional non-empty value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("testing");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -457,7 +457,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that doesn't have a value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -468,7 +468,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that has an empty value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -479,7 +479,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that has a relative file path value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=folder/subfolder/");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -490,7 +490,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that has a rooted folder path value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=/folder/");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -504,7 +504,7 @@ public interface CommandLineParametersTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineParameters parameters = new CommandLineParameters();
                         test.assertThrows(() -> parameters.addFile(null, process),
@@ -514,7 +514,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineParameters parameters = new CommandLineParameters();
                         test.assertThrows(() -> parameters.addFile("", process),
@@ -531,7 +531,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that doesn't exist in arguments", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create();
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -542,7 +542,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that doesn't have a value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -553,7 +553,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that has an empty value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -564,7 +564,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that has a relative folder path value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=folder/subfolder/");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -576,7 +576,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that has a relative file path value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=folder/subfolder/file");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -587,7 +587,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that has a rooted file path value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=/folder/file");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -598,7 +598,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that has a rooted folder path value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=/folder/");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -613,7 +613,7 @@ public interface CommandLineParametersTests
             {
                 runner.test("with null parameter name", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineParameters parameters = new CommandLineParameters();
                         test.assertThrows(() -> parameters.addPositionalFile(null, process),
@@ -623,7 +623,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with empty parameter name", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineParameters parameters = new CommandLineParameters();
                         test.assertThrows(() -> parameters.addPositionalFile("", process),
@@ -640,7 +640,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that doesn't exist in arguments", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create();
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -651,7 +651,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that has a positional non-empty value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("testing");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -662,7 +662,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that doesn't have a value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -673,7 +673,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that has an empty value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -684,7 +684,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that has a relative folder path value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=folder/subfolder/");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -696,7 +696,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that has a relative file path value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=folder/subfolder/file");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -707,7 +707,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that has a rooted folder path value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=/folder/");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -719,7 +719,7 @@ public interface CommandLineParametersTests
 
                 runner.test("with non-empty name that has a rooted file path value", (Test test) ->
                 {
-                    try (final Process process = new Process())
+                    try (final IProcess process = IProcess.create())
                     {
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=/folder/file");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
@@ -803,7 +803,7 @@ public interface CommandLineParametersTests
 
             runner.test("addVerbose()", (Test test) ->
             {
-                try (final Process process = new Process())
+                try (final IProcess process = IProcess.create())
                 {
                     final CommandLineParameters parameters = new CommandLineParameters();
                     final CommandLineParameterVerbose parameter = parameters.addVerbose(process);
@@ -826,7 +826,7 @@ public interface CommandLineParametersTests
 
             runner.test("addProfiler()", (Test test) ->
             {
-                try (final Process process = new Process())
+                try (final IProcess process = IProcess.create())
                 {
                     final CommandLineParameters parameters = new CommandLineParameters();
                     final CommandLineParameterProfiler parameter = parameters.addProfiler(process, CommandLineParameterTests.class);

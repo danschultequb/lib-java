@@ -312,7 +312,7 @@ public interface TestTests
 
             runner.test("getProcess()", (Test test) ->
             {
-                final Process process = test.getProcess();
+                final IProcess process = test.getProcess();
                 final Test t = createTest("abc", test);
                 test.assertSame(process, t.getProcess());
                 test.assertSame(process, t.getProcess());
