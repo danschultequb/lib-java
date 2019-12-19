@@ -1,6 +1,6 @@
 package qub;
 
-public interface IConsoleTests
+public interface ConsoleTests
 {
     static void test(TestRunner runner)
     {
@@ -77,11 +77,11 @@ public interface IConsoleTests
         });
     }
     
-    static void test(TestRunner runner, Function0<? extends IConsole> creator)
+    static void test(TestRunner runner, Function0<Console> creator)
     {
-        runner.testGroup(IConsole.class, () ->
+        runner.testGroup(Console.class, () ->
         {
-            IProcessTests.test(runner, creator);
+            ProcessTests.test(runner, creator);
 
             runner.testGroup("writeByte(String,Object...)", () ->
             {
@@ -89,7 +89,7 @@ public interface IConsoleTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(toWrite) + " and no formatted string arguments", (Test test) ->
                     {
-                        final IConsole console = creator.run();
+                        final Console console = creator.run();
                         final InMemoryCharacterStream output = new InMemoryCharacterStream();
                         console.setOutputCharacterWriteStream(output);
 
@@ -106,7 +106,7 @@ public interface IConsoleTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(toWrite) + " and no formatted string arguments", (Test test) ->
                     {
-                        final IConsole console = creator.run();
+                        final Console console = creator.run();
                         final InMemoryCharacterStream output = new InMemoryCharacterStream();
                         console.setOutputCharacterWriteStream(output);
 
@@ -123,7 +123,7 @@ public interface IConsoleTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(toWrite) + " and " + (formattedStringArguments == null ? "null" : Array.create(formattedStringArguments).toString()) + " formatted string arguments", (Test test) ->
                     {
-                        final IConsole console = creator.run();
+                        final Console console = creator.run();
                         final InMemoryCharacterStream output = new InMemoryCharacterStream();
                         console.setOutputCharacterWriteStream(output);
 
@@ -144,7 +144,7 @@ public interface IConsoleTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(toWrite) + " and " + (formattedStringArguments == null ? "null" : Array.create(formattedStringArguments).toString()) + " formatted string arguments", (Test test) ->
                     {
-                        final IConsole console = creator.run();
+                        final Console console = creator.run();
                         final InMemoryCharacterStream output = new InMemoryCharacterStream();
                         console.setOutputCharacterWriteStream(output);
 
@@ -167,7 +167,7 @@ public interface IConsoleTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(toWrite) + " and " + (formattedStringArguments == null ? "null" : Array.create(formattedStringArguments).toString()) + " formatted string arguments", (Test test) ->
                     {
-                        final IConsole console = creator.run();
+                        final Console console = creator.run();
                         final InMemoryCharacterStream output = new InMemoryCharacterStream();
                         console.setOutputCharacterWriteStream(output);
 

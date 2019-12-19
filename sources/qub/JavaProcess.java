@@ -3,7 +3,7 @@ package qub;
 /**
  * A Process object that exposes the platform functionality that a Java application can use.
  */
-public class JavaProcess implements IConsole
+public class JavaProcess implements Console
 {
     private final CommandLineArguments commandLineArguments;
     private volatile int exitCode;

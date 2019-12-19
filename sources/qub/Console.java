@@ -1,69 +1,98 @@
 package qub;
 
 /**
- * A Console that can be used to writeByte Console applications.
+ * A Console object that can be used in console applications.
  */
-public class Console extends Process
+public interface Console extends Process, IConsole
 {
     /**
-     * Create a new Console platform that Console applications can be written with.
+     * Create a new Console object with the provided command line arguments.
+     * @param commandLineArgumentStrings The command line arguments provided to the new Console.
      */
-    public Console()
+    static Console create(String... commandLineArgumentStrings)
     {
-        this(CommandLineArguments.create());
+        PreCondition.assertNotNull(commandLineArgumentStrings, "commandLineArgumentStrings");
+
+        return Console.create(CommandLineArguments.create(commandLineArgumentStrings));
     }
 
     /**
-     * Create a new Console platform that Console applications can be written with.
+     * Create a new Console object with the provided command line arguments.
+     * @param commandLineArgumentStrings The command line arguments provided to the new Console.
      */
-    public Console(CommandLineArguments commandLineArguments)
+    static Console create(Iterable<String> commandLineArgumentStrings)
     {
-        super(commandLineArguments);
+        PreCondition.assertNotNull(commandLineArgumentStrings, "commandLineArgumentStrings");
+
+        return Console.create(CommandLineArguments.create(commandLineArgumentStrings));
     }
 
-    public Result<String> readLine()
+    /**
+     * Create a new Console object with the provided command line arguments.
+     * @param commandLineArguments The command line arguments provided to the new Console.
+     */
+    static Console create(CommandLineArguments commandLineArguments)
     {
-        return getInputCharacterReadStream().readLine();
+        PreCondition.assertNotNull(commandLineArguments, "commandLineArguments");
+
+        return Console.create(commandLineArguments, new ManualAsyncRunner());
     }
 
-    public Result<Integer> write(char toWrite)
+    /**
+     * Create a new Console object with the provided command line arguments.
+     * @param commandLineArguments The command line arguments provided to the new Console.
+     */
+    static Console create(CommandLineArguments commandLineArguments, AsyncScheduler mainAsyncRunner)
     {
-        return getOutputCharacterWriteStream().write(toWrite);
+        PreCondition.assertNotNull(commandLineArguments, "commandLineArguments");
+        PreCondition.assertNotNull(mainAsyncRunner, "mainAsyncRunner");
+
+        return JavaProcess.create(commandLineArguments, mainAsyncRunner);
     }
 
-    public Result<Integer> write(String toWrite, Object... formattedStringArguments)
+    default Result<String> readLine()
     {
-        return getOutputCharacterWriteStream().write(toWrite, formattedStringArguments);
+        return this.getInputCharacterReadStream().readLine();
     }
 
-    public Result<Integer> writeLine()
+    default Result<Integer> write(char toWrite)
     {
-        return getOutputCharacterWriteStream().writeLine();
+        return this.getOutputCharacterWriteStream().write(toWrite);
     }
 
-    public Result<Integer> writeLine(String toWrite, Object... formattedStringArguments)
+    default Result<Integer> write(String toWrite, Object... formattedStringArguments)
     {
-        return getOutputCharacterWriteStream().writeLine(toWrite, formattedStringArguments);
+        return this.getOutputCharacterWriteStream().write(toWrite, formattedStringArguments);
     }
 
-    public Result<Integer> writeError(char toWrite)
+    default Result<Integer> writeLine()
     {
-        return getErrorCharacterWriteStream().write(toWrite);
+        return this.getOutputCharacterWriteStream().writeLine();
     }
 
-    public Result<Integer> writeError(String toWrite, Object... formattedStringArguments)
+    default Result<Integer> writeLine(String toWrite, Object... formattedStringArguments)
     {
-        return getErrorCharacterWriteStream().write(toWrite, formattedStringArguments);
+        return this.getOutputCharacterWriteStream().writeLine(toWrite, formattedStringArguments);
     }
 
-    public Result<Integer> writeErrorLine()
+    default Result<Integer> writeError(char toWrite)
     {
-        return getErrorCharacterWriteStream().writeLine();
+        return this.getErrorCharacterWriteStream().write(toWrite);
     }
 
-    public Result<Integer> writeErrorLine(String toWrite, Object... formattedStringArguments)
+    default Result<Integer> writeError(String toWrite, Object... formattedStringArguments)
     {
-        return getErrorCharacterWriteStream().writeLine(toWrite, formattedStringArguments);
+        return this.getErrorCharacterWriteStream().write(toWrite, formattedStringArguments);
+    }
+
+    default Result<Integer> writeErrorLine()
+    {
+        return this.getErrorCharacterWriteStream().writeLine();
+    }
+
+    default Result<Integer> writeErrorLine(String toWrite, Object... formattedStringArguments)
+    {
+        return this.getErrorCharacterWriteStream().writeLine(toWrite, formattedStringArguments);
     }
 
     /**
@@ -73,12 +102,12 @@ public class Console extends Process
      * @param args The String arguments provided.
      * @param main The main function that will be run.
      */
-    public static void run(String[] args, Action1<Console> main)
+    static void run(String[] args, Action1<Console> main)
     {
         PreCondition.assertNotNull(args, "args");
         PreCondition.assertNotNull(main, "main");
 
-        final Console console = new Console(CommandLineArguments.create(args));
+        final Console console = Console.create(args);
         try
         {
             main.run(console);
@@ -104,7 +133,7 @@ public class Console extends Process
      * @param runAction The action that implements the application's main logic.
      * @param <TParameters> The type of the command line parameters object.
      */
-    public static <TParameters> void run(String[] arguments, Function1<Console,TParameters> getParametersFunction, Action1<TParameters> runAction)
+    static <TParameters> void run(String[] arguments, Function1<Console,TParameters> getParametersFunction, Action1<TParameters> runAction)
     {
         PreCondition.assertNotNull(arguments, "arguments");
         PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
@@ -123,7 +152,7 @@ public class Console extends Process
      * @param runAction The action that implements the application's main logic.
      * @param <TParameters> The type of the command line parameters object.
      */
-    public static <TParameters> void run(Console console, Function1<Console,TParameters> getParametersFunction, Action1<TParameters> runAction)
+    static <TParameters> void run(Console console, Function1<Console,TParameters> getParametersFunction, Action1<TParameters> runAction)
     {
         PreCondition.assertNotNull(console, "console");
         PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
