@@ -50,7 +50,10 @@ public final class BasicTestRunner implements TestRunner
      */
     public BasicTestRunner(Process process, PathPattern testPattern)
     {
-        this((IProcess)process, testPattern);
+        PreCondition.assertNotNull(process, "process");
+
+        this.process = process;
+        this.testPattern = testPattern;
     }
 
     @Override
@@ -220,14 +223,14 @@ public final class BasicTestRunner implements TestRunner
         PreCondition.assertNotNullAndNotEmpty(testName, "testName");
         PreCondition.assertNotNull(testAction, "testAction");
 
-        final Test test = new Test(testName, currentTestGroup, skip, process);
-        if (test.matches(testPattern))
+        final Test test = new Test(testName, this.currentTestGroup, skip, this.process);
+        if (test.matches(this.testPattern))
         {
             try
             {
-                if (beforeTestAction != null)
+                if (this.beforeTestAction != null)
                 {
-                    beforeTestAction.run(test);
+                    this.beforeTestAction.run(test);
                 }
 
                 if (test.shouldSkip())

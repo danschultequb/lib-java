@@ -8,9 +8,20 @@ public class Test
     private final String name;
     private final TestParent parent;
     private final Skip skip;
-    private final IProcess process;
+    private final Process process;
 
     public Test(String name, TestParent parent, Skip skip, IProcess process)
+    {
+        PreCondition.assertNotNullAndNotEmpty(name, "name");
+        PreCondition.assertNotNull(process, "process");
+
+        this.name = name;
+        this.parent = parent;
+        this.skip = skip;
+        this.process = (Process)process;
+    }
+
+    public Test(String name, TestParent parent, Skip skip, Process process)
     {
         PreCondition.assertNotNullAndNotEmpty(name, "name");
         PreCondition.assertNotNull(process, "process");
@@ -68,7 +79,7 @@ public class Test
         return skip == null ? null : skip.getMessage();
     }
 
-    public IProcess getProcess()
+    public Process getProcess()
     {
         return process;
     }
