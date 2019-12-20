@@ -4,7 +4,7 @@ public final class BasicTestRunner implements TestRunner
 {
     private static final Skip noMessageSkip = new Skip(null);
 
-    private final IProcess process;
+    private final Process process;
     private Result<Boolean> hasNetworkConnection;
 
     private int passedTestCount;
@@ -32,20 +32,7 @@ public final class BasicTestRunner implements TestRunner
 
     /**
      * Create a new BasicTestRunner object.
-     * @param process The IProcess that is running the tests.
-     * @param testPattern The pattern that tests must match in order to be run.
-     */
-    public BasicTestRunner(IProcess process, PathPattern testPattern)
-    {
-        PreCondition.assertNotNull(process, "process");
-
-        this.process = process;
-        this.testPattern = testPattern;
-    }
-
-    /**
-     * Create a new BasicTestRunner object.
-     * @param process The IProcess that is running the tests.
+     * @param process The Process that is running the tests.
      * @param testPattern The pattern that tests must match in order to be run.
      */
     public BasicTestRunner(Process process, PathPattern testPattern)

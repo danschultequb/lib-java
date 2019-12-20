@@ -2,15 +2,15 @@ package qub;
 
 public class CommandLineParameterProfiler extends CommandLineParameterBoolean
 {
-    private final IProcess process;
+    private final Process process;
     private final Class<?> classToAttachTo;
 
-    public CommandLineParameterProfiler(IProcess process, Class<?> classToAttachTo)
+    public CommandLineParameterProfiler(Process process, Class<?> classToAttachTo)
     {
         this(process, classToAttachTo, false);
     }
 
-    public CommandLineParameterProfiler(IProcess process, Class<?> classToAttachTo, boolean unspecifiedValue)
+    public CommandLineParameterProfiler(Process process, Class<?> classToAttachTo, boolean unspecifiedValue)
     {
         super("profiler", unspecifiedValue);
 

@@ -10,17 +10,6 @@ public class Test
     private final Skip skip;
     private final Process process;
 
-    public Test(String name, TestParent parent, Skip skip, IProcess process)
-    {
-        PreCondition.assertNotNullAndNotEmpty(name, "name");
-        PreCondition.assertNotNull(process, "process");
-
-        this.name = name;
-        this.parent = parent;
-        this.skip = skip;
-        this.process = (Process)process;
-    }
-
     public Test(String name, TestParent parent, Skip skip, Process process)
     {
         PreCondition.assertNotNullAndNotEmpty(name, "name");

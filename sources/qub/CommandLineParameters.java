@@ -263,19 +263,6 @@ public class CommandLineParameters
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
         PreCondition.assertNotNull(process, "process");
 
-        return this.addFolder(parameterName, (IProcess)process);
-    }
-
-    /**
-     * Add an optional Folder-valued command line parameter.
-     * @param parameterName The name of the parameter.
-     * @return The new command line parameter.
-     */
-    public CommandLineParameter<Folder> addFolder(String parameterName, IProcess process)
-    {
-        PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
-        PreCondition.assertNotNull(process, "process");
-
         return this.add(parameterName, getFolderParser(process))
             .setValueRequired(true);
     }
@@ -285,7 +272,7 @@ public class CommandLineParameters
      * @param parameterName The name of the parameter.
      * @return The new command line parameter.
      */
-    public CommandLineParameter<Folder> addPositionalFolder(String parameterName, IProcess process)
+    public CommandLineParameter<Folder> addPositionalFolder(String parameterName, Process process)
     {
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
         PreCondition.assertNotNull(process, "process");
@@ -294,7 +281,7 @@ public class CommandLineParameters
             .setValueRequired(true);
     }
 
-    private static Function1<String,Result<Folder>> getFolderParser(IProcess process)
+    private static Function1<String,Result<Folder>> getFolderParser(Process process)
     {
         return (String value) ->
         {
@@ -326,7 +313,7 @@ public class CommandLineParameters
      * @param parameterName The name of the parameter.
      * @return The new command line parameter.
      */
-    public CommandLineParameter<File> addFile(String parameterName, IProcess process)
+    public CommandLineParameter<File> addFile(String parameterName, Process process)
     {
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
         PreCondition.assertNotNull(process, "process");
@@ -340,7 +327,7 @@ public class CommandLineParameters
      * @param parameterName The name of the parameter.
      * @return The new command line parameter.
      */
-    public CommandLineParameter<File> addPositionalFile(String parameterName, IProcess process)
+    public CommandLineParameter<File> addPositionalFile(String parameterName, Process process)
     {
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
         PreCondition.assertNotNull(process, "process");
@@ -349,7 +336,7 @@ public class CommandLineParameters
             .setValueRequired(true);
     }
 
-    private static Function1<String,Result<File>> getFileParser(IProcess process)
+    private static Function1<String,Result<File>> getFileParser(Process process)
     {
         return (String value) ->
         {
@@ -467,17 +454,6 @@ public class CommandLineParameters
     {
         PreCondition.assertNotNull(process, "process");
 
-        return this.addVerbose((IProcess)process);
-    }
-
-    /**
-     * Add a verbose command line parameter.
-     * @return The verbose command line parameter.
-     */
-    public CommandLineParameterVerbose addVerbose(IProcess process)
-    {
-        PreCondition.assertNotNull(process, "process");
-
         return this.add(new CommandLineParameterVerbose(process.getOutputCharacterWriteStream()));
     }
 
@@ -496,15 +472,6 @@ public class CommandLineParameters
      * @return The profiler command line parameter.
      */
     public CommandLineParameterProfiler addProfiler(Process process, Class<?> classToAttachTo)
-    {
-        return this.addProfiler((IProcess)process, classToAttachTo);
-    }
-
-    /**
-     * Add a profiler command line parameter.
-     * @return The profiler command line parameter.
-     */
-    public CommandLineParameterProfiler addProfiler(IProcess process, Class<?> classToAttachTo)
     {
         return this.add(new CommandLineParameterProfiler(process, classToAttachTo));
     }
@@ -567,7 +534,7 @@ public class CommandLineParameters
      *                written to.
      * @return The result of writing the help lines.
      */
-    public Result<Void> writeHelpLines(IProcess process, String commandName, String commandDescription)
+    public Result<Void> writeHelpLines(Process process, String commandName, String commandDescription)
     {
         PreCondition.assertNotNull(process, "process");
         PreCondition.assertNotNullAndNotEmpty(commandName, "commandName");

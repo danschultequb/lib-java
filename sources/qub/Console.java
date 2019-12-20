@@ -3,7 +3,7 @@ package qub;
 /**
  * A Console object that can be used in console applications.
  */
-public interface Console extends Process, IConsole
+public interface Console extends Process
 {
     /**
      * Create a new Console object with the provided command line arguments.

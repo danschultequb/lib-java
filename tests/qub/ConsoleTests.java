@@ -4,31 +4,31 @@ public interface ConsoleTests
 {
     static void test(TestRunner runner)
     {
-        runner.testGroup(IConsole.class, () ->
+        runner.testGroup(Console.class, () ->
         {
             runner.testGroup("create(String...)", () ->
             {
                 runner.test("with no arguments", (Test test) ->
                 {
-                    final IProcess process = IProcess.create();
+                    final Process process = Process.create();
                     test.assertEqual(Iterable.create(), process.getCommandLineArguments());
                 });
 
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> IProcess.create((String[])null),
+                    test.assertThrows(() -> Process.create((String[])null),
                         new PreConditionFailure("commandLineArgumentStrings cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final IProcess process = IProcess.create(new String[0]);
+                    final Process process = Process.create(new String[0]);
                     test.assertEqual(Iterable.create(), process.getCommandLineArguments());
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final IProcess process = IProcess.create("hello", "there");
+                    final Process process = Process.create("hello", "there");
                     test.assertEqual(Iterable.create("hello", "there"), process.getCommandLineArguments().map(CommandLineArgument::toString));
                 });
             });
@@ -37,19 +37,19 @@ public interface ConsoleTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> IProcess.create((Iterable<String>)null),
+                    test.assertThrows(() -> Process.create((Iterable<String>)null),
                         new PreConditionFailure("commandLineArgumentStrings cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final IProcess process = IProcess.create(Iterable.create());
+                    final Process process = Process.create(Iterable.create());
                     test.assertEqual(Iterable.create(), process.getCommandLineArguments());
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final IProcess process = IProcess.create(Iterable.create("hello", "there"));
+                    final Process process = Process.create(Iterable.create("hello", "there"));
                     test.assertEqual(Iterable.create("hello", "there"), process.getCommandLineArguments().map(CommandLineArgument::toString));
                 });
             });
@@ -58,19 +58,19 @@ public interface ConsoleTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> IProcess.create((CommandLineArguments)null),
+                    test.assertThrows(() -> Process.create((CommandLineArguments)null),
                         new PreConditionFailure("commandLineArguments cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final IProcess process = IProcess.create(CommandLineArguments.create());
+                    final Process process = Process.create(CommandLineArguments.create());
                     test.assertEqual(Iterable.create(), process.getCommandLineArguments());
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final IProcess process = IProcess.create(CommandLineArguments.create("hello", "there"));
+                    final Process process = Process.create(CommandLineArguments.create("hello", "there"));
                     test.assertEqual(Iterable.create("hello", "there"), process.getCommandLineArguments().map(CommandLineArgument::toString));
                 });
             });
