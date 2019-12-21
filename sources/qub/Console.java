@@ -115,12 +115,28 @@ public interface Console extends Process
         catch (Throwable error)
         {
             Exceptions.writeErrorString(console.getErrorCharacterWriteStream(), error).await();
+            console.setExitCode(1);
         }
         finally
         {
             console.dispose().await();
             java.lang.System.exit(console.getExitCode());
         }
+    }
+
+    /**
+     * Run the provided console main function using the provided String arguments. This function
+     * will not return because it calls java.lang.System.exit() using the exit code set in the main
+     * function.
+     * @param args The String arguments provided.
+     * @param main The main function that will be run.
+     */
+    static void run(String[] args, Function1<Console,Integer> main)
+    {
+        PreCondition.assertNotNull(args, "args");
+        PreCondition.assertNotNull(main, "main");
+
+        Console.run(args, (Console console) -> console.setExitCode(main.run(console)));
     }
 
     /**
@@ -139,32 +155,45 @@ public interface Console extends Process
         PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
         PreCondition.assertNotNull(runAction, "runAction");
 
-        Console.run(arguments, (Console console) -> Console.run(console, getParametersFunction, runAction));
+        Console.run(arguments, (Console console) ->
+        {
+            final TParameters parameters = getParametersFunction.run(console);
+            if (parameters != null)
+            {
+                console.showDuration(() ->
+                {
+                    runAction.run(parameters);
+                });
+            }
+        });
     }
 
     /**
      * Invoke the provided runAction using the parsed command line parameters that are provided by
      * the getParametersFunction. If the command line parameters are null, then the runAction will
      * not be invoked.
-     * @param console The Console object that contains the command line arguments.
+     * @param arguments The command line arguments to the application.
      * @param getParametersFunction The function that will parse the command line parameters from
      *                              the Console's command line arguments.
-     * @param runAction The action that implements the application's main logic.
+     * @param runFunction The action that implements the application's main logic.
      * @param <TParameters> The type of the command line parameters object.
      */
-    static <TParameters> void run(Console console, Function1<Console,TParameters> getParametersFunction, Action1<TParameters> runAction)
+    static <TParameters> void run(String[] arguments, Function1<Console,TParameters> getParametersFunction, Function1<TParameters,Integer> runFunction)
     {
-        PreCondition.assertNotNull(console, "console");
+        PreCondition.assertNotNull(arguments, "arguments");
         PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
-        PreCondition.assertNotNull(runAction, "runAction");
+        PreCondition.assertNotNull(runFunction, "runFunction");
 
-        final TParameters parameters = getParametersFunction.run(console);
-        if (parameters != null)
+        Console.run(arguments, (Console console) ->
         {
-            console.showDuration(() ->
+            final TParameters parameters = getParametersFunction.run(console);
+            if (parameters != null)
             {
-                runAction.run(parameters);
-            });
-        }
+                console.showDuration(() ->
+                {
+                    console.setExitCode(runFunction.run(parameters));
+                });
+            }
+        });
     }
 }

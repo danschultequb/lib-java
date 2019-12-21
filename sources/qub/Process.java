@@ -70,12 +70,28 @@ public interface Process extends Disposable
         catch (Throwable error)
         {
             Exceptions.writeErrorString(process.getErrorCharacterWriteStream(), error).await();
+            process.setExitCode(1);
         }
         finally
         {
             process.dispose().await();
             java.lang.System.exit(process.getExitCode());
         }
+    }
+
+    /**
+     * Run the provided console main function using the provided String arguments. This function
+     * will not return because it calls java.lang.System.exit() using the exit code set in the main
+     * function.
+     * @param args The String arguments provided.
+     * @param main The main function that will be run.
+     */
+    static void run(String[] args, Function1<Process,Integer> main)
+    {
+        PreCondition.assertNotNull(args, "args");
+        PreCondition.assertNotNull(main, "main");
+
+        Process.run(args, (Process process) -> process.setExitCode(main.run(process)));
     }
 
     /**
@@ -94,33 +110,46 @@ public interface Process extends Disposable
         PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
         PreCondition.assertNotNull(runAction, "runAction");
 
-        Process.run(arguments, (Process process) -> Process.run(process, getParametersFunction, runAction));
+        Process.run(arguments, (Process process) ->
+        {
+            final TParameters parameters = getParametersFunction.run(process);
+            if (parameters != null)
+            {
+                process.showDuration(() ->
+                {
+                    runAction.run(parameters);
+                });
+            }
+        });
     }
 
     /**
      * Invoke the provided runAction using the parsed command line parameters that are provided by
      * the getParametersFunction. If the command line parameters are null, then the runAction will
      * not be invoked.
-     * @param process The Process object that contains the command line arguments.
+     * @param arguments The command line arguments to the application.
      * @param getParametersFunction The function that will parse the command line parameters from
      *                              the Process's command line arguments.
-     * @param runAction The action that implements the application's main logic.
+     * @param runFunction The action that implements the application's main logic.
      * @param <TParameters> The type of the command line parameters object.
      */
-    static <TParameters> void run(Process process, Function1<Process,TParameters> getParametersFunction, Action1<TParameters> runAction)
+    static <TParameters> void run(String[] arguments, Function1<Process,TParameters> getParametersFunction, Function1<TParameters,Integer> runFunction)
     {
-        PreCondition.assertNotNull(process, "process");
+        PreCondition.assertNotNull(arguments, "arguments");
         PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
-        PreCondition.assertNotNull(runAction, "runAction");
+        PreCondition.assertNotNull(runFunction, "runFunction");
 
-        final TParameters parameters = getParametersFunction.run(process);
-        if (parameters != null)
+        Process.run(arguments, (Process process) ->
         {
-            process.showDuration(() ->
+            final TParameters parameters = getParametersFunction.run(process);
+            if (parameters != null)
             {
-                runAction.run(parameters);
-            });
-        }
+                process.showDuration(() ->
+                {
+                    process.setExitCode(runFunction.run(parameters));
+                });
+            }
+        });
     }
 
     /**
