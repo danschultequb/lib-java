@@ -15,28 +15,54 @@ public class PreCondition
     }
 
     /**
+     * Assert that the provided value is true.
+     * @param value The value that must be true.
+     * @param message The message to show if the provided value is not true.
+     */
+    public static void check(boolean value, String message)
+    {
+        if (!value)
+        {
+            throw new PreConditionFailure(message);
+        }
+    }
+
+    /**
      * Assert that the provided value is false.
      * @param value The value that must be false.
-     * @param expressionName The name of expression that produced the boolean value.
+     * @param expressionName The name of the expression that produced the boolean value.
      */
     public static void assertFalse(boolean value, String expressionName)
     {
         if (value)
         {
-            throw new PreConditionFailure(expressionName + " cannot be true.");
+            throw new PreConditionFailure(AssertionMessages.falseMessage(expressionName));
+        }
+    }
+
+    /**
+     * Assert that the provided value is false.
+     * @param value The value that must be false.
+     * @param expressionName The name of the expression that produced the boolean value.
+     */
+    public static void assertFalse(boolean value, String expressionName, String message)
+    {
+        if (value)
+        {
+            throw new PreConditionFailure(message);
         }
     }
 
     /**
      * Assert that the provided value is true.
      * @param value The value that must be true.
-     * @param message The error message if value is not true.
+     * @param expressionName The name of the expression that produced the boolean value.
      */
-    public static void assertTrue(boolean value, String message)
+    public static void assertTrue(boolean value, String expressionName)
     {
         if (!value)
         {
-            throw new PreConditionFailure(message + " cannot be false.");
+            throw new PreConditionFailure(AssertionMessages.trueMessage(expressionName));
         }
     }
 

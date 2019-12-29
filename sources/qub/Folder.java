@@ -10,28 +10,9 @@ public class Folder extends FileSystemEntry
      * @param fileSystem The FileSystem that contains this Folder.
      * @param path The Path to this Folder.
      */
-    Folder(FileSystem fileSystem, Path path)
+    public Folder(FileSystem fileSystem, Path path)
     {
         super(fileSystem, path);
-    }
-
-    /**
-     * Get the root of this Folder.
-     * @return The root of this Folder.
-     */
-    public Root getRoot()
-    {
-        return getFileSystem().getRoot(getPath()).await();
-    }
-
-    /**
-     * Get the folder that contains this folder.
-     * @return The result of attempting to get the parent folder that contains this folder.
-     */
-    public Result<Folder> getParentFolder()
-    {
-        return getPath().getParent()
-            .thenResult((Path parentFolderPath) -> getFileSystem().getFolder(parentFolderPath));
     }
 
     /**
@@ -40,41 +21,13 @@ public class Folder extends FileSystemEntry
     @Override
     public Result<Boolean> exists()
     {
-        return getFileSystem().folderExists(getPath());
+        return this.getFileSystem().folderExists(this.getPath());
     }
 
     @Override
     public Result<Void> delete()
     {
-        return getFileSystem().deleteFolder(getPath());
-    }
-
-    public Path relativeTo(String basePath)
-    {
-        PreCondition.assertNotNullAndNotEmpty(basePath, "basePath");
-
-        return getPath().relativeTo(basePath);
-    }
-
-    public Path relativeTo(Path basePath)
-    {
-        PreCondition.assertNotNull(basePath, "basePath");
-
-        return getPath().relativeTo(basePath);
-    }
-
-    public Path relativeTo(Folder folder)
-    {
-        PreCondition.assertNotNull(folder, "folder");
-
-        return getPath().relativeTo(folder);
-    }
-
-    public Path relativeTo(Root root)
-    {
-        PreCondition.assertNotNull(root, "root");
-
-        return getPath().relativeTo(root);
+        return this.getFileSystem().deleteFolder(this.getPath());
     }
 
     /**

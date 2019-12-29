@@ -10,6 +10,16 @@ public interface AssertionMessages
         return expressionName + " must be null.";
     }
 
+    static String trueMessage(String expressionName)
+    {
+        return expressionName + " cannot be false.";
+    }
+
+    static String falseMessage(String expressionName)
+    {
+        return expressionName + " cannot be true.";
+    }
+
     static String notNull(String expressionName)
     {
         return expressionName + " cannot be null.";
@@ -40,6 +50,14 @@ public interface AssertionMessages
         return expressionName + " (" + value + ") must be " + expectedValue + " (+/- " + marginOfError + ").";
     }
 
+    /**
+     * Get an error message similar to "value1 (abc) must not be def."
+     * @param expectedValue The expected value (abc).
+     * @param value The value that should not be equal to the expectedValue (def).
+     * @param expressionName The name of the expression that produced the value (value1).
+     * @param <T> The type of values being compared.
+     * @return The error message.
+     */
     static <T> String notEqual(T expectedValue, T value, String expressionName)
     {
         return expressionName + " (" + value + ") must not be " + expectedValue + ".";

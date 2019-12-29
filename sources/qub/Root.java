@@ -12,7 +12,7 @@ public class Root
      * @param fileSystem The file system that this root exists in.
      * @param path The path to this root.
      */
-    Root(FileSystem fileSystem, Path path)
+    public Root(FileSystem fileSystem, Path path)
     {
         folder = new Folder(fileSystem, path);
     }

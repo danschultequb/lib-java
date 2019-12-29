@@ -6,20 +6,22 @@ public interface FileTests
     {
         runner.testGroup(File.class, () ->
         {
+            FileSystemEntryTests.test(runner, FileTests::getFile);
+
             runner.testGroup("getParentFolder()", () ->
             {
                 runner.test("with file at root", (Test test) ->
                 {
                     final FileSystem fileSystem = getFileSystem(test);
                     final File file = fileSystem.getFile("/file.txt").await();
-                    test.assertEqual("/", file.getParentFolder().toString());
+                    test.assertEqual("/", file.getParentFolder().await().toString());
                 });
 
                 runner.test("with file in folder", (Test test) ->
                 {
                     final FileSystem fileSystem = getFileSystem(test);
                     final File file = fileSystem.getFile("/folder/file.txt").await();
-                    test.assertEqual("/folder/", file.getParentFolder().toString());
+                    test.assertEqual("/folder/", file.getParentFolder().await().toString());
                 });
             });
 

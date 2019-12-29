@@ -363,7 +363,7 @@ public class Path
     {
         PreCondition.assertNotNullAndNotEmpty(basePath, "basePath");
 
-        return relativeTo(Path.parse(basePath));
+        return this.relativeTo(Path.parse(basePath));
     }
 
     /**
@@ -379,6 +379,7 @@ public class Path
         PreCondition.assertTrue(basePath.isRooted(), "basePath.isRooted()");
         PreCondition.assertTrue(this.isRooted(), "this.isRooted()");
         PreCondition.assertEqual(this.getRoot().await(), basePath.getRoot().await(), "basePath.getRoot().await()");
+        PreCondition.check(!this.equals(basePath, false), AssertionMessages.notEqual(this, basePath, "basePath"));
 
         Path result = this;
         if (this.equals(basePath))
@@ -652,6 +653,7 @@ public class Path
     public Result<Boolean> isAncestorOf(String possibleDescendantPathString)
     {
         PreCondition.assertNotNullAndNotEmpty(possibleDescendantPathString, "possibleDescendantPathString");
+        PreCondition.assertTrue(this.isRooted(), "this.isRooted()");
 
         return this.isAncestorOf(Path.parse(possibleDescendantPathString));
     }
@@ -664,6 +666,8 @@ public class Path
     public Result<Boolean> isAncestorOf(Path possibleDescendantPath)
     {
         PreCondition.assertNotNull(possibleDescendantPath, "possibleDescendantPath");
+        PreCondition.assertTrue(possibleDescendantPath.isRooted(), "possibleDescendantPath.isRooted()");
+        PreCondition.assertTrue(this.isRooted(), "this.isRooted()");
 
         return Result.create(() ->
         {
@@ -698,6 +702,7 @@ public class Path
     public Result<Boolean> isDescendantOf(String possibleAncestorPathString)
     {
         PreCondition.assertNotNullAndNotEmpty(possibleAncestorPathString, "possibleAncestorPathString");
+        PreCondition.assertTrue(this.isRooted(), "this.isRooted()");
 
         return this.isDescendantOf(Path.parse(possibleAncestorPathString));
     }
@@ -710,6 +715,8 @@ public class Path
     public Result<Boolean> isDescendantOf(Path possibleAncestorPath)
     {
         PreCondition.assertNotNull(possibleAncestorPath, "possibleAncestorPath");
+        PreCondition.assertTrue(possibleAncestorPath.isRooted(), "possibleAncestorPath.isRooted()");
+        PreCondition.assertTrue(this.isRooted(), "this.isRooted()");
 
         return possibleAncestorPath.isAncestorOf(this);
     }

@@ -446,19 +446,20 @@ public interface PathTests
 
             runner.testGroup("relativeTo(Path)", () ->
             {
-                runner.test("with " + Strings.escapeAndQuote("C:/a/b/c.d") + " and null", (Test test) ->
+                final Action3<String,String,Throwable> relativeToErrorTest = (String pathString, String basePathString, Throwable expectedError) ->
                 {
-                    final Path path = Path.parse("C:/a/b/c.d");
-                    test.assertThrows(() -> path.relativeTo((Path)null),
-                        new PreConditionFailure("basePath cannot be null."));
-                });
+                    runner.test("with " + Strings.escapeAndQuote(pathString) + " and " + Strings.escapeAndQuote(basePathString), (Test test) ->
+                    {
+                        final Path path = Path.parse(pathString);
+                        final Path base = basePathString == null ? null : Path.parse(basePathString);
+                        test.assertThrows(() -> path.relativeTo(base), expectedError);
+                    });
+                };
 
-                runner.test("with " + Strings.escapeAndQuote("C:/a/b/c.d") + " and " + Strings.escapeAndQuote("/folder/"), (Test test) ->
-                {
-                    final Path path = Path.parse("C:/a/b/c.d");
-                    test.assertThrows(() -> path.relativeTo(Path.parse("/folder/")),
-                        new PreConditionFailure("basePath.getRoot().await() (/) must be C:."));
-                });
+                relativeToErrorTest.run("C:/a/b/c.d", null, new PreConditionFailure("basePath cannot be null."));
+                relativeToErrorTest.run("C:/a/b/c.d", "/folder/", new PreConditionFailure("basePath.getRoot().await() (/) must be C:."));
+                relativeToErrorTest.run("C:/a/b/c.d", "C:/a/b/c.d", new PreConditionFailure("basePath (C:/a/b/c.d) must not be C:/a/b/c.d."));
+                relativeToErrorTest.run("/", "/", new PreConditionFailure("basePath (/) must not be /."));
 
                 final Action3<String,String,String> relativeToTest = (String pathString, String basePathString, String expectedPathString) ->
                 {
@@ -470,36 +471,35 @@ public interface PathTests
                     });
                 };
 
-                relativeToTest.run("C:/a/b/c.d", "C:/a/b/c.d", ".");
                 relativeToTest.run("C:/a/b/c.d", "C:/", "a/b/c.d");
                 relativeToTest.run("C:/a/b/c.d", "C:/a/b", "c.d");
                 relativeToTest.run("C:/a/b/c.d", "C:/a/z", "../b/c.d");
                 relativeToTest.run("C:/a/b/c.d", "C:/a/z/y", "../../b/c.d");
                 relativeToTest.run("/outputs/classes/A.class", "/outputs/", "classes/A.class");
                 relativeToTest.run("/outputs/", "/outputs/classes/A.class", "../..");
-                relativeToTest.run("/", "/", ".");
                 relativeToTest.run("/outputs/classes/A.class", "/", "outputs/classes/A.class");
                 relativeToTest.run("/", "/outputs/classes/A.class", "../../..");
             });
 
             runner.testGroup("relativeTo(Folder)", () ->
             {
-                runner.test("with " + Strings.escapeAndQuote("C:/a/b/c.d") + " and null", (Test test) ->
+                final Action3<String,String,Throwable> relativeToErrorTest = (String pathString, String basePathString, Throwable expectedError) ->
                 {
-                    final Path path = Path.parse("C:/a/b/c.d");
-                    test.assertThrows(() -> path.relativeTo((Folder)null),
-                        new PreConditionFailure("folder cannot be null."));
-                });
+                    runner.test("with " + Strings.escapeAndQuote(pathString) + " and " + Strings.escapeAndQuote(basePathString), (Test test) ->
+                    {
+                        final Path path = Path.parse(pathString);
 
-                runner.test("with " + Strings.escapeAndQuote("C:/a/b/c.d") + " and " + Strings.escapeAndQuote("/folder/"), (Test test) ->
-                {
-                    final Path path = Path.parse("C:/a/b/c.d");
+                        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                        final Folder folder = basePathString == null ? null : fileSystem.getFolder(basePathString).await();
+                        test.assertThrows(() -> path.relativeTo(folder),
+                            expectedError);
+                    });
+                };
 
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
-                    final Folder folder = fileSystem.getFolder("/folder/").await();
-                    test.assertThrows(() -> path.relativeTo(folder),
-                        new PreConditionFailure("basePath.getRoot().await() (/) must be C:."));
-                });
+                relativeToErrorTest.run("C:/a/b/c.d", null, new PreConditionFailure("folder cannot be null."));
+                relativeToErrorTest.run("C:/a/b/c.d", "/folder/", new PreConditionFailure("basePath.getRoot().await() (/) must be C:."));
+                relativeToErrorTest.run("C:/a/b/c.d", "C:/a/b/c.d", new PreConditionFailure("basePath (C:/a/b/c.d) must not be C:/a/b/c.d."));
+                relativeToErrorTest.run("/", "/", new PreConditionFailure("basePath (/) must not be /."));
 
                 final Action3<String,String,String> relativeToTest = (String pathString, String basePathString, String expectedPathString) ->
                 {
@@ -513,14 +513,12 @@ public interface PathTests
                     });
                 };
 
-                relativeToTest.run("C:/a/b/c.d", "C:/a/b/c.d", ".");
                 relativeToTest.run("C:/a/b/c.d", "C:/", "a/b/c.d");
                 relativeToTest.run("C:/a/b/c.d", "C:/a/b", "c.d");
                 relativeToTest.run("C:/a/b/c.d", "C:/a/z", "../b/c.d");
                 relativeToTest.run("C:/a/b/c.d", "C:/a/z/y", "../../b/c.d");
                 relativeToTest.run("/outputs/classes/A.class", "/outputs/", "classes/A.class");
                 relativeToTest.run("/outputs/", "/outputs/classes/A.class", "../..");
-                relativeToTest.run("/", "/", ".");
                 relativeToTest.run("/outputs/classes/A.class", "/", "outputs/classes/A.class");
                 relativeToTest.run("/", "/outputs/classes/A.class", "../../..");
             });

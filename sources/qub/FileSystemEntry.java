@@ -97,6 +97,26 @@ public abstract class FileSystemEntry
     }
 
     /**
+     * Get the folder that contains this entry.
+     * @return The result of attempting to get the parent folder that contains this entry.
+     */
+    public Result<Folder> getParentFolder()
+    {
+        return this.getPath().getParent()
+            .then((Path parentFolderPath) -> this.getFileSystem().getFolder(parentFolderPath).await());
+    }
+
+    /**
+     * Get the root that contains this folder.
+     * @return The root that contains this entry.
+     */
+    public Result<Root> getRoot()
+    {
+        return this.getPath().getRoot()
+            .then((Path rootPath) -> this.getFileSystem().getRoot(rootPath).await());
+    }
+
+    /**
      * Get whether or not this FileSystemEntry exists.
      */
     public abstract Result<Boolean> exists();
@@ -107,6 +127,58 @@ public abstract class FileSystemEntry
      * @return Whether or not this function deleted the entry.
      */
     public abstract Result<Void> delete();
+
+    /**
+     * Get the path to this FileSystemEntry relative to the provided base path.
+     * @param basePath The path to use as a base path when creating the relative path to this
+     *                 FileSystemEntry.
+     * @return The relative path to this FileSystemEntry from the provided base path.
+     */
+    public Path relativeTo(String basePath)
+    {
+        PreCondition.assertNotNullAndNotEmpty(basePath, "basePath");
+
+        return this.getPath().relativeTo(basePath);
+    }
+
+    /**
+     * Get the path to this FileSystemEntry relative to the provided base path.
+     * @param basePath The path to use as a base path when creating the relative path to this
+     *                 FileSystemEntry.
+     * @return The relative path to this FileSystemEntry from the provided base path.
+     */
+    public Path relativeTo(Path basePath)
+    {
+        PreCondition.assertNotNull(basePath, "basePath");
+
+        return this.getPath().relativeTo(basePath);
+    }
+
+    /**
+     * Get the path to this FileSystemEntry relative to the provided folder.
+     * @param folder The folder to use as a base when creating the relative path to this
+     *                 FileSystemEntry.
+     * @return The relative path to this FileSystemEntry from the provided folder.
+     */
+    public Path relativeTo(Folder folder)
+    {
+        PreCondition.assertNotNull(folder, "folder");
+
+        return this.getPath().relativeTo(folder);
+    }
+
+    /**
+     * Get the path to this FileSystemEntry relative to the provided root.
+     * @param root The root to use as a base when creating the relative path to this
+     *                 FileSystemEntry.
+     * @return The relative path to this FileSystemEntry from the provided root.
+     */
+    public Path relativeTo(Root root)
+    {
+        PreCondition.assertNotNull(root, "root");
+
+        return this.getPath().relativeTo(root);
+    }
 
     @Override
     public String toString()
