@@ -128,13 +128,25 @@ public interface ProcessTests
                 test.assertSame(mainAsyncRunner, CurrentThread.getAsyncRunner());
             });
 
-            runner.test("getResultParallelAsyncRunner()", (Test test) ->
+            runner.test("getParallelAsyncRunner()", (Test test) ->
             {
-                final Process process = creator.run();
-                final AsyncScheduler parallelAsyncRunner = process.getParallelAsyncRunner();
-                test.assertNotNull(parallelAsyncRunner);
-                test.assertSame(parallelAsyncRunner, process.getParallelAsyncRunner() );
-                test.assertNotSame(parallelAsyncRunner, CurrentThread.getAsyncRunner());
+                try (final Process process = creator.run())
+                {
+                    final AsyncScheduler parallelAsyncRunner = process.getParallelAsyncRunner();
+                    test.assertNotNull(parallelAsyncRunner);
+                    test.assertSame(parallelAsyncRunner, process.getParallelAsyncRunner());
+                    test.assertNotSame(parallelAsyncRunner, CurrentThread.getAsyncRunner());
+                }
+            });
+
+            runner.test("getCommandLineArguments()", (Test test) ->
+            {
+                try (final Process process = creator.run())
+                {
+                    final CommandLineArguments arguments = process.getCommandLineArguments();
+                    test.assertNotNull(arguments);
+                    test.assertSame(arguments, process.getCommandLineArguments());
+                }
             });
 
             runner.test("getCharacterEncoding()", (Test test) ->

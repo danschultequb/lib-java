@@ -122,6 +122,17 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
     }
 
     /**
+     * Get whether or not the provided Strings are equal when their casing is ignored.
+     * @param arg1 The first String.
+     * @param arg2 The second String.
+     * @return Whether or not the provided Strings are equal when their casing is ignored.
+     */
+    static boolean equalIgnoreCase(String arg1, String arg2)
+    {
+        return arg1 == arg2 || (arg1 != null && arg1.equalsIgnoreCase(arg2));
+    }
+
+    /**
      * Get whether or not the provided Throwable errors are equal, ignoring their stack traces.
      * @param arg1 The first Throwable error.
      * @param arg2 The second Throwable error.

@@ -240,6 +240,28 @@ public class ComparerTests
                 equalTest.run(new NotFoundException("a"), new NotFoundException("a"), true);
             });
 
+            runner.testGroup("equalIgnoreCase(String,String)", () ->
+            {
+                final Action3<String,String,Boolean> equalIgnoreCaseTest = (String lhs, String rhs, Boolean expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(lhs) + " and " + Strings.escapeAndQuote(rhs), (Test test) ->
+                    {
+                        test.assertEqual(expected, Comparer.equalIgnoreCase(lhs, rhs));
+                    });
+                };
+
+                equalIgnoreCaseTest.run(null, null, true);
+                equalIgnoreCaseTest.run(null, "", false);
+                equalIgnoreCaseTest.run(null, "abc", false);
+                equalIgnoreCaseTest.run("", null, false);
+                equalIgnoreCaseTest.run("", "", true);
+                equalIgnoreCaseTest.run("", "abc", false);
+                equalIgnoreCaseTest.run("abc", null, false);
+                equalIgnoreCaseTest.run("abc", "", false);
+                equalIgnoreCaseTest.run("abc", "abc", true);
+                equalIgnoreCaseTest.run("abc", "ABC", true);
+            });
+
             runner.testGroup("equal(Throwable,Throwable)", () ->
             {
                 final Action3<Throwable,Throwable,Boolean> equalTest = (Throwable lhs, Throwable rhs, Boolean expected) ->

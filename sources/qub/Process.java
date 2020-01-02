@@ -91,7 +91,17 @@ public interface Process extends Disposable
         PreCondition.assertNotNull(args, "args");
         PreCondition.assertNotNull(main, "main");
 
-        Process.run(args, (Process process) -> process.setExitCode(main.run(process)));
+        Process.run(args, Process.getMainAction(main));
+    }
+
+    static Action1<Process> getMainAction(Function1<Process,Integer> runFunction)
+    {
+        PreCondition.assertNotNull(runFunction, "runFunction");
+
+        return (Process process) ->
+        {
+            process.setExitCode(runFunction.run(process));
+        };
     }
 
     /**
@@ -110,7 +120,15 @@ public interface Process extends Disposable
         PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
         PreCondition.assertNotNull(runAction, "runAction");
 
-        Process.run(arguments, (Process process) ->
+        Process.run(arguments, Process.getMainAction(getParametersFunction, runAction));
+    }
+
+    static <TParameters> Action1<Process> getMainAction(Function1<Process,TParameters> getParametersFunction, Action1<TParameters> runAction)
+    {
+        PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
+        PreCondition.assertNotNull(runAction, "runAction");
+
+        return (Process process) ->
         {
             final TParameters parameters = getParametersFunction.run(process);
             if (parameters != null)
@@ -120,7 +138,7 @@ public interface Process extends Disposable
                     runAction.run(parameters);
                 });
             }
-        });
+        };
     }
 
     /**
@@ -139,17 +157,25 @@ public interface Process extends Disposable
         PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
         PreCondition.assertNotNull(runFunction, "runFunction");
 
-        Process.run(arguments, (Process process) ->
+        Process.run(arguments, Process.getMainAction(getParametersFunction, runFunction));
+    }
+
+    static <TParameters> Action1<Process> getMainAction(Function1<Process,TParameters> getParametersFunction, Function1<TParameters,Integer> runAction)
+    {
+        PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
+        PreCondition.assertNotNull(runAction, "runAction");
+
+        return (Process process) ->
         {
             final TParameters parameters = getParametersFunction.run(process);
             if (parameters != null)
             {
                 process.showDuration(() ->
                 {
-                    process.setExitCode(runFunction.run(parameters));
+                    process.setExitCode(runAction.run(parameters));
                 });
             }
-        });
+        };
     }
 
     /**
@@ -190,7 +216,18 @@ public interface Process extends Disposable
     default CommandLineParameters createCommandLineParameters()
     {
         return new CommandLineParameters()
-            .setArguments(getCommandLineArguments());
+            .setArguments(this.getCommandLineArguments());
+    }
+
+    /**
+     * Create a CommandLineActions object that can be used to create CommandLineAction objects. The
+     * first positional argument will be used as the action (--action) parameter to determine which
+     * action should be invoked.
+     * @return A new CommandLineActions object.
+     */
+    default CommandLineActions createCommandLineActions()
+    {
+        return new CommandLineActions();
     }
 
     /**

@@ -22,13 +22,13 @@ public class CommandLineArguments implements Indexable<CommandLineArgument>
     @Override
     public CommandLineArgument get(int index)
     {
-        return arguments.get(index);
+        return this.arguments.get(index);
     }
 
     @Override
     public Iterator<CommandLineArgument> iterate()
     {
-        return arguments.iterate();
+        return this.arguments.iterate();
     }
 
     @Override
@@ -47,7 +47,7 @@ public class CommandLineArguments implements Indexable<CommandLineArgument>
     {
         PreCondition.assertNotNullAndNotEmpty(argumentName, "argumentName");
 
-        return addNamedArgument(argumentName, "");
+        return this.addNamedArgument(argumentName, "");
     }
 
     public CommandLineArguments addNamedArgument(String argumentName, String argumentValue)
@@ -55,7 +55,7 @@ public class CommandLineArguments implements Indexable<CommandLineArgument>
         PreCondition.assertNotNullAndNotEmpty(argumentName, "argumentName");
         PreCondition.assertNotNull(argumentValue, "argumentValue");
 
-        arguments.add(new CommandLineArgument(argumentName, argumentValue));
+        this.arguments.add(new CommandLineArgument(argumentName, argumentValue));
 
         return this;
     }
@@ -64,7 +64,7 @@ public class CommandLineArguments implements Indexable<CommandLineArgument>
     {
         PreCondition.assertNotNullAndNotEmpty(argumentValue, "argumentValue");
 
-        arguments.add(new CommandLineArgument("", argumentValue));
+        this.arguments.add(new CommandLineArgument("", argumentValue));
 
         return this;
     }
@@ -72,7 +72,7 @@ public class CommandLineArguments implements Indexable<CommandLineArgument>
     @Override
     public int getCount()
     {
-        return arguments.getCount();
+        return this.arguments.getCount();
     }
 
     /**
@@ -85,7 +85,7 @@ public class CommandLineArguments implements Indexable<CommandLineArgument>
     {
         PreCondition.assertNotNullAndNotEmpty(argumentName, "argumentName");
 
-        final CommandLineArgument value = arguments.first((CommandLineArgument arg) -> Comparer.equal(arg.getName(), argumentName));
+        final CommandLineArgument value = this.arguments.first((CommandLineArgument arg) -> Comparer.equal(arg.getName(), argumentName));
         return value != null
             ? Result.success(value.getValue())
             : Result.error(new NotFoundException("Could not find command-line arguments with the name " + Strings.escapeAndQuote(argumentName) + "."));
