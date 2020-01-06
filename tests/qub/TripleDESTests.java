@@ -1,8 +1,8 @@
 package qub;
 
-public class TripleDESTests
+public interface TripleDESTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(TripleDES.class, () ->
         {
@@ -14,8 +14,8 @@ public class TripleDESTests
                     {
                         final TripleDES tripleDES = new TripleDES();
 
-                        final BitArray plaintextBits = Array.createBitArrayFromHexString(message);
-                        final BitArray initializationVectorBits = Array.createBitArrayFromHexString(initializationVector);
+                        final BitArray plaintextBits = BitArray.createFromHexString(message);
+                        final BitArray initializationVectorBits = BitArray.createFromHexString(initializationVector);
 
                         final BitArray ciphertextBits = tripleDES.encrypt(initializationVectorBits, plaintextBits);
                         test.assertNotNull(ciphertextBits);
@@ -40,8 +40,8 @@ public class TripleDESTests
                     {
                         final TripleDES tripleDES = new TripleDES();
 
-                        final BitArray ciphertextBits = Array.createBitArrayFromHexString(ciphertext);
-                        final BitArray initializationVectorBits = Array.createBitArrayFromHexString(initializationVector);
+                        final BitArray ciphertextBits = BitArray.createFromHexString(ciphertext);
+                        final BitArray initializationVectorBits = BitArray.createFromHexString(initializationVector);
 
                         final BitArray plaintextBits = tripleDES.decrypt(initializationVectorBits, ciphertextBits);
                         test.assertNotNull(plaintextBits);

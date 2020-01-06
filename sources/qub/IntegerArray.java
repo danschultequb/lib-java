@@ -3,20 +3,27 @@ package qub;
 /**
  * A wrapper class around the int[] primitive type.
  */
-public class IntegerArray extends Array<Integer>
+public class IntegerArray implements Array<Integer>
 {
     private final int[] values;
 
-    public IntegerArray(int count)
-    {
-        this(new int[count]);
-    }
-
-    public IntegerArray(int... values)
+    private IntegerArray(int[] values)
     {
         PreCondition.assertNotNull(values, "values");
 
         this.values = values;
+    }
+
+    /**
+     * Create a new IntegerArray from the provided values.
+     * @param values The values to initialize the IntegerArray with.
+     * @return The new IntegerArray.
+     */
+    public static IntegerArray create(int... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return new IntegerArray(values);
     }
 
     @Override
@@ -54,28 +61,15 @@ public class IntegerArray extends Array<Integer>
         return values[index];
     }
 
-    /**
-     * Create a new CharacterArray with the provided elements.
-     * @param values The elements of the new CharacterArray.
-     * @param startIndex The start index into the values.
-     * @param length The number of values to copy.
-     * @return The new CharacterArray.
-     */
-    public static IntegerArray create(int[] values, int startIndex, int length)
+    @Override
+    public boolean equals(Object rhs)
     {
-        PreCondition.assertNotNull(values, "values");
-        PreCondition.assertStartIndex(startIndex, values.length);
-        PreCondition.assertLength(length, startIndex, values.length);
+        return Iterable.equals(this, rhs);
+    }
 
-        final IntegerArray result = new IntegerArray(length);
-        for (int i = 0; i < length; ++i)
-        {
-            result.set(i, values[startIndex + i]);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(length, result.getCount(), "length");
-
-        return result;
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 }

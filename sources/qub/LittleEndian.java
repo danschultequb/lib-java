@@ -1,6 +1,6 @@
 package qub;
 
-public class LittleEndian extends ByteOrder
+public class LittleEndian implements ByteOrder
 {
     @Override
     public byte[] encodeShort(short value)

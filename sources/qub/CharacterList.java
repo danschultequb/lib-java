@@ -2,34 +2,63 @@ package qub;
 
 /**
  * A list of characters. Internally this uses a primitive char[] to store characters, so it should
- * be more efficient than using a generic List<Byte>.
+ * be more efficient than using a generic List&lt;Character&gt;.
  */
 public class CharacterList implements List<Character>
 {
+    private static final int defaultCapacity = 64;
+
     private char[] characters;
     private int count;
 
-    public CharacterList()
+    private CharacterList(char[] characters, int count)
     {
-        this(64);
+        PreCondition.assertNotNull(characters, "characters");
+        PreCondition.assertBetween(0, count, characters.length, "count");
+
+        this.characters = characters;
+        this.count = count;
     }
 
-    public CharacterList(int capacity)
+    /**
+     * Create a new CharacterList from the provided characters.
+     * @param characters The characters to initialize the new CharacterList with.
+     * @return The new CharacterList.
+     */
+    public static CharacterList create(char... characters)
     {
-        PreCondition.assertGreaterThanOrEqualTo(capacity, 0, "capacity");
+        PreCondition.assertNotNull(characters, "characters");
 
-        this.characters = new char[capacity];
+        return new CharacterList(Array.clone(characters), characters.length);
     }
 
-    public CharacterList(char... values)
+    /**
+     * Create a new CharacterList from the provided characters.
+     * @param characters The characters to initialize the new CharacterList with.
+     * @return The new CharacterList.
+     */
+    public static CharacterList create(Iterable<Character> characters)
     {
-        this.characters = new char[values == null ? 0 : values.length];
-        addAll(values);
+        PreCondition.assertNotNull(characters, "characters");
+
+        return CharacterList.create(characters.iterate());
     }
 
-    public static CharacterList createFromCharacters(char... values)
+    /**
+     * Create a new CharacterList from the provided characters.
+     * @param characters The characters to initialize the new CharacterList with.
+     * @return The new CharacterList.
+     */
+    public static CharacterList create(Iterator<Character> characters)
     {
-        return new CharacterList(values);
+        PreCondition.assertNotNull(characters, "characters");
+
+        final CharacterList result = CharacterList.create();
+        result.addAll(characters);
+
+        PostCondition.assertNotNull(characters, "characters");
+
+        return result;
     }
 
     @Override
@@ -83,6 +112,32 @@ public class CharacterList implements List<Character>
         insert(count, value);
     }
 
+    /**
+     * Add all of the characters in the provided String to this CharacterList.
+     * @param values The characters to add.
+     */
+    public void addAll(String values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        this.addAll(values.toCharArray());
+    }
+
+    /**
+     * Add all of the characters in the provided String to this CharacterList.
+     * @param values The characters to add.
+     */
+    public void addAll(java.lang.StringBuilder values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        this.addAll(values.toString());
+    }
+
+    /**
+     * Add all of the provided characters to this CharacterList.
+     * @param values The characters to add.
+     */
     public void addAll(char... values)
     {
         if (values != null && values.length > 0)
@@ -122,7 +177,7 @@ public class CharacterList implements List<Character>
 
         final char[] characters = new char[valuesToRemove];
         removeFirstCharacters(characters);
-        return Array.createCharacter(characters);
+        return CharacterArray.create(characters);
     }
 
     /**

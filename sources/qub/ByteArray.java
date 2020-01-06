@@ -3,64 +3,84 @@ package qub;
 /**
  * A wrapper class around the byte[] primitive type.
  */
-public class ByteArray extends Array<Byte>
+public class ByteArray implements Array<Byte>
 {
     private final byte[] values;
 
-    public ByteArray(int count)
-    {
-        this.values = new byte[count];
-    }
-
-    public ByteArray(byte[] values)
+    private ByteArray(byte[] values)
     {
         PreCondition.assertNotNull(values, "values");
 
         this.values = values;
     }
 
-    public ByteArray(byte[] values, int startIndex, int length)
+    public static ByteArray createWithLength(int length)
     {
-        PreCondition.assertNotNull(values, "values");
-        PreCondition.assertStartIndex(startIndex, values.length);
-        PreCondition.assertLength(length, startIndex, values.length);
+        PreCondition.assertGreaterThanOrEqualTo(length, 0, "length");
 
-        if (values.length == length)
+        return ByteArray.create(new byte[length]);
+    }
+
+    public static ByteArray create(byte... bytes)
+    {
+        PreCondition.assertNotNull(bytes, "bytes");
+
+        return new ByteArray(bytes);
+    }
+
+    public static ByteArray create(byte[] bytes, int startIndex, int length)
+    {
+        PreCondition.assertNotNull(bytes, "bytes");
+        PreCondition.assertStartIndex(startIndex, bytes.length);
+        PreCondition.assertLength(length, startIndex, bytes.length);
+
+        byte[] resultBytes;
+        if (bytes.length == length)
         {
-            this.values = values;
+            resultBytes = bytes;
         }
         else
         {
-            this.values = new byte[length];
-            Array.copy(values, startIndex, this.values, 0, length);
+            resultBytes = new byte[length];
+            Array.copy(bytes, startIndex, resultBytes, 0, length);
         }
+        return new ByteArray(resultBytes);
     }
 
-    public ByteArray(int[] values)
+    /**
+     * Create a new ByteArray from the provided integer values. Each integer value must be between
+     * Bytes.minimum and Bytes.maximum.
+     * @param bytes The integer values.
+     * @return The new ByteArray.
+     */
+    public static Result<ByteArray> create(int... bytes)
     {
-        PreCondition.assertNotNull(values, "bytes");
+        PreCondition.assertNotNull(bytes, "bytes");
 
-        this.values = new byte[values.length];
-        for (int i = 0; i < values.length; ++i)
-        {
-            PreCondition.assertByte(values[i], "The " + i + " element");
-            this.values[i] = (byte)values[i];
-        }
+        return ByteArray.create(bytes, 0, bytes.length);
     }
 
-    public ByteArray(int[] values, int startIndex, int length)
+    public static Result<ByteArray> create(int[] bytes, int startIndex, int length)
     {
-        PreCondition.assertNotNull(values, "values");
-        PreCondition.assertStartIndex(startIndex, values.length);
-        PreCondition.assertLength(length, startIndex, values.length);
+        PreCondition.assertNotNull(bytes, "bytes");
+        PreCondition.assertStartIndex(startIndex, bytes.length);
+        PreCondition.assertLength(length, startIndex, bytes.length);
 
-        this.values = new byte[length];
-        for (int writeIndex = 0; writeIndex < length; ++writeIndex)
+        return Result.create(() ->
         {
-            final int readIndex = startIndex + writeIndex;
-            PreCondition.assertByte(values[readIndex], "The " + readIndex + " element");
-            this.values[writeIndex] = (byte)values[readIndex];
-        }
+            final byte[] resultBytes = new byte[length];
+            for (int writeIndex = 0; writeIndex < length; ++writeIndex)
+            {
+                final int readIndex = startIndex + writeIndex;
+                final int intValue = bytes[readIndex];
+                if (!Comparer.between(Bytes.minimum, intValue, Bytes.maximum))
+                {
+                    throw new ParseException(AssertionMessages.between(Bytes.minimum, intValue, Bytes.maximum, "The " + readIndex + "element"));
+                }
+                resultBytes[writeIndex] = (byte)intValue;
+            }
+            return new ByteArray(resultBytes);
+        });
     }
 
     @Override
@@ -118,5 +138,17 @@ public class ByteArray extends Array<Byte>
     public byte[] toByteArray()
     {
         return values;
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 }

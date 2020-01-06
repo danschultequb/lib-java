@@ -12,17 +12,15 @@ public interface Strings
      */
     static Iterable<Character> iterable(String text)
     {
-        return Strings.isNullOrEmpty(text) ? Iterable.create() : Array.createCharacter(text.toCharArray());
-    }
+        final CharacterList result = CharacterList.create();
+        if (!Strings.isNullOrEmpty(text))
+        {
+            result.addAll(text);
+        }
 
-    /**
-     * Get an Iterable for the characters in the provided text.
-     * @param text The text to create an Iterable for.
-     * @return The Iterable over the characters in the provided text.
-     */
-    static Iterable<Character> iterable(StringBuilder text)
-    {
-        return Strings.isNullOrEmpty(text) ? Iterable.create() : iterable(text.toString());
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     /**
@@ -125,13 +123,13 @@ public interface Strings
         }
         else
         {
-            final StringBuilder builder = new StringBuilder();
+            final CharacterList builder = CharacterList.create();
             final int textLength = text.length();
             for (int i = 0; i < textLength; ++i)
             {
-                builder.append(Characters.escape(text.charAt(i)));
+                builder.addAll(Characters.escape(text.charAt(i)));
             }
-            result = builder.toString();
+            result = builder.toString(true);
         }
         return result;
     }
@@ -164,7 +162,7 @@ public interface Strings
      */
     static String escapeAndQuote(String text)
     {
-        return quote(escape(text));
+        return Strings.quote(Strings.escape(text));
     }
 
     /**

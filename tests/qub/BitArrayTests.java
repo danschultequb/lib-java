@@ -1,8 +1,8 @@
 package qub;
 
-public class BitArrayTests
+public interface BitArrayTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(BitArray.class, () ->
         {
@@ -29,25 +29,25 @@ public class BitArrayTests
                 });
             });
 
-            runner.testGroup("constructor(long)", () ->
+            runner.testGroup("create(long)", () ->
             {
                 runner.test("with -1 bitCount", (Test test) ->
                 {
                     test.assertThrows(
-                        () -> new BitArray(-1),
+                        () -> BitArray.create(-1),
                         new PreConditionFailure("bitCount (-1) must be between 0 and 68719476704."));
                 });
 
                 runner.test("with 0 bitCount", (Test test) ->
                 {
-                    final BitArray bits = new BitArray(0);
+                    final BitArray bits = BitArray.create(0);
                     test.assertNotNull(bits);
                     test.assertEqual(0, bits.getCount());
                 });
 
                 runner.test("with 1 bitCount", (Test test) ->
                 {
-                    final BitArray block = new BitArray(1);
+                    final BitArray block = BitArray.create(1);
                     test.assertNotNull(block);
                     test.assertEqual(1, block.getCount());
                     test.assertEqual(1, block.getBitChunkCount());
@@ -60,7 +60,7 @@ public class BitArrayTests
 
                 runner.test("with 7 bitCount", (Test test) ->
                 {
-                    final BitArray block = new BitArray(7);
+                    final BitArray block = BitArray.create(7);
                     test.assertNotNull(block);
                     test.assertEqual(7, block.getCount());
                     test.assertEqual(1, block.getBitChunkCount());
@@ -72,7 +72,7 @@ public class BitArrayTests
 
                 runner.test("with 8 bitCount", (Test test) ->
                 {
-                    final BitArray block = new BitArray(8);
+                    final BitArray block = BitArray.create(8);
                     test.assertNotNull(block);
                     test.assertEqual(8, block.getCount());
                     test.assertEqual(1, block.getBitChunkCount());
@@ -84,7 +84,7 @@ public class BitArrayTests
 
                 runner.test("with 9 bitCount", (Test test) ->
                 {
-                    final BitArray block = new BitArray(9);
+                    final BitArray block = BitArray.create(9);
                     test.assertNotNull(block);
                     test.assertEqual(9, block.getCount());
                     test.assertEqual(1, block.getBitChunkCount());
@@ -96,7 +96,7 @@ public class BitArrayTests
 
                 runner.test("with 100 bitCount", (Test test) ->
                 {
-                    final BitArray block = new BitArray(100);
+                    final BitArray block = BitArray.create(100);
                     test.assertNotNull(block);
                     test.assertEqual(100, block.getCount());
                     test.assertEqual(4, block.getBitChunkCount());
@@ -109,14 +109,14 @@ public class BitArrayTests
                 runner.test("with 68719476705 bitCount", (Test test) ->
                 {
                     test.assertThrows(
-                        () -> new BitArray(68719476705L),
+                        () -> BitArray.create(68719476705L),
                         new PreConditionFailure("bitCount (68719476705) must be between 0 and 68719476704."));
                 });
 
                 runner.test("with 68719476706 bitCount", (Test test) ->
                 {
                     test.assertThrows(
-                        () -> new BitArray(68719476706L),
+                        () -> BitArray.create(68719476706L),
                         new PreConditionFailure("bitCount (68719476706) must be between 0 and 68719476704."));
                 });
             });
@@ -125,7 +125,7 @@ public class BitArrayTests
             {
                 runner.test("with negative bitIndex", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     test.assertThrows(
                         () -> block.get(-1),
                         new PreConditionFailure("index (-1) must be between 0 and 9."));
@@ -133,25 +133,25 @@ public class BitArrayTests
 
                 runner.test("with 0 bitIndex", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     test.assertEqual(0, block.get(0));
                 });
 
                 runner.test("with 1 bitIndex", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     test.assertEqual(0, block.get(0));
                 });
 
                 runner.test("with bitIndex assertEqual to bitCount - 1", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     test.assertEqual(0, block.get(9));
                 });
 
                 runner.test("with bitIndex assertEqual to bitCount", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     test.assertThrows(
                         () -> block.get(10),
                         new PreConditionFailure("index (10) must be between 0 and 9."));
@@ -159,7 +159,7 @@ public class BitArrayTests
 
                 runner.test("with bitIndex assertEqual to bitCount + 1", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     test.assertThrows(
                         () -> block.get(11),
                         new PreConditionFailure("index (11) must be between 0 and 9."));
@@ -170,7 +170,7 @@ public class BitArrayTests
             {
                 runner.test("with negative bitIndex", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     test.assertThrows(
                         () -> block.set(-1, Integer.valueOf(1)),
                         new PreConditionFailure("index (-1) must be between 0 and 9."));
@@ -182,7 +182,7 @@ public class BitArrayTests
 
                 runner.test("with 0 bitIndex", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     block.set(0, Integer.valueOf(1));
                     for (int i = 0; i < 10; ++i)
                     {
@@ -193,7 +193,7 @@ public class BitArrayTests
 
                 runner.test("with 1 bitIndex", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     block.set(1, Integer.valueOf(1));
                     for (int i = 0; i < 10; ++i)
                     {
@@ -204,7 +204,7 @@ public class BitArrayTests
 
                 runner.test("with bitIndex equal to bitCount - 1", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     block.set(9, Integer.valueOf(1));
                     for (int i = 0; i < 10; ++i)
                     {
@@ -215,7 +215,7 @@ public class BitArrayTests
 
                 runner.test("with bitIndex equal to bitCount", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     test.assertThrows(
                         () -> block.set(10, Integer.valueOf(1)),
                         new PreConditionFailure("index (10) must be between 0 and 9."));
@@ -227,7 +227,7 @@ public class BitArrayTests
 
                 runner.test("with bitIndex equal to bitCount + 1", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     test.assertThrows(
                         () -> block.set(11, Integer.valueOf(1)),
                         new PreConditionFailure("index (11) must be between 0 and 9."));
@@ -242,7 +242,7 @@ public class BitArrayTests
             {
                 runner.test("with negative bitIndex", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     test.assertThrows(
                         () -> block.set(-1, 1),
                         new PreConditionFailure("index (-1) must be between 0 and 9."));
@@ -254,7 +254,7 @@ public class BitArrayTests
 
                 runner.test("with 0 bitIndex", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     block.set(0, 1);
                     for (int i = 0; i < 10; ++i)
                     {
@@ -265,7 +265,7 @@ public class BitArrayTests
 
                 runner.test("with 1 bitIndex", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     block.set(1, 1);
                     for (int i = 0; i < 10; ++i)
                     {
@@ -276,7 +276,7 @@ public class BitArrayTests
 
                 runner.test("with bitIndex equal to bitCount - 1", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     block.set(9, 1);
                     for (int i = 0; i < 10; ++i)
                     {
@@ -287,7 +287,7 @@ public class BitArrayTests
 
                 runner.test("with bitIndex equal to bitCount", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     test.assertThrows(
                         () -> block.set(10, 1),
                         new PreConditionFailure("index (10) must be between 0 and 9."));
@@ -299,7 +299,7 @@ public class BitArrayTests
 
                 runner.test("with bitIndex equal to bitCount + 1", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     test.assertThrows(
                         () -> block.set(11, 1),
                         new PreConditionFailure("index (11) must be between 0 and 9."));
@@ -314,7 +314,7 @@ public class BitArrayTests
             {
                 runner.test("with negative bitIndex", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     test.assertThrows(
                         () -> block.setBit(-1, 1),
                         new PreConditionFailure("index (-1) must be between 0 and 9."));
@@ -326,7 +326,7 @@ public class BitArrayTests
 
                 runner.test("with 0 bitIndex", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     block.setBit(0, 1);
                     for (int i = 0; i < 10; ++i)
                     {
@@ -337,7 +337,7 @@ public class BitArrayTests
 
                 runner.test("with 1 bitIndex", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     block.setBit(1, 1);
                     for (int i = 0; i < 10; ++i)
                     {
@@ -348,7 +348,7 @@ public class BitArrayTests
 
                 runner.test("with bitIndex equal to bitCount - 1", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     block.setBit(9, 1);
                     for (int i = 0; i < 10; ++i)
                     {
@@ -359,7 +359,7 @@ public class BitArrayTests
 
                 runner.test("with bitIndex equal to bitCount", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     test.assertThrows(
                         () -> block.setBit(10, 1),
                         new PreConditionFailure("index (10) must be between 0 and 9."));
@@ -371,7 +371,7 @@ public class BitArrayTests
 
                 runner.test("with bitIndex equal to bitCount + 1", (Test test) ->
                 {
-                    final BitArray block = new BitArray(10);
+                    final BitArray block = BitArray.create(10);
                     test.assertThrows(
                         () -> block.setBit(11, 1),
                         new PreConditionFailure("index (11) must be between 0 and 9."));
@@ -386,7 +386,7 @@ public class BitArrayTests
             {
                 runner.test("with -1", (Test test) ->
                 {
-                    final BitArray block = new BitArray(3);
+                    final BitArray block = BitArray.create(3);
                     test.assertThrows(
                         () -> block.setAllBits(-1),
                         new PreConditionFailure("value (-1) must be either 0 or 1."));
@@ -395,7 +395,7 @@ public class BitArrayTests
 
                 runner.test("with 0", (Test test) ->
                 {
-                    final BitArray block = new BitArray(3);
+                    final BitArray block = BitArray.create(3);
                     block.set(1, 1);
                     block.setAllBits(0);
                     test.assertEqual("000", block.toString());
@@ -403,7 +403,7 @@ public class BitArrayTests
 
                 runner.test("with 1", (Test test) ->
                 {
-                    final BitArray block = new BitArray(3);
+                    final BitArray block = BitArray.create(3);
                     block.setAllBits(1);
                     test.assertEqual("111", block.toString());
                 });
@@ -413,29 +413,29 @@ public class BitArrayTests
             {
                 runner.test("with less than 64 bits", (Test test) ->
                 {
-                    final BitArray bits = new BitArray(63);
+                    final BitArray bits = BitArray.create(63);
                     test.assertThrows(() -> bits.setLastBitsFromLong(1),
                         new PreConditionFailure("getCount() (63) must be greater than or equal to 64."));
-                    test.assertEqual(new BitArray(63), bits);
+                    test.assertEqual(BitArray.create(63), bits);
                 });
 
                 runner.test("with 64-bit BitArray and 1", (Test test) ->
                 {
-                    final BitArray bits = new BitArray(64);
+                    final BitArray bits = BitArray.create(64);
                     bits.setLastBitsFromLong(1);
                     test.assertEqual(BitArray.createFromHexString("0000000000000001"), bits);
                 });
 
                 runner.test("with 72-bit BitArray and 2", (Test test) ->
                 {
-                    final BitArray bits = new BitArray(72);
+                    final BitArray bits = BitArray.create(72);
                     bits.setLastBitsFromLong(2);
                     test.assertEqual(BitArray.createFromHexString("000000000000000002"), bits);
                 });
 
                 runner.test("with 80-bit BitArray and 16", (Test test) ->
                 {
-                    final BitArray bits = new BitArray(80);
+                    final BitArray bits = BitArray.create(80);
                     bits.setLastBitsFromLong(16);
                     test.assertEqual(BitArray.createFromHexString("00000000000000000010"), bits);
                 });
@@ -1023,27 +1023,27 @@ public class BitArrayTests
             {
                 runner.test("with no block on", (Test test) ->
                 {
-                    final BitArray block = new BitArray(5);
+                    final BitArray block = BitArray.create(5);
                     test.assertEqual("00000", block.toString());
                 });
 
                 runner.test("with first bit on", (Test test) ->
                 {
-                    final BitArray block = new BitArray(5);
+                    final BitArray block = BitArray.create(5);
                     block.set(0, 1);
                     test.assertEqual("10000", block.toString());
                 });
 
                 runner.test("with last bit on", (Test test) ->
                 {
-                    final BitArray block = new BitArray(5);
+                    final BitArray block = BitArray.create(5);
                     block.set(4, 1);
                     test.assertEqual("00001", block.toString());
                 });
 
                 runner.test("with all block on", (Test test) ->
                 {
-                    final BitArray block = new BitArray(6);
+                    final BitArray block = BitArray.create(6);
                     block.setAllBits(1);
                     test.assertEqual("111111", block.toString());
                 });
@@ -1053,39 +1053,39 @@ public class BitArrayTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final BitArray block = new BitArray(5);
+                    final BitArray block = BitArray.create(5);
                     test.assertFalse(block.equals((Object)null));
                 });
 
                 runner.test("with String", (Test test) ->
                 {
-                    final BitArray block = new BitArray(5);
+                    final BitArray block = BitArray.create(5);
                     test.assertFalse(block.equals((Object)"00000"));
                 });
 
                 runner.test("with same", (Test test) ->
                 {
-                    final BitArray block = new BitArray(5);
+                    final BitArray block = BitArray.create(5);
                     test.assertTrue(block.equals((Object)block));
                 });
 
                 runner.test("with equal", (Test test) ->
                 {
-                    final BitArray block = new BitArray(5);
-                    test.assertTrue(block.equals((Object)new BitArray(5)));
+                    final BitArray block = BitArray.create(5);
+                    test.assertTrue(block.equals((Object)BitArray.create(5)));
                 });
 
                 runner.test("with different bit count but same block", (Test test) ->
                 {
-                    final BitArray block = new BitArray(5);
-                    final BitArray otherBits = new BitArray(6);
+                    final BitArray block = BitArray.create(5);
+                    final BitArray otherBits = BitArray.create(6);
                     test.assertFalse(block.equals((Object)otherBits));
                 });
 
                 runner.test("with equal bit count but different block", (Test test) ->
                 {
-                    final BitArray block = new BitArray(5);
-                    final BitArray otherBits = new BitArray(5);
+                    final BitArray block = BitArray.create(5);
+                    final BitArray otherBits = BitArray.create(5);
                     otherBits.set(0, 1);
                     test.assertFalse(block.equals((Object)otherBits));
                 });
@@ -1095,33 +1095,33 @@ public class BitArrayTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final BitArray block = new BitArray(5);
+                    final BitArray block = BitArray.create(5);
                     test.assertFalse(block.equals((BitArray)null));
                 });
 
                 runner.test("with same", (Test test) ->
                 {
-                    final BitArray block = new BitArray(5);
+                    final BitArray block = BitArray.create(5);
                     test.assertTrue(block.equals(block));
                 });
 
                 runner.test("with equal", (Test test) ->
                 {
-                    final BitArray block = new BitArray(5);
-                    test.assertTrue(block.equals(new BitArray(5)));
+                    final BitArray block = BitArray.create(5);
+                    test.assertTrue(block.equals(BitArray.create(5)));
                 });
 
                 runner.test("with different bit count but same block", (Test test) ->
                 {
-                    final BitArray block = new BitArray(5);
-                    final BitArray otherBits = new BitArray(6);
+                    final BitArray block = BitArray.create(5);
+                    final BitArray otherBits = BitArray.create(6);
                     test.assertFalse(block.equals(otherBits));
                 });
 
                 runner.test("with equal bit count but different block", (Test test) ->
                 {
-                    final BitArray block = new BitArray(5);
-                    final BitArray otherBits = new BitArray(5);
+                    final BitArray block = BitArray.create(5);
+                    final BitArray otherBits = BitArray.create(5);
                     otherBits.set(0, 1);
                     test.assertFalse(block.equals(otherBits));
                 });
@@ -1312,7 +1312,7 @@ public class BitArrayTests
             {
                 runner.test("with empty", (Test test) ->
                 {
-                    final BitArray array = new BitArray(0);
+                    final BitArray array = BitArray.create(0);
                     test.assertEqual(new byte[0], array.toByteArray());
                 });
 

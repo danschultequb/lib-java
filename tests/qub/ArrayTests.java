@@ -1,8 +1,8 @@
 package qub;
 
-public class ArrayTests
+public interface ArrayTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(Array.class, () ->
         {
@@ -65,339 +65,6 @@ public class ArrayTests
                 });
             });
 
-            runner.testGroup("createBitArray(long)", () ->
-            {
-                runner.test("with negative", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createBitArray(-1), new PreConditionFailure("length (-1) must be between 0 and 68719476704."));
-                });
-
-                runner.test("with zero", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArray(0);
-                    test.assertNotNull(array);
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with positive", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArray(1000);
-                    test.assertNotNull(array);
-                    test.assertEqual(1000, array.getCount());
-                });
-            });
-
-            runner.testGroup("createBitArrayFromBits(int...)", () ->
-            {
-                runner.test("with null array", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createBitArrayFromBits((int[])null),
-                        new PreConditionFailure("values cannot be null."));
-                });
-
-                runner.test("with empty array", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromBits(new int[0]);
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with one value array", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromBits(new int[] { 1 });
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual(1, array.get(0));
-                });
-
-                runner.test("with two value array", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromBits(new int[] { 1, 0 });
-                    test.assertEqual(2, array.getCount());
-                    test.assertEqual(1, array.get(0));
-                    test.assertEqual(0, array.get(1));
-                });
-
-                runner.test("with no values", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromBits();
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with one value", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromBits(1);
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual(1, array.get(0));
-                });
-
-                runner.test("with two values", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromBits(1, 0);
-                    test.assertEqual(2, array.getCount());
-                    test.assertEqual(1, array.get(0));
-                    test.assertEqual(0, array.get(1));
-                });
-
-                runner.test("with invalid values", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createBitArrayFromBits(3, 0), new PreConditionFailure("The 0 bit (3) must be either 0 or 1."));
-                });
-            });
-
-            runner.testGroup("createBitArrayFromBytes(byte...)", () ->
-            {
-                runner.test("with null array", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createBitArrayFromBytes((byte[])null), new PreConditionFailure("values cannot be null."));
-                });
-
-                runner.test("with empty array", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromBytes(new byte[0]);
-                    test.assertNotNull(array);
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with non-empty array", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromBytes(new byte[] { 0, 1, 2 });
-                    test.assertNotNull(array);
-                    test.assertEqual(24, array.getCount());
-                    test.assertEqual(Array.createBitArrayFromHexString("000102"), array);
-                });
-
-                runner.test("with no values", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromBytes();
-                    test.assertNotNull(array);
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with values", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromBytes((byte)3, (byte)4, (byte)5, (byte)6);
-                    test.assertNotNull(array);
-                    test.assertEqual(32, array.getCount());
-                    test.assertEqual(Array.createBitArrayFromHexString("03040506"), array);
-                });
-            });
-
-            runner.testGroup("createBitArrayFromBytes(byte[],long)", () ->
-            {
-                runner.test("with null array", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createBitArrayFromBytes((byte[])null, 4), new PreConditionFailure("values cannot be null."));
-                });
-
-                runner.test("with negative bitCount", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createBitArrayFromBytes(new byte[] { 0, 1, 2 }, -1), new PreConditionFailure("bitCount (-1) must be between 17 and 24."));
-                });
-
-                runner.test("with too small bitCount", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createBitArrayFromBytes(new byte[] { 0, 1 }, 8), new PreConditionFailure("bitCount (8) must be between 9 and 16."));
-                });
-
-                runner.test("with too large bitCount", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createBitArrayFromBytes(new byte[] { 0, 1, 2 }, 25), new PreConditionFailure("bitCount (25) must be between 17 and 24."));
-                });
-
-                runner.test("with empty array", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromBytes(new byte[0], 0);
-                    test.assertNotNull(array);
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with non-empty array", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromBytes(new byte[] { 0, 1, 2 }, 23);
-                    test.assertNotNull(array);
-                    test.assertEqual(23, array.getCount());
-                    test.assertEqual("00000000000000010000001", array.toBitString());
-                });
-            });
-
-            runner.testGroup("createBitArrayFromBytes(int...)", () ->
-            {
-                runner.test("with null array", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createBitArrayFromBytes((int[])null), new PreConditionFailure("values cannot be null."));
-                });
-
-                runner.test("with empty array", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromBytes(new int[0]);
-                    test.assertNotNull(array);
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with non-empty array", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromBytes(new int[] { 0, 1, 2 });
-                    test.assertNotNull(array);
-                    test.assertEqual(24, array.getCount());
-                    test.assertEqual(Array.createBitArrayFromHexString("000102"), array);
-                });
-
-                runner.test("with no values", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromBytes();
-                    test.assertNotNull(array);
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with values", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromBytes(3, 4, 5, 6);
-                    test.assertNotNull(array);
-                    test.assertEqual(32, array.getCount());
-                    test.assertEqual(Array.createBitArrayFromHexString("03040506"), array);
-                });
-            });
-
-            runner.testGroup("createBitArrayFromIntegers(int...)", () ->
-            {
-                runner.test("with null array", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createBitArrayFromIntegers((int[])null),
-                        new PreConditionFailure("values cannot be null."));
-                });
-
-                runner.test("with empty array", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromIntegers(new int[0]);
-                    test.assertEqual("", array.toHexString());
-                });
-
-                runner.test("with one value array", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromIntegers(new int[] { 1 });
-                    test.assertEqual("00000001", array.toHexString());
-                });
-
-                runner.test("with two value array", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromIntegers(new int[] { 1, 0 });
-                    test.assertEqual("0000000100000000", array.toHexString());
-                });
-
-                runner.test("with no values", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromIntegers();
-                    test.assertEqual("", array.toHexString());
-                });
-
-                runner.test("with one value", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromIntegers(1);
-                    test.assertEqual("00000001", array.toHexString());
-                });
-
-                runner.test("with two values", (Test test) ->
-                {
-                    final BitArray array = Array.createBitArrayFromIntegers(1, 0);
-                    test.assertEqual("0000000100000000", array.toHexString());
-                });
-            });
-
-            runner.testGroup("createBitArrayFromBitString(String)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createBitArrayFromBitString(null), new PreConditionFailure("bits cannot be null."));
-                });
-
-                runner.test("with " + Strings.quote(""), (Test test) ->
-                {
-                    test.assertEqual(Array.createBitArray(0), Array.createBitArrayFromBitString(""));
-                });
-
-                runner.test("with " + Strings.quote("1"), (Test test) ->
-                {
-                    test.assertEqual(Array.createBitArrayFromBits(1), Array.createBitArrayFromBitString("1"));
-                });
-
-                runner.test("with " + Strings.quote("10101"), (Test test) ->
-                {
-                    test.assertEqual(Array.createBitArrayFromBits(1, 0, 1, 0, 1), Array.createBitArrayFromBitString("10101"));
-                });
-            });
-
-            runner.testGroup("createBooleanArray(int)", () ->
-            {
-                runner.test("with negative", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createBooleanArray(-1), new PreConditionFailure("length (-1) must be greater than or equal to 0."));
-                });
-
-                runner.test("with zero", (Test test) ->
-                {
-                    final BooleanArray array = Array.createBooleanArray(0);
-                    test.assertNotNull(array);
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with positive", (Test test) ->
-                {
-                    final BooleanArray array = Array.createBooleanArray(1000);
-                    test.assertNotNull(array);
-                    test.assertEqual(1000, array.getCount());
-                });
-            });
-
-            runner.testGroup("createBooleanArray(boolean...)", () ->
-            {
-                runner.test("with null array", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createBooleanArray((boolean[])null),
-                        new PreConditionFailure("values cannot be null."));
-                });
-
-                runner.test("with empty array", (Test test) ->
-                {
-                    final BooleanArray array = Array.createBooleanArray(new boolean[0]);
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with one value array", (Test test) ->
-                {
-                    final BooleanArray array = Array.createBooleanArray(new boolean[] { true });
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual(true, array.get(0));
-                });
-
-                runner.test("with two value array", (Test test) ->
-                {
-                    final BooleanArray array = Array.createBooleanArray(new boolean[] { true, false });
-                    test.assertEqual(2, array.getCount());
-                    test.assertEqual(true, array.get(0));
-                    test.assertEqual(false, array.get(1));
-                });
-
-                runner.test("with no values", (Test test) ->
-                {
-                    final BooleanArray array = Array.createBooleanArray();
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with one value", (Test test) ->
-                {
-                    final BooleanArray array = Array.createBooleanArray(true);
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual(true, array.get(0));
-                });
-
-                runner.test("with two values", (Test test) ->
-                {
-                    final BooleanArray array = Array.createBooleanArray(true, false);
-                    test.assertEqual(2, array.getCount());
-                    test.assertEqual(true, array.get(0));
-                    test.assertEqual(false, array.get(1));
-                });
-            });
-
             runner.testGroup("toBooleanArray(Iterator<Boolean>)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -450,102 +117,6 @@ public class ArrayTests
                 {
                     test.assertThrows(() -> Array.toBooleanArray(Iterable.create(null, true, false)).await(),
                         new NullPointerException("The 0 element cannot be null."));
-                });
-            });
-
-            runner.testGroup("createCharacter(char[])", () ->
-            {
-                runner.test("with null array", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createCharacter((char[])null),
-                        new PreConditionFailure("values cannot be null."));
-                });
-
-                runner.test("with empty array", (Test test) ->
-                {
-                    final Array<Character> array = Array.createCharacter(new char[0]);
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with one value array", (Test test) ->
-                {
-                    final Array<Character> array = Array.createCharacter(new char[] { 'a' });
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual('a', array.get(0));
-                });
-
-                runner.test("with two value array", (Test test) ->
-                {
-                    final Array<Character> array = Array.createCharacter(new char[] { 'b', 'c' });
-                    test.assertEqual(2, array.getCount());
-                    test.assertEqual('b', array.get(0));
-                    test.assertEqual('c', array.get(1));
-                });
-
-                runner.test("with one value", (Test test) ->
-                {
-                    final Array<Character> array = Array.createCharacter('a');
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual('a', array.get(0));
-                });
-
-                runner.test("with two values", (Test test) ->
-                {
-                    final Array<Character> array = Array.createCharacter('b', 'c');
-                    test.assertEqual(2, array.getCount());
-                    test.assertEqual('b', array.get(0));
-                    test.assertEqual('c', array.get(1));
-                });
-            });
-
-            runner.testGroup("createInteger(int[])", () ->
-            {
-                runner.test("with null array", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createInteger((int[])null),
-                        new PreConditionFailure("values cannot be null."));
-                });
-
-                runner.test("with empty array", (Test test) ->
-                {
-                    final Array<Integer> array = Array.createInteger(new int[0]);
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with one value array", (Test test) ->
-                {
-                    final Array<Integer> array = Array.createInteger(new int[] { 101 });
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual(101, array.get(0));
-                });
-
-                runner.test("with two value array", (Test test) ->
-                {
-                    final Array<Integer> array = Array.createInteger(new int[] { 101, 102 });
-                    test.assertEqual(2, array.getCount());
-                    test.assertEqual(101, array.get(0));
-                    test.assertEqual(102, array.get(1));
-                });
-
-                runner.test("with no values", (Test test) ->
-                {
-                    final Array<Integer> array = Array.createInteger();
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with one value", (Test test) ->
-                {
-                    final Array<Integer> array = Array.createInteger(101);
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual(101, array.get(0));
-                });
-
-                runner.test("with two values", (Test test) ->
-                {
-                    final Array<Integer> array = Array.createInteger(101, 102);
-                    test.assertEqual(2, array.getCount());
-                    test.assertEqual(101, array.get(0));
-                    test.assertEqual(102, array.get(1));
                 });
             });
 
@@ -679,316 +250,6 @@ public class ArrayTests
                 });
             });
 
-            runner.testGroup("createByte(byte...)", () ->
-            {
-                runner.test("with null array", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte((byte[])null),
-                        new PreConditionFailure("values cannot be null."));
-                });
-
-                runner.test("with empty array", (Test test) ->
-                {
-                    final ByteArray array = Array.createByte(new byte[0]);
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with one value array", (Test test) ->
-                {
-                    final ByteArray array = Array.createByte(new byte[] { 12 });
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual(12, array.get(0).intValue());
-                });
-
-                runner.test("with two value array", (Test test) ->
-                {
-                    final ByteArray array = Array.createByte(new byte[] { 13, 14 });
-                    test.assertEqual(2, array.getCount());
-                    test.assertEqual(13, array.get(0).intValue());
-                    test.assertEqual(14, array.get(1).intValue());
-                });
-
-                runner.test("with one value", (Test test) ->
-                {
-                    final ByteArray array = Array.createByte((byte)12);
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual(12, array.get(0).intValue());
-                });
-
-                runner.test("with two value array", (Test test) ->
-                {
-                    final ByteArray array = Array.createByte((byte)13, (byte)14);
-                    test.assertEqual(2, array.getCount());
-                    test.assertEqual(13, array.get(0).intValue());
-                    test.assertEqual(14, array.get(1).intValue());
-                });
-            });
-
-            runner.testGroup("createByte(byte[],int,int)", () ->
-            {
-                runner.test("with null array", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte((byte[])null, 1, 2),
-                        new PreConditionFailure("values cannot be null."));
-                });
-
-                runner.test("with empty array and negative start index", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new byte[0], -1, 1),
-                        new PreConditionFailure("startIndex (-1) must be equal to 0."));
-                });
-
-                runner.test("with empty array and too large start index", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new byte[0], 1, 2),
-                        new PreConditionFailure("startIndex (1) must be equal to 0."));
-                });
-
-                runner.test("with empty array and negative length", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new byte[0], 0, -1),
-                        new PreConditionFailure("length (-1) must be between 1 and 0."));
-                });
-
-                runner.test("with empty array and zero length", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new byte[0], 0, 0),
-                        new PreConditionFailure("length (0) must be between 1 and 0."));
-                });
-
-                runner.test("with empty array and too large length", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new byte[0], 0, 1),
-                        new PreConditionFailure("length (1) must be between 1 and 0."));
-                });
-
-                runner.test("with one value array and negative start index", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new byte[] { 12 }, -1, 1),
-                        new PreConditionFailure("startIndex (-1) must be equal to 0."));
-                });
-
-                runner.test("with one value array and too large start index", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new byte[] { 12 }, 1, 1),
-                        new PreConditionFailure("startIndex (1) must be equal to 0."));
-                });
-
-                runner.test("with one value array and negative length", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new byte[] { 12 }, 0, -1),
-                        new PreConditionFailure("length (-1) must be equal to 1."));
-                });
-
-                runner.test("with one value array and zero length", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new byte[] { 12 }, 0, 0),
-                        new PreConditionFailure("length (0) must be equal to 1."));
-                });
-
-                runner.test("with one value array and too large length", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new byte[] { 12 }, 0, 2),
-                        new PreConditionFailure("length (2) must be equal to 1."));
-                });
-
-                runner.test("with one value array and valid startIndex and length", (Test test) ->
-                {
-                    final ByteArray array = Array.createByte(new byte[] { 12 }, 0, 1);
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual(12, array.get(0).intValue());
-                });
-
-                runner.test("with two value array and negative startIndex", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new byte[] { 13, 14 }, -1, 1),
-                        new PreConditionFailure("startIndex (-1) must be between 0 and 1."));
-                });
-
-                runner.test("with two value array and too large startIndex", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new byte[] { 13, 14 }, 2, 1),
-                        new PreConditionFailure("startIndex (2) must be between 0 and 1."));
-                });
-
-                runner.test("with two value array and negative length", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new byte[] { 13, 14 }, 0, -1),
-                        new PreConditionFailure("length (-1) must be between 1 and 2."));
-                });
-
-                runner.test("with two value array and too large length", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new byte[] { 13, 14 }, 0, 3),
-                        new PreConditionFailure("length (3) must be between 1 and 2."));
-                });
-
-                runner.test("with two value array and valid startIndex and length", (Test test) ->
-                {
-                    final ByteArray array = Array.createByte(new byte[] { 13, 14 }, 1, 1);
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual(14, array.get(0).intValue());
-                });
-            });
-
-            runner.testGroup("createByte(int...)", () ->
-            {
-                runner.test("with null array", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte((int[])null),
-                        new PreConditionFailure("bytes cannot be null."));
-                });
-
-                runner.test("with empty array", (Test test) ->
-                {
-                    final ByteArray array = Array.createByte(new int[0]);
-                    test.assertEqual(0, array.getCount());
-                });
-
-                runner.test("with one value array", (Test test) ->
-                {
-                    final ByteArray array = Array.createByte(new int[] { 12 });
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual(12, array.get(0).intValue());
-                });
-
-                runner.test("with two value array", (Test test) ->
-                {
-                    final ByteArray array = Array.createByte(new int[] { 13, 14 });
-                    test.assertEqual(2, array.getCount());
-                    test.assertEqual(13, array.get(0).intValue());
-                    test.assertEqual(14, array.get(1).intValue());
-                });
-
-                runner.test("with one value", (Test test) ->
-                {
-                    final ByteArray array = Array.createByte(12);
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual(12, array.get(0).intValue());
-                });
-
-                runner.test("with two value array", (Test test) ->
-                {
-                    final ByteArray array = Array.createByte(13, 14);
-                    test.assertEqual(2, array.getCount());
-                    test.assertEqual(13, array.get(0).intValue());
-                    test.assertEqual(14, array.get(1).intValue());
-                });
-
-                runner.test("with non-byte value", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(13, 1334),
-                        new PreConditionFailure("The 1 element (1334) must be between -128 and 127."));
-                });
-            });
-
-            runner.testGroup("createByte(int[],int,int)", () ->
-            {
-                runner.test("with null array", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte((int[])null, 1, 2),
-                        new PreConditionFailure("values cannot be null."));
-                });
-
-                runner.test("with empty array and negative start index", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new int[0], -1, 1),
-                        new PreConditionFailure("startIndex (-1) must be equal to 0."));
-                });
-
-                runner.test("with empty array and too large start index", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new int[0], 1, 2),
-                        new PreConditionFailure("startIndex (1) must be equal to 0."));
-                });
-
-                runner.test("with empty array and negative length", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new int[0], 0, -1),
-                        new PreConditionFailure("length (-1) must be between 1 and 0."));
-                });
-
-                runner.test("with empty array and zero length", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new int[0], 0, 0),
-                        new PreConditionFailure("length (0) must be between 1 and 0."));
-                });
-
-                runner.test("with empty array and too large length", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new int[0], 0, 1),
-                        new PreConditionFailure("length (1) must be between 1 and 0."));
-                });
-
-                runner.test("with one value array and negative start index", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new int[] { 12 }, -1, 1),
-                        new PreConditionFailure("startIndex (-1) must be equal to 0."));
-                });
-
-                runner.test("with one value array and too large start index", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new int[] { 12 }, 1, 1),
-                        new PreConditionFailure("startIndex (1) must be equal to 0."));
-                });
-
-                runner.test("with one value array and negative length", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new int[] { 12 }, 0, -1),
-                        new PreConditionFailure("length (-1) must be equal to 1."));
-                });
-
-                runner.test("with one value array and zero length", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new int[] { 12 }, 0, 0),
-                        new PreConditionFailure("length (0) must be equal to 1."));
-                });
-
-                runner.test("with one value array and too large length", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new int[] { 12 }, 0, 2),
-                        new PreConditionFailure("length (2) must be equal to 1."));
-                });
-
-                runner.test("with one value array and valid startIndex and length", (Test test) ->
-                {
-                    final ByteArray array = Array.createByte(new int[] { 12 }, 0, 1);
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual(12, array.get(0).intValue());
-                });
-
-                runner.test("with two value array and negative startIndex", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new int[] { 13, 14 }, -1, 1),
-                        new PreConditionFailure("startIndex (-1) must be between 0 and 1."));
-                });
-
-                runner.test("with two value array and too large startIndex", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new int[] { 13, 14 }, 2, 1),
-                        new PreConditionFailure("startIndex (2) must be between 0 and 1."));
-                });
-
-                runner.test("with two value array and negative length", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new int[] { 13, 14 }, 0, -1),
-                        new PreConditionFailure("length (-1) must be between 1 and 2."));
-                });
-
-                runner.test("with two value array and too large length", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.createByte(new int[] { 13, 14 }, 0, 3),
-                        new PreConditionFailure("length (3) must be between 1 and 2."));
-                });
-
-                runner.test("with two value array and valid startIndex and length", (Test test) ->
-                {
-                    final ByteArray array = Array.createByte(new int[] { 13, 14 }, 1, 1);
-                    test.assertEqual(1, array.getCount());
-                    test.assertEqual(14, array.get(0).intValue());
-                });
-            });
-
             runner.testGroup("toByteArray(Iterator<Byte>)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -1017,7 +278,8 @@ public class ArrayTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Array.toByteArray((Iterable<Byte>)null), new PreConditionFailure("values cannot be null."));
+                    test.assertThrows(() -> Array.toByteArray((Iterable<Byte>)null),
+                        new PreConditionFailure("values cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
@@ -1027,12 +289,12 @@ public class ArrayTests
 
                 runner.test("with non-empty Array", (Test test) ->
                 {
-                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(Iterable.create((byte)0, (byte)1, (byte)2)).await());
+                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(Array.create((byte)0, (byte)1, (byte)2)).await());
                 });
 
                 runner.test("with non-empty ByteArray", (Test test) ->
                 {
-                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(Array.createByte((byte)0, (byte)1, (byte)2)).await());
+                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(ByteArray.create(0, 1, 2).await()).await());
                 });
 
                 runner.test("with non-empty ByteList", (Test test) ->
@@ -1092,12 +354,12 @@ public class ArrayTests
 
                 runner.test("with non-empty CharArray", (Test test) ->
                 {
-                    test.assertEqual(new char[] { 'a', 'b', 'c' }, Array.toCharArray(Array.createCharacter('a', 'b', 'c')).await());
+                    test.assertEqual(new char[] { 'a', 'b', 'c' }, Array.toCharArray(CharacterArray.create('a', 'b', 'c')).await());
                 });
 
                 runner.test("with non-empty CharList", (Test test) ->
                 {
-                    test.assertEqual(new char[] { 'a', 'b', 'c' }, Array.toCharArray(CharacterList.createFromCharacters('a', 'b', 'c')).await());
+                    test.assertEqual(new char[] { 'a', 'b', 'c' }, Array.toCharArray(CharacterList.create('a', 'b', 'c')).await());
                 });
 
                 runner.test("with null value", (Test test) ->
@@ -1147,12 +409,12 @@ public class ArrayTests
 
                 runner.test("with non-empty Array", (Test test) ->
                 {
-                    test.assertEqual(new int[] { 0, 1, 2 }, Array.toIntArray(Iterable.create(0, 1, 2)).await());
+                    test.assertEqual(new int[] { 0, 1, 2 }, Array.toIntArray(Array.create(0, 1, 2)).await());
                 });
 
                 runner.test("with non-empty IntegerArray", (Test test) ->
                 {
-                    test.assertEqual(new int[] { 0, 1, 2 }, Array.toIntArray(Array.createInteger(0, 1, 2)).await());
+                    test.assertEqual(new int[] { 0, 1, 2 }, Array.toIntArray(IntegerArray.create(0, 1, 2)).await());
                 });
 
                 runner.test("with null value", (Test test) ->
@@ -1740,9 +1002,9 @@ public class ArrayTests
                 {
                     runner.test("with " + (bytes == null ? "null" : Iterable.create(bytes).map(Iterable::create)), (Test test) ->
                     {
-                        final Iterable<Byte> expectedArray = Array.createByte(expected);
+                        final Iterable<Byte> expectedArray = ByteArray.create(expected);
                         final byte[] mergedBytes = Array.mergeBytes(Iterable.create(bytes));
-                        final Iterable<Byte> actualArray = Array.createByte(mergedBytes);
+                        final Iterable<Byte> actualArray = ByteArray.create(mergedBytes);
 
                         test.assertEqual(expectedArray, actualArray);
                     });
@@ -1762,9 +1024,9 @@ public class ArrayTests
                 {
                     runner.test("with " + (characters == null ? "null" : Iterable.create(characters).map(Iterable::create)), (Test test) ->
                     {
-                        final Iterable<Character> expectedArray = Array.createCharacter(expected);
+                        final Iterable<Character> expectedArray = CharacterArray.create(expected);
                         final char[] mergedCharacters = Array.mergeCharacters(Iterable.create(characters));
-                        final Iterable<Character> actualArray = Array.createCharacter(mergedCharacters);
+                        final Iterable<Character> actualArray = CharacterArray.create(mergedCharacters);
 
                         test.assertEqual(expectedArray, actualArray);
                     });

@@ -1,42 +1,38 @@
 package qub;
 
-public class Bytes
+public interface Bytes
 {
-    Bytes()
-    {
-    }
-
     /**
      * The number of bits it takes to represent a byte.
      */
-    public static final int bitCount = 8;
+    int bitCount = 8;
 
     /**
      * The number of bytes it takes to represent a byte.
      */
-    public static final int byteCount = 1;
+    int byteCount = 1;
 
     /**
      * The number of hexidecimal characters it takes to represent a byte.
      */
-    public static final int hexCharCount = 2;
+    int hexCharCount = 2;
 
     /**
      * The minimum value that a signed byte can have.
      */
-    public static final byte minimum = Byte.MIN_VALUE;
+    byte minimum = java.lang.Byte.MIN_VALUE;
 
     /**
      * The maximum value that a signed byte can have.
      */
-    public static final byte maximum = Byte.MAX_VALUE;
+    byte maximum = java.lang.Byte.MAX_VALUE;
 
     /**
      * Convert the provided byte to an unsigned integer.
      * @param value The byte to convert.
      * @return The converted unsigned integer.
      */
-    public static int toUnsignedInt(byte value)
+    static int toUnsignedInt(byte value)
     {
         return 0xFF & value;
     }
@@ -46,7 +42,7 @@ public class Bytes
      * @param value The byte to convert.
      * @return The converted unsigned long integer.
      */
-    public static long toUnsignedLong(byte value)
+    static long toUnsignedLong(byte value)
     {
         return 0xFF & value;
     }
@@ -56,7 +52,7 @@ public class Bytes
      * @param b The byte.
      * @return The number of 1 bits at the front of the provided byte.
      */
-    public static int getSignificantBitCount(byte b)
+    static int getSignificantBitCount(byte b)
     {
         final int unsignedInt = Bytes.toUnsignedInt(b);
         return unsignedInt <= 0x7F ? 0 :
@@ -71,11 +67,21 @@ public class Bytes
     }
 
     /**
+     * Get the String representation of the provided byte value.
+     * @param b The byte value.
+     * @return The String representation of the provided byte value.
+     */
+    static String toString(byte b)
+    {
+        return java.lang.Byte.toString(b);
+    }
+
+    /**
      * Get the hexadecimal string representation of the provided byte.
      * @param b The byte.
      * @return The hexadecimal string representation of the provided byte.
      */
-    public static String toHexString(byte b)
+    static String toHexString(byte b)
     {
         return toHexString(b, true);
     }
@@ -87,7 +93,7 @@ public class Bytes
      *                      string result.
      * @return The hexadecimal string representation of the provided byte.
      */
-    public static String toHexString(byte b, boolean includePrefix)
+    static String toHexString(byte b, boolean includePrefix)
     {
         String result = (includePrefix ? "0x" : "");
         final int unsignedInt = Bytes.toUnsignedInt(b);
@@ -110,7 +116,7 @@ public class Bytes
      * @param value The value to convert to a hex character.
      * @return The hex character associated with the provided value.
      */
-    public static char toHexChar(int value)
+    static char toHexChar(int value)
     {
         PreCondition.assertBetween(0, value, 15, "value");
 
@@ -123,14 +129,14 @@ public class Bytes
      * @param value The value to convert to a hex character.
      * @return The hex character associated with the provided value.
      */
-    public static char toHexChar(long value)
+    static char toHexChar(long value)
     {
         PreCondition.assertBetween(0, value, 15, "value");
 
         return (char)(value <= 9 ? '0' + value : 'A' + value - 10);
     }
 
-    public static byte fromHexChar(char hexChar)
+    static byte fromHexChar(char hexChar)
     {
         PreCondition.assertOneOf(hexChar, new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F' }, "hexChar");
 

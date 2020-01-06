@@ -3,39 +3,41 @@ package qub;
 /**
  * A wrapper class around the char[] primitive type.
  */
-public class CharacterArray extends Array<Character>
+public class CharacterArray implements Array<Character>
 {
     private final char[] characters;
 
-    public CharacterArray(int count)
-    {
-        PreCondition.assertGreaterThanOrEqualTo(count, 0, "count");
-
-        this.characters = new char[count];
-    }
-
-    public CharacterArray(char[] characters)
+    private CharacterArray(char[] characters)
     {
         PreCondition.assertNotNull(characters, "characters");
 
         this.characters = characters;
     }
 
-    public CharacterArray(char[] characters, int startIndex, int length)
+    public static CharacterArray create(char... characters)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+
+        return new CharacterArray(characters);
+    }
+
+    public static CharacterArray create(char[] characters, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(characters, "characters");
         PreCondition.assertStartIndex(startIndex, characters.length);
         PreCondition.assertLength(length, startIndex, characters.length);
 
+        char[] resultArray;
         if (characters.length == length)
         {
-            this.characters = characters;
+            resultArray = characters;
         }
         else
         {
-            this.characters = new char[length];
-            Array.copy(characters, startIndex, this.characters, 0, length);
+            resultArray = new char[length];
+            Array.copy(characters, startIndex, resultArray, 0, length);
         }
+        return new CharacterArray(resultArray);
     }
 
     @Override
@@ -71,5 +73,17 @@ public class CharacterArray extends Array<Character>
         PreCondition.assertIndexAccess(index, getCount(), "index");
 
         return characters[index];
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Iterable.equals(this, rhs);
+    }
+
+    @Override
+    public String toString()
+    {
+        return Iterable.toString(this);
     }
 }

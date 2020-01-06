@@ -32,7 +32,7 @@ public interface List<T> extends MutableIndexable<T>
      */
     static <T> List<T> create(Iterator<T> initialValues)
     {
-        final List<T> result = List.empty();
+        final List<T> result = List.create();
         result.addAll(initialValues);
         return result;
     }

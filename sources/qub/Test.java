@@ -399,6 +399,31 @@ public class Test
      * @param expected The first value to compare.
      * @param actual The second value to compare.
      */
+    public <T> void assertEqual(char expected, char actual)
+    {
+        this.assertEqual(expected, actual, null);
+    }
+
+    /**
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
+     * will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     */
+    public <T> void assertEqual(char expected, char actual, String message)
+    {
+        if (expected != actual)
+        {
+            throw new TestError(this.getFullName(), Test.getMessageLines(message, expected, actual));
+        }
+    }
+
+    /**
+     * Assert that the provided values are assertEqual. If they are not assertEqual, then a TestError
+     * will be thrown.
+     * @param expected The first value to compare.
+     * @param actual The second value to compare.
+     */
     public <T> void assertEqual(char expected, Character actual)
     {
         assertEqual(expected, actual, null);

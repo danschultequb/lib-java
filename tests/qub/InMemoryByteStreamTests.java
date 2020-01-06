@@ -1,8 +1,8 @@
 package qub;
 
-public class InMemoryByteStreamTests
+public interface InMemoryByteStreamTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(InMemoryByteStream.class, () ->
         {
@@ -446,21 +446,21 @@ public class InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = create(test);
                     test.assertTrue(stream.dispose().await());
-                    test.assertThrows(() -> stream.readBytesUntil(Array.createByte(5)),
+                    test.assertThrows(() -> stream.readBytesUntil(ByteArray.create(5).await()),
                         new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(test);
-                    test.assertThrows(() -> stream.readBytesUntil(Array.createByte(5)).await(),
+                    test.assertThrows(() -> stream.readBytesUntil(ByteArray.create(5).await()).await(),
                         new EndOfStreamException());
                 });
 
                 runner.test("with bytes but not the stopByte", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 9 }, test);
-                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 9 }, stream.readBytesUntil(Array.createByte(5)).await());
+                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 9 }, stream.readBytesUntil(ByteArray.create(5).await()).await());
                     test.assertThrows(stream::getCurrent,
                         new PreConditionFailure("hasCurrent() cannot be false."));
                 });
@@ -468,7 +468,7 @@ public class InMemoryByteStreamTests
                 runner.test("with bytes including the stopByte", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, test);
-                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 5 }, stream.readBytesUntil(Array.createByte(5)).await());
+                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 5 }, stream.readBytesUntil(ByteArray.create(5).await()).await());
                     test.assertEqual((byte)5, stream.getCurrent());
                 });
             });
@@ -847,12 +847,12 @@ public class InMemoryByteStreamTests
         });
     }
 
-    private static InMemoryByteStream create(Test test)
+    static InMemoryByteStream create(Test test)
     {
         return create(null, test);
     }
 
-    private static InMemoryByteStream create(byte[] contents, Test test)
+    static InMemoryByteStream create(byte[] contents, Test test)
     {
         return new InMemoryByteStream(contents).endOfStream();
     }

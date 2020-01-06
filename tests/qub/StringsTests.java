@@ -29,29 +29,6 @@ public interface StringsTests
                 });
             });
 
-            runner.testGroup("iterable(StringBuilder)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    test.assertEqual(Iterable.create(), Strings.iterable((StringBuilder)null));
-                });
-
-                runner.test("with empty", (Test test) ->
-                {
-                    test.assertEqual(Iterable.create(), Strings.iterable(new StringBuilder()));
-                });
-
-                runner.test("with one character", (Test test) ->
-                {
-                    test.assertEqual(Iterable.create('a'), Strings.iterable(new StringBuilder("a")));
-                });
-
-                runner.test("with two characters", (Test test) ->
-                {
-                    test.assertEqual(Iterable.create('a', 'b'), Strings.iterable(new StringBuilder("ab")));
-                });
-            });
-
             runner.testGroup("containsAny(String,char[])", () ->
             {
                 final Action3<String,char[],Boolean> containsAnyTest = (String text, char[] characters, Boolean expected) ->

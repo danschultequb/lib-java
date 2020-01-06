@@ -100,40 +100,6 @@ public interface Indexable<T> extends Iterable<T>
     /**
      * Create a new Indexable create the provided values.
      * @param values The values to convert to an Indexable.
-     * @return The created Indexable.
-     */
-    static Indexable<Byte> createByte(byte... values)
-    {
-        return Array.createByte(values);
-    }
-
-    /**
-     * Create a new ByteArray with the provided elements.
-     * @param values The elements of the new ByteArray.
-     * @param startIndex The start index into the values.
-     * @param length The number of bytes to copy.
-     * @return The new ByteArray.
-     */
-    static Indexable<Byte> createByte(byte[] values, int startIndex, int length)
-    {
-        return Array.createByte(values, startIndex, length);
-    }
-
-    /**
-     * Create a new Indexable create the provided values.
-     * @param values The values to convert to an Indexable.
-     * @return The created Indexable.
-     */
-    static Indexable<Character> createCharacter(char... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return Array.createCharacter(values);
-    }
-
-    /**
-     * Create a new Indexable create the provided values.
-     * @param values The values to convert to an Indexable.
      * @param <T> The type of values in the created Indexable.
      * @return The created Indexable.
      */

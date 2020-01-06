@@ -163,7 +163,7 @@ public class ByteList implements List<Byte>
 
         final byte[] bytes = new byte[valuesToRemove];
         removeFirstBytes(bytes);
-        return Array.createByte(bytes);
+        return ByteArray.create(bytes);
     }
 
     /**

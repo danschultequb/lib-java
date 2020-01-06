@@ -1,16 +1,11 @@
 package qub;
 
-public class BytesTests
+public interface BytesTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(Bytes.class, () ->
         {
-            runner.test("constructor()", (Test test) ->
-            {
-                test.assertNotNull(new Bytes());
-            });
-
             runner.testGroup("toUnsignedInt(byte)", () ->
             {
                 final Action2<Integer,Integer> toUnsignedIntTest = (Integer byteValue, Integer expectedUnsignedInteger) ->

@@ -4,23 +4,23 @@ public class TrackedValue
 {
     private final State state;
     private boolean isOpen;
-    private final StringBuilder value;
+    private final CharacterList value;
 
     public TrackedValue(State state)
     {
         this(state, true, null);
     }
 
-    public TrackedValue(State state, boolean isOpen, StringBuilder values)
+    public TrackedValue(State state, boolean isOpen, CharacterList values)
     {
         PreCondition.assertNotNull(state, "state");
 
         this.state = state;
         this.isOpen = isOpen;
-        this.value = new StringBuilder();
-        if (!Strings.isNullOrEmpty(values))
+        this.value = CharacterList.create();
+        if (!Iterable.isNullOrEmpty(values))
         {
-            this.value.append(values);
+            this.value.addAll(values);
         }
     }
 
@@ -31,7 +31,7 @@ public class TrackedValue
 
     public TrackedValue add(char value)
     {
-        this.value.append(value);
+        this.value.add(value);
         return this;
     }
 
@@ -52,6 +52,6 @@ public class TrackedValue
 
     public Iterable<Character> getValues()
     {
-        return Strings.iterable(value);
+        return this.value;
     }
 }

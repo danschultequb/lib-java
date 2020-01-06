@@ -273,10 +273,10 @@ public interface CharacterReadStream extends Disposable, Iterator<Character>
 
         String result = null;
         int charactersRead = 0;
-        final CharacterList list = new CharacterList();
+        final CharacterList list = CharacterList.create();
         if (includeNewLine)
         {
-            result = readStringUntil('\n')
+            result = this.readStringUntil('\n')
                 .catchError(EndOfStreamException.class)
                 .await();
             if (result != null)
@@ -287,10 +287,10 @@ public interface CharacterReadStream extends Disposable, Iterator<Character>
         else
         {
             boolean previousCharacterWasCarriageReturn = false;
-            while (next())
+            while (this.next())
             {
                 ++charactersRead;
-                final char currentCharacter = getCurrent();
+                final char currentCharacter = this.getCurrent();
                 if (currentCharacter == '\r')
                 {
                     if (previousCharacterWasCarriageReturn)
@@ -319,7 +319,7 @@ public interface CharacterReadStream extends Disposable, Iterator<Character>
                 }
             }
 
-            if (!hasCurrent() && previousCharacterWasCarriageReturn)
+            if (!this.hasCurrent() && previousCharacterWasCarriageReturn)
             {
                 list.add('\r');
             }

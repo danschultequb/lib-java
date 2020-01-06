@@ -3,23 +3,14 @@ package qub;
 /**
  * A contiguous array of bits.
  */
-public class BitArray extends Array<Integer>
+public class BitArray implements Array<Integer>
 {
     public static final long maximumBitCount = ((long)Integers.maximum) * Integers.bitCount;
 
     private final int[] bitChunks;
     private final long bitCount;
 
-    /**
-     * Create a new BitArray containing the provided number of bits.
-     * @param bitCount The number of bits the created BitArray will contain.
-     */
-    public BitArray(long bitCount)
-    {
-        this(createBitChunks(bitCount), bitCount);
-    }
-
-    public BitArray(int[] bitChunks, long bitCount)
+    private BitArray(int[] bitChunks, long bitCount)
     {
         PreCondition.assertNotNull(bitChunks, "bitChunks");
         PreCondition.assertGreaterThanOrEqualTo(bitCount, 0, "bitCount");
@@ -28,11 +19,15 @@ public class BitArray extends Array<Integer>
         this.bitChunks = bitChunks;
     }
 
-    private static int[] createBitChunks(long bitCount)
+    public static BitArray create(long bitCount)
     {
-        PreCondition.assertBetween(0, bitCount, maximumBitCount, "bitCount");
+        final int[] bitChunks = new int[BitArray.getBitChunkCount(bitCount)];
+        return BitArray.create(bitChunks, bitCount);
+    }
 
-        return new int[getBitChunkCount(bitCount)];
+    public static BitArray create(int[] bitChunks, long bitCount)
+    {
+        return new BitArray(bitChunks, bitCount);
     }
 
     private static int[] createBitChunksFromBytes(byte[] bits, long bitCount)
@@ -128,7 +123,7 @@ public class BitArray extends Array<Integer>
         PreCondition.assertNotNull(bits, "bits");
         PreCondition.assertContainsOnly(bits, new char[] { '0', '1' }, "bits");
 
-        final BitArray result = new BitArray(bits.length());
+        final BitArray result = BitArray.create(bits.length());
         for (int i = 0; i < result.getCount(); ++i)
         {
             result.set(i, bits.charAt(i) - '0');
@@ -144,7 +139,7 @@ public class BitArray extends Array<Integer>
     {
         PreCondition.assertNotNull(hexString, "hexString");
 
-        final BitArray result = new BitArray(hexString.length() * 4);
+        final BitArray result = BitArray.create(hexString.length() * 4);
         for (int i = 0; i < hexString.length(); ++i)
         {
             final char c = hexString.charAt(i);
@@ -380,7 +375,7 @@ public class BitArray extends Array<Integer>
 
         if (bitsToRotate % getCount() != 0)
         {
-            final BitArray temp = new BitArray(length);
+            final BitArray temp = BitArray.create(length);
             for (long i = 0; i < length; ++i)
             {
                 final long getIndex = startIndex + Math.modulo(i + bitsToRotate, length);
@@ -450,7 +445,7 @@ public class BitArray extends Array<Integer>
         PreCondition.assertStartIndex(startIndex, getCount());
         PreCondition.assertLength(length, startIndex, getCount());
 
-        final BitArray tempBits = new BitArray(length);
+        final BitArray tempBits = BitArray.create(length);
         final long afterRangeEndIndex = startIndex + length;
         for (long i = 0; i < length; ++i)
         {
@@ -491,8 +486,8 @@ public class BitArray extends Array<Integer>
         PreCondition.assertNotNull(rhs, "rhs");
         PreCondition.assertEqual(getCount(), rhs.getCount(), "rhs.getCount()");
 
-        final long bitCount = getCount();
-        final BitArray result = new BitArray(bitCount);
+        final long bitCount = this.getCount();
+        final BitArray result = BitArray.create(bitCount);
         for (long i = 0; i < bitCount; ++i)
         {
             result.setBit(i, (getBit(i) + rhs.getBit(i)) % 2);
@@ -518,7 +513,7 @@ public class BitArray extends Array<Integer>
     {
         PreCondition.assertNotNull(bitIndexPermutations, "bitIndexPermutations");
 
-        final BitArray result = new BitArray(bitIndexPermutations.length);
+        final BitArray result = BitArray.create(bitIndexPermutations.length);
         for (int i = 0; i < bitIndexPermutations.length; ++i)
         {
             final long bitIndex = bitIndexPermutations[i];
@@ -551,7 +546,7 @@ public class BitArray extends Array<Integer>
         PreCondition.assertLength(length, startIndex, getCount());
         PreCondition.assertNotNull(bitNumberPermutations, "bitNumberPermutations");
 
-        final BitArray result = new BitArray(bitNumberPermutations.length);
+        final BitArray result = BitArray.create(bitNumberPermutations.length);
         for (int i = 0; i < bitNumberPermutations.length; ++i)
         {
             final long bitNumber = bitNumberPermutations[i];
@@ -577,7 +572,7 @@ public class BitArray extends Array<Integer>
 
         final long thisBitCount = this.getCount();
         final long rhsBitCount = rhs.getCount();
-        final BitArray result = new BitArray(thisBitCount + rhsBitCount);
+        final BitArray result = BitArray.create(thisBitCount + rhsBitCount);
         if (thisBitCount > 0)
         {
             result.copyFrom(this, 0, 0, thisBitCount);

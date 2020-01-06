@@ -6,11 +6,12 @@ public interface CharactersTests
     {
         runner.testGroup(Characters.class, () ->
         {
-            runner.testGroup("join(java.lang.Iterable<Character>)", () ->
+            runner.testGroup("join(Iterable<Character>)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Characters.join(null), new PreConditionFailure("values cannot be null."));
+                    test.assertThrows(() -> Characters.join((Iterable<Character>)null),
+                        new PreConditionFailure("values cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
@@ -24,11 +25,12 @@ public interface CharactersTests
                 });
             });
 
-            runner.testGroup("join(char,java.lang.Iterable<Character>)", () ->
+            runner.testGroup("join(char,Iterable<Character>)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Characters.join(' ', null), new PreConditionFailure("values cannot be null."));
+                    test.assertThrows(() -> Characters.join(' ', (Iterable<Character>)null),
+                        new PreConditionFailure("values cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
@@ -42,11 +44,12 @@ public interface CharactersTests
                 });
             });
 
-            runner.testGroup("join(String,java.lang.Iterable<Character>)", () ->
+            runner.testGroup("join(String,Iterable<Character>)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Characters.join("--", null), new PreConditionFailure("values cannot be null."));
+                    test.assertThrows(() -> Characters.join("--", (Iterable<Character>)null),
+                        new PreConditionFailure("values cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->

@@ -1,8 +1,8 @@
 package qub;
 
-public class DESTests
+public interface DESTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(DES.class, () ->
         {
@@ -117,8 +117,8 @@ public class DESTests
                     {
                         final DES des = new DES();
 
-                        final BitArray plaintextBits = Array.createBitArrayFromHexString(message);
-                        final BitArray initializationVectorBits = Array.createBitArrayFromHexString(initializationVector);
+                        final BitArray plaintextBits = BitArray.createFromHexString(message);
+                        final BitArray initializationVectorBits = BitArray.createFromHexString(initializationVector);
 
                         final BitArray ciphertextBits = des.encrypt(initializationVectorBits, plaintextBits);
                         test.assertNotNull(ciphertextBits);
@@ -143,8 +143,8 @@ public class DESTests
                     {
                         final DES des = new DES();
 
-                        final BitArray ciphertextBits = Array.createBitArrayFromHexString(ciphertext);
-                        final BitArray initializationVectorBits = Array.createBitArrayFromHexString(initializationVector);
+                        final BitArray ciphertextBits = BitArray.createFromHexString(ciphertext);
+                        final BitArray initializationVectorBits = BitArray.createFromHexString(initializationVector);
 
                         final BitArray plaintextBits = des.decrypt(initializationVectorBits, ciphertextBits);
                         test.assertNotNull(plaintextBits);

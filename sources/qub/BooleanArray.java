@@ -3,40 +3,57 @@ package qub;
 /**
  * A wrapper class around the boolean[] primitive type.
  */
-public class BooleanArray extends Array<Boolean>
+public class BooleanArray implements Array<Boolean>
 {
     private final boolean[] values;
 
-    public BooleanArray(int count)
-    {
-        this.values = new boolean[count];
-    }
-
-    public BooleanArray(boolean[] values)
+    private BooleanArray(boolean[] values)
     {
         PreCondition.assertNotNull(values, "values");
 
         this.values = values;
     }
 
-    public BooleanArray(boolean[] values, int startIndex, int length)
+    /**
+     * Create a new BooleanArray with the provided capacity.
+     * @param initialCapacity The initial capacity of the new BooleanArray.
+     * @return A new BooleanArray with the provided capacity.
+     */
+    public static BooleanArray create(int initialCapacity)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(initialCapacity, 0, "initialCapacity");
+
+        return BooleanArray.create(new boolean[initialCapacity]);
+    }
+
+    public static BooleanArray create(boolean... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return new BooleanArray(values);
+    }
+
+    public static BooleanArray create(boolean[] values, int startIndex, int length)
     {
         PreCondition.assertNotNull(values, "values");
         PreCondition.assertStartIndex(startIndex, values.length);
         PreCondition.assertLength(length, startIndex, values.length);
 
+        boolean[] resultValues;
         if (values.length == length)
         {
-            this.values = values;
+            resultValues = values;
         }
         else
         {
-            this.values = new boolean[length];
+            resultValues = new boolean[length];
             for (int i = 0; i < length; ++i)
             {
-                this.values[i] = values[startIndex + i];
+                resultValues[i] = values[startIndex + i];
             }
         }
+
+        return new BooleanArray(resultValues);
     }
 
     @Override

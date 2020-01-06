@@ -4,35 +4,23 @@ package qub;
  * A basic Array data structure that holds a fixed number of elements.
  * @param <T> The type of element contained by this Array.
  */
-public abstract class Array<T> implements MutableIndexable<T>
+public interface Array<T> extends MutableIndexable<T>
 {
     @Override
-    public boolean any()
+    default boolean any()
     {
         return 1 <= getCount();
     }
 
     @Override
-    public ArrayIterator<T> iterate()
+    default ArrayIterator<T> iterate()
     {
         return ArrayIterator.create(this);
     }
 
-    public ArrayIterator<T> iterateReverse()
+    default ArrayIterator<T> iterateReverse()
     {
         return ArrayIterator.createReverse(this);
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return Iterable.equals(this, rhs);
-    }
-
-    @Override
-    public String toString()
-    {
-        return Iterable.toString(this);
     }
 
     /**
@@ -40,131 +28,52 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param length The number of elements.
      * @return The new array.
      */
-    static <U> Array<U> createWithLength(int length)
+    static <T> Array<T> createWithLength(int length)
     {
-        return new ObjectArray<>(length);
-    }
-
-    /**
-     * Create a new BitArray with the provided length.
-     * @param length The length of the BitArray.
-     * @return The new BooleanArray.
-     */
-    static BitArray createBitArray(long length)
-    {
-        PreCondition.assertBetween(0, length, BitArray.maximumBitCount, "length");
-
-        return new BitArray(length);
-    }
-
-    /**
-     * Create a new BitArray from the provided bit values.
-     * @param values The bit values.
-     * @return The new BitArray.
-     */
-    static BitArray createBitArrayFromBits(int... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        final BitArray result = Array.createBitArray(values.length);
-        for (int i = 0; i < values.length; ++i)
-        {
-            PreCondition.assertBit(values[i], "The " + i + " bit");
-            result.set(i, values[i]);
-        }
-
-        return result;
-    }
-
-    /**
-     * Create a BitArray from the provided values.
-     * @param values The values to create the BitArray from.
-     * @return The new BitArray.
-     */
-    static BitArray createBitArrayFromBytes(byte... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return BitArray.createFromBytes(values);
-    }
-
-    /**
-     * Create a BitArray from the provided values.
-     * @param values The values to create the BitArray from.
-     * @return The new BitArray.
-     */
-    static BitArray createBitArrayFromBytes(byte[] values, long bitCount)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return BitArray.createFromBytes(values, bitCount);
-    }
-
-    /**
-     * Create a BitArray from the provided values.
-     * @param values The values to create the BitArray from.
-     * @return The new BitArray.
-     */
-    static BitArray createBitArrayFromBytes(int... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return Array.createBitArrayFromBytes(Array.toByteArray(values));
-    }
-
-    /**
-     * Create a BitArray from the provided values.
-     * @param values The values to create the BitArray from.
-     * @return The new BitArray.
-     */
-    static BitArray createBitArrayFromIntegers(int... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return BitArray.createFromIntegers(values);
-    }
-
-    /**
-     * Create a BitArray from the provided bit string.
-     * @param bitString The bit string.
-     * @return The new BitArray.
-     */
-    static BitArray createBitArrayFromBitString(String bitString)
-    {
-        return BitArray.createFromBitString(bitString);
-    }
-
-    /**
-     * Create a BitArray from the provided hexadecimal string.
-     * @param hexString The hexadecimal string.
-     * @return The new BitArray.
-     */
-    static BitArray createBitArrayFromHexString(String hexString)
-    {
-        return BitArray.createFromHexString(hexString);
-    }
-
-    /**
-     * Create a new BooleanArray with the provided length.
-     * @param length The length of the BooleanArray.
-     * @return The new BooleanArray.
-     */
-    static BooleanArray createBooleanArray(int length)
-    {
-        PreCondition.assertGreaterThanOrEqualTo(length, 0, "length");
-
-        return new BooleanArray(length);
+        return ObjectArray.createWithLength(length);
     }
 
     /**
      * Create an Array create the provided values.
      * @param values The values to initialize the array with.
      */
-    static BooleanArray createBooleanArray(boolean... values)
+    @SafeVarargs
+    static <T> Array<T> create(T... values)
     {
         PreCondition.assertNotNull(values, "values");
 
-        return new BooleanArray(values);
+        return ObjectArray.create(values);
+    }
+
+    /**
+     * Create an Array create the provided values.
+     * @param values The values to initialize the array with.
+     */
+    static <T> Array<T> create(Iterator<T> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return Array.create(List.create(values));
+    }
+
+    /**
+     * Create an Array create the provided values.
+     * @param values The values to initialize the array with.
+     */
+    static <T> Array<T> create(Iterable<T> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        final Array<T> result = Array.createWithLength(values.getCount());
+        if (result.getCount() > 0)
+        {
+            int i = 0;
+            for (final T value : values)
+            {
+                result.set(i++, value);
+            }
+        }
+        return result;
     }
 
     /**
@@ -176,82 +85,35 @@ public abstract class Array<T> implements MutableIndexable<T>
     {
         PreCondition.assertNotNull(values, "values");
 
-        return toBooleanArray(values.toList());
+        return Array.toBooleanArray(List.create(values));
     }
 
+    /**
+     * Convert the provided Iterable&lt;Boolean&gt; to a boolean[].
+     * @param values The Iterable&lt;Boolean&gt; to convert to a boolean[].
+     * @return The converted boolean[].
+     */
     static Result<boolean[]> toBooleanArray(Iterable<Boolean> values)
     {
         PreCondition.assertNotNull(values, "values");
 
-        Result<boolean[]> result = null;
-
-        final boolean[] array = new boolean[values.getCount()];
-        int index = 0;
-        for (final Boolean value : values)
+        return Result.create(() ->
         {
-            if (value == null)
+            final boolean[] result = new boolean[values.getCount()];
+            int index = 0;
+            for (final Boolean value : values)
             {
-                result = Result.error(new NullPointerException("The " + index + " element cannot be null."));
-                break;
+                if (value == null)
+                {
+                    throw new NullPointerException("The " + index + " element cannot be null.");
+                }
+                result[index++] = value;
             }
-            else
-            {
-                array[index++] = value;
-            }
-        }
 
-        if (result == null)
-        {
-            result = Result.success(array);
-        }
+            PostCondition.assertNotNull(result, "result");
 
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    /**
-     * Create a new ByteArray with the provided elements.
-     * @param values The elements of the new ByteArray.
-     * @return The new ByteArray.
-     */
-    static ByteArray createByte(byte... values)
-    {
-        return new ByteArray(values);
-    }
-
-    /**
-     * Create a new ByteArray with the provided elements.
-     * @param values The elements of the new ByteArray.
-     * @param startIndex The start index into the values.
-     * @param length The number of bytes to copy.
-     * @return The new ByteArray.
-     */
-    static ByteArray createByte(byte[] values, int startIndex, int length)
-    {
-        return new ByteArray(values, startIndex, length);
-    }
-
-    /**
-     * Create a new ByteArray with the provided elements.
-     * @param values The elements of the new ByteArray.
-     * @return The new ByteArray.
-     */
-    static ByteArray createByte(int... values)
-    {
-        return new ByteArray(values);
-    }
-
-    /**
-     * Create a new ByteArray with the provided elements.
-     * @param values The elements of the new ByteArray.
-     * @param startIndex The start index into the values.
-     * @param length The number of bytes to copy.
-     * @return The new ByteArray.
-     */
-    static ByteArray createByte(int[] values, int startIndex, int length)
-    {
-        return new ByteArray(values, startIndex, length);
+            return result;
+        });
     }
 
     /**
@@ -263,7 +125,7 @@ public abstract class Array<T> implements MutableIndexable<T>
     {
         PreCondition.assertNotNull(values, "values");
 
-        return toByteArray(values.toList());
+        return Array.toByteArray(List.create(values));
     }
 
     /**
@@ -271,46 +133,39 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param values The byte Iterable to convert to a byte array.
      * @return The byte array.
      */
-    public static Result<byte[]> toByteArray(Iterable<Byte> values)
+    static Result<byte[]> toByteArray(Iterable<Byte> values)
     {
         PreCondition.assertNotNull(values, "values");
 
-        Result<byte[]> result = null;
-
-        if (values instanceof ByteArray)
+        return Result.create(() ->
         {
-            result = Result.success(((ByteArray)values).toByteArray());
-        }
-        else if (values instanceof ByteList)
-        {
-            result = Result.success(((ByteList)values).toByteArray());
-        }
-        else
-        {
-            final byte[] array = new byte[values.getCount()];
-            int index = 0;
-            for (final Byte value : values)
+            byte[] result;
+            if (values instanceof ByteArray)
             {
-                if (value == null)
+                result = ((ByteArray)values).toByteArray();
+            }
+            else if (values instanceof ByteList)
+            {
+                result = ((ByteList)values).toByteArray();
+            }
+            else
+            {
+                result = new byte[values.getCount()];
+                int index = 0;
+                for (final Byte value : values)
                 {
-                    result = Result.error(new NullPointerException("The " + index + " element cannot be null."));
-                    break;
-                }
-                else
-                {
-                    array[index++] = value;
+                    if (value == null)
+                    {
+                        throw new NullPointerException("The " + index + " element cannot be null.");
+                    }
+                    result[index++] = value;
                 }
             }
 
-            if (result == null)
-            {
-                result = Result.success(array);
-            }
-        }
+            PostCondition.assertNotNull(result, "result");
 
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+            return result;
+        });
     }
 
     /**
@@ -336,76 +191,11 @@ public abstract class Array<T> implements MutableIndexable<T>
     }
 
     /**
-     * Create an Array create the provided values.
-     * @param values The values to initialize the array with.
-     */
-    static CharacterArray createCharacter(char... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return new CharacterArray(values);
-    }
-
-    /**
-     * Create an Array create the provided values.
-     * @param values The values to initialize the array with.
-     */
-    static IntegerArray createInteger(int... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return new IntegerArray(values);
-    }
-
-    /**
-     * Create an Array create the provided values.
-     * @param values The values to initialize the array with.
-     */
-    @SafeVarargs
-    public static <T> Array<T> create(T... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return new ObjectArray<>(values);
-    }
-
-    /**
-     * Create an Array create the provided values.
-     * @param values The values to initialize the array with.
-     */
-    public static <T> Array<T> create(Iterator<T> values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return create(List.create(values));
-    }
-
-    /**
-     * Create an Array create the provided values.
-     * @param values The values to initialize the array with.
-     */
-    public static <T> Array<T> create(Iterable<T> values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        final Array<T> result = Array.createWithLength(values.getCount());
-        if (result.getCount() > 0)
-        {
-            int i = 0;
-            for (final T value : values)
-            {
-                result.set(i++, value);
-            }
-        }
-        return result;
-    }
-
-    /**
      * Convert the provided character Iterator into a char array.
      * @param values The character Iterator to convert to a char array.
      * @return The char array.
      */
-    public static Result<char[]> toCharArray(Iterator<Character> values)
+    static Result<char[]> toCharArray(Iterator<Character> values)
     {
         PreCondition.assertNotNull(values, "values");
 
@@ -417,7 +207,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param values The character Iterable to convert to a char array.
      * @return The char array.
      */
-    public static Result<char[]> toCharArray(Iterable<Character> values)
+    static Result<char[]> toCharArray(Iterable<Character> values)
     {
         PreCondition.assertNotNull(values, "values");
 
@@ -457,7 +247,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param values The int Iterator to convert to an int array.
      * @return The int array.
      */
-    public static Result<int[]> toIntArray(Iterator<Integer> values)
+    static Result<int[]> toIntArray(Iterator<Integer> values)
     {
         PreCondition.assertNotNull(values, "values");
 
@@ -469,7 +259,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param values The int Iterable to convert to a int array.
      * @return The int array.
      */
-    public static Result<int[]> toIntArray(Iterable<Integer> values)
+    static Result<int[]> toIntArray(Iterable<Integer> values)
     {
         PreCondition.assertNotNull(values, "values");
 
@@ -511,7 +301,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param toClone The byte[] to clone.
      * @return The cloned byte[].
      */
-    public static byte[] clone(byte[] toClone)
+    static byte[] clone(byte[] toClone)
     {
         return clone(toClone, 0, toClone == null ? 0 : toClone.length);
     }
@@ -523,7 +313,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param length The number of bytes create toClone to clone.
      * @return The cloned byte[].
      */
-    public static byte[] clone(byte[] toClone, int startIndex, int length)
+    static byte[] clone(byte[] toClone, int startIndex, int length)
     {
         byte[] result;
 
@@ -550,7 +340,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param toClone The char[] to clone.
      * @return The cloned char[].
      */
-    public static char[] clone(char[] toClone)
+    static char[] clone(char[] toClone)
     {
         return clone(toClone, 0, toClone == null ? 0 : toClone.length);
     }
@@ -562,7 +352,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param length The number of characters create toClone to clone.
      * @return The cloned char[].
      */
-    public static char[] clone(char[] toClone, int startIndex, int length)
+    static char[] clone(char[] toClone, int startIndex, int length)
     {
         char[] result;
 
@@ -589,7 +379,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param toClone The int[] to clone.
      * @return The cloned int[].
      */
-    public static int[] clone(int[] toClone)
+    static int[] clone(int[] toClone)
     {
         return clone(toClone, 0, toClone == null ? 0 : toClone.length);
     }
@@ -601,7 +391,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param length The number of characters create toClone to clone.
      * @return The cloned int[].
      */
-    public static int[] clone(int[] toClone, int startIndex, int length)
+    static int[] clone(int[] toClone, int startIndex, int length)
     {
         int[] result;
 
@@ -631,7 +421,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param copyToStartIndex The index within copyTo to start copying to.
      * @param length The number of bytes to copy create the copyFrom byte[] to the copyTo byte[].
      */
-    public static void copy(byte[] copyFrom, int copyFromStartIndex, byte[] copyTo, int copyToStartIndex, int length)
+    static void copy(byte[] copyFrom, int copyFromStartIndex, byte[] copyTo, int copyToStartIndex, int length)
     {
         PreCondition.assertNotNull(copyFrom, "copyFrom");
         PreCondition.assertBetween(0, copyFromStartIndex, Math.maximum(0, copyFrom.length - 1), "copyFromStartIndex");
@@ -653,7 +443,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param copyToStartIndex The index within copyTo to start copying to.
      * @param length The number of bytes to copy create the copyFrom byte[] to the copyTo byte[].
      */
-    public static void copy(char[] copyFrom, int copyFromStartIndex, char[] copyTo, int copyToStartIndex, int length)
+    static void copy(char[] copyFrom, int copyFromStartIndex, char[] copyTo, int copyToStartIndex, int length)
     {
         if (copyFrom != null && copyTo != null && 1 <= copyFrom.length && 1 <= copyTo.length &&
                 0 <= copyFromStartIndex && copyFromStartIndex < copyFrom.length &&
@@ -670,7 +460,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param byteArrays The byte arrays to mergeBytes.
      * @return The merged byte array.
      */
-    public static byte[] mergeBytes(Iterable<byte[]> byteArrays)
+    static byte[] mergeBytes(Iterable<byte[]> byteArrays)
     {
         PreCondition.assertNotNull(byteArrays, "byteArrays");
 
@@ -704,7 +494,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param charArrays The char arrays to mergeBytes.
      * @return The merged char array.
      */
-    public static char[] mergeCharacters(Iterable<char[]> charArrays)
+    static char[] mergeCharacters(Iterable<char[]> charArrays)
     {
         PreCondition.assertNotNull(charArrays, "charArrays");
 
@@ -738,17 +528,17 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param byteArray The byte array to convert to a String.
      * @return The String representation of the elements within the provided byte array.
      */
-    public static String toString(byte[] byteArray)
+    static String toString(byte[] byteArray)
     {
-        final StringBuilder builder = new StringBuilder();
+        final CharacterList builder = CharacterList.create();
 
         if (byteArray == null)
         {
-            builder.append("null");
+            builder.addAll("null");
         }
         else
         {
-            builder.append('[');
+            builder.add('[');
 
             boolean addedFirstElement = false;
             for (final byte element : byteArray)
@@ -759,15 +549,15 @@ public abstract class Array<T> implements MutableIndexable<T>
                 }
                 else
                 {
-                    builder.append(',');
+                    builder.add(',');
                 }
-                builder.append(element);
+                builder.addAll(Bytes.toString(element));
             }
 
-            builder.append(']');
+            builder.add(']');
         }
 
-        return builder.toString();
+        return builder.toString(true);
     }
 
     /**
@@ -775,7 +565,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param array The char array to convert to a String.
      * @return The String representation of the elements within the provided char array.
      */
-    public static String toString(char[] array)
+    static String toString(char[] array)
     {
         return Array.toString(array, (Character c) -> "'" + c + "'");
     }
@@ -785,19 +575,19 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param array The char array to convert to a String.
      * @return The String representation of the elements within the provided char array.
      */
-    public static String toString(char[] array, Function1<Character,String> characterTransform)
+    static String toString(char[] array, Function1<Character,String> characterTransform)
     {
         PreCondition.assertNotNull(characterTransform, "characterTransform");
 
-        final StringBuilder builder = new StringBuilder();
+        final CharacterList builder = CharacterList.create();
 
         if (array == null)
         {
-            builder.append("null");
+            builder.addAll("null");
         }
         else
         {
-            builder.append('[');
+            builder.add('[');
 
             boolean addedFirstElement = false;
             for (final char element : array)
@@ -808,16 +598,16 @@ public abstract class Array<T> implements MutableIndexable<T>
                 }
                 else
                 {
-                    builder.append(',');
+                    builder.add(',');
                 }
 
-                builder.append(characterTransform.run(element));
+                builder.addAll(characterTransform.run(element));
             }
 
-            builder.append(']');
+            builder.add(']');
         }
 
-        return builder.toString();
+        return builder.toString(true);
     }
 
     /**
@@ -825,7 +615,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param array The short array to convert to a String.
      * @return The String representation of the elements within the provided short array.
      */
-    public static String toString(short[] array)
+    static String toString(short[] array)
     {
         return Array.toString(array, (Short value) -> java.lang.Short.toString(value));
     }
@@ -835,19 +625,19 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param array The short array to convert to a String.
      * @return The String representation of the elements within the provided short array.
      */
-    public static String toString(short[] array, Function1<Short,String> transform)
+    static String toString(short[] array, Function1<Short,String> transform)
     {
         PreCondition.assertNotNull(transform, "transform");
 
-        final StringBuilder builder = new StringBuilder();
+        final CharacterList builder = CharacterList.create();
 
         if (array == null)
         {
-            builder.append("null");
+            builder.addAll("null");
         }
         else
         {
-            builder.append('[');
+            builder.add('[');
 
             boolean addedFirstElement = false;
             for (final short element : array)
@@ -858,16 +648,16 @@ public abstract class Array<T> implements MutableIndexable<T>
                 }
                 else
                 {
-                    builder.append(',');
+                    builder.add(',');
                 }
 
-                builder.append(transform.run(element));
+                builder.addAll(transform.run(element));
             }
 
-            builder.append(']');
+            builder.add(']');
         }
 
-        return builder.toString();
+        return builder.toString(true);
     }
 
     /**
@@ -875,7 +665,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param array The int array to convert to a String.
      * @return The String representation of the elements within the provided int array.
      */
-    public static String toString(int[] array)
+    static String toString(int[] array)
     {
         return Array.toString(array, Integers::toString);
     }
@@ -885,19 +675,19 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param array The int array to convert to a String.
      * @return The String representation of the elements within the provided int array.
      */
-    public static String toString(int[] array, Function1<Integer,String> transform)
+    static String toString(int[] array, Function1<Integer,String> transform)
     {
         PreCondition.assertNotNull(transform, "transform");
 
-        final StringBuilder builder = new StringBuilder();
+        final CharacterList builder = CharacterList.create();
 
         if (array == null)
         {
-            builder.append("null");
+            builder.addAll("null");
         }
         else
         {
-            builder.append('[');
+            builder.add('[');
 
             boolean addedFirstElement = false;
             for (final int element : array)
@@ -908,16 +698,16 @@ public abstract class Array<T> implements MutableIndexable<T>
                 }
                 else
                 {
-                    builder.append(',');
+                    builder.add(',');
                 }
 
-                builder.append(transform.run(element));
+                builder.addAll(transform.run(element));
             }
 
-            builder.append(']');
+            builder.add(']');
         }
 
-        return builder.toString();
+        return builder.toString(true);
     }
 
     /**
@@ -925,7 +715,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param array The long array to convert to a String.
      * @return The String representation of the elements within the provided long array.
      */
-    public static String toString(long[] array)
+    static String toString(long[] array)
     {
         return Array.toString(array, Longs::toString);
     }
@@ -935,19 +725,19 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param array The long array to convert to a String.
      * @return The String representation of the elements within the provided long array.
      */
-    public static String toString(long[] array, Function1<Long,String> transform)
+    static String toString(long[] array, Function1<Long,String> transform)
     {
         PreCondition.assertNotNull(transform, "transform");
 
-        final StringBuilder builder = new StringBuilder();
+        final CharacterList builder = CharacterList.create();
 
         if (array == null)
         {
-            builder.append("null");
+            builder.addAll("null");
         }
         else
         {
-            builder.append('[');
+            builder.add('[');
 
             boolean addedFirstElement = false;
             for (final long element : array)
@@ -958,16 +748,16 @@ public abstract class Array<T> implements MutableIndexable<T>
                 }
                 else
                 {
-                    builder.append(',');
+                    builder.add(',');
                 }
 
-                builder.append(transform.run(element));
+                builder.addAll(transform.run(element));
             }
 
-            builder.append(']');
+            builder.add(']');
         }
 
-        return builder.toString();
+        return builder.toString(true);
     }
 
     /**
@@ -975,7 +765,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param array The float array to convert to a String.
      * @return The String representation of the elements within the provided float array.
      */
-    public static String toString(float[] array)
+    static String toString(float[] array)
     {
         return Array.toString(array, Floats::toString);
     }
@@ -985,19 +775,19 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param array The float array to convert to a String.
      * @return The String representation of the elements within the provided float array.
      */
-    public static String toString(float[] array, Function1<Float,String> transform)
+    static String toString(float[] array, Function1<Float,String> transform)
     {
         PreCondition.assertNotNull(transform, "transform");
 
-        final StringBuilder builder = new StringBuilder();
+        final CharacterList builder = CharacterList.create();
 
         if (array == null)
         {
-            builder.append("null");
+            builder.addAll("null");
         }
         else
         {
-            builder.append('[');
+            builder.add('[');
 
             boolean addedFirstElement = false;
             for (final float element : array)
@@ -1008,16 +798,16 @@ public abstract class Array<T> implements MutableIndexable<T>
                 }
                 else
                 {
-                    builder.append(',');
+                    builder.add(',');
                 }
 
-                builder.append(transform.run(element));
+                builder.addAll(transform.run(element));
             }
 
-            builder.append(']');
+            builder.add(']');
         }
 
-        return builder.toString();
+        return builder.toString(true);
     }
 
     /**
@@ -1025,7 +815,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param array The double array to convert to a String.
      * @return The String representation of the elements within the provided double array.
      */
-    public static String toString(double[] array)
+    static String toString(double[] array)
     {
         return Array.toString(array, Doubles::toString);
     }
@@ -1035,19 +825,19 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param array The double array to convert to a String.
      * @return The String representation of the elements within the provided double array.
      */
-    public static String toString(double[] array, Function1<Double,String> transform)
+    static String toString(double[] array, Function1<Double,String> transform)
     {
         PreCondition.assertNotNull(transform, "transform");
 
-        final StringBuilder builder = new StringBuilder();
+        final CharacterList builder = CharacterList.create();
 
         if (array == null)
         {
-            builder.append("null");
+            builder.addAll("null");
         }
         else
         {
-            builder.append('[');
+            builder.add('[');
 
             boolean addedFirstElement = false;
             for (final double element : array)
@@ -1058,16 +848,16 @@ public abstract class Array<T> implements MutableIndexable<T>
                 }
                 else
                 {
-                    builder.append(',');
+                    builder.add(',');
                 }
 
-                builder.append(transform.run(element));
+                builder.addAll(transform.run(element));
             }
 
-            builder.append(']');
+            builder.add(']');
         }
 
-        return builder.toString();
+        return builder.toString(true);
     }
 
     /**
@@ -1075,7 +865,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param array The T array to convert to a String.
      * @return The String representation of the elements within the provided T array.
      */
-    public static <T> String toString(T[] array)
+    static <T> String toString(T[] array)
     {
         return Array.toString(array, Objects::toString);
     }
@@ -1085,19 +875,19 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param array The T array to convert to a String.
      * @return The String representation of the elements within the provided T array.
      */
-    public static <T> String toString(T[] array, Function1<T,String> transform)
+    static <T> String toString(T[] array, Function1<T,String> transform)
     {
         PreCondition.assertNotNull(transform, "transform");
 
-        final StringBuilder builder = new StringBuilder();
+        final CharacterList builder = CharacterList.create();
 
         if (array == null)
         {
-            builder.append("null");
+            builder.addAll("null");
         }
         else
         {
-            builder.append('[');
+            builder.add('[');
 
             boolean addedFirstElement = false;
             for (final T element : array)
@@ -1108,16 +898,16 @@ public abstract class Array<T> implements MutableIndexable<T>
                 }
                 else
                 {
-                    builder.append(',');
+                    builder.add(',');
                 }
 
-                builder.append(transform.run(element));
+                builder.addAll(transform.run(element));
             }
 
-            builder.append(']');
+            builder.add(']');
         }
 
-        return builder.toString();
+        return builder.toString(true);
     }
 
     /**
@@ -1128,7 +918,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @return The first index of the provided character in the array of characters, or -1 if the
      * character is not found.
      */
-    public static int indexOf(char[] characters, char value)
+    static int indexOf(char[] characters, char value)
     {
         PreCondition.assertNotNull(characters, "characters");
 
@@ -1147,7 +937,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @return The first index of the provided character in the array of characters, or -1 if the
      * character is not found.
      */
-    public static int indexOf(char[] characters, int startIndex, int length, char value)
+    static int indexOf(char[] characters, int startIndex, int length, char value)
     {
         PreCondition.assertNotNull(characters, "characters");
         PreCondition.assertStartIndex(startIndex, characters.length);
@@ -1172,7 +962,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param value The value to look for.
      * @return Whether or not the provided array contains the provided value.
      */
-    public static boolean contains(char[] array, char value)
+    static boolean contains(char[] array, char value)
     {
         boolean result = false;
         if (array != null)
@@ -1195,7 +985,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param value The value to look for.
      * @return Whether or not the provided array contains the provided value.
      */
-    public static boolean contains(int[] array, int value)
+    static boolean contains(int[] array, int value)
     {
         boolean result = false;
         if (array != null)
@@ -1218,7 +1008,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param value The value to look for.
      * @return Whether or not the provided array contains the provided value.
      */
-    public static boolean contains(long[] array, long value)
+    static boolean contains(long[] array, long value)
     {
         boolean result = false;
         if (array != null)
@@ -1241,7 +1031,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param value The value to look for.
      * @return Whether or not the provided array contains the provided value.
      */
-    public static <T> boolean contains(T[] array, T value)
+    static <T> boolean contains(T[] array, T value)
     {
         boolean result = false;
         if (array != null)
@@ -1265,7 +1055,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param indexToRemove The index to "remove" create the array.
      * @param valuesToShift The number of values to shift.
      */
-    public static void shiftLeft(byte[] values, int indexToRemove, int valuesToShift)
+    static void shiftLeft(byte[] values, int indexToRemove, int valuesToShift)
     {
         PreCondition.assertNotNullAndNotEmpty(values, "values");
         PreCondition.assertBetween(0, indexToRemove, values.length - 2, "indexToRemove");
@@ -1284,7 +1074,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param indexToRemove The index to "remove" create the array.
      * @param valuesToShift The number of values to shift.
      */
-    public static void shiftLeft(char[] values, int indexToRemove, int valuesToShift)
+    static void shiftLeft(char[] values, int indexToRemove, int valuesToShift)
     {
         PreCondition.assertNotNullAndNotEmpty(values, "values");
         PreCondition.assertBetween(0, indexToRemove, values.length - 2, "indexToRemove");
@@ -1303,7 +1093,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param indexToOpen The index to open up in the array.
      * @param valuesToShift The number of values to shift.
      */
-    public static void shiftRight(byte[] values, int indexToOpen, int valuesToShift)
+    static void shiftRight(byte[] values, int indexToOpen, int valuesToShift)
     {
         PreCondition.assertNotNullAndNotEmpty(values, "values");
         PreCondition.assertBetween(0, indexToOpen, values.length - 2, "indexToOpen");
@@ -1322,7 +1112,7 @@ public abstract class Array<T> implements MutableIndexable<T>
      * @param indexToOpen The index to open up in the array.
      * @param valuesToShift The number of values to shift.
      */
-    public static void shiftRight(char[] values, int indexToOpen, int valuesToShift)
+    static void shiftRight(char[] values, int indexToOpen, int valuesToShift)
     {
         PreCondition.assertNotNullAndNotEmpty(values, "values");
         PreCondition.assertBetween(0, indexToOpen, values.length - 2, "indexToOpen");

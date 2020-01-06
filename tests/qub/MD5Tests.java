@@ -1,6 +1,6 @@
 package qub;
 
-public class MD5Tests
+public interface MD5Tests
 {
     public static void test(TestRunner runner)
     {
@@ -32,7 +32,7 @@ public class MD5Tests
             hashTestGroup.run("hash(BitArray)", (String message) ->
             {
                 final byte[] bytes = Strings.isNullOrEmpty(message) ? new byte[0] : CharacterEncoding.US_ASCII.encode(message).await();
-                final BitArray bits = Array.createBitArrayFromBytes(bytes);
+                final BitArray bits = BitArray.createFromBytes(bytes);
                 return Result.success(MD5.hash(bits));
             });
 
@@ -50,7 +50,7 @@ public class MD5Tests
 
             hashTestGroup.run("hash(Iterable<Byte>)", (String message) ->
             {
-                final Iterable<Byte> bytes = Strings.isNullOrEmpty(message) ? Iterable.create() : Array.createByte(CharacterEncoding.US_ASCII.encode(message).await());
+                final Iterable<Byte> bytes = Strings.isNullOrEmpty(message) ? Iterable.create() : ByteArray.create(CharacterEncoding.US_ASCII.encode(message).await());
                 return MD5.hash(bytes);
             });
         });

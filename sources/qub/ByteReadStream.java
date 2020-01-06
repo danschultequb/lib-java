@@ -108,7 +108,7 @@ public interface ByteReadStream extends Disposable, Iterator<Byte>
         PreCondition.assertNotNullAndNotEmpty(stopBytes, "stopBytes");
         PreCondition.assertNotDisposed(this);
 
-        return readBytesUntil(Array.createByte(stopBytes));
+        return readBytesUntil(ByteArray.create(stopBytes));
     }
 
     /**

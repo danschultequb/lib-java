@@ -1,8 +1,8 @@
 package qub;
 
-public class PathPatternTests
+public interface PathPatternTests
 {
-    public static void test(final TestRunner runner)
+    static void test(final TestRunner runner)
     {
         runner.testGroup(PathPattern.class, () ->
         {

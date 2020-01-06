@@ -275,7 +275,7 @@ public class DES
         PreCondition.assertEqual(blockSize, lr.getCount(), "lr.getCount()");
 
         // Swap L and R.
-        final BitArray result = new BitArray(blockSize);
+        final BitArray result = BitArray.create(blockSize);
         result.copyFrom(lr, blockSize / 2, 0, blockSize / 2);
         result.copyFrom(lr, 0, blockSize / 2, blockSize / 2);
 
@@ -294,10 +294,10 @@ public class DES
 
         final long lrSize = lrPrevious.getCount();
 
-        final BitArray lPrevious = new BitArray(lrSize / 2);
+        final BitArray lPrevious = BitArray.create(lrSize / 2);
         lPrevious.copyFrom(lrPrevious, 0, 0, lrSize / 2);
 
-        final BitArray rPrevious = new BitArray(lrSize / 2);
+        final BitArray rPrevious = BitArray.create(lrSize / 2);
         rPrevious.copyFrom(lrPrevious, lrSize / 2, 0, lrSize / 2);
 
         // Rn copied to Ln-1
@@ -310,10 +310,10 @@ public class DES
         final BitArray sInput = rAfterE.xor(iterationK);
 
         // S functions
-        final BitArray sOutput = new BitArray(lrSize / 2);
+        final BitArray sOutput = BitArray.create(lrSize / 2);
         for (int sIndex = 0; sIndex < 8; ++sIndex)
         {
-            final BitArray b = new BitArray(6);
+            final BitArray b = BitArray.create(6);
             b.copyFrom(sInput, sIndex * 6, 0, 6);
 
             final int row = (b.get(0) << 1) | b.get(5);
@@ -328,7 +328,7 @@ public class DES
         // Ln xor f(Rn, Kn)
         final BitArray rNext = lPrevious.xor(sOutputAfterP);
 
-        final BitArray result = new BitArray(lrSize);
+        final BitArray result = BitArray.create(lrSize);
         result.copyFrom(lNext, 0, 0, lrSize / 2);
         result.copyFrom(rNext, 0, lrSize / 2, lrSize / 2);
 

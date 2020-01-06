@@ -1,28 +1,28 @@
 package qub;
 
-public class Characters
+public interface Characters
 {
     /**
      * The minimum value that a character can have.
      */
-    public static final char minimumValue = java.lang.Character.MIN_VALUE;
+    char minimumValue = java.lang.Character.MIN_VALUE;
 
     /**
      * The maximum value that a character can have.
      */
-    public static final char maximumValue = java.lang.Character.MAX_VALUE;
+    char maximumValue = java.lang.Character.MAX_VALUE;
 
     /**
      * Get the Range of characters that includes all characters.
      */
-    public static final Range<Character> all = Range.between(minimumValue, maximumValue);
+    Range<Character> all = Range.between(minimumValue, maximumValue);
 
     /**
      * Get the String representation of the provided character.
      * @param character The character to change to a String.
      * @return The String representation of the provided character.
      */
-    public static String toString(char character)
+    static String toString(char character)
     {
         return java.lang.Character.toString(character);
     }
@@ -32,7 +32,7 @@ public class Characters
      * @param character The character to check.
      * @return Whether or not the provided character is a quote character.
      */
-    public static boolean isQuote(char character)
+    static boolean isQuote(char character)
     {
         return character == '\'' || character == '\"';
     }
@@ -42,7 +42,7 @@ public class Characters
      * @param character The character to check.
      * @return Whether or not the provided character is a whitespace character.
      */
-    public static boolean isWhitespace(char character)
+    static boolean isWhitespace(char character)
     {
         return character == ' ' ||
             character == '\r' ||
@@ -55,7 +55,7 @@ public class Characters
      * @param character The character to quote and escape.
      * @return The quoted and escaped character.
      */
-    public static String escapeAndQuote(char character)
+    static String escapeAndQuote(char character)
     {
         return Strings.quote(Characters.escape(character));
     }
@@ -65,9 +65,9 @@ public class Characters
      * @param character The character to escape.
      * @return The escaped character.
      */
-    public static String escape(char character)
+    static String escape(char character)
     {
-        return Characters.escape(character, Array.createCharacter('\''));
+        return Characters.escape(character, CharacterArray.create('\''));
     }
 
     /**
@@ -76,7 +76,7 @@ public class Characters
      * @param dontEscape Escape sequences that will not be escaped.
      * @return The escaped character.
      */
-    public static String escape(char character, Iterable<Character> dontEscape)
+    static String escape(char character, Iterable<Character> dontEscape)
     {
         String result;
         if (!Iterable.isNullOrEmpty(dontEscape) && dontEscape.contains(character))
@@ -131,7 +131,7 @@ public class Characters
      * @param character The character to quote.
      * @return The quoted text.
      */
-    public static String quote(char character)
+    static String quote(char character)
     {
         return Strings.quote(java.lang.Character.toString(character));
     }
@@ -141,9 +141,29 @@ public class Characters
      * @param value The character.
      * @return The lower-cased version of the provided character.
      */
-    public static char toLowerCase(char value)
+    static char toLowerCase(char value)
     {
         return Character.toLowerCase(value);
+    }
+
+    /**
+     * Get whether or not the provided value is a letter.
+     * @param value The value to check.
+     * @return Whether or not the provided value is a letter.
+     */
+    static boolean isLetter(char value)
+    {
+        return java.lang.Character.isLetter(value);
+    }
+
+    /**
+     * Get whether or not the provided value is a digit.
+     * @param value The value to check.
+     * @return Whether or not the provided value is a digit.
+     */
+    static boolean isDigit(char value)
+    {
+        return java.lang.Character.isDigit(value);
     }
 
     /**
@@ -151,7 +171,7 @@ public class Characters
      * @param value The value to check.
      * @return Whether or not the provided value is a letter or a digit.
      */
-    public static boolean isLetterOrDigit(char value)
+    static boolean isLetterOrDigit(char value)
     {
         return java.lang.Character.isLetterOrDigit(value);
     }
@@ -161,16 +181,27 @@ public class Characters
      * @param values The characters to joinStrings.
      * @return The joined characters.
      */
-    static String join(java.lang.Iterable<Character> values)
+    static String join(Iterable<Character> values)
     {
         PreCondition.assertNotNull(values, "values");
 
-        final StringBuilder builder = new StringBuilder();
-        for (char character : values)
-        {
-            builder.append(character);
-        }
-        final String result = builder.toString();
+        final String result = Characters.join(values.iterate());
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * Join the provided characters into a single String.
+     * @param values The characters to joinStrings.
+     * @return The joined characters.
+     */
+    static String join(Iterator<Character> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        final String result = CharacterList.create(values).toString(true);
 
         PostCondition.assertNotNull(result, "result");
 
@@ -183,32 +214,12 @@ public class Characters
      * @param values The characters to joinStrings.
      * @return The joined characters.
      */
-    static String join(char separator, java.lang.Iterable<Character> values)
+    static String join(char separator, Iterable<Character> values)
     {
         PreCondition.assertNotNull(values, "values");
 
-        final StringBuilder builder = new StringBuilder();
-        boolean firstValue = true;
-        for (char character : values)
-        {
-            if (firstValue)
-            {
-                firstValue = false;
-            }
-            else
-            {
-                builder.append(separator);
-            }
-            builder.append(character);
-        }
-        final String result = builder.toString();
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return Characters.join(separator, values.iterate());
     }
-
-
 
     /**
      * Join the provided characters into a single String.
@@ -216,26 +227,69 @@ public class Characters
      * @param values The characters to joinStrings.
      * @return The joined characters.
      */
-    static String join(String separator, java.lang.Iterable<Character> values)
+    static String join(char separator, Iterator<Character> values)
     {
-        PreCondition.assertNotNull(separator, "separator");
         PreCondition.assertNotNull(values, "values");
 
-        final StringBuilder builder = new StringBuilder();
-        boolean firstValue = true;
-        for (char character : values)
+        final CharacterList builder = CharacterList.create();
+
+        values.ensureHasStarted();
+        if (values.hasCurrent())
         {
-            if (firstValue)
-            {
-                firstValue = false;
-            }
-            else
-            {
-                builder.append(separator);
-            }
-            builder.append(character);
+            builder.add(values.takeCurrent());
         }
-        final String result = builder.toString();
+        while (values.hasCurrent())
+        {
+            builder.add(separator);
+            builder.add(values.takeCurrent());
+        }
+        final String result = builder.toString(true);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * Join the provided characters into a single String.
+     * @param separator The separator that should be put between the values.
+     * @param values The characters to joinStrings.
+     * @return The joined characters.
+     */
+    static String join(String separator, Iterable<Character> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        final String result = Characters.join(separator, values.iterate());
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * Join the provided characters into a single String.
+     * @param separator The separator that should be put between the values.
+     * @param values The characters to joinStrings.
+     * @return The joined characters.
+     */
+    static String join(String separator, Iterator<Character> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        final CharacterList builder = CharacterList.create();
+
+        values.ensureHasStarted();
+        if (values.hasCurrent())
+        {
+            builder.add(values.takeCurrent());
+        }
+        while (values.hasCurrent())
+        {
+            builder.addAll(separator);
+            builder.add(values.takeCurrent());
+        }
+        final String result = builder.toString(true);
 
         PostCondition.assertNotNull(result, "result");
 

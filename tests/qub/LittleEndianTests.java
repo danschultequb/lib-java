@@ -1,10 +1,10 @@
 package qub;
 
-public class LittleEndianTests
+public interface LittleEndianTests
 {
-    private static final ByteOrder byteOrder = new LittleEndian();
+    ByteOrder byteOrder = ByteOrder.LittleEndian;
 
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(LittleEndian.class, () ->
         {
@@ -266,7 +266,7 @@ public class LittleEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsShort(Array.createByte(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsShort(ByteArray.create(values)));
                     });
                 };
 
@@ -321,7 +321,7 @@ public class LittleEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsInteger(Array.createByte(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsInteger(ByteArray.create(values)));
                     });
                 };
 
@@ -387,7 +387,7 @@ public class LittleEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsLong(Array.createByte(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsLong(ByteArray.create(values)));
                     });
                 };
 
@@ -453,7 +453,7 @@ public class LittleEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsFloat(Array.createByte(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsFloat(ByteArray.create(values)));
                     });
                 };
 
@@ -519,7 +519,7 @@ public class LittleEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsDouble(Array.createByte(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsDouble(ByteArray.create(values)));
                     });
                 };
 
@@ -567,7 +567,7 @@ public class LittleEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsShortArray(Array.createByte(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsShortArray(ByteArray.create(values)));
                     });
                 };
 
@@ -597,7 +597,7 @@ public class LittleEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsIntegerArray(Array.createByte(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsIntegerArray(ByteArray.create(values)));
                     });
                 };
 
@@ -627,7 +627,7 @@ public class LittleEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsLongArray(Array.createByte(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsLongArray(ByteArray.create(values)));
                     });
                 };
 
@@ -657,7 +657,7 @@ public class LittleEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsFloatArray(Array.createByte(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsFloatArray(ByteArray.create(values)));
                     });
                 };
 
@@ -687,7 +687,7 @@ public class LittleEndianTests
                 {
                     runner.test("with " + Objects.toString(values), (Test test) ->
                     {
-                        test.assertEqual(expected, byteOrder.decodeAsDoubleArray(Array.createByte(values)));
+                        test.assertEqual(expected, byteOrder.decodeAsDoubleArray(ByteArray.create(values)));
                     });
                 };
 

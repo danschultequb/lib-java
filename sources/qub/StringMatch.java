@@ -3,7 +3,7 @@ package qub;
 public class StringMatch implements PossibleMatch
 {
     private final int startIndex;
-    private final StringBuilder matchString;
+    private final CharacterList matchString;
     private State currentState;
     private final List<TrackedValue> trackedValues;
 
@@ -12,16 +12,16 @@ public class StringMatch implements PossibleMatch
         this(startIndex, currentState, null, null);
     }
 
-    private StringMatch(int startIndex, State currentState, StringBuilder matchString, Iterable<TrackedValue> trackedValues)
+    private StringMatch(int startIndex, State currentState, CharacterList matchString, Iterable<TrackedValue> trackedValues)
     {
         PreCondition.assertGreaterThanOrEqualTo(startIndex, 0, "startIndex");
         PreCondition.assertNotNull(currentState, "currentState");
 
         this.startIndex = startIndex;
-        this.matchString = new StringBuilder();
-        if (!Strings.isNullOrEmpty(matchString))
+        this.matchString = CharacterList.create();
+        if (!Iterable.isNullOrEmpty(matchString))
         {
-            this.matchString.append(matchString);
+            this.matchString.addAll(matchString);
         }
         this.trackedValues = List.create();
         if (trackedValues != null)
@@ -40,7 +40,7 @@ public class StringMatch implements PossibleMatch
     @Override
     public int getCount()
     {
-        return matchString.length();
+        return matchString.getCount();
     }
 
     @Override
@@ -58,7 +58,7 @@ public class StringMatch implements PossibleMatch
     @Override
     public Iterable<Character> getValues()
     {
-        return Strings.iterable(matchString);
+        return matchString;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class StringMatch implements PossibleMatch
 
     private void add(char value)
     {
-        matchString.append(value);
+        matchString.add(value);
         if (currentState.shouldTrackValues())
         {
             if (!trackedValues.any() || !trackedValues.last().isOpen())
