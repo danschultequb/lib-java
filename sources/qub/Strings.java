@@ -50,6 +50,8 @@ public interface Strings
 
     static boolean startsWith(String text, String prefix, CharacterComparer characterComparer)
     {
+        PreCondition.assertNotNull(characterComparer, "characterComparer");
+
         boolean result = false;
         if (!Strings.isNullOrEmpty(text) && !Strings.isNullOrEmpty(prefix))
         {

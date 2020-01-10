@@ -1919,8 +1919,7 @@ public interface TestTests
                     });
                 };
 
-                assertStartsWithTest.run(null, null, null, new TestError("abc", Iterable.create(
-                    "Expected null to start with null.")));
+                assertStartsWithTest.run(null, null, null, new PreConditionFailure("characterComparer cannot be null."));
                 assertStartsWithTest.run(null, null, CharacterComparer.Exact, new TestError("abc", Iterable.create(
                     "Expected null to start with null.")));
                 assertStartsWithTest.run(null, null, CharacterComparer.CaseInsensitive, new TestError("abc", Iterable.create(

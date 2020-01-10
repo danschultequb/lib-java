@@ -748,6 +748,55 @@ public class PreCondition
     }
 
     /**
+     * Assert that the provided value starts with the provided prefix.
+     * @param value The value to check.
+     * @param prefix The prefix to look for at the beginning of the provided value.
+     */
+    public static void assertStartsWith(String value, String prefix, String expressionName)
+    {
+        if (!Strings.startsWith(value, prefix))
+        {
+            throw new PreConditionFailure(AssertionMessages.startsWith(value, prefix, expressionName));
+        }
+    }
+
+    /**
+     * Assert that the provided value starts with the provided prefix.
+     * @param value The value to check.
+     * @param prefix The prefix to look for at the beginning of the provided value.
+     */
+    public static void assertStartsWith(String value, String prefix, CharacterComparer characterComparer, String expressionName)
+    {
+        PreCondition.assertNotNull(characterComparer, "characterComparer");
+
+        if (!Strings.startsWith(value, prefix, characterComparer))
+        {
+            throw new PreConditionFailure(AssertionMessages.startsWith(value, prefix, expressionName));
+        }
+    }
+
+    /**
+     * Assert that the provided value ends with the provided suffix.
+     * @param value The value to check.
+     * @param suffix The suffix to look for at the end of the provided value.
+     */
+    public static void assertEndsWith(String value, String suffix, String expressionName)
+    {
+        if (!Strings.endsWith(value, suffix))
+        {
+            throw new PreConditionFailure(AssertionMessages.endsWith(value, suffix, expressionName));
+        }
+    }
+
+    public static void assertContains(String value, String substring, String expressionName)
+    {
+        if (!Strings.contains(value, substring))
+        {
+            throw new PreConditionFailure(AssertionMessages.contains(value, substring, expressionName));
+        }
+    }
+
+    /**
      * Assert that the provided value contains only the provided characters. It doesn't have to
      * contain all of the characters and it can contain multiple instances of each character, but
      * each character in the provided value must be contained in the provided set of characters.

@@ -100,6 +100,21 @@ public interface AssertionMessages
             : expressionName + " (" + value + ") must be between " + lowerBound + " and " + upperBound + ".";
     }
 
+    static String startsWith(String value, String prefix, String expressionName)
+    {
+        return "Expected " + expressionName + " (" + Strings.escapeAndQuote(value) + ") to start with " + Strings.escapeAndQuote(prefix) + ".";
+    }
+
+    static String endsWith(String value, String suffix, String expressionName)
+    {
+        return "Expected " + expressionName + " (" + Strings.escapeAndQuote(value) + ") to end with " + Strings.escapeAndQuote(suffix) + ".";
+    }
+
+    static String contains(String value, String substring, String expressionName)
+    {
+        return "Expected " + expressionName + " (" + Strings.escapeAndQuote(value) + ") to contain " + Strings.escapeAndQuote(substring) + ".";
+    }
+
     static String containsOnly(String value, char[] characters, String expressionName)
     {
         return expressionName + " (" + value + ") must contain only " + Array.toString(characters) + ".";

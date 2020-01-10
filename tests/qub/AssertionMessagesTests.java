@@ -500,6 +500,36 @@ public interface AssertionMessagesTests
                 });
             });
 
+            runner.testGroup("startsWith(String,String,String)", () ->
+            {
+                final Action4<String,String,String,String> startsWithTest = (String value, String prefix, String expressionName, String expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(value) + ", " + Strings.escapeAndQuote(prefix) + ", and " + Strings.escapeAndQuote(expressionName), (Test test) ->
+                    {
+                        test.assertEqual(expected, AssertionMessages.startsWith(value, prefix, expressionName));
+                    });
+                };
+
+                startsWithTest.run(null, null, null, "Expected null (null) to start with null.");
+                startsWithTest.run("", "", "", "Expected  (\"\") to start with \"\".");
+                startsWithTest.run("a", "b", "c", "Expected c (\"a\") to start with \"b\".");
+            });
+
+            runner.testGroup("endsWith(String,String,String)", () ->
+            {
+                final Action4<String,String,String,String> endsWithTest = (String value, String prefix, String expressionName, String expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(value) + ", " + Strings.escapeAndQuote(prefix) + ", and " + Strings.escapeAndQuote(expressionName), (Test test) ->
+                    {
+                        test.assertEqual(expected, AssertionMessages.endsWith(value, prefix, expressionName));
+                    });
+                };
+
+                endsWithTest.run(null, null, null, "Expected null (null) to end with null.");
+                endsWithTest.run("", "", "", "Expected  (\"\") to end with \"\".");
+                endsWithTest.run("a", "b", "c", "Expected c (\"a\") to end with \"b\".");
+            });
+
             runner.testGroup("containsOnly(String,char[],String)", () ->
             {
                 runner.test("with null value", (Test test) ->

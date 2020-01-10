@@ -1,8 +1,8 @@
 package qub;
 
-public class HttpClientTests
+public interface HttpClientTests
 {
-    public static void test(TestRunner runner, Function1<Test,HttpClient> creator)
+    static void test(TestRunner runner, Function1<Test,HttpClient> creator)
     {
         runner.testGroup(HttpClient.class, () ->
         {
@@ -75,7 +75,7 @@ public class HttpClientTests
                     final HttpResponse httpResponse = httpClient.send(httpRequest).await();
                     test.assertTrue(httpResponse.getHTTPVersion().equals("HTTP/1.0") || httpResponse.getHTTPVersion().equals("HTTP/1.1"));
                     test.assertEqual(302, httpResponse.getStatusCode());
-                    test.assertEqual("Found", httpResponse.getReasonPhrase());
+                    test.assertEqual("Moved Temporarily", httpResponse.getReasonPhrase());
                     test.assertNotNull(httpResponse.getHeaders());
                     final String locationHeader = httpResponse.getHeaders().getValue("location").await();
                     test.assertEndsWith(locationHeader, "www.treasurydirect.gov/TA_WS/securities/auctioned?format=json&type=Bill", "Incorrect Location header");
