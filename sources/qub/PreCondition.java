@@ -219,6 +219,48 @@ public class PreCondition
      * @param value The value that should equal expectedValue.
      * @param variableName The name of the variable that contains the value.
      */
+    public static void assertEqual(char expectedValue, char value, String variableName)
+    {
+        if (expectedValue != value)
+        {
+            throw new PreConditionFailure(AssertionMessages.equal(expectedValue, value, variableName));
+        }
+    }
+
+    /**
+     * Assert that value is equal to the provided expectedValue.
+     * @param expectedValue The expected value that value should be equal to.
+     * @param value The value that should equal expectedValue.
+     * @param variableName The name of the variable that contains the value.
+     */
+    public static void assertEqual(char expectedValue, Character value, String variableName)
+    {
+        if (!Comparer.equal(expectedValue, value))
+        {
+            throw new PreConditionFailure(AssertionMessages.equal(expectedValue, value, variableName));
+        }
+    }
+
+    /**
+     * Assert that value is equal to the provided expectedValue.
+     * @param expectedValue The expected value that value should be equal to.
+     * @param value The value that should equal expectedValue.
+     * @param variableName The name of the variable that contains the value.
+     */
+    public static void assertEqual(Character expectedValue, char value, String variableName)
+    {
+        if (!Comparer.equal(expectedValue, value))
+        {
+            throw new PreConditionFailure(AssertionMessages.equal(expectedValue, value, variableName));
+        }
+    }
+
+    /**
+     * Assert that value is equal to the provided expectedValue.
+     * @param expectedValue The expected value that value should be equal to.
+     * @param value The value that should equal expectedValue.
+     * @param variableName The name of the variable that contains the value.
+     */
     public static void assertEqual(int expectedValue, int value, String variableName)
     {
         if (expectedValue != value)
