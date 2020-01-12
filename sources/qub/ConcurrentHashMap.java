@@ -20,9 +20,10 @@ public class ConcurrentHashMap<TKey,TValue> implements MutableMap<TKey,TValue>
     }
 
     @Override
-    public void clear()
+    public ConcurrentHashMap<TKey,TValue> clear()
     {
         javaMap.clear();
+        return this;
     }
 
     @Override
@@ -53,13 +54,13 @@ public class ConcurrentHashMap<TKey,TValue> implements MutableMap<TKey,TValue>
     @Override
     public Iterable<TKey> getKeys()
     {
-        return Array.create(iterate().map(MapEntry::getKey));
+        return Array.create(this.iterate().map(MapEntry::getKey));
     }
 
     @Override
     public Iterable<TValue> getValues()
     {
-        return Array.create(iterate().map(MapEntry::getValue));
+        return Array.create(this.iterate().map(MapEntry::getValue));
     }
 
     @Override
@@ -67,7 +68,7 @@ public class ConcurrentHashMap<TKey,TValue> implements MutableMap<TKey,TValue>
     {
         return JavaIteratorToIteratorAdapter.create(javaMap.entrySet().iterator())
             .map((java.util.Map.Entry<TKey, TValue> javaMapEntry) ->
-                new MutableMapEntry<>(javaMapEntry.getKey(), javaMapEntry.getValue()));
+                MapEntry.create(javaMapEntry.getKey(), javaMapEntry.getValue()));
     }
 
     @Override

@@ -94,11 +94,13 @@ public class ByteArray implements Array<Byte>
      * @param index The index to set.
      * @param value The value to set at the provided index.
      */
-    public void set(int index, byte value)
+    public ByteArray set(int index, byte value)
     {
         PreCondition.assertIndexAccess(index, getCount(), "index");
 
         values[index] = value;
+
+        return this;
     }
 
     /**
@@ -106,21 +108,25 @@ public class ByteArray implements Array<Byte>
      * @param index The index to set.
      * @param value The value to set at the provided index.
      */
-    public void set(int index, int value)
+    public ByteArray set(int index, int value)
     {
         PreCondition.assertIndexAccess(index, getCount(), "index");
         PreCondition.assertByte(value, "value");
 
         values[index] = (byte)value;
+
+        return this;
     }
 
     @Override
-    public void set(int index, Byte value)
+    public ByteArray set(int index, Byte value)
     {
         PreCondition.assertIndexAccess(index, getCount(), "index");
         PreCondition.assertNotNull(value, "value");
 
         values[index] = value;
+
+        return this;
     }
 
     @Override

@@ -5,7 +5,8 @@ public class SingleLinkList<T> implements List<T>
     private volatile SingleLinkNode<T> head;
     private volatile SingleLinkNode<T> tail;
 
-    public SingleLinkList() {
+    public SingleLinkList()
+    {
         head = null;
         tail = null;
     }
@@ -30,7 +31,7 @@ public class SingleLinkList<T> implements List<T>
     }
 
     @Override
-    public void insert(int insertIndex, T value)
+    public SingleLinkList<T> insert(int insertIndex, T value)
     {
         PreCondition.assertBetween(0, insertIndex, getCount(), "insertIndex");
 
@@ -43,18 +44,21 @@ public class SingleLinkList<T> implements List<T>
         }
         else
         {
-            final SingleLinkNode<T> nodeBeforeInsertIndex = getNode(insertIndex - 1);
+            final SingleLinkNode<T> nodeBeforeInsertIndex = this.getNode(insertIndex - 1);
             nodeToAdd.setNext(nodeBeforeInsertIndex.getNext());
             nodeBeforeInsertIndex.setNext(nodeToAdd);
         }
+
+        return this;
     }
 
     @Override
-    public void set(int index, T value)
+    public SingleLinkList<T> set(int index, T value)
     {
         PreCondition.assertIndexAccess(index, getCount());
 
-        getNode(index).setValue(value);
+        this.getNode(index).setValue(value);
+        return this;
     }
 
     @Override
@@ -62,7 +66,7 @@ public class SingleLinkList<T> implements List<T>
     {
         PreCondition.assertIndexAccess(index, getCount());
 
-        final SingleLinkNode<T> nodeBeforeNodeToRemove = getNode(index - 1);
+        final SingleLinkNode<T> nodeBeforeNodeToRemove = this.getNode(index - 1);
         final SingleLinkNode<T> nodeToRemove = (nodeBeforeNodeToRemove == null ? head : nodeBeforeNodeToRemove.getNext());
 
         if (nodeBeforeNodeToRemove == null)
@@ -135,7 +139,7 @@ public class SingleLinkList<T> implements List<T>
     }
 
     @Override
-    public void clear()
+    public SingleLinkList<T> clear()
     {
         SingleLinkNode<T> currentNode = head;
         while (currentNode != null)
@@ -147,6 +151,8 @@ public class SingleLinkList<T> implements List<T>
         }
         head = null;
         tail = null;
+
+        return this;
     }
 
     @Override

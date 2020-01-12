@@ -131,9 +131,10 @@ public class ListMap<TKey,TValue> implements MutableMap<TKey,TValue>
     }
 
     @Override
-    public void clear()
+    public ListMap<TKey,TValue> clear()
     {
         entries.clear();
+        return this;
     }
 
     @Override

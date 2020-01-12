@@ -22,19 +22,21 @@ public class JavaList<T> implements List<T>
     }
 
     @Override
-    public void insert(int insertIndex, T value)
+    public JavaList<T> insert(int insertIndex, T value)
     {
         PreCondition.assertBetween(0, insertIndex, getCount(), "insertIndex");
 
         list.add(insertIndex, value);
+        return this;
     }
 
     @Override
-    public void set(int index, T value)
+    public JavaList<T> set(int index, T value)
     {
         PreCondition.assertIndexAccess(index, getCount());
 
         list.set(index, value);
+        return this;
     }
 
     @Override
@@ -46,9 +48,10 @@ public class JavaList<T> implements List<T>
     }
 
     @Override
-    public void clear()
+    public JavaList<T> clear()
     {
         list.clear();
+        return this;
     }
 
     @Override

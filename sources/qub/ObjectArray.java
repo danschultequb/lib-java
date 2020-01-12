@@ -48,19 +48,20 @@ public class ObjectArray<T> implements Array<T>
     }
 
     @Override
-    public void set(int index, T value)
+    public ObjectArray<T> set(int index, T value)
     {
-        PreCondition.assertIndexAccess(index, getCount(), "index");
-        PreCondition.assertNotNull(value, "value");
+        PreCondition.assertIndexAccess(index, this.getCount(), "index");
 
         values[index] = value;
+
+        return this;
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public T get(int index)
     {
-        PreCondition.assertIndexAccess(index, getCount(), "index");
+        PreCondition.assertIndexAccess(index, this.getCount(), "index");
 
         return (T)values[index];
     }

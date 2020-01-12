@@ -1,8 +1,8 @@
 package qub;
 
-public class StackTests
+public interface StackTests
 {
-    public static void test(final TestRunner runner)
+    static void test(final TestRunner runner)
     {
         runner.testGroup(Stack.class, () ->
         {
@@ -167,39 +167,6 @@ public class StackTests
                 {
                     final Stack<Integer> stack = Stack.create(1, 2, 3, 4);
                     test.assertTrue(stack.contains(1));
-                });
-            });
-
-            runner.testGroup("doesNotContain()", () ->
-            {
-                runner.test("with null when empty", (Test test) ->
-                {
-                    final Stack<Integer> stack = Stack.create();
-                    test.assertTrue(stack.doesNotContain(null));
-                });
-
-                runner.test("with non-null when empty", (Test test) ->
-                {
-                    final Stack<Integer> stack = Stack.create();
-                    test.assertTrue(stack.doesNotContain(5));
-                });
-
-                runner.test("with null when non-empty", (Test test) ->
-                {
-                    final Stack<Integer> stack = Stack.create(1, 2, 3, 4);
-                    test.assertTrue(stack.doesNotContain(null));
-                });
-
-                runner.test("with non-existing when non-empty", (Test test) ->
-                {
-                    final Stack<Integer> stack = Stack.create(1, 2, 3, 4);
-                    test.assertTrue(stack.doesNotContain(5));
-                });
-
-                runner.test("with existing when non-empty", (Test test) ->
-                {
-                    final Stack<Integer> stack = Stack.create(1, 2, 3, 4);
-                    test.assertFalse(stack.doesNotContain(1));
                 });
             });
         });

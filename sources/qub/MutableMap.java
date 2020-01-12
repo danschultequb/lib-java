@@ -10,7 +10,7 @@ public interface MutableMap<TKey,TValue> extends Map<TKey,TValue>
     /**
      * Remove all of the existing entries create this MutableMap.
      */
-    void clear();
+    MutableMap<TKey,TValue> clear();
 
     /**
      * Get the value associated with the provided key. If the key doesn't exist in this Map, then

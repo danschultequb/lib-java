@@ -7,24 +7,24 @@ public interface MutableIndexable<T> extends Indexable<T>
      * @param index The index to set.
      * @param value The value to set at the provided index.
      */
-    void set(int index, T value);
+    MutableIndexable<T> set(int index, T value);
 
     /**
      * Set the first value in this MutableIndexable.
      * @param value The value to set the first index.
      */
-    default void setFirst(T value)
+    default MutableIndexable<T> setFirst(T value)
     {
-        set(0, value);
+        return this.set(0, value);
     }
 
     /**
      * Set the last value in this MutableIndexable.
      * @param value The value to set at the last index.
      */
-    default void setLast(T value)
+    default MutableIndexable<T> setLast(T value)
     {
-        set(getCount() - 1, value);
+        return this.set(getCount() - 1, value);
     }
 
     /**
@@ -32,7 +32,7 @@ public interface MutableIndexable<T> extends Indexable<T>
      * @param index1 The first index.
      * @param index2 The second index.
      */
-    default void swap(int index1, int index2)
+    default MutableIndexable<T> swap(int index1, int index2)
     {
         PreCondition.assertBetween(0, index1, getCount() - 1, "index1");
         PreCondition.assertBetween(0, index2, getCount() - 1, "index2");
@@ -43,6 +43,7 @@ public interface MutableIndexable<T> extends Indexable<T>
             set(index1, get(index2));
             set(index2, tempValue);
         }
+        return this;
     }
 
     /**

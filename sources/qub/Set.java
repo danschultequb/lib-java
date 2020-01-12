@@ -4,16 +4,6 @@ public interface Set<T> extends Iterable<T>
 {
     /**
      * Create a new empty Set.
-     * @param <T> The type of elements contained by the created Set.
-     * @return The created List.
-     */
-    static <T> Set<T> empty()
-    {
-        return new ListSet<>();
-    }
-
-    /**
-     * Create a new empty Set.
      * @param initialValues The initial values for the resulting Set to contain.
      * @param <T> The type of elements contained by the created Set.
      * @return The created List.
@@ -21,20 +11,9 @@ public interface Set<T> extends Iterable<T>
     @SuppressWarnings("unchecked")
     static <T> Set<T> create(T... initialValues)
     {
-        return Set.create(Iterable.create(initialValues));
-    }
+        PreCondition.assertNotNull(initialValues, "initialValues");
 
-    /**
-     * Create a new Set create the provided values.
-     * @param initialValues The initial values for the resulting Set to contain.
-     * @param <T> The type of elements contained by the created Set.
-     * @return The created List.
-     */
-    static <T> Set<T> create(Iterator<T> initialValues)
-    {
-        final Set<T> result = Set.empty();
-        result.addAll(initialValues);
-        return result;
+        return Set.create(Iterable.create(initialValues));
     }
 
     /**
@@ -45,7 +24,22 @@ public interface Set<T> extends Iterable<T>
      */
     static <T> Set<T> create(Iterable<T> initialValues)
     {
-        final Set<T> result = Set.empty();
+        PreCondition.assertNotNull(initialValues, "initialValues");
+
+        return Set.create(initialValues.iterate());
+    }
+
+    /**
+     * Create a new Set create the provided values.
+     * @param initialValues The initial values for the resulting Set to contain.
+     * @param <T> The type of elements contained by the created Set.
+     * @return The created List.
+     */
+    static <T> Set<T> create(Iterator<T> initialValues)
+    {
+        PreCondition.assertNotNull(initialValues, "initialValues");
+
+        final Set<T> result = new ListSet<>();
         result.addAll(initialValues);
         return result;
     }

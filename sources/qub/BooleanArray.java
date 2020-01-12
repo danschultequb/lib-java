@@ -67,20 +67,24 @@ public class BooleanArray implements Array<Boolean>
      * @param index The index to set.
      * @param value The value to set at the provided index.
      */
-    public void set(int index, boolean value)
+    public BooleanArray set(int index, boolean value)
     {
         PreCondition.assertIndexAccess(index, getCount(), "index");
 
         values[index] = value;
+
+        return this;
     }
 
     @Override
-    public void set(int index, Boolean value)
+    public BooleanArray set(int index, Boolean value)
     {
         PreCondition.assertIndexAccess(index, getCount(), "index");
         PreCondition.assertNotNull(value, "value");
 
         values[index] = value;
+
+        return this;
     }
 
     @Override

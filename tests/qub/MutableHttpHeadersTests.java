@@ -1,6 +1,6 @@
 package qub;
 
-public class MutableHttpHeadersTests
+public interface MutableHttpHeadersTests
 {
     public static void test(TestRunner runner)
     {
@@ -23,7 +23,7 @@ public class MutableHttpHeadersTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final List<HttpHeader> headerList = List.empty();
+                    final List<HttpHeader> headerList = List.create();
                     final MutableHttpHeaders headers = new MutableHttpHeaders(headerList);
                     test.assertEqual(0, headers.getCount());
 

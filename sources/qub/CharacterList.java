@@ -73,7 +73,7 @@ public class CharacterList implements List<Character>
         return count;
     }
 
-    public void insert(int insertIndex, char value)
+    public CharacterList insert(int insertIndex, char value)
     {
         PreCondition.assertIndexAccess(insertIndex, count + 1, "insertIndex");
 
@@ -96,57 +96,60 @@ public class CharacterList implements List<Character>
         }
         characters[insertIndex] = value;
         ++count;
+
+        return this;
     }
 
     @Override
-    public void insert(int insertIndex, Character value)
+    public CharacterList insert(int insertIndex, Character value)
     {
         PreCondition.assertIndexAccess(insertIndex, count + 1, "insertIndex");
         PreCondition.assertNotNull(value, "value");
 
-        insert(insertIndex, value.charValue());
+        return this.insert(insertIndex, value.charValue());
     }
 
-    public void add(char value)
+    public CharacterList add(char value)
     {
-        insert(count, value);
-    }
-
-    /**
-     * Add all of the characters in the provided String to this CharacterList.
-     * @param values The characters to add.
-     */
-    public void addAll(String values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        this.addAll(values.toCharArray());
+        return this.insert(count, value);
     }
 
     /**
      * Add all of the characters in the provided String to this CharacterList.
      * @param values The characters to add.
      */
-    public void addAll(java.lang.StringBuilder values)
+    public CharacterList addAll(String values)
     {
         PreCondition.assertNotNull(values, "values");
 
-        this.addAll(values.toString());
+        return this.addAll(values.toCharArray());
+    }
+
+    /**
+     * Add all of the characters in the provided String to this CharacterList.
+     * @param values The characters to add.
+     */
+    public CharacterList addAll(java.lang.StringBuilder values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return this.addAll(values.toString());
     }
 
     /**
      * Add all of the provided characters to this CharacterList.
      * @param values The characters to add.
      */
-    public void addAll(char... values)
+    public CharacterList addAll(char... values)
     {
         if (values != null && values.length > 0)
         {
             for (final char value : values)
             {
-                add(value);
+                this.add(value);
             }
         }
+        return this;
     }
 
     @Override
@@ -176,7 +179,7 @@ public class CharacterList implements List<Character>
         PreCondition.assertLength(valuesToRemove, 0, getCount());
 
         final char[] characters = new char[valuesToRemove];
-        removeFirstCharacters(characters);
+        this.removeFirstCharacters(characters);
         return CharacterArray.create(characters);
     }
 
@@ -224,20 +227,22 @@ public class CharacterList implements List<Character>
         return removeFirstCharacters(valuesToRemove);
     }
 
-    public void set(int index, char value)
+    public CharacterList set(int index, char value)
     {
         PreCondition.assertIndexAccess(index, count, "index");
 
         characters[index] = value;
+
+        return this;
     }
 
     @Override
-    public void set(int index, Character value)
+    public CharacterList set(int index, Character value)
     {
         PreCondition.assertIndexAccess(index, count, "index");
         PreCondition.assertNotNull(value, "value");
 
-        set(index, value.charValue());
+        return this.set(index, value.charValue());
     }
 
     @Override

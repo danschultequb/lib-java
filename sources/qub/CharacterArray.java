@@ -51,20 +51,24 @@ public class CharacterArray implements Array<Character>
      * @param index The index to set.
      * @param value The value to set at the provided index.
      */
-    public void set(int index, char value)
+    public CharacterArray set(int index, char value)
     {
         PreCondition.assertIndexAccess(index, getCount(), "index");
 
         characters[index] = value;
+
+        return this;
     }
 
     @Override
-    public void set(int index, Character value)
+    public CharacterArray set(int index, Character value)
     {
         PreCondition.assertIndexAccess(index, getCount(), "index");
         PreCondition.assertNotNull(value, "value");
 
         characters[index] = value;
+
+        return this;
     }
 
     @Override

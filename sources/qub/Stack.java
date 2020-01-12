@@ -13,7 +13,7 @@ public class Stack<T>
      */
     private Stack()
     {
-        values = List.empty();
+        values = List.create();
     }
 
     /**
@@ -88,11 +88,12 @@ public class Stack<T>
      * the new top of this Stack.
      * @param values The values to push on top of this Stack.
      */
-    public void pushAll(Iterable<T> values)
+    public Stack<T> pushAll(Iterable<T> values)
     {
         PreCondition.assertNotNull(values, "values");
 
         this.values.addAll(values);
+        return this;
     }
 
     /**
@@ -102,8 +103,8 @@ public class Stack<T>
      */
     public Result<T> pop()
     {
-        return any()
-            ? Result.success(values.removeAt(getCount() - 1))
+        return this.any()
+            ? Result.success(values.removeAt(this.getCount() - 1))
             : Result.error(new StackEmptyException());
     }
 
@@ -113,8 +114,8 @@ public class Stack<T>
      */
     public Result<T> peek()
     {
-        return any()
-            ? Result.success(values.get(getCount() - 1))
+        return this.any()
+            ? Result.success(values.get(this.getCount() - 1))
             : Result.error(new StackEmptyException());
     }
 
@@ -126,16 +127,6 @@ public class Stack<T>
     public boolean contains(T value)
     {
         return values.contains(value);
-    }
-
-    /**
-     * Get whether or not this Stack does not contain the provided value.
-     * @param value The value to look for.
-     * @return Whether or not this Stack does not contain the provided value.
-     */
-    public boolean doesNotContain(T value)
-    {
-        return !contains(value);
     }
 
     @Override

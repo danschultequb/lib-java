@@ -29,13 +29,13 @@ public class DoubleLinkList<T> implements List<T>
     }
 
     @Override
-    public void insert(int insertIndex, T value)
+    public DoubleLinkList<T> insert(int insertIndex, T value)
     {
-        PreCondition.assertBetween(0, insertIndex, getCount(), "insertIndex");
+        PreCondition.assertBetween(0, insertIndex, this.getCount(), "insertIndex");
 
-        if (insertIndex == getCount())
+        if (insertIndex == this.getCount())
         {
-            add(value);
+            this.add(value);
         }
         else
         {
@@ -62,6 +62,8 @@ public class DoubleLinkList<T> implements List<T>
                 nodeToInsert.setNext(currentNode);
             }
         }
+
+        return this;
     }
 
     private DoubleLinkNode<T> getNode(int index)
@@ -80,11 +82,13 @@ public class DoubleLinkList<T> implements List<T>
     }
 
     @Override
-    public void set(int index, T value)
+    public DoubleLinkList<T> set(int index, T value)
     {
         PreCondition.assertIndexAccess(index, getCount());
 
-        getNode(index).setValue(value);
+        this.getNode(index).setValue(value);
+
+        return this;
     }
 
     @Override
@@ -174,7 +178,7 @@ public class DoubleLinkList<T> implements List<T>
     }
 
     @Override
-    public void clear()
+    public DoubleLinkList<T> clear()
     {
         DoubleLinkNode<T> node = head;
         while (node != null)
@@ -188,6 +192,8 @@ public class DoubleLinkList<T> implements List<T>
 
         head = null;
         tail = null;
+
+        return this;
     }
 
     @Override

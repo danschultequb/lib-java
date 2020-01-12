@@ -233,12 +233,12 @@ public class BitArray implements Array<Integer>
      * @preCondition value == 0 || value == 1
      */
     @Override
-    public void set(int index, Integer value)
+    public BitArray set(int index, Integer value)
     {
         PreCondition.assertIndexAccess(index, getBitCount());
         PreCondition.assertNotNull(value, "value");
 
-        setBit(index, value);
+        return this.setBit(index, value);
     }
 
     /**
@@ -250,12 +250,12 @@ public class BitArray implements Array<Integer>
      * @preCondition 0 <= bitIndex <= getCount() - 1
      * @preCondition value == 0 || value == 1
      */
-    public void set(int index, int value)
+    public BitArray set(int index, int value)
     {
         PreCondition.assertIndexAccess(index, getBitCount());
         PreCondition.assertOneOf(value, new int[] { 0, 1 }, "value");
 
-        setBit(index, value);
+        return this.setBit(index, value);
     }
 
     /**
@@ -267,7 +267,7 @@ public class BitArray implements Array<Integer>
      * @preCondition 0 <= bitIndex <= getCount() - 1
      * @preCondition value == 0 || value == 1
      */
-    public void setBit(long index, int value)
+    public BitArray setBit(long index, int value)
     {
         PreCondition.assertIndexAccess(index, getBitCount());
         PreCondition.assertOneOf(value, new int[] { 0, 1 }, "value");
@@ -275,6 +275,8 @@ public class BitArray implements Array<Integer>
         final int chunkIndex = bitIndexToChunkIndex(index);
         final int chunkBitOffset = bitIndexToChunkBitOffset(index);
         bitChunks[chunkIndex] = Integers.setBit(bitChunks[chunkIndex], chunkBitOffset, value);
+
+        return this;
     }
 
     /**
@@ -282,7 +284,7 @@ public class BitArray implements Array<Integer>
      * @param value The value to set all of the bits in this BitArray to.
      * @preCondition value == 0 || value == 1
      */
-    public void setAllBits(int value)
+    public BitArray setAllBits(int value)
     {
         PreCondition.assertOneOf(value, new int[] { 0, 1 }, "value");
 
@@ -291,17 +293,21 @@ public class BitArray implements Array<Integer>
         {
             bitChunks[i] = chunkValue;
         }
+
+        return this;
     }
 
     /**
      * Set the last bits of this BitArray to be the bits in the provided value.
      * @param value The long of bits to assign to the end of this BitArray.
      */
-    public void setLastBitsFromLong(long value)
+    public BitArray setLastBitsFromLong(long value)
     {
         PreCondition.assertGreaterThanOrEqualTo(getCount(), Long.SIZE, "getCount()");
 
-        copyFrom(value, getCount() - Long.SIZE, Long.SIZE);
+        this.copyFrom(value, this.getCount() - Long.SIZE, Long.SIZE);
+
+        return this;
     }
 
     /**

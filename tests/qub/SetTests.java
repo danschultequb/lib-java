@@ -1,8 +1,8 @@
 package qub;
 
-public class SetTests
+public interface SetTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(Set.class, () ->
         {
@@ -18,7 +18,7 @@ public class SetTests
         });
     }
 
-    public static void test(TestRunner runner, Function0<Set<Integer>> creator)
+    static void test(TestRunner runner, Function0<Set<Integer>> creator)
     {
         runner.testGroup(Set.class, () ->
         {
@@ -273,7 +273,7 @@ public class SetTests
 
                 runner.test("with empty Set", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)Set.empty()));
+                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)Set.create()));
                 });
 
                 runner.test("with subset Set", (Test test) ->
@@ -336,7 +336,7 @@ public class SetTests
 
                 runner.test("with empty Set", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)Set.<Integer>empty()));
+                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)Set.<Integer>create()));
                 });
 
                 runner.test("with subset Set", (Test test) ->
@@ -369,7 +369,7 @@ public class SetTests
 
                 runner.test("with empty Set", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals(Set.empty()));
+                    test.assertFalse(creator.run().addAll(1, 2, 3).equals(Set.create()));
                 });
 
                 runner.test("with subset Set", (Test test) ->
@@ -397,7 +397,7 @@ public class SetTests
             {
                 runner.test("with empty", (Test test) ->
                 {
-                    test.assertEqual("{}", Set.empty().toString());
+                    test.assertEqual("{}", Set.create().toString());
                 });
 
                 runner.test("with one value", (Test test) ->

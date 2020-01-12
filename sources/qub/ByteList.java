@@ -60,15 +60,15 @@ public class ByteList implements List<Byte>
         return count;
     }
 
-    public void insert(int insertIndex, int value)
+    public ByteList insert(int insertIndex, int value)
     {
         PreCondition.assertIndexAccess(insertIndex, count + 1, "insertIndex");
         PreCondition.assertByte(value, "value");
 
-        insert(insertIndex, (byte)value);
+        return this.insert(insertIndex, (byte)value);
     }
 
-    public void insert(int insertIndex, byte value)
+    public ByteList insert(int insertIndex, byte value)
     {
         PreCondition.assertIndexAccess(insertIndex, count + 1, "insertIndex");
 
@@ -91,49 +91,53 @@ public class ByteList implements List<Byte>
         }
         bytes[insertIndex] = value;
         ++count;
+
+        return this;
     }
 
     @Override
-    public void insert(int insertIndex, Byte value)
+    public ByteList insert(int insertIndex, Byte value)
     {
         PreCondition.assertIndexAccess(insertIndex, count + 1, "insertIndex");
         PreCondition.assertNotNull(value, "value");
 
-        insert(insertIndex, value.byteValue());
+        return this.insert(insertIndex, value.byteValue());
     }
 
-    public void add(byte value)
+    public ByteList add(byte value)
     {
-        insert(count, value);
+        return this.insert(count, value);
     }
 
-    public void addAll(byte... values)
+    public ByteList addAll(byte... values)
     {
         if (values != null && values.length > 0)
         {
             for (final byte value : values)
             {
-                add(value);
+                this.add(value);
             }
         }
+        return this;
     }
 
-    public void add(int value)
+    public ByteList add(int value)
     {
         PreCondition.assertByte(value, "value");
 
-        add((byte)value);
+        return this.add((byte)value);
     }
 
-    public void addAll(int... values)
+    public ByteList addAll(int... values)
     {
         if (values != null && values.length > 0)
         {
             for (final int value : values)
             {
-                add(value);
+                this.add(value);
             }
         }
+        return this;
     }
 
     @Override
@@ -159,10 +163,10 @@ public class ByteList implements List<Byte>
     public ByteArray removeFirstBytes(int valuesToRemove)
     {
         PreCondition.assertNotNullAndNotEmpty(this, "list");
-        PreCondition.assertLength(valuesToRemove, 0, getCount());
+        PreCondition.assertLength(valuesToRemove, 0, this.getCount());
 
         final byte[] bytes = new byte[valuesToRemove];
-        removeFirstBytes(bytes);
+        this.removeFirstBytes(bytes);
         return ByteArray.create(bytes);
     }
 
@@ -175,9 +179,9 @@ public class ByteList implements List<Byte>
     {
         PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
         PreCondition.assertNotNullAndNotEmpty(this, "list");
-        PreCondition.assertLength(outputBytes.length, 0, getCount());
+        PreCondition.assertLength(outputBytes.length, 0, this.getCount());
 
-        removeFirstBytes(outputBytes, 0, outputBytes.length);
+        this.removeFirstBytes(outputBytes, 0, outputBytes.length);
     }
 
     /**
@@ -192,10 +196,10 @@ public class ByteList implements List<Byte>
         PreCondition.assertStartIndex(startIndex, outputBytes.length);
         PreCondition.assertLength(length, startIndex, outputBytes.length);
         PreCondition.assertNotNullAndNotEmpty(this, "list");
-        PreCondition.assertLength(length, 0, getCount());
+        PreCondition.assertLength(length, 0, this.getCount());
 
         Array.copy(bytes, 0, outputBytes, startIndex, length);
-        final int bytesInList = getCount();
+        final int bytesInList = this.getCount();
         if (length < bytesInList)
         {
             Array.copy(bytes, length, this.bytes, 0, bytesInList - length);
@@ -209,28 +213,30 @@ public class ByteList implements List<Byte>
         return removeFirstBytes(valuesToRemove);
     }
 
-    public void set(int index, byte value)
+    public ByteList set(int index, byte value)
     {
         PreCondition.assertIndexAccess(index, count, "index");
 
         bytes[index] = value;
+
+        return this;
     }
 
-    public void set(int index, int value)
+    public ByteList set(int index, int value)
     {
         PreCondition.assertIndexAccess(index, count, "index");
         PreCondition.assertByte(value, "value");
 
-        set(index, (byte)value);
+        return this.set(index, (byte)value);
     }
 
     @Override
-    public void set(int index, Byte value)
+    public ByteList set(int index, Byte value)
     {
         PreCondition.assertIndexAccess(index, count, "index");
         PreCondition.assertNotNull(value, "value");
 
-        set(index, value.byteValue());
+        return this.set(index, value.byteValue());
     }
 
     @Override

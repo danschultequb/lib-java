@@ -3,16 +3,6 @@ package qub;
 public interface List<T> extends MutableIndexable<T>
 {
     /**
-     * Create a new empty List.
-     * @param <T> The type of values to store in the list.
-     * @return A new empty List.
-     */
-    static <T> List<T> empty()
-    {
-        return new ArrayList<>();
-    }
-
-    /**
      * Create a new List with the provided initial values.
      * @param initialValues The initial values to include in the new List.
      * @param <T> The Type of elements contained by the created List.
@@ -21,20 +11,9 @@ public interface List<T> extends MutableIndexable<T>
     @SafeVarargs
     static <T> List<T> create(T... initialValues)
     {
-        return create(Iterable.create(initialValues));
-    }
+        PreCondition.assertNotNull(initialValues, "initialValues");
 
-    /**
-     * Create a new List with the provided initial values.
-     * @param initialValues The initial values to include in the new List.
-     * @param <T> The Type of elements contained by the created List.
-     * @return The created List.
-     */
-    static <T> List<T> create(Iterator<T> initialValues)
-    {
-        final List<T> result = List.create();
-        result.addAll(initialValues);
-        return result;
+        return List.create(Iterable.create(initialValues));
     }
 
     /**
@@ -45,10 +24,35 @@ public interface List<T> extends MutableIndexable<T>
      */
     static <T> List<T> create(Iterable<T> initialValues)
     {
-        final List<T> result = List.empty();
+        PreCondition.assertNotNull(initialValues, "initialValues");
+
+        return List.create(initialValues.iterate());
+    }
+
+    /**
+     * Create a new List with the provided initial values.
+     * @param initialValues The initial values to include in the new List.
+     * @param <T> The Type of elements contained by the created List.
+     * @return The created List.
+     */
+    static <T> List<T> create(Iterator<T> initialValues)
+    {
+        PreCondition.assertNotNull(initialValues, "initialValues");
+
+        final ArrayList<T> result = new ArrayList<>();
         result.addAll(initialValues);
+
+        PostCondition.assertNotNull(result, "result");
+
         return result;
     }
+
+    /**
+     * Set the value at the provided index.
+     * @param index The index to set.
+     * @param value The value to set at the provided index.
+     */
+    List<T> set(int index, T value);
 
     /**
      * Add the provided value at the end of this List.
@@ -56,7 +60,7 @@ public interface List<T> extends MutableIndexable<T>
      */
     default void add(T value)
     {
-        insert(getCount(), value);
+        this.insert(getCount(), value);
     }
 
     /**
@@ -64,22 +68,23 @@ public interface List<T> extends MutableIndexable<T>
      * @param insertIndex The insertIndex to insert the provided value at.
      * @param value The value to insert into the List.
      */
-    void insert(int insertIndex, T value);
+    List<T> insert(int insertIndex, T value);
 
     /**
      * Add the provided values at the end of this List.
      * @param values The values to add.
      */
     @SuppressWarnings("unchecked")
-    default void addAll(T... values)
+    default List<T> addAll(T... values)
     {
         if (values != null && values.length > 0)
         {
             for (final T value : values)
             {
-                add(value);
+                this.add(value);
             }
         }
+        return this;
     }
 
     /**
@@ -92,7 +97,7 @@ public interface List<T> extends MutableIndexable<T>
         {
             for (final T value : values)
             {
-                add(value);
+                this.add(value);
             }
         }
     }
@@ -101,15 +106,16 @@ public interface List<T> extends MutableIndexable<T>
      * Add the provided values at the end of this List.
      * @param values The values to add.
      */
-    default void addAll(Iterable<T> values)
+    default List<T> addAll(Iterable<T> values)
     {
         if (values != null && values.any())
         {
             for (final T value : values)
             {
-                add(value);
+                this.add(value);
             }
         }
+        return this;
     }
 
     /**
@@ -119,11 +125,11 @@ public interface List<T> extends MutableIndexable<T>
      */
     default boolean remove(T value)
     {
-        final int indexToRemove = indexOf(value);
+        final int indexToRemove = this.indexOf(value);
         final boolean result = indexToRemove != -1;
         if (result)
         {
-            removeAt(indexToRemove);
+            this.removeAt(indexToRemove);
         }
         return result;
     }
@@ -143,7 +149,7 @@ public interface List<T> extends MutableIndexable<T>
      */
     default T removeFirst()
     {
-        return removeAt(0);
+        return this.removeAt(0);
     }
 
     /**
@@ -161,7 +167,7 @@ public interface List<T> extends MutableIndexable<T>
         final List<T> result = List.create();
         for (int i = 0; i < valuesToRemove; ++i)
         {
-            result.add(removeFirst());
+            result.add(this.removeFirst());
         }
         return result;
     }
@@ -174,8 +180,8 @@ public interface List<T> extends MutableIndexable<T>
      */
     default T removeFirst(Function1<T,Boolean> condition)
     {
-        final int removeIndex = indexOf(condition);
-        return removeIndex < 0 ? null : removeAt(removeIndex);
+        final int removeIndex = this.indexOf(condition);
+        return removeIndex < 0 ? null : this.removeAt(removeIndex);
     }
 
     /**
@@ -185,19 +191,20 @@ public interface List<T> extends MutableIndexable<T>
      */
     default T removeLast()
     {
-        final int count = getCount();
-        return count == 0 ? null : removeAt(count - 1);
+        final int count = this.getCount();
+        return count == 0 ? null : this.removeAt(count - 1);
     }
 
     /**
      * Remove all of the elements create this List.
      */
-    default void clear()
+    default List<T> clear()
     {
         while (any())
         {
-            removeFirst();
+            this.removeFirst();
         }
+        return this;
     }
 
     /**
@@ -207,7 +214,7 @@ public interface List<T> extends MutableIndexable<T>
      */
     default boolean endsWith(T value)
     {
-        final int count = getCount();
+        final int count = this.getCount();
         return count > 0 && Comparer.equal(get(count - 1), value);
     }
 
@@ -220,7 +227,7 @@ public interface List<T> extends MutableIndexable<T>
     {
         boolean result = false;
 
-        final int count = getCount();
+        final int count = this.getCount();
         final int valuesCount = values == null ? 0 : values.getCount();
         if (count >= valuesCount)
         {

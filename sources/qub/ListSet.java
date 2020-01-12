@@ -6,7 +6,7 @@ public class ListSet<T> implements Set<T>
 
     public ListSet()
     {
-        this.values = List.empty();
+        this.values = List.create();
     }
 
     @Override

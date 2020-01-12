@@ -37,20 +37,24 @@ public class IntegerArray implements Array<Integer>
      * @param index The index to set.
      * @param value The value to set at the provided index.
      */
-    public void set(int index, char value)
+    public IntegerArray set(int index, int value)
     {
         PreCondition.assertIndexAccess(index, getCount(), "index");
 
         values[index] = value;
+
+        return this;
     }
 
     @Override
-    public void set(int index, Integer value)
+    public IntegerArray set(int index, Integer value)
     {
         PreCondition.assertIndexAccess(index, getCount(), "index");
         PreCondition.assertNotNull(value, "value");
 
         values[index] = value;
+
+        return this;
     }
 
     @Override

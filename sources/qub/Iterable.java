@@ -532,7 +532,7 @@ public interface Iterable<T> extends java.lang.Iterable<T>
         PreCondition.assertNotNull(startValues, "startValues");
         PreCondition.assertNotNull(getNextValues, "getNextValues");
 
-        final List<T> result = List.empty();
+        final List<T> result = List.create();
         final Stack<T> toVisit = Stack.create();
         toVisit.pushAll(startValues);
         while (toVisit.any())
