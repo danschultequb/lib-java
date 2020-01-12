@@ -48,6 +48,18 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
+     * Create a Map from the values in this Iterator.
+     * @param getKey The function that will select the key from a value.
+     * @param <K> The type of value that will serve as the keys of the map.
+     * @param <V> The type of value that will serve as the values of the map.
+     * @return A Map from the values in this Iterator.
+     */
+    default <K,V> MutableMap<K,V> toMap(Function1<T,K> getKey, Function1<T,V> getValue)
+    {
+        return Map.create(this, getKey, getValue);
+    }
+
+    /**
      * Get an Iterator that will iterate over the contents of this Iterable.
      * @return An Iterator that will iterate over the contents of this Iterable.
      */

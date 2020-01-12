@@ -1,8 +1,8 @@
 package qub;
 
-public class IterableTests
+public interface IterableTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(Iterable.class, () ->
         {
@@ -166,10 +166,132 @@ public class IterableTests
         });
     }
 
-    public static void test(final TestRunner runner, final Function1<Integer,Iterable<Integer>> createIterable)
+    static void test(TestRunner runner, Function1<Integer,Iterable<Integer>> createIterable)
     {
         runner.testGroup(Iterable.class, () ->
         {
+            runner.testGroup("toArray()", () ->
+            {
+                runner.test("with empty", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(0);
+                    if (iterable != null)
+                    {
+                        test.assertEqual(Array.create(), iterable.toArray());
+                    }
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(1);
+                    test.assertEqual(Array.create(0), iterable.toArray());
+                });
+
+                runner.test("with two values", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(2);
+                    test.assertEqual(Array.create(0, 1), iterable.toArray());
+                });
+            });
+
+            runner.testGroup("toList()", () ->
+            {
+                runner.test("with empty", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(0);
+                    if (iterable != null)
+                    {
+                        test.assertEqual(List.create(), iterable.toList());
+                    }
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(1);
+                    test.assertEqual(List.create(0), iterable.toList());
+                });
+
+                runner.test("with two values", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(2);
+                    test.assertEqual(List.create(0, 1), iterable.toList());
+                });
+            });
+
+            runner.testGroup("toSet()", () ->
+            {
+                runner.test("with empty", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(0);
+                    if (iterable != null)
+                    {
+                        test.assertEqual(Set.create(), iterable.toSet());
+                    }
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(1);
+                    test.assertEqual(Set.create(0), iterable.toSet());
+                });
+
+                runner.test("with two values", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(2);
+                    test.assertEqual(Set.create(0, 1), iterable.toSet());
+                });
+
+                runner.test("with repeated values", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(10)
+                        .map((Integer value) -> value % 3);
+                    test.assertEqual(Set.create(0, 1, 2), iterable.toSet());
+                });
+            });
+
+            runner.testGroup("toMap(Function1<T,K>,Function1<T,V>)", () ->
+            {
+                runner.test("with empty", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(0);
+                    if (iterable != null)
+                    {
+                        test.assertEqual(
+                            Map.<Integer,String>create(),
+                            iterable.toMap(i -> i, Integers::toString));
+                    }
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(1);
+                    test.assertEqual(
+                        ListMap.create(MapEntry.create(0, "0")),
+                        iterable.toMap(i -> i, Integers::toString));
+                });
+
+                runner.test("with two values", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(2);
+                    test.assertEqual(
+                        ListMap.create(
+                            MapEntry.create("0", 0),
+                            MapEntry.create("1", 1)),
+                        iterable.toMap(Integers::toString, i -> i));
+                });
+
+                runner.test("with repeated values", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = createIterable.run(10);
+                    test.assertEqual(
+                        ListMap.create(
+                            MapEntry.create(0, 9),
+                            MapEntry.create(1, 7),
+                            MapEntry.create(2, 8)),
+                        iterable.toMap(i -> i % 3, i -> i));
+                });
+            });
+
             runner.testGroup("iterate()", () ->
             {
                 runner.test("with empty Iterable", (Test test) ->

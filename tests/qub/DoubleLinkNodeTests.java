@@ -1,8 +1,8 @@
 package qub;
 
-public class DoubleLinkNodeTests extends IterableTests
+public interface DoubleLinkNodeTests
 {
-    public static void test(final TestRunner runner)
+    static void test(final TestRunner runner)
     {
         runner.testGroup(DoubleLinkNode.class, () ->
         {

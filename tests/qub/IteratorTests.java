@@ -1271,6 +1271,128 @@ public interface IteratorTests
                     test.assertEqual(9, i);
                 });
             });
+
+            runner.testGroup("toArray()", () ->
+            {
+                runner.test("with empty", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(0, false);
+                    if (iterator != null)
+                    {
+                        test.assertEqual(Array.create(), iterator.toArray());
+                    }
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(1, false);
+                    test.assertEqual(Array.create(0), iterator.toArray());
+                });
+
+                runner.test("with two values", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(2, false);
+                    test.assertEqual(Array.create(0, 1), iterator.toArray());
+                });
+            });
+
+            runner.testGroup("toList()", () ->
+            {
+                runner.test("with empty", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(0, false);
+                    if (iterator != null)
+                    {
+                        test.assertEqual(List.create(), iterator.toList());
+                    }
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(1, false);
+                    test.assertEqual(List.create(0), iterator.toList());
+                });
+
+                runner.test("with two values", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(2, false);
+                    test.assertEqual(List.create(0, 1), iterator.toList());
+                });
+            });
+
+            runner.testGroup("toSet()", () ->
+            {
+                runner.test("with empty", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(0, false);
+                    if (iterator != null)
+                    {
+                        test.assertEqual(Set.create(), iterator.toSet());
+                    }
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(1, false);
+                    test.assertEqual(Set.create(0), iterator.toSet());
+                });
+
+                runner.test("with two values", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(2, false);
+                    test.assertEqual(Set.create(0, 1), iterator.toSet());
+                });
+
+                runner.test("with repeated values", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(10, false)
+                        .map((Integer value) -> value % 3);
+                    test.assertEqual(Set.create(0, 1, 2), iterator.toSet());
+                });
+            });
+
+            runner.testGroup("toMap(Function1<T,K>,Function1<T,V>)", () ->
+            {
+                runner.test("with empty", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(0, false);
+                    if (iterator != null)
+                    {
+                        test.assertEqual(
+                            Map.<Integer,String>create(),
+                            iterator.toMap(i -> i, Integers::toString));
+                    }
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(1, false);
+                    test.assertEqual(
+                        ListMap.create(MapEntry.create(0, "0")),
+                        iterator.toMap(i -> i, Integers::toString));
+                });
+
+                runner.test("with two values", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(2, false);
+                    test.assertEqual(
+                        ListMap.create(
+                            MapEntry.create("0", 0),
+                            MapEntry.create("1", 1)),
+                        iterator.toMap(Integers::toString, i -> i));
+                });
+
+                runner.test("with repeated values", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(10, false);
+                    test.assertEqual(
+                        ListMap.create(
+                            MapEntry.create(0, 9),
+                            MapEntry.create(1, 7),
+                            MapEntry.create(2, 8)),
+                        iterator.toMap(i -> i % 3, i -> i));
+                });
+            });
         });
     }
 

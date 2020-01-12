@@ -8,6 +8,19 @@ package qub;
 public interface MapEntry<TKey,TValue>
 {
     /**
+     * Create a new MutableMapEntry with the provided key and value.
+     * @param key The key for the new MutableMapEntry.
+     * @param value The value for the new MutableMapEntry.
+     * @param <TKey> The type of key stored in the new MutableMapEntry.
+     * @param <TValue> The type of value stored in the new MutableMapEntry.
+     * @return The new MutableMapEntry.
+     */
+    static <TKey,TValue> MutableMapEntry<TKey,TValue> create(TKey key, TValue value)
+    {
+        return new MutableMapEntry<>(key, value);
+    }
+
+    /**
      * Get the key of this entry.
      * @return The key of this entry.
      */
@@ -44,18 +57,5 @@ public interface MapEntry<TKey,TValue>
         return rhs != null &&
             Comparer.equal(getKey(), rhs.getKey()) &&
             Comparer.equal(getValue(), rhs.getValue());
-    }
-
-    /**
-     * Create a new MutableMapEntry with the provided key and value.
-     * @param key The key for the new MutableMapEntry.
-     * @param value The value for the new MutableMapEntry.
-     * @param <TKey> The type of key stored in the new MutableMapEntry.
-     * @param <TValue> The type of value stored in the new MutableMapEntry.
-     * @return The new MutableMapEntry.
-     */
-    static <TKey,TValue> MutableMapEntry<TKey,TValue> create(TKey key, TValue value)
-    {
-        return new MutableMapEntry<>(key, value);
     }
 }

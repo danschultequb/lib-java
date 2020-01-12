@@ -13,9 +13,71 @@ public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
      * @param <TValue> The type of values stored in the created MutableMap.
      * @return The created MutableMap.
      */
+    // @SafeVarargs
     static <TKey,TValue> MutableMap<TKey,TValue> create()
     {
-        return ListMap.create();
+        return Map.create(Iterable.create());
+    }
+
+    /**
+     * Create a new MutableMap.
+     * @param <TKey> The type of keys stored in the created MutableMap.
+     * @param <TValue> The type of values stored in the created MutableMap.
+     * @return The created MutableMap.
+     */
+    static <TKey,TValue> MutableMap<TKey,TValue> create(Iterable<MapEntry<TKey,TValue>> entries)
+    {
+        return Map.create(entries.iterate());
+    }
+
+    /**
+     * Create a new MutableMap.
+     * @param <TKey> The type of keys stored in the created MutableMap.
+     * @param <TValue> The type of values stored in the created MutableMap.
+     * @return The created MutableMap.
+     */
+    static <TKey,TValue> MutableMap<TKey,TValue> create(Iterator<MapEntry<TKey,TValue>> entries)
+    {
+        return ListMap.create(entries);
+    }
+
+    /**
+     * Create a Map from the values in the provided Iterable.
+     * @param getKey The function that will select the key.
+     * @param getValue The function that will select the value.
+     * @param <TKey> The type of value that will serve as the keys of the map.
+     * @param <TValue> The type of value that will serve as the values of the map.
+     * @return A Map from the values in the provided Iterable.
+     */
+    static <T,TKey,TValue> MutableMap<TKey,TValue> create(Iterable<T> values, Function1<T,TKey> getKey, Function1<T,TValue> getValue)
+    {
+        return Map.create(values.iterate(), getKey, getValue);
+    }
+
+    /**
+     * Create a Map from the values in the provided Iterator.
+     * @param getKey The function that will select the key.
+     * @param getValue The function that will select the value.
+     * @param <TKey> The type of value that will serve as the keys of the map.
+     * @param <TValue> The type of value that will serve as the values of the map.
+     * @return A Map from the values in the provided Iterator.
+     */
+    static <T,TKey,TValue> MutableMap<TKey,TValue> create(Iterator<T> values, Function1<T,TKey> getKey, Function1<T,TValue> getValue)
+    {
+        PreCondition.assertNotNull(getKey, "getKey");
+        PreCondition.assertNotNull(getValue, "getValue");
+
+        final MutableMap<TKey,TValue> result = Map.create();
+        for (final T iteratorValue : values)
+        {
+            final TKey key = getKey.run(iteratorValue);
+            final TValue value = getValue.run(iteratorValue);
+            result.set(key, value);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     /**

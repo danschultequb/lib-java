@@ -39,6 +39,18 @@ public interface MutableMap<TKey,TValue> extends Map<TKey,TValue>
     }
 
     /**
+     * Set the association between the provided entry's key and value.
+     * @param entry The entry to set.
+     * @return This Map for chaining methods.
+     */
+    default MutableMap<TKey,TValue> set(MapEntry<TKey,TValue> entry)
+    {
+        PreCondition.assertNotNull(entry, "entry");
+
+        return this.set(entry.getKey(), entry.getValue());
+    }
+
+    /**
      * Set the association between the provided key and value.
      * @param key The key.
      * @param value The value.

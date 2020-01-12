@@ -305,8 +305,8 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create an Array create the values in this Iterator.
-     * @return An Array create the values in this Iterator.
+     * Create an Array from the values in this Iterator.
+     * @return An Array from the values in this Iterator.
      */
     default Array<T> toArray()
     {
@@ -314,8 +314,8 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create a List create the values in this Iterator.
-     * @return A List create the values in this Iterator.
+     * Create a List from the values in this Iterator.
+     * @return A List from the values in this Iterator.
      */
     default List<T> toList()
     {
@@ -323,12 +323,24 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create a Set create the values in this Iterator.
-     * @return A Set create the values in this Iterator.
+     * Create a Set from the values in this Iterator.
+     * @return A Set from the values in this Iterator.
      */
     default Set<T> toSet()
     {
         return Set.create(this);
+    }
+
+    /**
+     * Create a Map from the values in this Iterator.
+     * @param getKey The function that will select the key from a value.
+     * @param <K> The type of value that will serve as the keys of the map.
+     * @param <V> The type of value that will serve as the values of the map.
+     * @return A Map from the values in this Iterator.
+     */
+    default <K,V> MutableMap<K,V> toMap(Function1<T,K> getKey, Function1<T,V> getValue)
+    {
+        return Map.create(this, getKey, getValue);
     }
 
     /**
