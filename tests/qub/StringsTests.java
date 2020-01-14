@@ -69,6 +69,64 @@ public interface StringsTests
                 escapeTest.run("\b\f\n\r\t'\"", "\\b\\f\\n\\r\\t'\\\"");
             });
 
+            runner.testGroup("isQuoted(String)", () ->
+            {
+                final Action2<String,Boolean> isQuotedTest = (String text, Boolean expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.isQuoted(text));
+                    });
+                };
+
+                isQuotedTest.run(null, false);
+                isQuotedTest.run("", false);
+                isQuotedTest.run("\"\"", true);
+                isQuotedTest.run("''", true);
+                isQuotedTest.run("``", false);
+                isQuotedTest.run("hello", false);
+                isQuotedTest.run("Todd's", false);
+                isQuotedTest.run("\"hey", false);
+                isQuotedTest.run("hey\"", false);
+                isQuotedTest.run("\"hey'", false);
+                isQuotedTest.run("\"hey\"", true);
+                isQuotedTest.run("'hey\"", false);
+                isQuotedTest.run("'hey'", true);
+                isQuotedTest.run("\"hey\\\"", false);
+                isQuotedTest.run("\"hey\\\\\"", true);
+                isQuotedTest.run("\"hey\\\\\\\"", false);
+                isQuotedTest.run("\\\"hey\"", false);
+            });
+
+            runner.testGroup("unquote(String)", () ->
+            {
+                final Action2<String,String> unquoteTest = (String text, String expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.unquote(text));
+                    });
+                };
+
+                unquoteTest.run(null, null);
+                unquoteTest.run("", "");
+                unquoteTest.run("\"\"", "");
+                unquoteTest.run("''", "");
+                unquoteTest.run("``", "``");
+                unquoteTest.run("hello", "hello");
+                unquoteTest.run("Todd's", "Todd's");
+                unquoteTest.run("\"hey", "\"hey");
+                unquoteTest.run("hey\"", "hey\"");
+                unquoteTest.run("\"hey'", "\"hey'");
+                unquoteTest.run("\"hey\"", "hey");
+                unquoteTest.run("'hey\"", "'hey\"");
+                unquoteTest.run("'hey'", "hey");
+                unquoteTest.run("\"hey\\\"", "\"hey\\\"");
+                unquoteTest.run("\"hey\\\\\"", "hey\\\\");
+                unquoteTest.run("\"hey\\\\\\\"", "\"hey\\\\\\\"");
+                unquoteTest.run("\\\"hey\"", "\\\"hey\"");
+            });
+
             runner.testGroup("quote(String)", () ->
             {
                 final Action2<String,String> quoteTest = (String text, String expected) ->

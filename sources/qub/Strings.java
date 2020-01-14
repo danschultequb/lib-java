@@ -137,6 +137,53 @@ public interface Strings
     }
 
     /**
+     * Get whether or not the provided text is surrounded by quotes.
+     * @param text The text to check.
+     * @return Whether or not the provided text is surrounded by quotes.
+     */
+    static boolean isQuoted(String text)
+    {
+        boolean result = false;
+
+        if (text != null)
+        {
+            final int textLength = text.length();
+            if (textLength >= 2)
+            {
+                final char firstCharacter = text.charAt(0);
+                if (Characters.isQuote(firstCharacter) && firstCharacter == text.charAt(textLength - 1))
+                {
+                    if (textLength == 2)
+                    {
+                        result = true;
+                    }
+                    else
+                    {
+                        int escapeSlashCount = 0;
+                        while (text.charAt(textLength - 2 - escapeSlashCount) == '\\')
+                        {
+                            ++escapeSlashCount;
+                        }
+                        result = Math.isEven(escapeSlashCount);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Unquote the provided text if it is quoted. If it isn't quoted, then return it as it is.
+     * @param text The text to unquote.
+     * @return The unquoted text.
+     */
+    static String unquote(String text)
+    {
+        return Strings.isQuoted(text) ? text.substring(1, text.length() - 1) : text;
+    }
+
+    /**
      * Surround the provided text with double quotes.
      * @param text The text to quote.
      * @return The quoted text.
