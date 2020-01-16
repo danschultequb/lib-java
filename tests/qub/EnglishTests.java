@@ -6,7 +6,7 @@ public interface EnglishTests
     {
         runner.testGroup(English.class, () ->
         {
-            runner.testGroup("list(Iterable<String>,String)", () ->
+            runner.testGroup("list(Iterable<?>,String)", () ->
             {
                 final Action3<Iterable<String>,String,Throwable> listErrorTest = (Iterable<String> values, String listType, Throwable expected) ->
                 {
@@ -36,7 +36,7 @@ public interface EnglishTests
                 listTest.run(Iterable.create("a", "b", "c", "d"), "OR", "a, b, c, OR d");
             });
 
-            runner.testGroup("andList(Iterable<String>)", () ->
+            runner.testGroup("andList(Iterable<?>)", () ->
             {
                 final Action2<Iterable<String>,Throwable> andListErrorTest = (Iterable<String> values, Throwable expected) ->
                 {
@@ -63,7 +63,30 @@ public interface EnglishTests
                 andListTest.run(Iterable.create("a", "b", "c", "d"), "a, b, c, and d");
             });
 
-            runner.testGroup("orList(Iterable<String>)", () ->
+            runner.testGroup("andList(Object...)", () ->
+            {
+                runner.test("with no arguments", (Test test) ->
+                {
+                    test.assertEqual("", English.andList());
+                });
+
+                runner.test("with \"a\"", (Test test) ->
+                {
+                    test.assertEqual("a", English.andList("a"));
+                });
+
+                runner.test("with \"a\" and \"b\"", (Test test) ->
+                {
+                    test.assertEqual("a and b", English.andList("a", "b"));
+                });
+
+                runner.test("with \"a\", \"b\", and 5", (Test test) ->
+                {
+                    test.assertEqual("a, b, and 5", English.andList("a", "b", 5));
+                });
+            });
+
+            runner.testGroup("orList(Iterable<?>)", () ->
             {
                 final Action2<Iterable<String>,Throwable> orListErrorTest = (Iterable<String> values, Throwable expected) ->
                 {
@@ -88,6 +111,29 @@ public interface EnglishTests
                 orListTest.run(Iterable.create("a", "b"), "a or b");
                 orListTest.run(Iterable.create("a", "b", "c"), "a, b, or c");
                 orListTest.run(Iterable.create("a", "b", "c", "d"), "a, b, c, or d");
+            });
+
+            runner.testGroup("orList(Object...)", () ->
+            {
+                runner.test("with no arguments", (Test test) ->
+                {
+                    test.assertEqual("", English.orList());
+                });
+
+                runner.test("with \"a\"", (Test test) ->
+                {
+                    test.assertEqual("a", English.orList("a"));
+                });
+
+                runner.test("with \"a\" and \"b\"", (Test test) ->
+                {
+                    test.assertEqual("a or b", English.orList("a", "b"));
+                });
+
+                runner.test("with \"a\", \"b\", and 5", (Test test) ->
+                {
+                    test.assertEqual("a, b, or 5", English.orList("a", "b", 5));
+                });
             });
         });
     }

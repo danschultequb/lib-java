@@ -11,7 +11,7 @@ public interface English
      * @param listType The joining word in the list. Must be either "and" or "or".
      * @return The list String.
      */
-    static String list(Iterable<String> values, String listType)
+    static String list(Iterable<?> values, String listType)
     {
         PreCondition.assertNotNull(values, "values");
         PreCondition.assertNotNullAndNotEmpty(listType, "listType");
@@ -21,20 +21,20 @@ public interface English
         final int valuesCount = values.getCount();
         if (valuesCount == 1)
         {
-            builder.addAll(values.first());
+            builder.addAll(Objects.toString(values.first()));
         }
         else if (valuesCount == 2)
         {
-            builder.addAll(values.first());
+            builder.addAll(Objects.toString(values.first()));
             builder.add(' ');
             builder.addAll(listType);
             builder.add(' ');
-            builder.addAll(values.last());
+            builder.addAll(Objects.toString(values.last()));
         }
         else if (valuesCount >= 3)
         {
             int valueIndex = 0;
-            for (final String value : values)
+            for (final Object value : values)
             {
                 if (valueIndex > 0)
                 {
@@ -46,7 +46,7 @@ public interface English
                     builder.add(' ');
                 }
 
-                builder.addAll(value);
+                builder.addAll(Objects.toString(value));
 
                 ++valueIndex;
             }
@@ -64,9 +64,19 @@ public interface English
      * @param values The values to form into a list.
      * @return The list String.
      */
-    static String orList(Iterable<String> values)
+    static String orList(Iterable<?> values)
     {
         return English.list(values, "or");
+    }
+
+    /**
+     * Combine the provided values into an "or" list (a, b, or c).
+     * @param values The values to form into a list.
+     * @return The list String.
+     */
+    static String orList(Object... values)
+    {
+        return English.orList(Iterable.create(values));
     }
 
     /**
@@ -74,8 +84,18 @@ public interface English
      * @param values The values to form into a list.
      * @return The list String.
      */
-    static String andList(Iterable<String> values)
+    static String andList(Iterable<?> values)
     {
         return English.list(values, "and");
+    }
+
+    /**
+     * Combine the provided values into an "and" list (a, b, and c).
+     * @param values The values to form into a list.
+     * @return The list String.
+     */
+    static String andList(Object... values)
+    {
+        return English.andList(Iterable.create(values));
     }
 }
