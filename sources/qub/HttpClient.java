@@ -17,7 +17,7 @@ public interface HttpClient
         PreCondition.assertNotNullAndNotEmpty(urlString, "urlString");
 
         return URL.parse(urlString)
-            .thenResult(this::get);
+            .then((URL url) -> this.get(url).await());
     }
 
     default Result<HttpResponse> get(URL url)

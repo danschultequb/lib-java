@@ -91,7 +91,7 @@ public interface List<T> extends MutableIndexable<T>
      * Add the provided values at the end of this List.
      * @param values The values to add.
      */
-    default void addAll(Iterator<T> values)
+    default void addAll(Iterator<? extends T> values)
     {
         if (values != null && values.any())
         {
@@ -106,7 +106,7 @@ public interface List<T> extends MutableIndexable<T>
      * Add the provided values at the end of this List.
      * @param values The values to add.
      */
-    default List<T> addAll(Iterable<T> values)
+    default List<T> addAll(Iterable<? extends T> values)
     {
         if (values != null && values.any())
         {

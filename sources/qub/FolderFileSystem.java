@@ -51,7 +51,7 @@ public class FolderFileSystem implements FileSystem
         return baseFolderPath;
     }
 
-    private Result<Path> getInnerPath(Path outerPath, boolean isFolderPath)
+    private Result<Path> getInnerPath(Path outerPath)
     {
         FileSystem.validateRootedFolderPath(outerPath, "outerPath");
 
@@ -101,15 +101,15 @@ public class FolderFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getInnerPath(rootedFolderPath, true)
-            .thenResult((Path innerPath) ->
+        return this.getInnerPath(rootedFolderPath)
+            .then((Path innerPath) ->
             {
                 return innerFileSystem.getFilesAndFolders(innerPath)
                     .then((Iterable<FileSystemEntry> innerEntries) ->
                     {
                         return innerEntries == null ? null : innerEntries.map((FileSystemEntry innerEntry) ->
                         {
-                            final Path outerEntryPath = getOuterPath(innerEntry.getPath());
+                            final Path outerEntryPath = this.getOuterPath(innerEntry.getPath());
                             return innerEntry instanceof File
                                 ? new File(this, outerEntryPath)
                                 : new Folder(this, outerEntryPath);
@@ -117,8 +117,9 @@ public class FolderFileSystem implements FileSystem
                     })
                     .convertError(FolderNotFoundException.class, (FolderNotFoundException error) ->
                     {
-                        return new FolderNotFoundException(getOuterPath(error.getFolderPath()));
-                    });
+                        return new FolderNotFoundException(this.getOuterPath(error.getFolderPath()));
+                    })
+                    .await();
             });
     }
 
@@ -127,8 +128,8 @@ public class FolderFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getInnerPath(rootedFolderPath, true)
-            .thenResult(innerFileSystem::folderExists);
+        return this.getInnerPath(rootedFolderPath)
+            .then((Path innerPath) -> innerFileSystem.folderExists(innerPath).await());
     }
 
     @Override
@@ -136,11 +137,11 @@ public class FolderFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getInnerPath(rootedFolderPath, true)
-            .thenResult(innerFileSystem::createFolder)
-            .thenResult((Folder createdInnerFolder) ->
+        return this.getInnerPath(rootedFolderPath)
+            .then((Path innerPath) -> innerFileSystem.createFolder(innerPath).await())
+            .then((Folder createdInnerFolder) ->
             {
-                return getFolder(getOuterPath(createdInnerFolder.getPath()));
+                return getFolder(getOuterPath(createdInnerFolder.getPath())).await();
             })
             .convertError(FolderAlreadyExistsException.class, (FolderAlreadyExistsException error) ->
             {
@@ -153,16 +154,19 @@ public class FolderFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getInnerPath(rootedFolderPath, true)
-            .thenResult((Path innerFolderPath) ->
+        return this.getInnerPath(rootedFolderPath)
+            .then((Path innerFolderPath) ->
             {
-                return innerFolderPath.equals(baseFolderPath)
-                    ? Result.error(new IllegalArgumentException("Cannot delete a root folder (" + rootedFolderPath.resolve().await() + ")."))
-                    : innerFileSystem.deleteFolder(innerFolderPath)
-                        .convertError(FolderNotFoundException.class, (FolderNotFoundException error) ->
-                        {
-                            return new FolderNotFoundException(getOuterPath(error.getFolderPath()));
-                        });
+                if (innerFolderPath.equals(baseFolderPath))
+                {
+                    throw new IllegalArgumentException("Cannot delete a root folder (" + rootedFolderPath.resolve().await() + ").");
+                }
+                return innerFileSystem.deleteFolder(innerFolderPath)
+                    .convertError(FolderNotFoundException.class, (FolderNotFoundException error) ->
+                    {
+                        return new FolderNotFoundException(this.getOuterPath(error.getFolderPath()));
+                    })
+                    .await();
             });
     }
 
@@ -171,8 +175,8 @@ public class FolderFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getInnerPath(rootedFilePath, false)
-            .thenResult(innerFileSystem::fileExists);
+        return this.getInnerPath(rootedFilePath)
+            .then((Path innerPath) -> innerFileSystem.fileExists(innerPath).await());
     }
 
     @Override
@@ -180,15 +184,16 @@ public class FolderFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getInnerPath(rootedFilePath, false)
-            .thenResult((Path innerFilePath) ->
+        return this.getInnerPath(rootedFilePath)
+            .then((Path innerFilePath) ->
             {
                 return innerFileSystem.createFile(innerFilePath)
                     .then((File createdFile) -> new File(this, getOuterPath(createdFile.getPath())))
                     .convertError(FileAlreadyExistsException.class, (FileAlreadyExistsException error) ->
                     {
                         return new FileAlreadyExistsException(getOuterPath(error.getFilePath()));
-                    });
+                    })
+                    .await();
             });
     }
 
@@ -197,14 +202,15 @@ public class FolderFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getInnerPath(rootedFilePath, false)
-            .thenResult((Path innerFilePath) ->
+        return this.getInnerPath(rootedFilePath)
+            .then((Path innerFilePath) ->
             {
                 return innerFileSystem.deleteFile(innerFilePath)
                     .convertError(FileNotFoundException.class, (FileNotFoundException error) ->
                     {
                         return new FileNotFoundException(getOuterPath(error.getFilePath()));
-                    });
+                    })
+                    .await();
             });
     }
 
@@ -213,14 +219,15 @@ public class FolderFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getInnerPath(rootedFilePath, false)
-            .thenResult((Path innerFilePath) ->
+        return this.getInnerPath(rootedFilePath)
+            .then((Path innerFilePath) ->
             {
                 return innerFileSystem.getFileLastModified(innerFilePath)
                     .convertError(FileNotFoundException.class, (FileNotFoundException error) ->
                     {
                         return new FileNotFoundException(getOuterPath(error.getFilePath()));
-                    });
+                    })
+                    .await();
             });
     }
 
@@ -229,14 +236,15 @@ public class FolderFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getInnerPath(rootedFilePath, false)
-            .thenResult((Path innerFilePath) ->
+        return this.getInnerPath(rootedFilePath)
+            .then((Path innerFilePath) ->
             {
                 return innerFileSystem.getFileContentByteReadStream(innerFilePath)
                     .convertError(FileNotFoundException.class, (FileNotFoundException error) ->
                     {
                         return new FileNotFoundException(getOuterPath(error.getFilePath()));
-                    });
+                    })
+                    .await();
             });
     }
 
@@ -245,7 +253,7 @@ public class FolderFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getInnerPath(rootedFilePath, false)
-            .thenResult(innerFileSystem::getFileContentByteWriteStream);
+        return this.getInnerPath(rootedFilePath)
+            .then((Path innerPath) -> innerFileSystem.getFileContentByteWriteStream(innerPath).await());
     }
 }

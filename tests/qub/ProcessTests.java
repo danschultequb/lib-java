@@ -689,7 +689,7 @@ public interface ProcessTests
                         builder.redirectErrorTo(output);
 
                         final Folder workingFolder = test.getProcess().getCurrentFolder()
-                            .thenResult((Folder currentFolder) -> currentFolder.getFolder("I don't exist"))
+                            .then((Folder currentFolder) -> currentFolder.getFolder("I don't exist").await())
                             .await();
                         builder.setWorkingFolder(workingFolder);
                         test.assertThrows(() -> builder.run().await(),

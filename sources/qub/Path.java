@@ -134,18 +134,18 @@ public class Path
      */
     public Result<Path> withoutRoot()
     {
-        return getRoot()
+        return this.getRoot()
             .catchError(NotFoundException.class, () -> this)
-            .thenResult((Path root) ->
+            .then((Path root) ->
             {
-                Result<Path> withoutRootResult;
+                Path result;
                 if (root == this)
                 {
-                    withoutRootResult = Result.success(this);
+                    result = this;
                 }
                 else
                 {
-                    String pathStringWithoutRoot = toString().substring(root.length());
+                    String pathStringWithoutRoot = this.toString().substring(root.length());
                     if (pathStringWithoutRoot.startsWith("/") || pathStringWithoutRoot.startsWith("\\"))
                     {
                         pathStringWithoutRoot = pathStringWithoutRoot.substring(1);
@@ -153,14 +153,11 @@ public class Path
 
                     if (Strings.isNullOrEmpty(pathStringWithoutRoot))
                     {
-                        withoutRootResult = Result.error(new NotFoundException("The path " + Strings.escapeAndQuote(this) + " cannot create a path without its root because it only contains a root path."));
+                        throw new NotFoundException("The path " + Strings.escapeAndQuote(this) + " cannot create a path without its root because it only contains a root path.");
                     }
-                    else
-                    {
-                        withoutRootResult = Result.success(Path.parse(pathStringWithoutRoot));
-                    }
+                    result = Path.parse(pathStringWithoutRoot);
                 }
-                return withoutRootResult;
+                return result;
             });
     }
 
@@ -288,35 +285,31 @@ public class Path
 
     public Result<Path> getParent()
     {
-        return Result.createResult(() ->
+        return Result.create(() ->
         {
-            Result<Path> result;
-
             final Path resolvedPath = this.resolve().await();
             final Iterable<String> segments = resolvedPath.getSegments();
             final int segmentCount = segments.getCount();
             if (segmentCount <= 1)
             {
-                result = Result.error(new NotFoundException("The path " + Strings.escapeAndQuote(value) + " doesn't have a parent folder."));
+                throw new NotFoundException("The path " + Strings.escapeAndQuote(value) + " doesn't have a parent folder.");
             }
-            else
+
+            final Iterator<String> segmentIterator = segments.skipLast().iterate();
+            final StringBuilder builder = new StringBuilder();
+            if (segmentIterator.first().equals("/"))
             {
-                final Iterator<String> segmentIterator = segments.skipLast().iterate();
-                final StringBuilder builder = new StringBuilder();
-                if (segmentIterator.first().equals("/"))
-                {
-                    builder.append(segmentIterator.first());
-                    segmentIterator.next();
-                }
-
-                for (final String segment : segmentIterator)
-                {
-                    builder.append(segment);
-                    builder.append('/');
-                }
-
-                result = Result.success(Path.parse(builder.toString()));
+                builder.append(segmentIterator.first());
+                segmentIterator.next();
             }
+
+            for (final String segment : segmentIterator)
+            {
+                builder.append(segment);
+                builder.append('/');
+            }
+
+            final Path result = Path.parse(builder.toString());
 
             PostCondition.assertNotNull(result, "result");
 

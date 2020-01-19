@@ -9,7 +9,7 @@ public class USASCIICharacterEncoding implements CharacterEncoding
         PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDiposed()");
 
         return byteWriteStream.writeByte(encodeCharacter(character))
-            .thenResult(Result::successOne);
+            .then(() -> 1);
     }
 
     @Override

@@ -87,7 +87,7 @@ public class FakeNetwork implements Network
                         try
                         {
                             remoteTCPServer = boundTCPServers.get(remoteIPAddress)
-                                .thenResult((MutableMap<Integer,FakeTCPServer> remoteTCPServers) -> remoteTCPServers.get(remotePort))
+                                .then((MutableMap<Integer,FakeTCPServer> remoteTCPServers) -> remoteTCPServers.get(remotePort).await())
                                 .catchError(NotFoundException.class)
                                 .await();
                             if (remoteTCPServer == null)
@@ -152,8 +152,8 @@ public class FakeNetwork implements Network
         };
 
         return dateTimeTimeout != null
-            ? mutex.criticalSectionResult(dateTimeTimeout, function)
-            : mutex.criticalSectionResult(function);
+            ? mutex.criticalSection(dateTimeTimeout, () -> function.run().await())
+            : mutex.criticalSection(() -> function.run().await());
     }
 
     private InMemoryByteStream createNetworkStream()
@@ -205,25 +205,20 @@ public class FakeNetwork implements Network
         Network.validateLocalIPAddress(localIPAddress);
         Network.validateLocalPort(localPort);
 
-        return mutex.criticalSectionResult(() ->
+        return mutex.criticalSection(() ->
         {
-            Result<FakeTCPServer> result;
-            if (!isAvailable(localIPAddress, localPort))
+            if (!this.isAvailable(localIPAddress, localPort))
             {
-                result = Result.error(new java.io.IOException("IPAddress (" + localIPAddress + ") and port (" + localPort + ") are already bound."));
+                throw Exceptions.asRuntime(new java.io.IOException("IPAddress (" + localIPAddress + ") and port (" + localPort + ") are already bound."));
             }
-            else
-            {
-                final FakeTCPServer tcpServer = new FakeTCPServer(localIPAddress, localPort, this, clock);
 
-                boundTCPServers.getOrSet(localIPAddress, Map::create)
-                    .await()
-                    .set(localPort, tcpServer);
-                boundTCPServerAvailable.signalAll();
+            final FakeTCPServer tcpServer = new FakeTCPServer(localIPAddress, localPort, this, clock);
 
-                result = Result.success(tcpServer);
-            }
-            return result;
+            boundTCPServers.getOrSet(localIPAddress, Map::create).await()
+                .set(localPort, tcpServer);
+            boundTCPServerAvailable.signalAll();
+
+            return tcpServer;
         });
 
     }

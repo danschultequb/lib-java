@@ -12,7 +12,7 @@ public class MutableHttpHeaders implements HttpHeaders
      */
     public MutableHttpHeaders()
     {
-        headerMap = Map.create();
+        this.headerMap = Map.create();
     }
 
     public MutableHttpHeaders(Iterable<HttpHeader> headers)
@@ -23,7 +23,7 @@ public class MutableHttpHeaders implements HttpHeaders
         {
             for (final HttpHeader header : headers)
             {
-                set(header);
+                this.set(header);
             }
         }
     }
@@ -38,7 +38,7 @@ public class MutableHttpHeaders implements HttpHeaders
      */
     public void clear()
     {
-        headerMap.clear();
+        this.headerMap.clear();
     }
 
     /**
@@ -49,7 +49,7 @@ public class MutableHttpHeaders implements HttpHeaders
     {
         PreCondition.assertNotNull(header, "header");
 
-        set(header.getName(), header.getValue());
+        this.set(header.getName(), header.getValue());
     }
 
     /**
@@ -61,7 +61,7 @@ public class MutableHttpHeaders implements HttpHeaders
     {
         PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
 
-        set(headerName, Integers.toString(headerValue));
+        this.set(headerName, Integers.toString(headerValue));
     }
 
     /**
@@ -73,7 +73,7 @@ public class MutableHttpHeaders implements HttpHeaders
     {
         PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
 
-        set(headerName, Longs.toString(headerValue));
+        this.set(headerName, Longs.toString(headerValue));
     }
 
     /**
@@ -86,7 +86,7 @@ public class MutableHttpHeaders implements HttpHeaders
         PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
         PreCondition.assertNotNullAndNotEmpty(headerValue, "headerValue");
 
-        headerMap.set(getHeaderKey(headerName), new HttpHeader(headerName, headerValue));
+        this.headerMap.set(MutableHttpHeaders.getHeaderKey(headerName), new HttpHeader(headerName, headerValue));
     }
 
     @Override
@@ -94,7 +94,7 @@ public class MutableHttpHeaders implements HttpHeaders
     {
         PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
 
-        return get(headerName)
+        return this.get(headerName)
             .then(() -> true)
             .catchError(() -> false)
             .await();
@@ -109,29 +109,29 @@ public class MutableHttpHeaders implements HttpHeaders
     {
         PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
 
-        return headerMap.get(getHeaderKey(headerName))
-            .catchErrorResult(NotFoundException.class, () -> createNotFoundResult(headerName));
+        return this.headerMap.get(MutableHttpHeaders.getHeaderKey(headerName))
+            .convertError(NotFoundException.class, () -> new NotFoundException(headerName));
     }
 
     public Result<String> getValue(String headerName)
     {
         PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
 
-        return get(headerName).then(HttpHeader::getValue);
+        return this.get(headerName).then(HttpHeader::getValue);
     }
 
     public Result<HttpHeader> remove(String headerName)
     {
         PreCondition.assertNotNullAndNotEmpty(headerName, "headerName");
 
-        return headerMap.remove(getHeaderKey(headerName))
-            .catchErrorResult(NotFoundException.class, () -> createNotFoundResult(headerName));
+        return this.headerMap.remove(MutableHttpHeaders.getHeaderKey(headerName))
+            .convertError(NotFoundException.class, () -> new NotFoundException(headerName));
     }
 
     @Override
     public Iterator<HttpHeader> iterate()
     {
-        return headerMap.getValues().iterate();
+        return this.headerMap.getValues().iterate();
     }
 
     @Override
@@ -144,10 +144,5 @@ public class MutableHttpHeaders implements HttpHeaders
     public String toString()
     {
         return Iterable.toString(this);
-    }
-
-    private static <T> Result<T> createNotFoundResult(String headerName)
-    {
-        return Result.error(new NotFoundException(headerName));
     }
 }

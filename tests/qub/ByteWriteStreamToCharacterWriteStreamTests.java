@@ -1,8 +1,8 @@
 package qub;
 
-public class ByteWriteStreamToCharacterWriteStreamTests
+public interface ByteWriteStreamToCharacterWriteStreamTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(ByteWriteStreamToCharacterWriteStream.class, () ->
         {
@@ -53,7 +53,7 @@ public class ByteWriteStreamToCharacterWriteStreamTests
                     final ByteWriteStreamToCharacterWriteStream characterStream = new ByteWriteStreamToCharacterWriteStream(byteStream);
                     test.assertTrue(characterStream.dispose().await());
                     test.assertThrows(() -> characterStream.write(new char[] { 'f' }),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual(new byte[0], byteStream.getBytes());
                 });
 

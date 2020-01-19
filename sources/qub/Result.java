@@ -58,25 +58,7 @@ public interface Result<T>
      * @param <U> The type of value stored in the returned Result object.
      * @return The Result of running the provided function.
      */
-    <U> Result<U> thenResult(Function0<Result<U>> function);
-
-    /**
-     * If this Result doesn't have an error, then run the provided function and return a new Result
-     * object with the function's return value.
-     * @param function The function to run if this result does not have an error.
-     * @param <U> The type of value stored in the returned Result object.
-     * @return The Result of running the provided function.
-     */
     <U> Result<U> then(Function1<T,U> function);
-
-    /**
-     * If this Result doesn't have an error, then run the provided function and return a new Result
-     * object with the function's return value.
-     * @param function The function to run if this result does not have an error.
-     * @param <U> The type of value stored in the returned Result object.
-     * @return The Result of running the provided function.
-     */
-    <U> Result<U> thenResult(Function1<T,Result<U>> function);
 
     /**
      * If this result doesn't have an error, then run the provided action and return this Result
@@ -170,34 +152,6 @@ public interface Result<T>
     <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Function1<TError,T> function);
 
     /**
-     * If this Result has an error, then run the provided function.
-     * @param function The function to run if this result has an error.
-     * @return This Result of running the provided function.
-     */
-    Result<T> catchErrorResult(Function0<Result<T>> function);
-
-    /**
-     * If this Result has an error, then run the provided function.
-     * @param function The function to run if this result has an error.
-     * @return This Result of running the provided function.
-     */
-    Result<T> catchErrorResult(Function1<Throwable,Result<T>> function);
-
-    /**
-     * If this Result has an error, then run the provided function.
-     * @param function The function to run if this result has an error.
-     * @return This Result of running the provided function.
-     */
-    <TError extends Throwable> Result<T> catchErrorResult(Class<TError> errorType, Function0<Result<T>> function);
-
-    /**
-     * If this Result has an error, then run the provided function.
-     * @param function The function to run if this result has an error.
-     * @return This Result of running the provided function.
-     */
-    <TError extends Throwable> Result<T> catchErrorResult(Class<TError> errorType, Function1<TError,Result<T>> function);
-
-    /**
      * Run the provided action if this Result has an error.
      * @param action The action to run if this Result has an error.
      * @return This Result with its error.
@@ -238,9 +192,9 @@ public interface Result<T>
     {
         PreCondition.assertNotNull(function, "function");
 
-        return catchErrorResult(() ->
+        return this.catchError(() ->
         {
-            return Result.error(function.run());
+            throw Exceptions.asRuntime(function.run());
         });
     }
 
@@ -255,9 +209,9 @@ public interface Result<T>
     {
         PreCondition.assertNotNull(function, "function");
 
-        return catchErrorResult((Throwable error) ->
+        return this.catchError((Throwable error) ->
         {
-            return Result.error(function.run(error));
+            throw Exceptions.asRuntime(function.run(error));
         });
     }
 
@@ -274,9 +228,9 @@ public interface Result<T>
         PreCondition.assertNotNull(errorType, "errorType");
         PreCondition.assertNotNull(function, "function");
 
-        return catchErrorResult(errorType, () ->
+        return this.catchError(errorType, () ->
         {
-            return Result.error(function.run());
+            throw Exceptions.asRuntime(function.run());
         });
     }
 
@@ -293,9 +247,9 @@ public interface Result<T>
         PreCondition.assertNotNull(errorType, "errorType");
         PreCondition.assertNotNull(function, "function");
 
-        return catchErrorResult(errorType, (TErrorIn error) ->
+        return this.catchError(errorType, (TErrorIn error) ->
         {
-            return Result.error(function.run(error));
+            throw Exceptions.asRuntime(function.run(error));
         });
     }
 
@@ -371,30 +325,6 @@ public interface Result<T>
         PreCondition.assertNotNull(function, "function");
 
         return SyncResult.create(function);
-    }
-
-    /**
-     * Create a new Result by synchronously running the provided Function and returning the result.
-     * @param function The function to run.
-     * @param <U> The type of value the function will return.
-     */
-    public static <U> Result<U> createResult(Function0<Result<U>> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        Result<U> result;
-        try
-        {
-            result = function.run();
-        }
-        catch (Throwable error)
-        {
-            result = Result.error(error);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
     }
 
     /**

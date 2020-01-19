@@ -44,13 +44,15 @@ public class FakeTCPServer implements TCPServer
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        return mutex.criticalSectionResult(() ->
+        return mutex.criticalSection(() ->
         {
             hasClientsToAccept.watch().await();
 
-            return isDisposed()
-                ? Result.error(new IllegalStateException("isDisposed() cannot be true."))
-                : Result.success(clientsToAccept.removeFirst());
+            if (this.isDisposed())
+            {
+                throw new IllegalStateException("isDisposed() cannot be true.");
+            }
+            return clientsToAccept.removeFirst();
         });
     }
 
@@ -71,13 +73,15 @@ public class FakeTCPServer implements TCPServer
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        return mutex.criticalSectionResult(timeout, () ->
+        return mutex.criticalSection(timeout, () ->
         {
             hasClientsToAccept.watch(timeout).await();
 
-            return isDisposed()
-                ? Result.error(new IllegalStateException("isDisposed() cannot be true."))
-                : Result.success(clientsToAccept.removeFirst());
+            if (this.isDisposed())
+            {
+                throw new IllegalStateException("isDisposed() cannot be true.");
+            }
+            return clientsToAccept.removeFirst();
         });
     }
 

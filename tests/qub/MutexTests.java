@@ -157,7 +157,7 @@ public interface MutexTests
                 {
                     final Mutex mutex = create(creator);
                     test.assertThrows(() -> mutex.acquire(Duration.minutes(5)),
-                        new PreConditionFailure("clock cannot be null."));
+                        new PreConditionFailure("this.clock cannot be null."));
                     test.assertFalse(mutex.isAcquired());
                 });
 
@@ -210,7 +210,7 @@ public interface MutexTests
                 {
                     final Mutex mutex = create(creator);
                     test.assertThrows(() -> mutex.acquire(DateTime.create(2018, 1, 1)),
-                        new PreConditionFailure("clock cannot be null."));
+                        new PreConditionFailure("this.clock cannot be null."));
                     test.assertFalse(mutex.isAcquired());
                 });
 
@@ -553,186 +553,6 @@ public interface MutexTests
                     }).await());
                     test.assertFalse(mutex.isAcquired());
                     test.assertEqual(20, value.get());
-                });
-            });
-
-            runner.testGroup("criticalSectionResult(Function0<Result<T>>)", () ->
-            {
-                runner.test("with null function", (Test test) ->
-                {
-                    final Mutex mutex = create(creator);
-                    test.assertThrows(new PreConditionFailure("function cannot be null."),
-                        () -> mutex.criticalSectionResult((Function0<Result<Integer>>)null));
-                    test.assertFalse(mutex.isAcquired());
-                });
-
-                runner.test("with non-null function", (Test test) ->
-                {
-                    final Mutex mutex = create(creator);
-                    final Value<Integer> value = Value.create();
-                    test.assertTrue(mutex.criticalSectionResult(() ->
-                    {
-                        test.assertTrue(mutex.isAcquired());
-                        value.set(20);
-                        return Result.success(true);
-                    }).await());
-                    test.assertFalse(mutex.isAcquired());
-                    test.assertEqual(20, value.get());
-                });
-            });
-
-            runner.testGroup("criticalSectionResult(Duration,Function0<Result<T>>)", () ->
-            {
-                runner.test("with null function", (Test test) ->
-                {
-                    final Mutex mutex = create(creator, test);
-                    test.assertThrows(() -> mutex.criticalSectionResult(Duration.seconds(1), (Function0<Result<Integer>>)null), new PreConditionFailure("function cannot be null."));
-                    test.assertFalse(mutex.isAcquired());
-                });
-
-                runner.test("with non-null function", (Test test) ->
-                {
-                    final Mutex mutex = create(creator, test);
-                    final Value<Integer> value = Value.create();
-                    test.assertTrue(mutex.criticalSectionResult(Duration.seconds(1), () ->
-                    {
-                        test.assertTrue(mutex.isAcquired());
-                        value.set(20);
-                        return Result.successTrue();
-                    }).await());
-                    test.assertFalse(mutex.isAcquired());
-                    test.assertEqual(20, value.get());
-                });
-            });
-
-            runner.testGroup("criticalSectionResult(DateTime,Function0<Result<T>>)", () ->
-            {
-                runner.test("with null function", (Test test) ->
-                {
-                    final Mutex mutex = create(creator, test);
-                    test.assertThrows(() -> mutex.criticalSectionResult(test.getClock().getCurrentDateTime().plus(Duration.seconds(1)), (Function0<Result<Integer>>)null), new PreConditionFailure("function cannot be null."));
-                    test.assertFalse(mutex.isAcquired());
-                });
-
-                runner.test("with non-null function", (Test test) ->
-                {
-                    final Mutex mutex = create(creator, test);
-                    final Value<Integer> value = Value.create();
-                    test.assertTrue(mutex.criticalSectionResult(test.getClock().getCurrentDateTime().plus(Duration.seconds(1)), () ->
-                    {
-                        test.assertTrue(mutex.isAcquired());
-                        value.set(20);
-                        return Result.successTrue();
-                    }).await());
-                    test.assertFalse(mutex.isAcquired());
-                    test.assertEqual(20, value.get());
-                });
-
-                runner.test("with null DateTime", (Test test) ->
-                {
-                    final Mutex mutex = create(creator, test);
-                    final Value<Boolean> value = Value.create(false);
-                    test.assertThrows(() -> mutex.criticalSectionResult((DateTime)null, () ->
-                    {
-                        value.set(true);
-                        return Result.successTrue();
-                    }), new PreConditionFailure("dateTimeTimeout cannot be null."));
-                    test.assertFalse(mutex.isAcquired());
-                    test.assertFalse(value.get());
-                });
-
-                runner.test("with DateTime in the past", (Test test) ->
-                {
-                    final Mutex mutex = create(creator, test);
-                    final Value<Boolean> value = Value.create(false);
-                    final DateTime timeout = test.getClock().getCurrentDateTime().minus(Duration.seconds(1));
-                    test.assertThrows(() -> mutex.criticalSectionResult(timeout, () ->
-                        {
-                            value.set(true);
-                            return Result.successTrue();
-                        }).await(),
-                        new TimeoutException());
-                    test.assertFalse(mutex.isAcquired());
-                    test.assertFalse(value.get());
-                });
-
-                runner.test("with current DateTime", (Test test) ->
-                {
-                    final Mutex mutex = create(creator, test);
-                    final Value<Boolean> value = Value.create(false);
-                    final DateTime timeout = test.getClock().getCurrentDateTime();
-                    test.assertThrows(() -> mutex.criticalSectionResult(timeout, () ->
-                        {
-                            value.set(true);
-                            return Result.successTrue();
-                        }).await(),
-                        new TimeoutException());
-                    test.assertFalse(mutex.isAcquired());
-                    test.assertFalse(value.get());
-                });
-
-                runner.test("with DateTime in the future when Mutex is not acquired", (Test test) ->
-                {
-                    final Mutex mutex = create(creator, test);
-                    final Value<Boolean> value = Value.create(false);
-                    test.assertTrue(mutex.criticalSectionResult(test.getClock().getCurrentDateTime().plus(Duration.seconds(1)), () ->
-                    {
-                        value.set(true);
-                        return Result.successTrue();
-                    }).await());
-                    test.assertFalse(mutex.isAcquired());
-                    test.assertTrue(value.get());
-                });
-
-                runner.test("with DateTime in the future when Mutex is not acquired and function throws an exception", (Test test) ->
-                {
-                    final Mutex mutex = create(creator, test);
-                    test.assertThrows(() -> mutex.criticalSectionResult(test.getClock().getCurrentDateTime().plus(Duration.seconds(1)), () ->
-                        {
-                            throw new RuntimeException("Oops!");
-                        }).await(),
-                        new RuntimeException("Oops!"));
-                    test.assertFalse(mutex.isAcquired());
-                });
-
-                runner.test("with DateTime in the future when Mutex is already acquired by the current thread", (Test test) ->
-                {
-                    final Mutex mutex = create(creator, test);
-                    mutex.acquire();
-
-                    final Value<Boolean> value = Value.create(false);
-                    test.assertTrue(mutex.criticalSectionResult(test.getClock().getCurrentDateTime().plus(Duration.seconds(1)), () ->
-                    {
-                        value.set(true);
-                        return Result.successTrue();
-                    }).await());
-                    test.assertTrue(mutex.isAcquired());
-                    test.assertTrue(value.get());
-                });
-
-                runner.test("with DateTime in the future when Mutex is already acquired by a different thread", (Test test) ->
-                {
-                    final Clock clock = test.getClock();
-                    final Mutex mutex = create(creator, clock);
-                    test.getParallelAsyncRunner().schedule(() -> mutex.acquire().await()).await();
-                    test.assertTrue(mutex.isAcquired());
-                    test.assertFalse(mutex.isAcquiredByCurrentThread());
-
-                    final Duration timeoutDuration = Duration.seconds(0.1);
-
-                    final Value<Boolean> value = Value.create(false);
-                    final DateTime startTime = clock.getCurrentDateTime();
-                    final DateTime timeout = startTime.plus(timeoutDuration);
-                    test.assertThrows(() -> mutex.criticalSectionResult(timeout, () ->
-                        {
-                            value.set(true);
-                            return Result.successTrue();
-                        }).await(),
-                        new TimeoutException());
-                    final DateTime endTime = clock.getCurrentDateTime();
-                    test.assertTrue(mutex.isAcquired());
-                    test.assertGreaterThanOrEqualTo(endTime, timeout);
-                    test.assertFalse(value.get());
                 });
             });
 

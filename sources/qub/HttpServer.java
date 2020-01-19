@@ -136,11 +136,12 @@ public class HttpServer implements Disposable
             while(!isDisposed())
             {
                 final TCPClient acceptedClient = tcpServer.accept()
-                    .catchErrorResult(java.net.SocketException.class, (java.net.SocketException error) ->
+                    .catchError(java.net.SocketException.class, (java.net.SocketException error) ->
                     {
-                        return error.getMessage().equals("socket closed")
-                            ? Result.success()
-                            : Result.error(error);
+                        if (!error.getMessage().equals("socket closed"))
+                        {
+                            throw Exceptions.asRuntime(error);
+                        }
                     })
                     .await();
                 if (acceptedClient != null)

@@ -59,14 +59,14 @@ public interface Mutex
 
         return Result.create(() ->
         {
-            acquire().await();
+            this.acquire().await();
             try
             {
                 action.run();
             }
             finally
             {
-                release().await();
+                this.release().await();
             }
         });
     }
@@ -76,7 +76,25 @@ public interface Mutex
      * Mutex when the action completes.
      * @param action The action to run after acquiring this Mutex.
      */
-    Result<Void> criticalSection(Duration durationTimeout, Action0 action);
+    default Result<Void> criticalSection(Duration durationTimeout, Action0 action)
+    {
+        PreCondition.assertNotNull(durationTimeout, "durationTimeout");
+        PreCondition.assertGreaterThan(durationTimeout, Duration.zero, "durationTimeout");
+        PreCondition.assertNotNull(action, "action");
+
+        return Result.create(() ->
+        {
+            this.acquire(durationTimeout).await();
+            try
+            {
+                action.run();
+            }
+            finally
+            {
+                this.release().await();
+            }
+        });
+    }
 
     /**
      * Run the provided action after this Mutex has been acquired and automatically release the
@@ -90,14 +108,14 @@ public interface Mutex
 
         return Result.create(() ->
         {
-            acquire(dateTimeTimeout).await();
+            this.acquire(dateTimeTimeout).await();
             try
             {
                 action.run();
             }
             finally
             {
-                release().await();
+                this.release().await();
             }
         });
     }
@@ -114,17 +132,9 @@ public interface Mutex
 
         return Result.create(() ->
         {
-            T result;
-            acquire().await();
-            try
-            {
-                result = function.run();
-            }
-            finally
-            {
-                release().await();
-            }
-            return result;
+            final Value<T> result = Value.create();
+            this.criticalSection(() -> result.set(function.run())).await();
+            return result.get();
         });
     }
 
@@ -134,7 +144,17 @@ public interface Mutex
      * @param durationTimeout The maximum amount of time to wait for this criticalSection.
      * @param function The function to run after acquiring this Mutex.
      */
-    <T> Result<T> criticalSection(Duration durationTimeout, Function0<T> function);
+    default <T> Result<T> criticalSection(Duration durationTimeout, Function0<T> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        return Result.create(() ->
+        {
+            final Value<T> result = Value.create();
+            this.criticalSection(durationTimeout, () -> result.set(function.run())).await();
+            return result.get();
+        });
+    }
 
     /**
      * Run the provided action after this Mutex has been acquired and automatically release the
@@ -147,67 +167,14 @@ public interface Mutex
         PreCondition.assertNotNull(dateTimeTimeout, "dateTimeTimeout");
         PreCondition.assertNotNull(function, "function");
 
-        return criticalSectionResult(dateTimeTimeout, () -> Result.success(function.run()));
-    }
-
-    /**
-     * Run the provided action after this Mutex has been acquired and automatically release the
-     * Mutex when the action completes.
-     * @param durationTimeout The maximum amount of time to wait for this criticalSection.
-     * @param function The function to run after acquiring this Mutex.
-     */
-    <T> Result<T> criticalSectionResult(Duration durationTimeout, Function0<Result<T>> function);
-
-    /**
-     * Run the provided action after this Mutex has been acquired and automatically release the
-     * Mutex when the action completes.
-     * @param dateTimeTimeout The maximum amount of time to wait for this criticalSection.
-     * @param function The function to run after acquiring this Mutex.
-     */
-    default <T> Result<T> criticalSectionResult(DateTime dateTimeTimeout, Function0<Result<T>> function)
-    {
-        PreCondition.assertNotNull(dateTimeTimeout, "dateTimeTimeout");
         PreCondition.assertNotNull(function, "function");
 
-        return acquire(dateTimeTimeout)
-            .thenResult(() ->
-            {
-                Result<T> result;
-                try
-                {
-                    result = function.run();
-                }
-                finally
-                {
-                    release().await();
-                }
-                return result;
-            });
-    }
-
-    /**
-     * Run the provided action after this Mutex has been acquired and automatically release the
-     * Mutex when the action completes.
-     * @param function The function to run after acquiring this Mutex.
-     */
-    default <T> Result<T> criticalSectionResult(Function0<Result<T>> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        return acquire()
-            .thenResult(() ->
-            {
-                Result<T> result;
-                try
-                {
-                    result = function.run();
-                }
-                finally
-                {
-                    release().await();
-                }
-                return result;
-            });
+        return Result.create(() ->
+        {
+            final Value<T> result = Value.create();
+            this.criticalSection(dateTimeTimeout, () -> result.set(function.run())).await();
+            return result.get();
+        });
     }
 
     /**

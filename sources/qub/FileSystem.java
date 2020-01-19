@@ -74,7 +74,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getFilesAndFolders(Path.parse(rootedFolderPath));
+        return this.getFilesAndFolders(Path.parse(rootedFolderPath));
     }
 
     /**
@@ -93,7 +93,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getFilesAndFoldersRecursively(Path.parse(rootedFolderPath));
+        return this.getFilesAndFoldersRecursively(Path.parse(rootedFolderPath));
     }
 
     /**
@@ -106,7 +106,7 @@ public interface FileSystem
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         return rootedFolderPath.resolve()
-            .thenResult(this::getFolder)
+            .then((Path resolvedRootedFolderPath) -> this.getFolder(resolvedRootedFolderPath).await())
             .then((Folder folder) ->
             {
                 final List<FileSystemEntry> result = List.create();
@@ -388,7 +388,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return deleteFile(Path.parse(rootedFilePath));
+        return this.deleteFile(Path.parse(rootedFilePath));
     }
 
     /**
@@ -449,7 +449,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getFileContentCharacterReadStream(Path.parse(rootedFilePath));
+        return this.getFileContentCharacterReadStream(Path.parse(rootedFilePath));
     }
 
     /**
@@ -459,7 +459,7 @@ public interface FileSystem
      */
     default Result<CharacterReadStream> getFileContentCharacterReadStream(Path rootedFilePath)
     {
-        return getFileContentByteReadStream(rootedFilePath)
+        return this.getFileContentByteReadStream(rootedFilePath)
             .then((ByteReadStream byteReadStream) -> byteReadStream.asCharacterReadStream());
     }
 
@@ -472,7 +472,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getFileContent(Path.parse(rootedFilePath));
+        return this.getFileContent(Path.parse(rootedFilePath));
     }
 
     /**
@@ -484,7 +484,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getFileContentByteReadStream(rootedFilePath)
+        return this.getFileContentByteReadStream(rootedFilePath)
             .then((ByteReadStream byteReadStream) ->
             {
                 byte[] result;
@@ -511,7 +511,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getFileContentAsString(Path.parse(rootedFilePath));
+        return this.getFileContentAsString(Path.parse(rootedFilePath));
     }
 
     /**
@@ -523,7 +523,8 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getFileContent(rootedFilePath).thenResult(CharacterEncoding.UTF_8::decodeAsString);
+        return this.getFileContent(rootedFilePath)
+            .then((byte[] fileContent) -> CharacterEncoding.UTF_8.decodeAsString(fileContent).await());
     }
 
     /**
@@ -554,7 +555,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getFileContentCharacterWriteStream(Path.parse(rootedFilePath));
+        return this.getFileContentCharacterWriteStream(Path.parse(rootedFilePath));
     }
 
     /**
@@ -564,7 +565,7 @@ public interface FileSystem
      */
     default Result<CharacterWriteStream> getFileContentCharacterWriteStream(Path rootedFilePath)
     {
-        return getFileContentByteWriteStream(rootedFilePath)
+        return this.getFileContentByteWriteStream(rootedFilePath)
             .then((ByteWriteStream writeStream) -> writeStream.asCharacterWriteStream());
     }
 
@@ -578,7 +579,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return setFileContent(Path.parse(rootedFilePath), content);
+        return this.setFileContent(Path.parse(rootedFilePath), content);
     }
 
     /**
@@ -591,7 +592,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getFileContentByteWriteStream(rootedFilePath)
+        return this.getFileContentByteWriteStream(rootedFilePath)
             .then((ByteWriteStream byteWriteStream) ->
             {
                 try
@@ -618,7 +619,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return setFileContentAsString(Path.parse(rootedFilePath), content);
+        return this.setFileContentAsString(Path.parse(rootedFilePath), content);
     }
 
     /**
@@ -632,7 +633,7 @@ public interface FileSystem
         FileSystem.validateRootedFilePath(rootedFilePath);
 
         return CharacterEncoding.UTF_8.encode(content)
-            .thenResult((byte[] encodedContent) -> setFileContent(rootedFilePath, encodedContent));
+            .then((byte[] encodedContent) -> this.setFileContent(rootedFilePath, encodedContent).await());
     }
 
     /**
@@ -646,7 +647,7 @@ public interface FileSystem
         PreCondition.assertNotNull(sourceFile, "sourceFile");
         PreCondition.assertNotNull(destinationFile, "destinationFile");
 
-        return copyFileTo(sourceFile.getPath(), destinationFile.getPath());
+        return this.copyFileTo(sourceFile.getPath(), destinationFile.getPath());
     }
 
     /**
@@ -660,7 +661,7 @@ public interface FileSystem
         PreCondition.assertNotNull(sourceFile, "sourceFile");
         FileSystem.validateRootedFilePath(destinationFilePath, "destinationFilePath");
 
-        return copyFileTo(sourceFile.getPath(), destinationFilePath);
+        return this.copyFileTo(sourceFile.getPath(), destinationFilePath);
     }
 
     /**
@@ -674,7 +675,7 @@ public interface FileSystem
         FileSystem.validateRootedFilePath(sourceFilePath, "sourceFilePath");
         PreCondition.assertNotNull(destinationFile, "destinationFile");
 
-        return copyFileTo(sourceFilePath, destinationFile.getPath());
+        return this.copyFileTo(sourceFilePath, destinationFile.getPath());
     }
 
     /**
@@ -690,9 +691,9 @@ public interface FileSystem
 
         return Result.create(() ->
         {
-            try (final ByteReadStream sourceStream = getFileContentByteReadStream(sourceFilePath).await())
+            try (final ByteReadStream sourceStream = this.getFileContentByteReadStream(sourceFilePath).await())
             {
-                try (final ByteWriteStream destinationStream = getFileContentByteWriteStream(destinationFilePath).await())
+                try (final ByteWriteStream destinationStream = this.getFileContentByteWriteStream(destinationFilePath).await())
                 {
                     destinationStream.writeAllBytes(sourceStream).await();
                 }
@@ -712,7 +713,7 @@ public interface FileSystem
         PreCondition.assertNotNull(sourceFile, "sourceFile");
         PreCondition.assertNotNull(destinationFolder, "destinationFolder");
 
-        return copyFileToFolder(sourceFile.getPath(), destinationFolder.getPath());
+        return this.copyFileToFolder(sourceFile.getPath(), destinationFolder.getPath());
     }
 
     /**

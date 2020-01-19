@@ -44,7 +44,7 @@ class JavaNetwork implements Network
         Network.validateTimeout(timeout);
 
         final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(timeout);
-        return createTCPClient(remoteIPAddress, remotePort, dateTimeTimeout);
+        return this.createTCPClient(remoteIPAddress, remotePort, dateTimeTimeout);
     }
 
     @Override
@@ -98,10 +98,10 @@ class JavaNetwork implements Network
     @Override
     public Result<Boolean> isConnected()
     {
-        final DNS dns = getDNS();
+        final DNS dns = this.getDNS();
         return dns.resolveHost("www.google.com")
-            .thenResult(Result::successTrue)
-            .catchErrorResult(Result::successFalse);
+            .then(() -> true)
+            .catchError(() -> false);
     }
 
     @Override

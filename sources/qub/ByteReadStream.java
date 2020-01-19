@@ -129,11 +129,12 @@ public interface ByteReadStream extends Disposable, Iterator<Byte>
             while(true)
             {
                 final Byte byteRead = readByte()
-                    .catchErrorResult(EndOfStreamException.class, (EndOfStreamException error) ->
+                    .catchError(EndOfStreamException.class, (EndOfStreamException error) ->
                     {
-                        return byteList.any()
-                            ? Result.success()
-                            : Result.error(error);
+                        if (!byteList.any())
+                        {
+                            throw error;
+                        }
                     })
                     .await();
                 if (byteRead == null)
@@ -161,8 +162,8 @@ public interface ByteReadStream extends Disposable, Iterator<Byte>
         PreCondition.assertNotDisposed(this);
 
         return readByte()
-            .thenResult(Result::successTrue)
-            .catchErrorResult(EndOfStreamException.class, Result::successFalse)
+            .then(() -> true)
+            .catchError(EndOfStreamException.class, () -> false)
             .await();
     }
 

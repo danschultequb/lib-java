@@ -46,7 +46,7 @@ public class SpinMutex implements Mutex
         {
             while (!acquiredByThreadId.compareAndSet(-1, threadId))
             {
-                while (isAcquired())
+                while (this.isAcquired())
                 {
                 }
             }
@@ -61,36 +61,31 @@ public class SpinMutex implements Mutex
     {
         PreCondition.assertNotNull(durationTimeout, "durationTimeout");
         PreCondition.assertGreaterThan(durationTimeout, Duration.zero, "durationTimeout");
-        PreCondition.assertNotNull(clock, "clock");
+        PreCondition.assertNotNull(this.clock, "this.clock");
 
-        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(durationTimeout);
-        return acquire(dateTimeTimeout);
+        return this.acquire(this.clock.getCurrentDateTime().plus(durationTimeout));
     }
 
     @Override
     public Result<Void> acquire(DateTime dateTimeTimeout)
     {
         PreCondition.assertNotNull(dateTimeTimeout, "dateTimeTimeout");
-        PreCondition.assertNotNull(clock, "clock");
+        PreCondition.assertNotNull(this.clock, "this.clock");
 
-        Result<Void> result;
-        while (true)
+        return Result.create(() ->
         {
-            if (clock.getCurrentDateTime().greaterThanOrEqualTo(dateTimeTimeout))
+            while (true)
             {
-                result = Result.error(new TimeoutException());
-                break;
+                if (this.clock.getCurrentDateTime().greaterThanOrEqualTo(dateTimeTimeout))
+                {
+                    throw new TimeoutException();
+                }
+                else if (this.tryAcquire().await())
+                {
+                    break;
+                }
             }
-            else if (tryAcquire().await())
-            {
-                result = Result.success();
-                break;
-            }
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        });
     }
 
     @Override
@@ -117,41 +112,6 @@ public class SpinMutex implements Mutex
             }
         }
         return Result.success();
-    }
-
-    @Override
-    public Result<Void> criticalSection(Duration durationTimeout, Action0 action)
-    {
-        PreCondition.assertNotNull(durationTimeout, "durationTimeout");
-        PreCondition.assertGreaterThan(durationTimeout, Duration.zero, "durationTimeout");
-        PreCondition.assertNotNull(action, "action");
-        PreCondition.assertNotNull(clock, "clock");
-
-        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(durationTimeout);
-        return criticalSection(dateTimeTimeout, action);
-    }
-
-    @Override
-    public <T> Result<T> criticalSection(Duration durationTimeout, Function0<T> function)
-    {
-        PreCondition.assertGreaterThan(durationTimeout, Duration.zero, "durationTimeout");
-        PreCondition.assertNotNull(function, "function");
-        PreCondition.assertNotNull(clock, "clock");
-
-        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(durationTimeout);
-        return criticalSection(dateTimeTimeout, function);
-    }
-
-    @Override
-    public <T> Result<T> criticalSectionResult(Duration durationTimeout, Function0<Result<T>> function)
-    {
-        PreCondition.assertNotNull(durationTimeout, "durationTimeout");
-        PreCondition.assertGreaterThan(durationTimeout, Duration.zero, "durationTimeout");
-        PreCondition.assertNotNull(function, "function");
-        PreCondition.assertNotNull(clock, "clock");
-
-        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(durationTimeout);
-        return criticalSectionResult(dateTimeTimeout, function);
     }
 
     @Override

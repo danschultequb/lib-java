@@ -174,8 +174,8 @@ public interface CharacterReadStream extends Disposable, Iterator<Character>
         final CharacterEncoding characterEncoding = getCharacterEncoding();
         final ByteReadStream byteReadStream = asByteReadStream();
         return characterEncoding.encode(value)
-            .thenResult(byteReadStream::readBytesUntil)
-            .thenResult(characterEncoding::decode);
+            .then((byte[] encodedValue) -> byteReadStream.readBytesUntil(encodedValue).await())
+            .then((byte[] bytesRead) -> characterEncoding.decode(bytesRead).await());
     }
 
     /**
@@ -271,7 +271,7 @@ public interface CharacterReadStream extends Disposable, Iterator<Character>
     {
         PreCondition.assertNotDisposed(this);
 
-        String result = null;
+        String result;
         int charactersRead = 0;
         final CharacterList list = CharacterList.create();
         if (includeNewLine)

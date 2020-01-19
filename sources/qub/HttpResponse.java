@@ -57,7 +57,7 @@ public interface HttpResponse extends Disposable
     default Result<Long> getContentLength()
     {
         return getHeaderValue(HttpHeader.ContentLengthName)
-            .thenResult(Longs::parse);
+            .then((String headerValue) -> Longs.parse(headerValue).await());
     }
 
     /**

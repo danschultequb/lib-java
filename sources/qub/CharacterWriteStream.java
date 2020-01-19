@@ -26,7 +26,7 @@ public interface CharacterWriteStream extends Disposable
         PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream");
 
         return characterEncoding.encode(toWrite, byteWriteStream)
-            .thenResult(Result::successOne);
+            .then(() -> 1);
     }
 
     /**
@@ -37,9 +37,9 @@ public interface CharacterWriteStream extends Disposable
     default Result<Integer> write(char[] toWrite)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertFalse(this.isDisposed(), "this.isDisposed()");
 
-        return write(toWrite, 0, toWrite.length);
+        return this.write(toWrite, 0, toWrite.length);
     }
 
     /**
@@ -119,14 +119,10 @@ public interface CharacterWriteStream extends Disposable
     {
         PreCondition.assertNotNull(toWrite, "toWrite");
 
-        return write(toWrite, formattedStringArguments)
-            .thenResult((Integer firstCharactersWrittenCount) ->
+        return this.write(toWrite, formattedStringArguments)
+            .then((Integer charactersWrittenCount) ->
             {
-                return writeLine()
-                    .then((Integer secondCharactersWrittenCount) ->
-                    {
-                        return firstCharactersWrittenCount + secondCharactersWrittenCount;
-                    });
+                return charactersWrittenCount + this.writeLine().await();
             });
     }
 
@@ -156,7 +152,7 @@ public interface CharacterWriteStream extends Disposable
                 }
                 else
                 {
-                    result += write(buffer, 0, charactersRead).await();
+                    result += this.write(buffer, 0, charactersRead).await();
                     if (charactersRead == buffer.length)
                     {
                         buffer = new char[buffer.length * 2];

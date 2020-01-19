@@ -7,7 +7,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
     {
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
 
-        return Result.create(() -> writeEncodedCharacter(character, byteWriteStream));
+        return Result.create(() -> UTF8CharacterEncoding.writeEncodedCharacter(character, byteWriteStream));
     }
 
     @Override
@@ -22,7 +22,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
             int result = 0;
             for (final char character : Strings.iterate(text))
             {
-                result += writeEncodedCharacter(character, byteWriteStream);
+                result += UTF8CharacterEncoding.writeEncodedCharacter(character, byteWriteStream);
             }
             return result;
         });
@@ -42,7 +42,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
             int result = 0;
             for (int i = 0; i < length; ++i)
             {
-                result += writeEncodedCharacter(characters[startIndex + i], byteWriteStream);
+                result += UTF8CharacterEncoding.writeEncodedCharacter(characters[startIndex + i], byteWriteStream);
             }
             return result;
         });
@@ -55,7 +55,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
         PreCondition.assertStartIndex(startIndex, bytes.length);
         PreCondition.assertLength(length, startIndex, bytes.length);
 
-        return Result.createResult(() ->
+        return Result.create(() ->
         {
             final List<Character> characters = List.create();
             final Iterator<Byte> byteIterator = Iterator.create(bytes, startIndex, length);
@@ -73,7 +73,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
                     break;
                 }
             }
-            return Array.toCharArray(characters);
+            return Array.toCharArray(characters).await();
         });
     }
 

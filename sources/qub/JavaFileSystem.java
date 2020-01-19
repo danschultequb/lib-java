@@ -27,48 +27,37 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return Result.createResult(() ->
+        return Result.create(() ->
         {
-            Result<Iterable<FileSystemEntry>> result;
-            Array<FileSystemEntry> filesAndFolders;
-
             final java.io.File containerFile = new java.io.File(rootedFolderPath.toString());
             final java.io.File[] containerEntryFiles = containerFile.listFiles();
             if (containerEntryFiles == null)
             {
-                result = Result.error(new FolderNotFoundException(rootedFolderPath));
+                throw new FolderNotFoundException(rootedFolderPath);
             }
-            else
+
+            final List<Folder> folders = List.create();
+            final List<File> files = List.create();
+            for (final java.io.File containerEntryFile : containerEntryFiles)
             {
-                final List<Folder> folders = List.create();
-                final List<File> files = List.create();
-                for (final java.io.File containerEntryFile : containerEntryFiles)
+                final String containerEntryPathString = containerEntryFile.getAbsolutePath();
+                final Path containerEntryPath = Path.parse(containerEntryPathString).normalize();
+                if (containerEntryFile.isFile())
                 {
-                    final String containerEntryPathString = containerEntryFile.getAbsolutePath();
-                    final Path containerEntryPath = Path.parse(containerEntryPathString).normalize();
-                    if (containerEntryFile.isFile())
-                    {
-                        files.add(getFile(containerEntryPath).await());
-                    }
-                    else if (containerEntryFile.isDirectory())
-                    {
-                        folders.add(getFolder(containerEntryPath).await());
-                    }
+                    files.add(getFile(containerEntryPath).await());
                 }
-
-                filesAndFolders = Array.createWithLength(containerEntryFiles.length);
-                final int foldersCount = folders.getCount();
-                for (int i = 0; i < foldersCount; ++i)
+                else if (containerEntryFile.isDirectory())
                 {
-                    filesAndFolders.set(i, folders.get(i));
+                    folders.add(getFolder(containerEntryPath).await());
                 }
-                for (int i = 0; i < files.getCount(); ++i)
-                {
-                    filesAndFolders.set(i + foldersCount, files.get(i));
-                }
-
-                result = Result.success(filesAndFolders);
             }
+
+            final List<FileSystemEntry> result = List.create();
+            result.addAll(folders);
+            result.addAll(files);
+
+            PostCondition.assertNotNull(result, "result");
+
             return result;
         });
     }
@@ -91,9 +80,9 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return Result.createResult(() ->
+        return Result.create(() ->
         {
-            Result<Folder> result;
+            Folder result;
             try
             {
                 final Path parentFolderPath = rootedFolderPath.getParent().await();
@@ -102,16 +91,19 @@ public class JavaFileSystem implements FileSystem
                     java.nio.file.Files.createDirectories(java.nio.file.Paths.get(parentFolderPath.toString()));
                 }
                 java.nio.file.Files.createDirectory(java.nio.file.Paths.get(rootedFolderPath.toString()));
-                result = getFolder(rootedFolderPath);
+                result = this.getFolder(rootedFolderPath).await();
             }
             catch (java.nio.file.FileAlreadyExistsException e)
             {
-                result = Result.error(new FolderAlreadyExistsException(rootedFolderPath));
+                throw new FolderAlreadyExistsException(rootedFolderPath);
             }
-            catch (Throwable e)
+            catch (java.io.IOException e)
             {
-                result = Result.error(e);
+                throw Exceptions.asRuntime(e);
             }
+
+            PostCondition.assertNotNull(result, "result");
+
             return result;
         });
     }
@@ -123,7 +115,7 @@ public class JavaFileSystem implements FileSystem
 
         return Result.create(() ->
         {
-            final Iterable<FileSystemEntry> entries = getFilesAndFolders(rootedFolderPath).await();
+            final Iterable<FileSystemEntry> entries = this.getFilesAndFolders(rootedFolderPath).await();
             for (final FileSystemEntry entry : entries)
             {
                 entry.delete().await();
@@ -139,7 +131,7 @@ public class JavaFileSystem implements FileSystem
             {
                 throw new FolderNotFoundException(rootedFolderPath);
             }
-            catch (Throwable error)
+            catch (java.io.IOException error)
             {
                 throw Exceptions.asRuntime(error);
             }
@@ -164,27 +156,30 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return Result.createResult(() ->
+        return Result.create(() ->
         {
-            createFolder(rootedFilePath.getParent().await())
+            this.createFolder(rootedFilePath.getParent().await())
                 .catchError(FolderAlreadyExistsException.class)
                 .await();
 
-            Result<File> createFileResult;
+            File result;
             try
             {
                 java.nio.file.Files.createFile(java.nio.file.Paths.get(rootedFilePath.toString()));
-                createFileResult = getFile(rootedFilePath);
+                result = this.getFile(rootedFilePath).await();
             }
             catch (java.nio.file.FileAlreadyExistsException e)
             {
-                createFileResult = Result.error(new FileAlreadyExistsException(rootedFilePath));
+                throw new FileAlreadyExistsException(rootedFilePath);
             }
-            catch (Throwable e)
+            catch (java.io.IOException e)
             {
-                createFileResult = Result.error(e);
+                throw Exceptions.asRuntime(e);
             }
-            return createFileResult;
+
+            PostCondition.assertNotNull(result, "result");
+
+            return result;
         });
     }
 
@@ -193,25 +188,22 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return Result.createResult(() ->
+        return Result.create(() ->
         {
-            Result<Void> result;
             try
             {
                 final String rootedFilePathString = rootedFilePath.toString();
                 final java.nio.file.Path filePath = java.nio.file.Paths.get(rootedFilePathString);
                 java.nio.file.Files.delete(filePath);
-                result = Result.success();
             }
             catch (java.nio.file.NoSuchFileException e)
             {
-                result = Result.error(new FileNotFoundException(rootedFilePath));
+                throw new FileNotFoundException(rootedFilePath);
             }
             catch (java.io.IOException e)
             {
-                result = Result.error(e);
+                throw Exceptions.asRuntime(e);
             }
-            return result;
         });
     }
 
@@ -238,7 +230,7 @@ public class JavaFileSystem implements FileSystem
             {
                 throw new FileNotFoundException(rootedFilePath);
             }
-            catch (Throwable e)
+            catch (java.io.IOException e)
             {
                 throw Exceptions.asRuntime(e);
             }
@@ -251,23 +243,23 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return Result.createResult(() ->
+        return Result.create(() ->
         {
-            Result<ByteReadStream> result;
+            ByteReadStream result;
             try
             {
                 final String rootedFilePathString = rootedFilePath.toString();
                 final java.nio.file.Path filePath = java.nio.file.Paths.get(rootedFilePathString);
                 final java.io.InputStream fileContentsInputStream = java.nio.file.Files.newInputStream(filePath);
-                result = Result.success(new InputStreamToByteReadStream(fileContentsInputStream));
+                result = new InputStreamToByteReadStream(fileContentsInputStream);
             }
             catch (java.nio.file.NoSuchFileException e)
             {
-                result = Result.error(new FileNotFoundException(rootedFilePath));
+                throw new FileNotFoundException(rootedFilePath);
             }
             catch (java.io.IOException e)
             {
-                result = Result.error(e);
+                throw Exceptions.asRuntime(e);
             }
             return result;
         });
@@ -278,40 +270,38 @@ public class JavaFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return Result.createResult(() ->
+        return Result.create(() ->
         {
-            Result<ByteWriteStream> result;
+            ByteWriteStream result;
             try
             {
-                result = Result.success(
-                    new BufferedByteWriteStream(
-                        new OutputStreamToByteWriteStream(
-                            java.nio.file.Files.newOutputStream(
-                                java.nio.file.Paths.get(rootedFilePath.toString()),
-                                java.nio.file.StandardOpenOption.CREATE,
-                                java.nio.file.StandardOpenOption.TRUNCATE_EXISTING))));
-            }
-            catch (java.nio.file.NoSuchFileException e)
-            {
-                try
-                {
-                    createFolder(rootedFilePath.getParent().await()).await();
-                    result = Result.success(
-                        new BufferedByteWriteStream(
+                result = new BufferedByteWriteStream(
                             new OutputStreamToByteWriteStream(
                                 java.nio.file.Files.newOutputStream(
                                     java.nio.file.Paths.get(rootedFilePath.toString()),
                                     java.nio.file.StandardOpenOption.CREATE,
-                                    java.nio.file.StandardOpenOption.TRUNCATE_EXISTING))));
-                }
-                catch (Throwable e1)
+                                    java.nio.file.StandardOpenOption.TRUNCATE_EXISTING)));
+            }
+            catch (java.nio.file.NoSuchFileException e1)
+            {
+                try
                 {
-                    result = Result.error(e1);
+                    this.createFolder(rootedFilePath.getParent().await()).await();
+                    result = new BufferedByteWriteStream(
+                                new OutputStreamToByteWriteStream(
+                                    java.nio.file.Files.newOutputStream(
+                                        java.nio.file.Paths.get(rootedFilePath.toString()),
+                                        java.nio.file.StandardOpenOption.CREATE,
+                                        java.nio.file.StandardOpenOption.TRUNCATE_EXISTING)));
+                }
+                catch (java.io.IOException e2)
+                {
+                    throw Exceptions.asRuntime(e2);
                 }
             }
-            catch (Throwable e)
+            catch (java.io.IOException e)
             {
-                result = Result.error(e);
+                throw Exceptions.asRuntime(e);
             }
 
             PostCondition.assertNotNull(result, "result");

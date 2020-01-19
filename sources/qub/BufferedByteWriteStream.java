@@ -62,12 +62,12 @@ public class BufferedByteWriteStream implements ByteWriteStream
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        buffer[currentBufferIndex++] = toWrite;
-        final Result<Integer> result = flushBufferIfFull().thenResult(Result::successOne);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return Result.create(() ->
+        {
+            buffer[currentBufferIndex++] = toWrite;
+            flushBufferIfFull().await();
+            return 1;
+        });
     }
 
     @Override
@@ -102,7 +102,7 @@ public class BufferedByteWriteStream implements ByteWriteStream
         }
         else
         {
-            result = flush();
+            result = this.flush();
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -151,7 +151,7 @@ public class BufferedByteWriteStream implements ByteWriteStream
         Result<Boolean> result;
         if (isDisposed())
         {
-            result = Result.success(false);
+            result = Result.successFalse();
         }
         else
         {
@@ -165,11 +165,11 @@ public class BufferedByteWriteStream implements ByteWriteStream
                 writeBufferResult = byteWriteStream.writeAllBytes(buffer, 0, currentBufferIndex);
             }
             result = writeBufferResult
-                .thenResult(() ->
+                .then(() ->
                 {
                     buffer = null;
                     currentBufferIndex = 0;
-                    return byteWriteStream.dispose();
+                    return byteWriteStream.dispose().await();
                 });
         }
 

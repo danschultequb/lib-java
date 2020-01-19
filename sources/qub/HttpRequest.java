@@ -57,7 +57,7 @@ public interface HttpRequest
     default Result<Long> getContentLength()
     {
         return getHeaderValue(HttpHeader.ContentLengthName)
-            .thenResult(Longs::parse);
+            .then((String headerValue) -> Longs.parse(headerValue).await());
     }
 
     /**
@@ -71,7 +71,7 @@ public interface HttpRequest
         PreCondition.assertNotNullAndNotEmpty(urlString, "urlString");
 
         return URL.parse(urlString)
-            .then((URL url) -> get(url));
+            .then((URL url) -> HttpRequest.get(url));
     }
 
     static MutableHttpRequest get(URL url)

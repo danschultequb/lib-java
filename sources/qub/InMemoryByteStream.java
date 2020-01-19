@@ -96,7 +96,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        return mutex.criticalSectionResult(() ->
+        return mutex.criticalSection(() ->
         {
             started = true;
 
@@ -105,20 +105,17 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                 bytesAvailable.watch().await();
             }
 
-            Result<Byte> result;
             if (isDisposed())
             {
-                result = Result.error(new IllegalStateException("isDisposed() cannot be true."));
-            }
-            else
-            {
-                current = bytes.any() ? bytes.removeFirst() : null;
-                result = current != null
-                    ? Result.success(current)
-                    : Result.error(new EndOfStreamException());
+                throw new IllegalStateException("isDisposed() cannot be true.");
             }
 
-            return result;
+            current = bytes.any() ? bytes.removeFirst() : null;
+            if (current == null)
+            {
+                throw new EndOfStreamException();
+            }
+            return current;
         });
     }
 
@@ -130,7 +127,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
         PreCondition.assertLength(length, startIndex, outputBytes.length);
         PreCondition.assertNotDisposed(this);
 
-        return mutex.criticalSectionResult(() ->
+        return mutex.criticalSection(() ->
         {
             started = true;
 
@@ -139,35 +136,31 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                 bytesAvailable.watch().await();
             }
 
-            Result<Integer> result;
-            if (isDisposed())
+            if (this.isDisposed())
             {
-                result = Result.error(new IllegalStateException("isDisposed() cannot be true."));
+                throw new IllegalStateException("isDisposed() cannot be true.");
             }
             else if (!bytes.any())
             {
                 current = null;
-                result = Result.error(new EndOfStreamException());
+                throw new EndOfStreamException();
             }
-            else
+
+            int bytesRead = Math.minimum(bytes.getCount(), length);
+            if (maxBytesPerRead != null && maxBytesPerRead < bytesRead)
             {
-                int bytesRead = Math.minimum(bytes.getCount(), length);
-                if (maxBytesPerRead != null && maxBytesPerRead < bytesRead)
-                {
-                    bytesRead = maxBytesPerRead;
-                }
-                bytes.removeFirstBytes(outputBytes, startIndex, bytesRead);
-                current = outputBytes[startIndex + bytesRead - 1];
-                result = Result.success(bytesRead);
+                bytesRead = maxBytesPerRead;
             }
-            return result;
+            bytes.removeFirstBytes(outputBytes, startIndex, bytesRead);
+            current = outputBytes[startIndex + bytesRead - 1];
+            return bytesRead;
         });
     }
 
     @Override
     public boolean isDisposed()
     {
-        return disposed;
+        return this.disposed;
     }
 
     @Override
@@ -230,11 +223,11 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
         PreCondition.assertFalse(endOfStream, "endOfStream");
 
-        return mutex.criticalSectionResult(() ->
+        return mutex.criticalSection(() ->
         {
             bytes.add(toWrite);
             bytesAvailable.signalAll();
-            return Result.successOne();
+            return 1;
         });
     }
 
