@@ -78,36 +78,33 @@ public class BasicHttpClient implements HttpClient
                     headerLine = responseCharacterReadStream.readLine().await();
                 }
 
-                result.getContentLength()
+                final Long contentLength = result.getContentLength()
                     .catchError(NotFoundException.class, () -> 0L)
-                    .then((Long contentLength) ->
-                    {
-                        if (0 < contentLength)
-                        {
-                            final InMemoryByteStream responseBodyStream = new InMemoryByteStream();
-
-                            if (request.getMethod() != HttpMethod.HEAD)
-                            {
-                                long bytesToRead = contentLength;
-                                while (0 < bytesToRead)
-                                {
-                                    final byte[] bytesRead = bufferedByteReadStream.readBytes((int)Math.minimum(bytesToRead, Integers.maximum)).await();
-                                    if (bytesRead == null)
-                                    {
-                                        bytesToRead = 0;
-                                    }
-                                    else
-                                    {
-                                        responseBodyStream.writeAllBytes(bytesRead).await();
-                                        bytesToRead -= bytesRead.length;
-                                    }
-                                }
-                            }
-                            responseBodyStream.endOfStream();
-                            result.setBody(responseBodyStream);
-                        }
-                    })
                     .await();
+                if (0 < contentLength)
+                {
+                    final InMemoryByteStream responseBodyStream = new InMemoryByteStream();
+
+                    if (request.getMethod() != HttpMethod.HEAD)
+                    {
+                        long bytesToRead = contentLength;
+                        while (0 < bytesToRead)
+                        {
+                            final byte[] bytesRead = bufferedByteReadStream.readBytes((int)Math.minimum(bytesToRead, Integers.maximum)).await();
+                            if (bytesRead == null)
+                            {
+                                bytesToRead = 0;
+                            }
+                            else
+                            {
+                                responseBodyStream.writeAllBytes(bytesRead).await();
+                                bytesToRead -= bytesRead.length;
+                            }
+                        }
+                    }
+                    responseBodyStream.endOfStream();
+                    result.setBody(responseBodyStream);
+                }
             }
 
             PostCondition.assertNotNull(result, "result");

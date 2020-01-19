@@ -328,6 +328,116 @@ public interface Result<T>
     }
 
     /**
+     * Create a new Result by synchronously running the provided action with the provided disposable
+     * value. When the action is completed, the disposable will be disposed.
+     * @param disposableFunction The function that will provided the disposable to dispose when the
+     *                           action is completed.
+     * @param action The action to run.
+     * @param <T> The type of the disposable.
+     * @return The new result.
+     */
+    static <T extends Disposable> Result<Void> createUsing(Function0<T> disposableFunction, Action1<T> action)
+    {
+        PreCondition.assertNotNull(disposableFunction, "disposableFunction");
+        PreCondition.assertNotNull(action, "action");
+
+        return Result.create(() ->
+        {
+            try (T disposable = disposableFunction.run())
+            {
+                action.run(disposable);
+            }
+        });
+    }
+
+    /**
+     * Create a new Result by synchronously running the provided action with the provided disposable
+     * value. When the action is completed, the disposable will be disposed.
+     * @param disposableFunction1 The first function that will provide the disposable to dispose
+     *                            when the action is completed.
+     * @param disposableFunction2 The second function that will provide the disposable to dispose
+     *                            when the action is completed.
+     * @param action The action to run.
+     * @param <T> The first type of the disposable.
+     * @param <U> The second type of the disposable.
+     * @return The new result.
+     */
+    static <T extends Disposable,U extends Disposable> Result<Void> createUsing(Function0<T> disposableFunction1, Function0<U> disposableFunction2, Action2<T,U> action)
+    {
+        PreCondition.assertNotNull(disposableFunction1, "disposableFunction1");
+        PreCondition.assertNotNull(disposableFunction2, "disposableFunction2");
+        PreCondition.assertNotNull(action, "action");
+
+        return Result.create(() ->
+        {
+            try (final T disposable1 = disposableFunction1.run())
+            {
+                try (final U disposable2 = disposableFunction2.run())
+                {
+                    action.run(disposable1, disposable2);
+                }
+            }
+        });
+    }
+
+    /**
+     * Create a new Result by synchronously running the provided action with the provided disposable
+     * value. When the action is completed, the disposable will be disposed.
+     * @param disposableFunction The function that will provided the disposable to dispose when the
+     *                           action is completed.
+     * @param function The action to run.
+     * @param <T> The type of the disposable.
+     * @return The new result.
+     */
+    static <T extends Disposable,U> Result<U> createUsing(Function0<T> disposableFunction, Function1<T,U> function)
+    {
+        PreCondition.assertNotNull(disposableFunction, "disposableFunction");
+        PreCondition.assertNotNull(function, "function");
+
+        return Result.create(() ->
+        {
+            U result;
+            try (T disposable = disposableFunction.run())
+            {
+                result = function.run(disposable);
+            }
+            return result;
+        });
+    }
+
+    /**
+     * Create a new Result by synchronously running the provided action with the provided disposable
+     * value. When the action is completed, the disposable will be disposed.
+     * @param disposableFunction1 The first function that will provide the disposable to dispose
+     *                            when the action is completed.
+     * @param disposableFunction2 The second function that will provide the disposable to dispose
+     *                            when the action is completed.
+     * @param function The function to run.
+     * @param <T> The first type of the disposable.
+     * @param <U> The second type of the disposable.
+     * @return The new result.
+     */
+    static <T extends Disposable,U extends Disposable,V> Result<V> createUsing(Function0<T> disposableFunction1, Function0<U> disposableFunction2, Function2<T,U,V> function)
+    {
+        PreCondition.assertNotNull(disposableFunction1, "disposableFunction1");
+        PreCondition.assertNotNull(disposableFunction2, "disposableFunction2");
+        PreCondition.assertNotNull(function, "function");
+
+        return Result.create(() ->
+        {
+            V result;
+            try (final T disposable1 = disposableFunction1.run())
+            {
+                try (final U disposable2 = disposableFunction2.run())
+                {
+                    result = function.run(disposable1, disposable2);
+                }
+            }
+            return result;
+        });
+    }
+
+    /**
      * Create a new Result that contains the provided error.
      * @param error The error that the Result should contain.
      * @param <U> The type of value the Result can contain.

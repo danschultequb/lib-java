@@ -14,7 +14,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
-        return rootExists(Path.parse(rootPath));
+        return this.rootExists(Path.parse(rootPath));
     }
 
     /**
@@ -26,7 +26,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
-        return getRoots()
+        return this.getRoots()
             .then((Iterable<Root> roots) ->
             {
                 final Path root = rootPath.getRoot().await();
@@ -43,7 +43,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
-        return getRoot(Path.parse(rootPath));
+        return this.getRoot(Path.parse(rootPath));
     }
 
     /**
@@ -141,7 +141,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getFolders(Path.parse(rootedFolderPath));
+        return this.getFolders(Path.parse(rootedFolderPath));
     }
 
     /**
@@ -153,7 +153,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getFilesAndFolders(rootedFolderPath)
+        return this.getFilesAndFolders(rootedFolderPath)
             .then((Iterable<FileSystemEntry> entries) -> entries.instanceOf(Folder.class));
     }
 
@@ -166,7 +166,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getFoldersRecursively(Path.parse(rootedFolderPath));
+        return this.getFoldersRecursively(Path.parse(rootedFolderPath));
     }
 
     /**
@@ -178,7 +178,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getFilesAndFoldersRecursively(rootedFolderPath)
+        return this.getFilesAndFoldersRecursively(rootedFolderPath)
             .then((Iterable<FileSystemEntry> entries) -> entries.instanceOf(Folder.class));
     }
 
@@ -191,7 +191,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getFiles(Path.parse(rootedFolderPath));
+        return this.getFiles(Path.parse(rootedFolderPath));
     }
 
     /**
@@ -203,7 +203,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getFilesAndFolders(rootedFolderPath)
+        return this.getFilesAndFolders(rootedFolderPath)
             .then((Iterable<FileSystemEntry> entries) -> entries.instanceOf(File.class));
     }
 
@@ -216,7 +216,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getFilesRecursively(Path.parse(rootedFolderPath));
+        return this.getFilesRecursively(Path.parse(rootedFolderPath));
     }
 
     /**
@@ -228,7 +228,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getFilesAndFoldersRecursively(rootedFolderPath)
+        return this.getFilesAndFoldersRecursively(rootedFolderPath)
             .then((Iterable<FileSystemEntry> entries) -> entries.instanceOf(File.class));
     }
 
@@ -241,7 +241,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getFolder(Path.parse(rootedFolderPath));
+        return this.getFolder(Path.parse(rootedFolderPath));
     }
 
     /**
@@ -266,7 +266,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return folderExists(Path.parse(rootedFolderPath));
+        return this.folderExists(Path.parse(rootedFolderPath));
     }
 
     /**
@@ -286,7 +286,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return createFolder(Path.parse(rootedFolderPath));
+        return this.createFolder(Path.parse(rootedFolderPath));
     }
 
     /**
@@ -306,7 +306,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return deleteFolder(Path.parse(rootedFolderPath));
+        return this.deleteFolder(Path.parse(rootedFolderPath));
     }
 
     /**
@@ -325,7 +325,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getFile(Path.parse(rootedFilePath));
+        return this.getFile(Path.parse(rootedFilePath));
     }
 
     /**
@@ -350,7 +350,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return fileExists(Path.parse(rootedFilePath));
+        return this.fileExists(Path.parse(rootedFilePath));
     }
 
     /**
@@ -369,7 +369,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return createFile(Path.parse(rootedFilePath));
+        return this.createFile(Path.parse(rootedFilePath));
     }
 
     /**
@@ -484,21 +484,13 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return this.getFileContentByteReadStream(rootedFilePath)
-            .then((ByteReadStream byteReadStream) ->
+        return Result.createUsing(
+            () -> this.getFileContentByteReadStream(rootedFilePath).await(),
+            (ByteReadStream byteReadStream) ->
             {
-                byte[] result;
-                try
-                {
-                    result = byteReadStream.readAllBytes()
+                return byteReadStream.readAllBytes()
                         .catchError(EndOfStreamException.class, () -> new byte[0])
                         .await();
-                }
-                finally
-                {
-                    byteReadStream.dispose().await();
-                }
-                return result;
             });
     }
 
@@ -565,6 +557,8 @@ public interface FileSystem
      */
     default Result<CharacterWriteStream> getFileContentCharacterWriteStream(Path rootedFilePath)
     {
+        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
+
         return this.getFileContentByteWriteStream(rootedFilePath)
             .then((ByteWriteStream writeStream) -> writeStream.asCharacterWriteStream());
     }
@@ -592,19 +586,13 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return this.getFileContentByteWriteStream(rootedFilePath)
-            .then((ByteWriteStream byteWriteStream) ->
+        return Result.createUsing(
+            () -> { return this.getFileContentByteWriteStream(rootedFilePath).await(); },
+            (ByteWriteStream byteWriteStream) ->
             {
-                try
+                if (content != null && content.length > 0)
                 {
-                    if (content != null && content.length > 0)
-                    {
-                        byteWriteStream.writeAllBytes(content).await();
-                    }
-                }
-                finally
-                {
-                    byteWriteStream.dispose().await();
+                    byteWriteStream.writeAllBytes(content).await();
                 }
             });
     }
@@ -689,16 +677,13 @@ public interface FileSystem
         FileSystem.validateRootedFilePath(sourceFilePath, "sourceFilePath");
         FileSystem.validateRootedFilePath(destinationFilePath, "destinationFilePath");
 
-        return Result.create(() ->
-        {
-            try (final ByteReadStream sourceStream = this.getFileContentByteReadStream(sourceFilePath).await())
+        return Result.createUsing(
+            () -> this.getFileContentByteReadStream(sourceFilePath).await(),
+            () -> this.getFileContentByteWriteStream(destinationFilePath).await(),
+            (ByteReadStream sourceStream, ByteWriteStream destinationStream) ->
             {
-                try (final ByteWriteStream destinationStream = this.getFileContentByteWriteStream(destinationFilePath).await())
-                {
-                    destinationStream.writeAllBytes(sourceStream).await();
-                }
-            }
-        });
+                destinationStream.writeAllBytes(sourceStream).await();
+            });
     }
 
     /**
