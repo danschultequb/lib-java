@@ -2,14 +2,17 @@ package qub;
 
 public class QubProjectFolder extends Folder
 {
-    public QubProjectFolder(Folder folder)
+    private QubProjectFolder(Folder folder)
     {
-        this(folder.getFileSystem(), folder.getPath());
+        super(folder.getFileSystem(), folder.getPath());
     }
 
-    public QubProjectFolder(FileSystem fileSystem, Path path)
+    public static QubProjectFolder create(Folder projectFolder)
     {
-        super(fileSystem, path);
+        PreCondition.assertNotNull(projectFolder, "projectFolder");
+        PreCondition.assertGreaterThanOrEqualTo(projectFolder.getPath().getSegments().getCount(), 3, "projectFolder.getPath().getSegments().getCount()");
+
+        return new QubProjectFolder(projectFolder);
     }
 
     public Result<QubFolder> getQubFolder()
@@ -21,7 +24,7 @@ public class QubProjectFolder extends Folder
     public Result<QubPublisherFolder> getPublisherFolder()
     {
         return this.getParentFolder()
-            .then((Folder folder) -> new QubPublisherFolder(folder));
+            .then((Folder folder) -> QubPublisherFolder.create(folder));
     }
 
     public Result<String> getPublisherName()
@@ -39,7 +42,7 @@ public class QubProjectFolder extends Folder
     {
         return this.getFolders()
             .catchError(FolderNotFoundException.class, () -> Iterable.create())
-            .then((Iterable<Folder> folders) -> folders.map(QubProjectVersionFolder::new));
+            .then((Iterable<Folder> folders) -> folders.map(QubProjectVersionFolder::create));
     }
 
     public Result<QubProjectVersionFolder> getProjectVersionFolder(String version)
@@ -47,6 +50,6 @@ public class QubProjectFolder extends Folder
         PreCondition.assertNotNullAndNotEmpty(version, "version");
 
         return this.getFolder(version)
-            .then((Folder folder) -> new QubProjectVersionFolder(folder));
+            .then((Folder folder) -> QubProjectVersionFolder.create(folder));
     }
 }

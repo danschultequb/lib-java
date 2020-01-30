@@ -2,25 +2,16 @@ package qub;
 
 public class QubFolder extends Folder
 {
-    /**
-     * Create a new QubFolder object from the provided folder.
-     *
-     * @param folder The folder that the QubFolder object will operate on.
-     */
-    public QubFolder(Folder folder)
+    private QubFolder(Folder qubFolder)
     {
-        this(folder.getFileSystem(), folder.getPath());
+        super(qubFolder.getFileSystem(), qubFolder.getPath());
     }
 
-    /**
-     * Create a new QubFolder object from the provided folder.
-     *
-     * @param fileSystem The file system that contains this folder.
-     * @param path       The path to this folder.
-     */
-    public QubFolder(FileSystem fileSystem, Path path)
+    public static QubFolder create(Folder qubFolder)
     {
-        super(fileSystem, path);
+        PreCondition.assertNotNull(qubFolder, "qubFolder");
+
+        return new QubFolder(qubFolder);
     }
 
     public Result<File> getShortcutFile(String shortcutName)
@@ -39,7 +30,7 @@ public class QubFolder extends Folder
     {
         return this.getFolders()
             .catchError(FolderNotFoundException.class, () -> Iterable.create())
-            .then((Iterable<Folder> folders) -> folders.map(QubPublisherFolder::new));
+            .then((Iterable<Folder> folders) -> folders.map(QubPublisherFolder::create));
     }
 
     /**
@@ -53,7 +44,7 @@ public class QubFolder extends Folder
         PreCondition.assertNotNullAndNotEmpty(publisherName, "publisherName");
 
         return this.getFolder(publisherName)
-            .then((Folder folder) -> new QubPublisherFolder(folder));
+            .then((Folder folder) -> QubPublisherFolder.create(folder));
     }
 
     public Result<Iterable<QubProjectFolder>> getProjectFolders(String publisherName)

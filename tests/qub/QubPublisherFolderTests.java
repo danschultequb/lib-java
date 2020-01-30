@@ -12,14 +12,21 @@ public interface QubPublisherFolderTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> new QubPublisherFolder(null),
-                        new NullPointerException());
+                    test.assertThrows(() -> QubPublisherFolder.create(null),
+                        new PreConditionFailure("publisherFolder cannot be null."));
+                });
+
+                runner.test("with root folder", (Test test) ->
+                {
+                    final Folder folder = QubPublisherFolderTests.getFolder(test, "/");
+                    test.assertThrows(() -> QubPublisherFolder.create(folder),
+                        new PreConditionFailure("publisherFolder.getPath().getSegments().getCount() (1) must be greater than or equal to 2."));
                 });
 
                 runner.test("with folder that doesn't exist", (Test test) ->
                 {
                     final Folder folder = QubPublisherFolderTests.getFolder(test, "/qub/me/");
-                    final QubPublisherFolder publisherFolder = new QubPublisherFolder(folder);
+                    final QubPublisherFolder publisherFolder = QubPublisherFolder.create(folder);
                     test.assertEqual(folder.getPath(), publisherFolder.getPath());
                     test.assertFalse(publisherFolder.exists().await());
                 });
@@ -27,7 +34,7 @@ public interface QubPublisherFolderTests
                 runner.test("with folder that exists", (Test test) ->
                 {
                     final Folder folder = QubPublisherFolderTests.createFolder(test, "/qub/me/");
-                    final QubPublisherFolder publisherFolder = new QubPublisherFolder(folder);
+                    final QubPublisherFolder publisherFolder = QubPublisherFolder.create(folder);
                     test.assertEqual(folder.getPath(), publisherFolder.getPath());
                     test.assertTrue(publisherFolder.exists().await());
                 });
@@ -51,7 +58,7 @@ public interface QubPublisherFolderTests
                 {
                     final Folder folder = QubPublisherFolderTests.createFolder(test, "/qub/me/");
                     folder.createFile("shortcut.cmd").await();
-                    final QubPublisherFolder publisherFolder = new QubPublisherFolder(folder);
+                    final QubPublisherFolder publisherFolder = QubPublisherFolder.create(folder);
                     test.assertEqual(Iterable.create(), publisherFolder.getProjectFolders().await());
                 });
 
@@ -59,10 +66,10 @@ public interface QubPublisherFolderTests
                 {
                     final Folder folder = QubPublisherFolderTests.createFolder(test, "/qub/me/");
                     final Folder subFolder = folder.createFolder("project").await();
-                    final QubPublisherFolder publisherFolder = new QubPublisherFolder(folder);
+                    final QubPublisherFolder publisherFolder = QubPublisherFolder.create(folder);
                     test.assertEqual(
                         Iterable.create(
-                            new QubProjectFolder(subFolder)),
+                            QubProjectFolder.create(subFolder)),
                         publisherFolder.getProjectFolders().await());
                 });
             });
@@ -94,7 +101,7 @@ public interface QubPublisherFolderTests
                 runner.test("with existing publisher", (Test test) ->
                 {
                     final Folder folder = QubPublisherFolderTests.createFolder(test, "/qub/me/");
-                    final QubPublisherFolder publisherFolder = new QubPublisherFolder(folder);
+                    final QubPublisherFolder publisherFolder = QubPublisherFolder.create(folder);
 
                     folder.createFolder("spam").await();
                     final QubProjectFolder projectFolder = publisherFolder.getProjectFolder("spam").await();
@@ -109,7 +116,7 @@ public interface QubPublisherFolderTests
                 {
                     final InMemoryFileSystem fileSystem = QubPublisherFolderTests.createFileSystem(test);
                     final Folder folder = fileSystem.getFolder("/qub/me/").await();
-                    final QubPublisherFolder publisherFolder = new QubPublisherFolder(folder);
+                    final QubPublisherFolder publisherFolder = QubPublisherFolder.create(folder);
                     test.assertEqual(false, publisherFolder.equals((Object)null));
                 });
 
@@ -117,7 +124,7 @@ public interface QubPublisherFolderTests
                 {
                     final InMemoryFileSystem fileSystem = QubPublisherFolderTests.createFileSystem(test);
                     final Folder folder = fileSystem.getFolder("/qub/me/").await();
-                    final QubPublisherFolder publisherFolder = new QubPublisherFolder(folder);
+                    final QubPublisherFolder publisherFolder = QubPublisherFolder.create(folder);
                     test.assertEqual(false, publisherFolder.equals((Object)"hello world"));
                 });
 
@@ -126,10 +133,10 @@ public interface QubPublisherFolderTests
                     final InMemoryFileSystem fileSystem = QubPublisherFolderTests.createFileSystem(test);
 
                     final Folder folder = fileSystem.getFolder("/qub/me/").await();
-                    final QubPublisherFolder publisherFolder = new QubPublisherFolder(folder);
+                    final QubPublisherFolder publisherFolder = QubPublisherFolder.create(folder);
 
                     final Folder folder2 = fileSystem.getFolder("/other/thing/").await();
-                    final QubPublisherFolder publisherFolder2 = new QubPublisherFolder(folder2);
+                    final QubPublisherFolder publisherFolder2 = QubPublisherFolder.create(folder2);
 
                     test.assertEqual(false, publisherFolder.equals((Object)publisherFolder2));
                 });
@@ -139,10 +146,10 @@ public interface QubPublisherFolderTests
                     final InMemoryFileSystem fileSystem = QubPublisherFolderTests.createFileSystem(test);
 
                     final Folder folder = fileSystem.getFolder("/qub/me/").await();
-                    final QubPublisherFolder publisherFolder = new QubPublisherFolder(folder);
+                    final QubPublisherFolder publisherFolder = QubPublisherFolder.create(folder);
 
                     final Folder folder2 = fileSystem.getFolder("/qub/me/").await();
-                    final QubPublisherFolder publisherFolder2 = new QubPublisherFolder(folder2);
+                    final QubPublisherFolder publisherFolder2 = QubPublisherFolder.create(folder2);
 
                     test.assertEqual(true, publisherFolder.equals((Object)publisherFolder2));
                 });
@@ -154,7 +161,7 @@ public interface QubPublisherFolderTests
                 {
                     final InMemoryFileSystem fileSystem = QubPublisherFolderTests.createFileSystem(test);
                     final Folder folder = fileSystem.getFolder("/qub/me/").await();
-                    final QubPublisherFolder publisherFolder = new QubPublisherFolder(folder);
+                    final QubPublisherFolder publisherFolder = QubPublisherFolder.create(folder);
                     test.assertEqual(false, publisherFolder.equals((QubPublisherFolder)null));
                 });
 
@@ -163,10 +170,10 @@ public interface QubPublisherFolderTests
                     final InMemoryFileSystem fileSystem = QubPublisherFolderTests.createFileSystem(test);
 
                     final Folder folder = fileSystem.getFolder("/qub/me/").await();
-                    final QubPublisherFolder publisherFolder = new QubPublisherFolder(folder);
+                    final QubPublisherFolder publisherFolder = QubPublisherFolder.create(folder);
 
                     final Folder folder2 = fileSystem.getFolder("/other/thing/").await();
-                    final QubPublisherFolder publisherFolder2 = new QubPublisherFolder(folder2);
+                    final QubPublisherFolder publisherFolder2 = QubPublisherFolder.create(folder2);
 
                     test.assertEqual(false, publisherFolder.equals((QubPublisherFolder)publisherFolder2));
                 });
@@ -176,10 +183,10 @@ public interface QubPublisherFolderTests
                     final InMemoryFileSystem fileSystem = QubPublisherFolderTests.createFileSystem(test);
 
                     final Folder folder = fileSystem.getFolder("/qub/me/").await();
-                    final QubPublisherFolder publisherFolder = new QubPublisherFolder(folder);
+                    final QubPublisherFolder publisherFolder = QubPublisherFolder.create(folder);
 
                     final Folder folder2 = fileSystem.getFolder("/qub/me/").await();
-                    final QubPublisherFolder publisherFolder2 = new QubPublisherFolder(folder2);
+                    final QubPublisherFolder publisherFolder2 = QubPublisherFolder.create(folder2);
 
                     test.assertEqual(true, publisherFolder.equals((QubPublisherFolder)publisherFolder2));
                 });
@@ -220,11 +227,11 @@ public interface QubPublisherFolderTests
     
     static QubPublisherFolder getQubPublisherFolder(Test test, String folderPath)
     {
-        return new QubPublisherFolder(QubPublisherFolderTests.getFolder(test, folderPath));
+        return QubPublisherFolder.create(QubPublisherFolderTests.getFolder(test, folderPath));
     }
 
     static QubPublisherFolder createQubPublisherFolder(Test test, String folderPath)
     {
-        return new QubPublisherFolder(QubPublisherFolderTests.createFolder(test, folderPath));
+        return QubPublisherFolder.create(QubPublisherFolderTests.createFolder(test, folderPath));
     }
 }

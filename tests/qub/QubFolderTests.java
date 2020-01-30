@@ -8,18 +8,18 @@ public interface QubFolderTests
 
         runner.testGroup(QubFolder.class, () ->
         {
-            runner.testGroup("constructor(Folder)", () ->
+            runner.testGroup("create(Folder)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> new QubFolder(null),
-                        new NullPointerException());
+                    test.assertThrows(() -> QubFolder.create(null),
+                        new PreConditionFailure("qubFolder cannot be null."));
                 });
 
                 runner.test("with folder that doesn't exist", (Test test) ->
                 {
                     final Folder folder = QubFolderTests.getFolder(test, "/qub/");
-                    final QubFolder qubFolder = new QubFolder(folder);
+                    final QubFolder qubFolder = QubFolder.create(folder);
                     test.assertEqual(folder.getPath(), qubFolder.getPath());
                     test.assertFalse(qubFolder.exists().await());
                 });
@@ -27,7 +27,7 @@ public interface QubFolderTests
                 runner.test("with folder that exists", (Test test) ->
                 {
                     final Folder folder = QubFolderTests.createFolder(test, "/qub/");
-                    final QubFolder qubFolder = new QubFolder(folder);
+                    final QubFolder qubFolder = QubFolder.create(folder);
                     test.assertEqual(folder.getPath(), qubFolder.getPath());
                     test.assertTrue(qubFolder.exists().await());
                 });
@@ -51,7 +51,7 @@ public interface QubFolderTests
                 {
                     final Folder folder = QubFolderTests.createFolder(test, "/qub/");
                     folder.createFile("shortcut.cmd").await();
-                    final QubFolder qubFolder = new QubFolder(folder);
+                    final QubFolder qubFolder = QubFolder.create(folder);
                     test.assertEqual(Iterable.create(), qubFolder.getPublisherFolders().await());
                 });
 
@@ -59,10 +59,10 @@ public interface QubFolderTests
                 {
                     final Folder folder = QubFolderTests.createFolder(test, "/qub/");
                     final Folder subFolder = folder.createFolder("publisher").await();
-                    final QubFolder qubFolder = new QubFolder(folder);
+                    final QubFolder qubFolder = QubFolder.create(folder);
                     test.assertEqual(
                         Iterable.create(
-                            new QubPublisherFolder(subFolder)),
+                            QubPublisherFolder.create(subFolder)),
                         qubFolder.getPublisherFolders().await());
                 });
             });
@@ -94,7 +94,7 @@ public interface QubFolderTests
                 runner.test("with existing publisher", (Test test) ->
                 {
                     final Folder folder = QubFolderTests.createFolder(test, "/qub/");
-                    final QubFolder qubFolder = new QubFolder(folder);
+                    final QubFolder qubFolder = QubFolder.create(folder);
 
                     folder.createFolder("spam").await();
                     final QubPublisherFolder qubPublisherFolder = qubFolder.getPublisherFolder("spam").await();
@@ -135,7 +135,7 @@ public interface QubFolderTests
                 {
                     final Folder folder = QubFolderTests.createFolder(test, "/qub/");
                     folder.createFile("shortcut.cmd").await();
-                    final QubFolder qubFolder = new QubFolder(folder);
+                    final QubFolder qubFolder = QubFolder.create(folder);
                     test.assertEqual(Iterable.create(), qubFolder.getProjectFolders("me").await());
                 });
 
@@ -143,7 +143,7 @@ public interface QubFolderTests
                 {
                     final Folder folder = QubFolderTests.createFolder(test, "/qub/");
                     folder.createFolder("me").await();
-                    final QubFolder qubFolder = new QubFolder(folder);
+                    final QubFolder qubFolder = QubFolder.create(folder);
                     test.assertEqual(Iterable.create(), qubFolder.getProjectFolders("me").await());
                 });
 
@@ -151,10 +151,10 @@ public interface QubFolderTests
                 {
                     final Folder folder = QubFolderTests.createFolder(test, "/qub/");
                     final Folder subFolder = folder.createFolder("me/my-project/").await();
-                    final QubFolder qubFolder = new QubFolder(folder);
+                    final QubFolder qubFolder = QubFolder.create(folder);
                     test.assertEqual(
                         Iterable.create(
-                            new QubProjectFolder(subFolder)),
+                            QubProjectFolder.create(subFolder)),
                         qubFolder.getProjectFolders("me").await());
                 });
             });
@@ -200,7 +200,7 @@ public interface QubFolderTests
                 runner.test("with non-existing project", (Test test) ->
                 {
                     final Folder folder = QubFolderTests.createFolder(test, "/qub/");
-                    final QubFolder qubFolder = new QubFolder(folder);
+                    final QubFolder qubFolder = QubFolder.create(folder);
 
                     folder.createFolder("spam").await();
                     final QubProjectFolder projectFolder = qubFolder.getProjectFolder("spam", "my-project").await();
@@ -211,7 +211,7 @@ public interface QubFolderTests
                 runner.test("with existing project", (Test test) ->
                 {
                     final Folder folder = QubFolderTests.createFolder(test, "/qub/");
-                    final QubFolder qubFolder = new QubFolder(folder);
+                    final QubFolder qubFolder = QubFolder.create(folder);
 
                     folder.createFolder("spam/my-project/").await();
                     final QubProjectFolder projectFolder = qubFolder.getProjectFolder("spam", "my-project").await();
@@ -226,7 +226,7 @@ public interface QubFolderTests
                 {
                     final InMemoryFileSystem fileSystem = QubFolderTests.createFileSystem(test);
                     final Folder folder = fileSystem.getFolder("/qub/").await();
-                    final QubFolder qubFolder = new QubFolder(folder);
+                    final QubFolder qubFolder = QubFolder.create(folder);
                     test.assertEqual(false, qubFolder.equals((Object)null));
                 });
 
@@ -234,7 +234,7 @@ public interface QubFolderTests
                 {
                     final InMemoryFileSystem fileSystem = QubFolderTests.createFileSystem(test);
                     final Folder folder = fileSystem.getFolder("/qub/").await();
-                    final QubFolder qubFolder = new QubFolder(folder);
+                    final QubFolder qubFolder = QubFolder.create(folder);
                     test.assertEqual(false, qubFolder.equals((Object)"hello world"));
                 });
 
@@ -243,10 +243,10 @@ public interface QubFolderTests
                     final InMemoryFileSystem fileSystem = QubFolderTests.createFileSystem(test);
 
                     final Folder folder = fileSystem.getFolder("/qub/").await();
-                    final QubFolder qubFolder = new QubFolder(folder);
+                    final QubFolder qubFolder = QubFolder.create(folder);
 
                     final Folder folder2 = fileSystem.getFolder("/other/").await();
-                    final QubFolder qubFolder2 = new QubFolder(folder2);
+                    final QubFolder qubFolder2 = QubFolder.create(folder2);
 
                     test.assertEqual(false, qubFolder.equals((Object)qubFolder2));
                 });
@@ -256,10 +256,10 @@ public interface QubFolderTests
                     final InMemoryFileSystem fileSystem = QubFolderTests.createFileSystem(test);
 
                     final Folder folder = fileSystem.getFolder("/qub/").await();
-                    final QubFolder qubFolder = new QubFolder(folder);
+                    final QubFolder qubFolder = QubFolder.create(folder);
 
                     final Folder folder2 = fileSystem.getFolder("/qub/").await();
-                    final QubFolder qubFolder2 = new QubFolder(folder2);
+                    final QubFolder qubFolder2 = QubFolder.create(folder2);
 
                     test.assertEqual(true, qubFolder.equals((Object)qubFolder2));
                 });
@@ -271,7 +271,7 @@ public interface QubFolderTests
                 {
                     final InMemoryFileSystem fileSystem = QubFolderTests.createFileSystem(test);
                     final Folder folder = fileSystem.getFolder("/qub/").await();
-                    final QubFolder qubFolder = new QubFolder(folder);
+                    final QubFolder qubFolder = QubFolder.create(folder);
                     test.assertEqual(false, qubFolder.equals((QubFolder)null));
                 });
 
@@ -280,10 +280,10 @@ public interface QubFolderTests
                     final InMemoryFileSystem fileSystem = QubFolderTests.createFileSystem(test);
 
                     final Folder folder = fileSystem.getFolder("/qub/").await();
-                    final QubFolder qubFolder = new QubFolder(folder);
+                    final QubFolder qubFolder = QubFolder.create(folder);
 
                     final Folder folder2 = fileSystem.getFolder("/other/").await();
-                    final QubFolder qubFolder2 = new QubFolder(folder2);
+                    final QubFolder qubFolder2 = QubFolder.create(folder2);
 
                     test.assertEqual(false, qubFolder.equals((QubFolder)qubFolder2));
                 });
@@ -293,10 +293,10 @@ public interface QubFolderTests
                     final InMemoryFileSystem fileSystem = QubFolderTests.createFileSystem(test);
 
                     final Folder folder = fileSystem.getFolder("/qub/").await();
-                    final QubFolder qubFolder = new QubFolder(folder);
+                    final QubFolder qubFolder = QubFolder.create(folder);
 
                     final Folder folder2 = fileSystem.getFolder("/qub/").await();
-                    final QubFolder qubFolder2 = new QubFolder(folder2);
+                    final QubFolder qubFolder2 = QubFolder.create(folder2);
 
                     test.assertEqual(true, qubFolder.equals((QubFolder)qubFolder2));
                 });
@@ -337,11 +337,11 @@ public interface QubFolderTests
 
     static QubFolder getQubFolder(Test test, String folderPath)
     {
-        return new QubFolder(QubFolderTests.getFolder(test, folderPath));
+        return QubFolder.create(QubFolderTests.getFolder(test, folderPath));
     }
 
     static QubFolder createQubFolder(Test test, String folderPath)
     {
-        return new QubFolder(QubFolderTests.createFolder(test, folderPath));
+        return QubFolder.create(QubFolderTests.createFolder(test, folderPath));
     }
 }

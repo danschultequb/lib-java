@@ -2,20 +2,23 @@ package qub;
 
 public class QubPublisherFolder extends Folder
 {
-    public QubPublisherFolder(Folder folder)
+    private QubPublisherFolder(Folder publisherFolder)
     {
-        this(folder.getFileSystem(), folder.getPath());
+        super(publisherFolder.getFileSystem(), publisherFolder.getPath());
     }
 
-    public QubPublisherFolder(FileSystem fileSystem, Path path)
+    public static QubPublisherFolder create(Folder publisherFolder)
     {
-        super(fileSystem, path);
+        PreCondition.assertNotNull(publisherFolder, "publisherFolder");
+        PreCondition.assertGreaterThanOrEqualTo(publisherFolder.getPath().getSegments().getCount(), 2, "publisherFolder.getPath().getSegments().getCount()");
+
+        return new QubPublisherFolder(publisherFolder);
     }
 
     public Result<QubFolder> getQubFolder()
     {
         return this.getParentFolder()
-            .then((Folder parentFolder) -> new QubFolder(parentFolder));
+            .then((Folder parentFolder) -> QubFolder.create(parentFolder));
     }
 
     public String getPublisherName()
@@ -31,7 +34,7 @@ public class QubPublisherFolder extends Folder
     {
         return this.getFolders()
             .catchError(FolderNotFoundException.class, () -> Iterable.create())
-            .then((Iterable<Folder> folders) -> folders.map((Folder folder) -> new QubProjectFolder(folder)));
+            .then((Iterable<Folder> folders) -> folders.map(QubProjectFolder::create));
     }
 
     /**
@@ -44,6 +47,6 @@ public class QubPublisherFolder extends Folder
         PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
 
         return this.getFolder(projectName)
-            .then((Folder folder) -> new QubProjectFolder(folder));
+            .then((Folder folder) -> QubProjectFolder.create(folder));
     }
 }

@@ -2,14 +2,17 @@ package qub;
 
 public class QubProjectVersionFolder extends Folder
 {
-    public QubProjectVersionFolder(Folder folder)
+    private QubProjectVersionFolder(Folder projectVersionFolder)
     {
-        this(folder.getFileSystem(), folder.getPath());
+        super(projectVersionFolder.getFileSystem(), projectVersionFolder.getPath());
     }
 
-    public QubProjectVersionFolder(FileSystem fileSystem, Path path)
+    public static QubProjectVersionFolder create(Folder projectVersionFolder)
     {
-        super(fileSystem, path);
+        PreCondition.assertNotNull(projectVersionFolder, "projectVersionFolder");
+        PreCondition.assertGreaterThanOrEqualTo(projectVersionFolder.getPath().getSegments().getCount(), 4, "projectVersionFolder.getPath().getSegments().getCount()");
+
+        return new QubProjectVersionFolder(projectVersionFolder);
     }
 
     public Result<QubFolder> getQubFolder()
@@ -33,7 +36,7 @@ public class QubProjectVersionFolder extends Folder
     public Result<QubProjectFolder> getProjectFolder()
     {
         return this.getParentFolder()
-            .then((Folder folder) -> new QubProjectFolder(folder));
+            .then((Folder folder) -> QubProjectFolder.create(folder));
     }
 
     public Result<String> getProjectName()
@@ -65,5 +68,17 @@ public class QubProjectVersionFolder extends Folder
     public Result<File> getCompiledTestsFile()
     {
         return this.getFile(this.getProjectName().await() + ".tests.jar");
+    }
+
+    /**
+     * Get the ProjectSignature for this project version folder.
+     * @return The ProjectSignature for this project version folder.
+     */
+    public ProjectSignature getProjectSignature()
+    {
+        final String publisher = this.getPublisherName().await();
+        final String project = this.getProjectName().await();
+        final String version = this.getVersion();
+        return new ProjectSignature(publisher, project, version);
     }
 }
