@@ -9,8 +9,6 @@ public class FakeNetwork implements Network
     private final MutableMap<IPv4Address,MutableMap<Integer,FakeTCPServer>> boundTCPServers;
     private final MutableMap<InMemoryByteStream,Integer> streamReferenceCounts;
     private final FakeDNS dns;
-    private HttpClient httpClient;
-    private HttpServer httpServer;
 
     public FakeNetwork(Clock clock)
     {
@@ -220,13 +218,6 @@ public class FakeNetwork implements Network
 
             return tcpServer;
         });
-
-    }
-
-    @Override
-    public HttpClient getHttpClient()
-    {
-        return httpClient;
     }
 
     @Override

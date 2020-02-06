@@ -3,7 +3,6 @@ package qub;
 class JavaNetwork implements Network
 {
     private final Clock clock;
-    private final JavaHttpClient httpClient;
     private final DNS dns;
 
     JavaNetwork(Clock clock)
@@ -11,7 +10,6 @@ class JavaNetwork implements Network
         PreCondition.assertNotNull(clock, "clock");
 
         this.clock = clock;
-        httpClient = new JavaHttpClient(this);
         dns = new JavaDNS();
     }
 
@@ -87,12 +85,6 @@ class JavaNetwork implements Network
         Network.validateLocalPort(localPort);
 
         return JavaTCPServer.create(localIPAddress, localPort, clock);
-    }
-
-    @Override
-    public HttpClient getHttpClient()
-    {
-        return httpClient;
     }
 
     @Override

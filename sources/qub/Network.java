@@ -12,8 +12,6 @@ public interface Network
 
     Result<? extends TCPServer> createTCPServer(IPv4Address localIPAddress, int localPort);
 
-    HttpClient getHttpClient();
-
     /**
      * Get whether or not this device is connected to a network.
      * @return Whether or not this device is connected to a network.
