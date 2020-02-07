@@ -8,7 +8,6 @@ public class FakeNetwork implements Network
     private final MutableMap<IPv4Address,MutableMap<Integer,FakeTCPClient>> boundTCPClients;
     private final MutableMap<IPv4Address,MutableMap<Integer,FakeTCPServer>> boundTCPServers;
     private final MutableMap<InMemoryByteStream,Integer> streamReferenceCounts;
-    private final FakeDNS dns;
 
     public FakeNetwork(Clock clock)
     {
@@ -20,7 +19,6 @@ public class FakeNetwork implements Network
         boundTCPClients = Map.create();
         boundTCPServers = Map.create();
         streamReferenceCounts = Map.create();
-        dns = new FakeDNS();
     }
 
     @Override
@@ -218,18 +216,6 @@ public class FakeNetwork implements Network
 
             return tcpServer;
         });
-    }
-
-    @Override
-    public Result<Boolean> isConnected()
-    {
-        return Result.successTrue();
-    }
-
-    @Override
-    public FakeDNS getDNS()
-    {
-        return dns;
     }
 
     public void serverDisposed(IPv4Address ipAddress, int port)

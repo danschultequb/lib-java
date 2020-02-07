@@ -360,7 +360,7 @@ public interface ProcessTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    final Network network = new JavaNetwork(test.getClock());
+                    final Network network = JavaNetwork.create(test.getClock());
                     process.setNetwork(network);
                     test.assertSame(network, process.getNetwork());
                 });

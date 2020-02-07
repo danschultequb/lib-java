@@ -417,7 +417,7 @@ public class JavaProcess implements Console
     {
         if (!network.hasValue())
         {
-            setNetwork(new JavaNetwork(getClock()));
+            setNetwork(JavaNetwork.create(this.getClock()));
         }
         return network.get();
     }

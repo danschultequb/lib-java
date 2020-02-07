@@ -1,14 +1,12 @@
 package qub;
 
-import java.util.concurrent.atomic.AtomicInteger;
-
-public class JavaTCPServerTests
+public interface JavaTCPServerTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(JavaTCPServer.class, () ->
         {
-            final AtomicInteger port = new AtomicInteger(20138);
+            final IntegerValue port = IntegerValue.create(20138);
 
             runner.testGroup("create(int,Clock)", () ->
             {
@@ -116,7 +114,7 @@ public class JavaTCPServerTests
                     final IPv4Address ipAddress = IPv4Address.parse("127.0.0.1");
                     final byte[] bytes = new byte[] { 1, 2, 3, 4, 5, 6 };
 
-                    final Network network = new JavaNetwork(test.getClock());
+                    final Network network = JavaNetwork.create(test.getClock());
                     final Value<byte[]> clientReadBytes = Value.create();
                     final Result<Void> clientTask = test.getParallelAsyncRunner().schedule(() ->
                     {
@@ -160,7 +158,7 @@ public class JavaTCPServerTests
                 {
                     final IPv4Address ipAddress = IPv4Address.parse("127.0.0.1");
                     final byte[] bytes = new byte[] { 1, 2, 3, 4, 5, 6 };
-                    final Network network = new JavaNetwork(test.getClock());
+                    final Network network = JavaNetwork.create(test.getClock());
                     final Value<byte[]> clientReadBytes = Value.create();
                     final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
 

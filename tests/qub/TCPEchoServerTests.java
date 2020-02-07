@@ -10,7 +10,7 @@ public interface TCPEchoServerTests
         {
             runner.test("echo()", (Test test) ->
             {
-                final Network network = new JavaNetwork(test.getClock());
+                final Network network = JavaNetwork.create(test.getClock());
                 try (final TCPEchoServer echoServer = TCPEchoServer.create(network, port.increment().getAsInt()).await())
                 {
                     final Result<Void> serverTask = test.getParallelAsyncRunner().scheduleResult(echoServer::echo);

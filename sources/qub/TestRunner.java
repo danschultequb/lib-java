@@ -40,12 +40,6 @@ public interface TestRunner
     Skip skip(String message);
 
     /**
-     * A method that returns a Skip if no network connection is present.
-     * @return Skip if no network connection is present, null if a network connection is present.
-     */
-    Skip skipIfNoNetworkConnection();
-
-    /**
      * Attempt to run the tests that are found in the Class associated with the provided
      * fullClassName.
      * @param fullClassName The full name of the class to run the tests of.

@@ -72,12 +72,6 @@ public final class BasicTestRunner implements TestRunner
     }
 
     @Override
-    public Skip skipIfNoNetworkConnection()
-    {
-        return this.skip(!this.hasNetworkConnection().await(), "No network connection available.");
-    }
-
-    @Override
     public Result<Void> testClass(String fullClassName)
     {
         PreCondition.assertNotNullAndNotEmpty(fullClassName, "fullClassName");
@@ -389,40 +383,6 @@ public final class BasicTestRunner implements TestRunner
         PreCondition.assertNotNull(afterTestAction, "afterTestAction");
 
         this.afterTestAction = Action1.sequence(this.afterTestAction, afterTestAction);
-    }
-
-    /**
-     * Get whether or not this TestRunner has a connection to the internet.
-     * @return Whether or not this TestRunner has a connection to the internet.
-     */
-    public Result<Boolean> hasNetworkConnection()
-    {
-        if (this.hasNetworkConnection == null)
-        {
-            this.setHasNetworkConnection(this.process.getNetwork().isConnected());
-        }
-        return this.hasNetworkConnection;
-    }
-
-    /**
-     * Set whether or not this BasicTestRunner has a network connection.
-     * @param hasNetworkConnection Whether or not this BasicTestRunner has a network connection.
-     * @return This object for method chaining.
-     */
-    public BasicTestRunner setHasNetworkConnection(boolean hasNetworkConnection)
-    {
-        return this.setHasNetworkConnection(Result.success(hasNetworkConnection));
-    }
-
-    /**
-     * Set whether or not this BasicTestRunner has a network connection.
-     * @param hasNetworkConnection Whether or not this BasicTestRunner has a network connection.
-     * @return This object for method chaining.
-     */
-    public BasicTestRunner setHasNetworkConnection(Result<Boolean> hasNetworkConnection)
-    {
-        this.hasNetworkConnection = hasNetworkConnection;
-        return this;
     }
 
     /**

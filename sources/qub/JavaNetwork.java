@@ -1,16 +1,19 @@
 package qub;
 
-class JavaNetwork implements Network
+public class JavaNetwork implements Network
 {
     private final Clock clock;
-    private final DNS dns;
 
-    JavaNetwork(Clock clock)
+    private JavaNetwork(Clock clock)
     {
         PreCondition.assertNotNull(clock, "clock");
 
         this.clock = clock;
-        dns = new JavaDNS();
+    }
+
+    public static JavaNetwork create(Clock clock)
+    {
+        return new JavaNetwork(clock);
     }
 
     @Override
@@ -85,20 +88,5 @@ class JavaNetwork implements Network
         Network.validateLocalPort(localPort);
 
         return JavaTCPServer.create(localIPAddress, localPort, clock);
-    }
-
-    @Override
-    public Result<Boolean> isConnected()
-    {
-        final DNS dns = this.getDNS();
-        return dns.resolveHost("www.google.com")
-            .then(() -> true)
-            .catchError(() -> false);
-    }
-
-    @Override
-    public DNS getDNS()
-    {
-        return dns;
     }
 }
