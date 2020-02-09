@@ -693,7 +693,7 @@ public interface ProcessTests
                             .await();
                         builder.setWorkingFolder(workingFolder);
                         test.assertThrows(() -> builder.run().await(),
-                            new java.io.IOException("Cannot run program \"C:/Program Files/Java/jdk-11.0.1/bin/javac.exe\" (in directory \"C:\\Users\\dansc\\Sources\\qub-java\\I don't exist\"): CreateProcess error=267, The directory name is invalid",
+                            new java.io.IOException("Cannot run program \"C:/Program Files/Java/jdk-11.0.1/bin/javac.exe\" (in directory \"C:\\Users\\dansc\\Sources\\lib-java\\I don't exist\"): CreateProcess error=267, The directory name is invalid",
                                 new java.io.IOException("CreateProcess error=267, The directory name is invalid")));
                         test.assertEqual("", output.toString());
                     }
