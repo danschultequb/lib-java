@@ -570,6 +570,12 @@ public interface Process extends Disposable
     Process setSystemProperty(String systemPropertyName, String systemPropertyValue);
 
     /**
+     * Get the system properties of this process.
+     * @return The system properties of this process.
+     */
+    Map<String,String> getSystemProperties();
+
+    /**
      * Get the System property with the provided name.
      * @param systemPropertyName The name of the System property to get.
      * @return The value of the System property.

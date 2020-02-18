@@ -3,7 +3,7 @@ package qub;
 /**
  * A Process object that exposes the platform functionality that a Java application can use.
  */
-public class JavaProcess implements Console
+public class JavaProcess implements Console, QubProcess
 {
     private final CommandLineArguments commandLineArguments;
     private volatile int exitCode;
@@ -783,6 +783,7 @@ public class JavaProcess implements Console
         return launcher.openFileWithDefaultApplication(file);
     }
 
+    @Override
     public JavaProcess setSystemProperty(String systemPropertyName, String systemPropertyValue)
     {
         PreCondition.assertNotNullAndNotEmpty(systemPropertyName, "systemPropertyName");
@@ -793,11 +794,23 @@ public class JavaProcess implements Console
         return this;
     }
 
-    /**
-     * Get the System property with the provided name.
-     * @param systemPropertyName The name of the System property to get.
-     * @return The value of the System property.
-     */
+    @Override
+    public Map<String,String> getSystemProperties()
+    {
+        final java.util.Properties properties = java.lang.System.getProperties();
+        for (final java.util.Map.Entry<Object,Object> property : properties.entrySet())
+        {
+            final String propertyName = Objects.toString(property.getKey());
+            if (!this.systemProperties.containsKey(propertyName))
+            {
+                this.systemProperties.set(propertyName, Objects.toString(property.getValue()));
+            }
+        }
+
+        return this.systemProperties;
+    }
+
+    @Override
     public Result<String> getSystemProperty(String systemPropertyName)
     {
         PreCondition.assertNotNullAndNotEmpty(systemPropertyName, "systemPropertyName");
@@ -810,42 +823,9 @@ public class JavaProcess implements Console
                     {
                         throw new NotFoundException("No system property found with the name " + Strings.escapeAndQuote(systemPropertyName) + ".");
                     }
+                    this.systemProperties.set(systemPropertyName, systemPropertyValue);
                     return systemPropertyValue;
                 });
-    }
-
-    /**
-     * Get whether or not this application is running in a Windows environment.
-     * @return Whether or not this application is running in a Windows environment.
-     */
-    public Result<Boolean> onWindows()
-    {
-        return Result.create(() ->
-        {
-            final String osName = this.getSystemProperty("os.name").await();
-            return osName.toLowerCase().contains("windows");
-        });
-    }
-
-    /**
-     * Get the classpath that was provided to this application's JVM when it was started.
-     * @return The classpath that was provided to this application's JVM when it was started.
-     */
-    public Result<String> getJVMClasspath()
-    {
-        return this.getSystemProperty("java.class.path");
-    }
-
-    /**
-     * Set the java.class.path system property. This will not change the classpath of the running
-     * JVM, but rather will only modify the system property.
-     * @return This object for method chaining.
-     */
-    public JavaProcess setJVMClasspath(String jvmClasspath)
-    {
-        PreCondition.assertNotNull(jvmClasspath, "jvmClasspath");
-
-        return this.setSystemProperty("java.class.path", jvmClasspath);
     }
 
     @Override

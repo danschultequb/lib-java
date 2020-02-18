@@ -17,11 +17,16 @@ public class FolderFileSystem implements FileSystem
         this.baseFolderPath = baseFolderPath.normalize();
     }
 
+    public static FolderFileSystem get(Folder baseFolder)
+    {
+        return FolderFileSystem.get(baseFolder.getFileSystem(), baseFolder.getPath());
+    }
+
     public static FolderFileSystem get(FileSystem innerFileSystem, String baseFolderPath)
     {
         FileSystem.validateRootedFolderPath(baseFolderPath, "baseFolderPath");
 
-        return get(innerFileSystem, Path.parse(baseFolderPath));
+        return FolderFileSystem.get(innerFileSystem, Path.parse(baseFolderPath));
     }
 
     public static FolderFileSystem get(FileSystem innerFileSystem, Path baseFolderPath)

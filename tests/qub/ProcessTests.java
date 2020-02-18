@@ -769,6 +769,34 @@ public interface ProcessTests
                 });
             });
 
+            runner.testGroup("getSystemProperties()", () ->
+            {
+                runner.test("with no modifications", (Test test) ->
+                {
+                    try (final Process process = creator.run())
+                    {
+                        final Map<String,String> systemProperties = process.getSystemProperties();
+                        test.assertNotNull(systemProperties);
+                        test.assertTrue(systemProperties.containsKey("os.name"));
+                        test.assertTrue(systemProperties.containsKey("sun.java.command"));
+                    }
+                });
+
+                runner.test("with modifications", (Test test) ->
+                {
+                    try (final Process process = creator.run())
+                    {
+                        test.assertFalse(process.getSystemProperties().containsKey("apples"));
+
+                        process.setSystemProperty("apples", "bananas");
+
+                        final Map<String,String> systemProperties = process.getSystemProperties();
+                        test.assertNotNull(systemProperties);
+                        test.assertEqual("bananas", systemProperties.get("apples").await());
+                    }
+                });
+            });
+
             runner.testGroup("getSystemProperty()", () ->
             {
                 runner.test("with null systemPropertyName", (Test test) ->
