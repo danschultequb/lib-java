@@ -3,20 +3,20 @@ package qub;
 /**
  * An action for a command line application.
  */
-public class CommandLineAction
+public class CommandLineAction<TProcess extends Process>
 {
     private final String name;
-    private final Action1<Process> mainAction;
+    private final Action1<TProcess> mainAction;
     private final List<String> aliases;
     private String description;
-    private CommandLineActions parentActions;
+    private CommandLineActions<TProcess> parentActions;
 
     /**
      * Create a new CommandLineAction with the provided name and action.
      * @param name The name of the CommandLineAction.
      * @param mainAction The behavior/action of the CommandLineAction.
      */
-    public CommandLineAction(String name, Action1<Process> mainAction)
+    private CommandLineAction(String name, Action1<TProcess> mainAction)
     {
         PreCondition.assertNotNullAndNotEmpty(name, "name");
         PreCondition.assertNotNull(mainAction, "mainAction");
@@ -24,6 +24,16 @@ public class CommandLineAction
         this.name = name;
         this.mainAction = mainAction;
         this.aliases = List.create();
+    }
+
+    /**
+     * Create a new CommandLineAction with the provided name and action.
+     * @param name The name of the CommandLineAction.
+     * @param mainAction The behavior/action of the CommandLineAction.
+     */
+    public static <TProcess extends Process> CommandLineAction<TProcess> create(String name, Action1<TProcess> mainAction)
+    {
+        return new CommandLineAction<>(name, mainAction);
     }
 
     /**
@@ -74,7 +84,7 @@ public class CommandLineAction
             : this.name.equalsIgnoreCase(actionName) || this.aliases.contains(actionName, Comparer::equalIgnoreCase);
     }
 
-    public CommandLineAction addAlias(String alias)
+    public CommandLineAction<TProcess> addAlias(String alias)
     {
         PreCondition.assertNotNullAndNotEmpty(alias, "alias");
         PreCondition.assertFalse(this.containsActionName(alias), "this.aliasAlreadyExists(alias)");
@@ -84,7 +94,7 @@ public class CommandLineAction
         return this;
     }
 
-    public CommandLineAction addAliases(String... aliases)
+    public CommandLineAction<TProcess> addAliases(String... aliases)
     {
         PreCondition.assertNotNullAndNotEmpty(aliases, "aliases");
 
@@ -96,7 +106,7 @@ public class CommandLineAction
         return this;
     }
 
-    public CommandLineAction addAliases(Iterable<String> aliases)
+    public CommandLineAction<TProcess> addAliases(Iterable<String> aliases)
     {
         PreCondition.assertNotNullAndNotEmpty(aliases, "aliases");
 
@@ -113,21 +123,21 @@ public class CommandLineAction
         return this.description;
     }
 
-    public CommandLineAction setDescription(String description)
+    public CommandLineAction<TProcess> setDescription(String description)
     {
         this.description = description;
 
         return this;
     }
 
-    public CommandLineAction setParentActions(CommandLineActions parentActions)
+    public CommandLineAction<TProcess> setParentActions(CommandLineActions<TProcess> parentActions)
     {
         this.parentActions = parentActions;
 
         return this;
     }
 
-    public void run(Process process)
+    public void run(TProcess process)
     {
         PreCondition.assertNotNull(process, "process");
 

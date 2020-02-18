@@ -544,4 +544,47 @@ public interface Types
 
         return getFullTypeName(value.getClass());
     }
+
+    static Result<String> getTypeContainerPathString(String fullTypeName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(fullTypeName, "fullTypeName");
+
+        return Result.create(() ->
+        {
+            final Class<?> type = Types.getClass(fullTypeName).await();
+            return Types.getTypeContainerPathString(type).await();
+        });
+    }
+
+    static Result<String> getTypeContainerPathString(Class<?> type)
+    {
+        PreCondition.assertNotNull(type, "type");
+
+        return Result.create(() ->
+        {
+            return type.getProtectionDomain().getCodeSource().getLocation().toString().substring("file:/".length());
+        });
+    }
+
+    static Result<Path> getTypeContainerPath(String fullTypeName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(fullTypeName, "fullTypeName");
+
+        return Result.create(() ->
+        {
+            final String typeContainerPathString = Types.getTypeContainerPathString(fullTypeName).await();
+            return Path.parse(typeContainerPathString);
+        });
+    }
+
+    static Result<Path> getTypeContainerPath(Class<?> type)
+    {
+        PreCondition.assertNotNull(type, "type");
+
+        return Result.create(() ->
+        {
+            final String typeContainerPathString = Types.getTypeContainerPathString(type).await();
+            return Path.parse(typeContainerPathString);
+        });
+    }
 }

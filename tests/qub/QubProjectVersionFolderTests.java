@@ -10,7 +10,7 @@ public interface QubProjectVersionFolderTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() ->  QubProjectVersionFolder.create(null),
+                    test.assertThrows(() ->  QubProjectVersionFolder.create((Folder)null),
                         new PreConditionFailure("projectVersionFolder cannot be null."));
                 });
 

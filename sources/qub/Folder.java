@@ -124,7 +124,7 @@ public class Folder extends FileSystemEntry
     {
         PreCondition.assertNotNullAndNotEmpty(fileRelativePath, "fileRelativePath");
 
-        return getFile(Path.parse(fileRelativePath));
+        return this.getFile(Path.parse(fileRelativePath));
     }
 
     /**
@@ -135,7 +135,7 @@ public class Folder extends FileSystemEntry
     public Result<File> getFile(Path relativeFilePath)
     {
         PreCondition.assertNotNull(relativeFilePath, "relativeFilePath");
-        PreCondition.assertFalse(relativeFilePath.isRooted(), "relativeFilePath.isRooted()");
+        PreCondition.assertFalse(relativeFilePath.isRooted(), "relativeFilePath.isRooted() (" + relativeFilePath + ")");
 
         final Path childFilePath = getChildPath(relativeFilePath);
         final FileSystem fileSystem = getFileSystem();

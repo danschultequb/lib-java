@@ -7,6 +7,54 @@ public class QubProjectVersionFolder extends Folder
         super(projectVersionFolder.getFileSystem(), projectVersionFolder.getPath());
     }
 
+    public static Result<QubProjectVersionFolder> create(Path projectVersionEntryPath, FileSystem fileSystem)
+    {
+        PreCondition.assertNotNull(projectVersionEntryPath, "projectVersionEntryPath");
+        PreCondition.assertNotNull(fileSystem, "fileSystem");
+
+        return Result.create(() ->
+        {
+            QubProjectVersionFolder result = null;
+            final File projectVersionFile = fileSystem.getFile(projectVersionEntryPath).await();
+            if (projectVersionFile.exists().await())
+            {
+                result = QubProjectVersionFolder.create(projectVersionFile);
+            }
+            else
+            {
+                final Folder projectVersionFolder = fileSystem.getFolder(projectVersionEntryPath).await();
+                if (projectVersionFolder.exists().await())
+                {
+                    result = QubProjectVersionFolder.create(projectVersionFolder);
+                }
+            }
+
+            PostCondition.assertNotNull(result, "result");
+
+            return result;
+        });
+    }
+
+    public static Result<QubProjectVersionFolder> create(Class<?> type, FileSystem fileSystem)
+    {
+        PreCondition.assertNotNull(type, "type");
+        PreCondition.assertNotNull(fileSystem, "fileSystem");
+
+        return Result.create(() ->
+        {
+            final Path typeContainerPath = Types.getTypeContainerPath(type).await();
+            return QubProjectVersionFolder.create(typeContainerPath, fileSystem).await();
+        });
+    }
+
+    public static QubProjectVersionFolder create(File projectVersionFile)
+    {
+        PreCondition.assertNotNull(projectVersionFile, "projectVersionFile");
+        PreCondition.assertGreaterThanOrEqualTo(projectVersionFile.getPath().getSegments().getCount(), 5, "projectVersionFile.getPath().getSegments().getCount()");
+
+        return QubProjectVersionFolder.create(projectVersionFile.getParentFolder().await());
+    }
+
     public static QubProjectVersionFolder create(Folder projectVersionFolder)
     {
         PreCondition.assertNotNull(projectVersionFolder, "projectVersionFolder");
@@ -80,5 +128,18 @@ public class QubProjectVersionFolder extends Folder
         final String project = this.getProjectName().await();
         final String version = this.getVersion();
         return new ProjectSignature(publisher, project, version);
+    }
+
+    /**
+     * Get the data folder system that is associated with this Qub project.
+     * @return The data file system that is associated with this Qub project.
+     */
+    public Result<Folder> getProjectDataFolder()
+    {
+        return Result.create(() ->
+        {
+            return this.getProjectFolder().await()
+                .getProjectDataFolder().await();
+        });
     }
 }

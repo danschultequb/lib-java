@@ -62,21 +62,7 @@ public interface QubProcess extends Process
         PreCondition.assertNotNull(args, "args");
         PreCondition.assertNotNull(main, "main");
 
-        final QubProcess process = QubProcess.create(args);
-        try
-        {
-            main.run(process);
-        }
-        catch (Throwable error)
-        {
-            Exceptions.writeErrorString(process.getErrorCharacterWriteStream(), error).await();
-            process.setExitCode(1);
-        }
-        finally
-        {
-            process.dispose().await();
-            java.lang.System.exit(process.getExitCode());
-        }
+        Process.run(() -> QubProcess.create(args), main);
     }
 
     /**
@@ -91,17 +77,7 @@ public interface QubProcess extends Process
         PreCondition.assertNotNull(args, "args");
         PreCondition.assertNotNull(main, "main");
 
-        QubProcess.run(args, QubProcess.getMainAction(main));
-    }
-
-    static Action1<QubProcess> getMainAction(Function1<QubProcess,Integer> runFunction)
-    {
-        PreCondition.assertNotNull(runFunction, "runFunction");
-
-        return (QubProcess process) ->
-        {
-            process.setExitCode(runFunction.run(process));
-        };
+        QubProcess.run(args, Process.getMainAction(main));
     }
 
     /**
@@ -120,25 +96,7 @@ public interface QubProcess extends Process
         PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
         PreCondition.assertNotNull(runAction, "runAction");
 
-        QubProcess.run(arguments, QubProcess.getMainAction(getParametersFunction, runAction));
-    }
-
-    static <TParameters> Action1<QubProcess> getMainAction(Function1<QubProcess,TParameters> getParametersFunction, Action1<TParameters> runAction)
-    {
-        PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
-        PreCondition.assertNotNull(runAction, "runAction");
-
-        return (QubProcess process) ->
-        {
-            final TParameters parameters = getParametersFunction.run(process);
-            if (parameters != null)
-            {
-                process.showDuration(() ->
-                {
-                    runAction.run(parameters);
-                });
-            }
-        };
+        QubProcess.run(arguments, Process.getMainAction(getParametersFunction, runAction));
     }
 
     /**
@@ -157,60 +115,7 @@ public interface QubProcess extends Process
         PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
         PreCondition.assertNotNull(runFunction, "runFunction");
 
-        QubProcess.run(arguments, QubProcess.getMainAction(getParametersFunction, runFunction));
-    }
-
-    static <TParameters> Action1<QubProcess> getMainAction(Function1<QubProcess,TParameters> getParametersFunction, Function1<TParameters,Integer> runAction)
-    {
-        PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
-        PreCondition.assertNotNull(runAction, "runAction");
-
-        return (QubProcess process) ->
-        {
-            final TParameters parameters = getParametersFunction.run(process);
-            if (parameters != null)
-            {
-                process.showDuration(() ->
-                {
-                    process.setExitCode(runAction.run(parameters));
-                });
-            }
-        };
-    }
-
-    /**
-     * Get the QubProjectVersionFolder for the current process.
-     * @return The QubProjectVersionFolder for the current process.
-     */
-    default Result<QubProjectVersionFolder> getQubProjectVersionFolder()
-    {
-        return Result.create(() ->
-        {
-            final String javaApplicationArguments = this.getSystemProperty("sun.java.command").await();
-            final int firstSpaceIndex = javaApplicationArguments.indexOf(' ');
-            final String mainClassFullName = firstSpaceIndex == -1 ? javaApplicationArguments : javaApplicationArguments.substring(0, firstSpaceIndex);
-            final Class<?> mainClass = Types.getClass(mainClassFullName).await();
-            final String mainClassContainerPathString = mainClass.getProtectionDomain().getCodeSource().getLocation().toString().substring("file:/".length());
-
-            final FileSystem fileSystem = this.getFileSystem();
-            Folder mainClassContainerFolder;
-
-            final File mainClassContainerFile = fileSystem.getFile(mainClassContainerPathString).await();
-            if (mainClassContainerFile.exists().await())
-            {
-                mainClassContainerFolder = mainClassContainerFile.getParentFolder().await();
-            }
-            else
-            {
-                mainClassContainerFolder = fileSystem.getFolder(mainClassContainerPathString).await();
-            }
-
-            final QubProjectVersionFolder result = QubProjectVersionFolder.create(mainClassContainerFolder);
-
-            PostCondition.assertNotNull(result, "result");
-
-            return result;
-        });
+        QubProcess.run(arguments, Process.getMainAction(getParametersFunction, runFunction));
     }
 
     /**
@@ -223,6 +128,37 @@ public interface QubProcess extends Process
         {
             return this.getQubProjectVersionFolder().await()
                 .getPublisherName().await();
+        });
+    }
+
+    default Result<QubPublisherFolder> getQubPublisherFolder(String typeFullName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(typeFullName, "typeFullName");
+
+        return Result.create(() ->
+        {
+            return this.getQubProjectVersionFolder(typeFullName).await()
+                .getPublisherFolder().await();
+        });
+    }
+
+    default Result<QubPublisherFolder> getQubPublisherFolder(Class<?> type)
+    {
+        PreCondition.assertNotNull(type, "type");
+
+        return Result.create(() ->
+        {
+            return this.getQubProjectVersionFolder(type).await()
+                .getPublisherFolder().await();
+        });
+    }
+
+    default Result<QubPublisherFolder> getQubPublisherFolder()
+    {
+        return Result.create(() ->
+        {
+            return this.getQubProjectVersionFolder().await()
+                .getPublisherFolder().await();
         });
     }
 
@@ -239,6 +175,54 @@ public interface QubProcess extends Process
         });
     }
 
+    default Result<QubProjectFolder> getQubProjectFolder(String typeFullName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(typeFullName, "typeFullName");
+
+        return Result.create(() ->
+        {
+            return this.getQubProjectVersionFolder(typeFullName).await()
+                .getProjectFolder().await();
+        });
+    }
+
+    default Result<QubProjectFolder> getQubProjectFolder(Class<?> type)
+    {
+        PreCondition.assertNotNull(type, "type");
+
+        return Result.create(() ->
+        {
+            return this.getQubProjectVersionFolder(type).await()
+                .getProjectFolder().await();
+        });
+    }
+
+    default Result<QubProjectFolder> getQubProjectFolder()
+    {
+        return Result.create(() ->
+        {
+            return this.getQubProjectVersionFolder().await()
+                .getProjectFolder().await();
+        });
+    }
+
+    /**
+     * Get the data folder that is associated with the current process's project.
+     * @return The data folder that is associated with the current process's project.
+     */
+    default Result<Folder> getQubProjectDataFolder()
+    {
+        return Result.create(() ->
+        {
+            final QubProjectFolder projectFolder = this.getQubProjectFolder().await();
+            final Folder projectDataFolder = projectFolder.getProjectDataFolder().await();
+            projectDataFolder.create()
+                .catchError(FolderAlreadyExistsException.class)
+                .await();
+            return projectDataFolder;
+        });
+    }
+
     /**
      * Get the version of the current process's project.
      * @return The version of the current process's project.
@@ -252,21 +236,39 @@ public interface QubProcess extends Process
         });
     }
 
+    default Result<QubProjectVersionFolder> getQubProjectVersionFolder(String typeFullName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(typeFullName, "typeFullName");
+
+        return Result.create(() ->
+        {
+            final Class<?> type = Types.getClass(typeFullName).await();
+            return this.getQubProjectVersionFolder(type).await();
+        });
+    }
+
+    default Result<QubProjectVersionFolder> getQubProjectVersionFolder(Class<?> type)
+    {
+        PreCondition.assertNotNull(type, "type");
+
+        return Result.create(() ->
+        {
+            final Path mainClassContainerPath = Types.getTypeContainerPath(type).await();
+            final FileSystem fileSystem = this.getFileSystem();
+            return QubProjectVersionFolder.create(mainClassContainerPath, fileSystem).await();
+        });
+    }
+
     /**
-     * Get the data file system that is associated with the current process's project.
-     * @return The data file system that is associated with the current process's project.
+     * Get the QubProjectVersionFolder for the current process.
+     * @return The QubProjectVersionFolder for the current process.
      */
-    default Result<FileSystem> getProjectData()
+    default Result<QubProjectVersionFolder> getQubProjectVersionFolder()
     {
         return Result.create(() ->
         {
-            final QubProjectVersionFolder projectVersionFolder = this.getQubProjectVersionFolder().await();
-            final QubProjectFolder projectFolder = projectVersionFolder.getProjectFolder().await();
-            final Folder projectDataFolder = projectFolder.getFolder("data").await();
-            projectDataFolder.create()
-                .catchError(FolderAlreadyExistsException.class)
-                .await();
-            return FolderFileSystem.get(projectDataFolder);
+            final String mainClassFullName = this.getMainClassFullName();
+            return this.getQubProjectVersionFolder(mainClassFullName).await();
         });
     }
 }

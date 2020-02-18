@@ -10,7 +10,7 @@ public interface CommandLineActionsTests
         {
             runner.test("constructor()", (Test test) ->
             {
-                final CommandLineActions actions = new CommandLineActions();
+                final CommandLineActions<Process> actions = CommandLineActions.create();
                 test.assertNotNull(actions);
                 test.assertNull(actions.getApplicationName());
                 test.assertNull(actions.getApplicationDescription());
@@ -20,21 +20,21 @@ public interface CommandLineActionsTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     test.assertSame(actions, actions.setApplicationName(null));
                     test.assertEqual(null, actions.getApplicationName());
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     test.assertSame(actions, actions.setApplicationName(""));
                     test.assertEqual("", actions.getApplicationName());
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     test.assertSame(actions, actions.setApplicationName("hello there"));
                     test.assertEqual("hello there", actions.getApplicationName());
                 });
@@ -44,21 +44,21 @@ public interface CommandLineActionsTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     test.assertSame(actions, actions.setApplicationDescription(null));
                     test.assertEqual(null, actions.getApplicationDescription());
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     test.assertSame(actions, actions.setApplicationDescription(""));
                     test.assertEqual("", actions.getApplicationDescription());
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     test.assertSame(actions, actions.setApplicationDescription("hello there"));
                     test.assertEqual("hello there", actions.getApplicationDescription());
                 });
@@ -68,34 +68,34 @@ public interface CommandLineActionsTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     test.assertThrows(() -> actions.containsActionName(null),
                         new PreConditionFailure("actionName cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     test.assertThrows(() -> actions.containsActionName(""),
                         new PreConditionFailure("actionName cannot be empty."));
                 });
 
                 runner.test("with non-existing actionName", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     test.assertFalse(actions.containsActionName("test"));
                 });
 
                 runner.test("with existing actionName", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     actions.addAction("hello", (Process process) -> {});
                     test.assertTrue(actions.containsActionName("hello"));
                 });
 
                 runner.test("with existing alias actionName", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     actions.addAction("hello", (Process process) -> {})
                         .addAlias("there");
                     test.assertTrue(actions.containsActionName("there"));
@@ -106,28 +106,28 @@ public interface CommandLineActionsTests
             {
                 runner.test("with null actionName", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     test.assertThrows(() -> actions.addAction(null, (Process process) -> {}),
                         new PreConditionFailure("actionName cannot be null."));
                 });
 
                 runner.test("with empty actionName", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     test.assertThrows(() -> actions.addAction("", (Process process) -> {}),
                         new PreConditionFailure("actionName cannot be empty."));
                 });
 
                 runner.test("with null mainAction", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     test.assertThrows(() -> actions.addAction("hello", (Action1<Process>)null),
                         new PreConditionFailure("mainAction cannot be null."));
                 });
 
                 runner.test("with empty actionName", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     final CommandLineAction action = actions.addAction("hello", (Process process) -> {});
                     test.assertEqual("hello", action.getName());
                     test.assertEqual(Iterable.create(), action.getAliases());
@@ -136,7 +136,7 @@ public interface CommandLineActionsTests
 
                 runner.test("with existing actionName", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     actions.addAction("hello", (Process process) -> {});
                     test.assertThrows(() -> actions.addAction("hello", (Process process) -> {}),
                         new PreConditionFailure("this.containsActionName(actionName) cannot be true."));
@@ -145,7 +145,7 @@ public interface CommandLineActionsTests
 
                 runner.test("with existing actionName alias", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     actions.addAction("hello", (Process process) -> {})
                         .addAlias("there");
                     test.assertThrows(() -> actions.addAction("there", (Process process) -> {}),
@@ -159,28 +159,28 @@ public interface CommandLineActionsTests
             {
                 runner.test("with null actionName", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     test.assertThrows(() -> actions.addAction(null, (Process process) -> 1),
                         new PreConditionFailure("actionName cannot be null."));
                 });
 
                 runner.test("with empty actionName", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     test.assertThrows(() -> actions.addAction("", (Process process) -> 2),
                         new PreConditionFailure("actionName cannot be empty."));
                 });
 
                 runner.test("with null mainAction", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     test.assertThrows(() -> actions.addAction("hello", (Function1<Process,Integer>)null),
                         new PreConditionFailure("mainFunction cannot be null."));
                 });
 
                 runner.test("with empty actionName", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     final CommandLineAction action = actions.addAction("hello", (Process process) -> 3);
                     test.assertEqual("hello", action.getName());
                     test.assertEqual(Iterable.create(), action.getAliases());
@@ -189,7 +189,7 @@ public interface CommandLineActionsTests
 
                 runner.test("with existing actionName", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     actions.addAction("hello", (Process process) -> {});
                     test.assertThrows(() -> actions.addAction("hello", (Process process) -> 4),
                         new PreConditionFailure("this.containsActionName(actionName) cannot be true."));
@@ -198,7 +198,7 @@ public interface CommandLineActionsTests
 
                 runner.test("with existing actionName alias", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     actions.addAction("hello", (Process process) -> {})
                         .addAlias("there");
                     test.assertThrows(() -> actions.addAction("there", (Process process) -> 5),
@@ -212,14 +212,14 @@ public interface CommandLineActionsTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions();
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
                     test.assertThrows(() -> actions.run(null),
                         new PreConditionFailure("process cannot be null."));
                 });
 
                 runner.test("with no actions and no arguments", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions()
+                    final CommandLineActions<Process> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
                     try (Process process = Process.create())
@@ -242,7 +242,7 @@ public interface CommandLineActionsTests
 
                 runner.test("with no actions and empty action argument", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions()
+                    final CommandLineActions<Process> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
                     try (Process process = Process.create("--action="))
@@ -265,7 +265,7 @@ public interface CommandLineActionsTests
 
                 runner.test("with no actions and non-empty action argument", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions()
+                    final CommandLineActions<Process> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
                     try (Process process = Process.create("--action=stuff"))
@@ -288,7 +288,7 @@ public interface CommandLineActionsTests
 
                 runner.test("with one action and empty action argument", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions()
+                    final CommandLineActions<Process> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
                     actions.addAction("update", (Process process) -> {})
@@ -316,7 +316,7 @@ public interface CommandLineActionsTests
 
                 runner.test("with one action and empty action argument", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions()
+                    final CommandLineActions<Process> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
                     actions.addAction("update", (Process process) -> {})
@@ -344,7 +344,7 @@ public interface CommandLineActionsTests
 
                 runner.test("with one action and non-matching action argument", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions()
+                    final CommandLineActions<Process> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
                     actions.addAction("update", (Process process) -> {});
@@ -371,7 +371,7 @@ public interface CommandLineActionsTests
 
                 runner.test("with two actions and non-matching action argument", (Test test) ->
                 {
-                    final CommandLineActions actions = new CommandLineActions()
+                    final CommandLineActions<Process> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
                     actions.addAction("update", (Process process) -> {});
@@ -402,7 +402,7 @@ public interface CommandLineActionsTests
                 runner.test("with one action and name-matching action argument", (Test test) ->
                 {
                     final IntegerValue value = IntegerValue.create(0);
-                    final CommandLineActions actions = new CommandLineActions()
+                    final CommandLineActions<Process> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
                     actions.addAction("update", (Process process) -> { value.increment(); });
@@ -424,7 +424,7 @@ public interface CommandLineActionsTests
                 runner.test("with one action and alias-matching action argument", (Test test) ->
                 {
                     final IntegerValue value = IntegerValue.create(0);
-                    final CommandLineActions actions = new CommandLineActions()
+                    final CommandLineActions<Process> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
                     actions.addAction("update", (Process process) -> { value.increment(); })

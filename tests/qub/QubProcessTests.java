@@ -15,7 +15,7 @@ public interface QubProcessTests
                     final QubProjectVersionFolder projectVersionFolder = qubProcess.getQubProjectVersionFolder().await();
                     test.assertNotNull(projectVersionFolder);
                     test.assertEqual("qub", projectVersionFolder.getPublisherName().await());
-                    test.assertEqual("qub-java-test", projectVersionFolder.getProjectName().await());
+                    test.assertEqual("test-java", projectVersionFolder.getProjectName().await());
                 }
             });
 
@@ -31,7 +31,7 @@ public interface QubProcessTests
             {
                 try (final QubProcess qubProcess = creator.run())
                 {
-                    test.assertEqual("qub-java-test", qubProcess.getProjectName().await());
+                    test.assertEqual("test-java", qubProcess.getProjectName().await());
                 }
             });
 
@@ -43,19 +43,18 @@ public interface QubProcessTests
                 }
             });
 
-            runner.test("getProjectData()", (Test test) ->
+            runner.test("getProjectDataFolder()", (Test test) ->
             {
                 try (final QubProcess qubProcess = creator.run())
                 {
-                    final FileSystem projectData = qubProcess.getProjectData().await();
-                    test.assertNotNull(projectData);
-                    final File testFile = projectData.getFile("/test.txt").await();
-                    test.assertEqual("/test.txt", testFile.toString());
+                    final Folder qubProjectDataFolder = qubProcess.getQubProjectDataFolder().await();
+                    test.assertNotNull(qubProjectDataFolder);
+                    final File testFile = qubProjectDataFolder.getFile("test.txt").await();
                     testFile.setContentsAsString("hello").await();
                     try
                     {
-                        final QubProjectFolder projectFolder = qubProcess.getQubProjectVersionFolder().await().getProjectFolder().await();
-                        test.assertEqual("hello", projectFolder.getFileContentsAsString("data/test.txt").await());
+                        final Folder projectDataFolder = qubProcess.getQubProjectFolder().await().getProjectDataFolder().await();
+                        test.assertEqual("hello", projectDataFolder.getFileContentsAsString("test.txt").await());
                     }
                     finally
                     {

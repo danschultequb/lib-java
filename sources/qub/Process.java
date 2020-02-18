@@ -62,7 +62,21 @@ public interface Process extends Disposable
         PreCondition.assertNotNull(args, "args");
         PreCondition.assertNotNull(main, "main");
 
-        final Process process = Process.create(args);
+        Process.run(() -> Process.create(args), main);
+    }
+
+    /**
+     * Run the provided console main function using the provided String arguments. This function
+     * will not return because it calls java.lang.System.exit() using the exit code set in the main
+     * function.
+     * @param main The main function that will be run.
+     */
+    static <TProcess extends Process> void run(Function0<TProcess> processCreator, Action1<TProcess> main)
+    {
+        PreCondition.assertNotNull(processCreator, "processCreator");
+        PreCondition.assertNotNull(main, "main");
+
+        final TProcess process = processCreator.run();
         try
         {
             main.run(process);
@@ -91,14 +105,28 @@ public interface Process extends Disposable
         PreCondition.assertNotNull(args, "args");
         PreCondition.assertNotNull(main, "main");
 
-        Process.run(args, Process.getMainAction(main));
+        Process.run(() -> Process.create(args), Process.getMainAction(main));
     }
 
-    static Action1<Process> getMainAction(Function1<Process,Integer> runFunction)
+    /**
+     * Run the provided console main function using the provided String arguments. This function
+     * will not return because it calls java.lang.System.exit() using the exit code set in the main
+     * function.
+     * @param main The main function that will be run.
+     */
+    static <TProcess extends Process> void run(Function0<TProcess> processCreator, Function1<TProcess,Integer> main)
+    {
+        PreCondition.assertNotNull(processCreator, "processCreator");
+        PreCondition.assertNotNull(main, "main");
+
+        Process.run(processCreator, Process.getMainAction(main));
+    }
+
+    static <TProcess extends Process> Action1<TProcess> getMainAction(Function1<TProcess,Integer> runFunction)
     {
         PreCondition.assertNotNull(runFunction, "runFunction");
 
-        return (Process process) ->
+        return (TProcess process) ->
         {
             process.setExitCode(runFunction.run(process));
         };
@@ -123,12 +151,30 @@ public interface Process extends Disposable
         Process.run(arguments, Process.getMainAction(getParametersFunction, runAction));
     }
 
-    static <TParameters> Action1<Process> getMainAction(Function1<Process,TParameters> getParametersFunction, Action1<TParameters> runAction)
+    /**
+     * Invoke the provided runAction using the parsed command line parameters that are provided by
+     * the getParametersFunction. If the command line parameters are null, then the runAction will
+     * not be invoked.
+     * @param getParametersFunction The function that will parse the command line parameters from
+     *                              the Process's command line arguments.
+     * @param runAction The action that implements the application's main logic.
+     * @param <TParameters> The type of the command line parameters object.
+     */
+    static <TProcess extends Process,TParameters> void run(Function0<TProcess> processCreator, Function1<TProcess,TParameters> getParametersFunction, Action1<TParameters> runAction)
+    {
+        PreCondition.assertNotNull(processCreator, "processCreator");
+        PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
+        PreCondition.assertNotNull(runAction, "runAction");
+
+        Process.run(processCreator, Process.getMainAction(getParametersFunction, runAction));
+    }
+
+    static <TProcess extends Process,TParameters> Action1<TProcess> getMainAction(Function1<TProcess,TParameters> getParametersFunction, Action1<TParameters> runAction)
     {
         PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
         PreCondition.assertNotNull(runAction, "runAction");
 
-        return (Process process) ->
+        return (TProcess process) ->
         {
             final TParameters parameters = getParametersFunction.run(process);
             if (parameters != null)
@@ -160,12 +206,30 @@ public interface Process extends Disposable
         Process.run(arguments, Process.getMainAction(getParametersFunction, runFunction));
     }
 
-    static <TParameters> Action1<Process> getMainAction(Function1<Process,TParameters> getParametersFunction, Function1<TParameters,Integer> runAction)
+    /**
+     * Invoke the provided runAction using the parsed command line parameters that are provided by
+     * the getParametersFunction. If the command line parameters are null, then the runAction will
+     * not be invoked.
+     * @param getParametersFunction The function that will parse the command line parameters from
+     *                              the Process's command line arguments.
+     * @param runFunction The action that implements the application's main logic.
+     * @param <TParameters> The type of the command line parameters object.
+     */
+    static <TProcess extends Process,TParameters> void run(Function0<TProcess> processCreator, Function1<TProcess,TParameters> getParametersFunction, Function1<TParameters,Integer> runFunction)
+    {
+        PreCondition.assertNotNull(processCreator, "processCreator");
+        PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
+        PreCondition.assertNotNull(runFunction, "runFunction");
+
+        Process.run(processCreator, Process.getMainAction(getParametersFunction, runFunction));
+    }
+
+    static <TProcess extends Process,TParameters> Action1<TProcess> getMainAction(Function1<TProcess,TParameters> getParametersFunction, Function1<TParameters,Integer> runAction)
     {
         PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
         PreCondition.assertNotNull(runAction, "runAction");
 
-        return (Process process) ->
+        return (TProcess process) ->
         {
             final TParameters parameters = getParametersFunction.run(process);
             if (parameters != null)
@@ -225,9 +289,9 @@ public interface Process extends Disposable
      * action should be invoked.
      * @return A new CommandLineActions object.
      */
-    default CommandLineActions createCommandLineActions()
+    default CommandLineActions<Process> createCommandLineActions()
     {
-        return new CommandLineActions();
+        return CommandLineActions.create();
     }
 
     /**
@@ -614,5 +678,22 @@ public interface Process extends Disposable
         PreCondition.assertNotNull(jvmClasspath, "jvmClasspath");
 
         return this.setSystemProperty("java.class.path", jvmClasspath);
+    }
+
+    default String getMainClassFullName()
+    {
+        final String javaApplicationArguments = this.getSystemProperty("sun.java.command").await();
+        final int firstSpaceIndex = javaApplicationArguments.indexOf(' ');
+        final String result = firstSpaceIndex == -1 ? javaApplicationArguments : javaApplicationArguments.substring(0, firstSpaceIndex);
+
+        PostCondition.assertNotNullAndNotEmpty(result, "result");
+
+        return result;
+    }
+
+    default Class<?> getMainClass()
+    {
+        final String mainClassFullName = this.getMainClassFullName();
+        return Types.getClass(mainClassFullName).await();
     }
 }

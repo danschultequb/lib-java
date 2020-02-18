@@ -52,4 +52,13 @@ public class QubProjectFolder extends Folder
         return this.getFolder(version)
             .then((Folder folder) -> QubProjectVersionFolder.create(folder));
     }
+
+    /**
+     * Get the data folder system that is associated with this Qub project.
+     * @return The data file system that is associated with this Qub project.
+     */
+    public Result<Folder> getProjectDataFolder()
+    {
+        return this.getFolder("data");
+    }
 }
