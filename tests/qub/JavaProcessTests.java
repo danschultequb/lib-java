@@ -6,7 +6,6 @@ public interface JavaProcessTests
     {
         runner.testGroup(JavaProcess.class, () ->
         {
-            ConsoleTests.test(runner, JavaProcess::create);
             QubProcessTests.test(runner, JavaProcess::create);
 
             runner.testGroup("create(String...)", () ->
