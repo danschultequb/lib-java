@@ -289,7 +289,7 @@ public interface Process extends Disposable
      * action should be invoked.
      * @return A new CommandLineActions object.
      */
-    default CommandLineActions<Process> createCommandLineActions()
+    default <TProcess extends Process> CommandLineActions<TProcess> createCommandLineActions()
     {
         return CommandLineActions.create();
     }
