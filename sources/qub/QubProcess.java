@@ -255,7 +255,7 @@ public interface QubProcess extends Process
         {
             final Path mainClassContainerPath = Types.getTypeContainerPath(type).await();
             final FileSystem fileSystem = this.getFileSystem();
-            return QubProjectVersionFolder.create(mainClassContainerPath, fileSystem).await();
+            return QubProjectVersionFolder.get(mainClassContainerPath, fileSystem).await();
         });
     }
 

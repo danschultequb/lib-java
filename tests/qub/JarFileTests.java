@@ -4,7 +4,7 @@ public interface JarFileTests
 {
     static void test(TestRunner runner)
     {
-        final Path jarFilePath = Path.parse("C:/qub/qub/qub-java-pack/10/qub-java-pack.jar");
+        final Path jarFilePath = Path.parse("C:/qub/qub/pack-java/1/pack-java.jar");
 
         runner.testGroup(JarFile.class, () ->
         {
@@ -94,10 +94,13 @@ public interface JarFileTests
                         Iterable.create(
                             "META-INF/",
                             "META-INF/MANIFEST.MF",
-                            "qub/FakeJarCreator.class",
-                            "qub/JarCreator.class",
-                            "qub/JavaJarCreator.class",
-                            "qub/QubPack.class"),
+                            "qub/FakeJarProcessRun.class",
+                            "qub/JarArguments.class",
+                            "qub/JarProcessBuilder.class",
+                            "qub/PackJSON.class",
+                            "qub/PackJSONFile.class",
+                            "qub/QubPack.class",
+                            "qub/QubPackParameters.class"),
                         entries.map(entry -> entry.getRelativePath().toString()));
                 }
             });
@@ -112,10 +115,13 @@ public interface JarFileTests
                     test.assertNotNull(entries);
                     test.assertEqual(
                         Iterable.create(
-                            "qub/FakeJarCreator.class",
-                            "qub/JarCreator.class",
-                            "qub/JavaJarCreator.class",
-                            "qub/QubPack.class"),
+                            "qub/FakeJarProcessRun.class",
+                            "qub/JarArguments.class",
+                            "qub/JarProcessBuilder.class",
+                            "qub/PackJSON.class",
+                            "qub/PackJSONFile.class",
+                            "qub/QubPack.class",
+                            "qub/QubPackParameters.class"),
                         entries.map(entry -> entry.getRelativePath().toString()));
                 }
             });

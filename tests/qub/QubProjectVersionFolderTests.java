@@ -10,7 +10,7 @@ public interface QubProjectVersionFolderTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() ->  QubProjectVersionFolder.create((Folder)null),
+                    test.assertThrows(() ->  QubProjectVersionFolder.get((Folder)null),
                         new PreConditionFailure("projectVersionFolder cannot be null."));
                 });
 
@@ -20,7 +20,7 @@ public interface QubProjectVersionFolderTests
                     fileSystem.createRoot("/").await();
                     final Folder rootFolder = fileSystem.getFolder("/").await();
 
-                    test.assertThrows(() -> QubProjectVersionFolder.create(rootFolder),
+                    test.assertThrows(() -> QubProjectVersionFolder.get(rootFolder),
                         new PreConditionFailure("projectVersionFolder.getPath().getSegments().getCount() (1) must be greater than or equal to 4."));
                 });
 
@@ -30,7 +30,7 @@ public interface QubProjectVersionFolderTests
                     fileSystem.createRoot("/").await();
                     final Folder qubFolder = fileSystem.getFolder("/").await();
 
-                    test.assertThrows(() -> QubProjectVersionFolder.create(qubFolder),
+                    test.assertThrows(() -> QubProjectVersionFolder.get(qubFolder),
                         new PreConditionFailure("projectVersionFolder.getPath().getSegments().getCount() (1) must be greater than or equal to 4."));
                 });
 
@@ -40,7 +40,7 @@ public interface QubProjectVersionFolderTests
                     fileSystem.createRoot("/").await();
                     final Folder publisherFolder = fileSystem.createFolder("/fake-publisher/").await();
 
-                    test.assertThrows(() -> QubProjectVersionFolder.create(publisherFolder),
+                    test.assertThrows(() -> QubProjectVersionFolder.get(publisherFolder),
                         new PreConditionFailure("projectVersionFolder.getPath().getSegments().getCount() (2) must be greater than or equal to 4."));
                 });
 
@@ -50,7 +50,7 @@ public interface QubProjectVersionFolderTests
                     fileSystem.createRoot("/").await();
                     final Folder projectFolder = fileSystem.createFolder("/fake-publisher/fake-project/").await();
 
-                    test.assertThrows(() -> QubProjectVersionFolder.create(projectFolder),
+                    test.assertThrows(() -> QubProjectVersionFolder.get(projectFolder),
                         new PreConditionFailure("projectVersionFolder.getPath().getSegments().getCount() (3) must be greater than or equal to 4."));
                 });
 
@@ -60,7 +60,7 @@ public interface QubProjectVersionFolderTests
                     fileSystem.createRoot("/").await();
                     final Folder versionFolder = fileSystem.createFolder("/fake-publisher/fake-project/fake-version/").await();
 
-                    final QubProjectVersionFolder projectVersionFolder = QubProjectVersionFolder.create(versionFolder);
+                    final QubProjectVersionFolder projectVersionFolder = QubProjectVersionFolder.get(versionFolder);
                     test.assertNotNull(projectVersionFolder);
                     test.assertEqual(projectVersionFolder.getPath(), projectVersionFolder.getPath());
                     test.assertEqual("fake-version", projectVersionFolder.getVersion());

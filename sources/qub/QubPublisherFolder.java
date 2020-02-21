@@ -7,7 +7,7 @@ public class QubPublisherFolder extends Folder
         super(publisherFolder.getFileSystem(), publisherFolder.getPath());
     }
 
-    public static QubPublisherFolder create(Folder publisherFolder)
+    public static QubPublisherFolder get(Folder publisherFolder)
     {
         PreCondition.assertNotNull(publisherFolder, "publisherFolder");
         PreCondition.assertGreaterThanOrEqualTo(publisherFolder.getPath().getSegments().getCount(), 2, "publisherFolder.getPath().getSegments().getCount()");
@@ -18,7 +18,7 @@ public class QubPublisherFolder extends Folder
     public Result<QubFolder> getQubFolder()
     {
         return this.getParentFolder()
-            .then((Folder parentFolder) -> QubFolder.create(parentFolder));
+            .then((Folder parentFolder) -> QubFolder.get(parentFolder));
     }
 
     public String getPublisherName()
@@ -34,7 +34,7 @@ public class QubPublisherFolder extends Folder
     {
         return this.getFolders()
             .catchError(FolderNotFoundException.class, () -> Iterable.create())
-            .then((Iterable<Folder> folders) -> folders.map(QubProjectFolder::create));
+            .then((Iterable<Folder> folders) -> folders.map(QubProjectFolder::get));
     }
 
     /**
@@ -47,6 +47,112 @@ public class QubPublisherFolder extends Folder
         PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
 
         return this.getFolder(projectName)
-            .then((Folder folder) -> QubProjectFolder.create(folder));
+            .then((Folder folder) -> QubProjectFolder.get(folder));
+    }
+
+    public Result<Iterable<QubProjectVersionFolder>> getProjectVersionFolders(String projectName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
+
+        return this.getProjectFolder(projectName)
+            .then((QubProjectFolder projectFolder) -> projectFolder.getProjectVersionFolders().await());
+    }
+
+    public Result<Iterable<QubProjectVersionFolder>> getProjectVersionFolders2(String projectName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
+
+        return this.getProjectFolder(projectName)
+            .then((QubProjectFolder projectFolder) -> projectFolder.getProjectVersionFolders2().await());
+    }
+
+    public Result<QubProjectVersionFolder> getProjectVersionFolder(String projectName, String version)
+    {
+        PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
+        PreCondition.assertNotNullAndNotEmpty(version, "version");
+
+        return this.getProjectFolder(projectName)
+            .then((QubProjectFolder projectFolder) -> projectFolder.getProjectVersionFolder(version).await());
+    }
+
+    public Result<QubProjectVersionFolder> getProjectVersionFolder2(String projectName, String version)
+    {
+        PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
+        PreCondition.assertNotNullAndNotEmpty(version, "version");
+
+        return this.getProjectFolder(projectName)
+            .then((QubProjectFolder projectFolder) -> projectFolder.getProjectVersionFolder2(version).await());
+    }
+
+    public Result<File> getProjectJSONFile(String projectName, String version)
+    {
+        PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
+        PreCondition.assertNotNullAndNotEmpty(version, "version");
+
+        return this.getProjectVersionFolder(projectName, version)
+            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getProjectJSONFile().await());
+    }
+
+    public Result<File> getProjectJSONFile2(String projectName, String version)
+    {
+        PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
+        PreCondition.assertNotNullAndNotEmpty(version, "version");
+
+        return this.getProjectVersionFolder2(projectName, version)
+            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getProjectJSONFile().await());
+    }
+
+    public Result<File> getCompiledSourcesFile(String projectName, String version)
+    {
+        PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
+        PreCondition.assertNotNullAndNotEmpty(version, "version");
+
+        return this.getProjectVersionFolder(projectName, version)
+            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getCompiledSourcesFile().await());
+    }
+
+    public Result<File> getCompiledSourcesFile2(String projectName, String version)
+    {
+        PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
+        PreCondition.assertNotNullAndNotEmpty(version, "version");
+
+        return this.getProjectVersionFolder2(projectName, version)
+            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getCompiledSourcesFile2().await());
+    }
+
+    public Result<File> getSourcesFile(String projectName, String version)
+    {
+        PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
+        PreCondition.assertNotNullAndNotEmpty(version, "version");
+
+        return this.getProjectVersionFolder(projectName, version)
+            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getSourcesFile().await());
+    }
+
+    public Result<File> getSourcesFile2(String projectName, String version)
+    {
+        PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
+        PreCondition.assertNotNullAndNotEmpty(version, "version");
+
+        return this.getProjectVersionFolder2(projectName, version)
+            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getSourcesFile2().await());
+    }
+
+    public Result<File> getCompiledTestsFile(String projectName, String version)
+    {
+        PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
+        PreCondition.assertNotNullAndNotEmpty(version, "version");
+
+        return this.getProjectVersionFolder(projectName, version)
+            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getCompiledTestsFile().await());
+    }
+
+    public Result<File> getCompiledTestsFile2(String projectName, String version)
+    {
+        PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
+        PreCondition.assertNotNullAndNotEmpty(version, "version");
+
+        return this.getProjectVersionFolder2(projectName, version)
+            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getCompiledTestsFile2().await());
     }
 }
