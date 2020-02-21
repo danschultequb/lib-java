@@ -253,9 +253,27 @@ public interface QubProcess extends Process
 
         return Result.create(() ->
         {
-            final Path mainClassContainerPath = Types.getTypeContainerPath(type).await();
+            QubProjectVersionFolder result = null;
+
             final FileSystem fileSystem = this.getFileSystem();
-            return QubProjectVersionFolder.get(mainClassContainerPath, fileSystem).await();
+            final Path typeContainerPath = Types.getTypeContainerPath(type).await();
+            final File projectVersionFile = fileSystem.getFile(typeContainerPath).await();
+            if (projectVersionFile.exists().await())
+            {
+                result = QubProjectVersionFolder.get(projectVersionFile.getParentFolder().await());
+            }
+            else
+            {
+                final Folder projectVersionFolder = fileSystem.getFolder(typeContainerPath).await();
+                if (projectVersionFolder.exists().await())
+                {
+                    result = QubProjectVersionFolder.get(projectVersionFolder);
+                }
+            }
+
+            PostCondition.assertNotNull(result, "result");
+
+            return result;
         });
     }
 
