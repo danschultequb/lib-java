@@ -62,8 +62,7 @@ public class QubPublisherFolder extends Folder
     {
         PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
 
-        return this.getProjectFolder(projectName)
-            .then((QubProjectFolder projectFolder) -> projectFolder.getProjectVersionFolders2().await());
+        return this.getProjectVersionFolders(projectName);
     }
 
     public Result<QubProjectVersionFolder> getProjectVersionFolder(String projectName, String version)
@@ -80,8 +79,7 @@ public class QubPublisherFolder extends Folder
         PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
         PreCondition.assertNotNullAndNotEmpty(version, "version");
 
-        return this.getProjectFolder(projectName)
-            .then((QubProjectFolder projectFolder) -> projectFolder.getProjectVersionFolder2(version).await());
+        return this.getProjectVersionFolder(projectName, version);
     }
 
     public Result<File> getProjectJSONFile(String projectName, String version)
@@ -98,8 +96,7 @@ public class QubPublisherFolder extends Folder
         PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
         PreCondition.assertNotNullAndNotEmpty(version, "version");
 
-        return this.getProjectVersionFolder2(projectName, version)
-            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getProjectJSONFile().await());
+        return this.getProjectJSONFile(projectName, version);
     }
 
     public Result<File> getCompiledSourcesFile(String projectName, String version)
@@ -116,8 +113,7 @@ public class QubPublisherFolder extends Folder
         PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
         PreCondition.assertNotNullAndNotEmpty(version, "version");
 
-        return this.getProjectVersionFolder2(projectName, version)
-            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getCompiledSourcesFile2().await());
+        return this.getCompiledSourcesFile(projectName, version);
     }
 
     public Result<File> getSourcesFile(String projectName, String version)
@@ -134,8 +130,7 @@ public class QubPublisherFolder extends Folder
         PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
         PreCondition.assertNotNullAndNotEmpty(version, "version");
 
-        return this.getProjectVersionFolder2(projectName, version)
-            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getSourcesFile2().await());
+        return this.getSourcesFile(projectName, version);
     }
 
     public Result<File> getCompiledTestsFile(String projectName, String version)
@@ -152,7 +147,6 @@ public class QubPublisherFolder extends Folder
         PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
         PreCondition.assertNotNullAndNotEmpty(version, "version");
 
-        return this.getProjectVersionFolder2(projectName, version)
-            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getCompiledTestsFile2().await());
+        return this.getCompiledTestsFile(projectName, version);
     }
 }

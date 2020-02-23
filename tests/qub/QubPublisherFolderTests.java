@@ -167,7 +167,7 @@ public interface QubPublisherFolderTests
                     final String projectName = "b";
                     final QubPublisherFolder publisherFolder = QubPublisherFolderTests.getQubPublisherFolder(test, "/qub/" + publisherName + "/");
                     final QubProjectFolder projectFolder = publisherFolder.getProjectFolder(projectName).await();
-                    projectFolder.createFolder("1").await();
+                    projectFolder.createFolder("versions/1").await();
                     test.assertEqual(
                         Iterable.create(
                             publisherFolder.getProjectVersionFolder(projectName, "1").await()),
@@ -272,7 +272,7 @@ public interface QubPublisherFolderTests
                     final String version = "1";
                     final QubPublisherFolder publisherFolder = QubPublisherFolderTests.getQubPublisherFolder(test, "/qub/" + publisherName + "/");
                     test.assertEqual(
-                        publisherFolder.getFile(projectName + "/" + version + "/project.json").await(),
+                        publisherFolder.getFile(projectName + "/versions/" + version + "/project.json").await(),
                         publisherFolder.getProjectJSONFile(projectName, version).await());
                 });
 
@@ -284,7 +284,7 @@ public interface QubPublisherFolderTests
                     final QubPublisherFolder publisherFolder = QubPublisherFolderTests.getQubPublisherFolder(test, "/qub/" + publisherName + "/");
                     publisherFolder.getQubFolder().await().create().await();
                     test.assertEqual(
-                        publisherFolder.getFile(projectName + "/" + version + "/project.json").await(),
+                        publisherFolder.getFile(projectName + "/versions/" + version + "/project.json").await(),
                         publisherFolder.getProjectJSONFile(projectName, version).await());
                 });
 
@@ -296,7 +296,7 @@ public interface QubPublisherFolderTests
                     final QubPublisherFolder publisherFolder = QubPublisherFolderTests.getQubPublisherFolder(test, "/qub/" + publisherName + "/");
                     publisherFolder.create().await();
                     test.assertEqual(
-                        publisherFolder.getFile(projectName + "/" + version + "/project.json").await(),
+                        publisherFolder.getFile(projectName + "/versions/" + version + "/project.json").await(),
                         publisherFolder.getProjectJSONFile(projectName, version).await());
                 });
 
@@ -308,7 +308,7 @@ public interface QubPublisherFolderTests
                     final QubPublisherFolder publisherFolder = QubPublisherFolderTests.getQubPublisherFolder(test, "/qub/" + publisherName + "/");
                     publisherFolder.getProjectFolder(projectName).await().create().await();
                     test.assertEqual(
-                        publisherFolder.getFile(projectName + "/" + version + "/project.json").await(),
+                        publisherFolder.getFile(projectName + "/versions/" + version + "/project.json").await(),
                         publisherFolder.getProjectJSONFile(projectName, version).await());
                 });
 
@@ -320,7 +320,7 @@ public interface QubPublisherFolderTests
                     final QubPublisherFolder publisherFolder = QubPublisherFolderTests.getQubPublisherFolder(test, "/qub/" + publisherName + "/");
                     publisherFolder.getProjectVersionFolder(projectName, version).await().create().await();
                     test.assertEqual(
-                        publisherFolder.getFile(projectName + "/" + version + "/project.json").await(),
+                        publisherFolder.getFile(projectName + "/versions/" + version + "/project.json").await(),
                         publisherFolder.getProjectJSONFile(projectName, version).await());
                 });
 
@@ -333,7 +333,7 @@ public interface QubPublisherFolderTests
                     final QubProjectVersionFolder projectVersionFolder = publisherFolder.getProjectVersionFolder(projectName, version).await();
                     projectVersionFolder.createFile("project.json").await();
                     test.assertEqual(
-                        publisherFolder.getFile(projectName + "/" + version + "/project.json").await(),
+                        publisherFolder.getFile(projectName + "/versions/" + version + "/project.json").await(),
                         publisherFolder.getProjectJSONFile(projectName, version).await());
                 });
             });
@@ -460,7 +460,7 @@ public interface QubPublisherFolderTests
                     {
                         final QubPublisherFolder publisherFolder = QubPublisherFolderTests.getQubPublisherFolder(test, "/qub/" + publisherName + "/");
                         test.assertEqual(
-                            publisherFolder.getFile(projectName + "/" + version + "/" + projectName + ".jar").await(),
+                            publisherFolder.getFile(projectName + "/versions/" + version + "/" + projectName + ".jar").await(),
                             publisherFolder.getCompiledSourcesFile(projectName, version).await());
                     });
                 };
@@ -520,7 +520,7 @@ public interface QubPublisherFolderTests
                     {
                         final QubPublisherFolder publisherFolder = QubPublisherFolderTests.getQubPublisherFolder(test, "/qub/" + publisherName + "/");
                         test.assertEqual(
-                            publisherFolder.getFile(projectName + "/" + version + "/" + projectName + ".sources.jar").await(),
+                            publisherFolder.getFile(projectName + "/versions/" + version + "/" + projectName + ".sources.jar").await(),
                             publisherFolder.getSourcesFile(projectName, version).await());
                     });
                 };
@@ -580,7 +580,7 @@ public interface QubPublisherFolderTests
                     {
                         final QubPublisherFolder publisherFolder = QubPublisherFolderTests.getQubPublisherFolder(test, "/qub/" + publisherName + "/");
                         test.assertEqual(
-                            publisherFolder.getFile(projectName + "/" + version + "/" + projectName + ".tests.jar").await(),
+                            publisherFolder.getFile(projectName + "/versions/" + version + "/" + projectName + ".tests.jar").await(),
                             publisherFolder.getCompiledTestsFile(projectName, version).await());
                     });
                 };

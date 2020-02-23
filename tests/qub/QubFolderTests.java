@@ -311,7 +311,7 @@ public interface QubFolderTests
                     final String publisherName = "a";
                     final String projectName = "b";
                     final QubProjectFolder projectFolder = qubFolder.getProjectFolder(publisherName, projectName).await();
-                    projectFolder.createFolder("1").await();
+                    projectFolder.createFolder("versions/1").await();
                     test.assertEqual(
                         Iterable.create(
                             qubFolder.getProjectVersionFolder(publisherName, projectName, "1").await()),
@@ -420,7 +420,7 @@ public interface QubFolderTests
                     final String projectName = "b";
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/project.json").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/project.json").await(),
                         qubFolder.getProjectJSONFile(publisherName, projectName, version).await());
                 });
 
@@ -432,7 +432,7 @@ public interface QubFolderTests
                     final String projectName = "b";
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/project.json").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/project.json").await(),
                         qubFolder.getProjectJSONFile(publisherName, projectName, version).await());
                 });
 
@@ -444,7 +444,7 @@ public interface QubFolderTests
                     final String projectName = "b";
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/project.json").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/project.json").await(),
                         qubFolder.getProjectJSONFile(publisherName, projectName, version).await());
                 });
 
@@ -456,7 +456,7 @@ public interface QubFolderTests
                     qubFolder.getProjectFolder(publisherName, projectName).await().create().await();
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/project.json").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/project.json").await(),
                         qubFolder.getProjectJSONFile(publisherName, projectName, version).await());
                 });
 
@@ -469,7 +469,7 @@ public interface QubFolderTests
                     projectFolder.createFolder("versions").await();
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/project.json").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/project.json").await(),
                         qubFolder.getProjectJSONFile(publisherName, projectName, version).await());
                 });
 
@@ -482,7 +482,7 @@ public interface QubFolderTests
                     final QubProjectVersionFolder projectVersionFolder = qubFolder.getProjectVersionFolder(publisherName, projectName, version).await();
                     projectVersionFolder.create().await();
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/project.json").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/project.json").await(),
                         qubFolder.getProjectJSONFile(publisherName, projectName, version).await());
                 });
 
@@ -495,7 +495,7 @@ public interface QubFolderTests
                     final QubProjectVersionFolder projectVersionFolder = qubFolder.getProjectVersionFolder(publisherName, projectName, version).await();
                     projectVersionFolder.createFile("project.json").await();
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/project.json").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/project.json").await(),
                         qubFolder.getProjectJSONFile(publisherName, projectName, version).await());
                 });
             });
@@ -630,7 +630,7 @@ public interface QubFolderTests
                     final String projectName = "b";
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".jar").await(),
                         qubFolder.getCompiledSourcesFile(publisherName, projectName, version).await());
                 });
 
@@ -642,7 +642,7 @@ public interface QubFolderTests
                     final String projectName = "b";
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".jar").await(),
                         qubFolder.getCompiledSourcesFile(publisherName, projectName, version).await());
                 });
 
@@ -654,7 +654,7 @@ public interface QubFolderTests
                     final String projectName = "b";
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".jar").await(),
                         qubFolder.getCompiledSourcesFile(publisherName, projectName, version).await());
                 });
 
@@ -666,7 +666,7 @@ public interface QubFolderTests
                     qubFolder.getProjectFolder(publisherName, projectName).await().create().await();
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".jar").await(),
                         qubFolder.getCompiledSourcesFile(publisherName, projectName, version).await());
                 });
 
@@ -679,7 +679,7 @@ public interface QubFolderTests
                     projectFolder.createFolder("versions").await();
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".jar").await(),
                         qubFolder.getCompiledSourcesFile(publisherName, projectName, version).await());
                 });
 
@@ -692,7 +692,7 @@ public interface QubFolderTests
                     final QubProjectVersionFolder projectVersionFolder = qubFolder.getProjectVersionFolder(publisherName, projectName, version).await();
                     projectVersionFolder.create().await();
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".jar").await(),
                         qubFolder.getCompiledSourcesFile(publisherName, projectName, version).await());
                 });
 
@@ -705,7 +705,7 @@ public interface QubFolderTests
                     final QubProjectVersionFolder projectVersionFolder = qubFolder.getProjectVersionFolder(publisherName, projectName, version).await();
                     projectVersionFolder.createFile("project.json").await();
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".jar").await(),
                         qubFolder.getCompiledSourcesFile(publisherName, projectName, version).await());
                 });
             });
@@ -840,7 +840,7 @@ public interface QubFolderTests
                     final String projectName = "b";
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".sources.jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".sources.jar").await(),
                         qubFolder.getSourcesFile(publisherName, projectName, version).await());
                 });
 
@@ -852,7 +852,7 @@ public interface QubFolderTests
                     final String projectName = "b";
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".sources.jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".sources.jar").await(),
                         qubFolder.getSourcesFile(publisherName, projectName, version).await());
                 });
 
@@ -864,7 +864,7 @@ public interface QubFolderTests
                     final String projectName = "b";
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".sources.jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".sources.jar").await(),
                         qubFolder.getSourcesFile(publisherName, projectName, version).await());
                 });
 
@@ -876,7 +876,7 @@ public interface QubFolderTests
                     qubFolder.getProjectFolder(publisherName, projectName).await().create().await();
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".sources.jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".sources.jar").await(),
                         qubFolder.getSourcesFile(publisherName, projectName, version).await());
                 });
 
@@ -889,7 +889,7 @@ public interface QubFolderTests
                     projectFolder.createFolder("versions").await();
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".sources.jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".sources.jar").await(),
                         qubFolder.getSourcesFile(publisherName, projectName, version).await());
                 });
 
@@ -902,7 +902,7 @@ public interface QubFolderTests
                     final QubProjectVersionFolder projectVersionFolder = qubFolder.getProjectVersionFolder(publisherName, projectName, version).await();
                     projectVersionFolder.create().await();
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".sources.jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".sources.jar").await(),
                         qubFolder.getSourcesFile(publisherName, projectName, version).await());
                 });
 
@@ -915,7 +915,7 @@ public interface QubFolderTests
                     final QubProjectVersionFolder projectVersionFolder = qubFolder.getProjectVersionFolder(publisherName, projectName, version).await();
                     projectVersionFolder.createFile("project.json").await();
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".sources.jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".sources.jar").await(),
                         qubFolder.getSourcesFile(publisherName, projectName, version).await());
                 });
             });
@@ -1050,7 +1050,7 @@ public interface QubFolderTests
                     final String projectName = "b";
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".tests.jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".tests.jar").await(),
                         qubFolder.getCompiledTestsFile(publisherName, projectName, version).await());
                 });
 
@@ -1062,7 +1062,7 @@ public interface QubFolderTests
                     final String projectName = "b";
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".tests.jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".tests.jar").await(),
                         qubFolder.getCompiledTestsFile(publisherName, projectName, version).await());
                 });
 
@@ -1074,7 +1074,7 @@ public interface QubFolderTests
                     final String projectName = "b";
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".tests.jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".tests.jar").await(),
                         qubFolder.getCompiledTestsFile(publisherName, projectName, version).await());
                 });
 
@@ -1086,7 +1086,7 @@ public interface QubFolderTests
                     qubFolder.getProjectFolder(publisherName, projectName).await().create().await();
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".tests.jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".tests.jar").await(),
                         qubFolder.getCompiledTestsFile(publisherName, projectName, version).await());
                 });
 
@@ -1099,7 +1099,7 @@ public interface QubFolderTests
                     projectFolder.createFolder("versions").await();
                     final String version = "1";
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".tests.jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".tests.jar").await(),
                         qubFolder.getCompiledTestsFile(publisherName, projectName, version).await());
                 });
 
@@ -1112,7 +1112,7 @@ public interface QubFolderTests
                     final QubProjectVersionFolder projectVersionFolder = qubFolder.getProjectVersionFolder(publisherName, projectName, version).await();
                     projectVersionFolder.create().await();
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".tests.jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".tests.jar").await(),
                         qubFolder.getCompiledTestsFile(publisherName, projectName, version).await());
                 });
 
@@ -1125,7 +1125,7 @@ public interface QubFolderTests
                     final QubProjectVersionFolder projectVersionFolder = qubFolder.getProjectVersionFolder(publisherName, projectName, version).await();
                     projectVersionFolder.createFile("project.json").await();
                     test.assertEqual(
-                        qubFolder.getFile(publisherName + "/" + projectName + "/" + version + "/" + projectName + ".tests.jar").await(),
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/" + projectName + ".tests.jar").await(),
                         qubFolder.getCompiledTestsFile(publisherName, projectName, version).await());
                 });
             });

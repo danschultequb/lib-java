@@ -10,15 +10,15 @@ public class QubProjectVersionFolder extends Folder
     public static QubProjectVersionFolder get(Folder projectVersionFolder)
     {
         PreCondition.assertNotNull(projectVersionFolder, "projectVersionFolder");
-        PreCondition.assertGreaterThanOrEqualTo(projectVersionFolder.getPath().getSegments().getCount(), 4, "projectVersionFolder.getPath().getSegments().getCount()");
+        PreCondition.assertGreaterThanOrEqualTo(projectVersionFolder.getPath().getSegments().getCount(), 5, "projectVersionFolder.getPath().getSegments().getCount()");
 
         return new QubProjectVersionFolder(projectVersionFolder);
     }
 
     public Result<QubFolder> getQubFolder()
     {
-        return this.getPublisherFolder()
-            .then((QubPublisherFolder publisherFolder) -> publisherFolder.getQubFolder().await());
+        return this.getProjectFolder2()
+            .then((QubProjectFolder projectFolder) -> projectFolder.getQubFolder().await());
     }
 
     public Result<QubFolder> getQubFolder2()
@@ -29,7 +29,7 @@ public class QubProjectVersionFolder extends Folder
 
     public Result<QubPublisherFolder> getPublisherFolder()
     {
-        return this.getProjectFolder()
+        return this.getProjectFolder2()
             .then((QubProjectFolder projectFolder) -> projectFolder.getPublisherFolder().await());
     }
 
@@ -41,7 +41,7 @@ public class QubProjectVersionFolder extends Folder
 
     public Result<String> getPublisherName()
     {
-        return this.getPublisherFolder()
+        return this.getPublisherFolder2()
             .then(QubPublisherFolder::getPublisherName);
     }
 
@@ -55,7 +55,8 @@ public class QubProjectVersionFolder extends Folder
     {
         return Result.create(() ->
         {
-            final Folder projectFolder = this.getParentFolder().await();
+            final Folder versionsFolder = this.getParentFolder().await();
+            final Folder projectFolder = versionsFolder.getParentFolder().await();
             return QubProjectFolder.get(projectFolder);
         });
     }
@@ -72,7 +73,7 @@ public class QubProjectVersionFolder extends Folder
 
     public Result<String> getProjectName()
     {
-        return this.getProjectFolder()
+        return this.getProjectFolder2()
             .then(QubProjectFolder::getProjectName);
     }
 
@@ -84,8 +85,8 @@ public class QubProjectVersionFolder extends Folder
 
     public Result<Iterable<QubProjectVersionFolder>> getProjectVersionFolders()
     {
-        return this.getProjectFolder()
-            .then((QubProjectFolder projectFolder) -> projectFolder.getProjectVersionFolders().await());
+        return this.getProjectFolder2()
+            .then((QubProjectFolder projectFolder) -> projectFolder.getProjectVersionFolders2().await());
     }
 
     public Result<Iterable<QubProjectVersionFolder>> getProjectVersionFolders2()
@@ -116,7 +117,7 @@ public class QubProjectVersionFolder extends Folder
 
     public Result<File> getSourcesFile()
     {
-        return this.getFile(this.getProjectName().await() + ".sources.jar");
+        return this.getFile(this.getProjectName2().await() + ".sources.jar");
     }
 
     public Result<File> getSourcesFile2()
@@ -126,7 +127,7 @@ public class QubProjectVersionFolder extends Folder
 
     public Result<File> getCompiledTestsFile()
     {
-        return this.getFile(this.getProjectName().await() + ".tests.jar");
+        return this.getFile(this.getProjectName2().await() + ".tests.jar");
     }
 
     public Result<File> getCompiledTestsFile2()
@@ -142,8 +143,8 @@ public class QubProjectVersionFolder extends Folder
     {
         return Result.create(() ->
         {
-            final String publisher = this.getPublisherName().await();
-            final String project = this.getProjectName().await();
+            final String publisher = this.getPublisherName2().await();
+            final String project = this.getProjectName2().await();
             final String version = this.getVersion();
             return new ProjectSignature(publisher, project, version);
         });
@@ -166,7 +167,7 @@ public class QubProjectVersionFolder extends Folder
 
     public Result<Folder> getProjectVersionsFolder()
     {
-        return this.getProjectFolder()
+        return this.getProjectFolder2()
             .then((QubProjectFolder projectFolder) -> projectFolder.getProjectVersionsFolder().await());
     }
 
@@ -184,7 +185,7 @@ public class QubProjectVersionFolder extends Folder
     {
         return Result.create(() ->
         {
-            return this.getProjectFolder().await()
+            return this.getProjectFolder2().await()
                 .getProjectDataFolder().await();
         });
     }
