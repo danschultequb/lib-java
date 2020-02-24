@@ -58,6 +58,45 @@ public class QubProjectFolder extends Folder
         });
     }
 
+    public Result<QubProjectVersionFolder> getLatestProjectVersionFolder()
+    {
+        return this.getLatestProjectVersionFolder((QubProjectVersionFolder lhs, QubProjectVersionFolder rhs) ->
+        {
+            final String lhsVersionString = lhs.getVersion();
+            final String rhsVersionString = rhs.getVersion();
+            final Integer lhsVersion = Integers.parse(lhsVersionString).catchError().await();
+            final Integer rhsVersion = Integers.parse(rhsVersionString).catchError().await();
+            return Comparer.compare(lhsVersion, rhsVersion);
+        });
+    }
+
+    public Result<QubProjectVersionFolder> getLatestProjectVersionFolder(Comparer<QubProjectVersionFolder> comparer)
+    {
+        PreCondition.assertNotNull(comparer, "comparer");
+
+        return Result.create(() ->
+        {
+            QubProjectVersionFolder result;
+            final Iterable<QubProjectVersionFolder> projectVersionFolders = this.getProjectVersionFolders().await();
+            if (Iterable.isNullOrEmpty(projectVersionFolders))
+            {
+                throw new NotFoundException("No project named " + this.getPublisherName().await() + "/" + this.getProjectName() + " has been published.");
+            }
+            else
+            {
+                result = projectVersionFolders.first();
+                for (final QubProjectVersionFolder projectVersionFolder : projectVersionFolders.skipFirst())
+                {
+                    if (comparer.run(result, projectVersionFolder) == Comparison.LessThan)
+                    {
+                        result = projectVersionFolder;
+                    }
+                }
+            }
+            return result;
+        });
+    }
+
     /**
      * Get the data folder system that is associated with this Qub project.
      * @return The data file system that is associated with this Qub project.

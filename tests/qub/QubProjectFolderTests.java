@@ -114,6 +114,115 @@ public interface QubProjectFolderTests
                 });
             });
 
+            runner.testGroup("getLatestProjectVersionFolder()", () ->
+            {
+                runner.test("with no existing Qub folder", (Test test) ->
+                {
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    test.assertThrows(() -> projectFolder.getLatestProjectVersionFolder().await(),
+                        new NotFoundException("No project named a/b has been published."));
+                });
+
+                runner.test("with no existing publisher folder", (Test test) ->
+                {
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    projectFolder.getQubFolder().await().create().await();
+                    test.assertThrows(() -> projectFolder.getLatestProjectVersionFolder().await(),
+                        new NotFoundException("No project named a/b has been published."));
+                });
+
+                runner.test("with no existing project folder", (Test test) ->
+                {
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    projectFolder.getPublisherFolder().await().create().await();
+                    test.assertThrows(() -> projectFolder.getLatestProjectVersionFolder().await(),
+                        new NotFoundException("No project named a/b has been published."));
+                });
+
+                runner.test("with no existing versions folder", (Test test) ->
+                {
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    projectFolder.create().await();
+                    test.assertThrows(() -> projectFolder.getLatestProjectVersionFolder().await(),
+                        new NotFoundException("No project named a/b has been published."));
+                });
+
+                runner.test("with no existing version folders", (Test test) ->
+                {
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    projectFolder.getProjectVersionsFolder().await().create().await();
+                    test.assertThrows(() -> projectFolder.getLatestProjectVersionFolder().await(),
+                        new NotFoundException("No project named a/b has been published."));
+                });
+
+                runner.test("with one version", (Test test) ->
+                {
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    projectFolder.getProjectVersionFolder("1").await().create().await();
+                    test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/1", projectFolder.getLatestProjectVersionFolder().await().toString());
+                });
+
+                runner.test("with two versions", (Test test) ->
+                {
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    projectFolder.getProjectVersionFolder("2").await().create().await();
+                    projectFolder.getProjectVersionFolder("3").await().create().await();
+                    test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/3", projectFolder.getLatestProjectVersionFolder().await().toString());
+                });
+
+                runner.test("with three non-sorted versions", (Test test) ->
+                {
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    projectFolder.getProjectVersionFolder("2").await().create().await();
+                    projectFolder.getProjectVersionFolder("30").await().create().await();
+                    projectFolder.getProjectVersionFolder("13").await().create().await();
+                    test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/30", projectFolder.getLatestProjectVersionFolder().await().toString());
+                });
+
+                runner.test("with non-integer versions", (Test test) ->
+                {
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    projectFolder.getProjectVersionFolder("2").await().create().await();
+                    projectFolder.getProjectVersionFolder("3.0.3").await().create().await();
+                    projectFolder.getProjectVersionFolder("1.3").await().create().await();
+                    test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/2", projectFolder.getLatestProjectVersionFolder().await().toString());
+                });
+            });
+
+            runner.test("getProjectDataFolder()", (Test test) ->
+            {
+                final String publisherName = "a";
+                final String projectName = "b";
+                final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                test.assertEqual("/qub/" + publisherName + "/" + projectName + "/data", projectFolder.getProjectDataFolder().await().toString());
+            });
+
+            runner.test("getProjectVersionsFolder()", (Test test) ->
+            {
+                final String publisherName = "a";
+                final String projectName = "b";
+                final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions", projectFolder.getProjectVersionsFolder().await().toString());
+            });
+
             runner.testGroup("getProjectJSONFile(String)", () ->
             {
                 final Action4<String,String,String,Throwable> getProjectJSONFileErrorTest = (String publisherName, String projectName, String version, Throwable expected) ->
