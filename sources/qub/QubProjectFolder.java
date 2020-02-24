@@ -46,24 +46,7 @@ public class QubProjectFolder extends Folder
             .then((Iterable<Folder> folders) -> folders.map(QubProjectVersionFolder::get));
     }
 
-    public Result<Iterable<QubProjectVersionFolder>> getProjectVersionFolders2()
-    {
-        return this.getProjectVersionFolders();
-    }
-
     public Result<QubProjectVersionFolder> getProjectVersionFolder(String version)
-    {
-        PreCondition.assertNotNullAndNotEmpty(version, "version");
-
-        return Result.create(() ->
-        {
-            final Folder versionsFolder = this.getProjectVersionsFolder().await();
-            final Folder versionFolder = versionsFolder.getFolder(version).await();
-            return QubProjectVersionFolder.get(versionFolder);
-        });
-    }
-
-    public Result<QubProjectVersionFolder> getProjectVersionFolder2(String version)
     {
         PreCondition.assertNotNullAndNotEmpty(version, "version");
 
@@ -93,15 +76,7 @@ public class QubProjectFolder extends Folder
     {
         PreCondition.assertNotNullAndNotEmpty(version, "version");
 
-        return this.getProjectVersionFolder2(version)
-            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getProjectJSONFile().await());
-    }
-
-    public Result<File> getProjectJSONFile2(String version)
-    {
-        PreCondition.assertNotNullAndNotEmpty(version, "version");
-
-        return this.getProjectVersionFolder2(version)
+        return this.getProjectVersionFolder(version)
             .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getProjectJSONFile().await());
     }
 
@@ -109,47 +84,23 @@ public class QubProjectFolder extends Folder
     {
         PreCondition.assertNotNullAndNotEmpty(version, "version");
 
-        return this.getProjectVersionFolder2(version)
-            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getCompiledSourcesFile2().await());
-    }
-
-    public Result<File> getCompiledSourcesFile2(String version)
-    {
-        PreCondition.assertNotNullAndNotEmpty(version, "version");
-
-        return this.getProjectVersionFolder2(version)
-            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getCompiledSourcesFile2().await());
+        return this.getProjectVersionFolder(version)
+            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getCompiledSourcesFile().await());
     }
 
     public Result<File> getSourcesFile(String version)
     {
         PreCondition.assertNotNullAndNotEmpty(version, "version");
 
-        return this.getProjectVersionFolder2(version)
-            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getSourcesFile2().await());
-    }
-
-    public Result<File> getSourcesFile2(String version)
-    {
-        PreCondition.assertNotNullAndNotEmpty(version, "version");
-
-        return this.getProjectVersionFolder2(version)
-            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getSourcesFile2().await());
+        return this.getProjectVersionFolder(version)
+            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getSourcesFile().await());
     }
 
     public Result<File> getCompiledTestsFile(String version)
     {
         PreCondition.assertNotNullAndNotEmpty(version, "version");
 
-        return this.getProjectVersionFolder2(version)
-            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getCompiledTestsFile2().await());
-    }
-
-    public Result<File> getCompiledTestsFile2(String version)
-    {
-        PreCondition.assertNotNullAndNotEmpty(version, "version");
-
-        return this.getProjectVersionFolder2(version)
-            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getCompiledTestsFile2().await());
+        return this.getProjectVersionFolder(version)
+            .then((QubProjectVersionFolder projectVersionFolder) -> projectVersionFolder.getCompiledTestsFile().await());
     }
 }
