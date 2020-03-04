@@ -1,17 +1,17 @@
 package qub;
 
 /**
- * An event that will be run with no arguments.
+ * An event that will be run with two arguments.
  */
-public interface Event0
+public interface Event2<T1,T2>
 {
     /**
-     * Create a new runnable event.
-     * @return A new runnable event.
+     * Create a new event.
+     * @return A new event.
      */
-    static RunnableEvent0 create()
+    static <T1,T2> RunnableEvent2<T1,T2> create()
     {
-        return RunnableEvent0.create();
+        return RunnableEvent2.create();
     }
 
     /**
@@ -20,5 +20,5 @@ public interface Event0
      * @param callback The callback to add.
      * @return A Disposable that can be disposed to remove the provided callback from this event.
      */
-    Disposable add(Action0 callback);
+    Disposable add(Action2<T1,T2> callback);
 }
