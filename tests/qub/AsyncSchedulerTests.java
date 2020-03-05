@@ -23,7 +23,7 @@ public interface AsyncSchedulerTests
                     {
                         final Value<Integer> value = Value.create();
 
-                        final Result<Void> result = asyncScheduler.schedule(() -> value.set(10));
+                        final Result<Void> result = asyncScheduler.schedule(() -> { value.set(10); });
                         test.assertNotNull(result);
 
                         test.assertNull(result.await());

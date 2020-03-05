@@ -43,7 +43,7 @@ public interface ManualAsyncRunnerTests
                        final long mainThreadId = CurrentThread.getId();
                        final Value<Long> asyncTaskThreadId = Value.create();
 
-                       final Result<Void> asyncTask = asyncRunner.schedule(() -> asyncTaskThreadId.set(CurrentThread.getId()));
+                       final Result<Void> asyncTask = asyncRunner.schedule(() -> { asyncTaskThreadId.set(CurrentThread.getId()); });
                        test.assertFalse(asyncTask.isCompleted());
                        test.assertFalse(asyncTaskThreadId.hasValue());
 
@@ -62,7 +62,7 @@ public interface ManualAsyncRunnerTests
                         final long mainThreadId = CurrentThread.getId();
                         final Value<Long> asyncTaskThreadId = Value.create();
 
-                        final Result<Void> asyncTask = asyncRunner.schedule(() -> asyncTaskThreadId.set(CurrentThread.getId()));
+                        final Result<Void> asyncTask = asyncRunner.schedule(() -> { asyncTaskThreadId.set(CurrentThread.getId()); });
                         test.assertFalse(asyncTask.isCompleted());
                         test.assertFalse(asyncTaskThreadId.hasValue());
 

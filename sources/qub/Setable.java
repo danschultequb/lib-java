@@ -9,11 +9,11 @@ public interface Setable<T>
     /**
      * Clear any value that has been assigned to this object.
      */
-    void clear();
+    Setable<T> clear();
 
     /**
      * Set the value that this Setable contains.
      * @param value The value to set.
      */
-    void set(T value);
+    Setable<T> set(T value);
 }

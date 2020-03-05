@@ -53,7 +53,7 @@ public interface ResultTests
                 {
                     final Result<Boolean> result1 = Result.successTrue();
                     final Value<Boolean> value = Value.create();
-                    final Result<Void> result2 = result1.then(() -> value.set(false));
+                    final Result<Void> result2 = result1.then(() -> { value.set(false); });
                     test.assertNull(result2.await());
                     test.assertEqual(false, value.get());
                 });
@@ -72,7 +72,7 @@ public interface ResultTests
                 {
                     final Result<Character> result1 = Result.error(new RuntimeException("blah"));
                     final Value<Character> value = Value.create();
-                    final Result<Void> result2 = result1.then(() -> value.set('z'));
+                    final Result<Void> result2 = result1.then(() -> { value.set('z'); });
                     test.assertThrows(result2::await, new RuntimeException("blah"));
                     test.assertFalse(value.hasValue());
                 });
@@ -99,7 +99,7 @@ public interface ResultTests
                 {
                     final Result<Boolean> result1 = Result.successTrue();
                     final Value<Boolean> value = Value.create();
-                    final Result<Void> result2 = result1.then(value::set);
+                    final Result<Void> result2 = result1.then((Action1<Boolean>)value::set);
                     test.assertNull(result2.await());
                     test.assertTrue(value.hasValue());
                     test.assertEqual(true, value.get());
@@ -119,7 +119,7 @@ public interface ResultTests
                 {
                     final Result<Character> result1 = Result.error(new RuntimeException("blah"));
                     final Value<Character> value = Value.create();
-                    final Result<Void> result2 = result1.then(value::set);
+                    final Result<Void> result2 = result1.then((Action1<Character>)value::set);
                     test.assertThrows(result2::await, new RuntimeException("blah"));
                     test.assertFalse(value.hasValue());
                 });
@@ -286,7 +286,7 @@ public interface ResultTests
                 {
                     final Value<Integer> value = Value.create(0);
                     test.assertNull(Result.error(new RuntimeException("abc"))
-                        .catchError((Throwable error) -> value.set(5))
+                        .catchError((Throwable error) -> { value.set(5); })
                         .await());
                     test.assertEqual(5, value.get());
                 });

@@ -7,8 +7,8 @@ public class ObjectValue<T> implements Value<T>
 
     public ObjectValue()
     {
-        value = new java.util.concurrent.atomic.AtomicReference<>();
-        hasValue = false;
+        this.value = new java.util.concurrent.atomic.AtomicReference<>();
+        this.hasValue = false;
     }
 
     public ObjectValue(T value)
@@ -23,31 +23,33 @@ public class ObjectValue<T> implements Value<T>
     }
 
     @Override
-    public void set(T value)
+    public ObjectValue<T> set(T value)
     {
         this.value.set(value);
-        hasValue = true;
+        this.hasValue = true;
+        return this;
     }
 
     public boolean hasValue()
     {
-        return hasValue;
+        return this.hasValue;
     }
 
     @Override
     public T get()
     {
-        PreCondition.assertTrue(hasValue(), "hasValue()");
+        PreCondition.assertTrue(this.hasValue(), "this.hasValue()");
 
-        return value.get();
+        return this.value.get();
     }
 
     /**
      * Clear any value that may have been set.
      */
-    public void clear()
+    public ObjectValue<T> clear()
     {
         this.value.set(null);
-        hasValue = false;
+        this.hasValue = false;
+        return this;
     }
 }

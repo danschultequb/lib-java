@@ -14,23 +14,23 @@ public interface Event0Tests
         });
     }
 
-    static void test(TestRunner runner, Function0<Event0> creator)
+    static void test(TestRunner runner, Function0<? extends Event0> creator)
     {
         runner.testGroup(Event0.class, () ->
         {
-            runner.testGroup("add(Action0)", () ->
+            runner.testGroup("subscribe(Action0)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
                     final Event0 event = creator.run();
-                    test.assertThrows(() -> event.add(null),
+                    test.assertThrows(() -> event.subscribe(null),
                         new PreConditionFailure("callback cannot be null."));
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
                     final Event0 event = creator.run();
-                    final Disposable disposable = event.add(() -> {});
+                    final Disposable disposable = event.subscribe(() -> {});
                     test.assertNotNull(disposable);
                     test.assertFalse(disposable.isDisposed());
                 });

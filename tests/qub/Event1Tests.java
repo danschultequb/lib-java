@@ -14,23 +14,25 @@ public interface Event1Tests
         });
     }
 
-    static void test(TestRunner runner, Function0<Event1<Integer>> creator)
+    static void test(TestRunner runner, Function0<? extends Event1<Integer>> creator)
     {
         runner.testGroup(Event1.class, () ->
         {
-            runner.testGroup("add(Action1<T>)", () ->
+            Event0Tests.test(runner, creator);
+
+            runner.testGroup("subscribe(Action1<T>)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
                     final Event1<Integer> event = creator.run();
-                    test.assertThrows(() -> event.add(null),
+                    test.assertThrows(() -> event.subscribe((Action1<Integer>)null),
                         new PreConditionFailure("callback cannot be null."));
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
                     final Event1<Integer> event = creator.run();
-                    final Disposable disposable = event.add((Integer value) -> {});
+                    final Disposable disposable = event.subscribe((Integer value) -> {});
                     test.assertNotNull(disposable);
                     test.assertFalse(disposable.isDisposed());
                 });

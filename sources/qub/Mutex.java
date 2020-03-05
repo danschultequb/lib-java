@@ -133,7 +133,7 @@ public interface Mutex
         return Result.create(() ->
         {
             final Value<T> result = Value.create();
-            this.criticalSection(() -> result.set(function.run())).await();
+            this.criticalSection(() -> { result.set(function.run()); }).await();
             return result.get();
         });
     }
@@ -151,7 +151,7 @@ public interface Mutex
         return Result.create(() ->
         {
             final Value<T> result = Value.create();
-            this.criticalSection(durationTimeout, () -> result.set(function.run())).await();
+            this.criticalSection(durationTimeout, () -> { result.set(function.run()); }).await();
             return result.get();
         });
     }
@@ -172,7 +172,7 @@ public interface Mutex
         return Result.create(() ->
         {
             final Value<T> result = Value.create();
-            this.criticalSection(dateTimeTimeout, () -> result.set(function.run())).await();
+            this.criticalSection(dateTimeTimeout, () -> { result.set(function.run()); }).await();
             return result.get();
         });
     }

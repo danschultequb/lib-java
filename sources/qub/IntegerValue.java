@@ -8,13 +8,13 @@ public class IntegerValue implements Value<java.lang.Integer>, Comparable<java.l
     public IntegerValue()
     {
         this.value = new java.util.concurrent.atomic.AtomicInteger();
-        hasValue = false;
+        this.hasValue = false;
     }
 
     public IntegerValue(int value)
     {
         this.value = new java.util.concurrent.atomic.AtomicInteger(value);
-        hasValue = true;
+        this.hasValue = true;
     }
 
     public IntegerValue(java.lang.Integer value)
@@ -22,7 +22,7 @@ public class IntegerValue implements Value<java.lang.Integer>, Comparable<java.l
         PreCondition.assertNotNull(value, "value");
 
         this.value = new java.util.concurrent.atomic.AtomicInteger(value.intValue());
-        hasValue = true;
+        this.hasValue = true;
     }
 
     public static IntegerValue create()
@@ -46,13 +46,13 @@ public class IntegerValue implements Value<java.lang.Integer>, Comparable<java.l
     {
         PreCondition.assertTrue(hasValue(), "hasValue()");
 
-        return value.get();
+        return this.value.get();
     }
 
     @Override
     public boolean hasValue()
     {
-        return hasValue;
+        return this.hasValue;
     }
 
     @Override
@@ -60,28 +60,30 @@ public class IntegerValue implements Value<java.lang.Integer>, Comparable<java.l
     {
         PreCondition.assertTrue(hasValue(), "hasValue()");
 
-        return value.get();
+        return this.value.get();
     }
 
     @Override
-    public void clear()
+    public IntegerValue clear()
     {
-        value.set(0);
-        hasValue = false;
+        this.value.set(0);
+        this.hasValue = false;
+        return this;
     }
 
-    public void set(int value)
+    public IntegerValue set(int value)
     {
         this.value.set(value);
-        hasValue = true;
+        this.hasValue = true;
+        return this;
     }
 
     @Override
-    public void set(java.lang.Integer value)
+    public IntegerValue set(java.lang.Integer value)
     {
         PreCondition.assertNotNull(value, "value");
 
-        set(value.intValue());
+        return this.set(value.intValue());
     }
 
     public void plusAssign(int value)
@@ -96,7 +98,7 @@ public class IntegerValue implements Value<java.lang.Integer>, Comparable<java.l
         PreCondition.assertNotNull(value, "value");
         PreCondition.assertTrue(hasValue(), "hasValue()");
 
-        plusAssign(value.intValue());
+        this.plusAssign(value.intValue());
     }
 
     public void minusAssign(int value)
@@ -111,14 +113,14 @@ public class IntegerValue implements Value<java.lang.Integer>, Comparable<java.l
         PreCondition.assertNotNull(value, "value");
         PreCondition.assertTrue(hasValue(), "hasValue()");
 
-        minusAssign(value.intValue());
+        this.minusAssign(value.intValue());
     }
 
     public IntegerValue increment()
     {
         PreCondition.assertTrue(hasValue(), "hasValue()");
 
-        value.incrementAndGet();
+        this.value.incrementAndGet();
         return this;
     }
 
@@ -131,21 +133,21 @@ public class IntegerValue implements Value<java.lang.Integer>, Comparable<java.l
     {
         PreCondition.assertTrue(hasValue(), "hasValue()");
 
-        return value.incrementAndGet();
+        return this.value.incrementAndGet();
     }
 
     public IntegerValue decrement()
     {
         PreCondition.assertTrue(hasValue(), "hasValue()");
 
-        value.decrementAndGet();
+        this.value.decrementAndGet();
         return this;
     }
 
     @Override
     public Comparison compareTo(Integer value)
     {
-        return value == null ? Comparison.GreaterThan : Comparison.from(get() - value);
+        return value == null ? Comparison.GreaterThan : Comparison.from(this.get() - value);
     }
 
     @Override
@@ -156,11 +158,11 @@ public class IntegerValue implements Value<java.lang.Integer>, Comparable<java.l
         {
             if (rhs instanceof java.lang.Integer)
             {
-                result = equals((java.lang.Integer)rhs);
+                result = this.equals((java.lang.Integer)rhs);
             }
             else if (rhs instanceof IntegerValue)
             {
-                result = equals((IntegerValue)rhs);
+                result = this.equals((IntegerValue)rhs);
             }
         }
         return result;
@@ -168,24 +170,24 @@ public class IntegerValue implements Value<java.lang.Integer>, Comparable<java.l
 
     public boolean equals(int rhs)
     {
-        return get() == rhs;
+        return this.get() == rhs;
     }
 
     public boolean equals(java.lang.Integer rhs)
     {
-        return rhs != null && get() == rhs.intValue();
+        return rhs != null && this.get() == rhs.intValue();
     }
 
     public boolean equals(IntegerValue rhs)
     {
         return rhs != null &&
-            hasValue() == rhs.hasValue() &&
-            (!hasValue() || (getAsInt() == rhs.getAsInt()));
+            this.hasValue() == rhs.hasValue() &&
+            (!hasValue() || (this.getAsInt() == rhs.getAsInt()));
     }
 
     @Override
     public String toString()
     {
-        return !hasValue() ? "no value" : Integers.toString(getAsInt());
+        return !this.hasValue() ? "no value" : Integers.toString(this.getAsInt());
     }
 }

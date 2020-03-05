@@ -66,4 +66,15 @@ public interface Value<T> extends Getable<T>, Setable<T>
     {
         return new IntegerValue(value);
     }
+
+    /**
+     * Clear any value that has been assigned to this object.
+     */
+    Value<T> clear();
+
+    /**
+     * Set the value that this Value contains.
+     * @param value The value to set.
+     */
+    Value<T> set(T value);
 }

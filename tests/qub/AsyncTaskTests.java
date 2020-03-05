@@ -23,7 +23,7 @@ public interface AsyncTaskTests
                 runner.test("with non-null action", (Test test) ->
                 {
                     final Value<Integer> value = Value.create();
-                    final AsyncTask<Boolean> asyncTask = new AsyncTask<>(new ManualAsyncRunner(), () -> value.set(5));
+                    final AsyncTask<Boolean> asyncTask = new AsyncTask<>(new ManualAsyncRunner(), () -> { value.set(5); });
                     test.assertNotNull(asyncTask);
                     test.assertFalse(value.hasValue());
                     test.assertEqual(Iterable.create(), asyncTask.getNextTasks());

@@ -14,23 +14,25 @@ public interface Event2Tests
         });
     }
 
-    static void test(TestRunner runner, Function0<Event2<Integer,Boolean>> creator)
+    static void test(TestRunner runner, Function0<? extends Event2<Integer,Integer>> creator)
     {
         runner.testGroup(Event2.class, () ->
         {
-            runner.testGroup("add(Action2<T1,T2>)", () ->
+            Event0Tests.test(runner, creator);
+
+            runner.testGroup("subscribe(Action2<T1,T2>)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Event2<Integer,Boolean> event = creator.run();
-                    test.assertThrows(() -> event.add(null),
+                    final Event2<Integer,Integer> event = creator.run();
+                    test.assertThrows(() -> event.subscribe((Action2<Integer,Integer>)null),
                         new PreConditionFailure("callback cannot be null."));
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final Event2<Integer,Boolean> event = creator.run();
-                    final Disposable disposable = event.add((Integer arg1, Boolean arg2) -> {});
+                    final Event2<Integer,Integer> event = creator.run();
+                    final Disposable disposable = event.subscribe((Integer arg1, Integer arg2) -> {});
                     test.assertNotNull(disposable);
                     test.assertFalse(disposable.isDisposed());
                 });

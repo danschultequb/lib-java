@@ -63,18 +63,19 @@ public class BooleanValue implements Value<java.lang.Boolean>
         return value.get();
     }
 
-    public void set(boolean value)
+    public BooleanValue set(boolean value)
     {
         this.value.set(value);
         hasValue = true;
+        return this;
     }
 
     @Override
-    public void set(java.lang.Boolean value)
+    public BooleanValue set(java.lang.Boolean value)
     {
         PreCondition.assertNotNull(value, "value");
 
-        set(value.booleanValue());
+        return this.set(value.booleanValue());
     }
 
     public boolean compareAndSet(boolean expectedValue, boolean newValue)
@@ -89,7 +90,7 @@ public class BooleanValue implements Value<java.lang.Boolean>
         PreCondition.assertNotNull(newValue, "newValue");
         PreCondition.assertNotEqual(expectedValue, newValue, "newValue");
 
-        return compareAndSet(expectedValue, newValue.booleanValue());
+        return this.compareAndSet(expectedValue, newValue.booleanValue());
     }
 
     public boolean compareAndSet(java.lang.Boolean expectedValue, boolean newValue)
@@ -97,7 +98,7 @@ public class BooleanValue implements Value<java.lang.Boolean>
         PreCondition.assertNotNull(expectedValue, "expectedValue");
         PreCondition.assertNotEqual(expectedValue, newValue, "newValue");
 
-        return compareAndSet(expectedValue.booleanValue(), newValue);
+        return this.compareAndSet(expectedValue.booleanValue(), newValue);
     }
 
     public boolean compareAndSet(java.lang.Boolean expectedValue, java.lang.Boolean newValue)
@@ -106,14 +107,15 @@ public class BooleanValue implements Value<java.lang.Boolean>
         PreCondition.assertNotNull(newValue, "newValue");
         PreCondition.assertNotEqual(expectedValue, newValue, "newValue");
 
-        return compareAndSet(expectedValue.booleanValue(), newValue.booleanValue());
+        return this.compareAndSet(expectedValue.booleanValue(), newValue.booleanValue());
     }
 
     @Override
-    public void clear()
+    public BooleanValue clear()
     {
-        value.set(false);
-        hasValue = false;
+        this.value.set(false);
+        this.hasValue = false;
+        return this;
     }
 
     @Override
@@ -124,11 +126,11 @@ public class BooleanValue implements Value<java.lang.Boolean>
         {
             if (rhs instanceof java.lang.Boolean)
             {
-                result = equals((java.lang.Boolean)rhs);
+                result = this.equals((java.lang.Boolean)rhs);
             }
             else if (rhs instanceof BooleanValue)
             {
-                result = equals((BooleanValue)rhs);
+                result = this.equals((BooleanValue)rhs);
             }
         }
         return result;
@@ -136,24 +138,24 @@ public class BooleanValue implements Value<java.lang.Boolean>
 
     public boolean equals(boolean rhs)
     {
-        return hasValue() && getAsBoolean() == rhs;
+        return this.hasValue() && this.getAsBoolean() == rhs;
     }
 
     public boolean equals(java.lang.Boolean rhs)
     {
-        return rhs != null && hasValue() && getAsBoolean() == rhs.booleanValue();
+        return rhs != null && this.hasValue() && this.getAsBoolean() == rhs.booleanValue();
     }
 
     public boolean equals(BooleanValue rhs)
     {
         return rhs != null &&
-            hasValue() == rhs.hasValue() &&
-            (!hasValue() || (value.get() == rhs.value.get()));
+            this.hasValue() == rhs.hasValue() &&
+            (!hasValue() || (this.value.get() == rhs.value.get()));
     }
 
     @Override
     public String toString()
     {
-        return !hasValue() ? "no value" : value.toString();
+        return !this.hasValue() ? "no value" : this.value.toString();
     }
 }

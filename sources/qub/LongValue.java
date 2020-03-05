@@ -8,13 +8,13 @@ public class LongValue implements Value<java.lang.Long>, Comparable<java.lang.Lo
     public LongValue()
     {
         this.value = new java.util.concurrent.atomic.AtomicLong();
-        hasValue = false;
+        this.hasValue = false;
     }
 
     public LongValue(long value)
     {
         this.value = new java.util.concurrent.atomic.AtomicLong(value);
-        hasValue = true;
+        this.hasValue = true;
     }
 
     public LongValue(java.lang.Integer value)
@@ -22,7 +22,7 @@ public class LongValue implements Value<java.lang.Long>, Comparable<java.lang.Lo
         PreCondition.assertNotNull(value, "value");
 
         this.value = new java.util.concurrent.atomic.AtomicLong(value.longValue());
-        hasValue = true;
+        this.hasValue = true;
     }
 
     public LongValue(java.lang.Long value)
@@ -30,7 +30,7 @@ public class LongValue implements Value<java.lang.Long>, Comparable<java.lang.Lo
         PreCondition.assertNotNull(value, "value");
 
         this.value = new java.util.concurrent.atomic.AtomicLong(value.longValue());
-        hasValue = true;
+        this.hasValue = true;
     }
 
     public static LongValue create()
@@ -61,13 +61,13 @@ public class LongValue implements Value<java.lang.Long>, Comparable<java.lang.Lo
     {
         PreCondition.assertTrue(hasValue(), "hasValue()");
 
-        return value.get();
+        return this.value.get();
     }
 
     @Override
     public boolean hasValue()
     {
-        return hasValue;
+        return this.hasValue;
     }
 
     @Override
@@ -75,88 +75,91 @@ public class LongValue implements Value<java.lang.Long>, Comparable<java.lang.Lo
     {
         PreCondition.assertTrue(hasValue(), "hasValue()");
 
-        return value.get();
+        return this.value.get();
     }
 
     @Override
-    public void clear()
+    public LongValue clear()
     {
-        value.set(0);
-        hasValue = false;
+        this.value.set(0);
+        this.hasValue = false;
+        return this;
     }
 
-    public void set(long value)
+    public LongValue set(long value)
     {
         this.value.set(value);
-        hasValue = true;
+        this.hasValue = true;
+        return this;
     }
 
-    public void set(java.lang.Integer value)
+    public LongValue set(java.lang.Integer value)
     {
         PreCondition.assertNotNull(value, "value");
 
-        set(value.longValue());
+        return this.set(value.longValue());
     }
 
     @Override
-    public void set(java.lang.Long value)
+    public LongValue set(java.lang.Long value)
     {
         PreCondition.assertNotNull(value, "value");
 
-        set(value.longValue());
+        return this.set(value.longValue());
     }
 
-    public void plusAssign(long value)
+    public LongValue plusAssign(long value)
     {
         PreCondition.assertTrue(hasValue(), "hasValue()");
 
         this.value.addAndGet(value);
+        return this;
     }
 
-    public void plusAssign(java.lang.Integer value)
+    public LongValue plusAssign(java.lang.Integer value)
     {
         PreCondition.assertNotNull(value, "value");
         PreCondition.assertTrue(hasValue(), "hasValue()");
 
-        plusAssign(value.longValue());
+        return this.plusAssign(value.longValue());
     }
 
-    public void plusAssign(java.lang.Long value)
+    public LongValue plusAssign(java.lang.Long value)
     {
         PreCondition.assertNotNull(value, "value");
         PreCondition.assertTrue(hasValue(), "hasValue()");
 
-        plusAssign(value.longValue());
+        return this.plusAssign(value.longValue());
     }
 
-    public void minusAssign(long value)
+    public LongValue minusAssign(long value)
     {
         PreCondition.assertTrue(hasValue(), "hasValue()");
 
-        this.value.addAndGet(-value);
+        return this.plusAssign(-value);
     }
 
-    public void minusAssign(java.lang.Integer value)
-    {
-        PreCondition.assertNotNull(value, "value");
-        PreCondition.assertTrue(hasValue(), "hasValue()");
-
-        minusAssign(value.intValue());
-    }
-
-    public void minusAssign(java.lang.Long value)
+    public LongValue minusAssign(java.lang.Integer value)
     {
         PreCondition.assertNotNull(value, "value");
         PreCondition.assertTrue(hasValue(), "hasValue()");
 
-        minusAssign(value.intValue());
+        return this.minusAssign(value.intValue());
+    }
+
+    public LongValue minusAssign(java.lang.Long value)
+    {
+        PreCondition.assertNotNull(value, "value");
+        PreCondition.assertTrue(hasValue(), "hasValue()");
+
+        return this.minusAssign(value.intValue());
     }
 
     public LongValue increment()
     {
         PreCondition.assertTrue(hasValue(), "hasValue()");
 
-        value.incrementAndGet();
+        this.value.incrementAndGet();
         return this;
     }
 
@@ -164,19 +167,19 @@ public class LongValue implements Value<java.lang.Long>, Comparable<java.lang.Lo
     {
         PreCondition.assertTrue(hasValue(), "hasValue()");
 
-        value.decrementAndGet();
+        this.value.decrementAndGet();
         return this;
     }
 
     public boolean compareAndSet(long expectedValue, long newValue)
     {
-        return value.compareAndSet(expectedValue, newValue);
+        return this.value.compareAndSet(expectedValue, newValue);
     }
 
     @Override
     public Comparison compareTo(java.lang.Long value)
     {
-        return value == null ? Comparison.GreaterThan : Comparison.from(get() - value);
+        return value == null ? Comparison.GreaterThan : Comparison.from(this.get() - value);
     }
 
     @Override
@@ -187,11 +190,11 @@ public class LongValue implements Value<java.lang.Long>, Comparable<java.lang.Lo
         {
             if (rhs instanceof java.lang.Integer)
             {
-                result = equals((java.lang.Integer)rhs);
+                result = this.equals((java.lang.Integer)rhs);
             }
             else if (rhs instanceof LongValue)
             {
-                result = equals((LongValue)rhs);
+                result = this.equals((LongValue)rhs);
             }
         }
         return result;
@@ -199,29 +202,29 @@ public class LongValue implements Value<java.lang.Long>, Comparable<java.lang.Lo
 
     public boolean equals(long rhs)
     {
-        return get() == rhs;
+        return this.get() == rhs;
     }
 
     public boolean equals(java.lang.Integer rhs)
     {
-        return rhs != null && get() == rhs.longValue();
+        return rhs != null && this.get() == rhs.longValue();
     }
 
     public boolean equals(java.lang.Long rhs)
     {
-        return rhs != null && get() == rhs.longValue();
+        return rhs != null && this.get() == rhs.longValue();
     }
 
     public boolean equals(LongValue rhs)
     {
         return rhs != null &&
-            hasValue() == rhs.hasValue() &&
-            (!hasValue() || (getAsLong() == rhs.getAsLong()));
+            this.hasValue() == rhs.hasValue() &&
+            (!hasValue() || (this.getAsLong() == rhs.getAsLong()));
     }
 
     @Override
     public String toString()
     {
-        return !hasValue() ? "no value" : Longs.toString(getAsLong());
+        return !this.hasValue() ? "no value" : Longs.toString(this.getAsLong());
     }
 }

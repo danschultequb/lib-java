@@ -20,5 +20,5 @@ public interface Event0
      * @param callback The callback to add.
      * @return A Disposable that can be disposed to remove the provided callback from this event.
      */
-    Disposable add(Action0 callback);
+    Disposable subscribe(Action0 callback);
 }

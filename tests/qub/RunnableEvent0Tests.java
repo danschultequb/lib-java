@@ -2,20 +2,20 @@ package qub;
 
 public interface RunnableEvent0Tests
 {
-    static void test(TestRunner runner)
+    static void test(TestRunner runner, Function0<? extends RunnableEvent0> creator)
     {
         runner.testGroup(RunnableEvent0.class, () ->
         {
-            Event0Tests.test(runner, RunnableEvent0::create);
+            Event0Tests.test(runner, creator);
 
-            runner.testGroup("add(Action0)", () ->
+            runner.testGroup("subscribe(Action0)", () ->
             {
                 runner.test("with one callback", (Test test) ->
                 {
-                    final RunnableEvent0 event = RunnableEvent0.create();
+                    final RunnableEvent0 event = creator.run();
 
                     final IntegerValue value = IntegerValue.create(0);
-                    final Disposable callbackDisposable = event.add(value::increment);
+                    final Disposable callbackDisposable = event.subscribe(value::increment);
                     test.assertNotNull(callbackDisposable);
                     test.assertFalse(callbackDisposable.isDisposed());
                     test.assertEqual(0, value.get());
