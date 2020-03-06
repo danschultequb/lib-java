@@ -68,13 +68,23 @@ public interface MutablePropertyTests
                     final MutableProperty<Integer> property = creator.run();
                     test.assertFalse(property.hasValue());
 
+                    final IntegerValue changes = Value.create(0);
+                    property.subscribe(changes::increment);
+                    test.assertEqual(0, changes.get());
+
+                    final List<Integer> newValues = List.create();
+                    property.subscribe(newValues::add);
+                    test.assertEqual(Iterable.create(), newValues);
+
                     final List<Integer> eventValues = List.create();
                     property.subscribe((Integer oldValue, Integer newValue) -> eventValues.addAll(oldValue, newValue));
                     test.assertEqual(Iterable.create(), eventValues);
+
                     test.assertFalse(property.hasValue());
 
                     final MutableProperty<Integer> clearResult = property.clear();
                     test.assertSame(property, clearResult);
+
                     test.assertFalse(property.hasValue());
                     test.assertEqual(Iterable.create(), eventValues);
                 });
@@ -85,15 +95,26 @@ public interface MutablePropertyTests
                     test.assertTrue(property.hasValue());
                     test.assertEqual(1, property.get());
 
+                    final IntegerValue changes = Value.create(0);
+                    property.subscribe(changes::increment);
+                    test.assertEqual(0, changes.get());
+
+                    final List<Integer> newValues = List.create();
+                    property.subscribe(newValues::add);
+                    test.assertEqual(Iterable.create(), newValues);
+
                     final List<Integer> eventValues = List.create();
                     property.subscribe((Integer oldValue, Integer newValue) -> eventValues.addAll(oldValue, newValue));
                     test.assertEqual(Iterable.create(), eventValues);
+
                     test.assertTrue(property.hasValue());
                     test.assertEqual(1, property.get());
 
                     final MutableProperty<Integer> clearResult = property.clear();
                     test.assertSame(property, clearResult);
                     test.assertFalse(property.hasValue());
+                    test.assertEqual(1, changes.get());
+                    test.assertEqual(Iterable.create((Integer)null), newValues);
                     test.assertEqual(Iterable.create(1, null), eventValues);
                 });
             });
@@ -107,13 +128,24 @@ public interface MutablePropertyTests
                         final MutableProperty<Integer> property = creator.run();
                         test.assertFalse(property.hasValue());
 
+                        final IntegerValue changes = Value.create(0);
+                        property.subscribe(changes::increment);
+                        test.assertEqual(0, changes.get());
+
+                        final List<Integer> newValues = List.create();
+                        property.subscribe(newValues::add);
+                        test.assertEqual(Iterable.create(), newValues);
+
                         final List<Integer> eventValues = List.create();
                         property.subscribe((Integer oldValue, Integer newValue) -> eventValues.addAll(oldValue, newValue));
+                        test.assertEqual(Iterable.create(), eventValues);
 
                         final MutableProperty<Integer> setResult = property.set(value);
                         test.assertSame(property, setResult);
                         test.assertTrue(property.hasValue());
                         test.assertEqual(value, property.get());
+                        test.assertEqual(1, changes.get());
+                        test.assertEqual(Iterable.create(value), newValues);
                         test.assertEqual(Iterable.create(null, value), eventValues);
                     });
                 };
@@ -129,6 +161,14 @@ public interface MutablePropertyTests
                         test.assertTrue(property.hasValue());
                         test.assertEqual(initialValue, property.get());
 
+                        final IntegerValue changes = Value.create(0);
+                        property.subscribe(changes::increment);
+                        test.assertEqual(0, changes.get());
+
+                        final List<Integer> newValues = List.create();
+                        property.subscribe(newValues::add);
+                        test.assertEqual(Iterable.create(), newValues);
+
                         final List<Integer> eventValues = List.create();
                         property.subscribe((Integer oldValue, Integer newValue) -> eventValues.addAll(oldValue, newValue));
 
@@ -136,6 +176,8 @@ public interface MutablePropertyTests
                         test.assertSame(property, setResult);
                         test.assertTrue(property.hasValue());
                         test.assertEqual(value, property.get());
+                        test.assertEqual(expectedEventValues.any() ? 1 : 0, changes.get());
+                        test.assertEqual(expectedEventValues.takeLast(1), newValues);
                         test.assertEqual(expectedEventValues, eventValues);
                     });
                 };
