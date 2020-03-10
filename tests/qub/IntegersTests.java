@@ -1,11 +1,101 @@
 package qub;
 
-public class IntegersTests
+public interface IntegersTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(Integers.class, () ->
         {
+            runner.testGroup("sum(Integer...)", () ->
+            {
+                runner.test("with null array", (Test test) ->
+                {
+                    test.assertThrows(() -> Integers.sum((Integer[])null),
+                        new PreConditionFailure("values cannot be null."));
+                });
+
+                runner.test("with null Integer", (Test test) ->
+                {
+                    test.assertThrows(() -> Integers.sum(1, null, 3),
+                        new PreConditionFailure("values[1] cannot be null."));
+                });
+
+                runner.test("with no values", (Test test) ->
+                {
+                    test.assertEqual(0, Integers.sum());
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    test.assertEqual(7, Integers.sum(7));
+                });
+
+                runner.test("with multiple values", (Test test) ->
+                {
+                    test.assertEqual(34, Integers.sum(7, 20, 3, 4));
+                });
+            });
+
+            runner.testGroup("sum(Iterable<Integer>)", () ->
+            {
+                runner.test("with null Iterable", (Test test) ->
+                {
+                    test.assertThrows(() -> Integers.sum((Iterable<Integer>)null),
+                        new PreConditionFailure("values cannot be null."));
+                });
+
+                runner.test("with null Integer", (Test test) ->
+                {
+                    test.assertThrows(() -> Integers.sum(1, 2, null),
+                        new PreConditionFailure("values[2] cannot be null."));
+                });
+
+                runner.test("with no values", (Test test) ->
+                {
+                    test.assertEqual(0, Integers.sum(Iterable.create()));
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    test.assertEqual(7, Integers.sum(Iterable.create(7)));
+                });
+
+                runner.test("with multiple values", (Test test) ->
+                {
+                    test.assertEqual(34, Integers.sum(Iterable.create(7, 20, 3, 4)));
+                });
+            });
+
+            runner.testGroup("sum(Iterator<Integer>)", () ->
+            {
+                runner.test("with null Iterator", (Test test) ->
+                {
+                    test.assertThrows(() -> Integers.sum((Iterator<Integer>)null),
+                        new PreConditionFailure("values cannot be null."));
+                });
+
+                runner.test("with null Integer", (Test test) ->
+                {
+                    test.assertThrows(() -> Integers.sum(Iterator.create((Integer)null, 2, 3)),
+                        new PreConditionFailure("values[0] cannot be null."));
+                });
+
+                runner.test("with no values", (Test test) ->
+                {
+                    test.assertEqual(0, Integers.sum(Iterator.create()));
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    test.assertEqual(7, Integers.sum(Iterator.create(7)));
+                });
+
+                runner.test("with multiple values", (Test test) ->
+                {
+                    test.assertEqual(34, Integers.sum(Iterator.create(7, 20, 3, 4)));
+                });
+            });
+
             runner.testGroup("rotateLeft(int)", () ->
             {
                 final Action2<Integer,Integer> rotateLeftTest = (Integer value, Integer expected) ->

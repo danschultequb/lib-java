@@ -28,6 +28,52 @@ public interface Longs
     int hexCharCount = 16;
 
     /**
+     * Get the sum of the provided values.
+     * @param values The values to get the sum of.
+     * @return The sum of the provided values.
+     */
+    static long sum(java.lang.Long... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return Longs.sum(Iterable.create(values));
+    }
+
+    /**
+     * Get the sum of the provided values.
+     * @param values The values to get the sum of.
+     * @return The sum of the provided values.
+     */
+    static long sum(Iterable<Long> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return Longs.sum(values.iterate());
+    }
+
+    /**
+     * Get the sum of the provided values.
+     * @param values The values to get the sum of.
+     * @return The sum of the provided values.
+     */
+    static long sum(Iterator<Long> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        long result = 0;
+        int index = 0;
+        for (final Long value : values)
+        {
+            PreCondition.assertNotNull(value, "values[" + index + "]");
+
+            result += value;
+            ++index;
+        }
+
+        return result;
+    }
+
+    /**
      * Get the string representation of the provided long.
      * @param value The value to convert to a String.
      * @return The string representation of the provided long.

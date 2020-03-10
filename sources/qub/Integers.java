@@ -92,6 +92,52 @@ public interface Integers
     }
 
     /**
+     * Get the sum of the provided values.
+     * @param values The values to get the sum of.
+     * @return The sum of the provided values.
+     */
+    static int sum(java.lang.Integer... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return Integers.sum(Iterable.create(values));
+    }
+
+    /**
+     * Get the sum of the provided values.
+     * @param values The values to get the sum of.
+     * @return The sum of the provided values.
+     */
+    static int sum(Iterable<Integer> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return Integers.sum(values.iterate());
+    }
+
+    /**
+     * Get the sum of the provided values.
+     * @param values The values to get the sum of.
+     * @return The sum of the provided values.
+     */
+    static int sum(Iterator<Integer> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        int result = 0;
+        int index = 0;
+        for (final Integer value : values)
+        {
+            PreCondition.assertNotNull(value, "values[" + index + "]");
+
+            result += value;
+            ++index;
+        }
+
+        return result;
+    }
+
+    /**
      * Rotate the bits in the value to the left.
      * @param value The value to rotate.
      * @return The rotated value.

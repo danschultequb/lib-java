@@ -1,15 +1,15 @@
 package qub;
 
-public class LengthTests
+public interface DistanceTests
 {
-    private static void assertDistance(Test test, Distance distance, double expectedValue, DistanceUnit expectedUnits)
+    static void assertDistance(Test test, Distance distance, double expectedValue, DistanceUnit expectedUnits)
     {
         test.assertNotNull(distance);
         test.assertEqual(expectedValue, distance.getValue());
         test.assertEqual(expectedUnits, distance.getUnits());
     }
 
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(Distance.class, () ->
         {
