@@ -1,78 +1,87 @@
 package qub;
 
-public abstract class BinaryScale
+public interface BinaryScale
 {
-    private final static double yobiToZebi = 1024;
-    private final static double yobiToExbi = BinaryScale.yobiToZebi * BinaryScale.zebiToExbi;
-    private final static double yobiToPebi = BinaryScale.yobiToExbi * BinaryScale.exbiToPebi;
-    private final static double yobiToTebi = BinaryScale.yobiToPebi * BinaryScale.pebiToTebi;
-    private final static double yobiToGibi = BinaryScale.yobiToTebi * BinaryScale.tebiToGibi;
-    private final static double yobiToMebi = BinaryScale.yobiToGibi * BinaryScale.gibiToMebi;
-    private final static double yobiToKibi = BinaryScale.yobiToMebi * BinaryScale.mebiToKibi;
-    private final static double yobiToUni = BinaryScale.yobiToKibi * BinaryScale.kibiToUni;
+    double yobiToZebi = 1024;
+    double yobiToExbi = BinaryScale.yobiToZebi * BinaryScale.zebiToExbi;
+    double yobiToPebi = BinaryScale.yobiToExbi * BinaryScale.exbiToPebi;
+    double yobiToTebi = BinaryScale.yobiToPebi * BinaryScale.pebiToTebi;
+    double yobiToGibi = BinaryScale.yobiToTebi * BinaryScale.tebiToGibi;
+    double yobiToMebi = BinaryScale.yobiToGibi * BinaryScale.gibiToMebi;
+    double yobiToKibi = BinaryScale.yobiToMebi * BinaryScale.mebiToKibi;
+    double yobiToUni = BinaryScale.yobiToKibi * BinaryScale.kibiToUni;
 
-    private final static double zebiToYobi = 1.0 / BinaryScale.yobiToZebi;
-    private final static double zebiToExbi = 1024;
-    private final static double zebiToPebi = BinaryScale.zebiToExbi * BinaryScale.exbiToPebi;
-    private final static double zebiToTebi = BinaryScale.zebiToPebi * BinaryScale.pebiToTebi;
-    private final static double zebiToGibi = BinaryScale.zebiToTebi * BinaryScale.tebiToGibi;
-    private final static double zebiToMebi = BinaryScale.zebiToGibi * BinaryScale.gibiToMebi;
-    private final static double zebiToKibi = BinaryScale.zebiToMebi * BinaryScale.mebiToKibi;
-    private final static double zebiToUni = BinaryScale.zebiToKibi * BinaryScale.kibiToUni;
+    double zebiToYobi = 1.0 / BinaryScale.yobiToZebi;
+    double zebiToExbi = 1024;
+    double zebiToPebi = BinaryScale.zebiToExbi * BinaryScale.exbiToPebi;
+    double zebiToTebi = BinaryScale.zebiToPebi * BinaryScale.pebiToTebi;
+    double zebiToGibi = BinaryScale.zebiToTebi * BinaryScale.tebiToGibi;
+    double zebiToMebi = BinaryScale.zebiToGibi * BinaryScale.gibiToMebi;
+    double zebiToKibi = BinaryScale.zebiToMebi * BinaryScale.mebiToKibi;
+    double zebiToUni = BinaryScale.zebiToKibi * BinaryScale.kibiToUni;
 
-    private final static double exbiToYobi = 1.0 / BinaryScale.yobiToExbi;
-    private final static double exbiToZebi = 1.0 / BinaryScale.zebiToExbi;
-    private final static double exbiToPebi = 1024;
-    private final static double exbiToTebi = BinaryScale.exbiToPebi * BinaryScale.pebiToTebi;
-    private final static double exbiToGibi = BinaryScale.exbiToTebi * BinaryScale.tebiToGibi;
-    private final static double exbiToMebi = BinaryScale.exbiToGibi * BinaryScale.gibiToMebi;
-    private final static double exbiToKibi = BinaryScale.exbiToMebi * BinaryScale.mebiToKibi;
-    private final static double exbiToUni = BinaryScale.exbiToKibi * BinaryScale.kibiToUni;
+    double exbiToYobi = 1.0 / BinaryScale.yobiToExbi;
+    double exbiToZebi = 1.0 / BinaryScale.zebiToExbi;
+    double exbiToPebi = 1024;
+    double exbiToTebi = BinaryScale.exbiToPebi * BinaryScale.pebiToTebi;
+    double exbiToGibi = BinaryScale.exbiToTebi * BinaryScale.tebiToGibi;
+    double exbiToMebi = BinaryScale.exbiToGibi * BinaryScale.gibiToMebi;
+    double exbiToKibi = BinaryScale.exbiToMebi * BinaryScale.mebiToKibi;
+    double exbiToUni = BinaryScale.exbiToKibi * BinaryScale.kibiToUni;
 
-    private final static double pebiToYobi = 1.0 / BinaryScale.yobiToPebi;
-    private final static double pebiToZebi = 1.0 / BinaryScale.zebiToPebi;
-    private final static double pebiToExbi = 1.0 / BinaryScale.exbiToPebi;
-    private final static double pebiToTebi = 1024;
-    private final static double pebiToGibi = BinaryScale.pebiToTebi * BinaryScale.tebiToGibi;
-    private final static double pebiToMebi = BinaryScale.pebiToGibi * BinaryScale.gibiToMebi;
-    private final static double pebiToKibi = BinaryScale.pebiToMebi * BinaryScale.mebiToKibi;
-    private final static double pebiToUni = BinaryScale.pebiToKibi * BinaryScale.kibiToUni;
+    double pebiToYobi = 1.0 / BinaryScale.yobiToPebi;
+    double pebiToZebi = 1.0 / BinaryScale.zebiToPebi;
+    double pebiToExbi = 1.0 / BinaryScale.exbiToPebi;
+    double pebiToTebi = 1024;
+    double pebiToGibi = BinaryScale.pebiToTebi * BinaryScale.tebiToGibi;
+    double pebiToMebi = BinaryScale.pebiToGibi * BinaryScale.gibiToMebi;
+    double pebiToKibi = BinaryScale.pebiToMebi * BinaryScale.mebiToKibi;
+    double pebiToUni = BinaryScale.pebiToKibi * BinaryScale.kibiToUni;
 
-    private final static double tebiToYobi = 1.0 / BinaryScale.yobiToTebi;
-    private final static double tebiToZebi = 1.0 / BinaryScale.zebiToTebi;
-    private final static double tebiToExbi = 1.0 / BinaryScale.exbiToTebi;
-    private final static double tebiToPebi = 1.0 / BinaryScale.pebiToTebi;
-    private final static double tebiToGibi = 1024;
-    private final static double tebiToMebi = BinaryScale.tebiToGibi * BinaryScale.gibiToMebi;
-    private final static double tebiToKibi = BinaryScale.tebiToMebi * BinaryScale.mebiToKibi;
-    private final static double tebiToUni = BinaryScale.tebiToKibi * BinaryScale.kibiToUni;
+    double tebiToYobi = 1.0 / BinaryScale.yobiToTebi;
+    double tebiToZebi = 1.0 / BinaryScale.zebiToTebi;
+    double tebiToExbi = 1.0 / BinaryScale.exbiToTebi;
+    double tebiToPebi = 1.0 / BinaryScale.pebiToTebi;
+    double tebiToGibi = 1024;
+    double tebiToMebi = BinaryScale.tebiToGibi * BinaryScale.gibiToMebi;
+    double tebiToKibi = BinaryScale.tebiToMebi * BinaryScale.mebiToKibi;
+    double tebiToUni = BinaryScale.tebiToKibi * BinaryScale.kibiToUni;
 
-    private final static double gibiToYobi = 1.0 / BinaryScale.yobiToGibi;
-    private final static double gibiToZebi = 1.0 / BinaryScale.zebiToGibi;
-    private final static double gibiToExbi = 1.0 / BinaryScale.exbiToGibi;
-    private final static double gibiToPebi = 1.0 / BinaryScale.pebiToGibi;
-    private final static double gibiToTebi = 1.0 / BinaryScale.tebiToGibi;
-    private final static double gibiToMebi = 1024;
-    private final static double gibiToKibi = BinaryScale.gibiToMebi * BinaryScale.mebiToKibi;
-    private final static double gibiToUni = BinaryScale.gibiToKibi * BinaryScale.kibiToUni;
+    double gibiToYobi = 1.0 / BinaryScale.yobiToGibi;
+    double gibiToZebi = 1.0 / BinaryScale.zebiToGibi;
+    double gibiToExbi = 1.0 / BinaryScale.exbiToGibi;
+    double gibiToPebi = 1.0 / BinaryScale.pebiToGibi;
+    double gibiToTebi = 1.0 / BinaryScale.tebiToGibi;
+    double gibiToMebi = 1024;
+    double gibiToKibi = BinaryScale.gibiToMebi * BinaryScale.mebiToKibi;
+    double gibiToUni = BinaryScale.gibiToKibi * BinaryScale.kibiToUni;
 
-    private final static double mebiToYobi = 1.0 / BinaryScale.yobiToMebi;
-    private final static double mebiToZebi = 1.0 / BinaryScale.zebiToMebi;
-    private final static double mebiToExbi = 1.0 / BinaryScale.exbiToMebi;
-    private final static double mebiToPebi = 1.0 / BinaryScale.pebiToMebi;
-    private final static double mebiToTebi = 1.0 / BinaryScale.tebiToMebi;
-    private final static double mebiToGibi = 1.0 / BinaryScale.gibiToMebi;
-    private final static double mebiToKibi = 1024;
-    private final static double mebiToUni = BinaryScale.mebiToKibi * BinaryScale.kibiToUni;
+    double mebiToYobi = 1.0 / BinaryScale.yobiToMebi;
+    double mebiToZebi = 1.0 / BinaryScale.zebiToMebi;
+    double mebiToExbi = 1.0 / BinaryScale.exbiToMebi;
+    double mebiToPebi = 1.0 / BinaryScale.pebiToMebi;
+    double mebiToTebi = 1.0 / BinaryScale.tebiToMebi;
+    double mebiToGibi = 1.0 / BinaryScale.gibiToMebi;
+    double mebiToKibi = 1024;
+    double mebiToUni = BinaryScale.mebiToKibi * BinaryScale.kibiToUni;
 
-    private final static double kibiToYobi = 1.0 / BinaryScale.yobiToKibi;
-    private final static double kibiToZebi = 1.0 / BinaryScale.zebiToKibi;
-    private final static double kibiToExbi = 1.0 / BinaryScale.exbiToKibi;
-    private final static double kibiToPebi = 1.0 / BinaryScale.pebiToKibi;
-    private final static double kibiToTebi = 1.0 / BinaryScale.tebiToKibi;
-    private final static double kibiToGibi = 1.0 / BinaryScale.gibiToKibi;
-    private final static double kibiToMebi = 1.0 / BinaryScale.mebiToKibi;
-    private final static double kibiToUni = 1024;
+    double kibiToYobi = 1.0 / BinaryScale.yobiToKibi;
+    double kibiToZebi = 1.0 / BinaryScale.zebiToKibi;
+    double kibiToExbi = 1.0 / BinaryScale.exbiToKibi;
+    double kibiToPebi = 1.0 / BinaryScale.pebiToKibi;
+    double kibiToTebi = 1.0 / BinaryScale.tebiToKibi;
+    double kibiToGibi = 1.0 / BinaryScale.gibiToKibi;
+    double kibiToMebi = 1.0 / BinaryScale.mebiToKibi;
+    double kibiToUni = 1024;
+
+    double uniToYobi = 1.0 / BinaryScale.yobiToUni;
+    double uniToZebi = 1.0 / BinaryScale.zebiToUni;
+    double uniToExbi = 1.0 / BinaryScale.exbiToUni;
+    double uniToPebi = 1.0 / BinaryScale.pebiToUni;
+    double uniToTebi = 1.0 / BinaryScale.tebiToUni;
+    double uniToGibi = 1.0 / BinaryScale.gibiToUni;
+    double uniToMebi = 1.0 / BinaryScale.mebiToUni;
+    double uniToKibi = 1.0 / BinaryScale.kibiToUni;
 
     /**
      * Get the conversion multiplier that can be used to convert a value with the from scale unit
@@ -87,17 +96,13 @@ public abstract class BinaryScale
         PreCondition.assertNotNull(from, "from");
         PreCondition.assertNotNull(to, "to");
 
-        double result = 0;
+        double result = 1;
 
         switch (from)
         {
             case Yobi:
                 switch (to)
                 {
-                    case Yobi:
-                        result = 1;
-                        break;
-
                     case Zebi:
                         result = BinaryScale.yobiToZebi;
                         break;
@@ -137,10 +142,6 @@ public abstract class BinaryScale
                 {
                     case Yobi:
                         result = BinaryScale.zebiToYobi;
-                        break;
-
-                    case Zebi:
-                        result = 1;
                         break;
 
                     case Exbi:
@@ -184,10 +185,6 @@ public abstract class BinaryScale
                         result = BinaryScale.exbiToZebi;
                         break;
 
-                    case Exbi:
-                        result = 1;
-                        break;
-
                     case Pebi:
                         result = BinaryScale.exbiToPebi;
                         break;
@@ -215,21 +212,225 @@ public abstract class BinaryScale
                 break;
 
             case Pebi:
+                switch (to)
+                {
+                    case Yobi:
+                        result = BinaryScale.pebiToYobi;
+                        break;
+
+                    case Zebi:
+                        result = BinaryScale.pebiToZebi;
+                        break;
+
+                    case Exbi:
+                        result = BinaryScale.pebiToExbi;
+                        break;
+
+                    case Tebi:
+                        result = BinaryScale.pebiToTebi;
+                        break;
+
+                    case Gibi:
+                        result = BinaryScale.pebiToGibi;
+                        break;
+
+                    case Mebi:
+                        result = BinaryScale.pebiToMebi;
+                        break;
+
+                    case Kibi:
+                        result = BinaryScale.pebiToKibi;
+                        break;
+
+                    case Uni:
+                        result = BinaryScale.pebiToUni;
+                        break;
+                }
                 break;
 
             case Tebi:
+                switch (to)
+                {
+                    case Yobi:
+                        result = BinaryScale.tebiToYobi;
+                        break;
+
+                    case Zebi:
+                        result = BinaryScale.tebiToZebi;
+                        break;
+
+                    case Exbi:
+                        result = BinaryScale.tebiToExbi;
+                        break;
+
+                    case Pebi:
+                        result = BinaryScale.tebiToPebi;
+                        break;
+
+                    case Gibi:
+                        result = BinaryScale.tebiToGibi;
+                        break;
+
+                    case Mebi:
+                        result = BinaryScale.tebiToMebi;
+                        break;
+
+                    case Kibi:
+                        result = BinaryScale.tebiToKibi;
+                        break;
+
+                    case Uni:
+                        result = BinaryScale.tebiToUni;
+                        break;
+                }
                 break;
 
             case Gibi:
+                switch (to)
+                {
+                    case Yobi:
+                        result = BinaryScale.gibiToYobi;
+                        break;
+
+                    case Zebi:
+                        result = BinaryScale.gibiToZebi;
+                        break;
+
+                    case Exbi:
+                        result = BinaryScale.gibiToExbi;
+                        break;
+
+                    case Pebi:
+                        result = BinaryScale.gibiToPebi;
+                        break;
+
+                    case Tebi:
+                        result = BinaryScale.gibiToTebi;
+                        break;
+
+                    case Mebi:
+                        result = BinaryScale.gibiToMebi;
+                        break;
+
+                    case Kibi:
+                        result = BinaryScale.gibiToKibi;
+                        break;
+
+                    case Uni:
+                        result = BinaryScale.gibiToUni;
+                        break;
+                }
                 break;
 
             case Mebi:
+                switch (to)
+                {
+                    case Yobi:
+                        result = BinaryScale.mebiToYobi;
+                        break;
+
+                    case Zebi:
+                        result = BinaryScale.mebiToZebi;
+                        break;
+
+                    case Exbi:
+                        result = BinaryScale.mebiToExbi;
+                        break;
+
+                    case Pebi:
+                        result = BinaryScale.mebiToPebi;
+                        break;
+
+                    case Tebi:
+                        result = BinaryScale.mebiToTebi;
+                        break;
+
+                    case Gibi:
+                        result = BinaryScale.mebiToGibi;
+                        break;
+
+                    case Kibi:
+                        result = BinaryScale.mebiToKibi;
+                        break;
+
+                    case Uni:
+                        result = BinaryScale.mebiToUni;
+                        break;
+                }
                 break;
 
             case Kibi:
+                switch (to)
+                {
+                    case Yobi:
+                        result = BinaryScale.kibiToYobi;
+                        break;
+
+                    case Zebi:
+                        result = BinaryScale.kibiToZebi;
+                        break;
+
+                    case Exbi:
+                        result = BinaryScale.kibiToExbi;
+                        break;
+
+                    case Pebi:
+                        result = BinaryScale.kibiToPebi;
+                        break;
+
+                    case Tebi:
+                        result = BinaryScale.kibiToTebi;
+                        break;
+
+                    case Gibi:
+                        result = BinaryScale.kibiToGibi;
+                        break;
+
+                    case Mebi:
+                        result = BinaryScale.kibiToMebi;
+                        break;
+
+                    case Uni:
+                        result = BinaryScale.kibiToUni;
+                        break;
+                }
                 break;
 
             case Uni:
+                switch (to)
+                {
+                    case Yobi:
+                        result = BinaryScale.uniToYobi;
+                        break;
+
+                    case Zebi:
+                        result = BinaryScale.uniToZebi;
+                        break;
+
+                    case Exbi:
+                        result = BinaryScale.uniToExbi;
+                        break;
+
+                    case Pebi:
+                        result = BinaryScale.uniToPebi;
+                        break;
+
+                    case Tebi:
+                        result = BinaryScale.uniToTebi;
+                        break;
+
+                    case Gibi:
+                        result = BinaryScale.uniToGibi;
+                        break;
+
+                    case Mebi:
+                        result = BinaryScale.uniToMebi;
+                        break;
+
+                    case Kibi:
+                        result = BinaryScale.uniToKibi;
+                        break;
+                }
                 break;
         }
 
