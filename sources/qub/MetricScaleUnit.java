@@ -40,5 +40,25 @@ public enum MetricScaleUnit
     /**
      * Size: 10^0 (1)
      */
-    Uni
+    Uni,
+    /**
+     * Size: 10^-1 (0.1)
+     */
+    Deci,
+    /**
+     * Size: 10^-2 (0.01)
+     */
+    Centi,
+    /**
+     * Size: 10^-3 (0.001)
+     */
+    Milli,
+    /**
+     * Size: 10^-6 (0.000001)
+     */
+    Micro,
+    /**
+     * Size: 10^-9 (0.000000001)
+     */
+    Nano,
 }

@@ -5,39 +5,27 @@ package qub;
  */
 public class Distance implements Comparable<Distance>
 {
-    private static final double KilometersToMeters = 1000;
-    private static final double MetersToCentimeters = 100;
-    private static final double CentimetersToMillimeters = 10;
     private static final double MilesToFeet = 5280;
     private static final double FeetToInches = 12;
     private static final double InchesToCentimeters = 2.54;
     private static final double InchesToFontPoints = 72;
 
-    private static final double KilometersToCentimeters = KilometersToMeters * MetersToCentimeters;
-    private static final double KilometersToMillimeters = KilometersToCentimeters * CentimetersToMillimeters;
-    private static final double KilometersToInches = KilometersToCentimeters / InchesToCentimeters;
+    private static final double KilometersToInches = MetricScale.kiloToCenti / InchesToCentimeters;
     private static final double KilometersToFeet = KilometersToInches / FeetToInches;
     private static final double KilometersToMiles = KilometersToFeet / MilesToFeet;
     private static final double KilometersToFontPoints = KilometersToInches * InchesToFontPoints;
 
-    private static final double MetersToKilometers = 1.0 / KilometersToMeters;
-    private static final double MetersToMillimeters = MetersToCentimeters * CentimetersToMillimeters;
-    private static final double MetersToInches = MetersToCentimeters / InchesToCentimeters;
+    private static final double MetersToInches = MetricScale.uniToCenti / InchesToCentimeters;
     private static final double MetersToFeet = MetersToInches / FeetToInches;
     private static final double MetersToMiles = MetersToFeet / MilesToFeet;
     private static final double MetersToFontPoints = MetersToInches * InchesToFontPoints;
 
-    private static final double CentimetersToKilometers = 1.0 / KilometersToCentimeters;
-    private static final double CentimetersToMeters = 1.0 / MetersToCentimeters;
     private static final double CentimeterstoInches = 1.0 / InchesToCentimeters;
     private static final double CentimetersToFeet = CentimeterstoInches / FeetToInches;
     private static final double CentimetersToMiles = CentimetersToFeet / MilesToFeet;
     private static final double CentimetersToFontPoints = CentimeterstoInches * InchesToFontPoints;
 
-    private static final double MillimetersToKilometers = 1.0 / KilometersToMillimeters;
-    private static final double MillimetersToMeters = 1.0 / MetersToMillimeters;
-    private static final double MillimetersToCentimeters = 1.0 / CentimetersToMillimeters;
-    private static final double MillimetersToInches = MillimetersToCentimeters / InchesToCentimeters;
+    private static final double MillimetersToInches = MetricScale.milliToCenti / InchesToCentimeters;
     private static final double MillimetersToFeet = MillimetersToInches / FeetToInches;
     private static final double MillimetersToMiles = MillimetersToFeet / MilesToFeet;
     private static final double MillimeterstoFontPoints = MillimetersToInches * InchesToFontPoints;
@@ -145,15 +133,15 @@ public class Distance implements Comparable<Distance>
                 switch (destinationUnits)
                 {
                     case Centimeters:
-                        result = new Distance(value * MillimetersToCentimeters, destinationUnits);
+                        result = new Distance(value * MetricScale.milliToCenti, destinationUnits);
                         break;
 
                     case Meters:
-                        result = new Distance(value * MillimetersToMeters, destinationUnits);
+                        result = new Distance(value * MetricScale.milliToUni, destinationUnits);
                         break;
 
                     case Kilometers:
-                        result = new Distance(value * MillimetersToKilometers, destinationUnits);
+                        result = new Distance(value * MetricScale.milliToKilo, destinationUnits);
                         break;
 
                     case Inches:
@@ -178,15 +166,15 @@ public class Distance implements Comparable<Distance>
                 switch (destinationUnits)
                 {
                     case Millimeters:
-                        result = new Distance(value * CentimetersToMillimeters, destinationUnits);
+                        result = new Distance(value * MetricScale.centiToMilli, destinationUnits);
                         break;
 
                     case Meters:
-                        result = new Distance(value * CentimetersToMeters, destinationUnits);
+                        result = new Distance(value * MetricScale.centiToUni, destinationUnits);
                         break;
 
                     case Kilometers:
-                        result = new Distance(value * CentimetersToKilometers, destinationUnits);
+                        result = new Distance(value * MetricScale.centiToKilo, destinationUnits);
                         break;
 
                     case Inches:
@@ -211,15 +199,15 @@ public class Distance implements Comparable<Distance>
                 switch (destinationUnits)
                 {
                     case Millimeters:
-                        result = new Distance(value * MetersToMillimeters, destinationUnits);
+                        result = new Distance(value * MetricScale.uniToMilli, destinationUnits);
                         break;
 
                     case Centimeters:
-                        result = new Distance(value * MetersToCentimeters, destinationUnits);
+                        result = new Distance(value * MetricScale.uniToCenti, destinationUnits);
                         break;
 
                     case Kilometers:
-                        result = new Distance(value * MetersToKilometers, destinationUnits);
+                        result = new Distance(value * MetricScale.uniToKilo, destinationUnits);
                         break;
 
                     case Inches:
@@ -244,15 +232,15 @@ public class Distance implements Comparable<Distance>
                 switch (destinationUnits)
                 {
                     case Millimeters:
-                        result = new Distance(value * KilometersToMillimeters, destinationUnits);
+                        result = new Distance(value * MetricScale.kiloToMilli, destinationUnits);
                         break;
 
                     case Centimeters:
-                        result = new Distance(value * KilometersToCentimeters, destinationUnits);
+                        result = new Distance(value * MetricScale.kiloToCenti, destinationUnits);
                         break;
 
                     case Meters:
-                        result = new Distance(value * KilometersToMeters, destinationUnits);
+                        result = new Distance(value * MetricScale.kiloToUni, destinationUnits);
                         break;
 
                     case Inches:
