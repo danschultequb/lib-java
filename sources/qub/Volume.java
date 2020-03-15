@@ -5,8 +5,6 @@ package qub;
  */
 public class Volume implements Comparable<Volume>
 {
-    private static final double KilolitersToLiters = 1000;
-    private static final double LitersToMilliliters = 1000;
     private static final double USGallonsToLiters = 3.78541;
     private static final double USGallonsToUSQuarts = 4;
     private static final double USQuartsToUSPints = 2;
@@ -15,8 +13,7 @@ public class Volume implements Comparable<Volume>
     private static final double USCupsToUSTablespoons = 16.2307;
     private static final double USTablespoonsToUSTeaspoons = 3;
 
-    private static final double KilolitersToMilliliters = Volume.KilolitersToLiters * Volume.LitersToMilliliters;
-    private static final double KilolitersToUSGallons = Volume.KilolitersToLiters / Volume.USGallonsToLiters;
+    private static final double KilolitersToUSGallons = MetricScale.kiloToUni / Volume.USGallonsToLiters;
     private static final double KilolitersToUSQuarts = Volume.KilolitersToUSGallons * Volume.USGallonsToUSQuarts;
     private static final double KilolitersToUSPints = Volume.KilolitersToUSQuarts * Volume.USQuartsToUSPints;
     private static final double KilolitersToUSCups = Volume.KilolitersToUSPints * Volume.USPintsToUSCups;
@@ -24,7 +21,6 @@ public class Volume implements Comparable<Volume>
     private static final double KilolitersToUSTablespoons = Volume.KilolitersToUSCups * Volume.USCupsToUSTablespoons;
     private static final double KilolitersToUSTeaspoons = Volume.KilolitersToUSTablespoons * Volume.USTablespoonsToUSTeaspoons;
 
-    private static final double LitersToKiloliters = 1.0 / Volume.KilolitersToLiters;
     private static final double LitersToUSGallons = 1.0 / Volume.USGallonsToLiters;
     private static final double LitersToUSQuarts = Volume.LitersToUSGallons * Volume.USGallonsToUSQuarts;
     private static final double LitersToUSPints = Volume.LitersToUSQuarts * Volume.USQuartsToUSPints;
@@ -33,9 +29,7 @@ public class Volume implements Comparable<Volume>
     private static final double LitersToUSTablespoons = Volume.LitersToUSCups * Volume.USCupsToUSTablespoons;
     private static final double LitersToUSTeaspoons = Volume.LitersToUSTablespoons * Volume.USTablespoonsToUSTeaspoons;
 
-    private static final double MillilitersToKiloliters = 1.0 / Volume.KilolitersToMilliliters;
-    private static final double MillilitersToLiters = 1.0 / Volume.LitersToMilliliters;
-    private static final double MillilitersToUSGallons = Volume.MillilitersToLiters * Volume.LitersToUSGallons;
+    private static final double MillilitersToUSGallons = MetricScale.milliToUni * Volume.LitersToUSGallons;
     private static final double MillilitersToUSQuarts = Volume.MillilitersToUSGallons * Volume.USGallonsToUSQuarts;
     private static final double MillilitersToUSPints = Volume.MillilitersToUSQuarts * Volume.USQuartsToUSPints;
     private static final double MillilitersToUSCups = Volume.MillilitersToUSPints * Volume.USPintsToUSCups;
@@ -261,11 +255,11 @@ public class Volume implements Comparable<Volume>
                 switch (units)
                 {
                     case Liters:
-                        result = new Volume(this.value * Volume.KilolitersToLiters, units);
+                        result = new Volume(this.value * MetricScale.kiloToUni, units);
                         break;
 
                     case Milliliters:
-                        result = new Volume(this.value * Volume.KilolitersToMilliliters, units);
+                        result = new Volume(this.value * MetricScale.kiloToMilli, units);
                         break;
 
                     case USGallons:
@@ -302,11 +296,11 @@ public class Volume implements Comparable<Volume>
                 switch (units)
                 {
                     case Kiloliters:
-                        result = new Volume(this.value * Volume.LitersToKiloliters, units);
+                        result = new Volume(this.value * MetricScale.uniToKilo, units);
                         break;
 
                     case Milliliters:
-                        result = new Volume(this.value * Volume.LitersToMilliliters, units);
+                        result = new Volume(this.value * MetricScale.uniToMilli, units);
                         break;
 
                     case USGallons:
@@ -343,11 +337,11 @@ public class Volume implements Comparable<Volume>
                 switch (units)
                 {
                     case Kiloliters:
-                        result = new Volume(this.value * Volume.MillilitersToKiloliters, units);
+                        result = new Volume(this.value * MetricScale.milliToKilo, units);
                         break;
 
                     case Liters:
-                        result = new Volume(this.value * Volume.MillilitersToLiters, units);
+                        result = new Volume(this.value * MetricScale.milliToUni, units);
                         break;
 
                     case USGallons:
