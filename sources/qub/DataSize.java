@@ -1173,12 +1173,414 @@ public class DataSize // implements Comparable<DataSize>
                 break;
 
             case Kibibytes:
+                switch (destinationUnits)
+                {
+                    case Yobibytes:
+                        result = new DataSize(this.value * BinaryScale.kibiToYobi, destinationUnits);
+                        break;
+
+                    case Zebibytes:
+                        result = new DataSize(this.value * BinaryScale.kibiToZebi, destinationUnits);
+                        break;
+
+                    case Exbibytes:
+                        result = new DataSize(this.value * BinaryScale.kibiToExbi, destinationUnits);
+                        break;
+
+                    case Pebibytes:
+                        result = new DataSize(this.value * BinaryScale.kibiToPebi, destinationUnits);
+                        break;
+
+                    case Tebibytes:
+                        result = new DataSize(this.value * BinaryScale.kibiToTebi, destinationUnits);
+                        break;
+
+                    case Gibibytes:
+                        result = new DataSize(this.value * BinaryScale.kibiToGibi, destinationUnits);
+                        break;
+
+                    case Mebibytes:
+                        result = new DataSize(this.value * BinaryScale.kibiToMebi, destinationUnits);
+                        break;
+
+                    case Yobibits:
+                        result = new DataSize(this.value * BinaryScale.kibiToYobi * DataSize.bytesToBits, destinationUnits);
+                        break;
+
+                    case Zebibits:
+                        result = new DataSize(this.value * BinaryScale.kibiToZebi * DataSize.bytesToBits, destinationUnits);
+                        break;
+
+                    case Exbibits:
+                        result = new DataSize(this.value * BinaryScale.kibiToExbi * DataSize.bytesToBits, destinationUnits);
+                        break;
+
+                    case Pebibits:
+                        result = new DataSize(this.value * BinaryScale.kibiToPebi * DataSize.bytesToBits, destinationUnits);
+                        break;
+
+                    case Tebibits:
+                        result = new DataSize(this.value * BinaryScale.kibiToTebi * DataSize.bytesToBits, destinationUnits);
+                        break;
+
+                    case Gibibits:
+                        result = new DataSize(this.value * BinaryScale.kibiToGibi * DataSize.bytesToBits, destinationUnits);
+                        break;
+
+                    case Mebibits:
+                        result = new DataSize(this.value * BinaryScale.kibiToMebi *  DataSize.bytesToBits, destinationUnits);
+                        break;
+
+                    case Kibibits:
+                        result = new DataSize(this.value * DataSize.bytesToBits, destinationUnits);
+                        break;
+
+                    case Yottabytes:
+                        result = new DataSize(this.value * BinaryScale.kibiToUni * MetricScale.uniToYotta, destinationUnits);
+                        break;
+
+                    case Zettabytes:
+                        result = new DataSize(this.value * BinaryScale.kibiToUni * MetricScale.uniToZetta, destinationUnits);
+                        break;
+
+                    case Exabytes:
+                        result = new DataSize(this.value * BinaryScale.kibiToUni * MetricScale.uniToExa, destinationUnits);
+                        break;
+
+                    case Petabytes:
+                        result = new DataSize(this.value * BinaryScale.kibiToUni * MetricScale.uniToPeta, destinationUnits);
+                        break;
+
+                    case Terabytes:
+                        result = new DataSize(this.value * BinaryScale.kibiToUni * MetricScale.uniToTera, destinationUnits);
+                        break;
+
+                    case Gigabytes:
+                        result = new DataSize(this.value * BinaryScale.kibiToUni * MetricScale.uniToGiga, destinationUnits);
+                        break;
+
+                    case Megabytes:
+                        result = new DataSize(this.value * BinaryScale.kibiToUni * MetricScale.uniToMega, destinationUnits);
+                        break;
+
+                    case Kilobytes:
+                        result = new DataSize(this.value * BinaryScale.kibiToUni * MetricScale.uniToKilo, destinationUnits);
+                        break;
+
+                    case Bytes:
+                        result = new DataSize(this.value * BinaryScale.kibiToUni, destinationUnits);
+                        break;
+
+                    case Yottabits:
+                        result = new DataSize(this.value * BinaryScale.kibiToUni * MetricScale.uniToYotta * DataSize.bytesToBits, destinationUnits);
+                        break;
+
+                    case Zettabits:
+                        result = new DataSize(this.value * BinaryScale.kibiToUni * MetricScale.uniToZetta * DataSize.bytesToBits, destinationUnits);
+                        break;
+
+                    case Exabits:
+                        result = new DataSize(this.value * BinaryScale.kibiToUni * MetricScale.uniToExa * DataSize.bytesToBits, destinationUnits);
+                        break;
+
+                    case Petabits:
+                        result = new DataSize(this.value * BinaryScale.kibiToUni * MetricScale.uniToPeta * DataSize.bytesToBits, destinationUnits);
+                        break;
+
+                    case Terabits:
+                        result = new DataSize(this.value * BinaryScale.kibiToUni * MetricScale.uniToTera * DataSize.bytesToBits, destinationUnits);
+                        break;
+
+                    case Gigabits:
+                        result = new DataSize(this.value * BinaryScale.kibiToUni * MetricScale.uniToGiga * DataSize.bytesToBits, destinationUnits);
+                        break;
+
+                    case Megabits:
+                        result = new DataSize(this.value * BinaryScale.kibiToUni * MetricScale.uniToMega * DataSize.bytesToBits, destinationUnits);
+                        break;
+
+                    case Kilobits:
+                        result = new DataSize(this.value * BinaryScale.kibiToUni * MetricScale.uniToKilo * DataSize.bytesToBits, destinationUnits);
+                        break;
+
+                    case Bits:
+                        result = new DataSize(this.value * BinaryScale.kibiToUni * DataSize.bytesToBits, destinationUnits);
+                        break;
+                }
                 break;
 
             case Yobibits:
+                switch (destinationUnits)
+                {
+                    case Yobibytes:
+                        result = new DataSize(this.value * DataSize.bitsToBytes, destinationUnits);
+                        break;
+
+                    case Zebibytes:
+                        result = new DataSize(this.value * DataSize.bitsToBytes * BinaryScale.yobiToZebi, destinationUnits);
+                        break;
+
+                    case Exbibytes:
+                        result = new DataSize(this.value * DataSize.bitsToBytes * BinaryScale.yobiToExbi, destinationUnits);
+                        break;
+
+                    case Pebibytes:
+                        result = new DataSize(this.value * DataSize.bitsToBytes * BinaryScale.yobiToPebi, destinationUnits);
+                        break;
+
+                    case Tebibytes:
+                        result = new DataSize(this.value * DataSize.bitsToBytes * BinaryScale.yobiToTebi, destinationUnits);
+                        break;
+
+                    case Gibibytes:
+                        result = new DataSize(this.value * DataSize.bitsToBytes * BinaryScale.yobiToGibi, destinationUnits);
+                        break;
+
+                    case Mebibytes:
+                        result = new DataSize(this.value * DataSize.bitsToBytes * BinaryScale.yobiToMebi, destinationUnits);
+                        break;
+
+                    case Kibibytes:
+                        result = new DataSize(this.value * DataSize.bitsToBytes * BinaryScale.yobiToKibi, destinationUnits);
+                        break;
+
+                    case Zebibits:
+                        result = new DataSize(this.value * BinaryScale.yobiToZebi, destinationUnits);
+                        break;
+
+                    case Exbibits:
+                        result = new DataSize(this.value * BinaryScale.yobiToExbi, destinationUnits);
+                        break;
+
+                    case Pebibits:
+                        result = new DataSize(this.value * BinaryScale.yobiToPebi, destinationUnits);
+                        break;
+
+                    case Tebibits:
+                        result = new DataSize(this.value * BinaryScale.yobiToTebi, destinationUnits);
+                        break;
+
+                    case Gibibits:
+                        result = new DataSize(this.value * BinaryScale.yobiToGibi, destinationUnits);
+                        break;
+
+                    case Mebibits:
+                        result = new DataSize(this.value * BinaryScale.yobiToMebi, destinationUnits);
+                        break;
+
+                    case Kibibits:
+                        result = new DataSize(this.value * BinaryScale.yobiToKibi, destinationUnits);
+                        break;
+
+                    case Yottabytes:
+                        result = new DataSize(this.value * BinaryScale.yobiToUni * DataSize.bitsToBytes * MetricScale.uniToYotta, destinationUnits);
+                        break;
+
+                    case Zettabytes:
+                        result = new DataSize(this.value * BinaryScale.yobiToUni * DataSize.bitsToBytes * MetricScale.uniToZetta, destinationUnits);
+                        break;
+
+                    case Exabytes:
+                        result = new DataSize(this.value * BinaryScale.yobiToUni * DataSize.bitsToBytes * MetricScale.uniToExa, destinationUnits);
+                        break;
+
+                    case Petabytes:
+                        result = new DataSize(this.value * BinaryScale.yobiToUni * DataSize.bitsToBytes * MetricScale.uniToPeta, destinationUnits);
+                        break;
+
+                    case Terabytes:
+                        result = new DataSize(this.value * BinaryScale.yobiToUni * DataSize.bitsToBytes * MetricScale.uniToTera, destinationUnits);
+                        break;
+
+                    case Gigabytes:
+                        result = new DataSize(this.value * BinaryScale.yobiToUni * DataSize.bitsToBytes * MetricScale.uniToGiga, destinationUnits);
+                        break;
+
+                    case Megabytes:
+                        result = new DataSize(this.value * BinaryScale.yobiToUni * DataSize.bitsToBytes * MetricScale.uniToMega, destinationUnits);
+                        break;
+
+                    case Kilobytes:
+                        result = new DataSize(this.value * BinaryScale.yobiToUni * DataSize.bitsToBytes * MetricScale.uniToKilo, destinationUnits);
+                        break;
+
+                    case Bytes:
+                        result = new DataSize(this.value * BinaryScale.yobiToUni * DataSize.bitsToBytes, destinationUnits);
+                        break;
+
+                    case Yottabits:
+                        result = new DataSize(this.value * BinaryScale.yobiToUni * MetricScale.uniToYotta, destinationUnits);
+                        break;
+
+                    case Zettabits:
+                        result = new DataSize(this.value * BinaryScale.yobiToUni * MetricScale.uniToZetta, destinationUnits);
+                        break;
+
+                    case Exabits:
+                        result = new DataSize(this.value * BinaryScale.yobiToUni * MetricScale.uniToExa, destinationUnits);
+                        break;
+
+                    case Petabits:
+                        result = new DataSize(this.value * BinaryScale.yobiToUni * MetricScale.uniToPeta, destinationUnits);
+                        break;
+
+                    case Terabits:
+                        result = new DataSize(this.value * BinaryScale.yobiToUni * MetricScale.uniToTera, destinationUnits);
+                        break;
+
+                    case Gigabits:
+                        result = new DataSize(this.value * BinaryScale.yobiToUni * MetricScale.uniToGiga, destinationUnits);
+                        break;
+
+                    case Megabits:
+                        result = new DataSize(this.value * BinaryScale.yobiToUni * MetricScale.uniToMega, destinationUnits);
+                        break;
+
+                    case Kilobits:
+                        result = new DataSize(this.value * BinaryScale.yobiToUni * MetricScale.uniToKilo, destinationUnits);
+                        break;
+
+                    case Bits:
+                        result = new DataSize(this.value * BinaryScale.yobiToUni, destinationUnits);
+                        break;
+                }
                 break;
 
             case Zebibits:
+                switch (destinationUnits)
+                {
+                    case Yobibytes:
+                        result = new DataSize(this.value * DataSize.bitsToBytes * BinaryScale.zebiToYobi, destinationUnits);
+                        break;
+
+                    case Zebibytes:
+                        result = new DataSize(this.value * DataSize.bitsToBytes, destinationUnits);
+                        break;
+
+                    case Exbibytes:
+                        result = new DataSize(this.value * DataSize.bitsToBytes * BinaryScale.zebiToExbi, destinationUnits);
+                        break;
+
+                    case Pebibytes:
+                        result = new DataSize(this.value * DataSize.bitsToBytes * BinaryScale.zebiToPebi, destinationUnits);
+                        break;
+
+                    case Tebibytes:
+                        result = new DataSize(this.value * DataSize.bitsToBytes * BinaryScale.zebiToTebi, destinationUnits);
+                        break;
+
+                    case Gibibytes:
+                        result = new DataSize(this.value * DataSize.bitsToBytes * BinaryScale.zebiToGibi, destinationUnits);
+                        break;
+
+                    case Mebibytes:
+                        result = new DataSize(this.value * DataSize.bitsToBytes * BinaryScale.zebiToMebi, destinationUnits);
+                        break;
+
+                    case Kibibytes:
+                        result = new DataSize(this.value * DataSize.bitsToBytes * BinaryScale.zebiToKibi, destinationUnits);
+                        break;
+
+                    case Yobibits:
+                        result = new DataSize(this.value * BinaryScale.zebiToYobi, destinationUnits);
+                        break;
+
+                    case Exbibits:
+                        result = new DataSize(this.value * BinaryScale.zebiToExbi, destinationUnits);
+                        break;
+
+                    case Pebibits:
+                        result = new DataSize(this.value * BinaryScale.zebiToPebi, destinationUnits);
+                        break;
+
+                    case Tebibits:
+                        result = new DataSize(this.value * BinaryScale.zebiToTebi, destinationUnits);
+                        break;
+
+                    case Gibibits:
+                        result = new DataSize(this.value * BinaryScale.zebiToGibi, destinationUnits);
+                        break;
+
+                    case Mebibits:
+                        result = new DataSize(this.value * BinaryScale.zebiToMebi, destinationUnits);
+                        break;
+
+                    case Kibibits:
+                        result = new DataSize(this.value * BinaryScale.zebiToKibi, destinationUnits);
+                        break;
+
+                    case Yottabytes:
+                        result = new DataSize(this.value * BinaryScale.zebiToUni * DataSize.bitsToBytes * MetricScale.uniToYotta, destinationUnits);
+                        break;
+
+                    case Zettabytes:
+                        result = new DataSize(this.value * BinaryScale.zebiToUni * DataSize.bitsToBytes * MetricScale.uniToZetta, destinationUnits);
+                        break;
+
+                    case Exabytes:
+                        result = new DataSize(this.value * BinaryScale.zebiToUni * DataSize.bitsToBytes * MetricScale.uniToExa, destinationUnits);
+                        break;
+
+                    case Petabytes:
+                        result = new DataSize(this.value * BinaryScale.zebiToUni * DataSize.bitsToBytes * MetricScale.uniToPeta, destinationUnits);
+                        break;
+
+                    case Terabytes:
+                        result = new DataSize(this.value * BinaryScale.zebiToUni * DataSize.bitsToBytes * MetricScale.uniToTera, destinationUnits);
+                        break;
+
+                    case Gigabytes:
+                        result = new DataSize(this.value * BinaryScale.zebiToUni * DataSize.bitsToBytes * MetricScale.uniToGiga, destinationUnits);
+                        break;
+
+                    case Megabytes:
+                        result = new DataSize(this.value * BinaryScale.zebiToUni * DataSize.bitsToBytes * MetricScale.uniToMega, destinationUnits);
+                        break;
+
+                    case Kilobytes:
+                        result = new DataSize(this.value * BinaryScale.zebiToUni * DataSize.bitsToBytes * MetricScale.uniToKilo, destinationUnits);
+                        break;
+
+                    case Bytes:
+                        result = new DataSize(this.value * BinaryScale.zebiToUni * DataSize.bitsToBytes, destinationUnits);
+                        break;
+
+                    case Yottabits:
+                        result = new DataSize(this.value * BinaryScale.zebiToUni * MetricScale.uniToYotta, destinationUnits);
+                        break;
+
+                    case Zettabits:
+                        result = new DataSize(this.value * BinaryScale.zebiToUni * MetricScale.uniToZetta, destinationUnits);
+                        break;
+
+                    case Exabits:
+                        result = new DataSize(this.value * BinaryScale.zebiToUni * MetricScale.uniToExa, destinationUnits);
+                        break;
+
+                    case Petabits:
+                        result = new DataSize(this.value * BinaryScale.zebiToUni * MetricScale.uniToPeta, destinationUnits);
+                        break;
+
+                    case Terabits:
+                        result = new DataSize(this.value * BinaryScale.zebiToUni * MetricScale.uniToTera, destinationUnits);
+                        break;
+
+                    case Gigabits:
+                        result = new DataSize(this.value * BinaryScale.zebiToUni * MetricScale.uniToGiga, destinationUnits);
+                        break;
+
+                    case Megabits:
+                        result = new DataSize(this.value * BinaryScale.zebiToUni * MetricScale.uniToMega, destinationUnits);
+                        break;
+
+                    case Kilobits:
+                        result = new DataSize(this.value * BinaryScale.zebiToUni * MetricScale.uniToKilo, destinationUnits);
+                        break;
+
+                    case Bits:
+                        result = new DataSize(this.value * BinaryScale.zebiToUni, destinationUnits);
+                        break;
+                }
                 break;
 
             case Exbibits:
