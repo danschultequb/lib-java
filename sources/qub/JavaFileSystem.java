@@ -23,6 +23,21 @@ public class JavaFileSystem implements FileSystem
     }
 
     @Override
+    public Result<DataSize> getRootTotalDataSize(Path rootPath)
+    {
+        return Result.create(() ->
+        {
+            final java.io.File root = new java.io.File(rootPath.toString());
+            final long totalSpaceBytes = root.getTotalSpace();
+            if (totalSpaceBytes == 0)
+            {
+                throw new RootNotFoundException(rootPath);
+            }
+            return DataSize.bytes(totalSpaceBytes);
+        });
+    }
+
+    @Override
     public Result<Iterable<FileSystemEntry>> getFilesAndFolders(Path rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);

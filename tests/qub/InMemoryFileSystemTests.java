@@ -13,6 +13,23 @@ public interface InMemoryFileSystemTests
                 return fileSystem;
             });
 
+            runner.testGroup("getRootTotalDataSize(String)", () ->
+            {
+                runner.test("with root where no data size was specified", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("Z:/").await();
+                    test.assertNull(fileSystem.getRootTotalDataSize("Z:/").await());
+                });
+
+                runner.test("with root where data size was specified", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    fileSystem.createRoot("Z:/", DataSize.megabytes(100)).await();
+                    test.assertEqual(DataSize.megabytes(100), fileSystem.getRootTotalDataSize("Z:/").await());
+                });
+            });
+
             runner.testGroup("setFileCanDelete(String,boolean)", () ->
             {
                 runner.test("when root doesn't exist", (Test test) ->

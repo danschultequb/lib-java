@@ -1045,12 +1045,12 @@ public class Test
         }
     }
 
-    public <T extends Comparable<T>> void assertGreaterThanOrEqualTo(double value, double lowerBound)
+    public void assertGreaterThanOrEqualTo(double value, double lowerBound)
     {
         assertGreaterThanOrEqualTo(value, lowerBound, null);
     }
 
-    public <T extends Comparable<T>> void assertGreaterThanOrEqualTo(double value, double lowerBound, String message)
+    public void assertGreaterThanOrEqualTo(double value, double lowerBound, String message)
     {
         if (value < lowerBound)
         {
@@ -1068,6 +1068,19 @@ public class Test
         if (!Comparer.greaterThan(lhs, rhs))
         {
             throw new TestError(getFullName(), getMessageLines(message, "greater than " + Objects.toString(rhs), lhs));
+        }
+    }
+
+    public void assertGreaterThan(double value, double lowerBound)
+    {
+        this.assertGreaterThanOrEqualTo(value, lowerBound, null);
+    }
+
+    public void assertGreaterThan(double value, double lowerBound, String message)
+    {
+        if (value <= lowerBound)
+        {
+            throw new TestError(getFullName(), getMessageLines(message, "greater than " + Objects.toString(lowerBound), value));
         }
     }
 

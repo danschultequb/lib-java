@@ -79,6 +79,15 @@ public class Root
     }
 
     /**
+     * Get the total data size/capacity of this Root.
+     * @return The total data size/capacity of this Root.
+     */
+    public Result<DataSize> getTotalDataSize()
+    {
+        return this.folder.getFileSystem().getRootTotalDataSize(this.getPath());
+    }
+
+    /**
      * Get whether or not this Root exists.
      */
     public Result<Boolean> exists()

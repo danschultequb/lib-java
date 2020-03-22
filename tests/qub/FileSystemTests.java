@@ -75,6 +75,49 @@ public interface FileSystemTests
                 test.assertNotNullAndNotEmpty(fileSystem.getRoots().await());
             });
 
+            runner.testGroup("getRootTotalDataSize(String)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+
+                    test.assertThrows(() -> fileSystem.getRootTotalDataSize((String)null),
+                        new PreConditionFailure("rootPath cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+
+                    test.assertThrows(() -> fileSystem.getRootTotalDataSize(""),
+                        new PreConditionFailure("rootPath cannot be empty."));
+                });
+
+                runner.test("with non-rooted path", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+
+                    test.assertThrows(() -> fileSystem.getRootTotalDataSize("hello").await(),
+                        new RootNotFoundException("hello"));
+                });
+
+                runner.test("with more than just the root path", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+
+                    test.assertThrows(() -> fileSystem.getRootTotalDataSize("/hello/there").await(),
+                        new RootNotFoundException("/hello/there"));
+                });
+
+                runner.test("with non-existing root path", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+
+                    test.assertThrows(() -> fileSystem.getRootTotalDataSize("p:/").await(),
+                        new RootNotFoundException("p:/"));
+                });
+            });
+
             runner.testGroup("getFilesAndFolders(String)", () ->
             {
                 final Action2<String,Throwable> getFilesAndFoldersFailureTest = (String folderPath, Throwable expectedError) ->

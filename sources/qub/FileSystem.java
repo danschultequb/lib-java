@@ -66,6 +66,25 @@ public interface FileSystem
     Result<Iterable<Root>> getRoots();
 
     /**
+     * Get the total data size that the root at the provided path can contain.
+     * @param rootPath The path to the root.
+     * @return The total data size that the root at the provided path can contain.
+     */
+    default Result<DataSize> getRootTotalDataSize(String rootPath)
+    {
+        PreCondition.assertNotNullAndNotEmpty(rootPath, "rootPath");
+
+        return this.getRootTotalDataSize(Path.parse(rootPath));
+    }
+
+    /**
+     * Get the total data size that the root at the provided path can contain.
+     * @param rootPath The path to the root.
+     * @return The total data size that the root at the provided path can contain.
+     */
+    Result<DataSize> getRootTotalDataSize(Path rootPath);
+
+    /**
      * Get the files and folders (entries) at the provided folder path.
      * @param rootedFolderPath The path to the folder (Root or Folder).
      * @return The files and folders (entries) at the provided folder path.

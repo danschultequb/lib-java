@@ -1,10 +1,10 @@
 package qub;
 
-public class JavaFileSystemTests
+public interface JavaFileSystemTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
-        String tempFolderPathString = System.getProperty("java.io.tmpdir");
+        final String tempFolderPathString = System.getProperty("java.io.tmpdir");
         final Path tempFolderPath = Path.parse(tempFolderPathString).concatenateSegment("qub-tests");
         final IntegerValue testNumber = new IntegerValue(0);
 
@@ -41,6 +41,19 @@ public class JavaFileSystemTests
 
                 final Array<Root> rootsArray = roots.toArray();
                 test.assertNotNullAndNotEmpty(rootsArray);
+            });
+
+            runner.testGroup("getRootTotalDataSize(Path)", () ->
+            {
+                runner.test("with existing path", (Test test) ->
+                {
+                    final JavaFileSystem fileSystem = new JavaFileSystem();
+                    final Root root = fileSystem.getRoots().await().first();
+                    final DataSize rootTotalDataSize = fileSystem.getRootTotalDataSize(root.getPath()).await();
+                    test.assertNotNull(rootTotalDataSize);
+                    test.assertEqual(DataSizeUnit.Bytes, rootTotalDataSize.getUnits());
+                    test.assertGreaterThan(rootTotalDataSize.getValue(), 0);
+                });
             });
         });
     }

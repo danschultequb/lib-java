@@ -123,6 +123,20 @@ public class InMemoryFileSystem implements FileSystem
     }
 
     @Override
+    public Result<DataSize> getRootTotalDataSize(Path rootPath)
+    {
+        return Result.create(() ->
+        {
+            final InMemoryRoot root = this.getInMemoryRoot(rootPath);
+            if (root == null)
+            {
+                throw new RootNotFoundException(rootPath);
+            }
+            return root.getTotalDataSize();
+        });
+    }
+
+    @Override
     public Result<Iterable<FileSystemEntry>> getFilesAndFolders(Path rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
@@ -331,7 +345,46 @@ public class InMemoryFileSystem implements FileSystem
      *                 FileSystem.
      * @return Whether or not this function created the Root.
      */
+    public Result<Root> createRoot(String rootPath, DataSize rootTotalDataSize)
+    {
+        FileSystem.validateRootedFolderPath(rootPath, "rootPath");
+        PreCondition.assertNotNull(rootTotalDataSize, "rootTotalDataSize");
+        PreCondition.assertGreaterThan(rootTotalDataSize, DataSize.zero, "rootTotalDataSize");
+
+        return this.createRoot(Path.parse(rootPath), rootTotalDataSize);
+    }
+
+    /**
+     * Create a new Root in this FileSystem and returns whether or not this function created the
+     * Root.
+     * @param rootPath The String representation of the path to the Root to create in this
+     *                 FileSystem.
+     * @return Whether or not this function created the Root.
+     */
     public Result<Root> createRoot(Path rootPath)
+    {
+        FileSystem.validateRootedFolderPath(rootPath, "rootPath");
+
+        return this.createRootInner(rootPath, null);
+    }
+
+    /**
+     * Create a new Root in this FileSystem and returns whether or not this function created the
+     * Root.
+     * @param rootPath The String representation of the path to the Root to create in this
+     *                 FileSystem.
+     * @return Whether or not this function created the Root.
+     */
+    public Result<Root> createRoot(Path rootPath, DataSize rootTotalDataSize)
+    {
+        FileSystem.validateRootedFolderPath(rootPath, "rootPath");
+        PreCondition.assertNotNull(rootTotalDataSize, "rootTotalDataSize");
+        PreCondition.assertGreaterThan(rootTotalDataSize, DataSize.zero, "rootTotalDataSize");
+
+        return this.createRootInner(rootPath, rootTotalDataSize);
+    }
+
+    private Result<Root> createRootInner(Path rootPath, DataSize rootTotalDataSize)
     {
         FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
@@ -343,7 +396,7 @@ public class InMemoryFileSystem implements FileSystem
         }
         else
         {
-            roots.add(new InMemoryRoot(rootPath.getSegments().first(), clock));
+            roots.add(new InMemoryRoot(rootPath.getSegments().first(), clock, rootTotalDataSize));
             result = getRoot(rootPath);
         }
         return result;

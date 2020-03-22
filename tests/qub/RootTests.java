@@ -67,6 +67,24 @@ public interface RootTests
                     test.assertFalse(root.equals((Object)root2));
                 });
             });
+
+            runner.testGroup("getTotalDataSize()", () ->
+            {
+                runner.test("when root doesn't exist", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final Root root = fileSystem.getRoot("/").await();
+                    test.assertThrows(() -> root.getTotalDataSize().await(),
+                        new RootNotFoundException("/"));
+                });
+
+                runner.test("when root exists", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final Root root = fileSystem.createRoot("/", DataSize.gigabytes(256)).await();
+                    test.assertEqual(DataSize.gigabytes(256), root.getTotalDataSize().await());
+                });
+            });
             
             runner.testGroup("getFolder(String)", () ->
             {

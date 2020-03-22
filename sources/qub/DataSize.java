@@ -3,7 +3,7 @@ package qub;
 /**
  * A measure of data.
  */
-public class DataSize // implements Comparable<DataSize>
+public class DataSize implements Comparable<DataSize>
 {
     public final static double bytesToBits = 8;
 
@@ -4877,6 +4877,176 @@ public class DataSize // implements Comparable<DataSize>
         return result;
     }
 
+    public DataSize toYobibytes()
+    {
+        return this.convertTo(DataSizeUnit.Yobibytes);
+    }
+
+    public DataSize toZebibytes()
+    {
+        return this.convertTo(DataSizeUnit.Zebibytes);
+    }
+
+    public DataSize toExbibytes()
+    {
+        return this.convertTo(DataSizeUnit.Exbibytes);
+    }
+
+    public DataSize toPebibytes()
+    {
+        return this.convertTo(DataSizeUnit.Pebibytes);
+    }
+
+    public DataSize toTebibytes()
+    {
+        return this.convertTo(DataSizeUnit.Tebibytes);
+    }
+
+    public DataSize toGibibytes()
+    {
+        return this.convertTo(DataSizeUnit.Gibibytes);
+    }
+
+    public DataSize toMebibytes()
+    {
+        return this.convertTo(DataSizeUnit.Mebibytes);
+    }
+
+    public DataSize toKibibytes()
+    {
+        return this.convertTo(DataSizeUnit.Kibibytes);
+    }
+
+    public DataSize toYobibits()
+    {
+        return this.convertTo(DataSizeUnit.Yobibits);
+    }
+
+    public DataSize toZebibits()
+    {
+        return this.convertTo(DataSizeUnit.Zebibits);
+    }
+
+    public DataSize toExibits()
+    {
+        return this.convertTo(DataSizeUnit.Exbibits);
+    }
+
+    public DataSize toPebibits()
+    {
+        return this.convertTo(DataSizeUnit.Pebibits);
+    }
+
+    public DataSize toTebibits()
+    {
+        return this.convertTo(DataSizeUnit.Tebibits);
+    }
+
+    public DataSize toGibibits()
+    {
+        return this.convertTo(DataSizeUnit.Gibibits);
+    }
+
+    public DataSize toMebibits()
+    {
+        return this.convertTo(DataSizeUnit.Mebibits);
+    }
+
+    public DataSize toKibibits()
+    {
+        return this.convertTo(DataSizeUnit.Kibibits);
+    }
+
+    public DataSize toYottabytes()
+    {
+        return this.convertTo(DataSizeUnit.Yottabytes);
+    }
+
+    public DataSize toZettabytes()
+    {
+        return this.convertTo(DataSizeUnit.Zettabytes);
+    }
+
+    public DataSize toExabytes()
+    {
+        return this.convertTo(DataSizeUnit.Exabytes);
+    }
+
+    public DataSize toPetabytes()
+    {
+        return this.convertTo(DataSizeUnit.Petabytes);
+    }
+
+    public DataSize toTerabytes()
+    {
+        return this.convertTo(DataSizeUnit.Terabytes);
+    }
+
+    public DataSize toGigabytes()
+    {
+        return this.convertTo(DataSizeUnit.Gigabytes);
+    }
+
+    public DataSize toMegabytes()
+    {
+        return this.convertTo(DataSizeUnit.Megabytes);
+    }
+
+    public DataSize toKilobytes()
+    {
+        return this.convertTo(DataSizeUnit.Kilobytes);
+    }
+
+    public DataSize toBytes()
+    {
+        return this.convertTo(DataSizeUnit.Bytes);
+    }
+
+    public DataSize toYottabits()
+    {
+        return this.convertTo(DataSizeUnit.Yottabits);
+    }
+
+    public DataSize toZettabits()
+    {
+        return this.convertTo(DataSizeUnit.Zettabits);
+    }
+
+    public DataSize toExabits()
+    {
+        return this.convertTo(DataSizeUnit.Exabits);
+    }
+
+    public DataSize toPetabits()
+    {
+        return this.convertTo(DataSizeUnit.Petabits);
+    }
+
+    public DataSize toTerabits()
+    {
+        return this.convertTo(DataSizeUnit.Terabits);
+    }
+
+    public DataSize toGigabits()
+    {
+        return this.convertTo(DataSizeUnit.Gigabits);
+    }
+
+    public DataSize toMegabits()
+    {
+        return this.convertTo(DataSizeUnit.Megabits);
+    }
+
+    public DataSize toKilobits()
+    {
+        return this.convertTo(DataSizeUnit.Kilobits);
+    }
+
+    public DataSize toBits()
+    {
+        return this.convertTo(DataSizeUnit.Bits);
+    }
+
     @Override
     public String toString()
     {
@@ -4898,5 +5068,13 @@ public class DataSize // implements Comparable<DataSize>
             result = this.value == convertedRhs.value;
         }
         return result;
+    }
+
+    @Override
+    public Comparison compareTo(DataSize value)
+    {
+        return value == null
+            ? Comparison.GreaterThan
+            : Comparison.from(this.value - value.convertTo(this.units).value);
     }
 }

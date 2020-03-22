@@ -87,7 +87,7 @@ public class FolderFileSystem implements FileSystem
 
     private Path getOuterPath(Path innerPath)
     {
-        String outerPathString = innerPath.toString().substring(baseFolderPath.toString().length());
+        String outerPathString = innerPath.toString().substring(this.baseFolderPath.toString().length());
         if (outerPathString.isEmpty())
         {
             outerPathString = "/";
@@ -99,6 +99,23 @@ public class FolderFileSystem implements FileSystem
     public Result<Iterable<Root>> getRoots()
     {
         return Result.success(Iterable.create(new Root(this, Path.parse("/"))));
+    }
+
+    @Override
+    public Result<DataSize> getRootTotalDataSize(Path rootPath)
+    {
+        PreCondition.assertNotNull(rootPath, "rootPath");
+
+        return Result.create(() ->
+        {
+            if (!rootPath.equals(Path.parse("/")))
+            {
+                throw new RootNotFoundException(rootPath);
+            }
+
+            final Path baseFolderRootPath = this.baseFolderPath.getRoot().await();
+            return this.innerFileSystem.getRootTotalDataSize(baseFolderRootPath).await();
+        });
     }
 
     @Override
