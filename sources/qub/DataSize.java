@@ -3,7 +3,7 @@ package qub;
 /**
  * A measure of data.
  */
-public class DataSize implements Comparable<DataSize>
+public class DataSize implements ComparableWithError<DataSize>
 {
     public final static double bytesToBits = 8;
 
@@ -5076,5 +5076,97 @@ public class DataSize implements Comparable<DataSize>
         return value == null
             ? Comparison.GreaterThan
             : Comparison.from(this.value - value.convertTo(this.units).value);
+    }
+
+    @Override
+    public Comparison compareTo(DataSize rhs, DataSize marginOfError)
+    {
+        PreCondition.assertNotNull(marginOfError, "marginOfError");
+
+        Comparison result;
+
+        if (rhs == null)
+        {
+            result = Comparison.GreaterThan;
+        }
+        else
+        {
+            final DataSizeUnit marginOfErrorUnits = marginOfError.getUnits();
+            final DataSize convertedLhs = this.convertTo(marginOfErrorUnits);
+            final DataSize convertedRhs = rhs.convertTo(marginOfErrorUnits);
+
+            final double marginOfErrorValue = Math.absoluteValue(marginOfError.getValue());
+            final double difference = convertedLhs.value - convertedRhs.value;
+            if (difference < -marginOfErrorValue)
+            {
+                result = Comparison.LessThan;
+            }
+            else if (difference > marginOfErrorValue)
+            {
+                result = Comparison.GreaterThan;
+            }
+            else
+            {
+                result = Comparison.Equal;
+            }
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * Get the sum of adding this DataSize to the provided DataSize.
+     * @param rhs The DataSize to add to this DataSize.
+     * @return The sum of adding this DataSize to the provided DataSize.
+     */
+    public DataSize plus(DataSize rhs)
+    {
+        PreCondition.assertNotNull(rhs, "rhs");
+
+        DataSize result;
+        if (rhs.value == 0)
+        {
+            result = this;
+        }
+        else if (this.value == 0)
+        {
+            result = rhs;
+        }
+        else
+        {
+            final DataSize convertedRhs = rhs.convertTo(this.units);
+            result = new DataSize(this.value + convertedRhs.value, this.units);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * Get the result of subtracting the provided DataSize from this DataSize.
+     * @param rhs The DataSize to subtract from this DataSize.
+     * @return The result of subtracting the provided DataSize from this DataSize.
+     */
+    public DataSize minus(DataSize rhs)
+    {
+        PreCondition.assertNotNull(rhs, "rhs");
+
+        DataSize result;
+        if (rhs.value == 0)
+        {
+            result = this;
+        }
+        else
+        {
+            final DataSize convertedRhs = rhs.convertTo(this.units);
+            result = new DataSize(this.value - convertedRhs.value, this.units);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 }

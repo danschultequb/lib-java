@@ -119,6 +119,23 @@ public class FolderFileSystem implements FileSystem
     }
 
     @Override
+    public Result<DataSize> getRootUnusedDataSize(Path rootPath)
+    {
+        PreCondition.assertNotNull(rootPath, "rootPath");
+
+        return Result.create(() ->
+        {
+            if (!rootPath.equals(Path.parse("/")))
+            {
+                throw new RootNotFoundException(rootPath);
+            }
+
+            final Path baseFolderRootPath = this.baseFolderPath.getRoot().await();
+            return this.innerFileSystem.getRootUnusedDataSize(baseFolderRootPath).await();
+        });
+    }
+
+    @Override
     public Result<Iterable<FileSystemEntry>> getFilesAndFolders(Path rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);

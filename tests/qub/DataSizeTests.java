@@ -1526,6 +1526,58 @@ public interface DataSizeTests
                 equalsTest.run(DataSize.megabytes(1), DataSize.megabytes(2), false);
                 equalsTest.run(DataSize.megabytes(1), DataSize.gigabytes(1), false);
             });
+
+            runner.testGroup("plus(DataSize)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> DataSize.zero.plus(null),
+                        new PreConditionFailure("rhs cannot be null."));
+                });
+
+                final Action3<DataSize,DataSize,DataSize> plusTest = (DataSize lhs, DataSize rhs, DataSize expected) ->
+                {
+                    runner.test("with " + English.andList(lhs, rhs), (Test test) ->
+                    {
+                        final DataSize sum = lhs.plus(rhs);
+                        test.assertNotNull(sum);
+                        test.assertEqual(expected.getValue(), sum.getValue());
+                        test.assertEqual(expected.getUnits(), sum.getUnits());
+                    });
+                };
+
+                plusTest.run(DataSize.zero, DataSize.zero, DataSize.zero);
+                plusTest.run(DataSize.zero, DataSize.bytes(5), DataSize.bytes(5));
+                plusTest.run(DataSize.zero, DataSize.kilobytes(-7), DataSize.kilobytes(-7));
+                plusTest.run(DataSize.bytes(19), DataSize.zero, DataSize.bytes(19));
+                plusTest.run(DataSize.bytes(20), DataSize.kilobytes(2), DataSize.bytes(2020));
+            });
+
+            runner.testGroup("minus(DataSize)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> DataSize.zero.minus(null),
+                        new PreConditionFailure("rhs cannot be null."));
+                });
+
+                final Action3<DataSize,DataSize,DataSize> minusTest = (DataSize lhs, DataSize rhs, DataSize expected) ->
+                {
+                    runner.test("with " + English.andList(lhs, rhs), (Test test) ->
+                    {
+                        final DataSize sum = lhs.minus(rhs);
+                        test.assertNotNull(sum);
+                        test.assertEqual(expected.getValue(), sum.getValue());
+                        test.assertEqual(expected.getUnits(), sum.getUnits());
+                    });
+                };
+
+                minusTest.run(DataSize.zero, DataSize.zero, DataSize.zero);
+                minusTest.run(DataSize.zero, DataSize.bytes(5), DataSize.bytes(-5));
+                minusTest.run(DataSize.zero, DataSize.kilobytes(-7), DataSize.bytes(7000));
+                minusTest.run(DataSize.bytes(19), DataSize.zero, DataSize.bytes(19));
+                minusTest.run(DataSize.bytes(20), DataSize.kilobytes(2), DataSize.bytes(-1980));
+            });
         });
     }
 }

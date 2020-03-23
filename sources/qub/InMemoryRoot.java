@@ -44,4 +44,13 @@ class InMemoryRoot extends InMemoryFolder
     {
         return this.totalDataSize;
     }
+
+    /**
+     * Get the total unused/free data size of this InMemoryRoot object.
+     * @return The total unused/free data size of this InMemoryRoot object.
+     */
+    public DataSize getUnusedDataSize()
+    {
+        return this.getTotalDataSize().minus(this.getUsedDataSize());
+    }
 }

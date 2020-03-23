@@ -88,6 +88,24 @@ public class Root
     }
 
     /**
+     * Get the unused/free data size of this Root.
+     * @return The unused/free data size of this Root.
+     */
+    public Result<DataSize> getUnusedDataSize()
+    {
+        return this.folder.getFileSystem().getRootUnusedDataSize(this.getPath());
+    }
+
+    /**
+     * Get the unused/free data size of this Root.
+     * @return The unused/free data size of this Root.
+     */
+    public Result<DataSize> getUsedDataSize()
+    {
+        return this.folder.getFileSystem().getRootUsedDataSize(this.getPath());
+    }
+
+    /**
      * Get whether or not this Root exists.
      */
     public Result<Boolean> exists()

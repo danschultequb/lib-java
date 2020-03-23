@@ -79,4 +79,13 @@ public class InMemoryFile
     {
         return lastModified;
     }
+
+    /**
+     * Get the amount of data contained by this file.
+     * @return The amount of data contained by this file.
+     */
+    public DataSize getDataSize()
+    {
+        return DataSize.bytes(this.contents.length);
+    }
 }

@@ -208,4 +208,30 @@ public class InMemoryFolder
     {
         return files;
     }
+
+    /**
+     * Get the total data size that is contained by all of the files in this folder and in any
+     * subfolders.
+     * @return The total data size that is contained by all of the files in this folder and in any
+     * subfolders.
+     */
+    public DataSize getUsedDataSize()
+    {
+        DataSize result = DataSize.zero;
+
+        for (final InMemoryFile file : this.files)
+        {
+            result = result.plus(file.getDataSize());
+        }
+
+        for (final InMemoryFolder folder : this.folders)
+        {
+            result = result.plus(folder.getUsedDataSize());
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertGreaterThanOrEqualTo(result, DataSize.zero, "result");
+
+        return result;
+    }
 }

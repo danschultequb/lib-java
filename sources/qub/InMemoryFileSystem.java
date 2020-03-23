@@ -125,6 +125,8 @@ public class InMemoryFileSystem implements FileSystem
     @Override
     public Result<DataSize> getRootTotalDataSize(Path rootPath)
     {
+        PreCondition.assertNotNull(rootPath, "rootPath");
+
         return Result.create(() ->
         {
             final InMemoryRoot root = this.getInMemoryRoot(rootPath);
@@ -133,6 +135,22 @@ public class InMemoryFileSystem implements FileSystem
                 throw new RootNotFoundException(rootPath);
             }
             return root.getTotalDataSize();
+        });
+    }
+
+    @Override
+    public Result<DataSize> getRootUnusedDataSize(Path rootPath)
+    {
+        PreCondition.assertNotNull(rootPath, "rootPath");
+
+        return Result.create(() ->
+        {
+            final InMemoryRoot root = this.getInMemoryRoot(rootPath);
+            if (root == null)
+            {
+                throw new RootNotFoundException(rootPath);
+            }
+            return root.getUnusedDataSize();
         });
     }
 

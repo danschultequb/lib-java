@@ -45,7 +45,14 @@ public interface JavaFileSystemTests
 
             runner.testGroup("getRootTotalDataSize(Path)", () ->
             {
-                runner.test("with existing path", (Test test) ->
+                runner.test("with non-existing root path", (Test test) ->
+                {
+                    final JavaFileSystem fileSystem = new JavaFileSystem();
+                    test.assertThrows(() -> fileSystem.getRootTotalDataSize(Path.parse("p:/")).await(),
+                        new RootNotFoundException("p:/"));
+                });
+
+                runner.test("with existing root path", (Test test) ->
                 {
                     final JavaFileSystem fileSystem = new JavaFileSystem();
                     final Root root = fileSystem.getRoots().await().first();
@@ -53,6 +60,46 @@ public interface JavaFileSystemTests
                     test.assertNotNull(rootTotalDataSize);
                     test.assertEqual(DataSizeUnit.Bytes, rootTotalDataSize.getUnits());
                     test.assertGreaterThan(rootTotalDataSize.getValue(), 0);
+                });
+            });
+
+            runner.testGroup("getRootUnusedDataSize(Path)", () ->
+            {
+                runner.test("with non-existing root path", (Test test) ->
+                {
+                    final JavaFileSystem fileSystem = new JavaFileSystem();
+                    test.assertThrows(() -> fileSystem.getRootUnusedDataSize(Path.parse("p:/")).await(),
+                        new RootNotFoundException("p:/"));
+                });
+
+                runner.test("with existing root path", (Test test) ->
+                {
+                    final JavaFileSystem fileSystem = new JavaFileSystem();
+                    final Root root = fileSystem.getRoots().await().first();
+                    final DataSize rootUnusedDataSize = fileSystem.getRootUnusedDataSize(root.getPath()).await();
+                    test.assertNotNull(rootUnusedDataSize);
+                    test.assertEqual(DataSizeUnit.Bytes, rootUnusedDataSize.getUnits());
+                    test.assertGreaterThan(rootUnusedDataSize.getValue(), 0);
+                });
+            });
+
+            runner.testGroup("getRootUsedDataSize(Path)", () ->
+            {
+                runner.test("with non-existing root path", (Test test) ->
+                {
+                    final JavaFileSystem fileSystem = new JavaFileSystem();
+                    test.assertThrows(() -> fileSystem.getRootUsedDataSize(Path.parse("p:/")).await(),
+                        new RootNotFoundException("p:/"));
+                });
+
+                runner.test("with existing root path", (Test test) ->
+                {
+                    final JavaFileSystem fileSystem = new JavaFileSystem();
+                    final Root root = fileSystem.getRoots().await().first();
+                    final DataSize rootUnusedDataSize = fileSystem.getRootUsedDataSize(root.getPath()).await();
+                    test.assertNotNull(rootUnusedDataSize);
+                    test.assertEqual(DataSizeUnit.Bytes, rootUnusedDataSize.getUnits());
+                    test.assertGreaterThan(rootUnusedDataSize.getValue(), 0);
                 });
             });
         });

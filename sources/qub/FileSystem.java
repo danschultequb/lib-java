@@ -85,6 +85,54 @@ public interface FileSystem
     Result<DataSize> getRootTotalDataSize(Path rootPath);
 
     /**
+     * Get the amount of data that the root at the provided path is not using.
+     * @param rootPath The path to the root.
+     * @return The amount of data size that the root at the provided path is not using.
+     */
+    default Result<DataSize> getRootUnusedDataSize(String rootPath)
+    {
+        PreCondition.assertNotNullAndNotEmpty(rootPath, "rootPath");
+
+        return this.getRootUnusedDataSize(Path.parse(rootPath));
+    }
+
+    /**
+     * Get the amount of data that the root at the provided path is not using.
+     * @param rootPath The path to the root.
+     * @return The amount of data size that the root at the provided path is not using.
+     */
+    Result<DataSize> getRootUnusedDataSize(Path rootPath);
+
+    /**
+     * Get the amount of data that the root at the provided path is using.
+     * @param rootPath The path to the root.
+     * @return The amount of data size that the root at the provided path is using.
+     */
+    default Result<DataSize> getRootUsedDataSize(String rootPath)
+    {
+        PreCondition.assertNotNullAndNotEmpty(rootPath, "rootPath");
+
+        return this.getRootUsedDataSize(Path.parse(rootPath));
+    }
+
+    /**
+     * Get the amount of data that the root at the provided path is using.
+     * @param rootPath The path to the root.
+     * @return The amount of data size that the root at the provided path is using.
+     */
+    default Result<DataSize> getRootUsedDataSize(Path rootPath)
+    {
+        PreCondition.assertNotNull(rootPath, "rootPath");
+
+        return Result.create(() ->
+        {
+            final DataSize totalDataSize = this.getRootTotalDataSize(rootPath).await();
+            final DataSize unusedDataSize = this.getRootUnusedDataSize(rootPath).await();
+            return totalDataSize.minus(unusedDataSize);
+        });
+    }
+
+    /**
      * Get the files and folders (entries) at the provided folder path.
      * @param rootedFolderPath The path to the folder (Root or Folder).
      * @return The files and folders (entries) at the provided folder path.

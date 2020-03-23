@@ -77,45 +77,107 @@ public interface FileSystemTests
 
             runner.testGroup("getRootTotalDataSize(String)", () ->
             {
-                runner.test("with null", (Test test) ->
+                final Action2<String,Throwable> getRootTotalDataSizeErrorTest = (String rootPath, Throwable expected) ->
                 {
-                    final FileSystem fileSystem = creator.run(test);
+                    runner.test("with " + Strings.escapeAndQuote(rootPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(test);
+                        test.assertThrows(() -> fileSystem.getRootTotalDataSize(rootPath).await(), expected);
+                    });
+                };
 
-                    test.assertThrows(() -> fileSystem.getRootTotalDataSize((String)null),
-                        new PreConditionFailure("rootPath cannot be null."));
-                });
+                getRootTotalDataSizeErrorTest.run(null, new PreConditionFailure("rootPath cannot be null."));
+                getRootTotalDataSizeErrorTest.run("", new PreConditionFailure("rootPath cannot be empty."));
+                getRootTotalDataSizeErrorTest.run("hello", new RootNotFoundException("hello"));
+                getRootTotalDataSizeErrorTest.run("/hello/there", new RootNotFoundException("/hello/there"));
+                getRootTotalDataSizeErrorTest.run("p:/", new RootNotFoundException("p:/"));
+            });
 
-                runner.test("with empty", (Test test) ->
+            runner.testGroup("getRootTotalDataSize(Path)", () ->
+            {
+                final Action2<Path,Throwable> getRootTotalDataSizeErrorTest = (Path rootPath, Throwable expected) ->
                 {
-                    final FileSystem fileSystem = creator.run(test);
+                    runner.test("with " + Strings.escapeAndQuote(rootPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(test);
+                        test.assertThrows(() -> fileSystem.getRootTotalDataSize(rootPath).await(), expected);
+                    });
+                };
 
-                    test.assertThrows(() -> fileSystem.getRootTotalDataSize(""),
-                        new PreConditionFailure("rootPath cannot be empty."));
-                });
+                getRootTotalDataSizeErrorTest.run(null, new PreConditionFailure("rootPath cannot be null."));
+                getRootTotalDataSizeErrorTest.run(Path.parse("hello"), new RootNotFoundException("hello"));
+                getRootTotalDataSizeErrorTest.run(Path.parse("/hello/there"), new RootNotFoundException("/hello/there"));
+                getRootTotalDataSizeErrorTest.run(Path.parse("p:/"), new RootNotFoundException("p:/"));
+            });
 
-                runner.test("with non-rooted path", (Test test) ->
+            runner.testGroup("getRootUnusedDataSize(String)", () ->
+            {
+                final Action2<String,Throwable> getRootUnusedDataSizeErrorTest = (String rootPath, Throwable expected) ->
                 {
-                    final FileSystem fileSystem = creator.run(test);
+                    runner.test("with " + Strings.escapeAndQuote(rootPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(test);
+                        test.assertThrows(() -> fileSystem.getRootUnusedDataSize(rootPath).await(), expected);
+                    });
+                };
 
-                    test.assertThrows(() -> fileSystem.getRootTotalDataSize("hello").await(),
-                        new RootNotFoundException("hello"));
-                });
+                getRootUnusedDataSizeErrorTest.run(null, new PreConditionFailure("rootPath cannot be null."));
+                getRootUnusedDataSizeErrorTest.run("", new PreConditionFailure("rootPath cannot be empty."));
+                getRootUnusedDataSizeErrorTest.run("hello", new RootNotFoundException("hello"));
+                getRootUnusedDataSizeErrorTest.run("/hello/there", new RootNotFoundException("/hello/there"));
+                getRootUnusedDataSizeErrorTest.run("p:/", new RootNotFoundException("p:/"));
+            });
 
-                runner.test("with more than just the root path", (Test test) ->
+            runner.testGroup("getRootUnusedDataSize(Path)", () ->
+            {
+                final Action2<Path,Throwable> getRootUnusedDataSizeErrorTest = (Path rootPath, Throwable expected) ->
                 {
-                    final FileSystem fileSystem = creator.run(test);
+                    runner.test("with " + Strings.escapeAndQuote(rootPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(test);
+                        test.assertThrows(() -> fileSystem.getRootUnusedDataSize(rootPath).await(), expected);
+                    });
+                };
 
-                    test.assertThrows(() -> fileSystem.getRootTotalDataSize("/hello/there").await(),
-                        new RootNotFoundException("/hello/there"));
-                });
+                getRootUnusedDataSizeErrorTest.run(null, new PreConditionFailure("rootPath cannot be null."));
+                getRootUnusedDataSizeErrorTest.run(Path.parse("hello"), new RootNotFoundException("hello"));
+                getRootUnusedDataSizeErrorTest.run(Path.parse("/hello/there"), new RootNotFoundException("/hello/there"));
+                getRootUnusedDataSizeErrorTest.run(Path.parse("p:/"), new RootNotFoundException("p:/"));
+            });
 
-                runner.test("with non-existing root path", (Test test) ->
+            runner.testGroup("getRootUsedDataSize(String)", () ->
+            {
+                final Action2<String,Throwable> getRootUsedDataSizeErrorTest = (String rootPath, Throwable expected) ->
                 {
-                    final FileSystem fileSystem = creator.run(test);
+                    runner.test("with " + Strings.escapeAndQuote(rootPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(test);
+                        test.assertThrows(() -> fileSystem.getRootUsedDataSize(rootPath).await(), expected);
+                    });
+                };
 
-                    test.assertThrows(() -> fileSystem.getRootTotalDataSize("p:/").await(),
-                        new RootNotFoundException("p:/"));
-                });
+                getRootUsedDataSizeErrorTest.run(null, new PreConditionFailure("rootPath cannot be null."));
+                getRootUsedDataSizeErrorTest.run("", new PreConditionFailure("rootPath cannot be empty."));
+                getRootUsedDataSizeErrorTest.run("hello", new RootNotFoundException("hello"));
+                getRootUsedDataSizeErrorTest.run("/hello/there", new RootNotFoundException("/hello/there"));
+                getRootUsedDataSizeErrorTest.run("p:/", new RootNotFoundException("p:/"));
+            });
+
+            runner.testGroup("getRootUsedDataSize(Path)", () ->
+            {
+                final Action2<Path,Throwable> getRootUsedDataSizeErrorTest = (Path rootPath, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(rootPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(test);
+                        test.assertThrows(() -> fileSystem.getRootUsedDataSize(rootPath).await(), expected);
+                    });
+                };
+
+                getRootUsedDataSizeErrorTest.run(null, new PreConditionFailure("rootPath cannot be null."));
+                getRootUsedDataSizeErrorTest.run(Path.parse("hello"), new RootNotFoundException("hello"));
+                getRootUsedDataSizeErrorTest.run(Path.parse("/hello/there"), new RootNotFoundException("/hello/there"));
+                getRootUsedDataSizeErrorTest.run(Path.parse("p:/"), new RootNotFoundException("p:/"));
             });
 
             runner.testGroup("getFilesAndFolders(String)", () ->

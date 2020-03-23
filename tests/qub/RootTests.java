@@ -85,6 +85,78 @@ public interface RootTests
                     test.assertEqual(DataSize.gigabytes(256), root.getTotalDataSize().await());
                 });
             });
+
+            runner.testGroup("getUnusedDataSize()", () ->
+            {
+                runner.test("when root doesn't exist", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final Root root = fileSystem.getRoot("/").await();
+                    test.assertThrows(() -> root.getUnusedDataSize().await(),
+                        new RootNotFoundException("/"));
+                });
+
+                runner.test("when root exists but is empty", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final Root root = fileSystem.createRoot("/", DataSize.gigabytes(256)).await();
+                    test.assertEqual(DataSize.gigabytes(256), root.getUnusedDataSize().await());
+                });
+
+                runner.test("when root exists but has a file", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final Root root = fileSystem.createRoot("/", DataSize.kilobytes(1)).await();
+                    root.createFile("hello.txt").await().setContentsAsString("hello").await();
+                    test.assertEqual(DataSize.bytes(995), root.getUnusedDataSize().await());
+                });
+
+                runner.test("when root exists but has a file in a subfolder", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final Root root = fileSystem.createRoot("/", DataSize.kilobytes(1)).await();
+                    root.createFolder("folder").await()
+                        .createFile("hello.txt").await()
+                        .setContentsAsString("hello").await();
+                    test.assertEqual(DataSize.bytes(995), root.getUnusedDataSize().await());
+                });
+            });
+
+            runner.testGroup("getUsedDataSize()", () ->
+            {
+                runner.test("when root doesn't exist", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final Root root = fileSystem.getRoot("/").await();
+                    test.assertThrows(() -> root.getUsedDataSize().await(),
+                        new RootNotFoundException("/"));
+                });
+
+                runner.test("when root exists but is empty", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final Root root = fileSystem.createRoot("/", DataSize.gigabytes(256)).await();
+                    test.assertEqual(DataSize.zero, root.getUsedDataSize().await());
+                });
+
+                runner.test("when root exists but has a file", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final Root root = fileSystem.createRoot("/", DataSize.kilobytes(1)).await();
+                    root.createFile("hello.txt").await().setContentsAsString("hello").await();
+                    test.assertEqual(DataSize.bytes(5), root.getUsedDataSize().await(), DataSize.bytes(0.0001));
+                });
+
+                runner.test("when root exists but has a file in a subfolder", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final Root root = fileSystem.createRoot("/", DataSize.kilobytes(1)).await();
+                    root.createFolder("folder").await()
+                        .createFile("hello.txt").await()
+                        .setContentsAsString("hello").await();
+                    test.assertEqual(DataSize.bytes(5), root.getUsedDataSize().await(), DataSize.bytes(0.0001));
+                });
+            });
             
             runner.testGroup("getFolder(String)", () ->
             {

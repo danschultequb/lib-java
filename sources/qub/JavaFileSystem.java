@@ -25,6 +25,8 @@ public class JavaFileSystem implements FileSystem
     @Override
     public Result<DataSize> getRootTotalDataSize(Path rootPath)
     {
+        PreCondition.assertNotNull(rootPath, "rootPath");
+
         return Result.create(() ->
         {
             final java.io.File root = new java.io.File(rootPath.toString());
@@ -34,6 +36,23 @@ public class JavaFileSystem implements FileSystem
                 throw new RootNotFoundException(rootPath);
             }
             return DataSize.bytes(totalSpaceBytes);
+        });
+    }
+
+    @Override
+    public Result<DataSize> getRootUnusedDataSize(Path rootPath)
+    {
+        PreCondition.assertNotNull(rootPath, "rootPath");
+
+        return Result.create(() ->
+        {
+            final java.io.File root = new java.io.File(rootPath.toString());
+            final long totalFreeSpace = root.getFreeSpace();
+            if (totalFreeSpace == 0)
+            {
+                throw new RootNotFoundException(rootPath);
+            }
+            return DataSize.bytes(totalFreeSpace);
         });
     }
 
