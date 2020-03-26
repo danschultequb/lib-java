@@ -66,7 +66,7 @@ public class File extends FileSystemEntry
     @Override
     public Result<Void> delete()
     {
-        return getFileSystem().deleteFile(getPath());
+        return this.getFileSystem().deleteFile(this.getPath());
     }
 
     /**
@@ -77,7 +77,16 @@ public class File extends FileSystemEntry
      */
     public Result<DateTime> getLastModified()
     {
-        return getFileSystem().getFileLastModified(getPath());
+        return this.getFileSystem().getFileLastModified(this.getPath());
+    }
+
+    /**
+     * Get the content data size of this file.
+     * @return The content data size of this file.
+     */
+    public Result<DataSize> getContentDataSize()
+    {
+        return this.getFileSystem().getFileContentDataSize(this.getPath());
     }
 
     /**

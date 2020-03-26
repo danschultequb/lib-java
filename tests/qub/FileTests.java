@@ -145,6 +145,30 @@ public interface FileTests
                 });
             });
 
+            runner.testGroup("getContentDataSize()", () ->
+            {
+                runner.test("when file doesn't exist", (Test test) ->
+                {
+                    final File file = FileTests.getFile(test);
+                    test.assertThrows(() -> file.getContentDataSize().await(),
+                        new FileNotFoundException(file.getPath()));
+                });
+
+                runner.test("when file is empty", (Test test) ->
+                {
+                    final File file = FileTests.getFile(test);
+                    file.setContentsAsString("").await();
+                    test.assertEqual(DataSize.zero, file.getContentDataSize().await());
+                });
+
+                runner.test("when file is not empty", (Test test) ->
+                {
+                    final File file = FileTests.getFile(test);
+                    file.setContentsAsString("hello there").await();
+                    test.assertEqual(DataSize.bytes(11), file.getContentDataSize().await());
+                });
+            });
+
             runner.testGroup("getContents()", () ->
             {
                 runner.test("with non-existing file", (Test test) ->
@@ -385,12 +409,12 @@ public interface FileTests
     static File getFile(Test test)
     {
         final FileSystem fileSystem = getFileSystem(test);
-        return getFile(fileSystem);
+        return FileTests.getFile(fileSystem);
     }
 
     static File getFile(FileSystem fileSystem)
     {
-        return getFile(fileSystem, "/A");
+        return FileTests.getFile(fileSystem, "/A");
     }
 
     static File getFile(FileSystem fileSystem, String filePath)

@@ -271,6 +271,23 @@ public class FolderFileSystem implements FileSystem
     }
 
     @Override
+    public Result<DataSize> getFileContentDataSize(Path rootedFilePath)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+
+        return Result.create(() ->
+        {
+            final Path innerFilePath = this.getInnerPath(rootedFilePath).await();
+            return this.innerFileSystem.getFileContentDataSize(innerFilePath)
+                .convertError(FileNotFoundException.class, (FileNotFoundException innerError) ->
+                {
+                    return new FileNotFoundException(this.getOuterPath(innerError.getFilePath()));
+                })
+                .await();
+        });
+    }
+
+    @Override
     public Result<ByteReadStream> getFileContentByteReadStream(Path rootedFilePath)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);

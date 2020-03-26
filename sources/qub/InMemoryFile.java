@@ -84,7 +84,7 @@ public class InMemoryFile
      * Get the amount of data contained by this file.
      * @return The amount of data contained by this file.
      */
-    public DataSize getDataSize()
+    public DataSize getContentDataSize()
     {
         return DataSize.bytes(this.contents.length);
     }

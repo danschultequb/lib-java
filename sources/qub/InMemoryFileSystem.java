@@ -308,6 +308,20 @@ public class InMemoryFileSystem implements FileSystem
     }
 
     @Override
+    public Result<DataSize> getFileContentDataSize(Path rootedFilePath)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+
+        return rootedFilePath.resolve()
+            .then((Path resolvedRootedFilePath) ->
+            {
+                return this.getInMemoryFile(resolvedRootedFilePath)
+                    .then(InMemoryFile::getContentDataSize)
+                    .await();
+            });
+    }
+
+    @Override
     public Result<ByteReadStream> getFileContentByteReadStream(Path rootedFilePath)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);

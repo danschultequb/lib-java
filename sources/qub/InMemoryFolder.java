@@ -221,7 +221,7 @@ public class InMemoryFolder
 
         for (final InMemoryFile file : this.files)
         {
-            result = result.plus(file.getDataSize());
+            result = result.plus(file.getContentDataSize());
         }
 
         for (final InMemoryFolder folder : this.folders)

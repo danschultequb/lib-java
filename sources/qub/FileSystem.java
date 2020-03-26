@@ -489,6 +489,25 @@ public interface FileSystem
     Result<DateTime> getFileLastModified(Path rootedFilePath);
 
     /**
+     * Get the content data size of the file at the provided path.
+     * @param rootedFilePath The rooted path to the file.
+     * @return The content data size of the file at the provided path.
+     */
+    default Result<DataSize> getFileContentDataSize(String rootedFilePath)
+    {
+        PreCondition.assertNotNullAndNotEmpty(rootedFilePath, "rootedFilePath");
+
+        return this.getFileContentDataSize(Path.parse(rootedFilePath));
+    }
+
+    /**
+     * Get the content data size of the file at the provided path.
+     * @param rootedFilePath The rooted path to the file.
+     * @return The content data size of the file at the provided path.
+     */
+    Result<DataSize> getFileContentDataSize(Path rootedFilePath);
+
+    /**
      * Get a ByteReadStream to the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted file path to the file.
      * @return A ByteReadStream to the contents of the file.
@@ -582,8 +601,13 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return this.getFileContent(rootedFilePath)
-            .then((byte[] fileContent) -> CharacterEncoding.UTF_8.decodeAsString(fileContent).await());
+        return Result.create(() ->
+        {
+            final byte[] fileContent = this.getFileContent(rootedFilePath).await();
+            return fileContent.length == 0
+                ? ""
+                : CharacterEncoding.UTF_8.decodeAsString(fileContent).await();
+        });
     }
 
     /**
@@ -639,6 +663,7 @@ public interface FileSystem
     default Result<Void> setFileContent(String rootedFilePath, byte[] content)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
+        PreCondition.assertNotNull(content, "content");
 
         return this.setFileContent(Path.parse(rootedFilePath), content);
     }
@@ -652,12 +677,13 @@ public interface FileSystem
     default Result<Void> setFileContent(Path rootedFilePath, byte[] content)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
+        PreCondition.assertNotNull(content, "content");
 
         return Result.createUsing(
             () -> { return this.getFileContentByteWriteStream(rootedFilePath).await(); },
             (ByteWriteStream byteWriteStream) ->
             {
-                if (content != null && content.length > 0)
+                if (content.length > 0)
                 {
                     byteWriteStream.writeAllBytes(content).await();
                 }
@@ -686,9 +712,15 @@ public interface FileSystem
     default Result<Void> setFileContentAsString(Path rootedFilePath, String content)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
+        PreCondition.assertNotNull(content, "content");
 
-        return CharacterEncoding.UTF_8.encode(content)
-            .then((byte[] encodedContent) -> this.setFileContent(rootedFilePath, encodedContent).await());
+        return Result.create(() ->
+        {
+            final byte[] encodedBytes = Strings.isNullOrEmpty(content)
+                ? new byte[0]
+                : CharacterEncoding.UTF_8.encode(content).await();
+            this.setFileContent(rootedFilePath, encodedBytes).await();
+        });
     }
 
     /**

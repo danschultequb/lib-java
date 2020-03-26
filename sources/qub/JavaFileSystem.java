@@ -273,6 +273,29 @@ public class JavaFileSystem implements FileSystem
     }
 
     @Override
+    public Result<DataSize> getFileContentDataSize(Path rootedFilePath)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+
+        return Result.create(() ->
+        {
+            final String rootedFilePathString = rootedFilePath.toString();
+            final java.io.File file = new java.io.File(rootedFilePathString);
+            final long fileContentDataSizeInBytes = file.length();
+            if (fileContentDataSizeInBytes == 0 && !file.isFile())
+            {
+                throw new FileNotFoundException(rootedFilePath);
+            }
+            final DataSize result = DataSize.bytes(fileContentDataSizeInBytes);
+
+            PostCondition.assertNotNull(result, "result");
+            PostCondition.assertGreaterThanOrEqualTo(result, DataSize.zero, "result");
+
+            return result;
+        });
+    }
+
+    @Override
     public Result<ByteReadStream> getFileContentByteReadStream(Path rootedFilePath)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
