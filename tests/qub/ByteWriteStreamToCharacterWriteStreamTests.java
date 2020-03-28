@@ -165,8 +165,7 @@ public interface ByteWriteStreamToCharacterWriteStreamTests
                 {
                     final InMemoryByteStream byteStream = new InMemoryByteStream();
                     final ByteWriteStreamToCharacterWriteStream characterStream = new ByteWriteStreamToCharacterWriteStream(byteStream);
-                    test.assertThrows(() -> characterStream.write(""),
-                        new PreConditionFailure("text cannot be empty."));
+                    test.assertEqual(0, characterStream.write("").await());
                     test.assertEqual(new byte[0], byteStream.getBytes());
                 });
 

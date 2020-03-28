@@ -360,7 +360,7 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      */
     static Iterator<Byte> createFromBytes(byte... values)
     {
-        PreCondition.assertNotNullAndNotEmpty(values, "values");
+        PreCondition.assertNotNull(values, "values");
 
         return new ByteArrayIterator(values);
     }

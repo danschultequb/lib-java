@@ -136,7 +136,7 @@ public class PreCondition
      */
     public static void assertNotNullAndNotEmpty(byte[] value, String variableName)
     {
-        assertNotNull(value, variableName);
+        PreCondition.assertNotNull(value, variableName);
         if (value.length == 0)
         {
             throw new PreConditionFailure(AssertionMessages.notEmpty(variableName));
@@ -152,10 +152,27 @@ public class PreCondition
      */
     public static void assertNotNullAndNotEmpty(char[] value, String variableName)
     {
-        assertNotNull(value, variableName);
+        PreCondition.assertNotNull(value, variableName);
         if (value.length == 0)
         {
             throw new PreConditionFailure(AssertionMessages.notEmpty(variableName));
+        }
+    }
+
+    /**
+     * Assert that the provided value is not null and not empty.
+     * @param value The value to check.
+     * @param expressionName The name of the variable that contains value.
+     * @preCondition variableName != null && variableName.length() > 0
+     * @postCondition value != null && value.length != 0
+     */
+    public static void assertNotNullAndNotEmpty(long[] value, String expressionName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+        PreCondition.assertNotNull(value, expressionName);
+        if (value.length == 0)
+        {
+            throw new PreConditionFailure(AssertionMessages.notEmpty(expressionName));
         }
     }
 
@@ -606,7 +623,45 @@ public class PreCondition
      */
     public static void assertStartIndex(int value, int arrayLength)
     {
-        assertStartIndex(value, arrayLength, "startIndex");
+        PreCondition.assertStartIndex(value, arrayLength, "startIndex");
+    }
+
+    /**
+     * Assert that the index value is greater than or equal to 0 and less than the array length.
+     * @param value The index value.
+     * @param arrayLength The length of the array to index into.
+     * @param expressionName The name of the expression value.
+     */
+    public static void assertStartIndex(int value, int arrayLength, String expressionName)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(arrayLength, 0, "arrayLength");
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
+        PreCondition.assertBetween(0, value, arrayLength == 0 ? 0 : arrayLength - 1, expressionName);
+    }
+
+    /**
+     * Assert that the index value is greater than or equal to 0 and less than the array length.
+     * @param value The index value.
+     * @param arrayLength The length of the array to index into.
+     */
+    public static void assertNonEmptyStartIndex(int value, int arrayLength)
+    {
+        PreCondition.assertNonEmptyStartIndex(value, arrayLength, "startIndex");
+    }
+
+    /**
+     * Assert that the index value is greater than or equal to 0 and less than the array length.
+     * @param value The index value.
+     * @param arrayLength The length of the array to index into.
+     * @param expressionName The name of the expression value.
+     */
+    public static void assertNonEmptyStartIndex(int value, int arrayLength, String expressionName)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(arrayLength, 1, "arrayLength");
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
+        PreCondition.assertBetween(0, value, arrayLength - 1, expressionName);
     }
 
     /**
@@ -616,29 +671,45 @@ public class PreCondition
      */
     public static void assertStartIndex(long value, long arrayLength)
     {
-        assertStartIndex(value, arrayLength, "startIndex");
+        PreCondition.assertStartIndex(value, arrayLength, "startIndex");
     }
 
     /**
      * Assert that the index value is greater than or equal to 0 and less than the array length.
      * @param value The index value.
      * @param arrayLength The length of the array to index into.
-     * @param variableName The name of the expression value.
+     * @param expressionName The name of the expression value.
      */
-    public static void assertStartIndex(int value, int arrayLength, String variableName)
+    public static void assertStartIndex(long value, long arrayLength, String expressionName)
     {
-        assertBetween(0, value, arrayLength == 0 ? 0 : arrayLength - 1, variableName);
+        PreCondition.assertGreaterThanOrEqualTo(arrayLength, 0, "arrayLength");
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
+        PreCondition.assertBetween(0, value, arrayLength == 0 ? 0 : arrayLength - 1, expressionName);
     }
 
     /**
      * Assert that the index value is greater than or equal to 0 and less than the array length.
      * @param value The index value.
      * @param arrayLength The length of the array to index into.
-     * @param variableName The name of the expression value.
      */
-    public static void assertStartIndex(long value, long arrayLength, String variableName)
+    public static void assertNonEmptyStartIndex(long value, long arrayLength)
     {
-        assertBetween(0, value, arrayLength == 0 ? 0 : arrayLength - 1, variableName);
+        PreCondition.assertNonEmptyStartIndex(value, arrayLength, "startIndex");
+    }
+
+    /**
+     * Assert that the index value is greater than or equal to 0 and less than the array length.
+     * @param value The index value.
+     * @param arrayLength The length of the array to index into.
+     * @param expressionName The name of the expression value.
+     */
+    public static void assertNonEmptyStartIndex(long value, long arrayLength, String expressionName)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(arrayLength, 1, "arrayLength");
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
+        PreCondition.assertBetween(0, value, arrayLength - 1, expressionName);
     }
 
     /**
@@ -648,7 +719,7 @@ public class PreCondition
      */
     public static void assertIndexAccess(int index, int arrayLength)
     {
-        assertIndexAccess(index, arrayLength, "index");
+        PreCondition.assertIndexAccess(index, arrayLength, "index");
     }
 
     /**
@@ -670,7 +741,7 @@ public class PreCondition
      */
     public static void assertIndexAccess(long index, long arrayLength)
     {
-        assertIndexAccess(index, arrayLength, "index");
+        PreCondition.assertIndexAccess(index, arrayLength, "index");
     }
 
     /**
@@ -681,8 +752,8 @@ public class PreCondition
      */
     public static void assertIndexAccess(long index, long arrayLength, String variableName)
     {
-        assertGreaterThanOrEqualTo(arrayLength, 1, "Indexable length");
-        assertBetween(0, index, arrayLength - 1, variableName);
+        PreCondition.assertGreaterThanOrEqualTo(arrayLength, 1, "Indexable length");
+        PreCondition.assertBetween(0, index, arrayLength - 1, variableName);
     }
 
     /**
@@ -694,7 +765,7 @@ public class PreCondition
      */
     public static void assertLength(int length, int startIndex, int arrayLength)
     {
-        assertLength(length, startIndex, arrayLength, "length");
+        PreCondition.assertLength(length, startIndex, arrayLength, "length");
     }
 
     /**
@@ -707,7 +778,11 @@ public class PreCondition
      */
     public static void assertLength(int length, int startIndex, int arrayLength, String expressionName)
     {
-        assertBetween(1, length, arrayLength - startIndex, expressionName);
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+        PreCondition.assertGreaterThanOrEqualTo(arrayLength, 0, "arrayLength");
+        PreCondition.assertStartIndex(startIndex, arrayLength, "startIndex");
+
+        PreCondition.assertBetween(0, length, arrayLength - startIndex, expressionName);
     }
 
     /**
@@ -719,7 +794,7 @@ public class PreCondition
      */
     public static void assertLength(long length, long startIndex, long arrayLength)
     {
-        assertLength(length, startIndex, arrayLength, "length");
+        PreCondition.assertLength(length, startIndex, arrayLength, "length");
     }
 
     /**
@@ -732,7 +807,67 @@ public class PreCondition
      */
     public static void assertLength(long length, long startIndex, long arrayLength, String expressionName)
     {
-        assertBetween(1, length, arrayLength - startIndex, expressionName);
+        PreCondition.assertGreaterThanOrEqualTo(arrayLength, 0, "arrayLength");
+        PreCondition.assertStartIndex(startIndex, arrayLength);
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
+        PreCondition.assertBetween(0, length, arrayLength - startIndex, expressionName);
+    }
+
+    /**
+     * Assert that the provided value is a valid length for the provided startIndex and array
+     * length.
+     * @param length The length.
+     * @param startIndex The start index into an array.
+     * @param arrayLength The length of the array.
+     */
+    public static void assertNonEmptyLength(int length, int startIndex, int arrayLength)
+    {
+        PreCondition.assertNonEmptyLength(length, startIndex, arrayLength, "length");
+    }
+
+    /**
+     * Assert that the provided value is a valid length for the provided startIndex and array
+     * length.
+     * @param length The length.
+     * @param startIndex The start index into an array.
+     * @param arrayLength The length of the array.
+     * @param expressionName The name of the expression that produced the value.
+     */
+    public static void assertNonEmptyLength(int length, int startIndex, int arrayLength, String expressionName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+        PreCondition.assertNonEmptyStartIndex(startIndex, arrayLength);
+
+        PreCondition.assertBetween(1, length, arrayLength - startIndex, expressionName);
+    }
+
+    /**
+     * Assert that the provided value is a valid length for the provided startIndex and array
+     * length.
+     * @param length The length.
+     * @param startIndex The start index into an array.
+     * @param arrayLength The length of the array.
+     */
+    public static void assertNonEmptyLength(long length, long startIndex, long arrayLength)
+    {
+        PreCondition.assertNonEmptyLength(length, startIndex, arrayLength, "length");
+    }
+
+    /**
+     * Assert that the provided value is a valid length for the provided startIndex and array
+     * length.
+     * @param length The length.
+     * @param startIndex The start index into an array.
+     * @param arrayLength The length of the array.
+     * @param expressionName The name of the expression that produced the value.
+     */
+    public static void assertNonEmptyLength(long length, long startIndex, long arrayLength, String expressionName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+        PreCondition.assertNonEmptyStartIndex(startIndex, arrayLength);
+
+        PreCondition.assertBetween(1, length, arrayLength - startIndex, expressionName);
     }
 
     /**
@@ -742,7 +877,7 @@ public class PreCondition
      */
     public static void assertBit(int value, String expressionName)
     {
-        assertOneOf(value, new int[] { 0, 1 }, expressionName);
+        PreCondition.assertOneOf(value, new int[] { 0, 1 }, expressionName);
     }
 
     /**

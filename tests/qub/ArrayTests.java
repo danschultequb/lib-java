@@ -1391,31 +1391,29 @@ public interface ArrayTests
                 runner.test("with negative length", (Test test) ->
                 {
                     test.assertThrows(() -> Array.indexOf(new char[] { 'x', 'y', 'z' }, 1, -1, 'a'),
-                        new PreConditionFailure("length (-1) must be between 1 and 2."));
+                        new PreConditionFailure("length (-1) must be between 0 and 2."));
                 });
 
                 runner.test("with zero length", (Test test) ->
                 {
-                    test.assertThrows(() -> Array.indexOf(new char[] { 'x', 'y', 'z' }, 1, 0, 'a'),
-                        new PreConditionFailure("length (0) must be between 1 and 2."));
+                    test.assertEqual(-1, Array.indexOf(new char[] { 'x', 'y', 'z' }, 1, 0, 'a'));
                 });
 
                 runner.test("with length greater than values length", (Test test) ->
                 {
                     test.assertThrows(() -> Array.indexOf(new char[] { 'x', 'y', 'z' }, 0, 4, 'a'),
-                        new PreConditionFailure("length (4) must be between 1 and 3."));
+                        new PreConditionFailure("length (4) must be between 0 and 3."));
                 });
 
                 runner.test("with length greater than values length - startIndex", (Test test) ->
                 {
                     test.assertThrows(() -> Array.indexOf(new char[] { 'x', 'y', 'z' }, 1, 3, 'a'),
-                        new PreConditionFailure("length (3) must be between 1 and 2."));
+                        new PreConditionFailure("length (3) must be between 0 and 2."));
                 });
 
                 runner.test("with empty characters", (Test test) ->
                 {
-                    test.assertThrows(() -> Array.indexOf(new char[0], 0, 0, 'a'),
-                        new PreConditionFailure("length (0) must be between 1 and 0."));
+                    test.assertEqual(-1, Array.indexOf(new char[0], 0, 0, 'a'));
                 });
 
                 runner.test("with non-empty characters and not-found character", (Test test) ->

@@ -825,21 +825,22 @@ public interface BitArrayTests
                 {
                     final BitArray bits = BitArray.createFromBitString("");
                     test.assertThrows(() -> bits.permuteByBitNumber(new long[] { 0 }),
-                        new PreConditionFailure("length (0) must be between 1 and 0."));
+                        new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                 });
 
                 runner.test("with bit numbers that reference indexes greater than bits in the BitArray", (Test test) ->
                 {
                     final BitArray bits = BitArray.createFromBitString("");
                     test.assertThrows(() -> bits.permuteByBitNumber(new long[] { 1 }),
-                        new PreConditionFailure("length (0) must be between 1 and 0."));
+                        new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                 });
 
                 runner.test("with empty bit numbers and empty BitArray", (Test test) ->
                 {
                     final BitArray bits = BitArray.createFromBitString("");
-                    test.assertThrows(() -> bits.permuteByBitNumber(new long[0]),
-                        new PreConditionFailure("length (0) must be between 1 and 0."));
+                    final BitArray permuteByBitNumberResult = bits.permuteByBitNumber(new long[0]);
+                    test.assertNotSame(bits, permuteByBitNumberResult);
+                    test.assertEqual("", permuteByBitNumberResult.toBitString());
                 });
 
                 runner.test("with equal number of bit numbers and bits in the BitArray", (Test test) ->

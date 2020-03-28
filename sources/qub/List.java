@@ -162,7 +162,7 @@ public interface List<T> extends MutableIndexable<T>
     default Iterable<T> removeFirst(int valuesToRemove)
     {
         PreCondition.assertNotNullAndNotEmpty(this, "list");
-        PreCondition.assertLength(valuesToRemove, 0, getCount(), "valuesToRemove");
+        PreCondition.assertNonEmptyLength(valuesToRemove, 0, this.getCount(), "valuesToRemove");
 
         final List<T> result = List.create();
         for (int i = 0; i < valuesToRemove; ++i)

@@ -82,8 +82,8 @@ public class InputStreamToByteReadStream implements ByteReadStream
     public Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
-        PreCondition.assertStartIndex(startIndex, outputBytes.length);
-        PreCondition.assertLength(length, startIndex, outputBytes.length);
+        PreCondition.assertNonEmptyStartIndex(startIndex, outputBytes.length);
+        PreCondition.assertNonEmptyLength(length, startIndex, outputBytes.length);
         PreCondition.assertNotDisposed(this);
 
         Result<Integer> result;

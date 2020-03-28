@@ -123,8 +123,8 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     public Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
-        PreCondition.assertStartIndex(startIndex, outputBytes.length);
-        PreCondition.assertLength(length, startIndex, outputBytes.length);
+        PreCondition.assertNonEmptyStartIndex(startIndex, outputBytes.length);
+        PreCondition.assertNonEmptyLength(length, startIndex, outputBytes.length);
         PreCondition.assertNotDisposed(this);
 
         return mutex.criticalSection(() ->
@@ -235,8 +235,8 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     public Result<Integer> writeBytes(byte[] bytes, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(bytes, "bytes");
-        PreCondition.assertStartIndex(startIndex, bytes.length);
-        PreCondition.assertLength(length, startIndex, bytes.length);
+        PreCondition.assertNonEmptyStartIndex(startIndex, bytes.length);
+        PreCondition.assertNonEmptyLength(length, startIndex, bytes.length);
         PreCondition.assertNotDisposed(this);
         PreCondition.assertFalse(endOfStream, "endOfStream");
 

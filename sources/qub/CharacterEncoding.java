@@ -78,7 +78,7 @@ public interface CharacterEncoding
         PreCondition.assertNotNull(characters, "characters");
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
 
-        return encode(characters, 0, characters.length, byteWriteStream);
+        return this.encode(characters, 0, characters.length, byteWriteStream);
     }
 
     default Result<byte[]> encode(char[] characters, int startIndex, int length)
@@ -88,7 +88,7 @@ public interface CharacterEncoding
         PreCondition.assertLength(length, startIndex, characters.length);
 
         final InMemoryByteStream byteStream = new InMemoryByteStream();
-        return encode(characters, startIndex, length, byteStream)
+        return this.encode(characters, startIndex, length, byteStream)
             .then(byteStream::getBytes);
     }
 
@@ -101,9 +101,9 @@ public interface CharacterEncoding
      */
     default Result<char[]> decode(byte[] bytes)
     {
-        PreCondition.assertNotNullAndNotEmpty(bytes, "bytes");
+        PreCondition.assertNotNull(bytes, "bytes");
 
-        return decode(bytes, 0, bytes.length);
+        return this.decode(bytes, 0, bytes.length);
     }
 
     Result<char[]> decode(byte[] bytes, int startIndex, int length);
@@ -115,9 +115,9 @@ public interface CharacterEncoding
      */
     default Result<String> decodeAsString(byte[] bytes)
     {
-        PreCondition.assertNotNullAndNotEmpty(bytes, "bytes");
+        PreCondition.assertNotNull(bytes, "bytes");
 
-        return decode(bytes)
+        return this.decode(bytes)
             .then((char[] characters) -> String.valueOf(characters));
     }
 

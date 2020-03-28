@@ -34,37 +34,29 @@ public class UTF8CharacterEncodingTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
-                        test.assertThrows(() -> encoding.encode(text), expectedError);
+                        test.assertThrows(() -> encoding.encode(text).await(), expectedError);
                     });
                 };
 
                 encodeFailureTest.run(null, new PreConditionFailure("text cannot be null."));
-                encodeFailureTest.run("", new PreConditionFailure("text cannot be empty."));
 
-                final Action3<String, byte[], Throwable> encodeTest = (String text, byte[] expectedBytes, Throwable expectedError) ->
+                final Action2<String, byte[]> encodeTest = (String text, byte[] expectedBytes) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
-                        final Result<byte[]> result = encoding.encode(text);
-                        if (expectedError != null)
-                        {
-                            test.assertThrows(result::await, expectedError);
-                        }
-                        else
-                        {
-                            test.assertEqual(expectedBytes, result.await());
-                        }
+                        test.assertEqual(expectedBytes, encoding.encode(text).await());
                     });
                 };
 
-                encodeTest.run("a", new byte[]{97}, null);
-                encodeTest.run("b", new byte[]{98}, null);
-                encodeTest.run("ab", new byte[]{97, 98}, null);
-                encodeTest.run("y", new byte[]{121}, null);
-                encodeTest.run("z", new byte[]{122}, null);
-                encodeTest.run("\n", new byte[]{10}, null);
-                encodeTest.run("~", new byte[]{126}, null);
-                encodeTest.run("" + (char)132, new byte[] { -62, -124 }, null);
+                encodeTest.run("", new byte[0]);
+                encodeTest.run("a", new byte[]{97});
+                encodeTest.run("b", new byte[]{98});
+                encodeTest.run("ab", new byte[]{97, 98});
+                encodeTest.run("y", new byte[]{121});
+                encodeTest.run("z", new byte[]{122});
+                encodeTest.run("\n", new byte[]{10});
+                encodeTest.run("~", new byte[]{126});
+                encodeTest.run("" + (char)132, new byte[] { -62, -124 });
             });
 
             runner.testGroup("encode(char[])", () ->
@@ -73,37 +65,29 @@ public class UTF8CharacterEncodingTests
                 {
                     runner.test("with " + Array.toString(characters, Characters::escapeAndQuote), (Test test) ->
                     {
-                        test.assertThrows(() -> encoding.encode(characters), expectedError);
+                        test.assertThrows(() -> encoding.encode(characters).await(), expectedError);
                     });
                 };
 
                 encodeFailureTest.run(null, new PreConditionFailure("characters cannot be null."));
-                encodeFailureTest.run(new char[0], new PreConditionFailure("characters cannot be empty."));
 
-                final Action3<char[], byte[], Throwable> encodeTest = (char[] characters, byte[] expectedBytes, Throwable expectedError) ->
+                final Action2<char[],byte[]> encodeTest = (char[] characters, byte[] expectedBytes) ->
                 {
                     runner.test("with " + Array.toString(characters, Characters::escapeAndQuote), (Test test) ->
                     {
-                        final Result<byte[]> result = encoding.encode(characters);
-                        if (expectedError != null)
-                        {
-                            test.assertThrows(result::await, expectedError);
-                        }
-                        else
-                        {
-                            test.assertEqual(expectedBytes, result.await());
-                        }
+                        test.assertEqual(expectedBytes, encoding.encode(characters).await());
                     });
                 };
 
-                encodeTest.run(new char[]{'a'}, new byte[]{97}, null);
-                encodeTest.run(new char[]{'b'}, new byte[]{98}, null);
-                encodeTest.run(new char[]{'a', 'b'}, new byte[]{97, 98}, null);
-                encodeTest.run(new char[]{'y'}, new byte[]{121}, null);
-                encodeTest.run(new char[]{'z'}, new byte[]{122}, null);
-                encodeTest.run(new char[]{'\n'}, new byte[]{10}, null);
-                encodeTest.run(new char[]{'~'}, new byte[]{126}, null);
-                encodeTest.run(new char[] { (char)132 }, new byte[] { -62, -124 }, null);
+                encodeTest.run(new char[0], new byte[0]);
+                encodeTest.run(new char[]{'a'}, new byte[]{97});
+                encodeTest.run(new char[]{'b'}, new byte[]{98});
+                encodeTest.run(new char[]{'a', 'b'}, new byte[]{97, 98});
+                encodeTest.run(new char[]{'y'}, new byte[]{121});
+                encodeTest.run(new char[]{'z'}, new byte[]{122});
+                encodeTest.run(new char[]{'\n'}, new byte[]{10});
+                encodeTest.run(new char[]{'~'}, new byte[]{126});
+                encodeTest.run(new char[] { (char)132 }, new byte[] { -62, -124 });
             });
 
             runner.testGroup("decode(byte[])", () ->
@@ -112,39 +96,31 @@ public class UTF8CharacterEncodingTests
                 {
                     runner.test("with " + Array.toString(bytes), (Test test) ->
                     {
-                        test.assertThrows(() -> encoding.decode(bytes), expectedError);
+                        test.assertThrows(() -> encoding.decode(bytes).await(), expectedError);
                     });
                 };
 
                 decodeFailureTest.run(null, new PreConditionFailure("bytes cannot be null."));
-                decodeFailureTest.run(new byte[0], new PreConditionFailure("bytes cannot be empty."));
+                decodeFailureTest.run(new byte[] { (byte)0xD8, 0x00, 97 }, new IllegalArgumentException("Byte 0xD8 is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
+                decodeFailureTest.run(new byte[] { (byte)0xD8, 0x01, 98 }, new IllegalArgumentException("Byte 0xD8 is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
+                decodeFailureTest.run(new byte[] { (byte)0xDA, 0x01, 99 }, new IllegalArgumentException("Byte 0xDA is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
+                decodeFailureTest.run(new byte[] { (byte)0xDF, (byte)0xFE, 100 }, new IllegalArgumentException("Byte 0xDF is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
+                decodeFailureTest.run(new byte[] { (byte)0xDF, (byte)0xFF, 101 }, new IllegalArgumentException("Byte 0xDF is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
+                decodeFailureTest.run(new byte[] { (byte)0xE0, (byte)0x80, (byte)0x81, 102 }, new NotSupportedException("Decoding UTF-8 encoded byte streams with characters composed of 3 or more bytes are not supported."));
+                decodeFailureTest.run(new byte[] { (byte)0xF0, (byte)0x80, (byte)0x81, (byte)0x82, 103 }, new NotSupportedException("Decoding UTF-8 encoded byte streams with characters composed of 3 or more bytes are not supported."));
 
-                final Action3<byte[], char[], Throwable> decodeTest = (byte[] bytes, char[] expectedCharacters, Throwable expectedError) ->
+                final Action2<byte[],char[]> decodeTest = (byte[] bytes, char[] expectedCharacters) ->
                 {
                     runner.test("with " + Array.toString(bytes), (Test test) ->
                     {
-                        final Result<char[]> result = encoding.decode(bytes);
-                        if (expectedError != null)
-                        {
-                            test.assertThrows(result::await, expectedError);
-                        }
-                        else
-                        {
-                            test.assertEqual(expectedCharacters, result.await());
-                        }
+                        test.assertEqual(expectedCharacters, encoding.decode(bytes).await());
                     });
                 };
 
-                decodeTest.run(new byte[]{97}, new char[]{'a'}, null);
-                decodeTest.run(new byte[]{122, 121, 122}, new char[]{'z', 'y', 'z'}, null);
-                decodeTest.run(new byte[] { -62, -124 }, new char[] { (char)132 }, null);
-                decodeTest.run(new byte[] { (byte)0xD8, 0x00, 97 }, null, new IllegalArgumentException("Byte 0xD8 is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
-                decodeTest.run(new byte[] { (byte)0xD8, 0x01, 98 }, null, new IllegalArgumentException("Byte 0xD8 is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
-                decodeTest.run(new byte[] { (byte)0xDA, 0x01, 99 }, null, new IllegalArgumentException("Byte 0xDA is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
-                decodeTest.run(new byte[] { (byte)0xDF, (byte)0xFE, 100 }, null, new IllegalArgumentException("Byte 0xDF is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
-                decodeTest.run(new byte[] { (byte)0xDF, (byte)0xFF, 101 }, null, new IllegalArgumentException("Byte 0xDF is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
-                decodeTest.run(new byte[] { (byte)0xE0, (byte)0x80, (byte)0x81, 102 }, null, new NotSupportedException("Decoding UTF-8 encoded byte streams with characters composed of 3 or more bytes are not supported."));
-                decodeTest.run(new byte[] { (byte)0xF0, (byte)0x80, (byte)0x81, (byte)0x82, 103 }, null, new NotSupportedException("Decoding UTF-8 encoded byte streams with characters composed of 3 or more bytes are not supported."));
+                decodeTest.run(new byte[0], new char[0]);
+                decodeTest.run(new byte[]{97}, new char[]{'a'});
+                decodeTest.run(new byte[]{122, 121, 122}, new char[]{'z', 'y', 'z'});
+                decodeTest.run(new byte[] { -62, -124 }, new char[] { (char)132 });
             });
 
             runner.testGroup("decodeAsString(byte[])", () ->
@@ -159,7 +135,6 @@ public class UTF8CharacterEncodingTests
                 };
 
                 decodeAsStringFailureTest.run(null, new PreConditionFailure("bytes cannot be null."));
-                decodeAsStringFailureTest.run(new byte[0], new PreConditionFailure("bytes cannot be empty."));
 
                 final Action2<byte[], String> decodeAsStringTest = (byte[] bytes, String expectedString) ->
                 {
@@ -169,6 +144,7 @@ public class UTF8CharacterEncodingTests
                     });
                 };
 
+                decodeAsStringTest.run(new byte[0], "");
                 decodeAsStringTest.run(new byte[]{97}, "a");
                 decodeAsStringTest.run(new byte[]{98, 97}, "ba");
                 decodeAsStringTest.run(new byte[] { -62, -124 }, "" + (char)132);

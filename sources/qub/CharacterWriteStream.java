@@ -65,8 +65,8 @@ public interface CharacterWriteStream extends Disposable
     static Result<Integer> write(char[] toWrite, int startIndex, int length, CharacterEncoding characterEncoding, ByteWriteStream byteWriteStream)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
-        PreCondition.assertStartIndex(startIndex, toWrite.length);
-        PreCondition.assertLength(length, startIndex, toWrite.length);
+        PreCondition.assertNonEmptyStartIndex(startIndex, toWrite.length);
+        PreCondition.assertNonEmptyLength(length, startIndex, toWrite.length);
         PreCondition.assertNotNull(characterEncoding, "characterEncoding");
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
         PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");

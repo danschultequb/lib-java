@@ -216,7 +216,7 @@ public class BitArray implements Array<Integer>
      */
     public int getBit(long index)
     {
-        PreCondition.assertIndexAccess(index, getBitCount());
+        PreCondition.assertIndexAccess(index, this.getBitCount());
 
         final int bitChunk = bitChunks[bitIndexToChunkIndex(index)];
         final int chunkBitOffset = bitIndexToChunkBitOffset(index);
@@ -320,8 +320,8 @@ public class BitArray implements Array<Integer>
     public void copyFrom(BitArray copyFrom, long copyFromStartIndex, long copyToStartIndex, long copyLength)
     {
         PreCondition.assertNotNull(copyFrom, "copyFrom");
-        PreCondition.assertStartIndex(copyFromStartIndex, copyFrom.getCount(), "copyFromStartIndex");
-        PreCondition.assertStartIndex(copyToStartIndex, this.getCount(), "copyToStartIndex");
+        PreCondition.assertNonEmptyStartIndex(copyFromStartIndex, copyFrom.getCount(), "copyFromStartIndex");
+        PreCondition.assertNonEmptyStartIndex(copyToStartIndex, this.getCount(), "copyToStartIndex");
         PreCondition.assertBetween(0, copyLength, Math.minimum(copyFrom.getCount() - copyFromStartIndex, this.getCount() - copyToStartIndex), "copyLength");
 
         for (long i = 0; i < copyLength; ++i)
@@ -543,13 +543,13 @@ public class BitArray implements Array<Integer>
      */
     public BitArray permuteByBitNumber(long[] bitNumberPermutations)
     {
-        return permuteByBitNumber(0, getCount(), bitNumberPermutations);
+        return this.permuteByBitNumber(0, this.getCount(), bitNumberPermutations);
     }
 
     public BitArray permuteByBitNumber(long startIndex, long length, long[] bitNumberPermutations)
     {
-        PreCondition.assertStartIndex(startIndex, getCount());
-        PreCondition.assertLength(length, startIndex, getCount());
+        PreCondition.assertStartIndex(startIndex, this.getCount());
+        PreCondition.assertLength(length, startIndex, this.getCount());
         PreCondition.assertNotNull(bitNumberPermutations, "bitNumberPermutations");
 
         final BitArray result = BitArray.create(bitNumberPermutations.length);
@@ -557,7 +557,7 @@ public class BitArray implements Array<Integer>
         {
             final long bitNumber = bitNumberPermutations[i];
             final long bitIndex = bitNumber - 1;
-            result.set(i, getBit(startIndex + bitIndex));
+            result.set(i, this.getBit(startIndex + bitIndex));
         }
 
         PostCondition.assertNotNull(result, "result");

@@ -176,7 +176,7 @@ public class CharacterList implements List<Character>
     {
         PreCondition.assertGreaterThanOrEqualTo(valuesToRemove, 1, "valuesToRemove");
         PreCondition.assertNotNullAndNotEmpty(this, "list");
-        PreCondition.assertLength(valuesToRemove, 0, getCount());
+        PreCondition.assertNonEmptyLength(valuesToRemove, 0, getCount());
 
         final char[] characters = new char[valuesToRemove];
         this.removeFirstCharacters(characters);
@@ -192,7 +192,7 @@ public class CharacterList implements List<Character>
     {
         PreCondition.assertNotNullAndNotEmpty(outputCharacters, "outputCharacters");
         PreCondition.assertNotNullAndNotEmpty(this, "list");
-        PreCondition.assertLength(outputCharacters.length, 0, getCount());
+        PreCondition.assertNonEmptyLength(outputCharacters.length, 0, getCount());
 
         removeFirstCharacters(outputCharacters, 0, outputCharacters.length);
     }
@@ -207,8 +207,8 @@ public class CharacterList implements List<Character>
     public void removeFirstCharacters(char[] outputCharacters, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(outputCharacters, "outputCharacters");
-        PreCondition.assertStartIndex(startIndex, outputCharacters.length);
-        PreCondition.assertLength(length, startIndex, outputCharacters.length);
+        PreCondition.assertNonEmptyStartIndex(startIndex, outputCharacters.length);
+        PreCondition.assertNonEmptyLength(length, startIndex, outputCharacters.length);
         PreCondition.assertNotNullAndNotEmpty(this, "list");
         PreCondition.assertLength(length, 0, getCount());
 

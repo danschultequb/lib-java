@@ -39,7 +39,6 @@ public class USASCIICharacterEncodingTests
                 };
 
                 encodeFailureTest.run(null, new PreConditionFailure("text cannot be null."));
-                encodeFailureTest.run("", new PreConditionFailure("text cannot be empty."));
 
                 final Action2<String,byte[]> encodeTest = (String text, byte[] expectedBytes) ->
                 {
@@ -49,6 +48,7 @@ public class USASCIICharacterEncodingTests
                     });
                 };
 
+                encodeTest.run("", new byte[0]);
                 encodeTest.run("a", new byte[] { 97 });
                 encodeTest.run("b", new byte[] { 98 });
                 encodeTest.run("ab", new byte[] { 97, 98 });
@@ -70,7 +70,6 @@ public class USASCIICharacterEncodingTests
                 };
 
                 encodeFailureTest.run(null, new PreConditionFailure("characters cannot be null."));
-                encodeFailureTest.run(new char[0], new PreConditionFailure("characters cannot be empty."));
 
                 final Action2<char[],byte[]> encodeTest = (char[] characters, byte[] expectedBytes) ->
                 {
@@ -80,6 +79,7 @@ public class USASCIICharacterEncodingTests
                     });
                 };
 
+                encodeTest.run(new char[0], new byte[0]);
                 encodeTest.run(new char[] { 'a' }, new byte[] { 97 });
                 encodeTest.run(new char[] { 'b' }, new byte[] { 98 });
                 encodeTest.run(new char[] { 'a', 'b' }, new byte[] { 97, 98 });
@@ -101,7 +101,6 @@ public class USASCIICharacterEncodingTests
                 };
 
                 decodeFailureTest.run(null, new PreConditionFailure("bytes cannot be null."));
-                decodeFailureTest.run(new byte[0], new PreConditionFailure("bytes cannot be empty."));
 
                 final Action2<byte[],char[]> decodeTest = (byte[] bytes, char[] expectedCharacters) ->
                 {
@@ -111,6 +110,7 @@ public class USASCIICharacterEncodingTests
                     });
                 };
 
+                decodeTest.run(new byte[0], new char[0]);
                 decodeTest.run(new byte[] { 97 }, new char[] { 'a' });
                 decodeTest.run(new byte[] { 122, 121, 122 }, new char[] { 'z', 'y', 'z' });
                 decodeTest.run(new byte[] { -124 }, new char[] { (char)132 });
@@ -128,7 +128,6 @@ public class USASCIICharacterEncodingTests
                 };
 
                 decodeAsStringFailureTest.run(null, new PreConditionFailure("bytes cannot be null."));
-                decodeAsStringFailureTest.run(new byte[0], new PreConditionFailure("bytes cannot be empty."));
 
                 final Action2<byte[],String> decodeAsStringTest = (byte[] bytes, String expectedString) ->
                 {
@@ -138,6 +137,7 @@ public class USASCIICharacterEncodingTests
                     });
                 };
 
+                decodeAsStringTest.run(new byte[0], "");
                 decodeAsStringTest.run(new byte[] { 97 }, "a");
                 decodeAsStringTest.run(new byte[] { 98, 97 }, "ba");
                 decodeAsStringTest.run(new byte[] { -124 }, "" + (char)132);
@@ -157,7 +157,6 @@ public class USASCIICharacterEncodingTests
                 };
 
                 decodeNextCharacterFailureTest.run(null, new PreConditionFailure("bytes cannot be null."));
-                decodeNextCharacterFailureTest.run(new byte[0], new EndOfStreamException());
 
                 final Action2<byte[],char[]> decodeNextCharacterTest = (byte[] bytes, char[] expectedCharacters) ->
                 {
@@ -176,6 +175,7 @@ public class USASCIICharacterEncodingTests
                     });
                 };
 
+                decodeNextCharacterTest.run(new byte[0], new char[0]);
                 decodeNextCharacterTest.run(new byte[] { 97 }, new char[] { 'a' });
                 decodeNextCharacterTest.run(new byte[] { 97, 98, 99, 100 }, new char[] { 'a', 'b', 'c', 'd' });
                 decodeNextCharacterTest.run(new byte[] { -124 }, new char[] { (char)132 });

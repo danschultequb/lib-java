@@ -68,8 +68,8 @@ public interface CharacterReadStream extends Disposable, Iterator<Character>
     default Result<Integer> readCharacters(char[] outputCharacters, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(outputCharacters, "outputCharacters");
-        PreCondition.assertStartIndex(startIndex, outputCharacters.length);
-        PreCondition.assertLength(length, startIndex, outputCharacters.length);
+        PreCondition.assertNonEmptyStartIndex(startIndex, outputCharacters.length);
+        PreCondition.assertNonEmptyLength(length, startIndex, outputCharacters.length);
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
         return Result.create(() ->
@@ -77,7 +77,7 @@ public interface CharacterReadStream extends Disposable, Iterator<Character>
             int charactersRead = 0;
             while(charactersRead < length)
             {
-                final Character c = readCharacter()
+                final Character c = this.readCharacter()
                     .catchError(EndOfStreamException.class)
                     .await();
                 if (c == null)

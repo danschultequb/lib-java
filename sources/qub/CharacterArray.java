@@ -24,8 +24,8 @@ public class CharacterArray implements Array<Character>
     public static CharacterArray create(char[] characters, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(characters, "characters");
-        PreCondition.assertStartIndex(startIndex, characters.length);
-        PreCondition.assertLength(length, startIndex, characters.length);
+        PreCondition.assertNonEmptyStartIndex(startIndex, characters.length);
+        PreCondition.assertNonEmptyLength(length, startIndex, characters.length);
 
         char[] resultArray;
         if (characters.length == length)

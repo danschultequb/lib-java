@@ -83,8 +83,8 @@ public class LinePrefixCharacterWriteStream implements CharacterWriteStream
     public Result<Integer> write(char[] toWrite, int startIndex, int length)
     {
         PreCondition.assertNotNull(toWrite, "toWrite");
-        PreCondition.assertStartIndex(startIndex, toWrite.length);
-        PreCondition.assertLength(length, startIndex, toWrite.length);
+        PreCondition.assertNonEmptyStartIndex(startIndex, toWrite.length);
+        PreCondition.assertNonEmptyLength(length, startIndex, toWrite.length);
         PreCondition.assertNotDisposed(this);
 
         final int endIndex = startIndex + length;

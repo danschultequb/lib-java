@@ -89,8 +89,8 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
     public Result<Integer> writeBytes(byte[] toWrite, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
-        PreCondition.assertStartIndex(startIndex, toWrite.length);
-        PreCondition.assertLength(length, startIndex, toWrite.length);
+        PreCondition.assertNonEmptyStartIndex(startIndex, toWrite.length);
+        PreCondition.assertNonEmptyLength(length, startIndex, toWrite.length);
         PreCondition.assertNotDisposed(this);
 
         Result<Integer> result;

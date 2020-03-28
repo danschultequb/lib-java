@@ -15,7 +15,7 @@ public class USASCIICharacterEncoding implements CharacterEncoding
     @Override
     public Result<Integer> encode(String text, ByteWriteStream byteWriteStream)
     {
-        PreCondition.assertNotNullAndNotEmpty(text, "text");
+        PreCondition.assertNotNull(text, "text");
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
         PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
 
@@ -31,7 +31,7 @@ public class USASCIICharacterEncoding implements CharacterEncoding
     @Override
     public Result<Integer> encode(char[] characters, int startIndex, int length, ByteWriteStream byteWriteStream)
     {
-        PreCondition.assertNotNullAndNotEmpty(characters, "characters");
+        PreCondition.assertNotNull(characters, "characters");
         PreCondition.assertStartIndex(startIndex, characters.length);
         PreCondition.assertLength(length, startIndex, characters.length);
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
@@ -49,7 +49,7 @@ public class USASCIICharacterEncoding implements CharacterEncoding
     @Override
     public Result<char[]> decode(byte[] bytes, int startIndex, int length)
     {
-        PreCondition.assertNotNullAndNotEmpty(bytes, "characters");
+        PreCondition.assertNotNull(bytes, "characters");
         PreCondition.assertStartIndex(startIndex, bytes.length);
         PreCondition.assertLength(length, startIndex, bytes.length);
 
