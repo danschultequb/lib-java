@@ -228,7 +228,23 @@ public class JavaFileSystem implements FileSystem
             {
                 final String rootedFilePathString = rootedFilePath.toString();
                 final java.nio.file.Path filePath = java.nio.file.Paths.get(rootedFilePathString);
-                java.nio.file.Files.delete(filePath);
+                try
+                {
+                    java.nio.file.Files.delete(filePath);
+                }
+                catch (java.nio.file.AccessDeniedException e)
+                {
+                    final java.io.File file = new java.io.File(rootedFilePathString);
+                    if (file.canWrite())
+                    {
+                        throw e;
+                    }
+                    else
+                    {
+                        file.setWritable(true);
+                        java.nio.file.Files.delete(filePath);
+                    }
+                }
             }
             catch (java.nio.file.NoSuchFileException e)
             {

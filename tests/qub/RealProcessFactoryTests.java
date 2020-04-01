@@ -63,6 +63,34 @@ public interface RealProcessFactoryTests
                     test.assertThrows(() -> factory.run(Path.parse("doesntExist"), Iterable.create(), test.getProcess().getCurrentFolderPath(), null, null, null).await(),
                         new FileNotFoundException("doesntExist"));
                 });
+
+                runner.test("with " + Strings.escapeAndQuote("git clone"), (Test test) ->
+                {
+                    final RealProcessFactory factory = RealProcessFactoryTests.create(test);
+                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                    final Folder repositoryFolder = currentFolder.getFolder("outputs/csv-java").await();
+                    try
+                    {
+                        final Integer exitCode = factory.run(
+                            Path.parse("git"),
+                            Iterable.create(
+                                "clone",
+                                "https://github.com/danschultequb/csv-java",
+                                repositoryFolder.toString()),
+                            currentFolder.getPath(),
+                            null,
+                            null,
+                            null).await();
+                        test.assertEqual(0, exitCode);
+                        test.assertTrue(repositoryFolder.exists().await());
+                    }
+                    finally
+                    {
+                        repositoryFolder.delete()
+                            .catchError(FolderNotFoundException.class)
+                            .await();
+                    }
+                });
             });
         });
     }
