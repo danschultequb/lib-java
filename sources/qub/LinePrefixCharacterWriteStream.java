@@ -60,6 +60,20 @@ public class LinePrefixCharacterWriteStream implements CharacterWriteStream
     }
 
     @Override
+    public String getNewLine()
+    {
+        return this.innerStream.getNewLine();
+    }
+
+    @Override
+    public LinePrefixCharacterWriteStream setNewLine(String newLine)
+    {
+        this.innerStream.setNewLine(newLine);
+
+        return this;
+    }
+
+    @Override
     public Result<Integer> write(char toWrite)
     {
         PreCondition.assertNotDisposed(this);

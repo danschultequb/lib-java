@@ -16,7 +16,7 @@ public class VerboseCharacterWriteStream implements CharacterWriteStream
 
         if (innerStream == null)
         {
-            innerStream = new InMemoryCharacterStream();
+            innerStream = new InMemoryCharacterToByteStream();
         }
         this.innerStream = new LinePrefixCharacterWriteStream(innerStream)
             .setLinePrefix("VERBOSE: ");
@@ -29,6 +29,20 @@ public class VerboseCharacterWriteStream implements CharacterWriteStream
     public boolean isVerbose()
     {
         return this.isVerbose;
+    }
+
+    @Override
+    public String getNewLine()
+    {
+        return this.innerStream.getNewLine();
+    }
+
+    @Override
+    public VerboseCharacterWriteStream setNewLine(String newLine)
+    {
+        this.innerStream.setNewLine(newLine);
+
+        return this;
     }
 
     @Override

@@ -127,20 +127,6 @@ public abstract class ProcessBuilderDecorator<T extends ProcessBuilder> implemen
 
     @Override
     @SuppressWarnings("unchecked")
-    public T redirectOutputTo(StringBuilder builder)
-    {
-        this.processBuilder.redirectOutputTo(builder);
-        return (T)this;
-    }
-
-    @Override
-    public StringBuilder redirectOutput()
-    {
-        return this.processBuilder.redirectOutput();
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
     public T redirectError(Action1<ByteReadStream> redirectErrorAction)
     {
         this.processBuilder.redirectError(redirectErrorAction);
@@ -161,19 +147,5 @@ public abstract class ProcessBuilderDecorator<T extends ProcessBuilder> implemen
     {
         this.processBuilder.redirectErrorLines(onErrorLine);
         return (T)this;
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public T redirectErrorTo(StringBuilder builder)
-    {
-        this.processBuilder.redirectErrorTo(builder);
-        return (T)this;
-    }
-
-    @Override
-    public StringBuilder redirectError()
-    {
-        return this.processBuilder.redirectError();
     }
 }

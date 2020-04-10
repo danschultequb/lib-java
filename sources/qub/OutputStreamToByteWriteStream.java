@@ -24,7 +24,7 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
         Result<Void> result;
         try
         {
-            outputStream.flush();
+            this.outputStream.flush();
             result = Result.success();
         }
         catch (java.io.IOException e)
@@ -38,17 +38,17 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
     }
 
     @Override
-    public Result<Integer> writeByte(byte toWrite)
+    public Result<Integer> write(byte toWrite)
     {
         PreCondition.assertNotDisposed(this);
 
         Result<Integer> result;
         try
         {
-            outputStream.write(toWrite);
-            if (autoFlush)
+            this.outputStream.write(toWrite);
+            if (this.autoFlush)
             {
-                outputStream.flush();
+                this.outputStream.flush();
             }
             result = Result.successOne();
         }
@@ -63,30 +63,31 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
     }
 
     @Override
-    public Result<Integer> writeBytes(byte[] toWrite)
+    public Result<Integer> write(byte[] toWrite)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
         PreCondition.assertNotDisposed(this);
 
-        Result<Integer> result;
-        try
+        return Result.create(() ->
         {
-            outputStream.write(toWrite);
-            if (autoFlush)
+            try
             {
-                outputStream.flush();
+                this.outputStream.write(toWrite);
+                if (this.autoFlush)
+                {
+                    this.outputStream.flush();
+                }
             }
-            result = Result.success(toWrite.length);
-        }
-        catch (java.io.IOException e)
-        {
-            result = Result.error(e);
-        }
-        return result;
+            catch (java.io.IOException e)
+            {
+                throw Exceptions.asRuntime(e);
+            }
+            return toWrite.length;
+        });
     }
 
     @Override
-    public Result<Integer> writeBytes(byte[] toWrite, int startIndex, int length)
+    public Result<Integer> write(byte[] toWrite, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
         PreCondition.assertNonEmptyStartIndex(startIndex, toWrite.length);
@@ -96,10 +97,10 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
         Result<Integer> result;
         try
         {
-            outputStream.write(toWrite, startIndex, length);
-            if (autoFlush)
+            this.outputStream.write(toWrite, startIndex, length);
+            if (this.autoFlush)
             {
-                outputStream.flush();
+                this.outputStream.flush();
             }
             result = Result.success(length);
         }
@@ -113,24 +114,24 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
     @Override
     public boolean isDisposed()
     {
-        return disposed;
+        return this.disposed;
     }
 
     @Override
     public Result<Boolean> dispose()
     {
         Result<Boolean> result;
-        if (disposed)
+        if (this.disposed)
         {
-            result = Result.success(false);
+            result = Result.successFalse();
         }
         else
         {
-            disposed = true;
+            this.disposed = true;
             try
             {
-                outputStream.close();
-                result = Result.success(true);
+                this.outputStream.close();
+                result = Result.successTrue();
             }
             catch (java.io.IOException e)
             {

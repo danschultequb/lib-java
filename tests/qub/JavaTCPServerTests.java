@@ -120,7 +120,7 @@ public interface JavaTCPServerTests
                     {
                         try (final TCPClient tcpClient = network.createTCPClient(ipAddress, port.get()).await())
                         {
-                            test.assertEqual(bytes.length, tcpClient.writeBytes(bytes).await());
+                            test.assertEqual(bytes.length, tcpClient.write(bytes).await());
                             clientReadBytes.set(tcpClient.readBytes(bytes.length).await());
                         }
                     });
@@ -135,7 +135,7 @@ public interface JavaTCPServerTests
 
                             final byte[] serverReadBytes = serverClient.readBytes(bytes.length).await();
                             test.assertEqual(bytes, serverReadBytes);
-                            serverClient.writeAllBytes(serverReadBytes).await();
+                            serverClient.writeAll(serverReadBytes).await();
                         }
                     }
 
@@ -168,7 +168,7 @@ public interface JavaTCPServerTests
                         {
                             try (final TCPClient tcpClient = network.createTCPClient(ipAddress, port.get()).await())
                             {
-                                test.assertEqual(bytes.length, tcpClient.writeBytes(bytes).await());
+                                test.assertEqual(bytes.length, tcpClient.write(bytes).await());
                                 clientReadBytes.set(tcpClient.readBytes(bytes.length).await());
                             }
                         });
@@ -178,7 +178,7 @@ public interface JavaTCPServerTests
                         {
                             final byte[] serverReadBytes = serverClient.readBytes(bytes.length).await();
                             test.assertEqual(bytes, serverReadBytes);
-                            test.assertEqual(serverReadBytes.length, serverClient.writeBytes(serverReadBytes).await());
+                            test.assertEqual(serverReadBytes.length, serverClient.write(serverReadBytes).await());
                         }
 
                         clientTask.await();

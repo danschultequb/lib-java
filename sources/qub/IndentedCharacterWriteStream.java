@@ -104,7 +104,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
         final int currentIndentLength = currentIndent.length();
         if (currentIndentLength > 0)
         {
-            final int singleIndentLength = singleIndent.length();
+            final int singleIndentLength = this.singleIndent.length();
             if (currentIndentLength < singleIndentLength)
             {
                 this.setCurrentIndent("");
@@ -126,15 +126,31 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
     {
         PreCondition.assertNotNull(action, "action");
 
-        increaseIndent();
+        this.increaseIndent();
         try
         {
             action.run();
         }
         finally
         {
-            decreaseIndent();
+            this.decreaseIndent();
         }
+    }
+
+    @Override
+    public String getNewLine()
+    {
+        return this.innerStream.getNewLine();
+    }
+
+    @Override
+    public IndentedCharacterWriteStream setNewLine(String newLine)
+    {
+        PreCondition.assertNotNull(newLine, "newLine");
+
+        this.innerStream.setNewLine(newLine);
+
+        return this;
     }
 
     @Override

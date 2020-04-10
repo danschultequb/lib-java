@@ -111,21 +111,6 @@ public interface ProcessBuilder
     ProcessBuilder redirectOutputLines(Action1<String> onOutputLine);
 
     /**
-     * Redirect the output stream lines create the processes that are created by this ProcessBuilder
-     * to the provided StringBuilder.
-     * @param builder The StringBuilder to collect process output in.
-     * @return This ProcessBuilder.
-     */
-    ProcessBuilder redirectOutputTo(StringBuilder builder);
-
-    /**
-     * Redirect the output stream lines create the processes that are created by this ProcessBuilder
-     * to the returned StringBuilder.
-     * @return This StringBuilder that will collect the output stream..
-     */
-    StringBuilder redirectOutput();
-
-    /**
      * Redirect the error stream of the invoked process to the provided action when the process is
      * started.
      * @param redirectErrorAction The action that will be invoked when the process is started.
@@ -146,19 +131,4 @@ public interface ProcessBuilder
      * @return This ProcessBuilder.
      */
     ProcessBuilder redirectErrorLines(Action1<String> onErrorLine);
-
-    /**
-     * Redirect the error stream lines create the processes that are created by this ProcessBuilder to
-     * the provided StringBuilder.
-     * @param builder The StringBuilder to collect process error in.
-     * @return This ProcessBuilder.
-     */
-    ProcessBuilder redirectErrorTo(StringBuilder builder);
-
-    /**
-     * Redirect the error stream lines create the processes that are created by this ProcessBuilder to
-     * the returned StringBuilder.
-     * @return This StringBuilder that will collect the error stream..
-     */
-    StringBuilder redirectError();
 }

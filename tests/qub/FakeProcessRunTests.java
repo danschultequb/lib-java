@@ -398,7 +398,7 @@ public interface FakeProcessRunTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final FakeProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteWriteStream output) -> { output.writeBytes(new byte[] { 1, 2, 3 }).await(); }));
+                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteWriteStream output) -> { output.write(new byte[] { 1, 2, 3 }).await(); }));
                     test.assertNotNull(fakeProcessRun.getFunction());
                     final InMemoryByteStream input = new InMemoryByteStream();
                     final InMemoryByteStream output = new InMemoryByteStream();
@@ -436,7 +436,7 @@ public interface FakeProcessRunTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final FakeProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteWriteStream output) -> { output.writeBytes(new byte[] { 1, 2 }).await(); return 100; }));
+                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteWriteStream output) -> { output.write(new byte[] { 1, 2 }).await(); return 100; }));
                     test.assertNotNull(fakeProcessRun.getFunction());
                     final InMemoryByteStream input = new InMemoryByteStream();
                     final InMemoryByteStream output = new InMemoryByteStream();
@@ -476,8 +476,8 @@ public interface FakeProcessRunTests
                     final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteWriteStream output, ByteWriteStream error) ->
                     {
-                        output.writeBytes(new byte[] { 1, 2, 3 }).await();
-                        error.writeBytes(new byte[] { 4, 5, 6 }).await();
+                        output.write(new byte[] { 1, 2, 3 }).await();
+                        error.write(new byte[] { 4, 5, 6 }).await();
                     }));
                     test.assertNotNull(fakeProcessRun.getFunction());
                     final InMemoryByteStream input = new InMemoryByteStream();
@@ -521,8 +521,8 @@ public interface FakeProcessRunTests
                     final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteWriteStream output, ByteWriteStream error) ->
                     {
-                        output.writeBytes(new byte[] { 1, 2, 3 }).await();
-                        error.writeBytes(new byte[] { 4, 5, 6 }).await();
+                        output.write(new byte[] { 1, 2, 3 }).await();
+                        error.write(new byte[] { 4, 5, 6 }).await();
                         return 6;
                     }));
                     test.assertNotNull(fakeProcessRun.getFunction());
@@ -567,8 +567,8 @@ public interface FakeProcessRunTests
                     final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) ->
                     {
-                        output.writeAllBytes(input).await();
-                        error.writeBytes(new byte[] { 4, 5, 6 }).await();
+                        output.writeAll(input).await();
+                        error.write(new byte[] { 4, 5, 6 }).await();
                     }));
                     test.assertNotNull(fakeProcessRun.getFunction());
                     final InMemoryByteStream input = new InMemoryByteStream(new byte[] { 10, 20, 30 }).endOfStream();
@@ -612,8 +612,8 @@ public interface FakeProcessRunTests
                     final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) ->
                     {
-                        output.writeAllBytes(input).await();
-                        error.writeBytes(new byte[] { 4, 5, 6 }).await();
+                        output.writeAll(input).await();
+                        error.write(new byte[] { 4, 5, 6 }).await();
                         return 6;
                     }));
                     test.assertNotNull(fakeProcessRun.getFunction());

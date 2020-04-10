@@ -25,20 +25,7 @@ public class TCPEchoServer implements Disposable
             {
                 try
                 {
-                    final CharacterReadStream tcpClientReadStream = tcpClient.asCharacterReadStream();
-                    final CharacterWriteStream tcpClientWriteStream = tcpClient.asCharacterWriteStream();
-
-                    String line = tcpClientReadStream.readLine(true)
-                        .catchError(EndOfStreamException.class)
-                        .await();
-                    while (line != null)
-                    {
-                        tcpClientWriteStream.write(line).await();
-
-                        line = tcpClientReadStream.readLine(true)
-                            .catchError(EndOfStreamException.class)
-                            .await();
-                    }
+                    tcpClient.writeAll(tcpClient).await();
                 }
                 finally
                 {

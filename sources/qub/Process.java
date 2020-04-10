@@ -83,7 +83,7 @@ public interface Process extends Disposable
         }
         catch (Throwable error)
         {
-            Exceptions.writeErrorString(process.getErrorCharacterWriteStream(), error).await();
+            Exceptions.writeErrorString(process.getErrorWriteStream(), error).await();
             process.setExitCode(1);
         }
         finally
@@ -295,16 +295,18 @@ public interface Process extends Disposable
     }
 
     /**
-     * Get the ByteWriteStream that is assigned to this Console.
-     * @return The ByteWriteStream that is assigned to this Console.
+     * Get the output stream that is assigned to this Process.
+     * @return The output stream that is assigned to this Process.
      */
-    ByteWriteStream getOutputByteWriteStream();
+    CharacterToByteWriteStream getOutputWriteStream();
+
+    CharacterWriteStream getOutputCharacterWriteStream();
 
     /**
-     * Get the error ByteWriteStream that is assigned to this Console.
-     * @return The error ByteWriteStream that is assigned to this Console.
+     * Get the error stream that is assigned to this Process.
+     * @return The error stream that is assigned to this Process.
      */
-    ByteWriteStream getErrorByteWriteStream();
+    CharacterToByteWriteStream getErrorWriteStream();
 
     /**
      * Get the ByteReadStream that is assigned to this Console.
@@ -313,10 +315,6 @@ public interface Process extends Disposable
     ByteReadStream getInputByteReadStream();
 
     CharacterReadStream getInputCharacterReadStream();
-
-    CharacterWriteStream getOutputCharacterWriteStream();
-
-    CharacterWriteStream getErrorCharacterWriteStream();
 
     Process setCharacterEncoding(CharacterEncoding characterEncoding);
 
@@ -327,34 +325,48 @@ public interface Process extends Disposable
     String getLineSeparator();
 
     /**
-     * Set the ByteWriteStream that is assigned to this Console's output.
-     * @param outputByteWriteStream The ByteWriteStream that is assigned to this Console's output.
+     * Set the write stream that is assigned to this Process's output stream.
+     * @param outputWriteStream The write stream that is assigned to this Process's output.
      * @return This object for method chaining.
      */
-    Process setOutputByteWriteStream(ByteWriteStream outputByteWriteStream);
+    default Process setOutputWriteStream(ByteWriteStream outputWriteStream)
+    {
+        PreCondition.assertNotNull(outputWriteStream, "outputWriteStream");
+
+        return this.setOutputWriteStream(CharacterWriteStream.create(outputWriteStream)
+            .setCharacterEncoding(this.getCharacterEncoding())
+            .setNewLine(this.getLineSeparator()));
+    }
 
     /**
-     * Set the CharacterWriteStream that is assigned to this Console's output.
-     * @param outputCharacterWriteStream The CharacterWriteStream that is assigned to this Console's
-     *                                   output.
+     * Set the write stream that is assigned to this Process's output stream.
+     * @param outputWriteStream The write stream that is assigned to this Process's output.
      * @return This object for method chaining.
      */
-    Process setOutputCharacterWriteStream(CharacterWriteStream outputCharacterWriteStream);
+    Process setOutputWriteStream(CharacterToByteWriteStream outputWriteStream);
+
+    Process setOutputCharacterWriteStream(CharacterWriteStream outputWriteStream);
 
     /**
-     * Set the ByteWriteStream that is assigned to this Console's error.
-     * @param errorByteWriteStream The ByteWriteStream that is assigned to this Console's error.
+     * Set the write stream that is assigned to this Process's error stream.
+     * @param errorWriteStream The write stream that is assigned to this Process's error stream.
      * @return This object for method chaining.
      */
-    Process setErrorByteWriteStream(ByteWriteStream errorByteWriteStream);
+    default Process setErrorWriteStream(ByteWriteStream errorWriteStream)
+    {
+        PreCondition.assertNotNull(errorWriteStream, "errorWriteStream");
+
+        return this.setErrorWriteStream(CharacterWriteStream.create(errorWriteStream)
+            .setCharacterEncoding(this.getCharacterEncoding())
+            .setNewLine(this.getLineSeparator()));
+    }
 
     /**
-     * Set the CharacterWriteStream that is assigned to this Console's error.
-     * @param errorCharacterWriteStream The CharacterWriteStream that is assigned to this Console's
-     *                                  error.
+     * Set the write stream that is assigned to this Process's error stream.
+     * @param errorWriteStream The write stream that is assigned to this Process's error stream.
      * @return This object for method chaining.
      */
-    Process setErrorCharacterWriteStream(CharacterWriteStream errorCharacterWriteStream);
+    Process setErrorWriteStream(CharacterToByteWriteStream errorWriteStream);
 
     /**
      * Set the ByteReadStream that is assigned to this Console's input.
@@ -496,7 +508,7 @@ public interface Process extends Disposable
             if (shouldShowDuration)
             {
                 final Duration compilationDuration = stopwatch.stop().toSeconds();
-                final CharacterWriteStream output = this.getOutputCharacterWriteStream();
+                final CharacterWriteStream output = this.getOutputWriteStream();
                 output.writeLine("Done (" + compilationDuration.toString("0.0") + ")").await();
             }
         }

@@ -157,8 +157,9 @@ public interface ProcessTests
                 process.setCharacterEncoding(CharacterEncoding.US_ASCII);
                 test.assertEqual(CharacterEncoding.US_ASCII, process.getCharacterEncoding());
 
-                process.setCharacterEncoding(null);
-                test.assertEqual(null, process.getCharacterEncoding());
+                test.assertThrows(() -> process.setCharacterEncoding(null),
+                    new PreConditionFailure("characterEncoding cannot be null."));
+                test.assertEqual(CharacterEncoding.US_ASCII, process.getCharacterEncoding());
             });
 
             runner.test("getLineSeparator()", (Test test) ->
@@ -179,31 +180,17 @@ public interface ProcessTests
                 test.assertEqual(null, process.getLineSeparator());
             });
 
-            runner.test("getOutputByteWriteStream()", (Test test) ->
+            runner.test("getOutputWriteStream()", (Test test) ->
             {
                 final Process process = creator.run();
-                final ByteWriteStream writeStream = process.getOutputByteWriteStream();
+                final CharacterToByteWriteStream writeStream = process.getOutputWriteStream();
                 test.assertNotNull(writeStream);
             });
 
-            runner.test("getOutputCharacterWriteStream()", (Test test) ->
+            runner.test("getErrorWriteStream()", (Test test) ->
             {
                 final Process process = creator.run();
-                final CharacterWriteStream writeStream = process.getOutputCharacterWriteStream();
-                test.assertNotNull(writeStream);
-            });
-
-            runner.test("getErrorByteWriteStream()", (Test test) ->
-            {
-                final Process process = creator.run();
-                final ByteWriteStream writeStream = process.getErrorByteWriteStream();
-                test.assertNotNull(writeStream);
-            });
-
-            runner.test("getErrorCharacterWriteStream()", (Test test) ->
-            {
-                final Process process = creator.run();
-                final CharacterWriteStream writeStream = process.getErrorCharacterWriteStream();
+                final ByteWriteStream writeStream = process.getErrorWriteStream();
                 test.assertNotNull(writeStream);
             });
 
@@ -272,7 +259,7 @@ public interface ProcessTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    final InMemoryCharacterStream readStream = new InMemoryCharacterStream("ere my good friend\nHow are you?\r\nI'm alright.").endOfStream();
+                    final InMemoryCharacterToByteStream readStream = new InMemoryCharacterToByteStream("ere my good friend\nHow are you?\r\nI'm alright.").endOfStream();
                     process.setInputCharacterReadStream(readStream);
 
                     test.assertNull(process.getInputByteReadStream());
@@ -665,16 +652,20 @@ public interface ProcessTests
                             test.assertTrue(builder.getExecutablePath().getSegments().last().startsWith("javac"));
                             test.assertEqual(Iterable.create(), builder.getArguments());
 
-                            final StringBuilder output = new StringBuilder();
-                            builder.redirectOutputTo(output);
-                            builder.redirectErrorTo(output);
+                            final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                            builder.redirectOutput(output);
+
+                            final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                            builder.redirectError(error);
 
                             test.assertEqual(2, builder.run().await());
 
-                            final String outputString = output.toString();
+                            final String outputString = output.getText().await();
                             test.assertNotNullAndNotEmpty(outputString);
                             test.assertTrue(outputString.contains("javac <options> <source files>"), "Process output (" + outputString + ") should have contained \"javac <options> <source files>\".");
                             test.assertTrue(outputString.contains("Terminate compilation if warnings occur"), "Process output (" + outputString + ") should have contained \"Terminate compilation if warnings occur\".");
+
+                            test.assertEqual("", error.getText().await());
                         }
                     }
                 });
@@ -684,9 +675,12 @@ public interface ProcessTests
                     try (final Process process = creator.run())
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("javac").await();
-                        final StringBuilder output = new StringBuilder();
-                        builder.redirectOutputTo(output);
-                        builder.redirectErrorTo(output);
+
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        builder.redirectOutput(output);
+
+                        final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                        builder.redirectError(error);
 
                         final Folder workingFolder = test.getProcess().getCurrentFolder()
                             .then((Folder currentFolder) -> currentFolder.getFolder("I don't exist").await())
@@ -695,7 +689,8 @@ public interface ProcessTests
                         test.assertThrows(() -> builder.run().await(),
                             new java.io.IOException("Cannot run program \"C:/Program Files/Java/jdk-11.0.1/bin/javac.exe\" (in directory \"C:\\Users\\dansc\\Sources\\lib-java\\I don't exist\"): CreateProcess error=267, The directory name is invalid",
                                 new java.io.IOException("CreateProcess error=267, The directory name is invalid")));
-                        test.assertEqual("", output.toString());
+                        test.assertEqual("", output.getText().await());
+                        test.assertEqual("", error.getText().await());
                     }
                 });
 
@@ -704,9 +699,12 @@ public interface ProcessTests
                     try (final Process process = creator.run())
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("javac").await();
-                        final StringBuilder output = new StringBuilder();
-                        builder.redirectOutputTo(output);
-                        builder.redirectErrorTo(output);
+
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        builder.redirectOutput(output);
+
+                        final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                        builder.redirectError(error);
 
                         final Folder currentFolder = test.getProcess().getCurrentFolder().await();
                         final Folder workingFolder = currentFolder.createFolder("temp2").await();
@@ -715,10 +713,13 @@ public interface ProcessTests
                             builder.setWorkingFolder(workingFolder);
                             test.assertEqual(2, builder.run().await());
 
-                            final String outputString = output.toString();
+                            final String outputString = output.getText().await();
                             test.assertNotNullAndNotEmpty(outputString);
                             test.assertContains(outputString, "javac <options> <source files>");
                             test.assertContains(outputString, "Terminate compilation if warnings occur");
+
+                            final String errorString = error.getText().await();
+                            test.assertEqual("", errorString);
                         }
                         finally
                         {
@@ -733,18 +734,23 @@ public interface ProcessTests
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("javac").await();
 
-                        final StringBuilder output = new StringBuilder();
-                        builder.redirectOutputTo(output);
-                        builder.redirectErrorTo(output);
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        builder.redirectOutput(output);
+
+                        final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                        builder.redirectError(error);
 
                         final Folder workingFolder = test.getProcess().getCurrentFolder().await();
                         builder.setWorkingFolder(workingFolder);
                         test.assertEqual(2, builder.run().await());
 
-                        final String outputString = output.toString();
+                        final String outputString = output.getText().await();
                         test.assertNotNullAndNotEmpty(outputString);
                         test.assertContains(outputString, "javac <options> <source files>");
                         test.assertContains(outputString, "Terminate compilation if warnings occur");
+
+                        final String errorString = error.getText().await();
+                        test.assertEqual("", errorString);
                     }
                 });
 

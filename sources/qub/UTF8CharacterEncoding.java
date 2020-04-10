@@ -187,52 +187,52 @@ public class UTF8CharacterEncoding implements CharacterEncoding
         final int characterAsInt = (int)value;
         if (characterAsInt <= 0x00007F)
         {
-            byteWriteStream.writeByte((byte)characterAsInt).await();
+            byteWriteStream.write((byte)characterAsInt).await();
             result = 1;
         }
         else if (characterAsInt <= 0x0007FF)
         {
             final int firstFiveBits = (characterAsInt >>> 6) & 0x1F;
             final byte firstByte = (byte)(0xC0 | firstFiveBits);
-            byteWriteStream.writeByte(firstByte).await();
+            byteWriteStream.write(firstByte).await();
 
             final int lastSixBits = characterAsInt & 0x3F;
             final byte secondByte = (byte)(0x80 | lastSixBits);
-            byteWriteStream.writeByte(secondByte).await();
+            byteWriteStream.write(secondByte).await();
             result = 2;
         }
         else if (characterAsInt <= 0x00FFFF)
         {
             final int firstFourBits = (characterAsInt >>> 12) & 0xF;
             final byte firstByte = (byte)(0xB0 | firstFourBits);
-            byteWriteStream.writeByte(firstByte).await();
+            byteWriteStream.write(firstByte).await();
 
             final int middleSixBits = (characterAsInt >>> 6) & 0x3F;
             final byte secondByte = (byte)(0x80 | middleSixBits);
-            byteWriteStream.writeByte(secondByte).await();
+            byteWriteStream.write(secondByte).await();
 
             final int lastSixBites = characterAsInt & 0x3F;
             final byte thirdByte = (byte)(0x80 | lastSixBites);
-            byteWriteStream.writeByte(thirdByte).await();
+            byteWriteStream.write(thirdByte).await();
             result = 3;
         }
         else if (characterAsInt <= 0x10FFFF)
         {
             final int firstThreeBits = (characterAsInt >>> 18) & 0x7;
             final byte firstByte = (byte)(0xF0 | firstThreeBits);
-            byteWriteStream.writeByte(firstByte).await();
+            byteWriteStream.write(firstByte).await();
 
             final int firstMiddleSixBits = (characterAsInt >>> 12) & 0x3F;
             final byte secondByte = (byte)(0x80 | firstMiddleSixBits);
-            byteWriteStream.writeByte(secondByte).await();
+            byteWriteStream.write(secondByte).await();
 
             final int secondMiddleSixBits = (characterAsInt >>> 6) & 0x3F;
             final byte thirdByte = (byte)(0x80 | secondMiddleSixBits);
-            byteWriteStream.writeByte(thirdByte).await();
+            byteWriteStream.write(thirdByte).await();
 
             final int lastSixBits = (characterAsInt & 0x3F);
             final byte fourthByte = (byte)(0x80 | lastSixBits);
-            byteWriteStream.writeByte(fourthByte).await();
+            byteWriteStream.write(fourthByte).await();
             result = 4;
         }
 

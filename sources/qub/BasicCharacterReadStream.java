@@ -74,6 +74,6 @@ public class BasicCharacterReadStream implements CharacterReadStream
     @Override
     public boolean next()
     {
-        return readCharacter().await() != null;
+        return this.readCharacter().await() != null;
     }
 }

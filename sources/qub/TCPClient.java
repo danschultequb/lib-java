@@ -99,39 +99,21 @@ public interface TCPClient extends ByteWriteStream, ByteReadStream
     }
 
     @Override
-    default Result<Integer> writeByte(byte toWrite)
+    default Result<Integer> write(byte toWrite)
     {
-        return getWriteStream().writeByte(toWrite);
+        return this.getWriteStream().write(toWrite);
     }
 
     @Override
-    default Result<Integer> writeBytes(byte[] toWrite)
+    default Result<Integer> write(byte[] toWrite)
     {
-        return getWriteStream().writeBytes(toWrite);
+        return this.getWriteStream().write(toWrite);
     }
 
     @Override
-    default Result<Integer> writeBytes(byte[] toWrite, int startIndex, int length)
+    default Result<Integer> write(byte[] toWrite, int startIndex, int length)
     {
-        return getWriteStream().writeBytes(toWrite, startIndex, length);
-    }
-
-    @Override
-    default Result<Long> writeAllBytes(ByteReadStream byteReadStream)
-    {
-        return getWriteStream().writeAllBytes(byteReadStream);
-    }
-
-    @Override
-    default CharacterWriteStream asCharacterWriteStream()
-    {
-        return getWriteStream().asCharacterWriteStream();
-    }
-
-    @Override
-    default CharacterWriteStream asCharacterWriteStream(CharacterEncoding characterEncoding)
-    {
-        return getWriteStream().asCharacterWriteStream(characterEncoding);
+        return getWriteStream().write(toWrite, startIndex, length);
     }
 
     @Override

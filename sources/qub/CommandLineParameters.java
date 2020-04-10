@@ -454,7 +454,7 @@ public class CommandLineParameters
     {
         PreCondition.assertNotNull(process, "process");
 
-        return this.add(new CommandLineParameterVerbose(process.getOutputCharacterWriteStream()));
+        return this.add(new CommandLineParameterVerbose(process.getOutputWriteStream()));
     }
 
     /**
@@ -542,7 +542,7 @@ public class CommandLineParameters
 
         return Result.create(() ->
         {
-            final CharacterWriteStream writeStream = process.getOutputCharacterWriteStream();
+            final CharacterWriteStream writeStream = process.getOutputWriteStream();
             for (final String helpLine : getHelpLines(commandName, commandDescription))
             {
                 writeStream.writeLine(helpLine).await();

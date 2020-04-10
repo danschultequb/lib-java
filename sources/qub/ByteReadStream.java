@@ -74,7 +74,7 @@ public interface ByteReadStream extends Disposable, Iterator<Byte>
         return Result.create(() ->
         {
             final InMemoryByteStream byteStream = new InMemoryByteStream();
-            byteStream.writeAllBytes(this).await();
+            byteStream.writeAll(this).await();
             final byte[] bytes = byteStream.getBytes();
             if (bytes.length == 0)
             {

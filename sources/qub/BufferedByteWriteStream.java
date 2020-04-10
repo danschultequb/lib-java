@@ -58,9 +58,9 @@ public class BufferedByteWriteStream implements ByteWriteStream
     }
 
     @Override
-    public Result<Integer> writeByte(byte toWrite)
+    public Result<Integer> write(byte toWrite)
     {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertFalse(this.isDisposed(), "this.isDisposed()");
 
         return Result.create(() ->
         {
@@ -71,7 +71,7 @@ public class BufferedByteWriteStream implements ByteWriteStream
     }
 
     @Override
-    public Result<Integer> writeBytes(byte[] bytes, int startIndex, int length)
+    public Result<Integer> write(byte[] bytes, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(bytes, "bytes");
         PreCondition.assertStartIndex(startIndex, bytes.length);
@@ -119,7 +119,7 @@ public class BufferedByteWriteStream implements ByteWriteStream
     {
         PreCondition.assertNotDisposed(this);
 
-        return byteWriteStream.writeBytes(buffer, 0, currentBufferIndex)
+        return byteWriteStream.write(buffer, 0, currentBufferIndex)
             .onValue((Integer bytesWritten) ->
             {
                 if (bytesWritten == buffer.length)
@@ -162,7 +162,7 @@ public class BufferedByteWriteStream implements ByteWriteStream
             }
             else
             {
-                writeBufferResult = byteWriteStream.writeAllBytes(buffer, 0, currentBufferIndex);
+                writeBufferResult = byteWriteStream.writeAll(buffer, 0, currentBufferIndex);
             }
             result = writeBufferResult
                 .then(() ->

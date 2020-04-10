@@ -1,8 +1,8 @@
 package qub;
 
-public class NetworkTests
+public interface NetworkTests
 {
-    public static void test(TestRunner runner, Function1<Test,Network> creator)
+    static void test(TestRunner runner, Function1<Test,Network> creator)
     {
         runner.testGroup(Network.class, () ->
         {
@@ -55,7 +55,7 @@ public class NetworkTests
                             try (final TCPClient acceptedClient = tcpServer.accept(timeout).await())
                             {
                                 test.assertEqual(bytes, acceptedClient.readBytes(bytes.length).await());
-                                test.assertEqual(bytes.length, acceptedClient.writeBytes(bytes).await());
+                                test.assertEqual(bytes.length, acceptedClient.write(bytes).await());
                             }
                         }
                     });
@@ -68,7 +68,7 @@ public class NetworkTests
                             test.assertNotEqual(port, tcpClient.getLocalPort());
                             test.assertEqual(IPv4Address.localhost, tcpClient.getRemoteIPAddress());
                             test.assertEqual(port, tcpClient.getRemotePort());
-                            test.assertEqual(bytes.length, tcpClient.writeBytes(bytes).await());
+                            test.assertEqual(bytes.length, tcpClient.write(bytes).await());
                             test.assertEqual(bytes, tcpClient.readBytes(bytes.length).await());
                         }
                     });

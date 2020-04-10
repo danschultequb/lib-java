@@ -218,21 +218,21 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     }
 
     @Override
-    public Result<Integer> writeByte(byte toWrite)
+    public Result<Integer> write(byte toWrite)
     {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
-        PreCondition.assertFalse(endOfStream, "endOfStream");
+        PreCondition.assertFalse(this.isDisposed(), "this.isDisposed()");
+        PreCondition.assertFalse(this.endOfStream, "this.endOfStream");
 
-        return mutex.criticalSection(() ->
+        return this.mutex.criticalSection(() ->
         {
-            bytes.add(toWrite);
-            bytesAvailable.signalAll();
+            this.bytes.add(toWrite);
+            this.bytesAvailable.signalAll();
             return 1;
         });
     }
 
     @Override
-    public Result<Integer> writeBytes(byte[] bytes, int startIndex, int length)
+    public Result<Integer> write(byte[] bytes, int startIndex, int length)
     {
         PreCondition.assertNotNullAndNotEmpty(bytes, "bytes");
         PreCondition.assertNonEmptyStartIndex(startIndex, bytes.length);
@@ -254,27 +254,5 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
             bytesAvailable.signalAll();
             return bytesWritten;
         });
-    }
-
-    /**
-     * Convert this ByteReadStream to a CharacterReadStream using the default CharacterEncoding.
-     * @return A CharacterReadStream that uses the default CharacterEncoding.
-     */
-    @Override
-    public InMemoryCharacterStream asCharacterReadStream()
-    {
-        return asCharacterReadStream(CharacterEncoding.UTF_8);
-    }
-
-    /**
-     * Convert this ByteReadStream to a CharacterReadStream using the provided CharacterEncoding.
-     * @return A CharacterReadStream that uses the provided CharacterEncoding.
-     */
-    @Override
-    public InMemoryCharacterStream asCharacterReadStream(CharacterEncoding characterEncoding)
-    {
-        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
-
-        return new InMemoryCharacterStream(this, characterEncoding);
     }
 }

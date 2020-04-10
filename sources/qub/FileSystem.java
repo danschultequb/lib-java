@@ -634,7 +634,7 @@ public interface FileSystem
      * @param rootedFilePath The rooted file path to the file.
      * @return A CharacterWriteStream to the contents of the file.
      */
-    default Result<CharacterWriteStream> getFileContentCharacterWriteStream(String rootedFilePath)
+    default Result<BasicCharacterToByteWriteStream> getFileContentCharacterWriteStream(String rootedFilePath)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
@@ -646,12 +646,12 @@ public interface FileSystem
      * @param rootedFilePath The rooted file path to the file.
      * @return A CharacterWriteStream to the contents of the file.
      */
-    default Result<CharacterWriteStream> getFileContentCharacterWriteStream(Path rootedFilePath)
+    default Result<BasicCharacterToByteWriteStream> getFileContentCharacterWriteStream(Path rootedFilePath)
     {
         PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
 
         return this.getFileContentByteWriteStream(rootedFilePath)
-            .then((ByteWriteStream writeStream) -> writeStream.asCharacterWriteStream());
+            .then(CharacterWriteStream::create);
     }
 
     /**
@@ -685,7 +685,7 @@ public interface FileSystem
             {
                 if (content.length > 0)
                 {
-                    byteWriteStream.writeAllBytes(content).await();
+                    byteWriteStream.writeAll(content).await();
                 }
             });
     }
@@ -781,7 +781,7 @@ public interface FileSystem
             () -> this.getFileContentByteWriteStream(destinationFilePath).await(),
             (ByteReadStream sourceStream, ByteWriteStream destinationStream) ->
             {
-                destinationStream.writeAllBytes(sourceStream).await();
+                destinationStream.writeAll(sourceStream).await();
             });
     }
 

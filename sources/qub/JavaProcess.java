@@ -8,11 +8,10 @@ public class JavaProcess implements QubProcess
     private final CommandLineArguments commandLineArguments;
     private volatile int exitCode;
 
-    private final Value<ByteWriteStream> outputByteWriteStream;
-    private final Value<ByteWriteStream> errorByteWriteStream;
-    private final Value<ByteReadStream> inputByteReadStream;
+    private final Value<CharacterToByteWriteStream> outputWriteStream;
     private final Value<CharacterWriteStream> outputCharacterWriteStream;
-    private final Value<CharacterWriteStream> errorCharacterWriteStream;
+    private final Value<CharacterToByteWriteStream> errorWriteStream;
+    private final Value<ByteReadStream> inputByteReadStream;
     private final Value<CharacterReadStream> inputCharacterReadStream;
     private final Value<CharacterEncoding> characterEncoding;
     private final Value<String> lineSeparator;
@@ -86,11 +85,10 @@ public class JavaProcess implements QubProcess
 
         this.commandLineArguments = commandLineArguments;
 
-        this.outputByteWriteStream = Value.create();
-        this.errorByteWriteStream = Value.create();
-        this.inputByteReadStream = Value.create();
+        this.outputWriteStream = Value.create();
         this.outputCharacterWriteStream = Value.create();
-        this.errorCharacterWriteStream = Value.create();
+        this.errorWriteStream = Value.create();
+        this.inputByteReadStream = Value.create();
         this.inputCharacterReadStream = Value.create();
         this.characterEncoding = Value.create();
         this.lineSeparator = Value.create();
@@ -114,90 +112,109 @@ public class JavaProcess implements QubProcess
         this.parallelAsyncRunner = new ParallelAsyncRunner();
     }
 
-    /**
-     * Get the exit code that this process will return when it finishes.
-     * @return The exit code that this process will return when it finishes.
-     */
+    @Override
     public int getExitCode()
     {
         return exitCode;
     }
 
-    /**
-     * Set the exit code that this process will return when it finishes.
-     * @param exitCode The exit code that this process will return when it finishes.
-     * @return This JavaProcess for method chaining.
-     */
+    @Override
     public JavaProcess setExitCode(int exitCode)
     {
         this.exitCode = exitCode;
         return this;
     }
 
-    /**
-     * Add one to the current exit code.
-     * @return This JavaProcess for method chaining.
-     */
+    @Override
     public JavaProcess incrementExitCode()
     {
         return setExitCode(getExitCode() + 1);
     }
 
+    @Override
     public AsyncScheduler getMainAsyncRunner()
     {
         return mainAsyncRunner;
     }
 
+    @Override
     public AsyncScheduler getParallelAsyncRunner()
     {
         return parallelAsyncRunner;
     }
 
-    /**
-     * Get the CommandLineArguments that were passed on the command line.
-     * @return The CommandLineArguments that were passed on the command line.
-     */
+    @Override
     public CommandLineArguments getCommandLineArguments()
     {
         return commandLineArguments;
     }
 
-    /**
-     * Create a CommandLineParameters object that can be used to create CommandLineParameter
-     * objects. These CommandLineParameter objects can parse the CommandLineArguments that are
-     * passed on the command line.
-     * @return A new CommandLineParameters object.
-     */
+    @Override
     public CommandLineParameters createCommandLineParameters()
     {
         return new CommandLineParameters()
             .setArguments(getCommandLineArguments());
     }
 
-    /**
-     * Get the ByteWriteStream that is assigned to this Console.
-     * @return The ByteWriteStream that is assigned to this Console.
-     */
-    public ByteWriteStream getOutputByteWriteStream()
+    @Override
+    public CharacterToByteWriteStream getOutputWriteStream()
     {
-        if (!outputByteWriteStream.hasValue())
+        if (!outputWriteStream.hasValue())
         {
-            outputByteWriteStream.set(new OutputStreamToByteWriteStream(System.out));
+            outputWriteStream.set(CharacterWriteStream.create(new OutputStreamToByteWriteStream(System.out))
+                .setCharacterEncoding(this.getCharacterEncoding())
+                .setNewLine(this.getLineSeparator()));
         }
-        return outputByteWriteStream.get();
+        return outputWriteStream.get();
     }
 
-    /**
-     * Get the error ByteWriteStream that is assigned to this Console.
-     * @return The error ByteWriteStream that is assigned to this Console.
-     */
-    public ByteWriteStream getErrorByteWriteStream()
+    @Override
+    public CharacterWriteStream getOutputCharacterWriteStream()
     {
-        if (!errorByteWriteStream.hasValue())
+        return this.outputCharacterWriteStream.hasValue()
+            ? this.outputCharacterWriteStream.get()
+            : this.outputWriteStream.get();
+    }
+
+    @Override
+    public JavaProcess setOutputWriteStream(CharacterToByteWriteStream outputWriteStream)
+    {
+        PreCondition.assertNotNull(outputWriteStream, "outputWriteStream");
+
+        this.outputWriteStream.set(outputWriteStream);
+        this.outputCharacterWriteStream.set(outputWriteStream);
+        return this;
+    }
+
+    @Override
+    public Process setOutputCharacterWriteStream(CharacterWriteStream outputWriteStream)
+    {
+        PreCondition.assertNotNull(outputWriteStream, "outputWriteStream");
+
+        this.outputCharacterWriteStream.set(outputWriteStream);
+
+        return this;
+    }
+
+    @Override
+    public CharacterToByteWriteStream getErrorWriteStream()
+    {
+        if (!errorWriteStream.hasValue())
         {
-            errorByteWriteStream.set(new OutputStreamToByteWriteStream(System.err));
+            errorWriteStream.set(CharacterWriteStream.create(new OutputStreamToByteWriteStream(System.err))
+                .setCharacterEncoding(this.getCharacterEncoding())
+                .setNewLine(this.getLineSeparator()));
         }
-        return errorByteWriteStream.get();
+        return errorWriteStream.get();
+    }
+
+    @Override
+    public JavaProcess setErrorWriteStream(CharacterToByteWriteStream errorWriteStream)
+    {
+        PreCondition.assertNotNull(errorWriteStream, "errorWriteStream");
+
+        this.errorWriteStream.set(errorWriteStream);
+        return this;
     }
 
     /**
@@ -224,53 +241,43 @@ public class JavaProcess implements QubProcess
         return inputCharacterReadStream.get();
     }
 
-    public CharacterWriteStream getOutputCharacterWriteStream()
-    {
-        if (!outputCharacterWriteStream.hasValue())
-        {
-            final ByteWriteStream outputByteWriteStream = getOutputByteWriteStream();
-            final CharacterEncoding characterEncoding = getCharacterEncoding();
-            final String lineSeparator = getLineSeparator();
-            outputCharacterWriteStream.set(outputByteWriteStream.asCharacterWriteStream(characterEncoding, lineSeparator));
-        }
-        return outputCharacterWriteStream.get();
-    }
-
-    public CharacterWriteStream getErrorCharacterWriteStream()
-    {
-        if (!errorCharacterWriteStream.hasValue())
-        {
-            final ByteWriteStream errorByteWriteStream = getErrorByteWriteStream();
-            final CharacterEncoding characterEncoding = getCharacterEncoding();
-            final String lineSeparator = getLineSeparator();
-            errorCharacterWriteStream.set(errorByteWriteStream.asCharacterWriteStream(characterEncoding, lineSeparator));
-        }
-        return errorCharacterWriteStream.get();
-    }
-
     public JavaProcess setCharacterEncoding(CharacterEncoding characterEncoding)
     {
+        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
+
         this.characterEncoding.set(characterEncoding);
-        outputCharacterWriteStream.clear();
-        errorCharacterWriteStream.clear();
-        inputCharacterReadStream.clear();
+        if (this.outputWriteStream.hasValue())
+        {
+            this.outputWriteStream.get().setCharacterEncoding(characterEncoding);
+        }
+        if (this.errorWriteStream.hasValue())
+        {
+            this.errorWriteStream.get().setCharacterEncoding(characterEncoding);
+        }
+        this.inputCharacterReadStream.clear();
         return this;
     }
 
     public CharacterEncoding getCharacterEncoding()
     {
-        if (!characterEncoding.hasValue())
+        if (!this.characterEncoding.hasValue())
         {
-            characterEncoding.set(CharacterEncoding.UTF_8);
+            this.characterEncoding.set(CharacterEncoding.UTF_8);
         }
-        return characterEncoding.get();
+        return this.characterEncoding.get();
     }
 
     public JavaProcess setLineSeparator(String lineSeparator)
     {
         this.lineSeparator.set(lineSeparator);
-        outputCharacterWriteStream.clear();
-        errorCharacterWriteStream.clear();
+        if (this.outputWriteStream.hasValue())
+        {
+            this.outputWriteStream.get().setNewLine(lineSeparator);
+        }
+        if (this.errorWriteStream.hasValue())
+        {
+            this.errorWriteStream.get().setNewLine(lineSeparator);
+        }
         inputCharacterReadStream.clear();
         return this;
     }
@@ -282,56 +289,6 @@ public class JavaProcess implements QubProcess
             lineSeparator.set(this.onWindows().await() ? "\r\n" : "\n");
         }
         return lineSeparator.get();
-    }
-
-    /**
-     * Set the ByteWriteStream that is assigned to this Console's output.
-     * @param outputByteWriteStream The ByteWriteStream that is assigned to this Console's output.
-     * @return This object for method chaining.
-     */
-    public JavaProcess setOutputByteWriteStream(ByteWriteStream outputByteWriteStream)
-    {
-        this.outputByteWriteStream.set(outputByteWriteStream);
-        outputCharacterWriteStream.clear();
-        return this;
-    }
-
-    /**
-     * Set the CharacterWriteStream that is assigned to this Console's output.
-     * @param outputCharacterWriteStream The CharacterWriteStream that is assigned to this Console's
-     *                                   output.
-     * @return This object for method chaining.
-     */
-    public JavaProcess setOutputCharacterWriteStream(CharacterWriteStream outputCharacterWriteStream)
-    {
-        this.outputByteWriteStream.clear();
-        this.outputCharacterWriteStream.set(outputCharacterWriteStream);
-        return this;
-    }
-
-    /**
-     * Set the ByteWriteStream that is assigned to this Console's error.
-     * @param errorByteWriteStream The ByteWriteStream that is assigned to this Console's error.
-     * @return This object for method chaining.
-     */
-    public JavaProcess setErrorByteWriteStream(ByteWriteStream errorByteWriteStream)
-    {
-        this.errorByteWriteStream.set(errorByteWriteStream);
-        errorCharacterWriteStream.clear();
-        return this;
-    }
-
-    /**
-     * Set the CharacterWriteStream that is assigned to this Console's error.
-     * @param errorCharacterWriteStream The CharacterWriteStream that is assigned to this Console's
-     *                                  error.
-     * @return This object for method chaining.
-     */
-    public JavaProcess setErrorCharacterWriteStream(CharacterWriteStream errorCharacterWriteStream)
-    {
-        this.errorByteWriteStream.clear();
-        this.errorCharacterWriteStream.set(errorCharacterWriteStream);
-        return this;
     }
 
     /**
@@ -571,7 +528,7 @@ public class JavaProcess implements QubProcess
             if (shouldShowDuration)
             {
                 final Duration compilationDuration = stopwatch.stop().toSeconds();
-                final CharacterWriteStream output = this.getOutputCharacterWriteStream();
+                final CharacterWriteStream output = this.getOutputWriteStream();
                 output.writeLine("Done (" + compilationDuration.toString("0.0") + ")").await();
             }
         }

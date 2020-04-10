@@ -1,8 +1,8 @@
 package qub;
 
-public class OutputStreamToByteWriteStreamTests
+public interface OutputStreamToByteWriteStreamTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(OutputStreamToByteWriteStream.class, () ->
         {
@@ -40,14 +40,14 @@ public class OutputStreamToByteWriteStreamTests
                 });
             });
 
-            runner.testGroup("writeByte(byte)", () ->
+            runner.testGroup("write(byte)", () ->
             {
                 final Action3<java.io.OutputStream,Byte,Boolean> writeByteTest = (java.io.OutputStream outputStream, Byte toWrite, Boolean expectedWriteResult) ->
                 {
                     runner.test("with " + outputStream.getClass().getSimpleName() + " and " + toWrite, test ->
                     {
                         final OutputStreamToByteWriteStream writeStream = getWriteStream(outputStream);
-                        final Result<Integer> writeResult = writeStream.writeByte(toWrite);
+                        final Result<Integer> writeResult = writeStream.write(toWrite);
                         if (expectedWriteResult)
                         {
                             test.assertEqual(1, writeResult.await());
@@ -80,11 +80,11 @@ public class OutputStreamToByteWriteStreamTests
 
                         if (expectedError != null)
                         {
-                            test.assertThrows(() -> writeStream.writeBytes(toWrite).await(), expectedError);
+                            test.assertThrows(() -> writeStream.write(toWrite).await(), expectedError);
                         }
                         else
                         {
-                            test.assertEqual(expectedWriteResult, writeStream.writeBytes(toWrite).await());
+                            test.assertEqual(expectedWriteResult, writeStream.write(toWrite).await());
 
                             if (outputStream instanceof java.io.ByteArrayOutputStream)
                             {
@@ -113,11 +113,11 @@ public class OutputStreamToByteWriteStreamTests
 
                         if (expectedError == null)
                         {
-                            test.assertEqual(expectedWriteResult, writeStream.writeBytes(toWrite, startIndex, length).await());
+                            test.assertEqual(expectedWriteResult, writeStream.write(toWrite, startIndex, length).await());
                         }
                         else
                         {
-                            test.assertThrows(() -> writeStream.writeBytes(toWrite, startIndex, length).await(), expectedError);
+                            test.assertThrows(() -> writeStream.write(toWrite, startIndex, length).await(), expectedError);
                         }
 
                         if (outputStream instanceof java.io.ByteArrayOutputStream)
@@ -138,37 +138,15 @@ public class OutputStreamToByteWriteStreamTests
                 writeByteArrayStartIndexAndLengthTest.run(new java.io.ByteArrayOutputStream(), new byte[] { 0, 1, 2 }, 1, 1, 1, null);
                 writeByteArrayStartIndexAndLengthTest.run(new TestStubOutputStream(), new byte[] { 0, 1, 2 }, 1, 1, null, new RuntimeException(new java.io.IOException()));
             });
-
-            runner.test("asCharacterWriteStream()", test ->
-            {
-                final java.io.ByteArrayOutputStream outputStream = getOutputStream();
-                final OutputStreamToByteWriteStream writeStream = getWriteStream(outputStream);
-
-                final CharacterWriteStream characterWriteStream = writeStream.asCharacterWriteStream();
-                characterWriteStream.write("abc");
-
-                test.assertEqual(new byte[] { 97, 98, 99 }, outputStream.toByteArray());
-            });
-
-            runner.testGroup("asCharacterWriteStream(CharacterEncoding)", () ->
-            {
-                runner.test("with null encoding", test ->
-                {
-                    final java.io.ByteArrayOutputStream outputStream = getOutputStream();
-                    final OutputStreamToByteWriteStream writeStream = getWriteStream(outputStream);
-
-                    test.assertThrows(() -> writeStream.asCharacterWriteStream((CharacterEncoding)null), new PreConditionFailure("characterEncoding cannot be null."));
-                });
-            });
         });
     }
 
-    private static java.io.ByteArrayOutputStream getOutputStream()
+    static java.io.ByteArrayOutputStream getOutputStream()
     {
         return new java.io.ByteArrayOutputStream();
     }
 
-    private static OutputStreamToByteWriteStream getWriteStream(java.io.OutputStream outputStream)
+    static OutputStreamToByteWriteStream getWriteStream(java.io.OutputStream outputStream)
     {
         return new OutputStreamToByteWriteStream(outputStream);
     }

@@ -238,7 +238,7 @@ public interface FakeProcessFactoryTests
                         .add(FakeProcessRun.get("/executable/file")
                             .setFunction((ByteWriteStream output) ->
                             {
-                                output.writeBytes(new byte[] { 10, 9, 8, 7 }).await();
+                                output.write(new byte[] { 10, 9, 8, 7 }).await();
                                 return 4;
                             }));
                     final InMemoryByteStream output = new InMemoryByteStream();
@@ -257,7 +257,7 @@ public interface FakeProcessFactoryTests
                         .add(FakeProcessRun.get("/executable/file")
                             .setFunction((ByteWriteStream output, ByteWriteStream error) ->
                             {
-                                error.writeBytes(new byte[] { 9, 8, 7, 6 }).await();
+                                error.write(new byte[] { 9, 8, 7, 6 }).await();
                                 return 5;
                             }));
                     final InMemoryByteStream output = new InMemoryByteStream();

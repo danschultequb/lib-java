@@ -1,8 +1,8 @@
 package qub;
 
-public class BufferedByteWriteStreamTests
+public interface BufferedByteWriteStreamTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(BufferedByteWriteStream.class, () ->
         {
@@ -138,7 +138,7 @@ public class BufferedByteWriteStreamTests
                 });
             });
 
-            runner.testGroup("writeByte(byte)", () ->
+            runner.testGroup("write(byte)", () ->
             {
                 final int byteCount = 500000;
                 runner.speedTest("with " + byteCount + " bytes", Duration.milliseconds(100), (Test test) ->
@@ -148,7 +148,7 @@ public class BufferedByteWriteStreamTests
 
                     for (int i = 0; i < byteCount; ++i)
                     {
-                        writeStream.writeByte((byte)42).await();
+                        writeStream.write((byte)42).await();
                     }
 
                     test.assertTrue(writeStream.dispose().await());
@@ -156,13 +156,13 @@ public class BufferedByteWriteStreamTests
                 });
             });
 
-            runner.testGroup("writeBytes(byte[],int,int)", () ->
+            runner.testGroup("write(byte[],int,int)", () ->
             {
                 runner.test("with null bytes", (Test test) ->
                 {
                     final InMemoryByteStream innerStream = new InMemoryByteStream();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 1, 20);
-                    test.assertThrows(() -> byteWriteStream.writeBytes(null, 0, 0),
+                    test.assertThrows(() -> byteWriteStream.write((byte[])null, 0, 0),
                         new PreConditionFailure("bytes cannot be null."));
                     test.assertEqual(1, byteWriteStream.getBufferCapacity());
                     test.assertEqual(0, byteWriteStream.getBufferByteCount());
@@ -173,7 +173,7 @@ public class BufferedByteWriteStreamTests
                 {
                     final InMemoryByteStream innerStream = new InMemoryByteStream();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 1, 20);
-                    test.assertThrows(() -> byteWriteStream.writeBytes(new byte[0], 0, 0),
+                    test.assertThrows(() -> byteWriteStream.write(new byte[0], 0, 0),
                         new PreConditionFailure("bytes cannot be empty."));
                     test.assertEqual(1, byteWriteStream.getBufferCapacity());
                     test.assertEqual(0, byteWriteStream.getBufferByteCount());
@@ -184,7 +184,7 @@ public class BufferedByteWriteStreamTests
                 {
                     final InMemoryByteStream innerStream = new InMemoryByteStream();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 5, 20);
-                    test.assertEqual(3, byteWriteStream.writeBytes(new byte[] { 1, 2, 3 }).await());
+                    test.assertEqual(3, byteWriteStream.write(new byte[] { 1, 2, 3 }).await());
                     test.assertEqual(5, byteWriteStream.getBufferCapacity());
                     test.assertEqual(3, byteWriteStream.getBufferByteCount());
                     test.assertEqual(0, innerStream.getCount());
@@ -195,12 +195,12 @@ public class BufferedByteWriteStreamTests
                     final InMemoryByteStream innerStream = new InMemoryByteStream();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 5, 20);
 
-                    test.assertEqual(1, byteWriteStream.writeBytes(new byte[] { 1 }).await());
+                    test.assertEqual(1, byteWriteStream.write(new byte[] { 1 }).await());
                     test.assertEqual(5, byteWriteStream.getBufferCapacity());
                     test.assertEqual(1, byteWriteStream.getBufferByteCount());
                     test.assertEqual(0, innerStream.getCount());
 
-                    test.assertEqual(3, byteWriteStream.writeBytes(new byte[] { 2, 3, 4 }).await());
+                    test.assertEqual(3, byteWriteStream.write(new byte[] { 2, 3, 4 }).await());
                     test.assertEqual(5, byteWriteStream.getBufferCapacity());
                     test.assertEqual(4, byteWriteStream.getBufferByteCount());
                     test.assertEqual(0, innerStream.getCount());
@@ -210,7 +210,7 @@ public class BufferedByteWriteStreamTests
                 {
                     final InMemoryByteStream innerStream = new InMemoryByteStream();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 3, 20);
-                    test.assertEqual(3, byteWriteStream.writeBytes(new byte[] { 1, 2, 3 }).await());
+                    test.assertEqual(3, byteWriteStream.write(new byte[] { 1, 2, 3 }).await());
                     test.assertEqual(6, byteWriteStream.getBufferCapacity());
                     test.assertEqual(0, byteWriteStream.getBufferByteCount());
                     test.assertEqual(new byte[] { 1, 2, 3 }, innerStream.getBytes());
@@ -220,7 +220,7 @@ public class BufferedByteWriteStreamTests
                 {
                     final InMemoryByteStream innerStream = new InMemoryByteStream();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 3, 20);
-                    test.assertEqual(3, byteWriteStream.writeBytes(new byte[] { 1, 2, 3, 4, 5 }).await());
+                    test.assertEqual(3, byteWriteStream.write(new byte[] { 1, 2, 3, 4, 5 }).await());
                     test.assertEqual(6, byteWriteStream.getBufferCapacity());
                     test.assertEqual(0, byteWriteStream.getBufferByteCount());
                     test.assertEqual(new byte[] { 1, 2, 3 }, innerStream.getBytes());
@@ -231,7 +231,7 @@ public class BufferedByteWriteStreamTests
                     final InMemoryByteStream innerStream = new InMemoryByteStream();
                     innerStream.setMaxBytesPerWrite(1);
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 3);
-                    test.assertEqual(3, byteWriteStream.writeBytes(new byte[] { 1, 2, 3, 4, 5 }).await());
+                    test.assertEqual(3, byteWriteStream.write(new byte[] { 1, 2, 3, 4, 5 }).await());
                     test.assertEqual(3, byteWriteStream.getBufferCapacity());
                     test.assertEqual(2, byteWriteStream.getBufferByteCount());
                     test.assertEqual(new byte[] { 1 }, innerStream.getBytes());
@@ -260,7 +260,7 @@ public class BufferedByteWriteStreamTests
                 {
                     final InMemoryByteStream innerStream = new InMemoryByteStream();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 5);
-                    test.assertEqual(3, byteWriteStream.writeBytes(new byte[] { 1, 2, 3 }).await());
+                    test.assertEqual(3, byteWriteStream.write(new byte[] { 1, 2, 3 }).await());
                     test.assertEqual(5, byteWriteStream.getBufferCapacity());
                     test.assertEqual(3, byteWriteStream.getBufferByteCount());
                     test.assertEqual(new byte[0], innerStream.getBytes());

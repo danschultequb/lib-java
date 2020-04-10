@@ -77,7 +77,7 @@ public class CommandLineParameterHelp extends CommandLineParameterBoolean
             final boolean showHelpLines = this.getValue().await();
             if (showHelpLines)
             {
-                final CharacterWriteStream writeStream = process.getOutputCharacterWriteStream();
+                final CharacterWriteStream writeStream = process.getOutputWriteStream();
                 final Iterable<String> helpLines = CommandLineParameterHelp.getApplicationHelpLines(
                     this.parameters.getApplicationName(),
                     this.parameters.getApplicationDescription(),

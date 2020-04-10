@@ -8,7 +8,7 @@ public class USASCIICharacterEncoding implements CharacterEncoding
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
         PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDiposed()");
 
-        return byteWriteStream.writeByte(encodeCharacter(character))
+        return byteWriteStream.write(encodeCharacter(character))
             .then(() -> 1);
     }
 
@@ -24,7 +24,7 @@ public class USASCIICharacterEncoding implements CharacterEncoding
         {
             encodedBytes[i] = encodeCharacter(text.charAt(i));
         }
-        return byteWriteStream.writeAllBytes(encodedBytes)
+        return byteWriteStream.writeAll(encodedBytes)
             .then(() -> encodedBytes.length);
     }
 
@@ -42,7 +42,7 @@ public class USASCIICharacterEncoding implements CharacterEncoding
         {
             encodedBytes[i] = encodeCharacter(characters[startIndex + i]);
         }
-        return byteWriteStream.writeAllBytes(encodedBytes)
+        return byteWriteStream.writeAll(encodedBytes)
             .then(() -> encodedBytes.length);
     }
 

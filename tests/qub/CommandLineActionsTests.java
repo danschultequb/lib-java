@@ -224,8 +224,8 @@ public interface CommandLineActionsTests
                         .setApplicationDescription("there");
                     try (Process process = Process.create())
                     {
-                        final InMemoryByteStream output = new InMemoryByteStream();
-                        process.setOutputByteWriteStream(output);
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        process.setOutputWriteStream(output);
 
                         actions.run(process);
 
@@ -235,7 +235,7 @@ public interface CommandLineActionsTests
                                 "  there",
                                 "  --action(a): The name of the action to invoke.",
                                 "  --help(?): Show the help message for this application."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()));
+                            Strings.getLines(output.getText().await()));
                         test.assertEqual(-1, process.getExitCode());
                     }
                 });
@@ -247,8 +247,8 @@ public interface CommandLineActionsTests
                         .setApplicationDescription("there");
                     try (Process process = Process.create("--action="))
                     {
-                        final InMemoryByteStream output = new InMemoryByteStream();
-                        process.setOutputByteWriteStream(output);
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        process.setOutputWriteStream(output);
 
                         actions.run(process);
 
@@ -258,7 +258,7 @@ public interface CommandLineActionsTests
                                 "  there",
                                 "  --action(a): The name of the action to invoke.",
                                 "  --help(?): Show the help message for this application."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()));
+                            Strings.getLines(output.getText().await()));
                         test.assertEqual(-1, process.getExitCode());
                     }
                 });
@@ -270,8 +270,8 @@ public interface CommandLineActionsTests
                         .setApplicationDescription("there");
                     try (Process process = Process.create("--action=stuff"))
                     {
-                        final InMemoryByteStream output = new InMemoryByteStream();
-                        process.setOutputByteWriteStream(output);
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        process.setOutputWriteStream(output);
 
                         actions.run(process);
 
@@ -281,7 +281,7 @@ public interface CommandLineActionsTests
                                 "  there",
                                 "  --action(a): The name of the action to invoke.",
                                 "  --help(?): Show the help message for this application."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()));
+                            Strings.getLines(output.getText().await()));
                         test.assertEqual(-1, process.getExitCode());
                     }
                 });
@@ -295,8 +295,8 @@ public interface CommandLineActionsTests
                         .setDescription("Perform the update action");
                     try (Process process = Process.create("--action="))
                     {
-                        final InMemoryByteStream output = new InMemoryByteStream();
-                        process.setOutputByteWriteStream(output);
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        process.setOutputWriteStream(output);
 
                         actions.run(process);
 
@@ -309,7 +309,7 @@ public interface CommandLineActionsTests
                                 "",
                                 "Actions:",
                                 "  update: Perform the update action"),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()));
+                            Strings.getLines(output.getText().await()));
                         test.assertEqual(-1, process.getExitCode());
                     }
                 });
@@ -323,8 +323,8 @@ public interface CommandLineActionsTests
                         .setDescription("Update the thing.");
                     try (Process process = Process.create("--action="))
                     {
-                        final InMemoryByteStream output = new InMemoryByteStream();
-                        process.setOutputByteWriteStream(output);
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        process.setOutputWriteStream(output);
 
                         actions.run(process);
 
@@ -337,7 +337,7 @@ public interface CommandLineActionsTests
                                 "",
                                 "Actions:",
                                 "  update: Update the thing."),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()));
+                            Strings.getLines(output.getText().await()));
                         test.assertEqual(-1, process.getExitCode());
                     }
                 });
@@ -350,8 +350,8 @@ public interface CommandLineActionsTests
                     actions.addAction("update", (Process process) -> {});
                     try (Process process = Process.create("--action=foo"))
                     {
-                        final InMemoryByteStream output = new InMemoryByteStream();
-                        process.setOutputByteWriteStream(output);
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        process.setOutputWriteStream(output);
 
                         actions.run(process);
 
@@ -364,7 +364,7 @@ public interface CommandLineActionsTests
                                 "",
                                 "Actions:",
                                 "  update"),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()));
+                            Strings.getLines(output.getText().await()));
                         test.assertEqual(-1, process.getExitCode());
                     }
                 });
@@ -379,8 +379,8 @@ public interface CommandLineActionsTests
                         .setDescription("Do the list action.");
                     try (Process process = Process.create("--action=foo"))
                     {
-                        final InMemoryByteStream output = new InMemoryByteStream();
-                        process.setOutputByteWriteStream(output);
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        process.setOutputWriteStream(output);
 
                         actions.run(process);
 
@@ -394,7 +394,7 @@ public interface CommandLineActionsTests
                                 "Actions:",
                                 "  list: Do the list action.",
                                 "  update"),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()));
+                            Strings.getLines(output.getText().await()));
                         test.assertEqual(-1, process.getExitCode());
                     }
                 });
@@ -408,14 +408,14 @@ public interface CommandLineActionsTests
                     actions.addAction("update", (Process process) -> { value.increment(); });
                     try (Process process = Process.create("--action=update"))
                     {
-                        final InMemoryByteStream output = new InMemoryByteStream();
-                        process.setOutputByteWriteStream(output);
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        process.setOutputWriteStream(output);
 
                         actions.run(process);
 
                         test.assertEqual(
                             Iterable.create(),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()));
+                            Strings.getLines(output.getText().await()));
                         test.assertEqual(0, process.getExitCode());
                         test.assertEqual(1, value.get());
                     }
@@ -431,14 +431,14 @@ public interface CommandLineActionsTests
                         .addAlias("u");
                     try (Process process = Process.create("--action=u"))
                     {
-                        final InMemoryByteStream output = new InMemoryByteStream();
-                        process.setOutputByteWriteStream(output);
+                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        process.setOutputWriteStream(output);
 
                         actions.run(process);
 
                         test.assertEqual(
                             Iterable.create(),
-                            Strings.getLines(output.asCharacterReadStream().getText().await()));
+                            Strings.getLines(output.getText().await()));
                         test.assertEqual(0, process.getExitCode());
                         test.assertEqual(1, value.get());
                     }

@@ -2,14 +2,14 @@ package qub;
 
 public class CommandLineParameterVerbose extends CommandLineParameterBoolean
 {
-    private CharacterWriteStream writeStream;
+    private CharacterToByteWriteStream writeStream;
 
-    public CommandLineParameterVerbose(CharacterWriteStream writeStream)
+    public CommandLineParameterVerbose(CharacterToByteWriteStream writeStream)
     {
         this(writeStream, false);
     }
 
-    public CommandLineParameterVerbose(CharacterWriteStream writeStream, boolean unspecifiedValue)
+    public CommandLineParameterVerbose(CharacterToByteWriteStream writeStream, boolean unspecifiedValue)
     {
         super("verbose", unspecifiedValue);
 
@@ -91,7 +91,7 @@ public class CommandLineParameterVerbose extends CommandLineParameterBoolean
         return this;
     }
 
-    public CommandLineParameterVerbose setWriteStream(CharacterWriteStream writeStream)
+    public CommandLineParameterVerbose setWriteStream(CharacterToByteWriteStream writeStream)
     {
         this.writeStream = writeStream;
         return this;
