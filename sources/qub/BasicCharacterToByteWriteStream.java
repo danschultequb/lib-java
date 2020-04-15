@@ -26,12 +26,6 @@ public class BasicCharacterToByteWriteStream implements CharacterToByteWriteStre
     }
 
     @Override
-    public ByteWriteStream getByteWriteStream()
-    {
-        return this.byteWriteStream;
-    }
-
-    @Override
     public CharacterEncoding getCharacterEncoding()
     {
         return this.characterEncoding;
@@ -61,5 +55,59 @@ public class BasicCharacterToByteWriteStream implements CharacterToByteWriteStre
         this.newLine = newLine;
 
         return this;
+    }
+
+    @Override
+    public Result<Integer> write(char toWrite)
+    {
+        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+
+        return Result.create(() ->
+        {
+            this.characterEncoding.encode(toWrite, this.byteWriteStream).await();
+            return 1;
+        });
+    }
+
+    @Override
+    public Result<Integer> write(String toWrite, Object... formattedStringArguments)
+    {
+        PreCondition.assertNotNull(toWrite, "toWrite");
+        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+
+        return Result.create(() ->
+        {
+            final String formattedString = Strings.format(toWrite, formattedStringArguments);
+            this.characterEncoding.encode(formattedString, this.byteWriteStream).await();
+            return formattedString.length();
+        });
+    }
+
+    @Override
+    public Result<Integer> write(byte toWrite)
+    {
+        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+
+        return this.byteWriteStream.write(toWrite);
+    }
+
+    @Override
+    public Result<Integer> write(byte[] toWrite, int startIndex, int length)
+    {
+        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+
+        return this.byteWriteStream.write(toWrite, startIndex, length);
+    }
+
+    @Override
+    public boolean isDisposed()
+    {
+        return this.byteWriteStream.isDisposed();
+    }
+
+    @Override
+    public Result<Boolean> dispose()
+    {
+        return this.byteWriteStream.dispose();
     }
 }

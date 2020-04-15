@@ -65,26 +65,18 @@ public interface InMemoryCharacterToByteStreamTests
 
             runner.testGroup("setNewLine(char[])", () ->
             {
-                runner.test("with null", (Test test) ->
-                {
-                    final InMemoryCharacterToByteStream stream = InMemoryCharacterToByteStreamTests.createStream();
-                    final String newLine = stream.getNewLine();
-                    test.assertThrows(() -> stream.setNewLine((char[])null),
-                        new PreConditionFailure("newLine cannot be null."));
-                    test.assertEqual(newLine, stream.getNewLine());
-                });
-
                 final Action1<char[]> setNewLineTest = (char[] newLine) ->
                 {
-                    runner.test("with " + Iterable.create(newLine), (Test test) ->
+                    runner.test("with " + (newLine == null ? null : CharacterList.create(newLine).map(Characters::escapeAndQuote)), (Test test) ->
                     {
                         final InMemoryCharacterToByteStream stream = InMemoryCharacterToByteStreamTests.createStream();
                         final InMemoryCharacterToByteStream setNewLineResult = stream.setNewLine(newLine);
                         test.assertSame(stream, setNewLineResult);
-                        test.assertEqual(CharacterList.create(newLine).toString(true), stream.getNewLine());
+                        test.assertEqual(newLine == null ? null : CharacterList.create(newLine).toString(true), stream.getNewLine());
                     });
                 };
 
+                setNewLineTest.run(null);
                 setNewLineTest.run(new char[0]);
                 setNewLineTest.run(new char[] { '\n' });
                 setNewLineTest.run(new char[] { '\r', '\n' });
@@ -93,15 +85,6 @@ public interface InMemoryCharacterToByteStreamTests
 
             runner.testGroup("setNewLine(String)", () ->
             {
-                runner.test("with null", (Test test) ->
-                {
-                    final InMemoryCharacterToByteStream stream = InMemoryCharacterToByteStreamTests.createStream();
-                    final String newLine = stream.getNewLine();
-                    test.assertThrows(() -> stream.setNewLine((String)null),
-                        new PreConditionFailure("newLine cannot be null."));
-                    test.assertEqual(newLine, stream.getNewLine());
-                });
-
                 final Action1<String> setNewLineTest = (String newLine) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(newLine), (Test test) ->
@@ -113,6 +96,7 @@ public interface InMemoryCharacterToByteStreamTests
                     });
                 };
 
+                setNewLineTest.run(null);
                 setNewLineTest.run("");
                 setNewLineTest.run("\n");
                 setNewLineTest.run("\r\n");
@@ -561,7 +545,7 @@ public interface InMemoryCharacterToByteStreamTests
 
     static InMemoryCharacterToByteStream createStream(String text, boolean endOfStream)
     {
-        InMemoryCharacterToByteStream result = new InMemoryCharacterToByteStream();
+        InMemoryCharacterToByteStream result = InMemoryCharacterToByteStream.create();
         if (!Strings.isNullOrEmpty(text))
         {
             result.write(text);

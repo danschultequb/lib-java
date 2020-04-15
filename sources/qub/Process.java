@@ -300,6 +300,7 @@ public interface Process extends Disposable
      */
     CharacterToByteWriteStream getOutputWriteStream();
 
+    @Deprecated
     CharacterWriteStream getOutputCharacterWriteStream();
 
     /**
@@ -345,6 +346,7 @@ public interface Process extends Disposable
      */
     Process setOutputWriteStream(CharacterToByteWriteStream outputWriteStream);
 
+    @Deprecated
     Process setOutputCharacterWriteStream(CharacterWriteStream outputWriteStream);
 
     /**

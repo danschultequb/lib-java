@@ -259,7 +259,7 @@ public interface ProcessTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    final InMemoryCharacterToByteStream readStream = new InMemoryCharacterToByteStream("ere my good friend\nHow are you?\r\nI'm alright.").endOfStream();
+                    final InMemoryCharacterToByteStream readStream = InMemoryCharacterToByteStream.create("ere my good friend\nHow are you?\r\nI'm alright.").endOfStream();
                     process.setInputCharacterReadStream(readStream);
 
                     test.assertNull(process.getInputByteReadStream());
@@ -652,10 +652,10 @@ public interface ProcessTests
                             test.assertTrue(builder.getExecutablePath().getSegments().last().startsWith("javac"));
                             test.assertEqual(Iterable.create(), builder.getArguments());
 
-                            final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                            final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                             builder.redirectOutput(output);
 
-                            final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                            final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                             builder.redirectError(error);
 
                             test.assertEqual(2, builder.run().await());
@@ -676,10 +676,10 @@ public interface ProcessTests
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("javac").await();
 
-                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         builder.redirectOutput(output);
 
-                        final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                         builder.redirectError(error);
 
                         final Folder workingFolder = test.getProcess().getCurrentFolder()
@@ -700,10 +700,10 @@ public interface ProcessTests
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("javac").await();
 
-                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         builder.redirectOutput(output);
 
-                        final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                         builder.redirectError(error);
 
                         final Folder currentFolder = test.getProcess().getCurrentFolder().await();
@@ -734,10 +734,10 @@ public interface ProcessTests
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("javac").await();
 
-                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         builder.redirectOutput(output);
 
-                        final InMemoryCharacterToByteStream error = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                         builder.redirectError(error);
 
                         final Folder workingFolder = test.getProcess().getCurrentFolder().await();

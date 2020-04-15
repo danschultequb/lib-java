@@ -9,7 +9,7 @@ public class LinePrefixCharacterWriteStream implements CharacterWriteStream
     private Function0<String> linePrefixFunction;
     private boolean addPrefixBeforeNextCharacter;
 
-    public LinePrefixCharacterWriteStream(CharacterWriteStream innerStream)
+    protected LinePrefixCharacterWriteStream(CharacterWriteStream innerStream)
     {
         PreCondition.assertNotNull(innerStream, "innerStream");
 
@@ -18,17 +18,20 @@ public class LinePrefixCharacterWriteStream implements CharacterWriteStream
         this.addPrefixBeforeNextCharacter = true;
     }
 
+    public static LinePrefixCharacterWriteStream create(CharacterWriteStream innerStream)
+    {
+        PreCondition.assertNotNull(innerStream, "innerStream");
+
+        return new LinePrefixCharacterWriteStream(innerStream);
+    }
+
     /**
      * Get the current line prefix.
      * @return The current line prefix.
      */
     public String getLinePrefix()
     {
-        final String result = linePrefixFunction.run();
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return linePrefixFunction.run();
     }
 
     /**
@@ -38,7 +41,7 @@ public class LinePrefixCharacterWriteStream implements CharacterWriteStream
      */
     public LinePrefixCharacterWriteStream setLinePrefix(Function0<String> linePrefixFunction)
     {
-        PreCondition.assertNotNull(linePrefixFunction, "currentIndent");
+        PreCondition.assertNotNull(linePrefixFunction, "linePrefixFunction");
 
         this.linePrefixFunction = linePrefixFunction;
 
@@ -52,8 +55,6 @@ public class LinePrefixCharacterWriteStream implements CharacterWriteStream
      */
     public LinePrefixCharacterWriteStream setLinePrefix(String linePrefix)
     {
-        PreCondition.assertNotNull(linePrefix, "linePrefix");
-
         this.linePrefixFunction = () -> linePrefix;
 
         return this;
@@ -63,6 +64,22 @@ public class LinePrefixCharacterWriteStream implements CharacterWriteStream
     public String getNewLine()
     {
         return this.innerStream.getNewLine();
+    }
+
+    @Override
+    public LinePrefixCharacterWriteStream setNewLine(char newLine)
+    {
+        this.innerStream.setNewLine(newLine);
+
+        return this;
+    }
+
+    @Override
+    public LinePrefixCharacterWriteStream setNewLine(char[] newLine)
+    {
+        this.innerStream.setNewLine(newLine);
+
+        return this;
     }
 
     @Override
@@ -82,7 +99,7 @@ public class LinePrefixCharacterWriteStream implements CharacterWriteStream
         {
             int result = 0;
             final String linePrefix = this.getLinePrefix();
-            if (addPrefixBeforeNextCharacter && !Strings.isNullOrEmpty(linePrefix))
+            if (addPrefixBeforeNextCharacter && !Strings.isNullOrEmpty(linePrefix) && toWrite != '\n')
             {
                 result += innerStream.write(linePrefix).await();
             }
@@ -97,8 +114,8 @@ public class LinePrefixCharacterWriteStream implements CharacterWriteStream
     public Result<Integer> write(char[] toWrite, int startIndex, int length)
     {
         PreCondition.assertNotNull(toWrite, "toWrite");
-        PreCondition.assertNonEmptyStartIndex(startIndex, toWrite.length);
-        PreCondition.assertNonEmptyLength(length, startIndex, toWrite.length);
+        PreCondition.assertStartIndex(startIndex, toWrite.length);
+        PreCondition.assertLength(length, startIndex, toWrite.length);
         PreCondition.assertNotDisposed(this);
 
         final int endIndex = startIndex + length;
@@ -109,12 +126,12 @@ public class LinePrefixCharacterWriteStream implements CharacterWriteStream
             int lineStartIndex = startIndex;
             int lineLength = length;
             int newLineCharacterIndex = Array.indexOf(toWrite, lineStartIndex, lineLength, '\n');
-            final String linePrefix = this.getLinePrefix();
             while (newLineCharacterIndex != -1)
             {
                 final int lineEndIndex = newLineCharacterIndex + 1;
                 lineLength = lineEndIndex - lineStartIndex;
 
+                final String linePrefix = this.getLinePrefix();
                 if (addPrefixBeforeNextCharacter && !Strings.isNullOrEmpty(linePrefix) && lineLength != 1 && (lineLength != 2 || toWrite[lineStartIndex] != '\r'))
                 {
                     result += innerStream.write(linePrefix).await();
@@ -129,6 +146,7 @@ public class LinePrefixCharacterWriteStream implements CharacterWriteStream
 
             if (lineStartIndex < endIndex)
             {
+                final String linePrefix = this.getLinePrefix();
                 if (addPrefixBeforeNextCharacter && !Strings.isNullOrEmpty(linePrefix))
                 {
                     result += innerStream.write(linePrefix).await();
@@ -187,19 +205,6 @@ public class LinePrefixCharacterWriteStream implements CharacterWriteStream
 
             PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
 
-            return result;
-        });
-    }
-
-    @Override
-    public Result<Integer> writeLine()
-    {
-        PreCondition.assertNotDisposed(this);
-
-        return Result.create(() ->
-        {
-            final int result = innerStream.writeLine().await();
-            addPrefixBeforeNextCharacter = true;
             return result;
         });
     }

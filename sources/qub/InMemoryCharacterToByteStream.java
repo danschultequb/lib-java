@@ -6,28 +6,47 @@ public class InMemoryCharacterToByteStream extends BasicCharacterReadStream impl
     private CharacterEncoding characterEncoding;
     private String newLine;
 
-    public InMemoryCharacterToByteStream()
-    {
-        this("");
-    }
-
-    public InMemoryCharacterToByteStream(String text)
-    {
-        this(text, CharacterEncoding.UTF_8);
-    }
-
-    public InMemoryCharacterToByteStream(String text, CharacterEncoding characterEncoding)
-    {
-        this(new InMemoryByteStream(Strings.isNullOrEmpty(text) ? null : characterEncoding.encode(text).await()), characterEncoding);
-    }
-
-    public InMemoryCharacterToByteStream(InMemoryByteStream byteStream, CharacterEncoding characterEncoding)
+    protected InMemoryCharacterToByteStream(InMemoryByteStream byteStream, CharacterEncoding characterEncoding)
     {
         super(byteStream, characterEncoding);
 
         this.byteStream = byteStream;
         this.characterEncoding = characterEncoding;
         this.newLine = "\n";
+    }
+
+    @Deprecated
+    public InMemoryCharacterToByteStream()
+    {
+        this(new InMemoryByteStream(), CharacterEncoding.UTF_8);
+    }
+
+    public static InMemoryCharacterToByteStream create()
+    {
+        return InMemoryCharacterToByteStream.create("");
+    }
+
+    public static InMemoryCharacterToByteStream create(String text)
+    {
+        return InMemoryCharacterToByteStream.create(text, CharacterEncoding.UTF_8);
+    }
+
+    public static InMemoryCharacterToByteStream create(String text, CharacterEncoding characterEncoding)
+    {
+        PreCondition.assertNotNull(text, "text");
+        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
+
+        final byte[] encodedBytes = characterEncoding.encode(text).await();
+        final InMemoryByteStream byteStream = new InMemoryByteStream(encodedBytes);
+        return InMemoryCharacterToByteStream.create(byteStream, characterEncoding);
+    }
+
+    public static InMemoryCharacterToByteStream create(InMemoryByteStream byteStream, CharacterEncoding characterEncoding)
+    {
+        PreCondition.assertNotNull(byteStream, "byteStream");
+        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
+
+        return new InMemoryCharacterToByteStream(byteStream, characterEncoding);
     }
 
     public byte[] getBytes()
@@ -45,12 +64,6 @@ public class InMemoryCharacterToByteStream extends BasicCharacterReadStream impl
     {
         byteStream.endOfStream();
         return this;
-    }
-
-    @Override
-    public InMemoryByteStream getByteWriteStream()
-    {
-        return this.byteStream;
     }
 
     @Override
@@ -84,10 +97,45 @@ public class InMemoryCharacterToByteStream extends BasicCharacterReadStream impl
     @Override
     public InMemoryCharacterToByteStream setNewLine(String newLine)
     {
-        PreCondition.assertNotNull(newLine, "newLine");
-
         this.newLine = newLine;
 
         return this;
+    }
+
+    @Override
+    public Result<Integer> write(char toWrite)
+    {
+        PreCondition.assertNotDisposed(this, "this");
+
+        return Result.create(() ->
+        {
+            this.characterEncoding.encode(toWrite, this.byteStream).await();
+            return 1;
+        });
+    }
+
+    @Override
+    public Result<Integer> write(String toWrite, Object... formattedStringArguments)
+    {
+        PreCondition.assertNotDisposed(this, "this");
+
+        return Result.create(() ->
+        {
+            final String formattedString = Strings.format(toWrite, formattedStringArguments);
+            this.characterEncoding.encode(formattedString, this.byteStream).await();
+            return formattedString.length();
+        });
+    }
+
+    @Override
+    public Result<Integer> write(byte toWrite)
+    {
+        return this.byteStream.write(toWrite);
+    }
+
+    @Override
+    public Result<Integer> write(byte[] toWrite, int startIndex, int length)
+    {
+        return this.byteStream.write(toWrite, startIndex, length);
     }
 }

@@ -22,7 +22,7 @@ public interface BasicCharacterToByteWriteStreamTests
                     final BasicCharacterToByteWriteStream characterStream = new BasicCharacterToByteWriteStream(byteStream);
                     test.assertTrue(characterStream.dispose().await());
                     test.assertThrows(() -> characterStream.write('f'),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual(new byte[0], byteStream.getBytes());
                 });
             });
@@ -135,7 +135,7 @@ public interface BasicCharacterToByteWriteStreamTests
                     final BasicCharacterToByteWriteStream characterStream = new BasicCharacterToByteWriteStream(byteStream);
                     test.assertTrue(characterStream.dispose().await());
                     test.assertThrows(() -> characterStream.write(new char[] { 'f' }, 0, 1),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual(new byte[0], byteStream.getBytes());
                 });
 
@@ -181,7 +181,7 @@ public interface BasicCharacterToByteWriteStreamTests
                     final BasicCharacterToByteWriteStream characterStream = new BasicCharacterToByteWriteStream(byteStream);
                     test.assertTrue(characterStream.dispose().await());
                     test.assertThrows(() -> characterStream.write("abc"),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual(new byte[0], byteStream.getBytes());
                 });
             });

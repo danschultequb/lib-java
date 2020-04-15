@@ -224,7 +224,7 @@ public interface CommandLineActionsTests
                         .setApplicationDescription("there");
                     try (Process process = Process.create())
                     {
-                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
 
                         actions.run(process);
@@ -247,7 +247,7 @@ public interface CommandLineActionsTests
                         .setApplicationDescription("there");
                     try (Process process = Process.create("--action="))
                     {
-                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
 
                         actions.run(process);
@@ -270,7 +270,7 @@ public interface CommandLineActionsTests
                         .setApplicationDescription("there");
                     try (Process process = Process.create("--action=stuff"))
                     {
-                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
 
                         actions.run(process);
@@ -295,7 +295,7 @@ public interface CommandLineActionsTests
                         .setDescription("Perform the update action");
                     try (Process process = Process.create("--action="))
                     {
-                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
 
                         actions.run(process);
@@ -323,7 +323,7 @@ public interface CommandLineActionsTests
                         .setDescription("Update the thing.");
                     try (Process process = Process.create("--action="))
                     {
-                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
 
                         actions.run(process);
@@ -350,7 +350,7 @@ public interface CommandLineActionsTests
                     actions.addAction("update", (Process process) -> {});
                     try (Process process = Process.create("--action=foo"))
                     {
-                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
 
                         actions.run(process);
@@ -379,7 +379,7 @@ public interface CommandLineActionsTests
                         .setDescription("Do the list action.");
                     try (Process process = Process.create("--action=foo"))
                     {
-                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
 
                         actions.run(process);
@@ -408,7 +408,7 @@ public interface CommandLineActionsTests
                     actions.addAction("update", (Process process) -> { value.increment(); });
                     try (Process process = Process.create("--action=update"))
                     {
-                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
 
                         actions.run(process);
@@ -431,7 +431,7 @@ public interface CommandLineActionsTests
                         .addAlias("u");
                     try (Process process = Process.create("--action=u"))
                     {
-                        final InMemoryCharacterToByteStream output = new InMemoryCharacterToByteStream();
+                        final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
 
                         actions.run(process);

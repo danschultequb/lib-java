@@ -12,7 +12,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
     {
         PreCondition.assertNotNull(innerStream, "innerStream");
 
-        this.innerStream = new LinePrefixCharacterWriteStream(innerStream);
+        this.innerStream = LinePrefixCharacterWriteStream.create(innerStream);
         this.singleIndent = "  ";
     }
 

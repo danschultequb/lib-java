@@ -1334,7 +1334,7 @@ public class Test
 
     private static String toString(Object value)
     {
-        final InMemoryCharacterToByteStream stream = new InMemoryCharacterToByteStream();
+        final InMemoryCharacterToByteStream stream = InMemoryCharacterToByteStream.create();
         if (value instanceof String)
         {
             stream.write(Strings.escapeAndQuote(Objects.toString(value))).await();

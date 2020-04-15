@@ -69,13 +69,13 @@ public class TestError extends RuntimeException
         PreCondition.assertNotNullAndNotEmpty(testScope, "testScope");
         PreCondition.assertNotNullAndNotEmpty(messageLines, "messageLines");
 
-        final InMemoryCharacterToByteStream characterStream = new InMemoryCharacterToByteStream();
-        characterStream.writeLine(testScope);
+        final InMemoryCharacterToByteStream characterStream = InMemoryCharacterToByteStream.create();
+        characterStream.writeLine(testScope).await();
         if (messageLines != null)
         {
             for (final String messageLine : messageLines)
             {
-                characterStream.writeLine(messageLine);
+                characterStream.writeLine(messageLine).await();
             }
         }
         return characterStream.getText().await();

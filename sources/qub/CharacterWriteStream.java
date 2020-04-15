@@ -41,7 +41,7 @@ public interface CharacterWriteStream extends Disposable
      */
     default CharacterWriteStream setNewLine(char[] newLine)
     {
-        return this.setNewLine(java.lang.String.valueOf(newLine));
+        return this.setNewLine(newLine == null ? null : java.lang.String.valueOf(newLine));
     }
 
     /**
@@ -84,6 +84,7 @@ public interface CharacterWriteStream extends Disposable
         PreCondition.assertNotNull(toWrite, "toWrite");
         PreCondition.assertStartIndex(startIndex, toWrite.length);
         PreCondition.assertLength(length, startIndex, toWrite.length);
+        PreCondition.assertNotDisposed(this, "this.isDisposed()");
 
         return Result.create(() ->
         {
@@ -110,7 +111,20 @@ public interface CharacterWriteStream extends Disposable
      */
     default Result<Integer> writeLine()
     {
-        return this.write(this.getNewLine());
+        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+
+        return Result.create(() ->
+        {
+            int result = 0;
+
+            final String newLine = this.getNewLine();
+            if (newLine != null)
+            {
+                result = this.write(newLine).await();
+            }
+
+            return result;
+        });
     }
 
     /**
