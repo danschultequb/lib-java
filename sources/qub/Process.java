@@ -300,9 +300,6 @@ public interface Process extends Disposable
      */
     CharacterToByteWriteStream getOutputWriteStream();
 
-    @Deprecated
-    CharacterWriteStream getOutputCharacterWriteStream();
-
     /**
      * Get the error stream that is assigned to this Process.
      * @return The error stream that is assigned to this Process.
@@ -345,9 +342,6 @@ public interface Process extends Disposable
      * @return This object for method chaining.
      */
     Process setOutputWriteStream(CharacterToByteWriteStream outputWriteStream);
-
-    @Deprecated
-    Process setOutputCharacterWriteStream(CharacterWriteStream outputWriteStream);
 
     /**
      * Set the write stream that is assigned to this Process's error stream.

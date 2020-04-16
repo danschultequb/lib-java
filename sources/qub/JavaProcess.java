@@ -9,7 +9,6 @@ public class JavaProcess implements QubProcess
     private volatile int exitCode;
 
     private final Value<CharacterToByteWriteStream> outputWriteStream;
-    private final Value<CharacterWriteStream> outputCharacterWriteStream;
     private final Value<CharacterToByteWriteStream> errorWriteStream;
     private final Value<ByteReadStream> inputByteReadStream;
     private final Value<CharacterReadStream> inputCharacterReadStream;
@@ -86,7 +85,6 @@ public class JavaProcess implements QubProcess
         this.commandLineArguments = commandLineArguments;
 
         this.outputWriteStream = Value.create();
-        this.outputCharacterWriteStream = Value.create();
         this.errorWriteStream = Value.create();
         this.inputByteReadStream = Value.create();
         this.inputCharacterReadStream = Value.create();
@@ -169,29 +167,11 @@ public class JavaProcess implements QubProcess
     }
 
     @Override
-    public CharacterWriteStream getOutputCharacterWriteStream()
-    {
-        return this.outputCharacterWriteStream.hasValue()
-            ? this.outputCharacterWriteStream.get()
-            : this.outputWriteStream.get();
-    }
-
-    @Override
     public JavaProcess setOutputWriteStream(CharacterToByteWriteStream outputWriteStream)
     {
         PreCondition.assertNotNull(outputWriteStream, "outputWriteStream");
 
         this.outputWriteStream.set(outputWriteStream);
-        this.outputCharacterWriteStream.set(outputWriteStream);
-        return this;
-    }
-
-    @Override
-    public Process setOutputCharacterWriteStream(CharacterWriteStream outputWriteStream)
-    {
-        PreCondition.assertNotNull(outputWriteStream, "outputWriteStream");
-
-        this.outputCharacterWriteStream.set(outputWriteStream);
 
         return this;
     }
@@ -214,6 +194,7 @@ public class JavaProcess implements QubProcess
         PreCondition.assertNotNull(errorWriteStream, "errorWriteStream");
 
         this.errorWriteStream.set(errorWriteStream);
+
         return this;
     }
 

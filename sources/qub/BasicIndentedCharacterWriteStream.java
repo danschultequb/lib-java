@@ -3,15 +3,13 @@ package qub;
 /**
  * A CharacterWriteStream that prepends an indentation to beginning of each line.
  */
-public class BasicIndentedCharacterWriteStream extends IndentedCharacterWriteStream
+public class BasicIndentedCharacterWriteStream implements IndentedCharacterWriteStream
 {
     private final LinePrefixCharacterWriteStream innerStream;
     private String singleIndent;
 
     protected BasicIndentedCharacterWriteStream(CharacterWriteStream innerStream)
     {
-        super(innerStream);
-
         this.innerStream = LinePrefixCharacterWriteStream.create(innerStream);
         this.singleIndent = "  ";
     }
@@ -97,7 +95,7 @@ public class BasicIndentedCharacterWriteStream extends IndentedCharacterWriteStr
      */
     public BasicIndentedCharacterWriteStream increaseIndent()
     {
-        return (BasicIndentedCharacterWriteStream)super.increaseIndent();
+        return (BasicIndentedCharacterWriteStream)IndentedCharacterWriteStream.super.increaseIndent();
     }
 
     /**
@@ -106,7 +104,7 @@ public class BasicIndentedCharacterWriteStream extends IndentedCharacterWriteStr
      */
     public BasicIndentedCharacterWriteStream decreaseIndent()
     {
-        return (BasicIndentedCharacterWriteStream)super.decreaseIndent();
+        return (BasicIndentedCharacterWriteStream)IndentedCharacterWriteStream.super.decreaseIndent();
     }
 
     @Override

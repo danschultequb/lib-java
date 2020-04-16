@@ -1,24 +1,18 @@
 package qub;
 
-public class InMemoryCharacterToByteStream extends BasicCharacterReadStream implements CharacterToByteWriteStream
+public class InMemoryCharacterToByteStream extends BasicCharacterReadStream implements InMemoryCharacterStream, CharacterToByteWriteStream
 {
     private final InMemoryByteStream byteStream;
     private CharacterEncoding characterEncoding;
     private String newLine;
 
-    protected InMemoryCharacterToByteStream(InMemoryByteStream byteStream, CharacterEncoding characterEncoding)
+    private InMemoryCharacterToByteStream(InMemoryByteStream byteStream, CharacterEncoding characterEncoding)
     {
         super(byteStream, characterEncoding);
 
         this.byteStream = byteStream;
         this.characterEncoding = characterEncoding;
         this.newLine = "\n";
-    }
-
-    @Deprecated
-    public InMemoryCharacterToByteStream()
-    {
-        this(new InMemoryByteStream(), CharacterEncoding.UTF_8);
     }
 
     public static InMemoryCharacterToByteStream create()

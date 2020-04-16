@@ -1,6 +1,6 @@
 package qub;
 
-public interface IndentedCharacterToByteWriteStream extends CharacterToByteWriteStream
+public interface IndentedCharacterToByteWriteStream extends IndentedCharacterWriteStream, CharacterToByteWriteStream
 {
     static IndentedCharacterToByteWriteStream create(ByteWriteStream byteWriteStream)
     {
@@ -40,9 +40,7 @@ public interface IndentedCharacterToByteWriteStream extends CharacterToByteWrite
      */
     default IndentedCharacterToByteWriteStream setCurrentIndent(String currentIndent)
     {
-        PreCondition.assertNotNull(currentIndent, "currentIndent");
-
-        return this.setCurrentIndent(() -> currentIndent);
+        return (IndentedCharacterToByteWriteStream)IndentedCharacterWriteStream.super.setCurrentIndent(currentIndent);
     }
 
     /**
@@ -68,7 +66,7 @@ public interface IndentedCharacterToByteWriteStream extends CharacterToByteWrite
      */
     default IndentedCharacterToByteWriteStream increaseIndent()
     {
-        return this.setCurrentIndent(this.getCurrentIndent() + this.getSingleIndent());
+        return (IndentedCharacterToByteWriteStream)IndentedCharacterWriteStream.super.increaseIndent();
     }
 
     /**
@@ -77,40 +75,6 @@ public interface IndentedCharacterToByteWriteStream extends CharacterToByteWrite
      */
     default IndentedCharacterToByteWriteStream decreaseIndent()
     {
-        final String currentIndent = this.getCurrentIndent();
-        final int currentIndentLength = currentIndent.length();
-        if (currentIndentLength > 0)
-        {
-            final int singleIndentLength = this.getSingleIndent().length();
-            if (currentIndentLength < singleIndentLength)
-            {
-                this.setCurrentIndent("");
-            }
-            else
-            {
-                final int newCurrentIndentLength = currentIndentLength - singleIndentLength;
-                this.setCurrentIndent(currentIndent.substring(0, newCurrentIndentLength));
-            }
-        }
-        return this;
-    }
-
-    /**
-     * Run the provided action with an additional indentation to the current indent.
-     * @param action The action to run with an additional indentation to the current indent.
-     */
-    default void indent(Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        this.increaseIndent();
-        try
-        {
-            action.run();
-        }
-        finally
-        {
-            this.decreaseIndent();
-        }
+        return (IndentedCharacterToByteWriteStream)IndentedCharacterWriteStream.super.decreaseIndent();
     }
 }

@@ -1,47 +1,32 @@
 package qub;
 
-@Deprecated
-public class InMemoryCharacterStream extends InMemoryCharacterToByteStream
+public interface InMemoryCharacterStream extends CharacterWriteStream, CharacterReadStream
 {
-    protected InMemoryCharacterStream(InMemoryByteStream byteStream, CharacterEncoding characterEncoding)
-    {
-        super(byteStream, characterEncoding);
-    }
-
-    public static InMemoryCharacterStream create()
+    static InMemoryCharacterStream create()
     {
         return InMemoryCharacterStream.create("");
     }
 
-    public static InMemoryCharacterStream create(String text)
+    static InMemoryCharacterStream create(String text)
     {
         PreCondition.assertNotNull(text, "text");
 
-        return InMemoryCharacterStream.create(text, CharacterEncoding.UTF_8);
+        return InMemoryCharacterToByteStream.create(text);
     }
 
-    public static InMemoryCharacterStream create(String text, CharacterEncoding characterEncoding)
+    default InMemoryCharacterStream setNewLine(char newLine)
     {
-        PreCondition.assertNotNull(text, "text");
-        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
-
-        final byte[] encodedBytes = characterEncoding.encode(text).await();
-        final InMemoryByteStream byteStream = new InMemoryByteStream(encodedBytes);
-        return InMemoryCharacterStream.create(byteStream, characterEncoding);
+        return (InMemoryCharacterStream)CharacterWriteStream.super.setNewLine(newLine);
     }
 
-    public static InMemoryCharacterStream create(InMemoryByteStream byteStream)
+    default InMemoryCharacterStream setNewLine(char[] newLine)
     {
-        PreCondition.assertNotNull(byteStream, "byteStream");
-
-        return InMemoryCharacterStream.create(byteStream, CharacterEncoding.UTF_8);
+        return (InMemoryCharacterStream)CharacterWriteStream.super.setNewLine(newLine);
     }
 
-    public static InMemoryCharacterStream create(InMemoryByteStream byteStream, CharacterEncoding characterEncoding)
-    {
-        PreCondition.assertNotNull(byteStream, "byteStream");
-        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
+    InMemoryCharacterStream setNewLine(String newLine);
 
-        return new InMemoryCharacterStream(byteStream, characterEncoding);
-    }
+    Result<String> getText();
+
+    InMemoryCharacterStream endOfStream();
 }
