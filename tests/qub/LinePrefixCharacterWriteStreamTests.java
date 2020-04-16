@@ -11,7 +11,7 @@ public interface LinePrefixCharacterWriteStreamTests
                 runner.test("with null", (Test test) ->
                 {
                     test.assertThrows(() -> LinePrefixCharacterWriteStream.create(null),
-                        new PreConditionFailure("innerStream cannot be null."));
+                        new PreConditionFailure("characterWriteStream cannot be null."));
                 });
 
                 runner.test("with disposed", (Test test) ->

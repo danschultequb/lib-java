@@ -1,94 +1,74 @@
 package qub;
 
-public class LinePrefixCharacterToByteWriteStream extends LinePrefixCharacterWriteStream implements CharacterToByteWriteStream
+/**
+ * A CharacterToByteWriteStream that writes a prefix to the beginning of each line.
+ */
+public interface LinePrefixCharacterToByteWriteStream extends LinePrefixCharacterWriteStream, CharacterToByteWriteStream
 {
-    private final CharacterToByteWriteStream characterToByteWriteStream;
-
-    private LinePrefixCharacterToByteWriteStream(CharacterToByteWriteStream characterToByteWriteStream)
-    {
-        super(characterToByteWriteStream);
-
-        this.characterToByteWriteStream = characterToByteWriteStream;
-    }
-
-    public static LinePrefixCharacterToByteWriteStream create(ByteWriteStream byteWriteStream)
+    static LinePrefixCharacterToByteWriteStream create(ByteWriteStream byteWriteStream)
     {
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
 
-        final CharacterToByteWriteStream characterToByteWriteStream = CharacterToByteWriteStream.create(byteWriteStream);
-        return LinePrefixCharacterToByteWriteStream.create(characterToByteWriteStream);
+        return BasicLinePrefixCharacterToByteWriteStream.create(byteWriteStream);
     }
 
-    public static LinePrefixCharacterToByteWriteStream create(CharacterToByteWriteStream characterToByteWriteStream)
+    static LinePrefixCharacterToByteWriteStream create(CharacterToByteWriteStream characterToByteWriteStream)
     {
         PreCondition.assertNotNull(characterToByteWriteStream, "characterToByteWriteStream");
 
-        return new LinePrefixCharacterToByteWriteStream(characterToByteWriteStream);
+        return BasicLinePrefixCharacterToByteWriteStream.create(characterToByteWriteStream);
     }
 
-    @Override
-    public CharacterEncoding getCharacterEncoding()
+    /**
+     * Set the encoding that this stream uses to convert characters to bytes.
+     * @param characterEncoding The character encoding that this stream uses to convert characters
+     *                          to bytes.
+     * @return This object for method chaining.
+     */
+    LinePrefixCharacterToByteWriteStream setCharacterEncoding(CharacterEncoding characterEncoding);
+
+    /**
+     * Set the character that this stream will insert at the end of every line.
+     * @param newLine The character that this stream will insert at the end of every line.
+     * @return This object for method chaining.
+     */
+    default LinePrefixCharacterToByteWriteStream setNewLine(char newLine)
     {
-        return this.characterToByteWriteStream.getCharacterEncoding();
+        return (LinePrefixCharacterToByteWriteStream)CharacterToByteWriteStream.super.setNewLine(newLine);
     }
 
-    @Override
-    public LinePrefixCharacterToByteWriteStream setCharacterEncoding(CharacterEncoding characterEncoding)
+    /**
+     * Set the characters that this stream will insert at the end of every line.
+     * @param newLine The characters that this stream will insert at the end of every line.
+     * @return This object for method chaining.
+     */
+    default LinePrefixCharacterToByteWriteStream setNewLine(char[] newLine)
     {
-        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
-
-        this.characterToByteWriteStream.setCharacterEncoding(characterEncoding);
-
-        return this;
+        return (LinePrefixCharacterToByteWriteStream)CharacterToByteWriteStream.super.setNewLine(newLine);
     }
+
+    /**
+     * Set the String that this stream will insert at the end of every line.
+     * @param newLine The String that this stream will insert at the end of every line.
+     * @return This object for method chaining.
+     */
+    LinePrefixCharacterToByteWriteStream setNewLine(String newLine);
+
 
     /**
      * Set the line prefix function.
      * @param linePrefixFunction The function that will return the line prefix.
      * @return This object for method chaining.
      */
-    public LinePrefixCharacterToByteWriteStream setLinePrefix(Function0<String> linePrefixFunction)
-    {
-        return (LinePrefixCharacterToByteWriteStream)super.setLinePrefix(linePrefixFunction);
-    }
+    LinePrefixCharacterToByteWriteStream setLinePrefix(Function0<String> linePrefixFunction);
 
     /**
      * Set the line prefix.
      * @param linePrefix The line prefix.
      * @return This object for method chaining.
      */
-    public LinePrefixCharacterToByteWriteStream setLinePrefix(String linePrefix)
+    default LinePrefixCharacterToByteWriteStream setLinePrefix(String linePrefix)
     {
-        return (LinePrefixCharacterToByteWriteStream)super.setLinePrefix(linePrefix);
-    }
-
-    @Override
-    public LinePrefixCharacterToByteWriteStream setNewLine(char newLine)
-    {
-        return (LinePrefixCharacterToByteWriteStream)super.setNewLine(newLine);
-    }
-
-    @Override
-    public LinePrefixCharacterToByteWriteStream setNewLine(char[] newLine)
-    {
-        return (LinePrefixCharacterToByteWriteStream)super.setNewLine(newLine);
-    }
-
-    @Override
-    public LinePrefixCharacterToByteWriteStream setNewLine(String newLine)
-    {
-        return (LinePrefixCharacterToByteWriteStream)super.setNewLine(newLine);
-    }
-
-    @Override
-    public Result<Integer> write(byte toWrite)
-    {
-        return this.characterToByteWriteStream.write(toWrite);
-    }
-
-    @Override
-    public Result<Integer> write(byte[] toWrite, int startIndex, int length)
-    {
-        return this.characterToByteWriteStream.write(toWrite, startIndex, length);
+        return this.setLinePrefix(() -> linePrefix);
     }
 }
