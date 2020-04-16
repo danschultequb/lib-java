@@ -1,6 +1,6 @@
 package qub;
 
-public class BasicIndentedCharacterToByteWriteStream extends IndentedCharacterWriteStream implements IndentedCharacterToByteWriteStream
+public class BasicIndentedCharacterToByteWriteStream extends BasicIndentedCharacterWriteStream implements IndentedCharacterToByteWriteStream
 {
     private final CharacterToByteWriteStream characterToByteWriteStream;
 
@@ -16,12 +16,6 @@ public class BasicIndentedCharacterToByteWriteStream extends IndentedCharacterWr
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
 
         return BasicIndentedCharacterToByteWriteStream.create(CharacterToByteWriteStream.create(byteWriteStream));
-    }
-
-    @Override
-    public String getNewLine()
-    {
-        return null;
     }
 
     public static BasicIndentedCharacterToByteWriteStream create(CharacterToByteWriteStream characterToByteWriteStream)
@@ -41,12 +35,6 @@ public class BasicIndentedCharacterToByteWriteStream extends IndentedCharacterWr
     public BasicIndentedCharacterToByteWriteStream setCurrentIndent(String currentIndent)
     {
         return (BasicIndentedCharacterToByteWriteStream)super.setCurrentIndent(currentIndent);
-    }
-
-    @Override
-    public String getSingleIndent()
-    {
-        return null;
     }
 
     @Override
@@ -90,24 +78,6 @@ public class BasicIndentedCharacterToByteWriteStream extends IndentedCharacterWr
     }
 
     @Override
-    public Result<Integer> write(char toWrite)
-    {
-        return null;
-    }
-
-    @Override
-    public Result<Integer> write(String toWrite, Object... formattedStringArguments)
-    {
-        return null;
-    }
-
-    @Override
-    public String getCurrentIndent()
-    {
-        return null;
-    }
-
-    @Override
     public Result<Integer> write(byte toWrite)
     {
         return this.characterToByteWriteStream.write(toWrite);
@@ -117,17 +87,5 @@ public class BasicIndentedCharacterToByteWriteStream extends IndentedCharacterWr
     public Result<Integer> write(byte[] toWrite, int startIndex, int length)
     {
         return this.characterToByteWriteStream.write(toWrite, startIndex, length);
-    }
-
-    @Override
-    public boolean isDisposed()
-    {
-        return false;
-    }
-
-    @Override
-    public Result<Boolean> dispose()
-    {
-        return null;
     }
 }

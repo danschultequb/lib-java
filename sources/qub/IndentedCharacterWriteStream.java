@@ -8,6 +8,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
     private final LinePrefixCharacterWriteStream innerStream;
     private String singleIndent;
 
+    @Deprecated
     public IndentedCharacterWriteStream(CharacterWriteStream innerStream)
     {
         PreCondition.assertNotNull(innerStream, "innerStream");
