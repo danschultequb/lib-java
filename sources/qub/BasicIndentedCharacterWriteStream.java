@@ -3,14 +3,14 @@ package qub;
 /**
  * A CharacterWriteStream that prepends an indentation to beginning of each line.
  */
-public class IndentedCharacterWriteStream implements CharacterWriteStream
+public class BasicIndentedCharacterWriteStream extends IndentedCharacterWriteStream
 {
     private final LinePrefixCharacterWriteStream innerStream;
     private String singleIndent;
 
-    public IndentedCharacterWriteStream(CharacterWriteStream innerStream)
+    protected BasicIndentedCharacterWriteStream(CharacterWriteStream innerStream)
     {
-        PreCondition.assertNotNull(innerStream, "innerStream");
+        super(innerStream);
 
         this.innerStream = LinePrefixCharacterWriteStream.create(innerStream);
         this.singleIndent = "  ";
@@ -18,6 +18,8 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
 
     public static BasicIndentedCharacterWriteStream create(CharacterWriteStream characterWriteStream)
     {
+        PreCondition.assertNotNull(characterWriteStream, "characterWriteStream");
+
         return new BasicIndentedCharacterWriteStream(characterWriteStream);
     }
 
@@ -39,7 +41,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
      * @param currentIndentFunction The function that will return the current indentation.
      * @return This object for method chaining.
      */
-    public IndentedCharacterWriteStream setCurrentIndent(Function0<String> currentIndentFunction)
+    public BasicIndentedCharacterWriteStream setCurrentIndent(Function0<String> currentIndentFunction)
     {
         PreCondition.assertNotNull(currentIndentFunction, "currentIndentFunction");
 
@@ -53,7 +55,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
      * @param currentIndent The current indentation.
      * @return This object for method chaining.
      */
-    public IndentedCharacterWriteStream setCurrentIndent(String currentIndent)
+    public BasicIndentedCharacterWriteStream setCurrentIndent(String currentIndent)
     {
         PreCondition.assertNotNull(currentIndent, "currentIndent");
 
@@ -80,7 +82,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
      * @param singleIndent The String that makes up a single indentation.
      * @return This object for method chaining.
      */
-    public IndentedCharacterWriteStream setSingleIndent(String singleIndent)
+    public BasicIndentedCharacterWriteStream setSingleIndent(String singleIndent)
     {
         PreCondition.assertNotNull(singleIndent, "singleIndent");
 
@@ -93,52 +95,18 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
      * Append the single indent to the current indent.
      * @return This object for method chaining.
      */
-    public IndentedCharacterWriteStream increaseIndent()
+    public BasicIndentedCharacterWriteStream increaseIndent()
     {
-        return this.setCurrentIndent(this.getCurrentIndent() + this.getSingleIndent());
+        return (BasicIndentedCharacterWriteStream)super.increaseIndent();
     }
 
     /**
      * Remove the single indent from the current indent.
      * @return This object for method chaining.
      */
-    public IndentedCharacterWriteStream decreaseIndent()
+    public BasicIndentedCharacterWriteStream decreaseIndent()
     {
-        final String currentIndent = this.getCurrentIndent();
-        final int currentIndentLength = currentIndent.length();
-        if (currentIndentLength > 0)
-        {
-            final int singleIndentLength = this.getSingleIndent().length();
-            if (currentIndentLength < singleIndentLength)
-            {
-                this.setCurrentIndent("");
-            }
-            else
-            {
-                final int newCurrentIndentLength = currentIndentLength - singleIndentLength;
-                this.setCurrentIndent(currentIndent.substring(0, newCurrentIndentLength));
-            }
-        }
-        return this;
-    }
-
-    /**
-     * Run the provided action with an additional indentation to the current indent.
-     * @param action The action to run with an additional indentation to the current indent.
-     */
-    public void indent(Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        this.increaseIndent();
-        try
-        {
-            action.run();
-        }
-        finally
-        {
-            this.decreaseIndent();
-        }
+        return (BasicIndentedCharacterWriteStream)super.decreaseIndent();
     }
 
     @Override
@@ -148,7 +116,7 @@ public class IndentedCharacterWriteStream implements CharacterWriteStream
     }
 
     @Override
-    public IndentedCharacterWriteStream setNewLine(String newLine)
+    public BasicIndentedCharacterWriteStream setNewLine(String newLine)
     {
         PreCondition.assertNotNull(newLine, "newLine");
 

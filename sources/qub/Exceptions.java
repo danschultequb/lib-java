@@ -126,7 +126,7 @@ public interface Exceptions
 
         return Result.create(() ->
         {
-            final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(stream);
+            final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(stream);
             writeStream.writeLine(error.toString()).await();
 
             final StackTraceElement[] stackTraceElements = error.getStackTrace();

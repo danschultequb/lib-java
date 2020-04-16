@@ -1349,7 +1349,7 @@ public class Test
                 Throwable cause = error.getCause();
                 if (cause != null)
                 {
-                    final IndentedCharacterWriteStream indentedStream = new IndentedCharacterWriteStream(stream);
+                    final IndentedCharacterWriteStream indentedStream = IndentedCharacterWriteStream.create(stream);
                     boolean indented = false;
                     while (cause != null)
                     {

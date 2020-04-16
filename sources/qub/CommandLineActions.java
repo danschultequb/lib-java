@@ -167,7 +167,7 @@ public class CommandLineActions<TProcess extends Process>
         {
             if (this.actions.any())
             {
-                final IndentedCharacterWriteStream output = new IndentedCharacterWriteStream(process.getOutputWriteStream());
+                final IndentedCharacterWriteStream output = IndentedCharacterWriteStream.create(process.getOutputWriteStream());
                 output.writeLine().await();
                 output.writeLine("Actions:").await();
                 output.indent(() ->
@@ -179,7 +179,7 @@ public class CommandLineActions<TProcess extends Process>
                         {
                             output.write(": " + a.getDescription()).await();
                         }
-                        output.writeLine();
+                        output.writeLine().await();
                     }
                 });
             }

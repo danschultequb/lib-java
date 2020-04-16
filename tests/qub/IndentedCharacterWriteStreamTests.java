@@ -6,11 +6,11 @@ public interface IndentedCharacterWriteStreamTests
     {
         runner.testGroup(IndentedCharacterWriteStream.class, () ->
         {
-            runner.testGroup("constructor()", () ->
+            runner.testGroup("create(CharacterWriteStream)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> new IndentedCharacterWriteStream(null),
+                    test.assertThrows(() -> IndentedCharacterWriteStream.create(null),
                         new PreConditionFailure("innerStream cannot be null."));
                 });
 
@@ -19,7 +19,7 @@ public interface IndentedCharacterWriteStreamTests
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
                     innerStream.dispose().await();
 
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertTrue(writeStream.isDisposed());
                     test.assertEqual("  ", writeStream.getSingleIndent());
                     test.assertEqual("", writeStream.getCurrentIndent());
@@ -28,7 +28,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with not disposed", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertFalse(writeStream.isDisposed());
                     test.assertEqual("  ", writeStream.getSingleIndent());
                     test.assertEqual("", writeStream.getCurrentIndent());
@@ -40,7 +40,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with null", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual("", writeStream.getCurrentIndent());
                     test.assertThrows(() -> writeStream.setCurrentIndent((String)null),
                         new PreConditionFailure("currentIndent cannot be null."));
@@ -50,7 +50,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with empty", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual("", writeStream.getCurrentIndent());
                     test.assertSame(writeStream, writeStream.setCurrentIndent(""));
                     test.assertEqual("", writeStream.getCurrentIndent());
@@ -59,7 +59,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with non-empty", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual("", writeStream.getCurrentIndent());
                     test.assertSame(writeStream, writeStream.setCurrentIndent("    "));
                     test.assertEqual("    ", writeStream.getCurrentIndent());
@@ -71,7 +71,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with null", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual("  ", writeStream.getSingleIndent());
                     test.assertThrows(() -> writeStream.setSingleIndent(null),
                         new PreConditionFailure("singleIndent cannot be null."));
@@ -81,7 +81,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with empty", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual("  ", writeStream.getSingleIndent());
                     test.assertSame(writeStream, writeStream.setSingleIndent(""));
                     test.assertEqual("", writeStream.getSingleIndent());
@@ -90,7 +90,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with non-empty", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual("  ", writeStream.getSingleIndent());
                     test.assertSame(writeStream, writeStream.setSingleIndent("    "));
                     test.assertEqual("    ", writeStream.getSingleIndent());
@@ -102,7 +102,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with no current indent", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual("", writeStream.getCurrentIndent());
                     test.assertSame(writeStream, writeStream.decreaseIndent());
                     test.assertEqual("", writeStream.getCurrentIndent());
@@ -111,7 +111,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with current indent (\" \") that is smaller than a single indent (\"  \")", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual("  ", writeStream.getSingleIndent());
                     test.assertSame(writeStream, writeStream.setCurrentIndent(" "));
                     test.assertSame(writeStream, writeStream.decreaseIndent());
@@ -122,7 +122,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with current indent (\"\\t\") that is smaller than a single indent (\"  \")", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual("  ", writeStream.getSingleIndent());
                     test.assertSame(writeStream, writeStream.setCurrentIndent("\t"));
                     test.assertSame(writeStream, writeStream.decreaseIndent());
@@ -133,7 +133,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with current indent (\"  \") that is equal to a single indent (\"  \").", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual("  ", writeStream.getSingleIndent());
                     test.assertSame(writeStream, writeStream.setCurrentIndent("  "));
                     test.assertSame(writeStream, writeStream.decreaseIndent());
@@ -144,7 +144,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with current indent (\"   \") that is larger than a single indent (\"  \").", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual("  ", writeStream.getSingleIndent());
                     test.assertSame(writeStream, writeStream.setCurrentIndent("   "));
                     test.assertSame(writeStream, writeStream.decreaseIndent());
@@ -158,7 +158,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with null", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertThrows(() -> writeStream.indent(null),
                         new PreConditionFailure("action cannot be null."));
                     test.assertEqual("", writeStream.getCurrentIndent());
@@ -169,7 +169,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with empty action", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.indent(Action0.empty);
                     test.assertEqual("", writeStream.getCurrentIndent());
                     test.assertEqual("  ", writeStream.getSingleIndent());
@@ -179,7 +179,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with one write action on empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.indent(() ->
                     {
                         writeStream.write("hello").await();
@@ -192,7 +192,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with one write action on non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.write("abc").await();
                     writeStream.indent(() ->
                     {
@@ -206,7 +206,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with one write action on non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.writeLine("abc").await();
                     writeStream.indent(() ->
                     {
@@ -220,7 +220,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with two write actions on empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.indent(() ->
                     {
                         writeStream.write("hello").await();
@@ -234,7 +234,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with two write actions on non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.write("I'd like to say, ").await();
                     writeStream.indent(() ->
                     {
@@ -249,7 +249,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with two write actions on non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.writeLine("I'd like to say, ").await();
                     writeStream.indent(() ->
                     {
@@ -264,7 +264,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with one writeLine action on empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.indent(() ->
                     {
                         writeStream.writeLine("hello").await();
@@ -277,7 +277,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with one writeLine action on non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.write("abc").await();
                     writeStream.indent(() ->
                     {
@@ -291,7 +291,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with one writeLine action on non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.writeLine("abc").await();
                     writeStream.indent(() ->
                     {
@@ -305,7 +305,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with two writeLine actions on empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.indent(() ->
                     {
                         writeStream.writeLine("hello").await();
@@ -319,7 +319,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with two writeLine actions on non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.write("I'd like to say, ").await();
                     writeStream.indent(() ->
                     {
@@ -334,7 +334,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with two writeLine actions on non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.writeLine("I'd like to say, ").await();
                     writeStream.indent(() ->
                     {
@@ -354,7 +354,7 @@ public interface IndentedCharacterWriteStreamTests
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
                     innerStream.dispose().await();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertThrows(() -> writeStream.write('a'),
                         new PreConditionFailure("isDisposed() cannot be true."));
                     test.assertEqual("", innerStream.getText().await());
@@ -363,7 +363,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with no indent and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual(1, writeStream.write('a').await());
                     test.assertEqual("a", innerStream.getText().await());
                 });
@@ -371,7 +371,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with no indent and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual(1, writeStream.write('a').await());
                     test.assertEqual("a", innerStream.getText().await());
                     test.assertEqual(1, writeStream.write('b').await());
@@ -381,7 +381,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with indent and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.indent(() ->
                     {
                         test.assertEqual(3, writeStream.write('a').await());
@@ -392,7 +392,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with indent and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual(1, writeStream.write('z').await());
                     writeStream.indent(() ->
                     {
@@ -404,7 +404,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with new-line character", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.write('\n').await();
                     test.assertEqual("\n", innerStream.getText().await());
                 });
@@ -415,7 +415,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with null characters", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertThrows(() -> writeStream.write(null, 0, 1),
                         new PreConditionFailure("toWrite cannot be null."));
                     test.assertEqual("", innerStream.getText().await());
@@ -424,7 +424,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with negative startIndex", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertThrows(() -> writeStream.write(new char[] { 'a', 'b', 'c' }, -1, 1),
                         new PreConditionFailure("startIndex (-1) must be between 0 and 2."));
                     test.assertEqual("", innerStream.getText().await());
@@ -433,7 +433,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with startIndex equal to toWrite.length", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertThrows(() -> writeStream.write(new char[] { 'a', 'b', 'c' }, 3, 1),
                         new PreConditionFailure("startIndex (3) must be between 0 and 2."));
                     test.assertEqual("", innerStream.getText().await());
@@ -442,7 +442,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with negative length", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertThrows(() -> writeStream.write(new char[] { 'a', 'b', 'c' }, 1, -1),
                         new PreConditionFailure("length (-1) must be between 0 and 2."));
                     test.assertEqual("", innerStream.getText().await());
@@ -451,7 +451,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with zero length", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual(0, writeStream.write(new char[] { 'a', 'b', 'c' }, 1, 0).await());
                     test.assertEqual("", innerStream.getText().await());
                 });
@@ -459,7 +459,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with too-large length", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertThrows(() -> writeStream.write(new char[] { 'a', 'b', 'c' }, 1, 3),
                         new PreConditionFailure("length (3) must be between 0 and 2."));
                     test.assertEqual("", innerStream.getText().await());
@@ -469,7 +469,7 @@ public interface IndentedCharacterWriteStreamTests
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
                     innerStream.dispose().await();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertThrows(() -> writeStream.write(new char[] { 'a', 'b', 'c' }, 1, 2),
                         new PreConditionFailure("isDisposed() cannot be true."));
                     test.assertEqual("", innerStream.getText().await());
@@ -478,7 +478,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with no indent and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual(3, writeStream.write(new char[] { 'a', 'b', 'c' }, 0, 3).await());
                     test.assertEqual("abc", innerStream.getText().await());
                 });
@@ -486,7 +486,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with no indent and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.write("hello").await();
                     test.assertEqual(2, writeStream.write(new char[] { 'a', 'b', 'c' }, 1, 2).await());
                     test.assertEqual("hellobc", innerStream.getText().await());
@@ -495,7 +495,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with no indent and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.writeLine("hello").await();
                     test.assertEqual(1, writeStream.write(new char[] { 'a', 'b', 'c' }, 2, 1).await());
                     test.assertEqual("hello\nc", innerStream.getText().await());
@@ -504,7 +504,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with indent and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("\t");
                     test.assertEqual(4, writeStream.write(new char[] { 'a', 'b', 'c' }, 0, 3).await());
                     test.assertEqual("\tabc", innerStream.getText().await());
@@ -513,7 +513,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with indent and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent(" ");
                     writeStream.write("hello").await();
                     test.assertEqual(2, writeStream.write(new char[] { 'a', 'b', 'c' }, 1, 2).await());
@@ -523,7 +523,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with indent and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.writeLine("hello").await();
                     test.assertEqual(3, writeStream.write(new char[] { 'a', 'b', 'c' }, 2, 1).await());
@@ -533,7 +533,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\n, no indent, and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual(1, writeStream.write(new char[] { 'a', '\n', 'b' }, 1, 1).await());
                     test.assertEqual("\n", innerStream.getText().await());
                 });
@@ -541,7 +541,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\n, no indent, and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.write("apples").await();
                     test.assertEqual(1, writeStream.write(new char[] { 'a', '\n', 'b' }, 1, 1).await());
                     test.assertEqual("apples\n", innerStream.getText().await());
@@ -550,7 +550,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\n, no indent, and non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.writeLine("apples").await();
                     test.assertEqual(1, writeStream.write(new char[] { 'a', '\n', 'b' }, 1, 1).await());
                     test.assertEqual("apples\n\n", innerStream.getText().await());
@@ -559,7 +559,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\n, indent, and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     test.assertEqual(1, writeStream.write(new char[] { 'a', '\n', 'b' }, 1, 1).await());
                     test.assertEqual("\n", innerStream.getText().await());
@@ -568,7 +568,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\n, indent, and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.write("apples").await();
                     test.assertEqual(1, writeStream.write(new char[] { 'a', '\n', 'b' }, 1, 1).await());
@@ -578,7 +578,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\n, indent, and non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.writeLine("apples").await();
                     test.assertEqual(1, writeStream.write(new char[] { 'a', '\n', 'b' }, 1, 1).await());
@@ -588,7 +588,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\r\\n, no indent, and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual(2, writeStream.write(new char[] { 'a', '\r', '\n', 'b' }, 1, 2).await());
                     test.assertEqual("\r\n", innerStream.getText().await());
                 });
@@ -596,7 +596,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\r\\n, no indent, and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.write("apples").await();
                     test.assertEqual(2, writeStream.write(new char[] { 'a', '\r', '\n', 'b' }, 1, 2).await());
                     test.assertEqual("apples\r\n", innerStream.getText().await());
@@ -605,7 +605,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\r\\n, no indent, and non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.writeLine("apples").await();
                     test.assertEqual(2, writeStream.write(new char[] { 'a', '\r', '\n', 'b' }, 1, 2).await());
                     test.assertEqual("apples\n\r\n", innerStream.getText().await());
@@ -614,7 +614,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\r\\n, indent, and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     test.assertEqual(2, writeStream.write(new char[] { 'a', '\r', '\n', 'b' }, 1, 2).await());
                     test.assertEqual("\r\n", innerStream.getText().await());
@@ -623,7 +623,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\r\\n, indent, and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.write("apples").await();
                     test.assertEqual(2, writeStream.write(new char[] { 'a', '\r', '\n', 'b' }, 1, 2).await());
@@ -633,7 +633,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\r\\n, indent, and non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.writeLine("apples").await();
                     test.assertEqual(2, writeStream.write(new char[] { 'a', '\r', '\n', 'b' }, 1, 2).await());
@@ -643,7 +643,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing one newline, no indent, and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual(3, writeStream.write(new char[] { 'a', '\n', 'b' }, 0, 3).await());
                     test.assertEqual("a\nb", innerStream.getText().await());
                 });
@@ -651,7 +651,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing one newline, no indent, and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.write("apples").await();
                     test.assertEqual(3, writeStream.write(new char[] { 'a', '\n', 'b' }, 0, 3).await());
                     test.assertEqual("applesa\nb", innerStream.getText().await());
@@ -660,7 +660,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing one newline, no indent, and non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.writeLine("apples").await();
                     test.assertEqual(3, writeStream.write(new char[] { 'a', '\n', 'b' }, 0, 3).await());
                     test.assertEqual("apples\na\nb", innerStream.getText().await());
@@ -669,7 +669,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing one newline, indent, and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     test.assertEqual(7, writeStream.write(new char[] { 'a', '\n', 'b' }, 0, 3).await());
                     test.assertEqual("  a\n  b", innerStream.getText().await());
@@ -678,7 +678,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing one newline, indent, and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.write("apples").await();
                     test.assertEqual(5, writeStream.write(new char[] { 'a', '\n', 'b' }, 0, 3).await());
@@ -688,7 +688,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing one newline, indent, and non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.writeLine("apples").await();
                     test.assertEqual(7, writeStream.write(new char[] { 'a', '\n', 'b' }, 0, 3).await());
@@ -698,7 +698,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing multiple newlines, no indent, and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual(4, writeStream.write(new char[] { 'a', '\n', 'b', '\n' }, 0, 4).await());
                     test.assertEqual("a\nb\n", innerStream.getText().await());
                 });
@@ -706,7 +706,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing multiple newlines, no indent, and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.write("apples").await();
                     test.assertEqual(4, writeStream.write(new char[] { 'a', '\n', 'b', '\n' }, 0, 4).await());
                     test.assertEqual("applesa\nb\n", innerStream.getText().await());
@@ -715,7 +715,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing multiple newlines, no indent, and non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.writeLine("apples").await();
                     test.assertEqual(4, writeStream.write(new char[] { 'a', '\n', 'b', '\n' }, 0, 4).await());
                     test.assertEqual("apples\na\nb\n", innerStream.getText().await());
@@ -724,7 +724,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing multiple newlines, indent, and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     test.assertEqual(8, writeStream.write(new char[] { 'a', '\n', 'b', '\n' }, 0, 4).await());
                     test.assertEqual("  a\n  b\n", innerStream.getText().await());
@@ -733,7 +733,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing multiple newlines, indent, and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.write("apples").await();
                     test.assertEqual(6, writeStream.write(new char[] { 'a', '\n', 'b', '\n' }, 0, 4).await());
@@ -743,7 +743,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing multiple newlines, indent, and non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.writeLine("apples").await();
                     test.assertEqual(8, writeStream.write(new char[] { 'a', '\n', 'b', '\n' }, 0, 4).await());
@@ -756,7 +756,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with null string", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertThrows(() -> writeStream.write((String)null),
                         new PreConditionFailure("toWrite cannot be null."));
                     test.assertEqual("", innerStream.getText().await());
@@ -766,7 +766,7 @@ public interface IndentedCharacterWriteStreamTests
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
                     innerStream.dispose().await();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertThrows(() -> writeStream.write("abc"),
                         new PreConditionFailure("isDisposed() cannot be true."));
                     test.assertEqual("", innerStream.getText().await());
@@ -775,7 +775,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with empty string", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual(0, writeStream.write("").await());
                     test.assertEqual("", innerStream.getText().await());
                 });
@@ -783,7 +783,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with no indent and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual(3, writeStream.write("abc").await());
                     test.assertEqual("abc", innerStream.getText().await());
                 });
@@ -791,7 +791,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with no indent and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.write("hello").await();
                     test.assertEqual(2, writeStream.write("bc").await());
                     test.assertEqual("hellobc", innerStream.getText().await());
@@ -800,7 +800,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with no indent and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.writeLine("hello").await();
                     test.assertEqual(1, writeStream.write("c").await());
                     test.assertEqual("hello\nc", innerStream.getText().await());
@@ -809,7 +809,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with indent and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("\t");
                     test.assertEqual(4, writeStream.write("abc").await());
                     test.assertEqual("\tabc", innerStream.getText().await());
@@ -818,7 +818,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with indent and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent(" ");
                     writeStream.write("hello").await();
                     test.assertEqual(2, writeStream.write("bc").await());
@@ -828,7 +828,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with indent and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.writeLine("hello").await();
                     test.assertEqual(3, writeStream.write("c").await());
@@ -838,7 +838,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\n, no indent, and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual(1, writeStream.write("\n").await());
                     test.assertEqual("\n", innerStream.getText().await());
                 });
@@ -846,7 +846,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\n, no indent, and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.write("apples").await();
                     test.assertEqual(1, writeStream.write("\n").await());
                     test.assertEqual("apples\n", innerStream.getText().await());
@@ -855,7 +855,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\n, no indent, and non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.writeLine("apples").await();
                     test.assertEqual(1, writeStream.write("\n").await());
                     test.assertEqual("apples\n\n", innerStream.getText().await());
@@ -864,7 +864,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\n, indent, and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     test.assertEqual(1, writeStream.write("\n").await());
                     test.assertEqual("\n", innerStream.getText().await());
@@ -873,7 +873,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\n, indent, and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.write("apples").await();
                     test.assertEqual(1, writeStream.write("\n").await());
@@ -883,7 +883,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\n, indent, and non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.writeLine("apples").await();
                     test.assertEqual(1, writeStream.write("\n").await());
@@ -893,7 +893,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\r\\n, no indent, and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual(2, writeStream.write("\r\n").await());
                     test.assertEqual("\r\n", innerStream.getText().await());
                 });
@@ -901,7 +901,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\r\\n, no indent, and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.write("apples").await();
                     test.assertEqual(2, writeStream.write("\r\n").await());
                     test.assertEqual("apples\r\n", innerStream.getText().await());
@@ -910,7 +910,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\r\\n, no indent, and non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.writeLine("apples").await();
                     test.assertEqual(2, writeStream.write("\r\n").await());
                     test.assertEqual("apples\n\r\n", innerStream.getText().await());
@@ -919,7 +919,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\r\\n, indent, and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     test.assertEqual(2, writeStream.write("\r\n").await());
                     test.assertEqual("\r\n", innerStream.getText().await());
@@ -928,7 +928,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\r\\n, indent, and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.write("apples").await();
                     test.assertEqual(2, writeStream.write("\r\n").await());
@@ -938,7 +938,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with only \\r\\n, indent, and non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.writeLine("apples").await();
                     test.assertEqual(2, writeStream.write("\r\n").await());
@@ -948,7 +948,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing one newline, no indent, and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual(3, writeStream.write("a\nb").await());
                     test.assertEqual("a\nb", innerStream.getText().await());
                 });
@@ -956,7 +956,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing one newline, no indent, and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.write("apples").await();
                     test.assertEqual(3, writeStream.write("a\nb").await());
                     test.assertEqual("applesa\nb", innerStream.getText().await());
@@ -965,7 +965,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing one newline, no indent, and non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.writeLine("apples").await();
                     test.assertEqual(3, writeStream.write("a\nb").await());
                     test.assertEqual("apples\na\nb", innerStream.getText().await());
@@ -974,7 +974,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing one newline, indent, and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     test.assertEqual(7, writeStream.write("a\nb").await());
                     test.assertEqual("  a\n  b", innerStream.getText().await());
@@ -983,7 +983,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing one newline, indent, and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.write("apples").await();
                     test.assertEqual(5, writeStream.write("a\nb").await());
@@ -993,7 +993,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing one newline, indent, and non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.writeLine("apples").await();
                     test.assertEqual(7, writeStream.write("a\nb").await());
@@ -1003,7 +1003,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing multiple newlines, no indent, and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual(4, writeStream.write("a\nb\n").await());
                     test.assertEqual("a\nb\n", innerStream.getText().await());
                 });
@@ -1011,7 +1011,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing multiple newlines, no indent, and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.write("apples").await();
                     test.assertEqual(4, writeStream.write("a\nb\n").await());
                     test.assertEqual("applesa\nb\n", innerStream.getText().await());
@@ -1020,7 +1020,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing multiple newlines, no indent, and non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.writeLine("apples").await();
                     test.assertEqual(4, writeStream.write("a\nb\n").await());
                     test.assertEqual("apples\na\nb\n", innerStream.getText().await());
@@ -1029,7 +1029,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing multiple newlines, indent, and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     test.assertEqual(8, writeStream.write("a\nb\n").await());
                     test.assertEqual("  a\n  b\n", innerStream.getText().await());
@@ -1038,7 +1038,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing multiple newlines, indent, and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.write("apples").await();
                     test.assertEqual(6, writeStream.write("a\nb\n").await());
@@ -1048,7 +1048,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with text containing multiple newlines, indent, and non-empty new-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.writeLine("apples").await();
                     test.assertEqual(8, writeStream.write("a\nb\n").await());
@@ -1062,7 +1062,7 @@ public interface IndentedCharacterWriteStreamTests
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
                     innerStream.dispose().await();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertThrows(() -> writeStream.writeLine(),
                         new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual("", innerStream.getText().await());
@@ -1071,7 +1071,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with no indent and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertEqual(1, writeStream.writeLine().await());
                     test.assertEqual("\n", innerStream.getText().await());
                 });
@@ -1079,7 +1079,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with no indent and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.write("hello").await();
                     test.assertEqual(1, writeStream.writeLine().await());
                     test.assertEqual("hello\n", innerStream.getText().await());
@@ -1088,7 +1088,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with no indent and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.writeLine("hello").await();
                     test.assertEqual(1, writeStream.writeLine().await());
                     test.assertEqual("hello\n\n", innerStream.getText().await());
@@ -1097,7 +1097,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with indent and empty stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("\t");
                     test.assertEqual(1, writeStream.writeLine().await());
                     test.assertEqual("\n", innerStream.getText().await());
@@ -1106,7 +1106,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with indent and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent(" ");
                     writeStream.write("hello").await();
                     test.assertEqual(1, writeStream.writeLine().await());
@@ -1116,7 +1116,7 @@ public interface IndentedCharacterWriteStreamTests
                 runner.test("with indent and non-empty mid-line stream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                    final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                    final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     writeStream.setCurrentIndent("  ");
                     writeStream.writeLine("hello").await();
                     test.assertEqual(1, writeStream.writeLine().await());
@@ -1127,7 +1127,7 @@ public interface IndentedCharacterWriteStreamTests
             runner.test("dispose()", (Test test) ->
             {
                 final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
-                final IndentedCharacterWriteStream writeStream = new IndentedCharacterWriteStream(innerStream);
+                final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                 test.assertFalse(innerStream.isDisposed());
                 test.assertFalse(writeStream.isDisposed());
                 test.assertTrue(writeStream.dispose().await());
