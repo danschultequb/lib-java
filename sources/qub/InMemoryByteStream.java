@@ -13,14 +13,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     public final Event0 disposed;
     private final RunnableEvent0 disposedEvent;
 
-    @Deprecated
-    public InMemoryByteStream()
-    {
-        this(new byte[0]);
-    }
-
-    @Deprecated
-    public InMemoryByteStream(byte[] bytes)
+    protected InMemoryByteStream(byte[] bytes)
     {
         PreCondition.assertNotNull(bytes, "bytes");
 

@@ -168,14 +168,7 @@ public interface BufferedByteReadStreamTests
 
                 runner.test("when error occurs", (Test test) ->
                 {
-                    final ByteReadStream innerStream = new InMemoryByteStream(new byte[0])
-                    {
-                        @Override
-                        public Result<Integer> readBytes(byte[] bytes)
-                        {
-                            return Result.error(new Exception("BLAH"));
-                        }
-                    }.endOfStream();
+                    final ByteReadStream innerStream = FakeByteReadStream.create(() -> Result.error(new Exception("BLAH")));
                     final BufferedByteReadStream byteReadStream = new BufferedByteReadStream(innerStream, 123);
 
                     test.assertThrows(() -> byteReadStream.readByte().await(),
