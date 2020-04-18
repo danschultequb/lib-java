@@ -22,16 +22,14 @@ public class FakeTCPClient implements TCPClient
         this.socketWriteStream = socketWriteStream;
     }
 
-    @Override
     public ByteReadStream getReadStream()
     {
-        return socketReadStream;
+        return this.socketReadStream;
     }
 
-    @Override
     public ByteWriteStream getWriteStream()
     {
-        return socketWriteStream;
+        return this.socketWriteStream;
     }
 
     @Override
@@ -80,5 +78,29 @@ public class FakeTCPClient implements TCPClient
     public int getRemotePort()
     {
         return remotePort;
+    }
+
+    @Override
+    public Result<Byte> readByte()
+    {
+        return this.socketReadStream.readByte();
+    }
+
+    @Override
+    public Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
+    {
+        return this.socketReadStream.readBytes(outputBytes, startIndex, length);
+    }
+
+    @Override
+    public Result<Integer> write(byte toWrite)
+    {
+        return this.socketWriteStream.write(toWrite);
+    }
+
+    @Override
+    public Result<Integer> write(byte[] toWrite, int startIndex, int length)
+    {
+        return this.socketWriteStream.write(toWrite, startIndex, length);
     }
 }

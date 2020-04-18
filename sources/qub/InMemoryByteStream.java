@@ -4,8 +4,6 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
 {
     private boolean isDisposed;
     private final ByteList bytes;
-    private Byte current;
-    private boolean started;
     private boolean endOfStream;
     private final Mutex mutex;
     private final MutexCondition bytesAvailable;
@@ -15,11 +13,13 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     public final Event0 disposed;
     private final RunnableEvent0 disposedEvent;
 
+    @Deprecated
     public InMemoryByteStream()
     {
         this(new byte[0]);
     }
 
+    @Deprecated
     public InMemoryByteStream(byte[] bytes)
     {
         PreCondition.assertNotNull(bytes, "bytes");
@@ -51,7 +51,10 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
         return bytes.toByteArray();
     }
 
-    @Override
+    /**
+     * Get the number of bytes currently in the InMemoryByteStream.
+     * @return The number of bytes currently in the InMemoryByteStream.
+     */
     public int getCount()
     {
         return bytes.getCount();
@@ -63,6 +66,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
      * @return The maximum number of bytes that can be read with a readBytes() call or null if no
      * limit has been set.
      */
+    @Deprecated
     public Integer getMaxBytesPerRead()
     {
         return maxBytesPerRead;
@@ -73,6 +77,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
      * @param maxBytesPerRead The maximum number of bytes that can be read with a readBytes() call.
      * @return This object for method chaining.
      */
+    @Deprecated
     public InMemoryByteStream setMaxBytesPerRead(Integer maxBytesPerRead)
     {
         PreCondition.assertTrue(maxBytesPerRead == null || maxBytesPerRead >= 1, "maxBytesPerRead (" + maxBytesPerRead + ") == null || maxBytesPerRead (" + maxBytesPerRead + ") >= 1");
@@ -88,6 +93,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
      * @return The maximum number of bytes that can be written with a writeBytes() call or null if
      * no limit has been set.
      */
+    @Deprecated
     public Integer getMaxBytesPerWrite()
     {
         return maxBytesPerWrite;
@@ -99,6 +105,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
      *                         call.
      * @return This object for method chaining.
      */
+    @Deprecated
     public InMemoryByteStream setMaxBytesPerWrite(Integer maxBytesPerWrite)
     {
         PreCondition.assertTrue(maxBytesPerWrite == null || maxBytesPerWrite >= 1, "maxBytesPerWrite (" + maxBytesPerWrite + ") == null || maxBytesPerWrite (" + maxBytesPerWrite + ") >= 1");
@@ -113,26 +120,24 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        return mutex.criticalSection(() ->
+        return this.mutex.criticalSection(() ->
         {
-            started = true;
-
-            while (!isDisposed() && !endOfStream && !bytes.any())
+            while (!this.isDisposed() && !this.endOfStream && !this.bytes.any())
             {
                 bytesAvailable.watch().await();
             }
 
-            if (isDisposed())
+            if (this.isDisposed())
             {
                 throw new IllegalStateException("isDisposed() cannot be true.");
             }
 
-            current = bytes.any() ? bytes.removeFirst() : null;
-            if (current == null)
+            if (!this.bytes.any())
             {
                 throw new EndOfStreamException();
             }
-            return current;
+
+            return this.bytes.removeFirst();
         });
     }
 
@@ -153,8 +158,6 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
             }
             else
             {
-                started = true;
-
                 while (!isDisposed && !endOfStream && !bytes.any())
                 {
                     bytesAvailable.watch().await();
@@ -166,7 +169,6 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                 }
                 else if (!bytes.any())
                 {
-                    current = null;
                     throw new EndOfStreamException();
                 }
 
@@ -176,7 +178,6 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                     bytesRead = maxBytesPerRead;
                 }
                 bytes.removeFirstBytes(outputBytes, startIndex, bytesRead);
-                current = outputBytes[startIndex + bytesRead - 1];
             }
             return bytesRead;
         });
@@ -197,33 +198,12 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
             if (result)
             {
                 isDisposed = true;
-                current = null;
                 bytesAvailable.signalAll();
 
                 this.disposedEvent.run();
             }
             return result;
         });
-    }
-
-    @Override
-    public boolean hasStarted()
-    {
-        return started;
-    }
-
-    @Override
-    public boolean hasCurrent()
-    {
-        return current != null;
-    }
-
-    @Override
-    public Byte getCurrent()
-    {
-        PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
-
-        return current;
     }
 
     /**

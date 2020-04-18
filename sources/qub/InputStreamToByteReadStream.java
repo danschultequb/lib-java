@@ -8,8 +8,6 @@ public class InputStreamToByteReadStream implements ByteReadStream
     private final java.io.InputStream inputStream;
 
     private boolean disposed;
-    private boolean hasStarted;
-    private Byte current;
 
     public InputStreamToByteReadStream(java.io.InputStream inputStream)
     {
@@ -56,23 +54,18 @@ public class InputStreamToByteReadStream implements ByteReadStream
         Result<Byte> result;
         try
         {
-            hasStarted = true;
-
             final int byteAsInt = inputStream.read();
             if (byteAsInt == -1)
             {
-                current = null;
                 result = Result.endOfStream();
             }
             else
             {
-                current = (byte)byteAsInt;
-                result = Result.success(current);
+                result = Result.success((byte)byteAsInt);
             }
         }
         catch (java.io.IOException e)
         {
-            current = null;
             result = Result.error(e);
         }
         return result;
@@ -95,17 +88,13 @@ public class InputStreamToByteReadStream implements ByteReadStream
             }
             else
             {
-                hasStarted = true;
-
                 final int bytesRead = inputStream.read(outputBytes, startIndex, length);
                 if (bytesRead == -1)
                 {
-                    current = null;
                     result = Result.endOfStream();
                 }
                 else
                 {
-                    current = outputBytes[startIndex + bytesRead - 1];
                     result = Result.success(bytesRead);
                 }
             }
@@ -115,23 +104,5 @@ public class InputStreamToByteReadStream implements ByteReadStream
             result = Result.error(e);
         }
         return result;
-    }
-
-    @Override
-    public boolean hasStarted()
-    {
-        return hasStarted;
-    }
-
-    @Override
-    public boolean hasCurrent()
-    {
-        return current != null;
-    }
-
-    @Override
-    public Byte getCurrent()
-    {
-        return current;
     }
 }

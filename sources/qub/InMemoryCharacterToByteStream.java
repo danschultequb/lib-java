@@ -31,7 +31,7 @@ public class InMemoryCharacterToByteStream extends BasicCharacterToByteReadStrea
         PreCondition.assertNotNull(characterEncoding, "characterEncoding");
 
         final byte[] encodedBytes = characterEncoding.encode(text).await();
-        final InMemoryByteStream byteStream = new InMemoryByteStream(encodedBytes);
+        final InMemoryByteStream byteStream = InMemoryByteStream.create(encodedBytes);
         return InMemoryCharacterToByteStream.create(byteStream, characterEncoding);
     }
 

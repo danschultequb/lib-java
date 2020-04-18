@@ -192,7 +192,7 @@ public class BasicProcessBuilder implements ProcessBuilder
 
         return (ByteReadStream byteReadStream) ->
         {
-            final CharacterReadStream characterReadStream = byteReadStream.asCharacterReadStream();
+            final CharacterReadStream characterReadStream = CharacterReadStream.create(byteReadStream);
             String line;
             do
             {

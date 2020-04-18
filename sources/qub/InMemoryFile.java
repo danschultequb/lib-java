@@ -49,7 +49,7 @@ public class InMemoryFile
      */
     public ByteReadStream getContentByteReadStream()
     {
-        return new InMemoryByteStream(contents).endOfStream();
+        return ByteReadStream.create(contents);
     }
 
     public ByteWriteStream getContentByteWriteStream()

@@ -38,7 +38,7 @@ public interface CharacterToByteReadStream extends CharacterReadStream
         PreCondition.assertNotNull(characterEncoding, "characterEncoding");
 
         final byte[] encodedBytes = characterEncoding.encode(characters).await();
-        final InMemoryByteStream byteReadStream = new InMemoryByteStream(encodedBytes).endOfStream();
+        final ByteReadStream byteReadStream = ByteReadStream.create(encodedBytes);
         return CharacterToByteReadStream.create(byteReadStream, characterEncoding);
     }
 

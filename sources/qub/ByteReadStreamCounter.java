@@ -97,22 +97,4 @@ public class ByteReadStreamCounter implements ByteReadStream
     {
         return innerStream.dispose();
     }
-
-    @Override
-    public boolean hasStarted()
-    {
-        return innerStream.hasStarted();
-    }
-
-    @Override
-    public boolean hasCurrent()
-    {
-        return innerStream.hasCurrent();
-    }
-
-    @Override
-    public Byte getCurrent()
-    {
-        return innerStream.getCurrent();
-    }
 }

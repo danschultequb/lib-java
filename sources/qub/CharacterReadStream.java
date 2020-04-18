@@ -3,8 +3,18 @@ package qub;
 /**
  * A ReadStream interface that reads characters.
  */
-public interface CharacterReadStream extends Disposable, Iterator<Character>
+public interface CharacterReadStream extends Disposable
 {
+    /**
+     * Create a new CharacterToByteReadStream that wraps around the provided ByteReadStream.
+     * @param byteReadStream The ByteReadStream to wrap with a CharacterToByteReadStream.
+     * @return The wrapping CharacterToByteReadStream.
+     */
+    static CharacterToByteReadStream create(ByteReadStream byteReadStream)
+    {
+        return CharacterToByteReadStream.create(byteReadStream);
+    }
+
     /**
      * Read a single character create this stream. This will block until a character is available.
      * @return The single character that was read, or an error if a character could not be read.
@@ -287,11 +297,12 @@ public interface CharacterReadStream extends Disposable, Iterator<Character>
         }
         else
         {
+            final Iterator<Character> iterator = CharacterReadStream.iterate(this);
             boolean previousCharacterWasCarriageReturn = false;
-            while (this.next())
+            while (iterator.next())
             {
                 ++charactersRead;
-                final char currentCharacter = this.getCurrent();
+                final char currentCharacter = iterator.getCurrent();
                 if (currentCharacter == '\r')
                 {
                     if (previousCharacterWasCarriageReturn)
@@ -320,7 +331,7 @@ public interface CharacterReadStream extends Disposable, Iterator<Character>
                 }
             }
 
-            if (!this.hasCurrent() && previousCharacterWasCarriageReturn)
+            if (!iterator.hasCurrent() && previousCharacterWasCarriageReturn)
             {
                 list.add('\r');
             }
@@ -345,4 +356,18 @@ public interface CharacterReadStream extends Disposable, Iterator<Character>
      * @return The converted ByteReadStream.
      */
     ByteReadStream asByteReadStream();
+
+    /**
+     * Create an iterator that will iterate over the characters in the provided CharacterReadStream.
+     * @param characterReadStream The CharacterReadStream that the returned iterator will iterate
+     *                            over.
+     * @return An iterator that will iterate over the characters in the provided
+     * CharacterReadStream.
+     */
+    static CharacterReadStreamIterator iterate(CharacterReadStream characterReadStream)
+    {
+        PreCondition.assertNotNull(characterReadStream, "characterReadStream");
+
+        return CharacterReadStreamIterator.create(characterReadStream);
+    }
 }

@@ -33,18 +33,6 @@ class JavaTCPClient implements TCPClient
     }
 
     @Override
-    public ByteReadStream getReadStream()
-    {
-        return socketReadStream;
-    }
-
-    @Override
-    public ByteWriteStream getWriteStream()
-    {
-        return socketWriteStream;
-    }
-
-    @Override
     public boolean isDisposed()
     {
         return socket.isClosed();
@@ -105,5 +93,29 @@ class JavaTCPClient implements TCPClient
     {
         final java.net.InetSocketAddress remoteInetSocketAddress = (java.net.InetSocketAddress)socket.getRemoteSocketAddress();
         return remoteInetSocketAddress.getPort();
+    }
+
+    @Override
+    public Result<Byte> readByte()
+    {
+        return this.socketReadStream.readByte();
+    }
+
+    @Override
+    public Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
+    {
+        return this.socketReadStream.readBytes(outputBytes, startIndex, length);
+    }
+
+    @Override
+    public Result<Integer> write(byte toWrite)
+    {
+        return this.socketWriteStream.write(toWrite);
+    }
+
+    @Override
+    public Result<Integer> write(byte[] toWrite, int startIndex, int length)
+    {
+        return this.socketWriteStream.write(toWrite, startIndex, length);
     }
 }

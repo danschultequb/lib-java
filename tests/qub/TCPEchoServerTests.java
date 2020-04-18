@@ -20,7 +20,7 @@ public interface TCPEchoServerTests
                         try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).await())
                         {
                             final CharacterWriteStream tcpClientWriteStream = CharacterWriteStream.create(tcpClient);
-                            final CharacterReadStream tcpClientReadStream = tcpClient.asCharacterReadStream();
+                            final CharacterReadStream tcpClientReadStream = CharacterReadStream.create(tcpClient);
 
                             tcpClientWriteStream.writeLine("Hello").await();
                             test.assertEqual("Hello", tcpClientReadStream.readLine().await());

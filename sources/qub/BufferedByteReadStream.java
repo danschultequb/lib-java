@@ -8,7 +8,6 @@ public class BufferedByteReadStream implements ByteReadStream
     private boolean growOnNextBufferFill;
     private int currentBufferIndex;
     private int bytesInBuffer;
-    private boolean hasStarted;
 
     public BufferedByteReadStream(ByteReadStream byteReadStream)
     {
@@ -37,8 +36,6 @@ public class BufferedByteReadStream implements ByteReadStream
     public Result<Byte> readByte()
     {
         PreCondition.assertNotDisposed(this);
-
-        hasStarted = true;
 
         Result<Byte> result;
         if (currentBufferIndex < 0 || currentBufferIndex == bytesInBuffer - 1)
@@ -139,26 +136,6 @@ public class BufferedByteReadStream implements ByteReadStream
         currentBufferIndex = -1;
         bytesInBuffer = 0;
         return byteReadStream.dispose();
-    }
-
-    @Override
-    public boolean hasStarted()
-    {
-        return hasStarted;
-    }
-
-    @Override
-    public boolean hasCurrent()
-    {
-        return 0 <= currentBufferIndex;
-    }
-
-    @Override
-    public Byte getCurrent()
-    {
-        PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
-
-        return buffer[currentBufferIndex];
     }
 
     /**

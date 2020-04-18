@@ -546,7 +546,7 @@ public interface FileSystem
     default Result<CharacterReadStream> getFileContentCharacterReadStream(Path rootedFilePath)
     {
         return this.getFileContentByteReadStream(rootedFilePath)
-            .then((ByteReadStream byteReadStream) -> byteReadStream.asCharacterReadStream());
+            .then((ByteReadStream byteReadStream) -> CharacterReadStream.create(byteReadStream));
     }
 
     /**

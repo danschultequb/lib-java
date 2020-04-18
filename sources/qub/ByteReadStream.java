@@ -3,7 +3,7 @@ package qub;
 /**
  * A ReadStream interface that reads bytes.
  */
-public interface ByteReadStream extends Disposable, Iterator<Byte>
+public interface ByteReadStream extends Disposable
 {
     static ByteReadStream create()
     {
@@ -83,7 +83,7 @@ public interface ByteReadStream extends Disposable, Iterator<Byte>
 
         return Result.create(() ->
         {
-            final InMemoryByteStream byteStream = new InMemoryByteStream();
+            final InMemoryByteStream byteStream = InMemoryByteStream.create();
             byteStream.writeAll(this).await();
             final byte[] bytes = byteStream.getBytes();
             if (bytes.length == 0)
@@ -164,36 +164,5 @@ public interface ByteReadStream extends Disposable, Iterator<Byte>
             }
             return result;
         });
-    }
-
-    @Override
-    default boolean next()
-    {
-        PreCondition.assertNotDisposed(this);
-
-        return this.readByte()
-            .then(() -> true)
-            .catchError(EndOfStreamException.class, () -> false)
-            .await();
-    }
-
-    /**
-     * Convert this ByteReadStream to a CharacterReadStream using the default CharacterEncoding.
-     * @return A CharacterReadStream that uses the default CharacterEncoding.
-     */
-    default CharacterReadStream asCharacterReadStream()
-    {
-        return this.asCharacterReadStream(CharacterEncoding.UTF_8);
-    }
-
-    /**
-     * Convert this ByteReadStream to a CharacterReadStream using the provided CharacterEncoding.
-     * @return A CharacterReadStream that uses the provided CharacterEncoding.
-     */
-    default CharacterReadStream asCharacterReadStream(CharacterEncoding characterEncoding)
-    {
-        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
-
-        return new BasicCharacterToByteReadStream(this, characterEncoding);
     }
 }

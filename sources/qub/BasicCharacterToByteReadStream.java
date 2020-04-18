@@ -4,7 +4,6 @@ public class BasicCharacterToByteReadStream implements CharacterToByteReadStream
 {
     private final ByteReadStream byteReadStream;
     private CharacterEncoding characterEncoding;
-    private Character current;
 
     protected BasicCharacterToByteReadStream(ByteReadStream byteReadStream, CharacterEncoding characterEncoding)
     {
@@ -25,13 +24,7 @@ public class BasicCharacterToByteReadStream implements CharacterToByteReadStream
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        final Result<Character> result = characterEncoding.decodeNextCharacter(byteReadStream)
-            .onValue((Character c) -> { current = c; })
-            .onError(() -> { current = null; });
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return characterEncoding.decodeNextCharacter(byteReadStream);
     }
 
     @Override
@@ -72,32 +65,5 @@ public class BasicCharacterToByteReadStream implements CharacterToByteReadStream
     public Result<Boolean> dispose()
     {
         return byteReadStream.dispose();
-    }
-
-    @Override
-    public boolean hasStarted()
-    {
-        return byteReadStream.hasStarted();
-    }
-
-    @Override
-    public boolean hasCurrent()
-    {
-        return current != null;
-    }
-
-    @Override
-    public Character getCurrent()
-    {
-        return current;
-    }
-
-    @Override
-    public boolean next()
-    {
-        this.readCharacter()
-            .catchError(EndOfStreamException.class)
-            .await();
-        return this.hasCurrent();
     }
 }

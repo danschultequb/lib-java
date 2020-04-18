@@ -215,9 +215,10 @@ public class JavaProcess implements QubProcess
     {
         if (!inputCharacterReadStream.hasValue())
         {
-            final ByteReadStream inputByteReadStream = getInputByteReadStream();
-            final CharacterEncoding characterEncoding = getCharacterEncoding();
-            inputCharacterReadStream.set(inputByteReadStream.asCharacterReadStream(characterEncoding));
+            final ByteReadStream inputByteReadStream = this.getInputByteReadStream();
+            final CharacterEncoding characterEncoding = this.getCharacterEncoding();
+            inputCharacterReadStream.set(CharacterToByteReadStream.create(inputByteReadStream)
+                .setCharacterEncoding(characterEncoding));
         }
         return inputCharacterReadStream.get();
     }
