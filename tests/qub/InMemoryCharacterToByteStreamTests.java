@@ -116,14 +116,16 @@ public interface InMemoryCharacterToByteStreamTests
                 runner.test("with no characters to read", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
-                    test.assertNull(characterReadStream.readCharacter().await());
+                    test.assertThrows(() -> characterReadStream.readCharacter().await(),
+                        new EndOfStreamException());
                 });
 
                 runner.test("with one character to read", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream("d");
                     test.assertEqual('d', characterReadStream.readCharacter().await());
-                    test.assertNull(characterReadStream.readCharacter().await());
+                    test.assertThrows(() -> characterReadStream.readCharacter().await(),
+                        new EndOfStreamException());
                 });
 
                 runner.test("with two characters to read", (Test test) ->
@@ -131,7 +133,8 @@ public interface InMemoryCharacterToByteStreamTests
                     final InMemoryCharacterToByteStream characterReadStream = createStream("ef");
                     test.assertEqual('e', characterReadStream.readCharacter().await());
                     test.assertEqual('f', characterReadStream.readCharacter().await());
-                    test.assertNull(characterReadStream.readCharacter().await());
+                    test.assertThrows(() -> characterReadStream.readCharacter().await(),
+                        new EndOfStreamException());
                 });
             });
 
@@ -149,34 +152,36 @@ public interface InMemoryCharacterToByteStreamTests
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
                     test.assertThrows(() -> characterReadStream.readCharacters(-1),
-                        new PreConditionFailure("charactersToRead (-1) must be greater than 0."));
+                        new PreConditionFailure("charactersToRead (-1) must be greater than or equal to 0."));
                 });
 
                 runner.test("with zero charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
-                    test.assertThrows(() -> characterReadStream.readCharacters(0),
-                        new PreConditionFailure("charactersToRead (0) must be greater than 0."));
+                    test.assertEqual(new char[0], characterReadStream.readCharacters(0).await());
                 });
 
                 runner.test("with no characters to read", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
-                    test.assertNull(characterReadStream.readCharacters(5).await());
+                    test.assertThrows(() -> characterReadStream.readCharacters(5).await(),
+                        new EndOfStreamException());
                 });
 
                 runner.test("with fewer available characters than charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream("abc");
                     test.assertEqual(new char[] { 'a', 'b', 'c' }, characterReadStream.readCharacters(5).await());
-                    test.assertNull(characterReadStream.readCharacters(1).await());
+                    test.assertThrows(() -> characterReadStream.readCharacters(1).await(),
+                        new EndOfStreamException());
                 });
 
                 runner.test("with available characters equal to charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream("abcd");
                     test.assertEqual(new char[] { 'a', 'b', 'c', 'd' }, characterReadStream.readCharacters(4).await());
-                    test.assertNull(characterReadStream.readCharacters(1).await());
+                    test.assertThrows(() -> characterReadStream.readCharacters(1).await(),
+                        new EndOfStreamException());
                 });
 
                 runner.test("with more available characters than charactersToRead", (Test test) ->
@@ -211,15 +216,15 @@ public interface InMemoryCharacterToByteStreamTests
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[0];
-                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters),
-                        new PreConditionFailure("outputCharacters cannot be empty."));
+                    test.assertEqual(0, characterReadStream.readCharacters(outputCharacters).await());
                 });
 
                 runner.test("with no characters to read.", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[5];
-                    test.assertNull(characterReadStream.readCharacters(outputCharacters).await());
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters).await(),
+                        new EndOfStreamException());
                 });
 
                 runner.test("with fewer characters to read than outputCharacters.length", (Test test) ->
@@ -228,7 +233,8 @@ public interface InMemoryCharacterToByteStreamTests
                     final char[] outputCharacters = new char[5];
                     test.assertEqual(3, characterReadStream.readCharacters(outputCharacters).await());
                     test.assertEqual(new char[] { 'a', 'b', 'c', '\0', '\0' }, outputCharacters);
-                    test.assertNull(characterReadStream.readCharacter().await());
+                    test.assertThrows(() -> characterReadStream.readCharacter().await(),
+                        new EndOfStreamException());
                 });
 
                 runner.test("with equal characters to read to outputCharacters.length", (Test test) ->
@@ -237,7 +243,8 @@ public interface InMemoryCharacterToByteStreamTests
                     final char[] outputCharacters = new char[5];
                     test.assertEqual(5, characterReadStream.readCharacters(outputCharacters).await());
                     test.assertEqual(new char[] { 'd', 'e', 'f', 'g', 'h' }, outputCharacters);
-                    test.assertNull(characterReadStream.readCharacter().await());
+                    test.assertThrows(() -> characterReadStream.readCharacter().await(),
+                        new EndOfStreamException());
                 });
 
                 runner.test("with more characters to read than outputCharacters.length", (Test test) ->
@@ -274,7 +281,7 @@ public interface InMemoryCharacterToByteStreamTests
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[0];
                     test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 3),
-                        new PreConditionFailure("outputCharacters cannot be empty."));
+                        new PreConditionFailure("startIndex (2) must be equal to 0."));
                 });
 
                 runner.test("with negative startIndex", (Test test) ->
@@ -298,15 +305,15 @@ public interface InMemoryCharacterToByteStreamTests
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
                     test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, -50),
-                        new PreConditionFailure("length (-50) must be between 1 and 4."));
+                        new PreConditionFailure("length (-50) must be between 0 and 4."));
                 });
 
                 runner.test("with zero length", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
-                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 0),
-                        new PreConditionFailure("length (0) must be between 1 and 4."));
+                    test.assertEqual(0, characterReadStream.readCharacters(outputCharacters, 2, 0).await());
+                    test.assertEqual(new char[] { 0, 0, 0, 0, 0, 0 }, outputCharacters);
                 });
 
                 runner.test("with length greater than outputCharacters.length - startIndex", (Test test) ->
@@ -314,14 +321,15 @@ public interface InMemoryCharacterToByteStreamTests
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
                     test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 5),
-                        new PreConditionFailure("length (5) must be between 1 and 4."));
+                        new PreConditionFailure("length (5) must be between 0 and 4."));
                 });
 
                 runner.test("with no characters to read.", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
                     final char[] outputCharacters = new char[6];
-                    test.assertNull(characterReadStream.readCharacters(outputCharacters, 2, 3).await());
+                    test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 3).await(),
+                        new EndOfStreamException());
                 });
 
                 runner.test("with fewer characters to read than length", (Test test) ->
@@ -330,7 +338,8 @@ public interface InMemoryCharacterToByteStreamTests
                     final char[] outputCharacters = new char[6];
                     test.assertEqual(1, characterReadStream.readCharacters(outputCharacters, 2, 3).await());
                     test.assertEqual(new char[] { '\0', '\0', 'a', '\0', '\0', '\0' }, outputCharacters);
-                    test.assertNull(characterReadStream.readCharacter().await());
+                    test.assertThrows(() -> characterReadStream.readCharacter().await(),
+                        new EndOfStreamException());
                 });
 
                 runner.test("with equal characters to read to length", (Test test) ->
@@ -339,7 +348,8 @@ public interface InMemoryCharacterToByteStreamTests
                     final char[] outputCharacters = new char[6];
                     test.assertEqual(3, characterReadStream.readCharacters(outputCharacters, 2, 3).await());
                     test.assertEqual(new char[] { '\0', '\0', 'd', 'e', 'f', '\0' }, outputCharacters);
-                    test.assertNull(characterReadStream.readCharacter().await());
+                    test.assertThrows(() -> characterReadStream.readCharacter().await(),
+                        new EndOfStreamException());
                 });
 
                 runner.test("with more characters to read than length", (Test test) ->
@@ -365,7 +375,8 @@ public interface InMemoryCharacterToByteStreamTests
                 runner.test("with no characters to read", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream("");
-                    test.assertEqual(new char[0], characterReadStream.readAllCharacters().await());
+                    test.assertThrows(() -> characterReadStream.readAllCharacters().await(),
+                        new EndOfStreamException());
                 });
 
                 runner.test("with one character to read", (Test test) ->
@@ -394,21 +405,24 @@ public interface InMemoryCharacterToByteStreamTests
                 runner.test("with no characters to read", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
-                    test.assertNull(characterReadStream.readString(5).await());
+                    test.assertThrows(() -> characterReadStream.readString(5).await(),
+                        new EndOfStreamException());
                 });
 
                 runner.test("with fewer available characters than charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream("abc");
                     test.assertEqual("abc", characterReadStream.readString(5).await());
-                    test.assertNull(characterReadStream.readString(1).await());
+                    test.assertThrows(() -> characterReadStream.readString(1).await(),
+                        new EndOfStreamException());
                 });
 
                 runner.test("with available characters equal to charactersToRead", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream("abcd");
                     test.assertEqual("abcd", characterReadStream.readString(4).await());
-                    test.assertNull(characterReadStream.readString(1).await());
+                    test.assertThrows(() -> characterReadStream.readString(1).await(),
+                        new EndOfStreamException());
                 });
 
                 runner.test("with more available characters than charactersToRead", (Test test) ->

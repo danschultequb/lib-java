@@ -21,23 +21,16 @@ public interface CharacterReadStream extends Disposable, Iterator<Character>
      */
     default Result<char[]> readCharacters(int charactersToRead)
     {
-        PreCondition.assertGreaterThan(charactersToRead, 0, "charactersToRead");
+        PreCondition.assertGreaterThanOrEqualTo(charactersToRead, 0, "charactersToRead");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
         final char[] buffer = new char[charactersToRead];
-        return readCharacters(buffer)
+        return this.readCharacters(buffer)
             .then((Integer charactersRead) ->
             {
-                char[] result = buffer;
-                if (charactersRead == null)
-                {
-                    result = null;
-                }
-                else if (charactersRead < charactersToRead)
-                {
-                    result = Array.clone(buffer, 0, charactersRead);
-                }
-                return result;
+                return charactersRead == charactersToRead
+                    ? buffer
+                    : Array.clone(buffer, 0, charactersRead);
             });
     }
 
@@ -50,10 +43,10 @@ public interface CharacterReadStream extends Disposable, Iterator<Character>
      */
     default Result<Integer> readCharacters(char[] outputCharacters)
     {
-        PreCondition.assertNotNullAndNotEmpty(outputCharacters, "outputCharacters");
+        PreCondition.assertNotNull(outputCharacters, "outputCharacters");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        return readCharacters(outputCharacters, 0, outputCharacters.length);
+        return this.readCharacters(outputCharacters, 0, outputCharacters.length);
     }
 
     /**
@@ -67,9 +60,9 @@ public interface CharacterReadStream extends Disposable, Iterator<Character>
      */
     default Result<Integer> readCharacters(char[] outputCharacters, int startIndex, int length)
     {
-        PreCondition.assertNotNullAndNotEmpty(outputCharacters, "outputCharacters");
-        PreCondition.assertNonEmptyStartIndex(startIndex, outputCharacters.length);
-        PreCondition.assertNonEmptyLength(length, startIndex, outputCharacters.length);
+        PreCondition.assertNotNull(outputCharacters, "outputCharacters");
+        PreCondition.assertStartIndex(startIndex, outputCharacters.length);
+        PreCondition.assertLength(length, startIndex, outputCharacters.length);
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
         return Result.create(() ->
@@ -82,6 +75,10 @@ public interface CharacterReadStream extends Disposable, Iterator<Character>
                     .await();
                 if (c == null)
                 {
+                    if (charactersRead == 0)
+                    {
+                        throw new EndOfStreamException();
+                    }
                     break;
                 }
                 else
@@ -90,14 +87,14 @@ public interface CharacterReadStream extends Disposable, Iterator<Character>
                     ++charactersRead;
                 }
             }
-            return charactersRead == 0 ? null : charactersRead;
+            return charactersRead;
         });
     }
 
     /**
      * Read all of the characters in this stream. The termination of the stream is marked when
-     * readCharacter() returns a null character. This function will not return until all of the
-     * characters in the stream have been read.
+     * readCharacter() returns an EndOfStreamException. This function will not return until all of
+     * the characters in the stream have been read.
      * @return All of the remaining characters in this stream.
      */
     default Result<char[]> readAllCharacters()
@@ -116,6 +113,10 @@ public interface CharacterReadStream extends Disposable, Iterator<Character>
                     .await();
                 if (charactersRead == null || charactersRead == -1)
                 {
+                    if (!readCharacterArrays.any())
+                    {
+                        throw new EndOfStreamException();
+                    }
                     break;
                 }
                 else if (charactersRead == buffer.length)

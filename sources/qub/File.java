@@ -124,9 +124,9 @@ public class File extends FileSystemEntry
      * Get a CharacterWriteStream to this file's contents.
      * @return A CharacterWriteStream to this file's contents.
      */
-    public Result<BasicCharacterToByteWriteStream> getContentCharacterWriteStream()
+    public Result<CharacterToByteWriteStream> getContentCharacterWriteStream()
     {
-        return getFileSystem().getFileContentCharacterWriteStream(getPath());
+        return this.getFileSystem().getFileContentCharacterWriteStream(getPath());
     }
 
     public Result<byte[]> getContents()

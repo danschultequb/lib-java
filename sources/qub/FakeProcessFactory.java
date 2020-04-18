@@ -115,9 +115,9 @@ public class FakeProcessFactory implements ProcessFactory
                 {
                     final ByteReadStream input = redirectedInputStream != null
                         ? redirectedInputStream
-                        : new InMemoryByteStream().endOfStream();
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                        : InMemoryByteStream.create().endOfStream();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     final Result<Void> outputTask = redirectedOutputStream != null
                         ? this.asyncRunner.schedule(() -> redirectedOutputStream.run(output))
                         : Result.success();

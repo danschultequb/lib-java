@@ -1,12 +1,12 @@
 package qub;
 
-public class BasicCharacterReadStream implements CharacterReadStream
+public class BasicCharacterToByteReadStream implements CharacterToByteReadStream
 {
     private final ByteReadStream byteReadStream;
-    private final CharacterEncoding characterEncoding;
+    private CharacterEncoding characterEncoding;
     private Character current;
 
-    public BasicCharacterReadStream(ByteReadStream byteReadStream, CharacterEncoding characterEncoding)
+    protected BasicCharacterToByteReadStream(ByteReadStream byteReadStream, CharacterEncoding characterEncoding)
     {
         PreCondition.assertNotNull(byteReadStream, "byteReadStream");
         PreCondition.assertNotNull(characterEncoding, "characterEncoding");
@@ -15,14 +15,19 @@ public class BasicCharacterReadStream implements CharacterReadStream
         this.characterEncoding = characterEncoding;
     }
 
+    public static BasicCharacterToByteReadStream create(ByteReadStream byteReadStream, CharacterEncoding characterEncoding)
+    {
+        return new BasicCharacterToByteReadStream(byteReadStream, characterEncoding);
+    }
+
     @Override
     public Result<Character> readCharacter()
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
         final Result<Character> result = characterEncoding.decodeNextCharacter(byteReadStream)
-            .then((Character c) -> current = c)
-            .catchError(() -> current = null);
+            .onValue((Character c) -> { current = c; })
+            .onError(() -> { current = null; });
 
         PostCondition.assertNotNull(result, "result");
 
@@ -33,6 +38,22 @@ public class BasicCharacterReadStream implements CharacterReadStream
     public CharacterEncoding getCharacterEncoding()
     {
         return characterEncoding;
+    }
+
+    @Override
+    public CharacterToByteReadStream setCharacterEncoding(CharacterEncoding characterEncoding)
+    {
+        PreCondition.assertNotNull(characterEncoding, "characterEncoding");
+
+        this.characterEncoding = characterEncoding;
+
+        return this;
+    }
+
+    @Override
+    public ByteReadStream getByteReadStream()
+    {
+        return this.byteReadStream;
     }
 
     @Override
@@ -74,6 +95,9 @@ public class BasicCharacterReadStream implements CharacterReadStream
     @Override
     public boolean next()
     {
-        return this.readCharacter().await() != null;
+        this.readCharacter()
+            .catchError(EndOfStreamException.class)
+            .await();
+        return this.hasCurrent();
     }
 }

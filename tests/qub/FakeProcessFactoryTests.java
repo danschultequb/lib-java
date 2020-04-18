@@ -228,7 +228,7 @@ public interface FakeProcessFactoryTests
                                 return input.readAllBytes().await().length;
                             }));
                     final ProcessBuilder builder = factory.getProcessBuilder("/executable/file").await()
-                        .redirectInput(new InMemoryByteStream(new byte[] { 9, 8, 7, 6, 5, 4 }).endOfStream());
+                        .redirectInput(InMemoryByteStream.create(new byte[] { 9, 8, 7, 6, 5, 4 }).endOfStream());
                     test.assertEqual(6, builder.run().await());
                 });
 
@@ -241,8 +241,8 @@ public interface FakeProcessFactoryTests
                                 output.write(new byte[] { 10, 9, 8, 7 }).await();
                                 return 4;
                             }));
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     final ProcessBuilder builder = factory.getProcessBuilder("/executable/file").await()
                         .redirectOutput(output)
                         .redirectError(error);
@@ -260,8 +260,8 @@ public interface FakeProcessFactoryTests
                                 error.write(new byte[] { 9, 8, 7, 6 }).await();
                                 return 5;
                             }));
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     final ProcessBuilder builder = factory.getProcessBuilder("/executable/file").await()
                         .redirectOutput(output)
                         .redirectError(error);

@@ -1910,7 +1910,8 @@ public interface FileSystemTests
                     test.assertEqual(filePath, fileSystem.createFile(filePath).await().toString());
                     try (final CharacterReadStream content = fileSystem.getFileContentCharacterReadStream(filePath).await())
                     {
-                        test.assertEqual("", content.readEntireString().await());
+                        test.assertThrows(() -> content.readEntireString().await(),
+                            new EndOfStreamException());
                     }
                 });
             });
@@ -1931,7 +1932,8 @@ public interface FileSystemTests
                     test.assertEqual(filePath, fileSystem.createFile(filePath).await().toString());
                     try (final CharacterReadStream content = fileSystem.getFileContentCharacterReadStream(Path.parse(filePath)).await())
                     {
-                        test.assertEqual("", content.readEntireString().await());
+                        test.assertThrows(() -> content.readEntireString().await(),
+                            new EndOfStreamException());
                     }
                 });
             });

@@ -253,6 +253,20 @@ public class CharacterList implements List<Character>
         return characters[index];
     }
 
+    public boolean endsWith(char[] values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return this.endsWith(CharacterArray.create(values));
+    }
+
+    public boolean endsWith(String value)
+    {
+        PreCondition.assertNotNull(value, "value");
+
+        return this.endsWith(Strings.iterable(value));
+    }
+
     @Override
     public Iterator<Character> iterate()
     {

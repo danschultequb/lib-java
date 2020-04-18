@@ -1,8 +1,8 @@
 package qub;
 
-public class UTF8CharacterEncodingTests
+public interface UTF8CharacterEncodingTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         final UTF8CharacterEncoding encoding = new UTF8CharacterEncoding();
 
@@ -154,7 +154,7 @@ public class UTF8CharacterEncodingTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> encoding.decodeNextCharacter(null),
+                    test.assertThrows(() -> encoding.decodeNextCharacter((Iterator<Byte>)null),
                         new PreConditionFailure("bytes cannot be null."));
                 });
 
@@ -174,6 +174,39 @@ public class UTF8CharacterEncodingTests
                             test.assertEqual(expectedCharacters[i], encoding.decodeNextCharacter(bytesIterator).await());
                         }
                         test.assertThrows(() -> encoding.decodeNextCharacter(bytesIterator).await(),
+                            new EndOfStreamException());
+                    });
+                };
+
+                decodeNextCharacterTest.run(new byte[] { 97 }, new char[]{'a'});
+                decodeNextCharacterTest.run(new byte[] { 97, 98, 99, 100 }, new char[]{'a', 'b', 'c', 'd'});
+                decodeNextCharacterTest.run(new byte[] { -62, -124 }, new char[] { (char)132 });
+            });
+
+            runner.testGroup("decodeNextCharacter(ByteReadStream)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> encoding.decodeNextCharacter((ByteReadStream)null),
+                        new PreConditionFailure("bytes cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    test.assertThrows(() -> encoding.decodeNextCharacter(ByteReadStream.create()).await(),
+                        new EndOfStreamException());
+                });
+
+                final Action2<byte[],char[]> decodeNextCharacterTest = (byte[] bytes, char[] expectedCharacters) ->
+                {
+                    runner.test("with " + Array.toString(bytes), (Test test) ->
+                    {
+                        final ByteReadStream byteReadStream = ByteReadStream.create(bytes);
+                        for (int i = 0; i < expectedCharacters.length; ++i)
+                        {
+                            test.assertEqual(expectedCharacters[i], encoding.decodeNextCharacter(byteReadStream).await());
+                        }
+                        test.assertThrows(() -> encoding.decodeNextCharacter(byteReadStream).await(),
                             new EndOfStreamException());
                     });
                 };

@@ -172,6 +172,97 @@ public class UTF8CharacterEncoding implements CharacterEncoding
     }
 
     @Override
+    public Result<Character> decodeNextCharacter(ByteReadStream bytes)
+    {
+        PreCondition.assertNotNull(bytes, "bytes");
+
+        return Result.create(() ->
+        {
+            char result;
+            final byte firstByte = bytes.readByte().await();
+            final int firstByteSignificantBitCount = Bytes.getSignificantBitCount(firstByte);
+            switch (firstByteSignificantBitCount)
+            {
+                case 0:
+                    result = (char)Bytes.toUnsignedInt(firstByte);
+                    break;
+
+                case 1:
+                    throw new IllegalArgumentException("Expected a leading byte, but found a continuation byte (" + Bytes.toHexString(firstByte) + ") instead.");
+
+                case 2:
+                case 3:
+                case 4:
+                    result = UTF8CharacterEncoding.decodeMultiByteCharacter(firstByte, firstByteSignificantBitCount, bytes).await();
+                    break;
+
+                default:
+                    throw new IllegalArgumentException("Found an invalid leading byte (" + Bytes.toHexString(firstByte) + ").");
+            }
+            return result;
+        });
+    }
+
+    private static Result<Character> decodeMultiByteCharacter(byte firstByte, int expectedBytesInCharacter, ByteReadStream bytes)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(expectedBytesInCharacter, 1, "expectedBytesInCharacter");
+        PreCondition.assertNotNull(bytes, "bytes");
+
+        return Result.create(() ->
+        {
+            char result;
+
+            switch (expectedBytesInCharacter)
+            {
+                case 2:
+                    final int unsignedFirstByte = Bytes.toUnsignedInt(firstByte);
+                    if (0xD8 <= unsignedFirstByte && unsignedFirstByte <= 0xDF)
+                    {
+                        throw new IllegalArgumentException("Byte " + Bytes.toHexString(firstByte, true) + " is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding.");
+                    }
+                    else
+                    {
+                        final Byte secondByte = bytes.readByte().catchError(EndOfStreamException.class).await();
+                        if (secondByte == null)
+                        {
+                            throw new IllegalArgumentException("Missing second byte in 2-byte character sequence.");
+                        }
+                        else
+                        {
+                            final int secondByteSignificantBitCount = Bytes.getSignificantBitCount(secondByte);
+                            if (secondByteSignificantBitCount != 1)
+                            {
+                                throw new IllegalArgumentException("Expected continuation byte (10xxxxxx), but found " + Bytes.toHexString(secondByte) + " instead.");
+                            }
+                            else
+                            {
+                                final int firstByteLastFiveBits = Bytes.toUnsignedInt(firstByte) & 0x1F;
+                                final int secondByteLastSixBits = Bytes.toUnsignedInt(secondByte) & 0x3F;
+                                final int resultBits = (firstByteLastFiveBits << 6) | secondByteLastSixBits;
+                                result = (char)resultBits;
+                            }
+                        }
+                    }
+                    break;
+
+                default:
+                    Byte nextByte;
+                    for (int i = 1; i < expectedBytesInCharacter; ++i)
+                    {
+                        nextByte = bytes.readByte().catchError(EndOfStreamException.class).await();
+                        if (nextByte == null)
+                        {
+                            break;
+                        }
+                    }
+                    throw new NotSupportedException("Decoding UTF-8 encoded byte streams with characters composed of 3 or more bytes are not supported.");
+            }
+
+            return result;
+        });
+    }
+
+    @Override
     public boolean equals(Object rhs)
     {
         return CharacterEncoding.equals(this, rhs);

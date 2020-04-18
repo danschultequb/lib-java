@@ -2,7 +2,7 @@ package qub;
 
 public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
 {
-    private boolean disposed;
+    private boolean isDisposed;
     private final ByteList bytes;
     private Byte current;
     private boolean started;
@@ -12,16 +12,33 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     private Integer maxBytesPerRead;
     private Integer maxBytesPerWrite;
 
+    public final Event0 disposed;
+    private final RunnableEvent0 disposedEvent;
+
     public InMemoryByteStream()
     {
-        this(null);
+        this(new byte[0]);
     }
 
     public InMemoryByteStream(byte[] bytes)
     {
+        PreCondition.assertNotNull(bytes, "bytes");
+
         this.bytes = ByteList.createFromBytes(bytes);
         this.mutex = new SpinMutex();
         this.bytesAvailable = this.mutex.createCondition(() -> isDisposed() || this.endOfStream || this.bytes.any());
+
+        this.disposed = this.disposedEvent = Event0.create();
+    }
+
+    public static InMemoryByteStream create()
+    {
+        return InMemoryByteStream.create(new byte[0]);
+    }
+
+    public static InMemoryByteStream create(byte[] bytes)
+    {
+        return new InMemoryByteStream(bytes);
     }
 
     /**
@@ -122,37 +139,45 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     @Override
     public Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
     {
-        PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
-        PreCondition.assertNonEmptyStartIndex(startIndex, outputBytes.length);
-        PreCondition.assertNonEmptyLength(length, startIndex, outputBytes.length);
+        PreCondition.assertNotNull(outputBytes, "outputBytes");
+        PreCondition.assertStartIndex(startIndex, outputBytes.length);
+        PreCondition.assertLength(length, startIndex, outputBytes.length);
         PreCondition.assertNotDisposed(this);
 
         return mutex.criticalSection(() ->
         {
-            started = true;
+            int bytesRead;
+            if (length == 0)
+            {
+                bytesRead = 0;
+            }
+            else
+            {
+                started = true;
 
-            while (!disposed && !endOfStream && !bytes.any())
-            {
-                bytesAvailable.watch().await();
-            }
+                while (!isDisposed && !endOfStream && !bytes.any())
+                {
+                    bytesAvailable.watch().await();
+                }
 
-            if (this.isDisposed())
-            {
-                throw new IllegalStateException("isDisposed() cannot be true.");
-            }
-            else if (!bytes.any())
-            {
-                current = null;
-                throw new EndOfStreamException();
-            }
+                if (this.isDisposed())
+                {
+                    throw new IllegalStateException("isDisposed() cannot be true.");
+                }
+                else if (!bytes.any())
+                {
+                    current = null;
+                    throw new EndOfStreamException();
+                }
 
-            int bytesRead = Math.minimum(bytes.getCount(), length);
-            if (maxBytesPerRead != null && maxBytesPerRead < bytesRead)
-            {
-                bytesRead = maxBytesPerRead;
+                bytesRead = Math.minimum(bytes.getCount(), length);
+                if (maxBytesPerRead != null && maxBytesPerRead < bytesRead)
+                {
+                    bytesRead = maxBytesPerRead;
+                }
+                bytes.removeFirstBytes(outputBytes, startIndex, bytesRead);
+                current = outputBytes[startIndex + bytesRead - 1];
             }
-            bytes.removeFirstBytes(outputBytes, startIndex, bytesRead);
-            current = outputBytes[startIndex + bytesRead - 1];
             return bytesRead;
         });
     }
@@ -160,7 +185,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     @Override
     public boolean isDisposed()
     {
-        return this.disposed;
+        return this.isDisposed;
     }
 
     @Override
@@ -168,12 +193,14 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     {
         return mutex.criticalSection(() ->
         {
-            boolean result = !disposed;
+            boolean result = !isDisposed;
             if (result)
             {
-                disposed = true;
+                isDisposed = true;
                 current = null;
                 bytesAvailable.signalAll();
+
+                this.disposedEvent.run();
             }
             return result;
         });

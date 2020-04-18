@@ -15,7 +15,7 @@ public interface BufferedByteWriteStreamTests
 
                 runner.test("with disposed stream", (Test test) ->
                 {
-                    final InMemoryByteStream innerStream = new InMemoryByteStream();
+                    final InMemoryByteStream innerStream = InMemoryByteStream.create();
                     innerStream.dispose().await();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream);
                     test.assertTrue(byteWriteStream.isDisposed());
@@ -26,7 +26,7 @@ public interface BufferedByteWriteStreamTests
 
                 runner.test("with not-disposed stream", (Test test) ->
                 {
-                    final InMemoryByteStream innerStream = new InMemoryByteStream();
+                    final InMemoryByteStream innerStream = InMemoryByteStream.create();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream);
                     test.assertFalse(byteWriteStream.isDisposed());
                     test.assertEqual(10000, byteWriteStream.getBufferCapacity());
@@ -54,7 +54,7 @@ public interface BufferedByteWriteStreamTests
 
                 runner.test("with disposed stream", (Test test) ->
                 {
-                    final InMemoryByteStream innerStream = new InMemoryByteStream();
+                    final InMemoryByteStream innerStream = InMemoryByteStream.create();
                     innerStream.dispose().await();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 5);
                     test.assertTrue(byteWriteStream.isDisposed());
@@ -65,7 +65,7 @@ public interface BufferedByteWriteStreamTests
 
                 runner.test("with not-disposed stream", (Test test) ->
                 {
-                    final InMemoryByteStream innerStream = new InMemoryByteStream();
+                    final InMemoryByteStream innerStream = InMemoryByteStream.create();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 5, 20);
                     test.assertFalse(byteWriteStream.isDisposed());
                     test.assertEqual(5, byteWriteStream.getBufferCapacity());
@@ -83,32 +83,32 @@ public interface BufferedByteWriteStreamTests
 
                 runner.test("with negative initial buffer size", (Test test) ->
                 {
-                    test.assertThrows(() -> new BufferedByteWriteStream(new InMemoryByteStream(), -1, 10), new PreConditionFailure("initialBufferSize (-1) must be greater than or equal to 1."));
+                    test.assertThrows(() -> new BufferedByteWriteStream(InMemoryByteStream.create(), -1, 10), new PreConditionFailure("initialBufferSize (-1) must be greater than or equal to 1."));
                 });
 
                 runner.test("with zero initial buffer size", (Test test) ->
                 {
-                    test.assertThrows(() -> new BufferedByteWriteStream(new InMemoryByteStream(), 0, 10), new PreConditionFailure("initialBufferSize (0) must be greater than or equal to 1."));
+                    test.assertThrows(() -> new BufferedByteWriteStream(InMemoryByteStream.create(), 0, 10), new PreConditionFailure("initialBufferSize (0) must be greater than or equal to 1."));
                 });
 
                 runner.test("with negative maximum buffer size", (Test test) ->
                 {
-                    test.assertThrows(() -> new BufferedByteWriteStream(new InMemoryByteStream(), 10, -1), new PreConditionFailure("maximumBufferSize (-1) must be greater than or equal to 10."));
+                    test.assertThrows(() -> new BufferedByteWriteStream(InMemoryByteStream.create(), 10, -1), new PreConditionFailure("maximumBufferSize (-1) must be greater than or equal to 10."));
                 });
 
                 runner.test("with zero maximum buffer size", (Test test) ->
                 {
-                    test.assertThrows(() -> new BufferedByteWriteStream(new InMemoryByteStream(), 10, 0), new PreConditionFailure("maximumBufferSize (0) must be greater than or equal to 10."));
+                    test.assertThrows(() -> new BufferedByteWriteStream(InMemoryByteStream.create(), 10, 0), new PreConditionFailure("maximumBufferSize (0) must be greater than or equal to 10."));
                 });
 
                 runner.test("with positive maximum buffer size less than initial buffer size", (Test test) ->
                 {
-                    test.assertThrows(() -> new BufferedByteWriteStream(new InMemoryByteStream(), 10, 9), new PreConditionFailure("maximumBufferSize (9) must be greater than or equal to 10."));
+                    test.assertThrows(() -> new BufferedByteWriteStream(InMemoryByteStream.create(), 10, 9), new PreConditionFailure("maximumBufferSize (9) must be greater than or equal to 10."));
                 });
 
                 runner.test("with maximum buffer size equal to initial buffer size", (Test test) ->
                 {
-                    final InMemoryByteStream innerStream = new InMemoryByteStream();
+                    final InMemoryByteStream innerStream = InMemoryByteStream.create();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 5, 5);
                     test.assertFalse(byteWriteStream.isDisposed());
                     test.assertEqual(5, byteWriteStream.getBufferCapacity());
@@ -118,7 +118,7 @@ public interface BufferedByteWriteStreamTests
 
                 runner.test("with maximum buffer size greater than initial buffer size", (Test test) ->
                 {
-                    final InMemoryByteStream innerStream = new InMemoryByteStream();
+                    final InMemoryByteStream innerStream = InMemoryByteStream.create();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 5, 5);
                     test.assertFalse(byteWriteStream.isDisposed());
                     test.assertEqual(5, byteWriteStream.getBufferCapacity());
@@ -128,7 +128,7 @@ public interface BufferedByteWriteStreamTests
 
                 runner.test("with disposed stream", (Test test) ->
                 {
-                    final InMemoryByteStream innerStream = new InMemoryByteStream();
+                    final InMemoryByteStream innerStream = InMemoryByteStream.create();
                     innerStream.dispose().await();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 5, 10);
                     test.assertTrue(byteWriteStream.isDisposed());
@@ -143,7 +143,7 @@ public interface BufferedByteWriteStreamTests
                 final int byteCount = 500000;
                 runner.speedTest("with " + byteCount + " bytes", Duration.milliseconds(100), (Test test) ->
                 {
-                    final InMemoryByteStream innerStream = new InMemoryByteStream();
+                    final InMemoryByteStream innerStream = InMemoryByteStream.create();
                     final BufferedByteWriteStream writeStream = new BufferedByteWriteStream(innerStream);
 
                     for (int i = 0; i < byteCount; ++i)
@@ -160,7 +160,7 @@ public interface BufferedByteWriteStreamTests
             {
                 runner.test("with null bytes", (Test test) ->
                 {
-                    final InMemoryByteStream innerStream = new InMemoryByteStream();
+                    final InMemoryByteStream innerStream = InMemoryByteStream.create();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 1, 20);
                     test.assertThrows(() -> byteWriteStream.write((byte[])null, 0, 0),
                         new PreConditionFailure("bytes cannot be null."));
@@ -171,7 +171,7 @@ public interface BufferedByteWriteStreamTests
 
                 runner.test("with empty bytes", (Test test) ->
                 {
-                    final InMemoryByteStream innerStream = new InMemoryByteStream();
+                    final InMemoryByteStream innerStream = InMemoryByteStream.create();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 1, 20);
                     test.assertThrows(() -> byteWriteStream.write(new byte[0], 0, 0),
                         new PreConditionFailure("bytes cannot be empty."));
@@ -182,7 +182,7 @@ public interface BufferedByteWriteStreamTests
 
                 runner.test("with one call with fewer bytes than buffer bytes remaining", (Test test) ->
                 {
-                    final InMemoryByteStream innerStream = new InMemoryByteStream();
+                    final InMemoryByteStream innerStream = InMemoryByteStream.create();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 5, 20);
                     test.assertEqual(3, byteWriteStream.write(new byte[] { 1, 2, 3 }).await());
                     test.assertEqual(5, byteWriteStream.getBufferCapacity());
@@ -192,7 +192,7 @@ public interface BufferedByteWriteStreamTests
 
                 runner.test("with multiple calls with fewer bytes than buffer bytes remaining", (Test test) ->
                 {
-                    final InMemoryByteStream innerStream = new InMemoryByteStream();
+                    final InMemoryByteStream innerStream = InMemoryByteStream.create();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 5, 20);
 
                     test.assertEqual(1, byteWriteStream.write(new byte[] { 1 }).await());
@@ -208,7 +208,7 @@ public interface BufferedByteWriteStreamTests
 
                 runner.test("with one call with bytes equal to buffer bytes remaining", (Test test) ->
                 {
-                    final InMemoryByteStream innerStream = new InMemoryByteStream();
+                    final InMemoryByteStream innerStream = InMemoryByteStream.create();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 3, 20);
                     test.assertEqual(3, byteWriteStream.write(new byte[] { 1, 2, 3 }).await());
                     test.assertEqual(6, byteWriteStream.getBufferCapacity());
@@ -218,7 +218,7 @@ public interface BufferedByteWriteStreamTests
 
                 runner.test("with one call with bytes greater than buffer bytes remaining", (Test test) ->
                 {
-                    final InMemoryByteStream innerStream = new InMemoryByteStream();
+                    final InMemoryByteStream innerStream = InMemoryByteStream.create();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 3, 20);
                     test.assertEqual(3, byteWriteStream.write(new byte[] { 1, 2, 3, 4, 5 }).await());
                     test.assertEqual(6, byteWriteStream.getBufferCapacity());
@@ -228,7 +228,7 @@ public interface BufferedByteWriteStreamTests
 
                 runner.test("with one call with bytes greater than buffer bytes remaining, but inner stream doesn't write entire buffer", (Test test) ->
                 {
-                    final InMemoryByteStream innerStream = new InMemoryByteStream();
+                    final InMemoryByteStream innerStream = InMemoryByteStream.create();
                     innerStream.setMaxBytesPerWrite(1);
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 3);
                     test.assertEqual(3, byteWriteStream.write(new byte[] { 1, 2, 3, 4, 5 }).await());
@@ -242,7 +242,7 @@ public interface BufferedByteWriteStreamTests
             {
                 runner.test("with no bytes to write", (Test test) ->
                 {
-                    final InMemoryByteStream innerStream = new InMemoryByteStream();
+                    final InMemoryByteStream innerStream = InMemoryByteStream.create();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 5);
 
                     test.assertTrue(byteWriteStream.dispose().await());
@@ -258,7 +258,7 @@ public interface BufferedByteWriteStreamTests
 
                 runner.test("with bytes to write", (Test test) ->
                 {
-                    final InMemoryByteStream innerStream = new InMemoryByteStream();
+                    final InMemoryByteStream innerStream = InMemoryByteStream.create();
                     final BufferedByteWriteStream byteWriteStream = new BufferedByteWriteStream(innerStream, 5);
                     test.assertEqual(3, byteWriteStream.write(new byte[] { 1, 2, 3 }).await());
                     test.assertEqual(5, byteWriteStream.getBufferCapacity());

@@ -5,6 +5,16 @@ package qub;
  */
 public interface ByteReadStream extends Disposable, Iterator<Byte>
 {
+    static ByteReadStream create()
+    {
+        return InMemoryByteStream.create().endOfStream();
+    }
+
+    static ByteReadStream create(byte[] bytes)
+    {
+        return InMemoryByteStream.create(bytes).endOfStream();
+    }
+
     /**
      * Read a single byte create this stream. This will block until a byte is available.
      * @return The single byte that was read, or an error if a byte could not be read.
@@ -21,17 +31,17 @@ public interface ByteReadStream extends Disposable, Iterator<Byte>
      */
     default Result<byte[]> readBytes(int bytesToRead)
     {
-        PreCondition.assertGreaterThanOrEqualTo(bytesToRead, 1, "bytesToRead");
+        PreCondition.assertGreaterThanOrEqualTo(bytesToRead, 0, "bytesToRead");
         PreCondition.assertNotDisposed(this);
 
-        final byte[] bytes = new byte[bytesToRead];
-        return readBytes(bytes)
-            .then((Integer bytesRead) ->
-            {
-                return bytesRead < bytesToRead
-                    ? Array.clone(bytes, 0, bytesRead)
-                    : bytes;
-            });
+        return Result.create(() ->
+        {
+            final byte[] bytes = new byte[bytesToRead];
+            final int bytesRead = this.readBytes(bytes).await();
+            return bytesRead < bytesToRead
+                ? Array.clone(bytes, 0, bytesRead)
+                : bytes;
+        });
     }
 
     /**
@@ -43,10 +53,10 @@ public interface ByteReadStream extends Disposable, Iterator<Byte>
      */
     default Result<Integer> readBytes(byte[] outputBytes)
     {
-        PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
+        PreCondition.assertNotNull(outputBytes, "outputBytes");
         PreCondition.assertNotDisposed(this);
 
-        return readBytes(outputBytes, 0, outputBytes.length);
+        return this.readBytes(outputBytes, 0, outputBytes.length);
     }
 
     /**
@@ -94,7 +104,7 @@ public interface ByteReadStream extends Disposable, Iterator<Byte>
     {
         PreCondition.assertNotDisposed(this);
 
-        return readBytesUntil(new byte[] { stopByte });
+        return this.readBytesUntil(new byte[] { stopByte });
     }
 
     /**
@@ -108,7 +118,7 @@ public interface ByteReadStream extends Disposable, Iterator<Byte>
         PreCondition.assertNotNullAndNotEmpty(stopBytes, "stopBytes");
         PreCondition.assertNotDisposed(this);
 
-        return readBytesUntil(ByteArray.create(stopBytes));
+        return this.readBytesUntil(ByteArray.create(stopBytes));
     }
 
     /**
@@ -128,7 +138,7 @@ public interface ByteReadStream extends Disposable, Iterator<Byte>
             final ByteList byteList = ByteList.empty();
             while(true)
             {
-                final Byte byteRead = readByte()
+                final Byte byteRead = this.readByte()
                     .catchError(EndOfStreamException.class, (EndOfStreamException error) ->
                     {
                         if (!byteList.any())
@@ -161,7 +171,7 @@ public interface ByteReadStream extends Disposable, Iterator<Byte>
     {
         PreCondition.assertNotDisposed(this);
 
-        return readByte()
+        return this.readByte()
             .then(() -> true)
             .catchError(EndOfStreamException.class, () -> false)
             .await();
@@ -173,7 +183,7 @@ public interface ByteReadStream extends Disposable, Iterator<Byte>
      */
     default CharacterReadStream asCharacterReadStream()
     {
-        return asCharacterReadStream(CharacterEncoding.UTF_8);
+        return this.asCharacterReadStream(CharacterEncoding.UTF_8);
     }
 
     /**
@@ -184,6 +194,6 @@ public interface ByteReadStream extends Disposable, Iterator<Byte>
     {
         PreCondition.assertNotNull(characterEncoding, "characterEncoding");
 
-        return new BasicCharacterReadStream(this, characterEncoding);
+        return new BasicCharacterToByteReadStream(this, characterEncoding);
     }
 }

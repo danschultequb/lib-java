@@ -294,7 +294,7 @@ public class Test
      */
     public <T> void assertEqual(T expected, T actual)
     {
-        assertEqual(expected, actual, null);
+        this.assertEqual(expected, actual, null);
     }
 
     /**

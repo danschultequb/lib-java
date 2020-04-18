@@ -213,8 +213,7 @@ public interface ProcessTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    final InMemoryByteStream readStream = new InMemoryByteStream(CharacterEncoding.UTF_8.encode("hello there my good friend\nHow are you?\r\nI'm alright.").await());
-                    process.setInputByteReadStream(readStream);
+                    process.setInputByteReadStream(ByteReadStream.create(CharacterEncoding.UTF_8.encode("hello there my good friend\nHow are you?\r\nI'm alright.").await()));
 
                     final ByteReadStream byteReadStream = process.getInputByteReadStream();
                     test.assertEqual(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5).await());
@@ -763,7 +762,7 @@ public interface ProcessTests
                             final ProcessBuilder builder = process.getProcessBuilder("javac").await();
                             builder.addArgument("notfound.java");
 
-                            final InMemoryByteStream error = new InMemoryByteStream();
+                            final InMemoryByteStream error = InMemoryByteStream.create();
                             builder.redirectError(error);
 
                             test.assertEqual(2, builder.run().await());

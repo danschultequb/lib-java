@@ -54,25 +54,17 @@ public class InMemoryFile
 
     public ByteWriteStream getContentByteWriteStream()
     {
-        return new InMemoryByteStream()
+        final InMemoryByteStream result = InMemoryByteStream.create();
+        result.disposed.subscribe(() ->
         {
-            @Override
-            public Result<Boolean> dispose()
-            {
-                final byte[] writtenBytes = getBytes();
+            final byte[] writtenBytes = result.getBytes();
+            this.contents = writtenBytes == null ? new byte[0] : writtenBytes;
+            this.lastModified = clock.getCurrentDateTime();
+        });
 
-                return super.dispose()
-                    .then((Boolean disposed) ->
-                    {
-                        if (Booleans.isTrue(disposed))
-                        {
-                            InMemoryFile.this.contents = writtenBytes == null ? new byte[0] : writtenBytes;
-                            InMemoryFile.this.lastModified = clock.getCurrentDateTime();
-                        }
-                        return disposed;
-                    });
-            }
-        };
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     public DateTime getLastModified()

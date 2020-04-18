@@ -11,11 +11,11 @@ public interface CharacterWriteStream extends Disposable
      * @param byteWriteStream The ByteWriteStream to wrap as a CharacterWriteStream.
      * @return The new ByteWriteStreamToCharacterWriteStream.
      */
-    static BasicCharacterToByteWriteStream create(ByteWriteStream byteWriteStream)
+    static CharacterToByteWriteStream create(ByteWriteStream byteWriteStream)
     {
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
 
-        return new BasicCharacterToByteWriteStream(byteWriteStream);
+        return CharacterToByteWriteStream.create(byteWriteStream);
     }
 
     /**

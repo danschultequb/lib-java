@@ -81,26 +81,33 @@ public class InputStreamToByteReadStream implements ByteReadStream
     @Override
     public Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
     {
-        PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
-        PreCondition.assertNonEmptyStartIndex(startIndex, outputBytes.length);
-        PreCondition.assertNonEmptyLength(length, startIndex, outputBytes.length);
+        PreCondition.assertNotNull(outputBytes, "outputBytes");
+        PreCondition.assertStartIndex(startIndex, outputBytes.length);
+        PreCondition.assertLength(length, startIndex, outputBytes.length);
         PreCondition.assertNotDisposed(this);
 
         Result<Integer> result;
         try
         {
-            hasStarted = true;
-
-            final int bytesRead = inputStream.read(outputBytes, startIndex, length);
-            if (bytesRead == -1)
+            if (length == 0)
             {
-                current = null;
-                result = Result.endOfStream();
+                result = Result.successZero();
             }
             else
             {
-                current = outputBytes[startIndex + bytesRead - 1];
-                result = Result.success(bytesRead);
+                hasStarted = true;
+
+                final int bytesRead = inputStream.read(outputBytes, startIndex, length);
+                if (bytesRead == -1)
+                {
+                    current = null;
+                    result = Result.endOfStream();
+                }
+                else
+                {
+                    current = outputBytes[startIndex + bytesRead - 1];
+                    result = Result.success(bytesRead);
+                }
             }
         }
         catch (java.io.IOException e)

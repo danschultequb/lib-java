@@ -39,9 +39,12 @@ public class BasicRunnableEvent0 implements RunnableEvent0
     @Override
     public void run()
     {
-        for (final Action0 callback : this.callbacks)
+        if (this.callbacks.any())
         {
-            callback.run();
+            for (final Action0 callback : List.create(this.callbacks))
+            {
+                callback.run();
+            }
         }
     }
 }

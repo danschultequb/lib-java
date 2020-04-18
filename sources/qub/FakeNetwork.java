@@ -154,7 +154,7 @@ public class FakeNetwork implements Network
 
     private InMemoryByteStream createNetworkStream()
     {
-        final InMemoryByteStream networkStream = new InMemoryByteStream();
+        final InMemoryByteStream networkStream = InMemoryByteStream.create();
         streamReferenceCounts.set(networkStream, 2);
         return networkStream;
     }

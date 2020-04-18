@@ -15,9 +15,12 @@ public interface CharacterEncoding
      */
     default Result<byte[]> encode(char character)
     {
-        final InMemoryByteStream byteStream = new InMemoryByteStream();
-        return encode(character, byteStream)
-            .then(byteStream::getBytes);
+        return Result.create(() ->
+        {
+            final InMemoryByteStream byteStream = InMemoryByteStream.create();
+            encode(character, byteStream).await();
+            return byteStream.getBytes();
+        });
     }
 
     /**
@@ -38,9 +41,13 @@ public interface CharacterEncoding
     {
         PreCondition.assertNotNull(text, "text");
 
-        final InMemoryByteStream byteStream = new InMemoryByteStream();
-        return encode(text, byteStream)
-            .then(byteStream::getBytes);
+        return Result.create(() ->
+        {
+            final InMemoryByteStream byteStream = InMemoryByteStream.create();
+            encode(text, byteStream).await();
+            return byteStream.getBytes();
+        });
+
     }
 
     /**
@@ -61,9 +68,7 @@ public interface CharacterEncoding
     {
         PreCondition.assertNotNull(characters, "characters");
 
-        final InMemoryByteStream byteStream = new InMemoryByteStream();
-        return encode(characters, byteStream)
-            .then(byteStream::getBytes);
+        return this.encode(characters, 0, characters.length);
     }
 
     /**
@@ -87,9 +92,13 @@ public interface CharacterEncoding
         PreCondition.assertStartIndex(startIndex, characters.length);
         PreCondition.assertLength(length, startIndex, characters.length);
 
-        final InMemoryByteStream byteStream = new InMemoryByteStream();
-        return this.encode(characters, startIndex, length, byteStream)
-            .then(byteStream::getBytes);
+        return Result.create(() ->
+        {
+            final InMemoryByteStream byteStream = InMemoryByteStream.create();
+            this.encode(characters, startIndex, length, byteStream).await();
+            return byteStream.getBytes();
+        });
+
     }
 
     Result<Integer> encode(char[] characters, int startIndex, int length, ByteWriteStream byteWriteStream);
@@ -123,10 +132,17 @@ public interface CharacterEncoding
 
     /**
      * Decode the next character create the provided byte Iterator.
-     * @param bytes The bytes to get the next character create.
+     * @param bytes The bytes to get the next character from.
      * @return The next character.
      */
     Result<Character> decodeNextCharacter(Iterator<Byte> bytes);
+
+    /**
+     * Decode the next character create the provided byte Iterator.
+     * @param bytes The bytes to get the next character from.
+     * @return The next character.
+     */
+    Result<Character> decodeNextCharacter(ByteReadStream bytes);
 
     static boolean equals(CharacterEncoding lhs, Object rhs)
     {
@@ -135,6 +151,6 @@ public interface CharacterEncoding
 
     default boolean equals(CharacterEncoding rhs)
     {
-        return rhs != null && getClass().equals(rhs.getClass());
+        return rhs != null && this.getClass().equals(rhs.getClass());
     }
 }

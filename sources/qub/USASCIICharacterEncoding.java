@@ -8,8 +8,7 @@ public class USASCIICharacterEncoding implements CharacterEncoding
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
         PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDiposed()");
 
-        return byteWriteStream.write(encodeCharacter(character))
-            .then(() -> 1);
+        return byteWriteStream.write(USASCIICharacterEncoding.encodeCharacter(character));
     }
 
     @Override
@@ -22,7 +21,7 @@ public class USASCIICharacterEncoding implements CharacterEncoding
         final byte[] encodedBytes = new byte[text.length()];
         for (int i = 0; i < text.length(); ++i)
         {
-            encodedBytes[i] = encodeCharacter(text.charAt(i));
+            encodedBytes[i] = USASCIICharacterEncoding.encodeCharacter(text.charAt(i));
         }
         return byteWriteStream.writeAll(encodedBytes)
             .then(() -> encodedBytes.length);
@@ -40,7 +39,7 @@ public class USASCIICharacterEncoding implements CharacterEncoding
         final byte[] encodedBytes = new byte[characters.length];
         for (int i = 0; i < length; ++i)
         {
-            encodedBytes[i] = encodeCharacter(characters[startIndex + i]);
+            encodedBytes[i] = USASCIICharacterEncoding.encodeCharacter(characters[startIndex + i]);
         }
         return byteWriteStream.writeAll(encodedBytes)
             .then(() -> encodedBytes.length);
@@ -56,7 +55,7 @@ public class USASCIICharacterEncoding implements CharacterEncoding
         final char[] decodedCharacters = new char[bytes.length];
         for (int i = 0; i < length; ++i)
         {
-            decodedCharacters[i] = decodeByte(bytes[startIndex + i]);
+            decodedCharacters[i] = USASCIICharacterEncoding.decodeByte(bytes[startIndex + i]);
         }
         return Result.success(decodedCharacters);
     }
@@ -77,9 +76,18 @@ public class USASCIICharacterEncoding implements CharacterEncoding
         }
         else
         {
-            result = Result.success((char)Bytes.toUnsignedInt(bytes.getCurrent()));
+            result = Result.success(USASCIICharacterEncoding.decodeByte(bytes.getCurrent()));
         }
         return result;
+    }
+
+    @Override
+    public Result<Character> decodeNextCharacter(ByteReadStream bytes)
+    {
+        PreCondition.assertNotNull(bytes, "bytes");
+
+        return bytes.readByte()
+            .then(USASCIICharacterEncoding::decodeByte);
     }
 
     @Override

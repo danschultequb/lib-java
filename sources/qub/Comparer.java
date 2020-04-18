@@ -73,45 +73,45 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
                 {
                     if (Types.instanceOf(arg1Type, Throwable.class))
                     {
-                        result = equal((Throwable)arg1, (Throwable)arg2);
+                        result = Comparer.equal((Throwable)arg1, (Throwable)arg2);
                     }
                     else if (arg1Type.isArray())
                     {
                         if (arg1 instanceof boolean[])
                         {
-                            result = equal((boolean[])arg1, (boolean[])arg2);
+                            result = Comparer.equal((boolean[])arg1, (boolean[])arg2);
                         }
                         else if (arg1 instanceof byte[])
                         {
-                            result = equal((byte[])arg1, (byte[])arg2);
+                            result = Comparer.equal((byte[])arg1, (byte[])arg2);
                         }
                         else if (arg1 instanceof char[])
                         {
-                            result = equal((char[])arg1, (char[])arg2);
+                            result = Comparer.equal((char[])arg1, (char[])arg2);
                         }
                         else if (arg1 instanceof short[])
                         {
-                            result = equal((short[])arg1, (short[])arg2);
+                            result = Comparer.equal((short[])arg1, (short[])arg2);
                         }
                         else if (arg1 instanceof int[])
                         {
-                            result = equal((int[])arg1, (int[])arg2);
+                            result = Comparer.equal((int[])arg1, (int[])arg2);
                         }
                         else if (arg1 instanceof long[])
                         {
-                            result = equal((long[])arg1, (long[])arg2);
+                            result = Comparer.equal((long[])arg1, (long[])arg2);
                         }
                         else if (arg1 instanceof float[])
                         {
-                            result = equal((float[])arg1, (float[])arg2);
+                            result = Comparer.equal((float[])arg1, (float[])arg2);
                         }
                         else if (arg1 instanceof double[])
                         {
-                            result = equal((double[])arg1, (double[])arg2);
+                            result = Comparer.equal((double[])arg1, (double[])arg2);
                         }
                         else
                         {
-                            result = equal((Object[]) arg1, (Object[]) arg2);
+                            result = Comparer.equal((Object[]) arg1, (Object[]) arg2);
                         }
                     }
                 }

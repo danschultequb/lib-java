@@ -7,6 +7,13 @@ public interface InMemoryCharacterStream extends CharacterWriteStream, Character
         return InMemoryCharacterStream.create("");
     }
 
+    static InMemoryCharacterStream create(char... characters)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+
+        return InMemoryCharacterStream.create(java.lang.String.valueOf(characters));
+    }
+
     static InMemoryCharacterStream create(String text)
     {
         PreCondition.assertNotNull(text, "text");

@@ -297,9 +297,9 @@ public interface FakeProcessRunTests
                 final FakeProcessRun fakeProcessRun = creator.run("exe");
                 test.assertSame(fakeProcessRun, fakeProcessRun.setFunction(17));
                 test.assertNotNull(fakeProcessRun.getFunction());
-                final InMemoryByteStream input = new InMemoryByteStream();
-                final InMemoryByteStream output = new InMemoryByteStream();
-                final InMemoryByteStream error = new InMemoryByteStream();
+                final InMemoryByteStream input = InMemoryByteStream.create();
+                final InMemoryByteStream output = InMemoryByteStream.create();
+                final InMemoryByteStream error = InMemoryByteStream.create();
                 test.assertEqual(17, fakeProcessRun.getFunction().run(input, output, error));
                 test.assertEqual(new byte[0], output.getBytes());
                 test.assertEqual(new byte[0], error.getBytes());
@@ -321,9 +321,9 @@ public interface FakeProcessRunTests
                     final IntegerValue value = new IntegerValue(5);
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction(() -> { value.set(20); }));
                     test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = new InMemoryByteStream();
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryByteStream input = InMemoryByteStream.create();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     test.assertEqual(0, fakeProcessRun.getFunction().run(input, output, error));
                     test.assertEqual(new byte[0], output.getBytes());
                     test.assertEqual(new byte[0], error.getBytes());
@@ -335,9 +335,9 @@ public interface FakeProcessRunTests
                     final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction(() -> { throw new ParseException("blah"); }));
                     test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = new InMemoryByteStream();
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryByteStream input = InMemoryByteStream.create();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     test.assertThrows(() -> fakeProcessRun.getFunction().run(input, output, error),
                         new ParseException("blah"));
                     test.assertEqual(new byte[0], output.getBytes());
@@ -361,9 +361,9 @@ public interface FakeProcessRunTests
                     final IntegerValue value = new IntegerValue(5);
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction(() -> { value.set(20); return 7; }));
                     test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = new InMemoryByteStream();
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryByteStream input = InMemoryByteStream.create();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     test.assertEqual(7, fakeProcessRun.getFunction().run(input, output, error));
                     test.assertEqual(new byte[0], output.getBytes());
                     test.assertEqual(new byte[0], error.getBytes());
@@ -375,9 +375,9 @@ public interface FakeProcessRunTests
                     final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((Function0<Integer>)() -> { throw new ParseException("blah"); }));
                     test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = new InMemoryByteStream();
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryByteStream input = InMemoryByteStream.create();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     test.assertThrows(() -> fakeProcessRun.getFunction().run(input, output, error),
                         new ParseException("blah"));
                     test.assertEqual(new byte[0], output.getBytes());
@@ -400,9 +400,9 @@ public interface FakeProcessRunTests
                     final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteWriteStream output) -> { output.write(new byte[] { 1, 2, 3 }).await(); }));
                     test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = new InMemoryByteStream();
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryByteStream input = InMemoryByteStream.create();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     test.assertEqual(0, fakeProcessRun.getFunction().run(input, output, error));
                     test.assertEqual(new byte[] { 1, 2, 3 }, output.getBytes());
                     test.assertEqual(new byte[0], error.getBytes());
@@ -413,9 +413,9 @@ public interface FakeProcessRunTests
                     final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((Action1<ByteWriteStream>)(ByteWriteStream output) -> { throw new ParseException("blah"); }));
                     test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = new InMemoryByteStream();
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryByteStream input = InMemoryByteStream.create();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     test.assertThrows(() -> fakeProcessRun.getFunction().run(input, output, error),
                         new ParseException("blah"));
                     test.assertEqual(new byte[0], output.getBytes());
@@ -438,9 +438,9 @@ public interface FakeProcessRunTests
                     final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteWriteStream output) -> { output.write(new byte[] { 1, 2 }).await(); return 100; }));
                     test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = new InMemoryByteStream();
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryByteStream input = InMemoryByteStream.create();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     test.assertEqual(100, fakeProcessRun.getFunction().run(input, output, error));
                     test.assertEqual(new byte[] { 1, 2 }, output.getBytes());
                     test.assertEqual(new byte[0], error.getBytes());
@@ -451,9 +451,9 @@ public interface FakeProcessRunTests
                     final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((Function1<ByteWriteStream,Integer>)(ByteWriteStream output) -> { throw new ParseException("blah"); }));
                     test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = new InMemoryByteStream();
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryByteStream input = InMemoryByteStream.create();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     test.assertThrows(() -> fakeProcessRun.getFunction().run(input, output, error),
                         new ParseException("blah"));
                     test.assertEqual(new byte[0], output.getBytes());
@@ -480,9 +480,9 @@ public interface FakeProcessRunTests
                         error.write(new byte[] { 4, 5, 6 }).await();
                     }));
                     test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = new InMemoryByteStream();
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryByteStream input = InMemoryByteStream.create();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     test.assertEqual(0, fakeProcessRun.getFunction().run(input, output, error));
                     test.assertEqual(new byte[] { 1, 2, 3 }, output.getBytes());
                     test.assertEqual(new byte[] { 4, 5, 6 }, error.getBytes());
@@ -496,9 +496,9 @@ public interface FakeProcessRunTests
                         throw new ParseException("blah");
                     }));
                     test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = new InMemoryByteStream();
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryByteStream input = InMemoryByteStream.create();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     test.assertThrows(() -> fakeProcessRun.getFunction().run(input, output, error),
                         new ParseException("blah"));
                     test.assertEqual(new byte[0], output.getBytes());
@@ -526,9 +526,9 @@ public interface FakeProcessRunTests
                         return 6;
                     }));
                     test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = new InMemoryByteStream();
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryByteStream input = InMemoryByteStream.create();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     test.assertEqual(6, fakeProcessRun.getFunction().run(input, output, error));
                     test.assertEqual(new byte[] { 1, 2, 3 }, output.getBytes());
                     test.assertEqual(new byte[] { 4, 5, 6 }, error.getBytes());
@@ -542,9 +542,9 @@ public interface FakeProcessRunTests
                         throw new ParseException("blah");
                     }));
                     test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = new InMemoryByteStream();
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryByteStream input = InMemoryByteStream.create();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     test.assertThrows(() -> fakeProcessRun.getFunction().run(input, output, error),
                         new ParseException("blah"));
                     test.assertEqual(new byte[0], output.getBytes());
@@ -571,9 +571,9 @@ public interface FakeProcessRunTests
                         error.write(new byte[] { 4, 5, 6 }).await();
                     }));
                     test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = new InMemoryByteStream(new byte[] { 10, 20, 30 }).endOfStream();
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryByteStream input = InMemoryByteStream.create(new byte[] { 10, 20, 30 }).endOfStream();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     test.assertEqual(0, fakeProcessRun.getFunction().run(input, output, error));
                     test.assertEqual(new byte[] { 10, 20, 30 }, output.getBytes());
                     test.assertEqual(new byte[] { 4, 5, 6 }, error.getBytes());
@@ -587,9 +587,9 @@ public interface FakeProcessRunTests
                         throw new ParseException("blah");
                     }));
                     test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = new InMemoryByteStream();
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryByteStream input = InMemoryByteStream.create();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     test.assertThrows(() -> fakeProcessRun.getFunction().run(input, output, error),
                         new ParseException("blah"));
                     test.assertEqual(new byte[0], output.getBytes());
@@ -617,9 +617,9 @@ public interface FakeProcessRunTests
                         return 6;
                     }));
                     test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = new InMemoryByteStream(new byte[] { 10, 20, 30 }).endOfStream();
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryByteStream input = InMemoryByteStream.create(new byte[] { 10, 20, 30 }).endOfStream();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     test.assertEqual(6, fakeProcessRun.getFunction().run(input, output, error));
                     test.assertEqual(new byte[] { 10, 20, 30 }, output.getBytes());
                     test.assertEqual(new byte[] { 4, 5, 6 }, error.getBytes());
@@ -633,9 +633,9 @@ public interface FakeProcessRunTests
                         throw new ParseException("blah");
                     }));
                     test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = new InMemoryByteStream();
-                    final InMemoryByteStream output = new InMemoryByteStream();
-                    final InMemoryByteStream error = new InMemoryByteStream();
+                    final InMemoryByteStream input = InMemoryByteStream.create();
+                    final InMemoryByteStream output = InMemoryByteStream.create();
+                    final InMemoryByteStream error = InMemoryByteStream.create();
                     test.assertThrows(() -> fakeProcessRun.getFunction().run(input, output, error),
                         new ParseException("blah"));
                     test.assertEqual(new byte[0], output.getBytes());
