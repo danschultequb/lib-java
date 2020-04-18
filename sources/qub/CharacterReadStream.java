@@ -168,7 +168,7 @@ public interface CharacterReadStream extends Disposable
         PreCondition.assertNotNullAndNotEmpty(values, "characters");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        return readCharactersUntil(String.valueOf(values));
+        return this.readCharactersUntil(String.valueOf(values));
     }
 
     /**
@@ -182,11 +182,33 @@ public interface CharacterReadStream extends Disposable
         PreCondition.assertNotNullAndNotEmpty(value, "value");
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        final CharacterEncoding characterEncoding = getCharacterEncoding();
-        final ByteReadStream byteReadStream = asByteReadStream();
-        return characterEncoding.encode(value)
-            .then((byte[] encodedValue) -> byteReadStream.readBytesUntil(encodedValue).await())
-            .then((byte[] bytesRead) -> characterEncoding.decode(bytesRead).await());
+        return Result.create(() ->
+        {
+            final CharacterList list = CharacterList.create();
+            Character currentCharacter = this.readCharacter()
+                .catchError(EndOfStreamException.class)
+                .await();
+            while (currentCharacter != null)
+            {
+                list.add(currentCharacter);
+
+                if (list.endsWith(value))
+                {
+                    break;
+                }
+
+                currentCharacter = this.readCharacter()
+                    .catchError(EndOfStreamException.class)
+                    .await();
+            }
+
+            if (!list.any())
+            {
+                throw new EndOfStreamException();
+            }
+
+            return Array.toCharArray(list).await();
+        });
     }
 
     /**
@@ -350,12 +372,6 @@ public interface CharacterReadStream extends Disposable
      * characters.
      */
     CharacterEncoding getCharacterEncoding();
-
-    /**
-     * Convert this CharacterReadStream to a ByteReadStream.
-     * @return The converted ByteReadStream.
-     */
-    ByteReadStream asByteReadStream();
 
     /**
      * Create an iterator that will iterate over the characters in the provided CharacterReadStream.

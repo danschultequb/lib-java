@@ -44,18 +44,6 @@ public class BasicCharacterToByteReadStream implements CharacterToByteReadStream
     }
 
     @Override
-    public ByteReadStream getByteReadStream()
-    {
-        return this.byteReadStream;
-    }
-
-    @Override
-    public ByteReadStream asByteReadStream()
-    {
-        return byteReadStream;
-    }
-
-    @Override
     public boolean isDisposed()
     {
         return byteReadStream.isDisposed();
@@ -65,5 +53,17 @@ public class BasicCharacterToByteReadStream implements CharacterToByteReadStream
     public Result<Boolean> dispose()
     {
         return byteReadStream.dispose();
+    }
+
+    @Override
+    public Result<Byte> readByte()
+    {
+        return this.byteReadStream.readByte();
+    }
+
+    @Override
+    public Result<Integer> readBytes(byte[] outputBytes, int startIndex, int length)
+    {
+        return this.byteReadStream.readBytes(outputBytes, startIndex, length);
     }
 }

@@ -3,7 +3,7 @@ package qub;
 /**
  * A CharacterReadStream that has been wrapped around a ByteReadStream.
  */
-public interface CharacterToByteReadStream extends CharacterReadStream
+public interface CharacterToByteReadStream extends CharacterReadStream, ByteReadStream
 {
     static CharacterToByteReadStream create()
     {
@@ -73,10 +73,4 @@ public interface CharacterToByteReadStream extends CharacterReadStream
      * @return This object for method chaining.
      */
     CharacterToByteReadStream setCharacterEncoding(CharacterEncoding characterEncoding);
-
-    /**
-     * Get the ByteReadStream that this CharacterToByteReadStream wraps.
-     * @return The ByteReadStream that this CharacterToByteReadStream wraps.
-     */
-    ByteReadStream getByteReadStream();
 }

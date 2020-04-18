@@ -165,4 +165,9 @@ public interface ByteReadStream extends Disposable
             return result;
         });
     }
+
+    static ByteReadStreamIterator iterate(ByteReadStream byteReadStream)
+    {
+        return ByteReadStreamIterator.create(byteReadStream);
+    }
 }
