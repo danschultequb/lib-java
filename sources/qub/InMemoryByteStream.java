@@ -7,8 +7,6 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     private boolean endOfStream;
     private final Mutex mutex;
     private final MutexCondition bytesAvailable;
-    private Integer maxBytesPerRead;
-    private Integer maxBytesPerWrite;
 
     public final Event0 disposed;
     private final RunnableEvent0 disposedEvent;
@@ -53,61 +51,6 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
         return bytes.getCount();
     }
 
-    /**
-     * Get the maximum number of bytes that can be read with a readBytes() call, or null if no limit
-     * has been set.
-     * @return The maximum number of bytes that can be read with a readBytes() call or null if no
-     * limit has been set.
-     */
-    @Deprecated
-    public Integer getMaxBytesPerRead()
-    {
-        return maxBytesPerRead;
-    }
-
-    /**
-     * Set the maximum number of bytes that can be read with a readBytes() call.
-     * @param maxBytesPerRead The maximum number of bytes that can be read with a readBytes() call.
-     * @return This object for method chaining.
-     */
-    @Deprecated
-    public InMemoryByteStream setMaxBytesPerRead(Integer maxBytesPerRead)
-    {
-        PreCondition.assertTrue(maxBytesPerRead == null || maxBytesPerRead >= 1, "maxBytesPerRead (" + maxBytesPerRead + ") == null || maxBytesPerRead (" + maxBytesPerRead + ") >= 1");
-
-        this.maxBytesPerRead = maxBytesPerRead;
-
-        return this;
-    }
-
-    /**
-     * Get the maximum number of bytes that can be written with a writeBytes() call, or null if no
-     * limit has been set.
-     * @return The maximum number of bytes that can be written with a writeBytes() call or null if
-     * no limit has been set.
-     */
-    @Deprecated
-    public Integer getMaxBytesPerWrite()
-    {
-        return maxBytesPerWrite;
-    }
-
-    /**
-     * Set the maximum number of bytes that can be written with a writeBytes() call.
-     * @param maxBytesPerWrite The maximum number of bytes that can be written with a writeBytes()
-     *                         call.
-     * @return This object for method chaining.
-     */
-    @Deprecated
-    public InMemoryByteStream setMaxBytesPerWrite(Integer maxBytesPerWrite)
-    {
-        PreCondition.assertTrue(maxBytesPerWrite == null || maxBytesPerWrite >= 1, "maxBytesPerWrite (" + maxBytesPerWrite + ") == null || maxBytesPerWrite (" + maxBytesPerWrite + ") >= 1");
-
-        this.maxBytesPerWrite = maxBytesPerWrite;
-
-        return this;
-    }
-
     @Override
     public Result<Byte> readByte()
     {
@@ -144,12 +87,8 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
 
         return mutex.criticalSection(() ->
         {
-            int bytesRead;
-            if (length == 0)
-            {
-                bytesRead = 0;
-            }
-            else
+            int bytesRead = length;
+            if (bytesRead > 0)
             {
                 while (!isDisposed && !endOfStream && !bytes.any())
                 {
@@ -165,11 +104,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                     throw new EndOfStreamException();
                 }
 
-                bytesRead = Math.minimum(bytes.getCount(), length);
-                if (maxBytesPerRead != null && maxBytesPerRead < bytesRead)
-                {
-                    bytesRead = maxBytesPerRead;
-                }
+                bytesRead = Math.minimum(bytes.getCount(), bytesRead);
                 bytes.removeFirstBytes(outputBytes, startIndex, bytesRead);
             }
             return bytesRead;
@@ -234,25 +169,20 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     @Override
     public Result<Integer> write(byte[] bytes, int startIndex, int length)
     {
-        PreCondition.assertNotNullAndNotEmpty(bytes, "bytes");
-        PreCondition.assertNonEmptyStartIndex(startIndex, bytes.length);
-        PreCondition.assertNonEmptyLength(length, startIndex, bytes.length);
+        PreCondition.assertNotNull(bytes, "bytes");
+        PreCondition.assertStartIndex(startIndex, bytes.length);
+        PreCondition.assertLength(length, startIndex, bytes.length);
         PreCondition.assertNotDisposed(this);
         PreCondition.assertFalse(endOfStream, "endOfStream");
 
         return mutex.criticalSection(() ->
         {
-            int bytesWritten = length;
-            if (maxBytesPerWrite != null && maxBytesPerWrite < length)
-            {
-                bytesWritten = maxBytesPerWrite;
-            }
-            for (int i = 0; i < bytesWritten; ++i)
+            for (int i = 0; i < length; ++i)
             {
                 this.bytes.add(bytes[startIndex + i]);
             }
             bytesAvailable.signalAll();
-            return bytesWritten;
+            return length;
         });
     }
 }
