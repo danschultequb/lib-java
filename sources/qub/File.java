@@ -89,26 +89,21 @@ public class File extends FileSystemEntry
         return this.getFileSystem().getFileContentDataSize(this.getPath());
     }
 
+    @Deprecated
+    public Result<ByteReadStream> getContentByteReadStream()
+    {
+        return Result.create(() -> this.getContentReadStream().await());
+    }
+
     /**
      * Get a ByteReadStream to this file's contents.
      * @return A ByteReadStream to this file's contents.
      */
-    public Result<ByteReadStream> getContentByteReadStream()
+    public Result<CharacterToByteReadStream> getContentReadStream()
     {
         final FileSystem fileSystem = getFileSystem();
         final Path path = getPath();
-        return fileSystem.getFileContentByteReadStream(path);
-    }
-
-    /**
-     * Get a CharacterReadStream to this file's contents.
-     * @return A CharacterReadStream to this file's contents.
-     */
-    public Result<CharacterReadStream> getContentCharacterReadStream()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        final Path path = getPath();
-        return fileSystem.getFileContentCharacterReadStream(path);
+        return fileSystem.getFileContentReadStream(path);
     }
 
     /**

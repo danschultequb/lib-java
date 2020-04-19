@@ -512,11 +512,11 @@ public interface FileSystem
      * @param rootedFilePath The rooted file path to the file.
      * @return A ByteReadStream to the contents of the file.
      */
-    default Result<ByteReadStream> getFileContentByteReadStream(String rootedFilePath)
+    default Result<CharacterToByteReadStream> getFileContentReadStream(String rootedFilePath)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getFileContentByteReadStream(Path.parse(rootedFilePath));
+        return this.getFileContentReadStream(Path.parse(rootedFilePath));
     }
 
     /**
@@ -524,30 +524,7 @@ public interface FileSystem
      * @param rootedFilePath The rooted file path to the file.
      * @return A ByteReadStream to the contents of the file.
      */
-    Result<ByteReadStream> getFileContentByteReadStream(Path rootedFilePath);
-
-    /**
-     * Get a CharacterReadStream to the file at the provided rootedFilePath.
-     * @param rootedFilePath The rooted file path to the file.
-     * @return A CharacterReadStream to the contents of the file.
-     */
-    default Result<CharacterReadStream> getFileContentCharacterReadStream(String rootedFilePath)
-    {
-        FileSystem.validateRootedFilePath(rootedFilePath);
-
-        return this.getFileContentCharacterReadStream(Path.parse(rootedFilePath));
-    }
-
-    /**
-     * Get a CharacterReadStream to the file at the provided rootedFilePath.
-     * @param rootedFilePath The rooted file path to the file.
-     * @return A CharacterReadStream to the contents of the file.
-     */
-    default Result<CharacterReadStream> getFileContentCharacterReadStream(Path rootedFilePath)
-    {
-        return this.getFileContentByteReadStream(rootedFilePath)
-            .then((ByteReadStream byteReadStream) -> CharacterReadStream.create(byteReadStream));
-    }
+    Result<CharacterToByteReadStream> getFileContentReadStream(Path rootedFilePath);
 
     /**
      * Get the contents of the file at the provided rootedFilePath.
@@ -571,7 +548,7 @@ public interface FileSystem
         FileSystem.validateRootedFilePath(rootedFilePath);
 
         return Result.createUsing(
-            () -> this.getFileContentByteReadStream(rootedFilePath).await(),
+            () -> this.getFileContentReadStream(rootedFilePath).await(),
             (ByteReadStream byteReadStream) ->
             {
                 return byteReadStream.readAllBytes()
@@ -777,7 +754,7 @@ public interface FileSystem
         FileSystem.validateRootedFilePath(destinationFilePath, "destinationFilePath");
 
         return Result.createUsing(
-            () -> this.getFileContentByteReadStream(sourceFilePath).await(),
+            () -> this.getFileContentReadStream(sourceFilePath).await(),
             () -> this.getFileContentByteWriteStream(destinationFilePath).await(),
             (ByteReadStream sourceStream, ByteWriteStream destinationStream) ->
             {

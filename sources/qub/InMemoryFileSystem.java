@@ -322,12 +322,12 @@ public class InMemoryFileSystem implements FileSystem
     }
 
     @Override
-    public Result<ByteReadStream> getFileContentByteReadStream(Path rootedFilePath)
+    public Result<CharacterToByteReadStream> getFileContentReadStream(Path rootedFilePath)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
         return this.getInMemoryFile(rootedFilePath)
-            .then(InMemoryFile::getContentByteReadStream);
+            .then(InMemoryFile::getContentReadStream);
     }
 
     @Override

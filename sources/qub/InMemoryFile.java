@@ -47,9 +47,9 @@ public class InMemoryFile
      * Get a ByteReadStream that reads create the contents of this InMemoryFile.
      * @return A ByteReadStream that reads create the contents of this InMemoryFile.
      */
-    public ByteReadStream getContentByteReadStream()
+    public CharacterToByteReadStream getContentReadStream()
     {
-        return ByteReadStream.create(contents);
+        return CharacterToByteReadStream.create(ByteReadStream.create(this.contents));
     }
 
     public ByteWriteStream getContentByteWriteStream()

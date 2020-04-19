@@ -185,22 +185,12 @@ public interface FileTests
                 });
             });
 
-            runner.testGroup("getContentByteReadStream()", () ->
+            runner.testGroup("getContentReadStream()", () ->
             {
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final File file = getFile(test);
-                    test.assertThrows(() -> file.getContentByteReadStream().await(),
-                        new FileNotFoundException("/A"));
-                });
-            });
-
-            runner.testGroup("getContentCharacterReadStream()", () ->
-            {
-                runner.test("with non-existing file", (Test test) ->
-                {
-                    final File file = getFile(test);
-                    test.assertThrows(() -> file.getContentCharacterReadStream().await(),
+                    test.assertThrows(() -> file.getContentReadStream().await(),
                         new FileNotFoundException("/A"));
                 });
             });

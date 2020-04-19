@@ -288,14 +288,14 @@ public class FolderFileSystem implements FileSystem
     }
 
     @Override
-    public Result<ByteReadStream> getFileContentByteReadStream(Path rootedFilePath)
+    public Result<CharacterToByteReadStream> getFileContentReadStream(Path rootedFilePath)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
         return this.getInnerPath(rootedFilePath)
             .then((Path innerFilePath) ->
             {
-                return innerFileSystem.getFileContentByteReadStream(innerFilePath)
+                return innerFileSystem.getFileContentReadStream(innerFilePath)
                     .convertError(FileNotFoundException.class, (FileNotFoundException error) ->
                     {
                         return new FileNotFoundException(getOuterPath(error.getFilePath()));

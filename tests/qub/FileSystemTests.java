@@ -1874,67 +1874,23 @@ public interface FileSystemTests
                 });
             });
 
-            runner.testGroup("getFileContentByteReadStream(String)", () ->
+            runner.testGroup("getFileContentReadStream(String)", () ->
             {
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    test.assertThrows(() -> fileSystem.getFileContentByteReadStream("/i/dont/exist.txt").await(),
+                    test.assertThrows(() -> fileSystem.getFileContentReadStream("/i/dont/exist.txt").await(),
                         new FileNotFoundException("/i/dont/exist.txt"));
                 });
             });
 
-            runner.testGroup("getFileContentByteReadStream(Path)", () ->
+            runner.testGroup("getFileContentReadStream(Path)", () ->
             {
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    test.assertThrows(() -> fileSystem.getFileContentByteReadStream(Path.parse("/i/dont/exist.txt")).await(),
+                    test.assertThrows(() -> fileSystem.getFileContentReadStream(Path.parse("/i/dont/exist.txt")).await(),
                         new FileNotFoundException("/i/dont/exist.txt"));
-                });
-            });
-
-            runner.testGroup("getFileContentCharacterReadStream(String)", () ->
-            {
-                runner.test("with non-existing file", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(test);
-                    test.assertThrows(() -> fileSystem.getFileContentCharacterReadStream("/i/dont/exist.txt").await(),
-                        new FileNotFoundException("/i/dont/exist.txt"));
-                });
-
-                runner.test("with existing empty file", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(test);
-                    final String filePath = "/i/exist.txt";
-                    test.assertEqual(filePath, fileSystem.createFile(filePath).await().toString());
-                    try (final CharacterReadStream content = fileSystem.getFileContentCharacterReadStream(filePath).await())
-                    {
-                        test.assertThrows(() -> content.readEntireString().await(),
-                            new EndOfStreamException());
-                    }
-                });
-            });
-
-            runner.testGroup("getFileContentCharacterReadStream(Path)", () ->
-            {
-                runner.test("with non-existing file", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(test);
-                    test.assertThrows(() -> fileSystem.getFileContentCharacterReadStream(Path.parse("/i/dont/exist.txt")).await(),
-                        new FileNotFoundException("/i/dont/exist.txt"));
-                });
-
-                runner.test("with existing empty file", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(test);
-                    final String filePath = "/i/exist.txt";
-                    test.assertEqual(filePath, fileSystem.createFile(filePath).await().toString());
-                    try (final CharacterReadStream content = fileSystem.getFileContentCharacterReadStream(Path.parse(filePath)).await())
-                    {
-                        test.assertThrows(() -> content.readEntireString().await(),
-                            new EndOfStreamException());
-                    }
                 });
             });
 

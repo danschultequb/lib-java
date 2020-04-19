@@ -312,19 +312,19 @@ public class JavaFileSystem implements FileSystem
     }
 
     @Override
-    public Result<ByteReadStream> getFileContentByteReadStream(Path rootedFilePath)
+    public Result<CharacterToByteReadStream> getFileContentReadStream(Path rootedFilePath)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
         return Result.create(() ->
         {
-            ByteReadStream result;
+            CharacterToByteReadStream result;
             try
             {
                 final String rootedFilePathString = rootedFilePath.toString();
                 final java.nio.file.Path filePath = java.nio.file.Paths.get(rootedFilePathString);
                 final java.io.InputStream fileContentsInputStream = java.nio.file.Files.newInputStream(filePath);
-                result = new InputStreamToByteReadStream(fileContentsInputStream);
+                result = CharacterToByteReadStream.create(new InputStreamToByteReadStream(fileContentsInputStream));
             }
             catch (java.nio.file.NoSuchFileException e)
             {
