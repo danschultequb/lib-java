@@ -106,7 +106,7 @@ public class CommandLineParameterProfiler extends CommandLineParameterBoolean
             this.process.getOutputWriteStream()
                 .writeLine("Attach a profiler now to " + Types.getTypeName(this.classToAttachTo) + ". Press enter to continue...")
                 .await();
-            this.process.getInputCharacterReadStream()
+            this.process.getInputReadStream()
                 .readLine()
                 .await();
         }

@@ -10,8 +10,7 @@ public class JavaProcess implements QubProcess
 
     private final Value<CharacterToByteWriteStream> outputWriteStream;
     private final Value<CharacterToByteWriteStream> errorWriteStream;
-    private final Value<ByteReadStream> inputByteReadStream;
-    private final Value<CharacterReadStream> inputCharacterReadStream;
+    private final Value<CharacterToByteReadStream> inputReadStream;
     private final Value<CharacterEncoding> characterEncoding;
     private final Value<String> lineSeparator;
     private final Value<Random> random;
@@ -86,8 +85,7 @@ public class JavaProcess implements QubProcess
 
         this.outputWriteStream = Value.create();
         this.errorWriteStream = Value.create();
-        this.inputByteReadStream = Value.create();
-        this.inputCharacterReadStream = Value.create();
+        this.inputReadStream = Value.create();
         this.characterEncoding = Value.create();
         this.lineSeparator = Value.create();
 
@@ -199,28 +197,19 @@ public class JavaProcess implements QubProcess
     }
 
     /**
-     * Get the ByteReadStream that is assigned to this Console.
-     * @return The ByteReadStream that is assigned to this Console.
+     * Get the CharacterToByteReadStream that is assigned to this Console.
+     * @return The CharacterToByteReadStream that is assigned to this Console.
      */
-    public ByteReadStream getInputByteReadStream()
+    public CharacterToByteReadStream getInputReadStream()
     {
-        if (!inputByteReadStream.hasValue())
+        if (!inputReadStream.hasValue())
         {
-            setInputByteReadStream(new InputStreamToByteReadStream(System.in));
-        }
-        return inputByteReadStream.get();
-    }
-
-    public CharacterReadStream getInputCharacterReadStream()
-    {
-        if (!inputCharacterReadStream.hasValue())
-        {
-            final ByteReadStream inputByteReadStream = this.getInputByteReadStream();
+            final InputStreamToByteReadStream inputByteReadStream = new InputStreamToByteReadStream(System.in);
             final CharacterEncoding characterEncoding = this.getCharacterEncoding();
-            inputCharacterReadStream.set(CharacterToByteReadStream.create(inputByteReadStream)
+            inputReadStream.set(CharacterToByteReadStream.create(inputByteReadStream)
                 .setCharacterEncoding(characterEncoding));
         }
-        return inputCharacterReadStream.get();
+        return inputReadStream.get();
     }
 
     public JavaProcess setCharacterEncoding(CharacterEncoding characterEncoding)
@@ -236,7 +225,10 @@ public class JavaProcess implements QubProcess
         {
             this.errorWriteStream.get().setCharacterEncoding(characterEncoding);
         }
-        this.inputCharacterReadStream.clear();
+        if (this.inputReadStream.hasValue())
+        {
+            this.inputReadStream.get().setCharacterEncoding(characterEncoding);
+        }
         return this;
     }
 
@@ -260,7 +252,6 @@ public class JavaProcess implements QubProcess
         {
             this.errorWriteStream.get().setNewLine(lineSeparator);
         }
-        inputCharacterReadStream.clear();
         return this;
     }
 
@@ -278,23 +269,20 @@ public class JavaProcess implements QubProcess
      * @param inputByteReadStream The ByteReadStream that is assigned to this Console's input.
      * @return This object for method chaining.
      */
-    public JavaProcess setInputByteReadStream(ByteReadStream inputByteReadStream)
+    public JavaProcess setInputReadStream(ByteReadStream inputByteReadStream)
     {
-        this.inputByteReadStream.set(inputByteReadStream);
-        inputCharacterReadStream.clear();
-        return this;
+        return this.setInputReadStream(CharacterToByteReadStream.create(inputByteReadStream));
     }
 
     /**
-     * Set the CharacterReadStream that is assigned to this Console's input.
-     * @param inputCharacterReadStream The CharacterReadStream that is assigned to this Console's
+     * Set the CharacterToByteReadStream that is assigned to this Console's input.
+     * @param inputCharacterReadStream The CharacterToByteReadStream that is assigned to this Console's
      *                                 input.
      * @return This object for method chaining.
      */
-    public JavaProcess setInputCharacterReadStream(CharacterReadStream inputCharacterReadStream)
+    public JavaProcess setInputReadStream(CharacterToByteReadStream inputCharacterReadStream)
     {
-        this.inputByteReadStream.set(null);
-        this.inputCharacterReadStream.set(inputCharacterReadStream);
+        this.inputReadStream.set(inputCharacterReadStream);
         return this;
     }
 

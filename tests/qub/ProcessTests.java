@@ -197,83 +197,79 @@ public interface ProcessTests
             runner.test("getInputByteWriteStream()", (Test test) ->
             {
                 final Process process = creator.run();
-                final ByteReadStream readStream = process.getInputByteReadStream();
+                final ByteReadStream readStream = process.getInputReadStream();
                 test.assertNotNull(readStream);
             });
 
-            runner.testGroup("setInputByteReadStream(ByteWriteStream)", () ->
+            runner.testGroup("setInputReadStream(ByteWriteStream)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    process.setInputByteReadStream(null);
-                    test.assertNull(process.getInputByteReadStream());
+                    process.setInputReadStream(null);
+                    test.assertNull(process.getInputReadStream());
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    process.setInputByteReadStream(ByteReadStream.create(CharacterEncoding.UTF_8.encode("hello there my good friend\nHow are you?\r\nI'm alright.").await()));
+                    process.setInputReadStream(ByteReadStream.create(CharacterEncoding.UTF_8.encode("hello there my good friend\nHow are you?\r\nI'm alright.").await()));
 
-                    final ByteReadStream byteReadStream = process.getInputByteReadStream();
-                    test.assertEqual(new byte[] { 104, 101, 108, 108, 111 }, byteReadStream.readBytes(5).await());
+                    final CharacterToByteReadStream readStream = process.getInputReadStream();
+                    test.assertEqual(new byte[] { 104, 101, 108, 108, 111 }, readStream.readBytes(5).await());
 
                     final byte[] byteBuffer = new byte[2];
-                    test.assertEqual(2, byteReadStream.readBytes(byteBuffer).await());
+                    test.assertEqual(2, readStream.readBytes(byteBuffer).await());
                     test.assertEqual(new byte[] { 32, 116 }, byteBuffer);
 
-                    test.assertEqual(1, byteReadStream.readBytes(byteBuffer, 1, 1).await());
+                    test.assertEqual(1, readStream.readBytes(byteBuffer, 1, 1).await());
                     test.assertEqual(new byte[] { 32, 104 }, byteBuffer);
 
-                    final CharacterReadStream characterReadStream = process.getInputCharacterReadStream();
-                    test.assertEqual(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3).await());
+                    test.assertEqual(new char[] { 'e', 'r', 'e' }, readStream.readCharacters(3).await());
 
                     final char[] characterBuffer = new char[4];
-                    test.assertEqual(4, characterReadStream.readCharacters(characterBuffer).await());
+                    test.assertEqual(4, readStream.readCharacters(characterBuffer).await());
                     test.assertEqual(new char[] { ' ', 'm', 'y', ' ' }, characterBuffer);
 
-                    test.assertEqual(2, characterReadStream.readCharacters(characterBuffer, 0, 2).await());
+                    test.assertEqual(2, readStream.readCharacters(characterBuffer, 0, 2).await());
                     test.assertEqual(new char[] { 'g', 'o', 'y', ' ' }, characterBuffer);
 
-                    test.assertEqual("od fr", characterReadStream.readString(5).await());
+                    test.assertEqual("od fr", readStream.readString(5).await());
                 });
             });
 
-            runner.test("getInputCharacterReadStream()", (Test test) ->
+            runner.test("getInputReadStream()", (Test test) ->
             {
                 final Process process = creator.run();
-                final CharacterReadStream readStream = process.getInputCharacterReadStream();
+                final CharacterToByteReadStream readStream = process.getInputReadStream();
                 test.assertNotNull(readStream);
             });
 
-            runner.testGroup("setInputCharacterReadStream(CharacterReadStream)", () ->
+            runner.testGroup("setInputReadStream(CharacterToByteReadStream)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    process.setInputCharacterReadStream(null);
-                    test.assertNull(process.getInputCharacterReadStream());
+                    process.setInputReadStream(null);
+                    test.assertNull(process.getInputReadStream());
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    final InMemoryCharacterToByteStream readStream = InMemoryCharacterToByteStream.create("ere my good friend\nHow are you?\r\nI'm alright.").endOfStream();
-                    process.setInputCharacterReadStream(readStream);
+                    process.setInputReadStream(CharacterToByteReadStream.create("ere my good friend\nHow are you?\r\nI'm alright."));
 
-                    test.assertNull(process.getInputByteReadStream());
-
-                    final CharacterReadStream characterReadStream = process.getInputCharacterReadStream();
-                    test.assertEqual(new char[] { 'e', 'r', 'e' }, characterReadStream.readCharacters(3).await());
+                    final CharacterToByteReadStream readStream = process.getInputReadStream();
+                    test.assertEqual(new char[] { 'e', 'r', 'e' }, readStream.readCharacters(3).await());
 
                     final char[] characterBuffer = new char[4];
-                    test.assertEqual(4, characterReadStream.readCharacters(characterBuffer).await());
+                    test.assertEqual(4, readStream.readCharacters(characterBuffer).await());
                     test.assertEqual(new char[] { ' ', 'm', 'y', ' ' }, characterBuffer);
 
-                    test.assertEqual(2, characterReadStream.readCharacters(characterBuffer, 0, 2).await());
+                    test.assertEqual(2, readStream.readCharacters(characterBuffer, 0, 2).await());
                     test.assertEqual(new char[] { 'g', 'o', 'y', ' ' }, characterBuffer);
 
-                    test.assertEqual("od fr", characterReadStream.readString(5).await());
+                    test.assertEqual("od fr", readStream.readString(5).await());
                 });
             });
 

@@ -307,12 +307,10 @@ public interface Process extends Disposable
     CharacterToByteWriteStream getErrorWriteStream();
 
     /**
-     * Get the ByteReadStream that is assigned to this Console.
-     * @return The ByteReadStream that is assigned to this Console.
+     * Get the CharacterToByteReadStream that is assigned to this Process.
+     * @return The CharacterToByteReadStream that is assigned to this Process.
      */
-    ByteReadStream getInputByteReadStream();
-
-    CharacterReadStream getInputCharacterReadStream();
+    CharacterToByteReadStream getInputReadStream();
 
     Process setCharacterEncoding(CharacterEncoding characterEncoding);
 
@@ -365,41 +363,44 @@ public interface Process extends Disposable
     Process setErrorWriteStream(CharacterToByteWriteStream errorWriteStream);
 
     /**
-     * Set the ByteReadStream that is assigned to this Console's input.
-     * @param inputByteReadStream The ByteReadStream that is assigned to this Console's input.
+     * Set the ByteReadStream that is assigned to this Process's input.
+     * @param inputReadStream The ByteReadStream that is assigned to this Process's input.
      * @return This object for method chaining.
      */
-    Process setInputByteReadStream(ByteReadStream inputByteReadStream);
+    default Process setInputReadStream(ByteReadStream inputReadStream)
+    {
+        return this.setInputReadStream(inputReadStream == null ? null : CharacterToByteReadStream.create(inputReadStream));
+    }
 
     /**
-     * Set the CharacterReadStream that is assigned to this Console's input.
-     * @param inputCharacterReadStream The CharacterReadStream that is assigned to this Console's
+     * Set the CharacterToByteReadStream that is assigned to this Process's input.
+     * @param inputReadStream The CharacterToByteReadStream that is assigned to this Process's
      *                                 input.
      * @return This object for method chaining.
      */
-    Process setInputCharacterReadStream(CharacterReadStream inputCharacterReadStream);
+    Process setInputReadStream(CharacterToByteReadStream inputReadStream);
 
     /**
-     * Set the Random number generator assigned to this Console.
-     * @param random The Random number generator assigned to this Console.
+     * Set the Random number generator assigned to this Process.
+     * @param random The Random number generator assigned to this Process.
      */
     Process setRandom(Random random);
 
     /**
-     * Get the Random number generator assigned to this Console.
-     * @return The Random number generator assigned to this Console.
+     * Get the Random number generator assigned to this Process.
+     * @return The Random number generator assigned to this Process.
      */
     Random getRandom();
 
     /**
-     * Get the FileSystem assigned to this Console.
-     * @return The FileSystem assigned to this Console.
+     * Get the FileSystem assigned to this Process.
+     * @return The FileSystem assigned to this Process.
      */
     FileSystem getFileSystem();
 
     /**
-     * Set the FileSystem that is assigned to this Console.
-     * @param fileSystem The FileSystem that will be assigned to this Console.
+     * Set the FileSystem that is assigned to this Process.
+     * @param fileSystem The FileSystem that will be assigned to this Process.
      */
     Process setFileSystem(FileSystem fileSystem);
 
@@ -412,8 +413,8 @@ public interface Process extends Disposable
     Process setCurrentFolderPathString(String currentFolderPathString);
 
     /**
-     * Get the path to the folder that this Console is currently running in.
-     * @return The path to the folder that this Console is currently running in.
+     * Get the path to the folder that this Process is currently running in.
+     * @return The path to the folder that this Process is currently running in.
      */
     default Path getCurrentFolderPath()
     {
@@ -422,8 +423,8 @@ public interface Process extends Disposable
     }
 
     /**
-     * Set the path to the folder that this Console is currently running in.
-     * @param currentFolderPath The folder to the path that this Console is currently running in.
+     * Set the path to the folder that this Process is currently running in.
+     * @param currentFolderPath The folder to the path that this Process is currently running in.
      */
     default Process setCurrentFolderPath(Path currentFolderPath)
     {
