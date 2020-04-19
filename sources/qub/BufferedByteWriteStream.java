@@ -7,12 +7,6 @@ public class BufferedByteWriteStream implements ByteWriteStream
     private byte[] buffer;
     private int currentBufferIndex;
 
-    @Deprecated
-    public BufferedByteWriteStream(ByteWriteStream byteWriteStream)
-    {
-        this(byteWriteStream, 10000, 100000);
-    }
-
     private BufferedByteWriteStream(ByteWriteStream byteWriteStream, int initialBufferSize, int maximumBufferSize)
     {
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");

@@ -9,12 +9,6 @@ public class BufferedByteReadStream implements ByteReadStream
     private int currentBufferIndex;
     private int bytesInBuffer;
 
-    @Deprecated
-    public BufferedByteReadStream(ByteReadStream byteReadStream)
-    {
-        this(byteReadStream, 10000, 100000);
-    }
-
     private BufferedByteReadStream(ByteReadStream byteReadStream, int initialBufferSize, int maximumBufferSize)
     {
         PreCondition.assertNotNull(byteReadStream, "byteReadStream");
