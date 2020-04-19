@@ -7,17 +7,13 @@ public class BufferedByteWriteStream implements ByteWriteStream
     private byte[] buffer;
     private int currentBufferIndex;
 
+    @Deprecated
     public BufferedByteWriteStream(ByteWriteStream byteWriteStream)
     {
         this(byteWriteStream, 10000, 100000);
     }
 
-    public BufferedByteWriteStream(ByteWriteStream byteWriteStream, int bufferSize)
-    {
-        this(byteWriteStream, bufferSize, bufferSize);
-    }
-
-    public BufferedByteWriteStream(ByteWriteStream byteWriteStream, int initialBufferSize, int maximumBufferSize)
+    private BufferedByteWriteStream(ByteWriteStream byteWriteStream, int initialBufferSize, int maximumBufferSize)
     {
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
         PreCondition.assertGreaterThanOrEqualTo(initialBufferSize, 1, "initialBufferSize");
@@ -26,6 +22,21 @@ public class BufferedByteWriteStream implements ByteWriteStream
         this.byteWriteStream = byteWriteStream;
         this.maximumBufferSize = maximumBufferSize;
         this.buffer = byteWriteStream.isDisposed() ? null : new byte[initialBufferSize];
+    }
+
+    public static BufferedByteWriteStream create(ByteWriteStream byteWriteStream)
+    {
+        return BufferedByteWriteStream.create(byteWriteStream, 10000, 100000);
+    }
+
+    public static BufferedByteWriteStream create(ByteWriteStream byteWriteStream, int bufferSize)
+    {
+        return BufferedByteWriteStream.create(byteWriteStream, bufferSize, bufferSize);
+    }
+
+    public static BufferedByteWriteStream create(ByteWriteStream byteWriteStream, int initialBufferSize, int maximumBufferSize)
+    {
+        return new BufferedByteWriteStream(byteWriteStream, initialBufferSize, maximumBufferSize);
     }
 
     /**

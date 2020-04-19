@@ -9,17 +9,13 @@ public class BufferedByteReadStream implements ByteReadStream
     private int currentBufferIndex;
     private int bytesInBuffer;
 
+    @Deprecated
     public BufferedByteReadStream(ByteReadStream byteReadStream)
     {
         this(byteReadStream, 10000, 100000);
     }
 
-    public BufferedByteReadStream(ByteReadStream byteReadStream, int bufferSize)
-    {
-        this(byteReadStream, bufferSize, bufferSize);
-    }
-
-    public BufferedByteReadStream(ByteReadStream byteReadStream, int initialBufferSize, int maximumBufferSize)
+    private BufferedByteReadStream(ByteReadStream byteReadStream, int initialBufferSize, int maximumBufferSize)
     {
         PreCondition.assertNotNull(byteReadStream, "byteReadStream");
         PreCondition.assertGreaterThanOrEqualTo(initialBufferSize, 1, "initialBufferSize");
@@ -30,6 +26,30 @@ public class BufferedByteReadStream implements ByteReadStream
         this.buffer = byteReadStream.isDisposed() ? null : new byte[initialBufferSize];
         this.currentBufferIndex = -1;
         this.growOnNextBufferFill = false;
+    }
+
+    public static BufferedByteReadStream create(ByteReadStream byteReadStream)
+    {
+        PreCondition.assertNotNull(byteReadStream, "byteReadStream");
+
+        return BufferedByteReadStream.create(byteReadStream, 10000, 100000);
+    }
+
+    public static BufferedByteReadStream create(ByteReadStream byteReadStream, int bufferSize)
+    {
+        PreCondition.assertNotNull(byteReadStream, "byteReadStream");
+        PreCondition.assertGreaterThanOrEqualTo(bufferSize, 1, "bufferSize");
+
+        return BufferedByteReadStream.create(byteReadStream, bufferSize, bufferSize);
+    }
+
+    public static BufferedByteReadStream create(ByteReadStream byteReadStream, int initialBufferSize, int maximumBufferSize)
+    {
+        PreCondition.assertNotNull(byteReadStream, "byteReadStream");
+        PreCondition.assertGreaterThanOrEqualTo(initialBufferSize, 1, "initialBufferSize");
+        PreCondition.assertGreaterThanOrEqualTo(maximumBufferSize, initialBufferSize, "maximumBufferSize");
+
+        return new BufferedByteReadStream(byteReadStream, initialBufferSize, maximumBufferSize);
     }
 
     @Override

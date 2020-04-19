@@ -11,8 +11,6 @@ public interface InMemoryByteStreamTests
                 final InMemoryByteStream stream = InMemoryByteStream.create();
                 test.assertFalse(stream.isDisposed());
                 test.assertEqual(new byte[0], stream.getBytes());
-                test.assertNull(stream.getMaxBytesPerRead());
-                test.assertNull(stream.getMaxBytesPerWrite());
             });
 
             runner.testGroup("create(byte[])", () ->
@@ -28,8 +26,6 @@ public interface InMemoryByteStreamTests
                     final InMemoryByteStream stream = InMemoryByteStream.create();
                     test.assertFalse(stream.isDisposed());
                     test.assertEqual(new byte[0], stream.getBytes());
-                    test.assertNull(stream.getMaxBytesPerRead());
-                    test.assertNull(stream.getMaxBytesPerWrite());
                 });
             });
             
@@ -42,86 +38,6 @@ public interface InMemoryByteStreamTests
                 stream.close();
                 test.assertTrue(stream.isDisposed());
                 test.assertEqual(new byte[0], stream.getBytes());
-            });
-
-            runner.testGroup("setMaxBytesPerRead(Integer)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final InMemoryByteStream stream = InMemoryByteStream.create();
-                    test.assertSame(stream, stream.setMaxBytesPerRead(null));
-                    test.assertNull(stream.getMaxBytesPerRead());
-                });
-
-                runner.test("with -1", (Test test) ->
-                {
-                    final InMemoryByteStream stream = InMemoryByteStream.create();
-                    test.assertThrows(() -> stream.setMaxBytesPerRead(-1),
-                        new PreConditionFailure("maxBytesPerRead (-1) == null || maxBytesPerRead (-1) >= 1 cannot be false."));
-                    test.assertNull(stream.getMaxBytesPerRead());
-                });
-
-                runner.test("with 0", (Test test) ->
-                {
-                    final InMemoryByteStream stream = InMemoryByteStream.create();
-                    test.assertThrows(() -> stream.setMaxBytesPerRead(0),
-                        new PreConditionFailure("maxBytesPerRead (0) == null || maxBytesPerRead (0) >= 1 cannot be false."));
-                    test.assertNull(stream.getMaxBytesPerRead());
-                });
-
-                runner.test("with 1", (Test test) ->
-                {
-                    final InMemoryByteStream stream = InMemoryByteStream.create();
-                    test.assertSame(stream, stream.setMaxBytesPerRead(1));
-                    test.assertEqual(1, stream.getMaxBytesPerRead());
-                });
-
-                runner.test("with 2", (Test test) ->
-                {
-                    final InMemoryByteStream stream = InMemoryByteStream.create();
-                    test.assertSame(stream, stream.setMaxBytesPerRead(2));
-                    test.assertEqual(2, stream.getMaxBytesPerRead());
-                });
-            });
-
-            runner.testGroup("setMaxBytesPerWrite(Integer)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final InMemoryByteStream stream = InMemoryByteStream.create();
-                    test.assertSame(stream, stream.setMaxBytesPerWrite(null));
-                    test.assertNull(stream.getMaxBytesPerWrite());
-                });
-
-                runner.test("with -1", (Test test) ->
-                {
-                    final InMemoryByteStream stream = InMemoryByteStream.create();
-                    test.assertThrows(() -> stream.setMaxBytesPerWrite(-1),
-                        new PreConditionFailure("maxBytesPerWrite (-1) == null || maxBytesPerWrite (-1) >= 1 cannot be false."));
-                    test.assertNull(stream.getMaxBytesPerWrite());
-                });
-
-                runner.test("with 0", (Test test) ->
-                {
-                    final InMemoryByteStream stream = InMemoryByteStream.create();
-                    test.assertThrows(() -> stream.setMaxBytesPerWrite(0),
-                        new PreConditionFailure("maxBytesPerWrite (0) == null || maxBytesPerWrite (0) >= 1 cannot be false."));
-                    test.assertNull(stream.getMaxBytesPerWrite());
-                });
-
-                runner.test("with 1", (Test test) ->
-                {
-                    final InMemoryByteStream stream = InMemoryByteStream.create();
-                    test.assertSame(stream, stream.setMaxBytesPerWrite(1));
-                    test.assertEqual(1, stream.getMaxBytesPerWrite());
-                });
-
-                runner.test("with 2", (Test test) ->
-                {
-                    final InMemoryByteStream stream = InMemoryByteStream.create();
-                    test.assertSame(stream, stream.setMaxBytesPerWrite(2));
-                    test.assertEqual(2, stream.getMaxBytesPerWrite());
-                });
             });
 
             runner.testGroup("readByte()", () ->
@@ -254,42 +170,6 @@ public interface InMemoryByteStreamTests
 
                     test.assertEqual((byte)11, stream.readByte().await());
                     test.assertEqual(new byte[0], stream.getBytes());
-                });
-
-                runner.test("with fewer bytes to read than limiter", (Test test) ->
-                {
-                    final InMemoryByteStream stream = create(new byte[] { 0, 1, 2, 3, 4 }, test)
-                        .setMaxBytesPerRead(20);
-                    final byte[] outputBytes = new byte[10];
-                    test.assertEqual(5, stream.readBytes(outputBytes).await());
-                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 0, 0, 0, 0, 0 }, outputBytes);
-                    test.assertEqual(new byte[0], stream.getBytes());
-
-                    test.assertThrows(() -> stream.readByte().await(),
-                        new EndOfStreamException());
-                });
-
-                runner.test("with equal bytes to read to limiter", (Test test) ->
-                {
-                    final InMemoryByteStream stream = create(new byte[] { 0, 1, 2, 3, 4 }, test)
-                        .setMaxBytesPerRead(5);
-                    final byte[] outputBytes = new byte[10];
-                    test.assertEqual(5, stream.readBytes(outputBytes).await());
-                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 0, 0, 0, 0, 0 }, outputBytes);
-                    test.assertEqual(new byte[0], stream.getBytes());
-
-                    test.assertThrows(() -> stream.readByte().await(),
-                        new EndOfStreamException());
-                });
-
-                runner.test("with more bytes to read than limiter", (Test test) ->
-                {
-                    final InMemoryByteStream stream = create(new byte[] { 0, 1, 2, 3, 4 }, test)
-                        .setMaxBytesPerRead(3);
-                    final byte[] outputBytes = new byte[10];
-                    test.assertEqual(3, stream.readBytes(outputBytes).await());
-                    test.assertEqual(new byte[] { 0, 1, 2, 0, 0, 0, 0, 0, 0, 0 }, outputBytes);
-                    test.assertEqual(new byte[] { 3, 4 }, stream.getBytes());
                 });
             });
 
@@ -490,7 +370,7 @@ public interface InMemoryByteStreamTests
                 runner.speedTest("with " + byteCount + " bytes", Duration.milliseconds(100), (Test test) ->
                 {
                     final InMemoryByteStream innerStream = InMemoryByteStream.create();
-                    final BufferedByteWriteStream writeStream = new BufferedByteWriteStream(innerStream);
+                    final BufferedByteWriteStream writeStream = ByteWriteStream.buffer(innerStream);
 
                     for (int i = 0; i < byteCount; ++i)
                     {
@@ -525,7 +405,7 @@ public interface InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = InMemoryByteStream.create();
                     test.assertThrows(() -> stream.write(new byte[0], -1, -1),
-                        new PreConditionFailure("bytes cannot be empty."));
+                        new PreConditionFailure("startIndex (-1) must be equal to 0."));
                     test.assertEqual(new byte[0], stream.getBytes());
                 });
 
@@ -533,7 +413,7 @@ public interface InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = InMemoryByteStream.create();
                     test.assertThrows(() -> stream.write(new byte[0], -1, 0),
-                        new PreConditionFailure("bytes cannot be empty."));
+                        new PreConditionFailure("startIndex (-1) must be equal to 0."));
                     test.assertEqual(new byte[0], stream.getBytes());
                 });
 
@@ -541,7 +421,7 @@ public interface InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = InMemoryByteStream.create();
                     test.assertThrows(() -> stream.write(new byte[0], -1, 1),
-                        new PreConditionFailure("bytes cannot be empty."));
+                        new PreConditionFailure("startIndex (-1) must be equal to 0."));
                     test.assertEqual(new byte[0], stream.getBytes());
                 });
 
@@ -549,7 +429,7 @@ public interface InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = InMemoryByteStream.create();
                     test.assertThrows(() -> stream.write(new byte[0], 0, -1),
-                        new PreConditionFailure("bytes cannot be empty."));
+                        new PreConditionFailure("length (-1) must be equal to 0."));
                     test.assertEqual(new byte[0], stream.getBytes());
                 });
 
@@ -557,7 +437,7 @@ public interface InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = InMemoryByteStream.create();
                     test.assertThrows(() -> stream.write(new byte[0], 0, 1),
-                        new PreConditionFailure("bytes cannot be empty."));
+                        new PreConditionFailure("length (1) must be equal to 0."));
                     test.assertEqual(new byte[0], stream.getBytes());
                 });
 
@@ -565,7 +445,7 @@ public interface InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = InMemoryByteStream.create();
                     test.assertThrows(() -> stream.write(new byte[0], 1, -1),
-                        new PreConditionFailure("bytes cannot be empty."));
+                        new PreConditionFailure("startIndex (1) must be equal to 0."));
                     test.assertEqual(new byte[0], stream.getBytes());
                 });
 
@@ -573,7 +453,7 @@ public interface InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = InMemoryByteStream.create();
                     test.assertThrows(() -> stream.write(new byte[0], 1, 0),
-                        new PreConditionFailure("bytes cannot be empty."));
+                        new PreConditionFailure("startIndex (1) must be equal to 0."));
                     test.assertEqual(new byte[0], stream.getBytes());
                 });
 
@@ -581,45 +461,20 @@ public interface InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = InMemoryByteStream.create();
                     test.assertThrows(() -> stream.write(new byte[0], 1, 1),
-                        new PreConditionFailure("bytes cannot be empty."));
+                        new PreConditionFailure("startIndex (1) must be equal to 0."));
                     test.assertEqual(new byte[0], stream.getBytes());
                 });
 
                 runner.test("with empty bytes, 0 startIndex, and 0 length", (Test test) ->
                 {
                     final InMemoryByteStream stream = InMemoryByteStream.create();
-                    test.assertThrows(() -> stream.write(new byte[0], 0, 0),
-                        new PreConditionFailure("bytes cannot be empty."));
+                    test.assertEqual(0, stream.write(new byte[0], 0, 0).await());
                     test.assertEqual(new byte[0], stream.getBytes());
                 });
 
                 runner.test("with non-empty bytes, valid startIndex, and valid length", (Test test) ->
                 {
                     final InMemoryByteStream stream = InMemoryByteStream.create();
-                    test.assertEqual(2, stream.write(new byte[] { 0, 1, 2, 3, 4 }, 1, 2).await());
-                    test.assertEqual(new byte[] { 1, 2 }, stream.getBytes());
-                });
-
-                runner.test("with non-empty bytes, valid startIndex, valid length, and maxBytesPerWrite less than length", (Test test) ->
-                {
-                    final InMemoryByteStream stream = InMemoryByteStream.create()
-                        .setMaxBytesPerWrite(3);
-                    test.assertEqual(3, stream.write(new byte[] { 0, 1, 2, 3, 4 }, 1, 4).await());
-                    test.assertEqual(new byte[] { 1, 2, 3 }, stream.getBytes());
-                });
-
-                runner.test("with non-empty bytes, valid startIndex, valid length, and maxBytesPerWrite equal to length", (Test test) ->
-                {
-                    final InMemoryByteStream stream = InMemoryByteStream.create()
-                        .setMaxBytesPerWrite(3);
-                    test.assertEqual(3, stream.write(new byte[] { 0, 1, 2, 3, 4 }, 1, 3).await());
-                    test.assertEqual(new byte[] { 1, 2, 3 }, stream.getBytes());
-                });
-
-                runner.test("with non-empty bytes, valid startIndex, valid length, and maxBytesPerWrite greater than length", (Test test) ->
-                {
-                    final InMemoryByteStream stream = InMemoryByteStream.create()
-                        .setMaxBytesPerWrite(3);
                     test.assertEqual(2, stream.write(new byte[] { 0, 1, 2, 3, 4 }, 1, 2).await());
                     test.assertEqual(new byte[] { 1, 2 }, stream.getBytes());
                 });
@@ -669,59 +524,6 @@ public interface InMemoryByteStreamTests
                     final InMemoryByteStream readStream = InMemoryByteStream.create(new byte[] { 0, 1, 2, 3 }).endOfStream();
                     test.assertEqual(4, stream.writeAll(readStream).await());
                     test.assertEqual(new byte[] { 0, 1, 2, 3 }, stream.getBytes());
-                });
-
-                runner.test("with read limiter", (Test test) ->
-                {
-                    final InMemoryByteStream writeStream = InMemoryByteStream.create();
-                    final InMemoryByteStream readStream = InMemoryByteStream.create(new byte[] { 0, 1, 2, 3, 4, 5, 6 })
-                        .setMaxBytesPerRead(5)
-                        .endOfStream();
-                    test.assertEqual(7, writeStream.writeAll(readStream).await());
-                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 5, 6 }, writeStream.getBytes());
-                });
-
-                runner.test("with write limiter", (Test test) ->
-                {
-                    final InMemoryByteStream writeStream = InMemoryByteStream.create()
-                        .setMaxBytesPerWrite(2);
-                    final InMemoryByteStream readStream = InMemoryByteStream.create(new byte[] { 0, 1, 2, 3, 4, 5, 6 })
-                        .endOfStream();
-                    test.assertEqual(7, writeStream.writeAll(readStream).await());
-                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 5, 6 }, writeStream.getBytes());
-                });
-
-                runner.test("with read limiter less than write limiter", (Test test) ->
-                {
-                    final InMemoryByteStream writeStream = InMemoryByteStream.create()
-                        .setMaxBytesPerWrite(4);
-                    final InMemoryByteStream readStream = InMemoryByteStream.create(new byte[] { 0, 1, 2, 3, 4, 5, 6 })
-                        .setMaxBytesPerRead(3)
-                        .endOfStream();
-                    test.assertEqual(7, writeStream.writeAll(readStream).await());
-                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 5, 6 }, writeStream.getBytes());
-                });
-
-                runner.test("with read limiter equal to write limiter", (Test test) ->
-                {
-                    final InMemoryByteStream writeStream = InMemoryByteStream.create()
-                        .setMaxBytesPerWrite(3);
-                    final InMemoryByteStream readStream = InMemoryByteStream.create(new byte[] { 0, 1, 2, 3, 4, 5, 6 })
-                        .setMaxBytesPerRead(3)
-                        .endOfStream();
-                    test.assertEqual(7, writeStream.writeAll(readStream).await());
-                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 5, 6 }, writeStream.getBytes());
-                });
-
-                runner.test("with read limiter greater than write limiter", (Test test) ->
-                {
-                    final InMemoryByteStream writeStream = InMemoryByteStream.create()
-                        .setMaxBytesPerWrite(2);
-                    final InMemoryByteStream readStream = InMemoryByteStream.create(new byte[] { 0, 1, 2, 3, 4, 5, 6 })
-                        .setMaxBytesPerRead(3)
-                        .endOfStream();
-                    test.assertEqual(7, writeStream.writeAll(readStream).await());
-                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 5, 6 }, writeStream.getBytes());
                 });
             });
         });

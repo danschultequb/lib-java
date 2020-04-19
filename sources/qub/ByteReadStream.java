@@ -170,4 +170,9 @@ public interface ByteReadStream extends Disposable
     {
         return ByteReadStreamIterator.create(byteReadStream);
     }
+
+    static BufferedByteReadStream buffer(ByteReadStream byteReadStream)
+    {
+        return BufferedByteReadStream.create(byteReadStream);
+    }
 }

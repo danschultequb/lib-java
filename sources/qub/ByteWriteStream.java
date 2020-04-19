@@ -143,4 +143,9 @@ public interface ByteWriteStream extends Disposable
             return result;
         });
     }
+
+    static BufferedByteWriteStream buffer(ByteWriteStream byteWriteStream)
+    {
+        return BufferedByteWriteStream.create(byteWriteStream);
+    }
 }

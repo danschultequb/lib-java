@@ -348,7 +348,7 @@ public class JavaFileSystem implements FileSystem
             ByteWriteStream result;
             try
             {
-                result = new BufferedByteWriteStream(
+                result = ByteWriteStream.buffer(
                             new OutputStreamToByteWriteStream(
                                 java.nio.file.Files.newOutputStream(
                                     java.nio.file.Paths.get(rootedFilePath.toString()),
@@ -360,7 +360,7 @@ public class JavaFileSystem implements FileSystem
                 try
                 {
                     this.createFolder(rootedFilePath.getParent().await()).await();
-                    result = new BufferedByteWriteStream(
+                    result = ByteWriteStream.buffer(
                                 new OutputStreamToByteWriteStream(
                                     java.nio.file.Files.newOutputStream(
                                         java.nio.file.Paths.get(rootedFilePath.toString()),
