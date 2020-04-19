@@ -53,34 +53,28 @@ public class ByteArray implements Array<Byte>
      * @param bytes The integer values.
      * @return The new ByteArray.
      */
-    public static Result<ByteArray> create(int... bytes)
+    public static ByteArray create(int... bytes)
     {
         PreCondition.assertNotNull(bytes, "bytes");
 
         return ByteArray.create(bytes, 0, bytes.length);
     }
 
-    public static Result<ByteArray> create(int[] bytes, int startIndex, int length)
+    public static ByteArray create(int[] bytes, int startIndex, int length)
     {
         PreCondition.assertNotNull(bytes, "bytes");
         PreCondition.assertStartIndex(startIndex, bytes.length);
         PreCondition.assertLength(length, startIndex, bytes.length);
 
-        return Result.create(() ->
+        final byte[] resultBytes = new byte[length];
+        for (int writeIndex = 0; writeIndex < length; ++writeIndex)
         {
-            final byte[] resultBytes = new byte[length];
-            for (int writeIndex = 0; writeIndex < length; ++writeIndex)
-            {
-                final int readIndex = startIndex + writeIndex;
-                final int intValue = bytes[readIndex];
-                if (!Comparer.between(Bytes.minimum, intValue, Bytes.maximum))
-                {
-                    throw new ParseException(AssertionMessages.between(Bytes.minimum, intValue, Bytes.maximum, "The " + readIndex + "element"));
-                }
-                resultBytes[writeIndex] = (byte)intValue;
-            }
-            return new ByteArray(resultBytes);
-        });
+            final int readIndex = startIndex + writeIndex;
+            final int intValue = bytes[readIndex];
+            PreCondition.assertBetween(Bytes.minimum, intValue, Bytes.maximum, "The " + readIndex + " element");
+            resultBytes[writeIndex] = (byte)intValue;
+        }
+        return new ByteArray(resultBytes);
     }
 
     @Override

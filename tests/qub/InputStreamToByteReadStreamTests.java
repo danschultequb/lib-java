@@ -430,14 +430,14 @@ public interface InputStreamToByteReadStreamTests
                 {
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
                     test.assertTrue(readStream.dispose().await());
-                    test.assertThrows(() -> readStream.readBytesUntil(ByteArray.create(3).await()),
+                    test.assertThrows(() -> readStream.readBytesUntil(ByteArray.create(3)),
                         new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("when empty", (Test test) ->
                 {
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 0);
-                    test.assertThrows(() -> readStream.readBytesUntil(ByteArray.create(5).await()).await(),
+                    test.assertThrows(() -> readStream.readBytesUntil(ByteArray.create(5)).await(),
                         new EndOfStreamException());
                 });
 
@@ -458,24 +458,24 @@ public interface InputStreamToByteReadStreamTests
                 runner.test("with no match", (Test test) ->
                 {
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
-                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, readStream.readBytesUntil(ByteArray.create(20).await()).await());
-                    test.assertThrows(() -> readStream.readBytesUntil(ByteArray.create(20).await()).await(),
+                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, readStream.readBytesUntil(ByteArray.create(20)).await());
+                    test.assertThrows(() -> readStream.readBytesUntil(ByteArray.create(20)).await(),
                         new EndOfStreamException());
                 });
 
                 runner.test("with match", (Test test) ->
                 {
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
-                    test.assertEqual(new byte[] { 0, 1 }, readStream.readBytesUntil(ByteArray.create(1).await()).await());
-                    test.assertEqual(new byte[] { 2, 3, 4 }, readStream.readBytesUntil(ByteArray.create(1).await()).await());
-                    test.assertThrows(() -> readStream.readBytesUntil(ByteArray.create(1).await()).await(),
+                    test.assertEqual(new byte[] { 0, 1 }, readStream.readBytesUntil(ByteArray.create(1)).await());
+                    test.assertEqual(new byte[] { 2, 3, 4 }, readStream.readBytesUntil(ByteArray.create(1)).await());
+                    test.assertThrows(() -> readStream.readBytesUntil(ByteArray.create(1)).await(),
                         new EndOfStreamException());
                 });
 
                 runner.test("with partial match", (Test test) ->
                 {
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
-                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, readStream.readBytesUntil(ByteArray.create(1, 3).await()).await());
+                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, readStream.readBytesUntil(ByteArray.create(1, 3)).await());
                 });
             });
         });

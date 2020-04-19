@@ -294,7 +294,7 @@ public interface ArrayTests
 
                 runner.test("with non-empty ByteArray", (Test test) ->
                 {
-                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(ByteArray.create(0, 1, 2).await()).await());
+                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(ByteArray.create(0, 1, 2)).await());
                 });
 
                 runner.test("with non-empty ByteList", (Test test) ->

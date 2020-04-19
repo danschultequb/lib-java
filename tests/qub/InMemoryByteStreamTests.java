@@ -331,28 +331,28 @@ public interface InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = create(test);
                     test.assertTrue(stream.dispose().await());
-                    test.assertThrows(() -> stream.readBytesUntil(ByteArray.create(5).await()),
+                    test.assertThrows(() -> stream.readBytesUntil(ByteArray.create(5)),
                         new PreConditionFailure("isDisposed() cannot be true."));
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(test);
-                    test.assertThrows(() -> stream.readBytesUntil(ByteArray.create(5).await()).await(),
+                    test.assertThrows(() -> stream.readBytesUntil(ByteArray.create(5)).await(),
                         new EndOfStreamException());
                 });
 
                 runner.test("with bytes but not the stopByte", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 9 }, test);
-                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 9 }, stream.readBytesUntil(ByteArray.create(5).await()).await());
+                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 6, 7, 8, 9 }, stream.readBytesUntil(ByteArray.create(5)).await());
                     test.assertEqual(new byte[0], stream.getBytes());
                 });
 
                 runner.test("with bytes including the stopByte", (Test test) ->
                 {
                     final InMemoryByteStream stream = create(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }, test);
-                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 5 }, stream.readBytesUntil(ByteArray.create(5).await()).await());
+                    test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 5 }, stream.readBytesUntil(ByteArray.create(5)).await());
                     test.assertEqual(new byte[] { 6, 7, 8, 9 }, stream.getBytes());
                 });
             });
