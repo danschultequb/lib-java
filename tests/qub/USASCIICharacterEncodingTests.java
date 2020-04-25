@@ -137,6 +137,25 @@ public interface USASCIICharacterEncodingTests
 
             runner.testGroup("decodeAsCharacters(Iterator<Byte>)", () ->
             {
+                final Action3<Byte[],char[],Throwable> decodeNextCharacterErrorTest = (Byte[] bytes, char[] expectedCharacters, Throwable expectedError) ->
+                {
+                    runner.test("with " + Array.toString(bytes), (Test test) ->
+                    {
+                        final Iterator<Byte> iterator = Iterator.create(bytes);
+                        if (expectedCharacters != null && expectedCharacters.length > 0)
+                        {
+                            for (final char expectedCharacter : expectedCharacters)
+                            {
+                                test.assertEqual(expectedCharacter, encoding.decodeNextCharacter(iterator).await());
+                            }
+                        }
+                        test.assertThrows(() -> encoding.decodeNextCharacter(iterator).await(), expectedError);
+                    });
+                };
+
+                decodeNextCharacterErrorTest.run(new Byte[] { null }, null, new IllegalArgumentException("Cannot decode a null byte."));
+                decodeNextCharacterErrorTest.run(new Byte[] { 97, null }, new char[] { 'a' }, new IllegalArgumentException("Cannot decode a null byte."));
+
                 final Action2<byte[],char[]> decodeNextCharacterTest = (byte[] bytes, char[] expectedCharacters) ->
                 {
                     runner.test("with " + Array.toString(bytes), (Test test) ->
