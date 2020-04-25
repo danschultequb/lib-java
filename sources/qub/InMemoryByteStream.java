@@ -8,7 +8,6 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     private final Mutex mutex;
     private final MutexCondition bytesAvailable;
 
-    public final Event0 disposed;
     private final RunnableEvent0 disposedEvent;
 
     protected InMemoryByteStream(byte[] bytes)
@@ -19,7 +18,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
         this.mutex = new SpinMutex();
         this.bytesAvailable = this.mutex.createCondition(() -> isDisposed() || this.endOfStream || this.bytes.any());
 
-        this.disposed = this.disposedEvent = Event0.create();
+        this.disposedEvent = Event0.create();
     }
 
     public static InMemoryByteStream create()
@@ -109,6 +108,19 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
             }
             return bytesRead;
         });
+    }
+
+    /**
+     * Register a callback to be invoked when this object is disposed.
+     * @param callback The callback to invoke when this object is disposed.
+     * @return A Disposable that can be disposed to remove the callback from the event.
+     */
+    public Disposable onDisposed(Action0 callback)
+    {
+        PreCondition.assertNotNull(callback, "callback");
+        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+
+        return this.disposedEvent.subscribe(callback);
     }
 
     @Override

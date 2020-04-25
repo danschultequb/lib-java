@@ -64,7 +64,7 @@ public class BasicCharacterToByteWriteStream implements CharacterToByteWriteStre
 
         return Result.create(() ->
         {
-            this.characterEncoding.encode(toWrite, this.byteWriteStream).await();
+            this.characterEncoding.encodeCharacter(toWrite, this.byteWriteStream).await();
             return 1;
         });
     }
@@ -78,7 +78,7 @@ public class BasicCharacterToByteWriteStream implements CharacterToByteWriteStre
         return Result.create(() ->
         {
             final String formattedString = Strings.format(toWrite, formattedStringArguments);
-            this.characterEncoding.encode(formattedString, this.byteWriteStream).await();
+            this.characterEncoding.encodeCharacters(formattedString, this.byteWriteStream).await();
             return formattedString.length();
         });
     }

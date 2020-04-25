@@ -2,8 +2,32 @@ package qub;
 
 public class UTF8CharacterEncoding implements CharacterEncoding
 {
+    private static final byte[] byteOrderMark = new byte[] { (byte)0xEF, (byte)0xBB, (byte)0xBF };
+
+    /**
+     * Get the bytes that make up this CharacterEncoding's BOM (byte order mark). If the
+     * CharacterEncoding doesn't have a byte order mark, then an empty byte[] will be returned.
+     * @return The bytes that make up this CharacterEncoding's BOM (byte order mark).
+     */
+    public byte[] getByteOrderMark()
+    {
+        return UTF8CharacterEncoding.byteOrderMark;
+    }
+
+    /**
+     * Write this CharacterEncoding's BOM (byte order mark) to the provided ByteWriteStream.
+     * @param byteWriteStream The ByteWriteStream to write this CharacterEncoding's BOM to.
+     * @return The number of bytes that were written.
+     */
+    public Result<Integer> writeByteOrderMark(ByteWriteStream byteWriteStream)
+    {
+        PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+
+        return byteWriteStream.writeAll(UTF8CharacterEncoding.byteOrderMark);
+    }
+
     @Override
-    public Result<Integer> encode(char character, ByteWriteStream byteWriteStream)
+    public Result<Integer> encodeCharacter(char character, ByteWriteStream byteWriteStream)
     {
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
 
@@ -11,7 +35,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
     }
 
     @Override
-    public Result<Integer> encode(String text, ByteWriteStream byteWriteStream)
+    public Result<Integer> encodeCharacters(String text, ByteWriteStream byteWriteStream)
     {
         PreCondition.assertNotNull(text, "text");
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
@@ -29,7 +53,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
     }
 
     @Override
-    public Result<Integer> encode(char[] characters, int startIndex, int length, ByteWriteStream byteWriteStream)
+    public Result<Integer> encodeCharacters(char[] characters, int startIndex, int length, ByteWriteStream byteWriteStream)
     {
         PreCondition.assertNotNull(characters, "characters");
         PreCondition.assertStartIndex(startIndex, characters.length);
@@ -49,7 +73,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
     }
 
     @Override
-    public Result<char[]> decode(byte[] bytes, int startIndex, int length)
+    public Result<char[]> decodeAsCharacters(byte[] bytes, int startIndex, int length)
     {
         PreCondition.assertNotNull(bytes, "bytes");
         PreCondition.assertStartIndex(startIndex, bytes.length);
@@ -61,7 +85,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
             final Iterator<Byte> byteIterator = Iterator.create(bytes, startIndex, length);
             while (true)
             {
-                final Character decodedCharacter = decodeNextCharacter(byteIterator)
+                final Character decodedCharacter = this.decodeNextCharacter(byteIterator)
                     .catchError(EndOfStreamException.class)
                     .await();
                 if (decodedCharacter != null)
@@ -82,93 +106,118 @@ public class UTF8CharacterEncoding implements CharacterEncoding
     {
         PreCondition.assertNotNull(bytes, "bytes");
 
-        Result<Character> result;
-        if (!bytes.next())
+        return Result.create(() ->
         {
-            result = Result.error(new EndOfStreamException());
-        }
-        else if (bytes.getCurrent() == null)
-        {
-            result = Result.success();
-        }
-        else
-        {
-            final Byte firstByte = bytes.getCurrent();
-            final int firstByteSignificantBitCount = Bytes.getSignificantBitCount(firstByte);
-            switch (firstByteSignificantBitCount)
+            char result;
+
+            if (!bytes.next())
             {
-                case 0:
-                    result = Result.success((char)firstByte.intValue());
-                    break;
-
-                case 1:
-                    result = Result.error(new IllegalArgumentException("Expected a leading byte, but found a continuation byte (" + Bytes.toHexString(firstByte) + ") instead."));
-                    break;
-
-                case 2:
-                case 3:
-                case 4:
-                    result = decodeMultiByteCharacter(firstByte, firstByteSignificantBitCount, bytes);
-                    break;
-
-                default:
-                    result = Result.error(new IllegalArgumentException("Found an invalid leading byte (" + Bytes.toHexString(firstByte) + ")."));
-                    break;
+                throw new EndOfStreamException();
             }
-        }
-        return result;
-    }
 
-    private static Result<Character> decodeMultiByteCharacter(byte firstByte, int expectedBytesInCharacter, Iterator<Byte> bytes)
-    {
-        PreCondition.assertGreaterThanOrEqualTo(expectedBytesInCharacter, 1, "expectedBytesInCharacter");
-        PreCondition.assertNotNull(bytes, "bytes");
-        PreCondition.assertTrue(bytes.hasCurrent(), "bytes.hasCurrent()");
+            final Byte firstByte = bytes.getCurrent();
+            if (firstByte == null)
+            {
+                throw new IllegalArgumentException("1st byte in decoded character cannot be null.");
+            }
 
-        Result<Character> result;
-        switch (expectedBytesInCharacter)
-        {
-            case 2:
-                if (!bytes.next() || bytes.getCurrent() == null)
+            if (UTF8CharacterEncoding.isContinuationByte(firstByte))
+            {
+                throw new IllegalArgumentException("Expected a leading byte, but found a continuation byte (" + Bytes.toHexString(firstByte) + ") instead.");
+            }
+
+            if (UTF8CharacterEncoding.isHighOrLowSurrogateByte(firstByte))
+            {
+                throw new IllegalArgumentException("1st byte in decoded character " + Bytes.toHexString(firstByte, true) + " is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding.");
+            }
+
+            final int bytesInCharacter = Bytes.getLeadingOneBits(firstByte);
+
+            if (bytesInCharacter == 0)
+            {
+                result = (char)firstByte.intValue();
+            }
+            else if (bytesInCharacter >= 5)
+            {
+                throw new IllegalArgumentException("Found an invalid leading byte (" + Bytes.toHexString(firstByte) + ").");
+            }
+            else
+            {
+                if (!bytes.next())
                 {
-                    result = Result.error(new IllegalArgumentException("Missing second byte in 2-byte character sequence."));
+                    throw new IllegalArgumentException("Missing 2nd byte of " + bytesInCharacter + " in decoded character.");
+                }
+
+                final Byte secondByte = bytes.getCurrent();
+                if (secondByte == null)
+                {
+                    throw new IllegalArgumentException("2nd byte of " + bytesInCharacter + " in decoded character cannot be null.");
+                }
+
+                if (!UTF8CharacterEncoding.isContinuationByte(secondByte))
+                {
+                    throw new IllegalArgumentException("Expected 2nd byte of " + bytesInCharacter + " to be a continuation byte (10xxxxxx), but found " + Bytes.toHexString(secondByte) + " instead.");
+                }
+
+                final int secondByteLastSixBits = Bytes.toUnsignedInt(secondByte) & 0x3F;
+
+                if (bytesInCharacter == 2)
+                {
+                    final int firstByteLastFiveBits = Bytes.toUnsignedInt(firstByte) & 0x1F;
+                    final int resultBits = (firstByteLastFiveBits << 6) | secondByteLastSixBits;
+                    result = (char)resultBits;
                 }
                 else
                 {
-                    final int unsignedFirstByte = Bytes.toUnsignedInt(firstByte);
-                    if (0xD8 <= unsignedFirstByte && unsignedFirstByte <= 0xDF)
+                    if (!bytes.next())
                     {
-                        result = Result.error(new IllegalArgumentException("Byte " + Bytes.toHexString(firstByte, true) + " is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding."));
+                        throw new IllegalArgumentException("Missing 3rd byte of " + bytesInCharacter + " in decoded character.");
+                    }
+
+                    final Byte thirdByte = bytes.getCurrent();
+                    if (thirdByte == null)
+                    {
+                        throw new IllegalArgumentException("3rd byte of " + bytesInCharacter + " in decoded character cannot be null.");
+                    }
+
+                    if (!UTF8CharacterEncoding.isContinuationByte(thirdByte))
+                    {
+                        throw new IllegalArgumentException("Expected 3rd byte of " + bytesInCharacter + " to be a continuation byte (10xxxxxx), but found " + Bytes.toHexString(thirdByte) + " instead.");
+                    }
+
+                    final int thirdByteLastSixBits = Bytes.toUnsignedInt(thirdByte) & 0x3F;
+
+                    if (bytesInCharacter == 3)
+                    {
+                        throw new NotSupportedException("Decoding UTF-8 encoded byte streams with characters composed of 3 bytes is not supported.");
                     }
                     else
                     {
-                        final Byte secondByte = bytes.getCurrent();
-                        final int secondByteSignificantBitCount = Bytes.getSignificantBitCount(secondByte);
-                        if (secondByteSignificantBitCount != 1)
+                        if (!bytes.next())
                         {
-                            result = Result.error(new IllegalArgumentException("Expected continuation byte (10xxxxxx), but found " + Bytes.toHexString(secondByte) + " instead."));
+                            throw new IllegalArgumentException("Missing 4th byte of " + bytesInCharacter + " in decoded character.");
                         }
-                        else
+
+                        final Byte fourthByte = bytes.getCurrent();
+                        if (fourthByte == null)
                         {
-                            final int firstByteLastFiveBits = Bytes.toUnsignedInt(firstByte) & 0x1F;
-                            final int secondByteLastSixBits = Bytes.toUnsignedInt(secondByte) & 0x3F;
-                            final int resultBits = (firstByteLastFiveBits << 6) | secondByteLastSixBits;
-                            result = Result.success((char)resultBits);
+                            throw new IllegalArgumentException("4th byte of " + bytesInCharacter + " in decoded character cannot be null.");
                         }
+
+                        if (!UTF8CharacterEncoding.isContinuationByte(fourthByte))
+                        {
+                            throw new IllegalArgumentException("Expected 4th byte of " + bytesInCharacter + " to be a continuation byte (10xxxxxx), but found " + Bytes.toHexString(fourthByte) + " instead.");
+                        }
+
+                        final int fourthByteLastSixBits = Bytes.toUnsignedInt(fourthByte) & 0x3F;
+
+                        throw new NotSupportedException("Decoding UTF-8 encoded byte streams with characters composed of 4 bytes is not supported.");
                     }
                 }
-                break;
+            }
 
-            default:
-                for (int i = 1; bytes.hasCurrent() && i < expectedBytesInCharacter; ++i)
-                {
-                    bytes.next();
-                }
-                result = Result.error(new NotSupportedException("Decoding UTF-8 encoded byte streams with characters composed of 3 or more bytes are not supported."));
-                break;
-        }
-
-        return result;
+            return result;
+        });
     }
 
     @Override
@@ -176,96 +225,49 @@ public class UTF8CharacterEncoding implements CharacterEncoding
     {
         PreCondition.assertNotNull(bytes, "bytes");
 
-        return Result.create(() ->
-        {
-            char result;
-            final byte firstByte = bytes.readByte().await();
-            final int firstByteSignificantBitCount = Bytes.getSignificantBitCount(firstByte);
-            switch (firstByteSignificantBitCount)
-            {
-                case 0:
-                    result = (char)Bytes.toUnsignedInt(firstByte);
-                    break;
-
-                case 1:
-                    throw new IllegalArgumentException("Expected a leading byte, but found a continuation byte (" + Bytes.toHexString(firstByte) + ") instead.");
-
-                case 2:
-                case 3:
-                case 4:
-                    result = UTF8CharacterEncoding.decodeMultiByteCharacter(firstByte, firstByteSignificantBitCount, bytes).await();
-                    break;
-
-                default:
-                    throw new IllegalArgumentException("Found an invalid leading byte (" + Bytes.toHexString(firstByte) + ").");
-            }
-            return result;
-        });
-    }
-
-    private static Result<Character> decodeMultiByteCharacter(byte firstByte, int expectedBytesInCharacter, ByteReadStream bytes)
-    {
-        PreCondition.assertGreaterThanOrEqualTo(expectedBytesInCharacter, 1, "expectedBytesInCharacter");
-        PreCondition.assertNotNull(bytes, "bytes");
-
-        return Result.create(() ->
-        {
-            char result;
-
-            switch (expectedBytesInCharacter)
-            {
-                case 2:
-                    final int unsignedFirstByte = Bytes.toUnsignedInt(firstByte);
-                    if (0xD8 <= unsignedFirstByte && unsignedFirstByte <= 0xDF)
-                    {
-                        throw new IllegalArgumentException("Byte " + Bytes.toHexString(firstByte, true) + " is invalid because bytes between 0xD800 and 0xDFFF are reserved in UTF-8 encoding.");
-                    }
-                    else
-                    {
-                        final Byte secondByte = bytes.readByte().catchError(EndOfStreamException.class).await();
-                        if (secondByte == null)
-                        {
-                            throw new IllegalArgumentException("Missing second byte in 2-byte character sequence.");
-                        }
-                        else
-                        {
-                            final int secondByteSignificantBitCount = Bytes.getSignificantBitCount(secondByte);
-                            if (secondByteSignificantBitCount != 1)
-                            {
-                                throw new IllegalArgumentException("Expected continuation byte (10xxxxxx), but found " + Bytes.toHexString(secondByte) + " instead.");
-                            }
-                            else
-                            {
-                                final int firstByteLastFiveBits = Bytes.toUnsignedInt(firstByte) & 0x1F;
-                                final int secondByteLastSixBits = Bytes.toUnsignedInt(secondByte) & 0x3F;
-                                final int resultBits = (firstByteLastFiveBits << 6) | secondByteLastSixBits;
-                                result = (char)resultBits;
-                            }
-                        }
-                    }
-                    break;
-
-                default:
-                    Byte nextByte;
-                    for (int i = 1; i < expectedBytesInCharacter; ++i)
-                    {
-                        nextByte = bytes.readByte().catchError(EndOfStreamException.class).await();
-                        if (nextByte == null)
-                        {
-                            break;
-                        }
-                    }
-                    throw new NotSupportedException("Decoding UTF-8 encoded byte streams with characters composed of 3 or more bytes are not supported.");
-            }
-
-            return result;
-        });
+        return this.decodeNextCharacter(ByteReadStream.iterate(bytes));
     }
 
     @Override
     public boolean equals(Object rhs)
     {
         return CharacterEncoding.equals(this, rhs);
+    }
+
+    /**
+     * Get whether or not the provided byte is a continuation byte (has an unsigned binary prefix of
+     * 10xxxxxx).
+     * @param value The byte to check.
+     * @return Whether or not the provided byte is a continuation byte (has an unsigned binary
+     * prefix of 10xxxxxx).
+     */
+    public static boolean isContinuationByte(byte value)
+    {
+        return (value & 0xC0) == 0x80;
+    }
+
+    /**
+     * Get whether or not the provided byte is a UTF-16 high or low surrogate byte (has an unsigned
+     * binary prefix of 11011xxx).
+     * @param value The byte to check.
+     * @return Whether or not the provided byte is a continuation byte (has an unsigned binary
+     * prefix of 11011xxx).
+     */
+    public static boolean isHighOrLowSurrogateByte(byte value)
+    {
+        return (value & 0xF8) == 0xD8;
+    }
+
+    /**
+     * Get whether or not the provided character is a single byte character (has an unsigned binary
+     * prefix of 000000000xxxxxxx).
+     * @param value The byte to check.
+     * @return Whether or not the provided character is a single byte character (has an unsigned
+     * binary prefix of 000000000xxxxxxx).
+     */
+    public static boolean isSingleByteCharacter(char value)
+    {
+        return (value & 0xFF80) == 0x0000;
     }
 
     private static int writeEncodedCharacter(char value, ByteWriteStream byteWriteStream)
@@ -276,7 +278,7 @@ public class UTF8CharacterEncoding implements CharacterEncoding
         int result = 0;
 
         final int characterAsInt = (int)value;
-        if (characterAsInt <= 0x00007F)
+        if (UTF8CharacterEncoding.isSingleByteCharacter(value))
         {
             byteWriteStream.write((byte)characterAsInt).await();
             result = 1;

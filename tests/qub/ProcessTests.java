@@ -213,7 +213,7 @@ public interface ProcessTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    process.setInputReadStream(ByteReadStream.create(CharacterEncoding.UTF_8.encode("hello there my good friend\nHow are you?\r\nI'm alright.").await()));
+                    process.setInputReadStream(ByteReadStream.create(CharacterEncoding.UTF_8.encodeCharacters("hello there my good friend\nHow are you?\r\nI'm alright.").await()));
 
                     final CharacterToByteReadStream readStream = process.getInputReadStream();
                     test.assertEqual(new byte[] { 104, 101, 108, 108, 111 }, readStream.readBytes(5).await());

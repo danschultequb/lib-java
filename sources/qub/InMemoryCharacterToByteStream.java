@@ -30,7 +30,7 @@ public class InMemoryCharacterToByteStream extends BasicCharacterToByteReadStrea
         PreCondition.assertNotNull(text, "text");
         PreCondition.assertNotNull(characterEncoding, "characterEncoding");
 
-        final byte[] encodedBytes = characterEncoding.encode(text).await();
+        final byte[] encodedBytes = characterEncoding.encodeCharacters(text).await();
         final InMemoryByteStream byteStream = InMemoryByteStream.create(encodedBytes);
         return InMemoryCharacterToByteStream.create(byteStream, characterEncoding);
     }
@@ -103,7 +103,7 @@ public class InMemoryCharacterToByteStream extends BasicCharacterToByteReadStrea
 
         return Result.create(() ->
         {
-            this.characterEncoding.encode(toWrite, this.byteStream).await();
+            this.characterEncoding.encodeCharacter(toWrite, this.byteStream).await();
             return 1;
         });
     }
@@ -116,7 +116,7 @@ public class InMemoryCharacterToByteStream extends BasicCharacterToByteReadStrea
         return Result.create(() ->
         {
             final String formattedString = Strings.format(toWrite, formattedStringArguments);
-            this.characterEncoding.encode(formattedString, this.byteStream).await();
+            this.characterEncoding.encodeCharacters(formattedString, this.byteStream).await();
             return formattedString.length();
         });
     }

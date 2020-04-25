@@ -5,20 +5,20 @@ package qub;
  */
 public interface CharacterEncoding
 {
-    CharacterEncoding US_ASCII = new USASCIICharacterEncoding();
-    CharacterEncoding UTF_8 = new UTF8CharacterEncoding();
+    USASCIICharacterEncoding US_ASCII = new USASCIICharacterEncoding();
+    UTF8CharacterEncoding UTF_8 = new UTF8CharacterEncoding();
 
     /**
      * Encode the provided character as a byte[].
      * @param character The character to encode.
      * @return The encoded character as bytes.
      */
-    default Result<byte[]> encode(char character)
+    default Result<byte[]> encodeCharacter(char character)
     {
         return Result.create(() ->
         {
             final InMemoryByteStream byteStream = InMemoryByteStream.create();
-            encode(character, byteStream).await();
+            this.encodeCharacter(character, byteStream).await();
             return byteStream.getBytes();
         });
     }
@@ -30,21 +30,21 @@ public interface CharacterEncoding
      * @param byteWriteStream The ByteWriteStream to write the encoded bytes to.
      * @return The number of bytes that were written.
      */
-    Result<Integer> encode(char character, ByteWriteStream byteWriteStream);
+    Result<Integer> encodeCharacter(char character, ByteWriteStream byteWriteStream);
 
     /**
      * Encode the provided String of characters into a byte[].
      * @param text The text to encode.
      * @return The encoded text as bytes.
      */
-    default Result<byte[]> encode(String text)
+    default Result<byte[]> encodeCharacters(String text)
     {
         PreCondition.assertNotNull(text, "text");
 
         return Result.create(() ->
         {
             final InMemoryByteStream byteStream = InMemoryByteStream.create();
-            encode(text, byteStream).await();
+            this.encodeCharacters(text, byteStream).await();
             return byteStream.getBytes();
         });
 
@@ -57,18 +57,25 @@ public interface CharacterEncoding
      * @param byteWriteStream The ByteWriteStream to write the encoded bytes to.
      * @return The number of bytes that were written.
      */
-    Result<Integer> encode(String text, ByteWriteStream byteWriteStream);
+    default Result<Integer> encodeCharacters(String text, ByteWriteStream byteWriteStream)
+    {
+        PreCondition.assertNotNull(text, "text");
+        PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
+
+        return this.encodeCharacters(Strings.iterable(text), byteWriteStream);
+    }
 
     /**
      * Encode the provided character array into a byte[].
      * @param characters The characters to encode.
      * @return The encoded characters as bytes.
      */
-    default Result<byte[]> encode(char[] characters)
+    default Result<byte[]> encodeCharacters(char[] characters)
     {
         PreCondition.assertNotNull(characters, "characters");
 
-        return this.encode(characters, 0, characters.length);
+        return this.encodeCharacters(characters, 0, characters.length);
     }
 
     /**
@@ -78,15 +85,15 @@ public interface CharacterEncoding
      * @param byteWriteStream The ByteWriteStream to write the encoded bytes to.
      * @return The number of bytes that were written.
      */
-    default Result<Integer> encode(char[] characters, ByteWriteStream byteWriteStream)
+    default Result<Integer> encodeCharacters(char[] characters, ByteWriteStream byteWriteStream)
     {
         PreCondition.assertNotNull(characters, "characters");
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
 
-        return this.encode(characters, 0, characters.length, byteWriteStream);
+        return this.encodeCharacters(characters, 0, characters.length, byteWriteStream);
     }
 
-    default Result<byte[]> encode(char[] characters, int startIndex, int length)
+    default Result<byte[]> encodeCharacters(char[] characters, int startIndex, int length)
     {
         PreCondition.assertNotNull(characters, "characters");
         PreCondition.assertStartIndex(startIndex, characters.length);
@@ -95,27 +102,158 @@ public interface CharacterEncoding
         return Result.create(() ->
         {
             final InMemoryByteStream byteStream = InMemoryByteStream.create();
-            this.encode(characters, startIndex, length, byteStream).await();
+            this.encodeCharacters(characters, startIndex, length, byteStream).await();
             return byteStream.getBytes();
         });
 
     }
 
-    Result<Integer> encode(char[] characters, int startIndex, int length, ByteWriteStream byteWriteStream);
+    default Result<Integer> encodeCharacters(char[] characters, int startIndex, int length, ByteWriteStream byteWriteStream)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+        PreCondition.assertStartIndex(startIndex, characters.length);
+        PreCondition.assertLength(length, startIndex, characters.length);
+        PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
+
+        return Result.create(() ->
+        {
+            int result = 0;
+
+            final int endIndex = startIndex + length;
+            for (int i = startIndex; i < endIndex; ++i)
+            {
+                result += this.encodeCharacter(characters[i], byteWriteStream).await();
+            }
+
+            return result;
+        });
+    }
+
+    /**
+     * Write the encoded byte representations of the provided characters to the provided
+     * byteWriteStream.
+     * @param characters The characters to encode.
+     * @return The encoded bytes.
+     */
+    default Result<byte[]> encodeCharacters(Iterable<Character> characters)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+
+        return Result.create(() ->
+        {
+            final InMemoryByteStream byteStream = InMemoryByteStream.create();
+            this.encodeCharacters(characters, byteStream).await();
+            return byteStream.getBytes();
+        });
+    }
+
+    /**
+     * Write the encoded byte representations of the provided characters to the provided
+     * byteWriteStream.
+     * @param characters The characters to encode.
+     * @param byteWriteStream The ByteWriteStream to write the encoded characters to.
+     * @return The number of bytes that were written.
+     */
+    default Result<Integer> encodeCharacters(Iterable<Character> characters, ByteWriteStream byteWriteStream)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+        PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
+
+        return this.encodeCharacters(characters.iterate(), byteWriteStream);
+    }
+
+    /**
+     * Write the encoded byte representations of the provided characters to the provided
+     * byteWriteStream.
+     * @param characters The characters to encode.
+     * @return The encoded bytes.
+     */
+    default Result<byte[]> encodeCharacters(Iterator<Character> characters)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+
+        return Result.create(() ->
+        {
+            final InMemoryByteStream byteStream = InMemoryByteStream.create();
+            this.encodeCharacters(characters, byteStream).await();
+            return byteStream.getBytes();
+        });
+    }
+
+    /**
+     * Write the encoded byte representations of the provided characters to the provided
+     * byteWriteStream.
+     * @param characters The characters to encode.
+     * @param byteWriteStream The ByteWriteStream to write the encoded characters to.
+     * @return The number of bytes that were written.
+     */
+    default Result<Integer> encodeCharacters(Iterator<Character> characters, ByteWriteStream byteWriteStream)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+        PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
+
+        return Result.create(() ->
+        {
+            int result = 0;
+            int index = 0;
+            for (final Character character : characters)
+            {
+                if (character == null)
+                {
+                    throw new IllegalArgumentException("Character at index " + index + " was null. Can't encode a null character.");
+                }
+                result += this.encodeCharacter(character, byteWriteStream).await();
+                ++index;
+            }
+            return result;
+        });
+    }
 
     /**
      * Decode the provided byte[] into a char[].
      * @param bytes The byte[] to decode.
      * @return The characters create the decoded byte[].
      */
-    default Result<char[]> decode(byte[] bytes)
+    default Result<char[]> decodeAsCharacters(byte[] bytes)
     {
         PreCondition.assertNotNull(bytes, "bytes");
 
-        return this.decode(bytes, 0, bytes.length);
+        return this.decodeAsCharacters(bytes, 0, bytes.length);
     }
 
-    Result<char[]> decode(byte[] bytes, int startIndex, int length);
+    default Result<char[]> decodeAsCharacters(byte[] bytes, int startIndex, int length)
+    {
+        PreCondition.assertNotNull(bytes, "bytes");
+        PreCondition.assertStartIndex(startIndex, bytes.length);
+        PreCondition.assertLength(length, startIndex, bytes.length);
+
+        return Result.create(() ->
+        {
+            final CharacterList characters = CharacterList.create();
+
+            final Iterator<Byte> iterator = Iterator.create(bytes, startIndex, length);
+            Character currentCharacter;
+            while (true)
+            {
+                currentCharacter = this.decodeNextCharacter(iterator)
+                    .catchError(EndOfStreamException.class)
+                    .await();
+                if (currentCharacter == null)
+                {
+                    break;
+                }
+                else
+                {
+                    characters.add(currentCharacter);
+                }
+            }
+
+            return Array.toCharArray(characters).await();
+        });
+    }
 
     /**
      * Decode the provided byte[] into a String.
@@ -124,9 +262,85 @@ public interface CharacterEncoding
      */
     default Result<String> decodeAsString(byte[] bytes)
     {
+        return this.decodeAsCharacters(bytes)
+            .then((char[] characters) -> String.valueOf(characters));
+    }
+
+    /**
+     * Decode the provided byte[] into a String.
+     * @param bytes The byte[] to decode.
+     * @return The String create the decoded byte[].
+     */
+    default Result<String> decodeAsString(byte[] bytes, int startIndex, int length)
+    {
+        return this.decodeAsCharacters(bytes, startIndex, length)
+            .then((char[] characters) -> String.valueOf(characters));
+    }
+
+    /**
+     * Decode the provided bytes into a char[].
+     * @param bytes The bytes to decode.
+     * @return The decoded characters.
+     */
+    default Result<char[]> decodeAsCharacters(Iterable<Byte> bytes)
+    {
         PreCondition.assertNotNull(bytes, "bytes");
 
-        return this.decode(bytes)
+        return this.decodeAsCharacters(bytes.iterate());
+    }
+
+    /**
+     * Decode the provided bytes into a char[].
+     * @param bytes The bytes to decode.
+     * @return The decoded characters.
+     */
+    default Result<char[]> decodeAsCharacters(Iterator<Byte> bytes)
+    {
+        PreCondition.assertNotNull(bytes, "bytes");
+
+        return Result.create(() ->
+        {
+            final CharacterList characters = CharacterList.create();
+            Character currentCharacter;
+            while (true)
+            {
+                currentCharacter = this.decodeNextCharacter(bytes)
+                    .catchError(EndOfStreamException.class)
+                    .await();
+                if (currentCharacter == null)
+                {
+                    break;
+                }
+                else
+                {
+                    characters.add(currentCharacter);
+                }
+            }
+            return Array.toCharArray(characters).await();
+        });
+    }
+
+    /**
+     * Decode the provided bytes into a String.
+     * @param bytes The bytes to decode.
+     * @return The decoded characters.
+     */
+    default Result<String> decodeAsString(Iterable<Byte> bytes)
+    {
+        return this.decodeAsCharacters(bytes)
+            .then((char[] characters) -> String.valueOf(characters));
+    }
+
+    /**
+     * Decode the provided bytes into a String.
+     * @param bytes The bytes to decode.
+     * @return The decoded characters.
+     */
+    default Result<String> decodeAsString(Iterator<Byte> bytes)
+    {
+        PreCondition.assertNotNull(bytes, "bytes");
+
+        return this.decodeAsCharacters(bytes)
             .then((char[] characters) -> String.valueOf(characters));
     }
 
@@ -135,14 +349,20 @@ public interface CharacterEncoding
      * @param bytes The bytes to get the next character from.
      * @return The next character.
      */
-    Result<Character> decodeNextCharacter(Iterator<Byte> bytes);
+    default Result<Character> decodeNextCharacter(ByteReadStream bytes)
+    {
+        PreCondition.assertNotNull(bytes, "bytes");
+        PreCondition.assertNotDisposed(bytes, "bytes.isDisposed()");
+
+        return this.decodeNextCharacter(ByteReadStream.iterate(bytes));
+    }
 
     /**
      * Decode the next character create the provided byte Iterator.
      * @param bytes The bytes to get the next character from.
      * @return The next character.
      */
-    Result<Character> decodeNextCharacter(ByteReadStream bytes);
+    Result<Character> decodeNextCharacter(Iterator<Byte> bytes);
 
     static boolean equals(CharacterEncoding lhs, Object rhs)
     {

@@ -52,7 +52,7 @@ public interface Bytes
      * @param b The byte.
      * @return The number of 1 bits at the front of the provided byte.
      */
-    static int getSignificantBitCount(byte b)
+    static int getLeadingOneBits(byte b)
     {
         final int unsignedInt = Bytes.toUnsignedInt(b);
         return unsignedInt <= 0x7F ? 0 :

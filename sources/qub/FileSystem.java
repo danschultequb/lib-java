@@ -695,7 +695,7 @@ public interface FileSystem
         {
             final byte[] encodedBytes = Strings.isNullOrEmpty(content)
                 ? new byte[0]
-                : CharacterEncoding.UTF_8.encode(content).await();
+                : CharacterEncoding.UTF_8.encodeCharacters(content).await();
             this.setFileContent(rootedFilePath, encodedBytes).await();
         });
     }

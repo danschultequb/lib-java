@@ -55,7 +55,7 @@ public class InMemoryFile
     public ByteWriteStream getContentByteWriteStream()
     {
         final InMemoryByteStream result = InMemoryByteStream.create();
-        result.disposed.subscribe(() ->
+        result.onDisposed(() ->
         {
             final byte[] writtenBytes = result.getBytes();
             this.contents = writtenBytes == null ? new byte[0] : writtenBytes;

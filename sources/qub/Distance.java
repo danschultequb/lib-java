@@ -492,6 +492,14 @@ public class Distance implements Comparable<Distance>
         return result;
     }
 
+    public Speed dividedBy(Duration rhs)
+    {
+        PreCondition.assertNotNull(rhs, "rhs");
+        PreCondition.assertNotEqual(0, rhs.getValue(), "rhs.getValue()");
+
+        return Speed.create(this.value / rhs.getValue(), this.units, rhs.getUnits());
+    }
+
     public Distance round()
     {
         final double roundedValue = Math.round(value);
