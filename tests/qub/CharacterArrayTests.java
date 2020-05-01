@@ -62,19 +62,19 @@ public interface CharacterArrayTests
                 runner.test("with negative length", (Test test) ->
                 {
                     test.assertThrows(() -> CharacterArray.create(new char[] { 'a', 'b', 'c' }, 0, -1),
-                        new PreConditionFailure("length (-1) must be between 1 and 3."));
+                        new PreConditionFailure("length (-1) must be between 0 and 3."));
                 });
 
                 runner.test("with length greater than array length", (Test test) ->
                 {
                     test.assertThrows(() -> CharacterArray.create(new char[] { 'a', 'b', 'c' }, 0, 4),
-                        new PreConditionFailure("length (4) must be between 1 and 3."));
+                        new PreConditionFailure("length (4) must be between 0 and 3."));
                 });
 
                 runner.test("with empty array", (Test test) ->
                 {
-                    test.assertThrows(() -> CharacterArray.create(new char[0], 0, 0),
-                        new PreConditionFailure("characters cannot be empty."));
+                    final CharacterArray array = CharacterArray.create(new char[0], 0, 0);
+                    test.assertEqual(Iterable.create(), array);
                 });
 
                 runner.test("with complete non-empty array", (Test test) ->

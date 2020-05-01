@@ -317,7 +317,7 @@ public interface CharacterEncodingTests
                     final CharacterEncoding encoding = creator.run();
 
                     test.assertThrows(() -> encoding.encodeCharacters(Iterable.create((Character)null)).await(),
-                        new IllegalArgumentException("Character at index 0 was null. Can't encode a null character."));
+                        new IllegalArgumentException("Can't encode a null character."));
                 });
             });
 
@@ -383,7 +383,7 @@ public interface CharacterEncodingTests
                     final InMemoryByteStream byteStream = InMemoryByteStream.create();
 
                     test.assertThrows(() -> encoding.encodeCharacters(characters, byteStream).await(),
-                        new IllegalArgumentException("Character at index 0 was null. Can't encode a null character."));
+                        new IllegalArgumentException("Can't encode a null character."));
                     test.assertEqual(new byte[0], byteStream.getBytes());
                 });
 
@@ -395,7 +395,7 @@ public interface CharacterEncodingTests
                     final InMemoryByteStream byteStream = InMemoryByteStream.create();
 
                     test.assertThrows(() -> encoding.encodeCharacters(characters, byteStream).await(),
-                        new IllegalArgumentException("Character at index 1 was null. Can't encode a null character."));
+                        new IllegalArgumentException("Can't encode a null character."));
 
                     final byte[] bytes = byteStream.getBytes();
                     test.assertNotNull(bytes);
@@ -432,7 +432,7 @@ public interface CharacterEncodingTests
                     final CharacterEncoding encoding = creator.run();
 
                     test.assertThrows(() -> encoding.encodeCharacters(Iterator.create((Character)null)).await(),
-                        new IllegalArgumentException("Character at index 0 was null. Can't encode a null character."));
+                        new IllegalArgumentException("Can't encode a null character."));
                 });
             });
 
@@ -498,7 +498,7 @@ public interface CharacterEncodingTests
                     final InMemoryByteStream byteStream = InMemoryByteStream.create();
 
                     test.assertThrows(() -> encoding.encodeCharacters(characters, byteStream).await(),
-                        new IllegalArgumentException("Character at index 0 was null. Can't encode a null character."));
+                        new IllegalArgumentException("Can't encode a null character."));
                     test.assertEqual(new byte[0], byteStream.getBytes());
                 });
 
@@ -510,7 +510,7 @@ public interface CharacterEncodingTests
                     final InMemoryByteStream byteStream = InMemoryByteStream.create();
 
                     test.assertThrows(() -> encoding.encodeCharacters(characters, byteStream).await(),
-                        new IllegalArgumentException("Character at index 1 was null. Can't encode a null character."));
+                        new IllegalArgumentException("Can't encode a null character."));
 
                     final byte[] bytes = byteStream.getBytes();
                     test.assertNotNull(bytes);
@@ -736,6 +736,90 @@ public interface CharacterEncodingTests
                     final CharacterEncoding encoding = creator.run();
                     test.assertThrows(() -> encoding.decodeNextCharacter(Iterator.create()).await(),
                         new EndOfStreamException());
+                });
+            });
+
+            runner.testGroup("iterateDecodedCharacters(Iterator<Byte>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final CharacterEncoding encoding = creator.run();
+                    test.assertThrows(() -> encoding.iterateDecodedCharacters(null),
+                        new PreConditionFailure("bytes cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final CharacterEncoding encoding = creator.run();
+                    test.assertEqual(Iterable.create(), encoding.iterateDecodedCharacters(Iterator.create()).toList());
+                });
+
+                runner.test("with null Byte", (Test test) ->
+                {
+                    final CharacterEncoding encoding = creator.run();
+
+                    final Iterator<Character> characters = encoding.iterateDecodedCharacters(Iterator.create((Byte)null));
+                    test.assertNotNull(characters);
+                    test.assertFalse(characters.hasStarted());
+
+                    test.assertThrows(IllegalArgumentException.class, () ->
+                    {
+                        characters.next();
+                        characters.getCurrent();
+                    });
+                });
+            });
+
+            runner.testGroup("equals(Object)", () ->
+            {
+                final Action1<Object> equalsTest = (Object rhs) ->
+                {
+                    runner.test("with " + rhs, (Test test) ->
+                    {
+                        final CharacterEncoding encoding = creator.run();
+                        test.assertFalse(encoding.equals(rhs));
+                    });
+                };
+
+                equalsTest.run(null);
+                equalsTest.run("hello");
+
+                runner.test("with equal object", (Test test) ->
+                {
+                    final CharacterEncoding encoding = creator.run();
+                    test.assertTrue(encoding.equals((Object)creator.run()));
+                });
+
+                runner.test("with same object", (Test test) ->
+                {
+                    final CharacterEncoding encoding = creator.run();
+                    test.assertTrue(encoding.equals((Object)encoding));
+                });
+            });
+
+            runner.testGroup("equals(CharacterEncoding)", () ->
+            {
+                final Action1<CharacterEncoding> equalsTest = (CharacterEncoding rhs) ->
+                {
+                    runner.test("with " + rhs, (Test test) ->
+                    {
+                        final CharacterEncoding encoding = creator.run();
+                        test.assertFalse(encoding.equals(rhs));
+                    });
+                };
+
+                equalsTest.run(null);
+
+                runner.test("with equal object", (Test test) ->
+                {
+                    final CharacterEncoding encoding = creator.run();
+                    test.assertTrue(encoding.equals(creator.run()));
+                });
+
+                runner.test("with same object", (Test test) ->
+                {
+                    final CharacterEncoding encoding = creator.run();
+                    test.assertTrue(encoding.equals(encoding));
                 });
             });
         });

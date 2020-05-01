@@ -23,9 +23,9 @@ public class CharacterArray implements Array<Character>
 
     public static CharacterArray create(char[] characters, int startIndex, int length)
     {
-        PreCondition.assertNotNullAndNotEmpty(characters, "characters");
-        PreCondition.assertNonEmptyStartIndex(startIndex, characters.length);
-        PreCondition.assertNonEmptyLength(length, startIndex, characters.length);
+        PreCondition.assertNotNull(characters, "characters");
+        PreCondition.assertStartIndex(startIndex, characters.length);
+        PreCondition.assertLength(length, startIndex, characters.length);
 
         char[] resultArray;
         if (characters.length == length)
@@ -35,7 +35,10 @@ public class CharacterArray implements Array<Character>
         else
         {
             resultArray = new char[length];
-            Array.copy(characters, startIndex, resultArray, 0, length);
+            if (length > 0)
+            {
+                Array.copy(characters, startIndex, resultArray, 0, length);
+            }
         }
         return new CharacterArray(resultArray);
     }

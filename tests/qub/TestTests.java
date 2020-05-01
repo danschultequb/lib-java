@@ -1731,7 +1731,7 @@ public interface TestTests
                 runner.test("with null error", (Test test) ->
                 {
                     final Test t = createTest("abc", test);
-                    test.assertThrows(() -> t.assertThrows(() -> {}, null),
+                    test.assertThrows(() -> t.assertThrows(() -> {}, (Throwable)null),
                         new PreConditionFailure("expectedException cannot be null."));
                 });
 
@@ -1857,6 +1857,93 @@ public interface TestTests
                                 "Actual:   qub.AwaitException: qub.NotFoundException: grapes",
                                 "  Caused by: qub.NotFoundException: grapes"),
                             new AwaitException(new NotFoundException("grapes"))));
+                });
+            });
+
+            runner.testGroup("assertThrows(Action0,Class<? extends Throwable>)", () ->
+            {
+                runner.test("with null action", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.assertThrows(null, EndOfStreamException.class),
+                        new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with null error", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.assertThrows(() -> {}, (Class<? extends Throwable>)null),
+                        new PreConditionFailure("expectedExceptionType cannot be null."));
+                });
+
+                runner.test("with action that doesn't throw and expected error with no message", (Test test) ->
+                {
+                    final Test t = createTest("abc", test);
+                    test.assertThrows(() -> t.assertThrows(() -> {}, EndOfStreamException.class),
+                        new TestError("abc", "Expected a qub.EndOfStreamException to be thrown."));
+                });
+
+                runner.test("with action that doesn't throw and expected error with message", (Test test) ->
+                {
+                    final Test t = createTest("abcd", test);
+                    test.assertThrows(() -> t.assertThrows(() -> {}, NotFoundException.class),
+                        new TestError("abcd", "Expected a qub.NotFoundException to be thrown."));
+                });
+
+                runner.test("with action that throws a different error", (Test test) ->
+                {
+                    final Test t = createTest("abcd", test);
+                    test.assertThrows(() -> t.assertThrows(() -> { throw new NullPointerException(); }, NotFoundException.class),
+                        new TestError(
+                            "abcd",
+                            Iterable.create(
+                                "Message:  Incorrect exception thrown",
+                                "Expected: qub.NotFoundException",
+                                "Actual:   java.lang.NullPointerException"),
+                            new NullPointerException()));
+                });
+
+                runner.test("with action that throws the same error", (Test test) ->
+                {
+                    test.assertThrows(() -> { throw new NotFoundException("blah"); }, NotFoundException.class);
+                });
+
+                runner.test("with action that throws an error derived from the expected error", (Test test) ->
+                {
+                    final Test t = createTest("abcd", test);
+                    test.assertThrows(() -> t.assertThrows(() -> { throw new NotFoundException("blah"); }, RuntimeException.class),
+                        new TestError(
+                            "abcd",
+                            Iterable.create(
+                                "Message:  Incorrect exception thrown",
+                                "Expected: java.lang.RuntimeException",
+                                "Actual:   qub.NotFoundException: blah"),
+                            new NotFoundException("blah")));
+                });
+
+                runner.test("with action that throws the same error but is wrapped in a RuntimeException", (Test test) ->
+                {
+                    test.assertThrows(() -> { throw new RuntimeException(new NotFoundException("blah")); }, NotFoundException.class);
+                });
+
+                runner.test("with action that throws the same error but is wrapped in two RuntimeExceptions", (Test test) ->
+                {
+                    test.assertThrows(() -> { throw new RuntimeException(new RuntimeException(new NotFoundException("blah"))); }, NotFoundException.class);
+                });
+
+                runner.test("with action that throws the same error but is wrapped in an AwaitException", (Test test) ->
+                {
+                    test.assertThrows(() -> { throw new AwaitException(new NotFoundException("blah")); }, NotFoundException.class);
+                });
+
+                runner.test("with action that throws the same error but is wrapped in two AwaitExceptions", (Test test) ->
+                {
+                    test.assertThrows(() -> { throw new AwaitException(new AwaitException(new NotFoundException("blah"))); }, NotFoundException.class);
+                });
+
+                runner.test("with action that throws the same error but is wrapped in a RuntimeException and an AwaitException", (Test test) ->
+                {
+                    test.assertThrows(() -> { throw new RuntimeException(new AwaitException(new NotFoundException("blah"))); }, NotFoundException.class);
                 });
             });
 

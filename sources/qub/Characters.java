@@ -116,7 +116,14 @@ public interface Characters
                     break;
 
                 default:
-                    result = Characters.toString(character);
+                    if (0xD800 <= character && character <= 0xDFFF)
+                    {
+                        result = "\\u+" + Integers.toHexString(character);
+                    }
+                    else
+                    {
+                        result = Characters.toString(character);
+                    }
                     break;
             }
         }

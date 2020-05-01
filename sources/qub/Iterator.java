@@ -301,7 +301,7 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      */
     default java.util.Iterator<T> iterator()
     {
-        return new IteratorToJavaIteratorAdapter<>(this);
+        return IteratorToJavaIteratorAdapter.create(this);
     }
 
     /**

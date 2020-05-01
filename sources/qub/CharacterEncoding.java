@@ -198,15 +198,13 @@ public interface CharacterEncoding
         return Result.create(() ->
         {
             int result = 0;
-            int index = 0;
             for (final Character character : characters)
             {
                 if (character == null)
                 {
-                    throw new IllegalArgumentException("Character at index " + index + " was null. Can't encode a null character.");
+                    throw new IllegalArgumentException("Can't encode a null character.");
                 }
                 result += this.encodeCharacter(character, byteWriteStream).await();
-                ++index;
             }
             return result;
         });
@@ -364,11 +362,29 @@ public interface CharacterEncoding
      */
     Result<Character> decodeNextCharacter(Iterator<Byte> bytes);
 
+    /**
+     * Get an Iterator that will decode the provided bytes as it iterates.
+     * @param bytes The bytes to decode.
+     * @return An Iterator that will decode the provided bytes as it iterates.
+     */
+    Iterator<Character> iterateDecodedCharacters(Iterator<Byte> bytes);
+
+    /**
+     * Get whether or not the provided CharacterEncoding equals the provided Object.
+     * @param lhs The CharacterEncoding.
+     * @param rhs The Object.
+     * @return Whether or not the provided values are equal.
+     */
     static boolean equals(CharacterEncoding lhs, Object rhs)
     {
         return rhs instanceof CharacterEncoding && lhs.equals((CharacterEncoding)rhs);
     }
 
+    /**
+     * Get whether or not this CharacterEncoding equals the provided CharacterEncoding.
+     * @param rhs The CharacterEncoding to compare against this CharacterEncoding.
+     * @return Whether or not this CharacterEncoding equals the provided CharacterEncoding.
+     */
     default boolean equals(CharacterEncoding rhs)
     {
         return rhs != null && this.getClass().equals(rhs.getClass());

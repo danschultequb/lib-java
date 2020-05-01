@@ -193,6 +193,23 @@ public interface USASCIICharacterEncodingTests
                 decodeNextCharacterTest.run(new byte[] { -124 }, new char[] { (char)132 });
             });
 
+            runner.testGroup("iterateDecodedCharacters(Iterator<Byte>)", () ->
+            {
+                final Action2<byte[],char[]> iterateDecodedCharactersTest = (byte[] bytes, char[] expectedCharacters) ->
+                {
+                    runner.test("with " + Array.toString(bytes), (Test test) ->
+                    {
+                        test.assertEqual(
+                            CharacterArray.create(expectedCharacters),
+                            encoding.iterateDecodedCharacters(ByteArray.create(bytes).iterate()).toList());
+                    });
+                };
+
+                iterateDecodedCharactersTest.run(new byte[] { 97 }, new char[] { 'a' });
+                iterateDecodedCharactersTest.run(new byte[] { 97, 98, 99, 100 }, new char[] { 'a', 'b', 'c', 'd' });
+                iterateDecodedCharactersTest.run(new byte[] { -124 }, new char[] { (char)132 });
+            });
+
             runner.testGroup("equals(Object)", () ->
             {
                 runner.test("with null", (Test test) ->

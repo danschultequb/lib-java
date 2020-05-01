@@ -188,6 +188,46 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
     }
 
     /**
+     * Get whether or not the provided Throwable errors are equal, ignoring their stack traces.
+     * @param arg1 The first Throwable error.
+     * @param arg2 The second Throwable error.
+     * @return True if they are equal, false if they are not.
+     */
+    static boolean equal(Class<? extends Throwable> arg1, Throwable arg2)
+    {
+        return Comparer.equal(arg1, arg2, null);
+    }
+
+    /**
+     * Get whether or not the provided Throwable errors are equal, ignoring their stack traces.
+     * @param error1 The first Throwable error.
+     * @param error2 The second Throwable error.
+     * @param errorTypesToGoPast Error types that will be invested into to see if a matching error exists as the cause
+     *                           of the error.
+     * @return True if they are equal, false if they are not.
+     */
+    static boolean equal(Class<? extends Throwable> error1, Throwable error2, Iterable<Class<? extends Throwable>> errorTypesToGoPast)
+    {
+        boolean result = false;
+        final boolean hasErrorTypesToGoPast = !Iterable.isNullOrEmpty(errorTypesToGoPast);
+        while (error2 != null)
+        {
+            result = Comparer.equal(error1, error2.getClass());
+
+            if (result || !hasErrorTypesToGoPast || !errorTypesToGoPast.contains(error2.getClass()) || error2.getCause() == error2)
+            {
+                error2 = null;
+            }
+            else
+            {
+                error2 = error2.getCause();
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Compare the two values to see if they're equal.
      * @param arg1 The first argument.
      * @param arg2 The second argument.

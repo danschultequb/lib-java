@@ -19,18 +19,27 @@ public class USASCIICharacterEncoding implements CharacterEncoding
 
         return Result.create(() ->
         {
-            if (!bytes.next())
+            final Iterator<Character> characters = this.iterateDecodedCharacters(bytes);
+            if (!characters.next())
             {
                 throw new EndOfStreamException();
             }
+            return characters.getCurrent();
+        });
+    }
 
-            final Byte currentByte = bytes.getCurrent();
-            if (currentByte == null)
+    @Override
+    public Iterator<Character> iterateDecodedCharacters(Iterator<Byte> bytes)
+    {
+        PreCondition.assertNotNull(bytes, "bytes");
+
+        return bytes.map((Byte b) ->
+        {
+            if (b == null)
             {
                 throw new IllegalArgumentException("Cannot decode a null byte.");
             }
-
-            return (char)Bytes.toUnsignedInt(currentByte);
+            return (char)Bytes.toUnsignedInt(b);
         });
     }
 

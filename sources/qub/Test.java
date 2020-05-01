@@ -1159,6 +1159,53 @@ public class Test
     }
 
     /**
+     * Assert that when the provided action is run it throws an exception that is equal to the
+     * provided exception.
+     * @param expectedExceptionType The expected exception type.
+     * @param action The action to run.
+     */
+    public void assertThrows(Class<? extends Throwable> expectedExceptionType, Action0 action)
+    {
+        assertThrows(action, expectedExceptionType);
+    }
+
+    /**
+     * Assert that when the provided action is run it throws an exception that is equal to the
+     * provided exception.
+     * @param action The action to run.
+     * @param expectedExceptionType The expected exception type.
+     */
+    public void assertThrows(Action0 action, Class<? extends Throwable> expectedExceptionType)
+    {
+        PreCondition.assertNotNull(action, "action");
+        PreCondition.assertNotNull(expectedExceptionType, "expectedExceptionType");
+
+        Throwable exceptionThrown = null;
+        try
+        {
+            action.run();
+        }
+        catch (Throwable e)
+        {
+            exceptionThrown = e;
+        }
+
+        if (exceptionThrown == null)
+        {
+            throw new TestError(
+                getFullName(),
+                "Expected a " + Types.getFullTypeName(expectedExceptionType) + " to be thrown.");
+        }
+        else if (!Comparer.equal(expectedExceptionType, exceptionThrown, Exceptions.defaultErrorTypesToGoPast))
+        {
+            throw new TestError(
+                getFullName(),
+                getMessageLines("Incorrect exception thrown", expectedExceptionType, exceptionThrown),
+                exceptionThrown);
+        }
+    }
+
+    /**
      * Assert that the provided value starts with the provided prefix.
      * @param value The value to check.
      * @param prefix The prefix to look for at the beginning of the provided value.
@@ -1338,6 +1385,10 @@ public class Test
         if (value instanceof String)
         {
             stream.write(Strings.escapeAndQuote(Objects.toString(value))).await();
+        }
+        else if (value instanceof Class<?>)
+        {
+            stream.write(Types.getFullTypeName((Class<?>)value));
         }
         else
         {
