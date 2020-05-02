@@ -2,10 +2,10 @@ package qub;
 
 public class UnicodeCodePointToCharacterIterator implements Iterator<Character>
 {
-    private final Iterator<Integer> unicodeCodePoints;
-    private Character[] currentCharacters;
+    private final UnicodeCodePointIterator unicodeCodePoints;
+    private final Character[] currentCharacters;
 
-    private UnicodeCodePointToCharacterIterator(Iterator<Integer> unicodeCodePoints)
+    private UnicodeCodePointToCharacterIterator(UnicodeCodePointIterator unicodeCodePoints)
     {
         PreCondition.assertNotNull(unicodeCodePoints, "unicodeCodePoints");
 
@@ -13,9 +13,42 @@ public class UnicodeCodePointToCharacterIterator implements Iterator<Character>
         this.currentCharacters = new Character[2];
     }
 
-    public static UnicodeCodePointToCharacterIterator create(Iterator<Integer> unicodeCodePoints)
+    public static UnicodeCodePointToCharacterIterator create(UnicodeCodePointIterator unicodeCodePoints)
     {
         return new UnicodeCodePointToCharacterIterator(unicodeCodePoints);
+    }
+
+    /**
+     * Set whether or not a Unicode byte order mark (BOM) will be returned if it is found.
+     * @param returnByteOrderMark Whether or not a Unicode byte order mark (BOM) will be returned if
+     *                            it is found.
+     * @return This object for method chaining.
+     */
+    public UnicodeCodePointToCharacterIterator setReturnByteOrderMark(boolean returnByteOrderMark)
+    {
+        this.unicodeCodePoints.setReturnByteOrderMark(returnByteOrderMark);
+
+        return this;
+    }
+
+    /**
+     * Get whether or not a Unicode byte order mark (BOM) will be returned if it is found.
+     * @return Whether or not a Unicode byte order mark (BOM) will be returned if it is found.
+     */
+    public boolean getReturnByteOrderMark()
+    {
+        return this.unicodeCodePoints.getReturnByteOrderMark();
+    }
+
+    /**
+     * Get whether or not this iterator found a Unicode byte order mark (BOM) while decoding. If
+     * this iterator hasn't iterated over its first code point yet, then this will return null.
+     * @return Whether or not this iterator found a Unicode byte order mark (BOM) while decoding. If
+     * this iterator hasn't iterated over its first code point yet, then this will return null.
+     */
+    public Boolean foundByteOrderMark()
+    {
+        return this.unicodeCodePoints.foundByteOrderMark();
     }
 
     @Override

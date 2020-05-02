@@ -22,6 +22,8 @@ public interface UTF8BytesToUnicodeCodePointIteratorTests
                     test.assertFalse(iterator.hasCurrent());
                     test.assertThrows(() -> iterator.getCurrent(),
                         new PreConditionFailure("this.hasCurrent() cannot be false."));
+                    test.assertFalse(iterator.getReturnByteOrderMark());
+                    test.assertNull(iterator.foundByteOrderMark());
                 });
 
                 runner.test("with empty started", (Test test) ->
@@ -34,6 +36,8 @@ public interface UTF8BytesToUnicodeCodePointIteratorTests
                     test.assertFalse(iterator.hasCurrent());
                     test.assertThrows(() -> iterator.getCurrent(),
                         new PreConditionFailure("this.hasCurrent() cannot be false."));
+                    test.assertFalse(iterator.getReturnByteOrderMark());
+                    test.assertNull(iterator.foundByteOrderMark());
                 });
 
                 runner.test("with non-empty non-started", (Test test) ->
@@ -45,6 +49,8 @@ public interface UTF8BytesToUnicodeCodePointIteratorTests
                     test.assertFalse(iterator.hasCurrent());
                     test.assertThrows(() -> iterator.getCurrent(),
                         new PreConditionFailure("this.hasCurrent() cannot be false."));
+                    test.assertFalse(iterator.getReturnByteOrderMark());
+                    test.assertNull(iterator.foundByteOrderMark());
                 });
 
                 runner.test("with non-empty started", (Test test) ->
@@ -58,6 +64,8 @@ public interface UTF8BytesToUnicodeCodePointIteratorTests
                     test.assertTrue(iterator.hasCurrent());
                     test.assertEqual('a', iterator.getCurrent());
                     test.assertEqual((byte)97, unicodeCodePoints.getCurrent());
+                    test.assertFalse(iterator.getReturnByteOrderMark());
+                    test.assertFalse(iterator.foundByteOrderMark());
                 });
             });
 
@@ -144,7 +152,50 @@ public interface UTF8BytesToUnicodeCodePointIteratorTests
                 nextTest.run(Iterable.create((byte)0xC3, (byte)0x9F), false, Iterable.create(0x00DF));
                 nextTest.run(Iterable.create((byte)0xE6, (byte)0x9D, (byte)0xB1), false, Iterable.create(0x6771));
                 nextTest.run(Iterable.create((byte)0xF0, (byte)0x90, (byte)0x90, (byte)0x80), false, Iterable.create(0x10400));
-                nextTest.run(Iterable.create((byte)0xEF, (byte)0xBB, (byte)0xBF), false, Iterable.create(0xFEFF));
+                nextTest.run(Iterable.create((byte)0xEF, (byte)0xBB, (byte)0xBF), false, Iterable.create());
+            });
+
+            runner.testGroup("setReturnByteOrderMark(boolean)", () ->
+            {
+                runner.test("iterate over non-byte order mark when false", (Test test) ->
+                {
+                    final UTF8BytesToUnicodeCodePointIterator iterator = UTF8BytesToUnicodeCodePointIterator.create(Iterator.create((byte)97))
+                        .setReturnByteOrderMark(false);
+                    test.assertEqual(
+                        Iterable.create(97),
+                        iterator.toList());
+                    test.assertFalse(iterator.foundByteOrderMark());
+                });
+
+                runner.test("iterate over non-byte order mark when true", (Test test) ->
+                {
+                    final UTF8BytesToUnicodeCodePointIterator iterator = UTF8BytesToUnicodeCodePointIterator.create(Iterator.create((byte)97))
+                        .setReturnByteOrderMark(true);
+                    test.assertEqual(
+                        Iterable.create(97),
+                        iterator.toList());
+                    test.assertFalse(iterator.foundByteOrderMark());
+                });
+
+                runner.test("iterate over byte order mark when false", (Test test) ->
+                {
+                    final UTF8BytesToUnicodeCodePointIterator iterator = UTF8BytesToUnicodeCodePointIterator.create(Iterator.create((byte)0xEF, (byte)0xBB, (byte)0xBF, (byte)97))
+                        .setReturnByteOrderMark(false);
+                    test.assertEqual(
+                        Iterable.create(97),
+                        iterator.toList());
+                    test.assertTrue(iterator.foundByteOrderMark());
+                });
+
+                runner.test("iterate over byte order mark when true", (Test test) ->
+                {
+                    final UTF8BytesToUnicodeCodePointIterator iterator = UTF8BytesToUnicodeCodePointIterator.create(Iterator.create((byte)0xEF, (byte)0xBB, (byte)0xBF, (byte)97))
+                        .setReturnByteOrderMark(true);
+                    test.assertEqual(
+                        Iterable.create(0xFEFF, 97),
+                        iterator.toList());
+                    test.assertTrue(iterator.foundByteOrderMark());
+                });
             });
         });
     }

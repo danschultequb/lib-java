@@ -10,7 +10,7 @@ public interface CharacterToUnicodeCodePointIteratorTests
             {
                 final Action2<Iterable<Character>,Throwable> createErrorTest = (Iterable<Character> characters, Throwable expected) ->
                 {
-                    runner.test("with " + (characters == null ? null : characters.map(c -> "0x" + Integers.toHexString(c, true))), (Test test) ->
+                    runner.test("with " + (characters == null ? null : characters.map(c -> c == null ? "null" : "0x" + Integers.toHexString(c, true))), (Test test) ->
                     {
                         test.assertThrows(expected, () ->
                         {
@@ -26,6 +26,7 @@ public interface CharacterToUnicodeCodePointIteratorTests
                 createErrorTest.run(Iterable.create((char)0xD801), new IllegalArgumentException("Missing low-surrogate character (between 0xDC00 and 0xDFFF) after high-surrogate character (between 0xD800 and 0xDBFF)."));
                 createErrorTest.run(Iterable.create((char)0xD801, (char)97), new IllegalArgumentException("Expected low-surrogate character (between 0xDC00 and 0xDFFF) after high surrogate character (between 0xD800 and 0xDBFF), but found 0x61 instead."));
                 createErrorTest.run(Iterable.create((char)0xDC00), new IllegalArgumentException("Expected to find a non-surrogate character (not between 0xD800 and 0xDFFF) or high-surrogate character (between 0xD800 and 0xDBFF, but found a low surrogate character instead (0xDC00)."));
+                createErrorTest.run(Iterable.create((char)0xDC00, null), new IllegalArgumentException("Expected to find a non-surrogate character (not between 0xD800 and 0xDFFF) or high-surrogate character (between 0xD800 and 0xDBFF, but found a low surrogate character instead (0xDC00)."));
 
                 final Action2<Iterable<Character>,Iterable<Integer>> createTest = (Iterable<Character> characters, Iterable<Integer> expected) ->
                 {

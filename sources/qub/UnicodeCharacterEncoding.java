@@ -136,7 +136,7 @@ public interface UnicodeCharacterEncoding extends CharacterEncoding
     }
 
     @Override
-    default Iterator<Character> iterateDecodedCharacters(Iterator<Byte> bytes)
+    default UnicodeCodePointToCharacterIterator iterateDecodedCharacters(Iterator<Byte> bytes)
     {
         PreCondition.assertNotNull(bytes, "bytes");
 
@@ -149,5 +149,5 @@ public interface UnicodeCharacterEncoding extends CharacterEncoding
      * @return An Iterator that will decode the provided bytes into Unicode Code Points as it
      * iterates.
      */
-    Iterator<Integer> iterateDecodedUnicodeCodePoints(Iterator<Byte> bytes);
+    UnicodeCodePointIterator iterateDecodedUnicodeCodePoints(Iterator<Byte> bytes);
 }

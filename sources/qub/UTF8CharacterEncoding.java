@@ -95,7 +95,7 @@ public class UTF8CharacterEncoding implements UnicodeCharacterEncoding
     }
 
     @Override
-    public Iterator<Integer> iterateDecodedUnicodeCodePoints(Iterator<Byte> bytes)
+    public UTF8BytesToUnicodeCodePointIterator iterateDecodedUnicodeCodePoints(Iterator<Byte> bytes)
     {
         return UTF8BytesToUnicodeCodePointIterator.create(bytes);
     }

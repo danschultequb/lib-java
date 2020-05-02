@@ -2,6 +2,16 @@ package qub;
 
 public interface UnicodeCodePointToCharacterIteratorTests
 {
+    static UnicodeCodePointToCharacterIterator createIterator(int... unicodeCodePoints)
+    {
+        return UnicodeCodePointToCharacterIteratorTests.createIterator(Iterator.create(unicodeCodePoints));
+    }
+
+    static UnicodeCodePointToCharacterIterator createIterator(Iterator<Integer> unicodeCodePoints)
+    {
+        return UnicodeCodePointToCharacterIterator.create(IntegerToUnicodeCodePointIterator.create(unicodeCodePoints).setThrowOnNullIntegers(false));
+    }
+
     static void test(TestRunner runner)
     {
         runner.testGroup(UnicodeCodePointToCharacterIterator.class, () ->
@@ -16,7 +26,7 @@ public interface UnicodeCodePointToCharacterIteratorTests
 
                 runner.test("with empty non-started", (Test test) ->
                 {
-                    final UnicodeCodePointToCharacterIterator iterator = UnicodeCodePointToCharacterIterator.create(Iterator.create());
+                    final UnicodeCodePointToCharacterIterator iterator = UnicodeCodePointToCharacterIteratorTests.createIterator();
                     test.assertNotNull(iterator);
                     test.assertFalse(iterator.hasStarted());
                     test.assertFalse(iterator.hasCurrent());
@@ -28,7 +38,7 @@ public interface UnicodeCodePointToCharacterIteratorTests
                 {
                     final Iterator<Integer> unicodeCodePoints = Iterator.create();
                     unicodeCodePoints.next();
-                    final UnicodeCodePointToCharacterIterator iterator = UnicodeCodePointToCharacterIterator.create(unicodeCodePoints);
+                    final UnicodeCodePointToCharacterIterator iterator = UnicodeCodePointToCharacterIteratorTests.createIterator(unicodeCodePoints);
                     test.assertNotNull(iterator);
                     test.assertTrue(iterator.hasStarted());
                     test.assertFalse(iterator.hasCurrent());
@@ -39,7 +49,7 @@ public interface UnicodeCodePointToCharacterIteratorTests
                 runner.test("with non-empty non-started", (Test test) ->
                 {
                     Iterator<Integer> unicodeCodePoints = Iterator.create(97, 98, 99);
-                    final UnicodeCodePointToCharacterIterator iterator = UnicodeCodePointToCharacterIterator.create(unicodeCodePoints);
+                    final UnicodeCodePointToCharacterIterator iterator = UnicodeCodePointToCharacterIteratorTests.createIterator(unicodeCodePoints);
                     test.assertNotNull(iterator);
                     test.assertFalse(iterator.hasStarted());
                     test.assertFalse(iterator.hasCurrent());
@@ -52,7 +62,7 @@ public interface UnicodeCodePointToCharacterIteratorTests
                     Iterator<Integer> unicodeCodePoints = Iterator.create(97);
                     unicodeCodePoints.next();
 
-                    final UnicodeCodePointToCharacterIterator iterator = UnicodeCodePointToCharacterIterator.create(unicodeCodePoints);
+                    final UnicodeCodePointToCharacterIterator iterator = UnicodeCodePointToCharacterIteratorTests.createIterator(unicodeCodePoints);
                     test.assertNotNull(iterator);
                     test.assertTrue(iterator.hasStarted());
                     test.assertTrue(iterator.hasCurrent());
@@ -72,7 +82,7 @@ public interface UnicodeCodePointToCharacterIteratorTests
                         {
                             unicodeCodePointsIterator.next();
                         }
-                        final UnicodeCodePointToCharacterIterator iterator = UnicodeCodePointToCharacterIterator.create(unicodeCodePointsIterator);
+                        final UnicodeCodePointToCharacterIterator iterator = UnicodeCodePointToCharacterIteratorTests.createIterator(unicodeCodePointsIterator);
 
                         test.assertThrows(expected, () ->
                         {
@@ -99,7 +109,7 @@ public interface UnicodeCodePointToCharacterIteratorTests
                         {
                             unicodeCodePointsIterator.next();
                         }
-                        final UnicodeCodePointToCharacterIterator iterator = UnicodeCodePointToCharacterIterator.create(unicodeCodePointsIterator);
+                        final UnicodeCodePointToCharacterIterator iterator = UnicodeCodePointToCharacterIteratorTests.createIterator(unicodeCodePointsIterator);
 
                         for (final Character expectedCharacter : expected)
                         {
