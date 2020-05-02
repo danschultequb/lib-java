@@ -694,57 +694,12 @@ public interface CharacterEncodingTests
                 });
             });
 
-            runner.testGroup("decodeNextCharacter(ByteReadStream)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final CharacterEncoding encoding = creator.run();
-                    final InMemoryByteStream byteStream = null;
-                    test.assertThrows(() -> encoding.decodeNextCharacter(byteStream),
-                        new PreConditionFailure("bytes cannot be null."));
-                });
-
-                runner.test("with disposed", (Test test) ->
-                {
-                    final CharacterEncoding encoding = creator.run();
-                    final InMemoryByteStream byteStream = InMemoryByteStream.create().endOfStream();
-                    byteStream.dispose().await();
-                    test.assertThrows(() -> encoding.decodeNextCharacter(byteStream),
-                        new PreConditionFailure("bytes.isDisposed() cannot be true."));
-                });
-
-                runner.test("with empty", (Test test) ->
-                {
-                    final CharacterEncoding encoding = creator.run();
-                    final InMemoryByteStream byteStream = InMemoryByteStream.create().endOfStream();
-                    test.assertThrows(() -> encoding.decodeNextCharacter(byteStream).await(),
-                        new EndOfStreamException());
-                });
-            });
-
-            runner.testGroup("decodeNextCharacter(Iterator<Byte>)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final CharacterEncoding encoding = creator.run();
-                    test.assertThrows(() -> encoding.decodeNextCharacter((Iterator<Byte>)null),
-                        new PreConditionFailure("bytes cannot be null."));
-                });
-
-                runner.test("with empty", (Test test) ->
-                {
-                    final CharacterEncoding encoding = creator.run();
-                    test.assertThrows(() -> encoding.decodeNextCharacter(Iterator.create()).await(),
-                        new EndOfStreamException());
-                });
-            });
-
             runner.testGroup("iterateDecodedCharacters(Iterator<Byte>)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
                     final CharacterEncoding encoding = creator.run();
-                    test.assertThrows(() -> encoding.iterateDecodedCharacters(null),
+                    test.assertThrows(() -> encoding.iterateDecodedCharacters((Iterator<Byte>)null),
                         new PreConditionFailure("bytes cannot be null."));
                 });
 

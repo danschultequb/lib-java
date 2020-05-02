@@ -13,22 +13,6 @@ public class USASCIICharacterEncoding implements CharacterEncoding
     }
 
     @Override
-    public Result<Character> decodeNextCharacter(Iterator<Byte> bytes)
-    {
-        PreCondition.assertNotNull(bytes, "bytes");
-
-        return Result.create(() ->
-        {
-            final Iterator<Character> characters = this.iterateDecodedCharacters(bytes);
-            if (!characters.next())
-            {
-                throw new EndOfStreamException();
-            }
-            return characters.getCurrent();
-        });
-    }
-
-    @Override
     public Iterator<Character> iterateDecodedCharacters(Iterator<Byte> bytes)
     {
         PreCondition.assertNotNull(bytes, "bytes");

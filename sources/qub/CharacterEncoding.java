@@ -230,26 +230,8 @@ public interface CharacterEncoding
 
         return Result.create(() ->
         {
-            final CharacterList characters = CharacterList.create();
-
-            final Iterator<Byte> iterator = Iterator.create(bytes, startIndex, length);
-            Character currentCharacter;
-            while (true)
-            {
-                currentCharacter = this.decodeNextCharacter(iterator)
-                    .catchError(EndOfStreamException.class)
-                    .await();
-                if (currentCharacter == null)
-                {
-                    break;
-                }
-                else
-                {
-                    characters.add(currentCharacter);
-                }
-            }
-
-            return Array.toCharArray(characters).await();
+            final Iterator<Byte> byteIterator = Iterator.create(bytes, startIndex, length);
+            return Array.toCharArray(CharacterList.create(this.iterateDecodedCharacters(byteIterator))).await();
         });
     }
 
@@ -298,23 +280,7 @@ public interface CharacterEncoding
 
         return Result.create(() ->
         {
-            final CharacterList characters = CharacterList.create();
-            Character currentCharacter;
-            while (true)
-            {
-                currentCharacter = this.decodeNextCharacter(bytes)
-                    .catchError(EndOfStreamException.class)
-                    .await();
-                if (currentCharacter == null)
-                {
-                    break;
-                }
-                else
-                {
-                    characters.add(currentCharacter);
-                }
-            }
-            return Array.toCharArray(characters).await();
+            return Array.toCharArray(CharacterList.create(this.iterateDecodedCharacters(bytes))).await();
         });
     }
 
@@ -343,24 +309,17 @@ public interface CharacterEncoding
     }
 
     /**
-     * Decode the next character create the provided byte Iterator.
-     * @param bytes The bytes to get the next character from.
-     * @return The next character.
+     * Get an Iterator that will decode the provided bytes as it iterates.
+     * @param bytes The bytes to decode.
+     * @return An Iterator that will decode the provided bytes as it iterates.
      */
-    default Result<Character> decodeNextCharacter(ByteReadStream bytes)
+    default Iterator<Character> iterateDecodedCharacters(ByteReadStream bytes)
     {
         PreCondition.assertNotNull(bytes, "bytes");
         PreCondition.assertNotDisposed(bytes, "bytes.isDisposed()");
 
-        return this.decodeNextCharacter(ByteReadStream.iterate(bytes));
+        return this.iterateDecodedCharacters(ByteReadStream.iterate(bytes));
     }
-
-    /**
-     * Decode the next character create the provided byte Iterator.
-     * @param bytes The bytes to get the next character from.
-     * @return The next character.
-     */
-    Result<Character> decodeNextCharacter(Iterator<Byte> bytes);
 
     /**
      * Get an Iterator that will decode the provided bytes as it iterates.

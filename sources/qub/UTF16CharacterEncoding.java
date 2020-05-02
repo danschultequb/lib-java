@@ -9,30 +9,6 @@ public class UTF16CharacterEncoding implements CharacterEncoding
     }
 
     @Override
-    public Result<Integer> encodeCharacters(String text, ByteWriteStream byteWriteStream)
-    {
-        return null;
-    }
-
-    @Override
-    public Result<Integer> encodeCharacters(char[] characters, int startIndex, int length, ByteWriteStream byteWriteStream)
-    {
-        return null;
-    }
-
-    @Override
-    public Result<char[]> decodeAsCharacters(byte[] bytes, int startIndex, int length)
-    {
-        return null;
-    }
-
-    @Override
-    public Result<Character> decodeNextCharacter(Iterator<Byte> bytes)
-    {
-        return null;
-    }
-
-    @Override
     public Iterator<Character> iterateDecodedCharacters(Iterator<Byte> bytes)
     {
         throw new NotSupportedException();

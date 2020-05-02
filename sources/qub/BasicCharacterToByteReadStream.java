@@ -24,7 +24,15 @@ public class BasicCharacterToByteReadStream implements CharacterToByteReadStream
     {
         PreCondition.assertFalse(isDisposed(), "isDisposed()");
 
-        return characterEncoding.decodeNextCharacter(byteReadStream);
+        return Result.create(() ->
+        {
+            final Character result = this.characterEncoding.iterateDecodedCharacters(this.byteReadStream).first();
+            if (result == null)
+            {
+                throw new EndOfStreamException();
+            }
+            return result;
+        });
     }
 
     @Override

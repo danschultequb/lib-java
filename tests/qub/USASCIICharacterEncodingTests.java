@@ -137,60 +137,31 @@ public interface USASCIICharacterEncodingTests
 
             runner.testGroup("decodeAsCharacters(Iterator<Byte>)", () ->
             {
-                final Action3<Byte[],char[],Throwable> decodeNextCharacterErrorTest = (Byte[] bytes, char[] expectedCharacters, Throwable expectedError) ->
+                final Action2<Byte[],Throwable> decodeAsCharactersErrorTest = (Byte[] bytes, Throwable expectedError) ->
                 {
                     runner.test("with " + Array.toString(bytes), (Test test) ->
                     {
                         final Iterator<Byte> iterator = Iterator.create(bytes);
-                        if (expectedCharacters != null && expectedCharacters.length > 0)
-                        {
-                            for (final char expectedCharacter : expectedCharacters)
-                            {
-                                test.assertEqual(expectedCharacter, encoding.decodeNextCharacter(iterator).await());
-                            }
-                        }
-                        test.assertThrows(() -> encoding.decodeNextCharacter(iterator).await(), expectedError);
+                        test.assertThrows(() -> encoding.decodeAsCharacters(iterator).await(), expectedError);
                     });
                 };
 
-                decodeNextCharacterErrorTest.run(new Byte[] { null }, null, new IllegalArgumentException("Cannot decode a null byte."));
-                decodeNextCharacterErrorTest.run(new Byte[] { 97, null }, new char[] { 'a' }, new IllegalArgumentException("Cannot decode a null byte."));
+                decodeAsCharactersErrorTest.run(new Byte[] { null }, new IllegalArgumentException("Cannot decode a null byte."));
+                decodeAsCharactersErrorTest.run(new Byte[] { 97, null }, new IllegalArgumentException("Cannot decode a null byte."));
 
-                final Action2<byte[],char[]> decodeNextCharacterTest = (byte[] bytes, char[] expectedCharacters) ->
+                final Action2<byte[],char[]> decodeAsCharactersTest = (byte[] bytes, char[] expectedCharacters) ->
                 {
                     runner.test("with " + Array.toString(bytes), (Test test) ->
                     {
                         final Iterator<Byte> bytesIterator = Iterator.createFromBytes(bytes);
                         test.assertEqual(expectedCharacters, encoding.decodeAsCharacters(bytesIterator).await());
-                        test.assertThrows(() -> encoding.decodeNextCharacter(bytesIterator).await(),
-                            new EndOfStreamException());
+                        test.assertEqual(new char[0], encoding.decodeAsCharacters(bytesIterator).await());
                     });
                 };
 
-                decodeNextCharacterTest.run(new byte[] { 97 }, new char[] { 'a' });
-                decodeNextCharacterTest.run(new byte[] { 97, 98, 99, 100 }, new char[] { 'a', 'b', 'c', 'd' });
-                decodeNextCharacterTest.run(new byte[] { -124 }, new char[] { (char)132 });
-            });
-
-            runner.testGroup("decodeNextCharacter(Iterator<Byte>)", () ->
-            {
-                final Action2<byte[],char[]> decodeNextCharacterTest = (byte[] bytes, char[] expectedCharacters) ->
-                {
-                    runner.test("with " + Array.toString(bytes), (Test test) ->
-                    {
-                        final Iterator<Byte> bytesIterator = Iterator.createFromBytes(bytes);
-                        for (int i = 0; i < expectedCharacters.length; ++i)
-                        {
-                            test.assertEqual(expectedCharacters[i], encoding.decodeNextCharacter(bytesIterator).await());
-                        }
-                        test.assertThrows(() -> encoding.decodeNextCharacter(bytesIterator).await(),
-                            new EndOfStreamException());
-                    });
-                };
-
-                decodeNextCharacterTest.run(new byte[] { 97 }, new char[] { 'a' });
-                decodeNextCharacterTest.run(new byte[] { 97, 98, 99, 100 }, new char[] { 'a', 'b', 'c', 'd' });
-                decodeNextCharacterTest.run(new byte[] { -124 }, new char[] { (char)132 });
+                decodeAsCharactersTest.run(new byte[] { 97 }, new char[] { 'a' });
+                decodeAsCharactersTest.run(new byte[] { 97, 98, 99, 100 }, new char[] { 'a', 'b', 'c', 'd' });
+                decodeAsCharactersTest.run(new byte[] { -124 }, new char[] { (char)132 });
             });
 
             runner.testGroup("iterateDecodedCharacters(Iterator<Byte>)", () ->

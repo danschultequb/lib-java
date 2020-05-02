@@ -120,22 +120,6 @@ public interface UnicodeCharacterEncoding extends CharacterEncoding
     }
 
     @Override
-    default Result<Character> decodeNextCharacter(Iterator<Byte> bytes)
-    {
-        PreCondition.assertNotNull(bytes, "bytes");
-
-        return Result.create(() ->
-        {
-            final Iterator<Character> iterator = this.iterateDecodedCharacters(bytes);
-            if (!iterator.next())
-            {
-                throw new EndOfStreamException();
-            }
-            return iterator.getCurrent();
-        });
-    }
-
-    @Override
     default UnicodeCodePointToCharacterIterator iterateDecodedCharacters(Iterator<Byte> bytes)
     {
         PreCondition.assertNotNull(bytes, "bytes");
