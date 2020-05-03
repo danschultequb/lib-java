@@ -81,10 +81,10 @@ public class Speed implements Comparable<Speed>
         }
         if (this.durationUnits != durationUnits)
         {
-            value = new Duration(value, this.durationUnits).convertTo(durationUnits).getValue();
+            value = new Duration(value, durationUnits).convertTo(this.durationUnits).getValue();
         }
 
-        final Speed result = this.value == value
+        final Speed result = this.value == value && this.distanceUnits == distanceUnits && this.durationUnits == durationUnits
             ? this
             : Speed.create(value, distanceUnits, durationUnits);
 
@@ -152,7 +152,14 @@ public class Speed implements Comparable<Speed>
         Speed result;
         if (rhs == 0)
         {
-            result = Speed.zero;
+            if (this.value == 0)
+            {
+                result = this;
+            }
+            else
+            {
+                result = Speed.create(0, this.distanceUnits, this.durationUnits);
+            }
         }
         else if (rhs == 1)
         {
@@ -203,7 +210,7 @@ public class Speed implements Comparable<Speed>
         return result;
     }
 
-    public double dividedByte(Speed rhs)
+    public double dividedBy(Speed rhs)
     {
         PreCondition.assertNotNull(rhs, "rhs");
         PreCondition.assertNotEqual(0, rhs.getValue(), "rhs.getValue()");
@@ -231,20 +238,6 @@ public class Speed implements Comparable<Speed>
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertEqual(scale.getDistanceUnits(), result.getDistanceUnits(), "result.getDistanceUnits()");
         PostCondition.assertEqual(scale.getDurationUnits(), result.getDurationUnits(), "result.getDurationUnits()");
-
-        return result;
-    }
-
-    public Speed round(double scale)
-    {
-        PreCondition.assertNotEqual(0, scale, "scale");
-
-        final double roundedValue = Math.round(value, scale);
-        final Speed result = value == roundedValue ? this : Speed.create(roundedValue, this.distanceUnits, this.durationUnits);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(this.getDistanceUnits(), result.getDistanceUnits(), "result.getDistanceUnits()");
-        PostCondition.assertEqual(this.getDurationUnits(), result.getDurationUnits(), "result.getDurationUnits()");
 
         return result;
     }
