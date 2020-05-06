@@ -756,6 +756,12 @@ public class JavaProcess implements QubProcess
     }
 
     @Override
+    public Result<Window> createWindow()
+    {
+        return null;
+    }
+
+    @Override
     public boolean isDisposed()
     {
         return disposed;

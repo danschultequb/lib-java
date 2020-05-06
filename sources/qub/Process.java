@@ -705,4 +705,11 @@ public interface Process extends Disposable
         final String mainClassFullName = this.getMainClassFullName();
         return Types.getClass(mainClassFullName).await();
     }
+
+    /**
+     * Create a new Window for this Process. The new Window will be created in an invisible state,
+     * so it will not be visible initially.
+     * @return The new Window.
+     */
+    Result<Window> createWindow();
 }
