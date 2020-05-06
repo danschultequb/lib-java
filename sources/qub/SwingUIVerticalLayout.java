@@ -7,15 +7,21 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
 {
     private final javax.swing.JPanel jPanel;
     private final Display display;
+    private final List<SwingUIElement> elements;
+    private VerticalDirection direction;
 
     private SwingUIVerticalLayout(Display display)
     {
         PreCondition.assertNotNull(display, "display");
 
         this.display = display;
+        this.elements = List.create();
+        this.direction = VerticalDirection.TopToBottom;
 
         this.jPanel = new javax.swing.JPanel();
-        this.jPanel.setLayout(new javax.swing.BoxLayout(this.jPanel, javax.swing.BoxLayout.PAGE_AXIS));
+        final javax.swing.BoxLayout boxLayout = new javax.swing.BoxLayout(this.jPanel, javax.swing.BoxLayout.PAGE_AXIS);
+        this.jPanel.setLayout(boxLayout);
+        this.jPanel.setBackground(java.awt.Color.CYAN);
     }
 
     public static SwingUIVerticalLayout create(Display display)
@@ -87,13 +93,53 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     }
 
     @Override
+    public SwingUIVerticalLayout setDirection(VerticalDirection direction)
+    {
+        PreCondition.assertNotNull(direction, "direction");
+
+        if (this.direction != direction)
+        {
+            this.jPanel.removeAll();
+
+            this.direction = direction;
+            if (this.direction == VerticalDirection.TopToBottom)
+            {
+                for (final SwingUIElement element : this.elements)
+                {
+                    this.jPanel.add(element.getJComponent());
+                }
+            }
+            else
+            {
+                for (final SwingUIElement element : this.elements)
+                {
+                    this.jPanel.add(element.getJComponent(), 0);
+                }
+                this.jPanel.add(javax.swing.Box.createVerticalGlue(), 0);
+            }
+            this.jPanel.revalidate();
+        }
+
+        return this;
+    }
+
+    @Override
+    public VerticalDirection getDirection()
+    {
+        return this.direction;
+    }
+
+    @Override
     public SwingUIVerticalLayout add(UIElement element)
     {
         PreCondition.assertNotNull(element, "element");
         PreCondition.assertInstanceOf(element, SwingUIElement.class, "element");
 
         final SwingUIElement swingElement = (SwingUIElement)element;
-        this.jPanel.add(swingElement.getJComponent());
+        this.elements.add(swingElement);
+
+        final javax.swing.JComponent jComponent = swingElement.getJComponent();
+        this.jPanel.add(jComponent);
         this.jPanel.revalidate();
 
         return this;

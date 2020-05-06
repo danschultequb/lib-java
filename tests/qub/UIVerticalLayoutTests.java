@@ -51,6 +51,40 @@ public interface UIVerticalLayoutTests
                 });
             });
 
+            runner.testGroup("setDirection(VerticalDirection)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    test.assertThrows(() -> verticalLayout.setDirection(null),
+                        new PreConditionFailure("direction cannot be null."));
+                });
+
+                final Action2<VerticalDirection,VerticalDirection> setDirectionTest = (VerticalDirection oldDirection, VerticalDirection newDirection) ->
+                {
+                    runner.test("from " + oldDirection + " to " + newDirection, (Test test) ->
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(test);
+
+                        final Iterable<UIElement> childElements = Iterable.create(creator.run(test), creator.run(test), creator.run(test));
+                        verticalLayout.addAll(childElements);
+
+                        final UIVerticalLayout setDirectionResult1 = verticalLayout.setDirection(oldDirection);
+                        test.assertSame(verticalLayout, setDirectionResult1);
+                        test.assertEqual(oldDirection, verticalLayout.getDirection());
+
+                        final UIVerticalLayout setDirectionResult2 = verticalLayout.setDirection(newDirection);
+                        test.assertSame(verticalLayout, setDirectionResult2);
+                        test.assertEqual(newDirection, verticalLayout.getDirection());
+                    });
+                };
+
+                setDirectionTest.run(VerticalDirection.TopToBottom, VerticalDirection.TopToBottom);
+                setDirectionTest.run(VerticalDirection.TopToBottom, VerticalDirection.BottomToTop);
+                setDirectionTest.run(VerticalDirection.BottomToTop, VerticalDirection.TopToBottom);
+                setDirectionTest.run(VerticalDirection.BottomToTop, VerticalDirection.BottomToTop);
+            });
+
             runner.testGroup("add(UIElement)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -142,8 +176,6 @@ public interface UIVerticalLayoutTests
                     test.assertSame(verticalLayout, addResult);
                 });
             });
-
-
 
             runner.testGroup("addAll(Iterable<UIElement>)", () ->
             {

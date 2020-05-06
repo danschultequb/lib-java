@@ -185,19 +185,34 @@ public interface SwingWindowTests
                 {
                     final Display display = test.getDisplays().first();
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                    try (final SwingWindow window = SwingWindow.create(display, asyncRunner).setTitle(test.getFullName()))
                     {
                         window.setSize(Distance.inches(4), Distance.inches(4));
+
+                        final UIVerticalLayout verticalLayout = SwingUIVerticalLayout.create(display);
 
                         final IntegerValue fontPoints = IntegerValue.create(10);
 
                         final UIText text = SwingUIText.create(display)
                             .setText("Welcome to my program.")
                             .setFontSize(Distance.fontPoints(fontPoints.get()));
+                        verticalLayout.add(text);
 
                         final UIButton button = SwingUIButton.create(display, asyncRunner)
                             .setText("Font Points: " + fontPoints)
                             .setFontSize(Distance.fontPoints(fontPoints.get()));
+                        verticalLayout.add(button);
+
+                        final UIButton switchDirectionButton = SwingUIButton.create(display, asyncRunner)
+                            .setText("Switch Direction")
+                            .setFontSize(Distance.fontPoints(fontPoints.get()));
+                        switchDirectionButton.onClick(() ->
+                        {
+                            verticalLayout.setDirection(verticalLayout.getDirection() == VerticalDirection.TopToBottom
+                                ? VerticalDirection.BottomToTop
+                                : VerticalDirection.TopToBottom);
+                        });
+                        verticalLayout.add(switchDirectionButton);
 
                         button.onClick(() ->
                         {
@@ -207,10 +222,11 @@ public interface SwingWindowTests
 
                             button.setText("Font Points: " + fontPoints);
                             button.setFontSize(Distance.fontPoints(fontPoints.get()));
+
+                            switchDirectionButton.setFontSize(Distance.fontPoints(fontPoints.get()));
                         });
 
-                        window.setContent(SwingUIVerticalLayout.create(display)
-                            .addAll(text, button));
+                        window.setContent(verticalLayout);
 
                         window.setVisible(true);
 

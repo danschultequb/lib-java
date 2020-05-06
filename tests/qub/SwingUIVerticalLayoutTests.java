@@ -14,6 +14,29 @@ public interface SwingUIVerticalLayoutTests
 
             UIVerticalLayoutTests.test(runner, creator);
 
+            runner.testGroup("create(Display)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Display display = null;
+                    test.assertThrows(() -> SwingUIVerticalLayout.create(display),
+                        new PreConditionFailure("display cannot be null."));
+                });
+
+                runner.test("with non-null", (Test test) ->
+                {
+                    final Display display = new Display(1000, 1000, 100, 100);
+                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayout.create(display);
+                    test.assertNotNull(verticalLayout);
+                    test.assertEqual(Distance.zero, verticalLayout.getWidth());
+                    test.assertEqual(Distance.zero, verticalLayout.getHeight());
+                    test.assertEqual(VerticalDirection.TopToBottom, verticalLayout.getDirection());
+
+                    final javax.swing.JPanel jComponent = verticalLayout.getJComponent();
+                    test.assertNotNull(jComponent);
+                });
+            });
+
             runner.testGroup("setWidth(Distance)", () ->
             {
                 runner.test("should return " + Types.getTypeName(UIVerticalLayout.class), (Test test) ->
@@ -50,6 +73,16 @@ public interface SwingUIVerticalLayoutTests
                 {
                     final SwingUIVerticalLayout verticalLayout = creator.run(test);
                     final SwingUIVerticalLayout setHeightResult = verticalLayout.setSize(Distance.inches(2), Distance.inches(3));
+                    test.assertSame(verticalLayout, setHeightResult);
+                });
+            });
+
+            runner.testGroup("setDirection(VerticalDirection)", () ->
+            {
+                runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
+                {
+                    final SwingUIVerticalLayout verticalLayout = creator.run(test);
+                    final SwingUIVerticalLayout setHeightResult = verticalLayout.setDirection(VerticalDirection.TopToBottom);
                     test.assertSame(verticalLayout, setHeightResult);
                 });
             });

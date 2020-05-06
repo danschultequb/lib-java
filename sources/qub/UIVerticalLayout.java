@@ -27,6 +27,19 @@ public interface UIVerticalLayout extends UIElement
     UIVerticalLayout setSize(Distance width, Distance height);
 
     /**
+     * Set the direction that elements will flow in this UIVerticalLayout.
+     * @param direction The direction that elements will flow in this UIVerticalLayout.
+     * @return This object for method chaining.
+     */
+    UIVerticalLayout setDirection(VerticalDirection direction);
+
+    /**
+     * Get the direction that elements will flow in this UIVerticalLayout.
+     * @return The direction that elements will flow in this UIVerticalLayout.
+     */
+    VerticalDirection getDirection();
+
+    /**
      * Add the provided element to this UIVerticalLayout.
      * @param element The element to add to this UIVerticalLayout.
      * @return This object for method chaining.
