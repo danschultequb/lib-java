@@ -1,31 +1,31 @@
 package qub;
 
 /**
- * A UIVerticalLayout that displays other SwingUIElements in a vertical stack.
+ * A UIHorizontalLayout that displays other SwingUIElements in a horizontal stack.
  */
-public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
+public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIElement
 {
     private final javax.swing.JPanel jPanel;
     private final Display display;
     private final List<SwingUIElement> elements;
-    private VerticalDirection direction;
+    private HorizontalDirection direction;
 
-    private SwingUIVerticalLayout(Display display)
+    private SwingUIHorizontalLayout(Display display)
     {
         PreCondition.assertNotNull(display, "display");
 
         this.display = display;
         this.elements = List.create();
-        this.direction = VerticalDirection.TopToBottom;
+        this.direction = HorizontalDirection.LeftToRight;
 
         this.jPanel = new javax.swing.JPanel();
-        final javax.swing.BoxLayout boxLayout = new javax.swing.BoxLayout(this.jPanel, javax.swing.BoxLayout.PAGE_AXIS);
+        final javax.swing.BoxLayout boxLayout = new javax.swing.BoxLayout(this.jPanel, javax.swing.BoxLayout.LINE_AXIS);
         this.jPanel.setLayout(boxLayout);
     }
 
-    public static SwingUIVerticalLayout create(Display display)
+    public static SwingUIHorizontalLayout create(Display display)
     {
-        return new SwingUIVerticalLayout(display);
+        return new SwingUIHorizontalLayout(display);
     }
 
     @Override
@@ -35,9 +35,9 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     }
 
     @Override
-    public SwingUIVerticalLayout setWidth(Distance width)
+    public SwingUIHorizontalLayout setWidth(Distance width)
     {
-        return (SwingUIVerticalLayout)UIVerticalLayout.super.setWidth(width);
+        return (SwingUIHorizontalLayout)UIHorizontalLayout.super.setWidth(width);
     }
 
     @Override
@@ -53,9 +53,9 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     }
 
     @Override
-    public SwingUIVerticalLayout setHeight(Distance height)
+    public SwingUIHorizontalLayout setHeight(Distance height)
     {
-        return (SwingUIVerticalLayout)UIVerticalLayout.super.setHeight(height);
+        return (SwingUIHorizontalLayout)UIHorizontalLayout.super.setHeight(height);
     }
 
     @Override
@@ -71,13 +71,13 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     }
 
     @Override
-    public SwingUIVerticalLayout setSize(Size2D size)
+    public SwingUIHorizontalLayout setSize(Size2D size)
     {
-        return (SwingUIVerticalLayout)UIVerticalLayout.super.setSize(size);
+        return (SwingUIHorizontalLayout)UIHorizontalLayout.super.setSize(size);
     }
 
     @Override
-    public SwingUIVerticalLayout setSize(Distance width, Distance height)
+    public SwingUIHorizontalLayout setSize(Distance width, Distance height)
     {
         PreCondition.assertNotNull(width, "width");
         PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
@@ -92,7 +92,7 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     }
 
     @Override
-    public SwingUIVerticalLayout setDirection(VerticalDirection direction)
+    public SwingUIHorizontalLayout setDirection(HorizontalDirection direction)
     {
         PreCondition.assertNotNull(direction, "direction");
 
@@ -101,7 +101,7 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
             this.jPanel.removeAll();
 
             this.direction = direction;
-            if (this.direction == VerticalDirection.TopToBottom)
+            if (this.direction == HorizontalDirection.LeftToRight)
             {
                 for (final SwingUIElement element : this.elements)
                 {
@@ -114,7 +114,7 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
                 {
                     this.jPanel.add(element.getJComponent(), 0);
                 }
-                this.jPanel.add(javax.swing.Box.createVerticalGlue(), 0);
+                this.jPanel.add(javax.swing.Box.createHorizontalGlue(), 0);
             }
             this.jPanel.revalidate();
         }
@@ -123,13 +123,13 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     }
 
     @Override
-    public VerticalDirection getDirection()
+    public HorizontalDirection getDirection()
     {
         return this.direction;
     }
 
     @Override
-    public SwingUIVerticalLayout add(UIElement element)
+    public SwingUIHorizontalLayout add(UIElement element)
     {
         PreCondition.assertNotNull(element, "element");
         PreCondition.assertInstanceOf(element, SwingUIElement.class, "element");
@@ -138,7 +138,6 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
         this.elements.add(swingElement);
 
         final javax.swing.JComponent jComponent = swingElement.getJComponent();
-        jComponent.setAlignmentX(0.0f);
         this.jPanel.add(jComponent);
         this.jPanel.revalidate();
 
@@ -146,14 +145,14 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     }
 
     @Override
-    public SwingUIVerticalLayout addAll(UIElement... elements)
+    public SwingUIHorizontalLayout addAll(UIElement... elements)
     {
-        return (SwingUIVerticalLayout)UIVerticalLayout.super.addAll(elements);
+        return (SwingUIHorizontalLayout)UIHorizontalLayout.super.addAll(elements);
     }
 
     @Override
-    public SwingUIVerticalLayout addAll(Iterable<? extends UIElement> elements)
+    public SwingUIHorizontalLayout addAll(Iterable<? extends UIElement> elements)
     {
-        return (SwingUIVerticalLayout)UIVerticalLayout.super.addAll(elements);
+        return (SwingUIHorizontalLayout)UIHorizontalLayout.super.addAll(elements);
     }
 }

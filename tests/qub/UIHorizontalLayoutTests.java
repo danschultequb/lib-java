@@ -1,22 +1,22 @@
 package qub;
 
-public interface UIVerticalLayoutTests
+public interface UIHorizontalLayoutTests
 {
-    static void test(TestRunner runner, Function1<Test,? extends UIVerticalLayout> creator)
+    static void test(TestRunner runner, Function1<Test,? extends UIHorizontalLayout> creator)
     {
         PreCondition.assertNotNull(runner, "runner");
         PreCondition.assertNotNull(creator, "creator");
 
-        runner.testGroup(UIVerticalLayout.class, () ->
+        runner.testGroup(UIHorizontalLayout.class, () ->
         {
             UIElementTests.test(runner, creator);
 
             runner.testGroup("setWidth(Distance)", () ->
             {
-                runner.test("should return " + Types.getTypeName(UIVerticalLayout.class), (Test test) ->
+                runner.test("should return " + Types.getTypeName(UIHorizontalLayout.class), (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    final UIVerticalLayout setWidthResult = verticalLayout.setWidth(Distance.inches(1));
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout setWidthResult = verticalLayout.setWidth(Distance.inches(1));
                     test.assertSame(verticalLayout, setWidthResult);
                 });
             });
@@ -25,8 +25,8 @@ public interface UIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(UIButton.class), (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    final UIVerticalLayout setHeightResult = verticalLayout.setHeight(Distance.inches(1));
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout setHeightResult = verticalLayout.setHeight(Distance.inches(1));
                     test.assertSame(verticalLayout, setHeightResult);
                 });
             });
@@ -35,8 +35,8 @@ public interface UIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(UIButton.class), (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    final UIVerticalLayout setHeightResult = verticalLayout.setSize(new Size2D(Distance.inches(2), Distance.inches(3)));
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout setHeightResult = verticalLayout.setSize(new Size2D(Distance.inches(2), Distance.inches(3)));
                     test.assertSame(verticalLayout, setHeightResult);
                 });
             });
@@ -45,61 +45,61 @@ public interface UIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(UIButton.class), (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    final UIVerticalLayout setHeightResult = verticalLayout.setSize(Distance.inches(2), Distance.inches(3));
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout setHeightResult = verticalLayout.setSize(Distance.inches(2), Distance.inches(3));
                     test.assertSame(verticalLayout, setHeightResult);
                 });
             });
 
-            runner.testGroup("setDirection(VerticalDirection)", () ->
+            runner.testGroup("setDirection(HorizontalDirection)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
                     test.assertThrows(() -> verticalLayout.setDirection(null),
                         new PreConditionFailure("direction cannot be null."));
                 });
 
-                final Action2<VerticalDirection,VerticalDirection> setDirectionTest = (VerticalDirection oldDirection, VerticalDirection newDirection) ->
+                final Action2<HorizontalDirection,HorizontalDirection> setDirectionTest = (HorizontalDirection oldDirection, HorizontalDirection newDirection) ->
                 {
                     runner.test("from " + oldDirection + " to " + newDirection, (Test test) ->
                     {
-                        final UIVerticalLayout verticalLayout = creator.run(test);
+                        final UIHorizontalLayout verticalLayout = creator.run(test);
 
                         final Iterable<UIElement> childElements = Iterable.create(creator.run(test), creator.run(test), creator.run(test));
                         verticalLayout.addAll(childElements);
 
-                        final UIVerticalLayout setDirectionResult1 = verticalLayout.setDirection(oldDirection);
+                        final UIHorizontalLayout setDirectionResult1 = verticalLayout.setDirection(oldDirection);
                         test.assertSame(verticalLayout, setDirectionResult1);
                         test.assertEqual(oldDirection, verticalLayout.getDirection());
 
-                        final UIVerticalLayout setDirectionResult2 = verticalLayout.setDirection(newDirection);
+                        final UIHorizontalLayout setDirectionResult2 = verticalLayout.setDirection(newDirection);
                         test.assertSame(verticalLayout, setDirectionResult2);
                         test.assertEqual(newDirection, verticalLayout.getDirection());
                     });
                 };
 
-                setDirectionTest.run(VerticalDirection.TopToBottom, VerticalDirection.TopToBottom);
-                setDirectionTest.run(VerticalDirection.TopToBottom, VerticalDirection.BottomToTop);
-                setDirectionTest.run(VerticalDirection.BottomToTop, VerticalDirection.TopToBottom);
-                setDirectionTest.run(VerticalDirection.BottomToTop, VerticalDirection.BottomToTop);
+                setDirectionTest.run(HorizontalDirection.LeftToRight, HorizontalDirection.LeftToRight);
+                setDirectionTest.run(HorizontalDirection.LeftToRight, HorizontalDirection.RightToLeft);
+                setDirectionTest.run(HorizontalDirection.RightToLeft, HorizontalDirection.LeftToRight);
+                setDirectionTest.run(HorizontalDirection.RightToLeft, HorizontalDirection.RightToLeft);
             });
 
             runner.testGroup("add(UIElement)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
                     test.assertThrows(() -> verticalLayout.add((UIElement)null),
                         new PreConditionFailure("element cannot be null."));
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
                     final UIElement element = creator.run(test);
 
-                    final UIVerticalLayout addResult = verticalLayout.add(element);
+                    final UIHorizontalLayout addResult = verticalLayout.add(element);
                     test.assertSame(verticalLayout, addResult);
                 });
             });
@@ -108,7 +108,7 @@ public interface UIVerticalLayoutTests
             {
                 runner.test("with null element", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
 
                     test.assertThrows(() -> verticalLayout.addAll((UIElement)null),
                         new PreConditionFailure("element cannot be null."));
@@ -116,34 +116,34 @@ public interface UIVerticalLayoutTests
 
                 runner.test("with no arguments", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
 
-                    final UIVerticalLayout addResult = verticalLayout.addAll();
+                    final UIHorizontalLayout addResult = verticalLayout.addAll();
                     test.assertSame(verticalLayout, addResult);
                 });
 
                 runner.test("with one argument", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
                     final UIElement element = creator.run(test);
 
-                    final UIVerticalLayout addResult = verticalLayout.addAll(element);
+                    final UIHorizontalLayout addResult = verticalLayout.addAll(element);
                     test.assertSame(verticalLayout, addResult);
                 });
 
                 runner.test("with multiple arguments", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
                     final UIElement element1 = creator.run(test);
                     final UIElement element2 = creator.run(test);
 
-                    final UIVerticalLayout addResult = verticalLayout.addAll(element1, element2);
+                    final UIHorizontalLayout addResult = verticalLayout.addAll(element1, element2);
                     test.assertSame(verticalLayout, addResult);
                 });
 
                 runner.test("with null array", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
 
                     test.assertThrows(() -> verticalLayout.addAll((UIElement[])null),
                         new PreConditionFailure("elements cannot be null."));
@@ -151,28 +151,28 @@ public interface UIVerticalLayoutTests
 
                 runner.test("with empty array", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
 
-                    final UIVerticalLayout addResult = verticalLayout.addAll(new UIElement[0]);
+                    final UIHorizontalLayout addResult = verticalLayout.addAll(new UIElement[0]);
                     test.assertSame(verticalLayout, addResult);
                 });
 
                 runner.test("with one element array", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
                     final UIElement element = creator.run(test);
 
-                    final UIVerticalLayout addResult = verticalLayout.addAll(new UIElement[] { element });
+                    final UIHorizontalLayout addResult = verticalLayout.addAll(new UIElement[] { element });
                     test.assertSame(verticalLayout, addResult);
                 });
 
                 runner.test("with multiple element array", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
                     final UIElement element1 = creator.run(test);
                     final UIElement element2 = creator.run(test);
 
-                    final UIVerticalLayout addResult = verticalLayout.addAll(new UIElement[] { element1, element2 });
+                    final UIHorizontalLayout addResult = verticalLayout.addAll(new UIElement[] { element1, element2 });
                     test.assertSame(verticalLayout, addResult);
                 });
             });
@@ -181,7 +181,7 @@ public interface UIVerticalLayoutTests
             {
                 runner.test("with null Iterable", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
 
                     test.assertThrows(() -> verticalLayout.addAll((Iterable<UIElement>)null),
                         new PreConditionFailure("elements cannot be null."));
@@ -189,28 +189,28 @@ public interface UIVerticalLayoutTests
 
                 runner.test("with empty Iterable", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
 
-                    final UIVerticalLayout addResult = verticalLayout.addAll(Iterable.create());
+                    final UIHorizontalLayout addResult = verticalLayout.addAll(Iterable.create());
                     test.assertSame(verticalLayout, addResult);
                 });
 
                 runner.test("with one element Iterable", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
                     final UIElement element = creator.run(test);
 
-                    final UIVerticalLayout addResult = verticalLayout.addAll(Iterable.create(element));
+                    final UIHorizontalLayout addResult = verticalLayout.addAll(Iterable.create(element));
                     test.assertSame(verticalLayout, addResult);
                 });
 
                 runner.test("with multiple element Iterable", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    final UIHorizontalLayout verticalLayout = creator.run(test);
                     final UIElement element1 = creator.run(test);
                     final UIElement element2 = creator.run(test);
 
-                    final UIVerticalLayout addResult = verticalLayout.addAll(Iterable.create(element1, element2));
+                    final UIHorizontalLayout addResult = verticalLayout.addAll(Iterable.create(element1, element2));
                     test.assertSame(verticalLayout, addResult);
                 });
             });

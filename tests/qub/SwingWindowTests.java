@@ -193,37 +193,55 @@ public interface SwingWindowTests
 
                         final IntegerValue fontPoints = IntegerValue.create(10);
 
-                        final UIText text = SwingUIText.create(display)
+                        final UIText welcomeText = SwingUIText.create(display)
                             .setText("Welcome to my program.")
                             .setFontSize(Distance.fontPoints(fontPoints.get()));
-                        verticalLayout.add(text);
+                        verticalLayout.add(welcomeText);
 
                         final UIButton button = SwingUIButton.create(display, asyncRunner)
                             .setText("Font Points: " + fontPoints)
                             .setFontSize(Distance.fontPoints(fontPoints.get()));
                         verticalLayout.add(button);
 
-                        final UIButton switchDirectionButton = SwingUIButton.create(display, asyncRunner)
-                            .setText("Switch Direction")
+                        final UIText directionText = SwingUIText.create(display)
+                            .setText("Direction:")
                             .setFontSize(Distance.fontPoints(fontPoints.get()));
-                        switchDirectionButton.onClick(() ->
+                        verticalLayout.add(directionText);
+
+                        final UIHorizontalLayout buttonLayout = SwingUIHorizontalLayout.create(display);
+
+                        final UIButton topToBottomButton = SwingUIButton.create(display, asyncRunner)
+                            .setText("Top to Bottom")
+                            .setFontSize(Distance.fontPoints(fontPoints.get()));
+                        topToBottomButton.onClick(() ->
                         {
-                            verticalLayout.setDirection(verticalLayout.getDirection() == VerticalDirection.TopToBottom
-                                ? VerticalDirection.BottomToTop
-                                : VerticalDirection.TopToBottom);
+                            verticalLayout.setDirection(VerticalDirection.TopToBottom);
                         });
-                        verticalLayout.add(switchDirectionButton);
+                        buttonLayout.add(topToBottomButton);
+
+                        final UIButton bottomToTopButton = SwingUIButton.create(display, asyncRunner)
+                            .setText("Bottom to Top")
+                            .setFontSize(Distance.fontPoints(fontPoints.get()));
+                        bottomToTopButton.onClick(() ->
+                        {
+                            verticalLayout.setDirection(VerticalDirection.BottomToTop);
+                        });
+                        buttonLayout.add(bottomToTopButton);
+
+                        verticalLayout.add(buttonLayout);
 
                         button.onClick(() ->
                         {
                             fontPoints.increment();
 
-                            text.setFontSize(Distance.fontPoints(fontPoints.get()));
+                            welcomeText.setFontSize(Distance.fontPoints(fontPoints.get()));
 
                             button.setText("Font Points: " + fontPoints);
                             button.setFontSize(Distance.fontPoints(fontPoints.get()));
 
-                            switchDirectionButton.setFontSize(Distance.fontPoints(fontPoints.get()));
+                            directionText.setFontSize(Distance.fontPoints(fontPoints.get()));
+                            topToBottomButton.setFontSize(Distance.fontPoints(fontPoints.get()));
+                            bottomToTopButton.setFontSize(Distance.fontPoints(fontPoints.get()));
                         });
 
                         window.setContent(verticalLayout);
