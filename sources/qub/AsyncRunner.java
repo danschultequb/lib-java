@@ -21,14 +21,6 @@ public interface AsyncRunner
     <T> Result<T> schedule(Function0<T> function);
 
     /**
-     * Schedule the provided function to be run on this AsyncRunner.
-     * @param function The function to run on this AsyncRunner.
-     * @param <T> The type of value that the function will return.
-     * @return The Result object that tracks the progress of the provided function.
-     */
-    <T> Result<T> scheduleResult(Function0<Result<T>> function);
-
-    /**
      * Create a new PausedAsyncTask that will run the provided action when it is scheduled.
      * @param action The action to run on this AsyncRunner.
      * @return The PausedAsyncTask that can be scheduled later.
@@ -42,12 +34,4 @@ public interface AsyncRunner
      * @return The PausedAsyncTask that can be scheduled later.
      */
     <T> PausedAsyncTask<T> create(Function0<T> function);
-
-    /**
-     * Create a new PausedAsyncTask that will run the provided action when it is scheduled.
-     * @param function The function to run on this AsyncRunner.
-     * @param <T> The type of value that the function will return.
-     * @return The PausedAsyncTask that can be scheduled later.
-     */
-    <T> PausedAsyncTask<T> createResult(Function0<Result<T>> function);
 }

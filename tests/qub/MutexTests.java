@@ -32,8 +32,8 @@ public interface MutexTests
                 {
                     final Mutex mutex = create(creator);
 
-                    final Gate mutexAcquired = new SpinGate(false);
-                    final Gate isAcquiredChecked = new SpinGate(false);
+                    final Gate mutexAcquired = SpinGate.create(false);
+                    final Gate isAcquiredChecked = SpinGate.create(false);
 
                     final Result<Void> task = test.getParallelAsyncRunner().schedule(() ->
                     {
@@ -68,8 +68,8 @@ public interface MutexTests
                 {
                     final Mutex mutex = create(creator);
 
-                    final Gate mutexAcquired = new SpinGate(false);
-                    final Gate isAcquiredChecked = new SpinGate(false);
+                    final Gate mutexAcquired = SpinGate.create(false);
+                    final Gate isAcquiredChecked = SpinGate.create(false);
 
                     final Result<Void> task = test.getParallelAsyncRunner().schedule(() ->
                     {

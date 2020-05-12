@@ -6,6 +6,14 @@ public interface SwingWindowTests
     {
         runner.testGroup(SwingWindow.class, () ->
         {
+            final Function1<Test,SwingWindow> creator = (Test test) ->
+            {
+                final Display display = test.getDisplays().first();
+                final AsyncRunner asyncRunner = test.getMainAsyncRunner();
+                final JavaUIBase base = JavaUIBase.create(display, asyncRunner);
+                return SwingWindow.create(base);
+            };
+
             runner.testGroup("create(Display)", () ->
             {
                 runner.test("with null Display", (Test test) ->
@@ -181,70 +189,24 @@ public interface SwingWindowTests
                     }
                 });
 
-                runner.test("when visible", runner.skip(), (Test test) ->
+                runner.test("when visible", runner.skip(false), (Test test) ->
                 {
                     final Display display = test.getDisplays().first();
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    try (final SwingWindow window = SwingWindow.create(display, asyncRunner).setTitle(test.getFullName()))
+                    final JavaUIBase base = JavaUIBase.create(display, asyncRunner);
+                    try (final SwingWindow window = SwingWindow.create(base).setTitle(test.getFullName()))
                     {
                         window.setSize(Distance.inches(4), Distance.inches(4));
 
-                        final UIVerticalLayout verticalLayout = SwingUIVerticalLayout.create(display);
+                        final UIText text = SwingUIText.create(base)
+                            .setFontSize(Distance.inches(0.5));
 
-                        final IntegerValue fontPoints = IntegerValue.create(10);
+                        final Action0 setText = () -> text.setText("[" + window.getWidth().toString("#.#") + ", " + window.getHeight().toString("#.#") + "]");
+                        setText.run();
 
-                        final UIText welcomeText = SwingUIText.create(display)
-                            .setText("Welcome to my program.")
-                            .setFontSize(Distance.fontPoints(fontPoints.get()));
-                        verticalLayout.add(welcomeText);
+                        window.onSizeChanged(setText);
 
-                        final UIButton button = SwingUIButton.create(display, asyncRunner)
-                            .setText("Font Points: " + fontPoints)
-                            .setFontSize(Distance.fontPoints(fontPoints.get()));
-                        verticalLayout.add(button);
-
-                        final UIText directionText = SwingUIText.create(display)
-                            .setText("Direction:")
-                            .setFontSize(Distance.fontPoints(fontPoints.get()));
-                        verticalLayout.add(directionText);
-
-                        final UIHorizontalLayout buttonLayout = SwingUIHorizontalLayout.create(display);
-
-                        final UIButton topToBottomButton = SwingUIButton.create(display, asyncRunner)
-                            .setText("Top to Bottom")
-                            .setFontSize(Distance.fontPoints(fontPoints.get()));
-                        topToBottomButton.onClick(() ->
-                        {
-                            verticalLayout.setDirection(VerticalDirection.TopToBottom);
-                        });
-                        buttonLayout.add(topToBottomButton);
-
-                        final UIButton bottomToTopButton = SwingUIButton.create(display, asyncRunner)
-                            .setText("Bottom to Top")
-                            .setFontSize(Distance.fontPoints(fontPoints.get()));
-                        bottomToTopButton.onClick(() ->
-                        {
-                            verticalLayout.setDirection(VerticalDirection.BottomToTop);
-                        });
-                        buttonLayout.add(bottomToTopButton);
-
-                        verticalLayout.add(buttonLayout);
-
-                        button.onClick(() ->
-                        {
-                            fontPoints.increment();
-
-                            welcomeText.setFontSize(Distance.fontPoints(fontPoints.get()));
-
-                            button.setText("Font Points: " + fontPoints);
-                            button.setFontSize(Distance.fontPoints(fontPoints.get()));
-
-                            directionText.setFontSize(Distance.fontPoints(fontPoints.get()));
-                            topToBottomButton.setFontSize(Distance.fontPoints(fontPoints.get()));
-                            bottomToTopButton.setFontSize(Distance.fontPoints(fontPoints.get()));
-                        });
-
-                        window.setContent(verticalLayout);
+                        window.setContent(SwingUIVerticalLayout.create(base).add(text));
 
                         window.setVisible(true);
 
@@ -309,7 +271,7 @@ public interface SwingWindowTests
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
                     {
-                        test.assertThrows(() -> window.setContent((SwingUIElement)null),
+                        test.assertThrows(() -> window.setContent((JavaUIElement)null),
                                 new PreConditionFailure("content cannot be null."));
                         test.assertNull(window.getContent());
                     }
@@ -322,7 +284,7 @@ public interface SwingWindowTests
                     try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
                     {
                         final SwingUIButton content = SwingUIButton.create(display, asyncRunner).setText("Hello World!");
-                        final SwingWindow setContentResult = window.setContent((SwingUIElement)content);
+                        final SwingWindow setContentResult = window.setContent((JavaUIElement)content);
                         test.assertSame(window, setContentResult);
                         test.assertSame(content, window.getContent());
                     }
@@ -339,7 +301,7 @@ public interface SwingWindowTests
                         test.assertSame(content1, window.getContent());
 
                         final SwingUIButton content2 = SwingUIButton.create(display, asyncRunner).setText("Hello World!");
-                        final SwingWindow setContentResult = window.setContent((SwingUIElement)content2);
+                        final SwingWindow setContentResult = window.setContent((JavaUIElement)content2);
                         test.assertSame(window, setContentResult);
                         test.assertSame(content2, window.getContent());
                     }

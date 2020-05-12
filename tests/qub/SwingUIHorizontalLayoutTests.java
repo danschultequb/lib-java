@@ -8,31 +8,67 @@ public interface SwingUIHorizontalLayoutTests
         {
             final Function1<Test,SwingUIHorizontalLayout> creator = (Test test) ->
             {
-                final Display display = new Display(1000, 1000, 100, 100);
-                return SwingUIHorizontalLayout.create(display);
+                final Display display = test.getDisplays().first();
+                final AsyncRunner asyncRunner = test.getMainAsyncRunner();
+                final JavaUIBase base = JavaUIBase.create(display, asyncRunner);
+                return SwingUIHorizontalLayout.create(base);
             };
 
             UIHorizontalLayoutTests.test(runner, creator);
 
-            runner.testGroup("create(Display)", () ->
+            runner.testGroup("create(JavaUIBase)", () ->
             {
-                runner.test("with null", (Test test) ->
+                runner.test("with null uiBase", (Test test) ->
                 {
-                    final Display display = null;
-                    test.assertThrows(() -> SwingUIHorizontalLayout.create(display),
-                        new PreConditionFailure("display cannot be null."));
+                    test.assertThrows(() -> SwingUIHorizontalLayout.create(null),
+                        new PreConditionFailure("uiBase cannot be null."));
                 });
 
-                runner.test("with non-null", (Test test) ->
+                runner.test("with valid arguments", (Test test) ->
                 {
-                    final Display display = new Display(1000, 1000, 100, 100);
-                    final SwingUIHorizontalLayout verticalLayout = SwingUIHorizontalLayout.create(display);
+                    final Display display = test.getDisplays().first();
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
+                    final JavaUIBase base = JavaUIBase.create(display, asyncRunner);
+                    final SwingUIHorizontalLayout verticalLayout = SwingUIHorizontalLayout.create(base);
                     test.assertNotNull(verticalLayout);
                     test.assertEqual(Distance.zero, verticalLayout.getWidth());
                     test.assertEqual(Distance.zero, verticalLayout.getHeight());
                     test.assertEqual(HorizontalDirection.LeftToRight, verticalLayout.getDirection());
 
-                    final javax.swing.JPanel jComponent = verticalLayout.getJComponent();
+                    final javax.swing.JPanel jComponent = verticalLayout.getComponent();
+                    test.assertNotNull(jComponent);
+                });
+            });
+
+            runner.testGroup("create(Display,AsyncRunner)", () ->
+            {
+                runner.test("with null display", (Test test) ->
+                {
+                    final Display display = null;
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
+                    test.assertThrows(() -> SwingUIHorizontalLayout.create(display, asyncRunner),
+                        new PreConditionFailure("display cannot be null."));
+                });
+
+                runner.test("with null asyncRunner", (Test test) ->
+                {
+                    final Display display = test.getDisplays().first();
+                    final AsyncRunner asyncRunner = null;
+                    test.assertThrows(() -> SwingUIHorizontalLayout.create(display, asyncRunner),
+                        new PreConditionFailure("asyncRunner cannot be null."));
+                });
+
+                runner.test("with valid arguments", (Test test) ->
+                {
+                    final Display display = test.getDisplays().first();
+                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
+                    final SwingUIHorizontalLayout verticalLayout = SwingUIHorizontalLayout.create(display, asyncRunner);
+                    test.assertNotNull(verticalLayout);
+                    test.assertEqual(Distance.zero, verticalLayout.getWidth());
+                    test.assertEqual(Distance.zero, verticalLayout.getHeight());
+                    test.assertEqual(HorizontalDirection.LeftToRight, verticalLayout.getDirection());
+
+                    final javax.swing.JPanel jComponent = verticalLayout.getComponent();
                     test.assertNotNull(jComponent);
                 });
             });

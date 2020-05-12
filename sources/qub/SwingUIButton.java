@@ -3,20 +3,26 @@ package qub;
 /**
  * A UIButton that is implemented using a Swing JButton.
  */
-public class SwingUIButton implements UIButton, SwingUIElement
+public class SwingUIButton implements UIButton, JavaUIElement
 {
+    private final JavaUIBase uiBase;
     private final javax.swing.JButton jButton;
-    private final Display display;
-    private final AsyncRunner asyncRunner;
 
-    private SwingUIButton(Display display, AsyncRunner asyncRunner)
+    private SwingUIButton(JavaUIBase uiBase)
     {
-        PreCondition.assertNotNull(display, "display");
-        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+        PreCondition.assertNotNull(uiBase, "uiBase");
 
+        this.uiBase = uiBase;
         this.jButton = new javax.swing.JButton();
-        this.display = display;
-        this.asyncRunner = asyncRunner;
+    }
+
+    /**
+     * Create a new SwingUIButton.
+     * @return The new SwingUIButton.
+     */
+    public static SwingUIButton create(JavaUIBase base)
+    {
+        return new SwingUIButton(base);
     }
 
     /**
@@ -27,11 +33,11 @@ public class SwingUIButton implements UIButton, SwingUIElement
      */
     public static SwingUIButton create(Display display, AsyncRunner asyncRunner)
     {
-        return new SwingUIButton(display, asyncRunner);
+        return SwingUIButton.create(JavaUIBase.create(display, asyncRunner));
     }
 
     @Override
-    public javax.swing.JButton getJComponent()
+    public javax.swing.JButton getComponent()
     {
         return this.jButton;
     }
@@ -45,13 +51,7 @@ public class SwingUIButton implements UIButton, SwingUIElement
     @Override
     public Distance getWidth()
     {
-        final int widthInPixels = this.getJComponent().getWidth();
-        final Distance result = this.display.convertHorizontalPixelsToDistance(widthInPixels);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
-
-        return result;
+        return this.uiBase.getWidth(this.jButton);
     }
 
     @Override
@@ -63,13 +63,7 @@ public class SwingUIButton implements UIButton, SwingUIElement
     @Override
     public Distance getHeight()
     {
-        final int heightInPixels = this.getJComponent().getHeight();
-        final Distance result = this.display.convertVerticalPixelsToDistance(heightInPixels);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
-
-        return result;
+        return this.uiBase.getHeight(this.jButton);
     }
 
     @Override
@@ -81,16 +75,14 @@ public class SwingUIButton implements UIButton, SwingUIElement
     @Override
     public SwingUIButton setSize(Distance width, Distance height)
     {
-        PreCondition.assertNotNull(width, "width");
-        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
-        PreCondition.assertNotNull(height, "height");
-        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
-
-        final double widthInPixels = this.display.convertHorizontalDistanceToPixels(width);
-        final double heightInPixels = this.display.convertVerticalDistanceToPixels(height);
-        this.getJComponent().setSize((int)widthInPixels, (int)heightInPixels);
-
+        this.uiBase.setSize(this.jButton, width, height);
         return this;
+    }
+
+    @Override
+    public Disposable onSizeChanged(Action0 callback)
+    {
+        return this.uiBase.onSizeChanged(this.jButton, callback);
     }
 
     @Override
@@ -112,26 +104,13 @@ public class SwingUIButton implements UIButton, SwingUIElement
     @Override
     public Distance getFontSize()
     {
-        final float fontSize2D = this.jButton.getFont().getSize2D();
-        final Distance result = Distance.fontPoints(fontSize2D);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
-
-        return result;
+        return this.uiBase.getFontSize(this.jButton);
     }
 
     @Override
     public SwingUIButton setFontSize(Distance fontSize)
     {
-        PreCondition.assertNotNull(fontSize, "fontSize");
-        PreCondition.assertGreaterThanOrEqualTo(fontSize, Distance.zero, "fontSize");
-
-        final java.awt.Font font = this.jButton.getFont();
-        final float fontPoints = (float)fontSize.toFontPoints().getValue();
-        final java.awt.Font updatedFont = font.deriveFont(fontPoints);
-        this.jButton.setFont(updatedFont);
-
+        this.uiBase.setFontSize(this.jButton, fontSize);
         return this;
     }
 
@@ -142,10 +121,10 @@ public class SwingUIButton implements UIButton, SwingUIElement
 
         final java.awt.event.ActionListener actionListener = (java.awt.event.ActionEvent actionEvent) ->
         {
-            callback.run();
+            this.uiBase.scheduleAsyncTask(callback).await();
         };
         this.jButton.addActionListener(actionListener);
-        return BasicDisposable.create(() ->
+        return Disposable.create(() ->
         {
             this.jButton.removeActionListener(actionListener);
         });

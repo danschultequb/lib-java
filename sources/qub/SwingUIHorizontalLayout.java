@@ -3,33 +3,36 @@ package qub;
 /**
  * A UIHorizontalLayout that displays other SwingUIElements in a horizontal stack.
  */
-public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIElement
+public class SwingUIHorizontalLayout implements UIHorizontalLayout, JavaUIElement
 {
     private final javax.swing.JPanel jPanel;
-    private final Display display;
-    private final List<SwingUIElement> elements;
+    private final JavaUIBase uiBase;
+    private final List<JavaUIElement> elements;
     private HorizontalDirection direction;
 
-    private SwingUIHorizontalLayout(Display display)
+    private SwingUIHorizontalLayout(JavaUIBase uiBase)
     {
-        PreCondition.assertNotNull(display, "display");
+        PreCondition.assertNotNull(uiBase, "uiBase");
 
-        this.display = display;
+        this.uiBase = uiBase;
+        this.jPanel = new javax.swing.JPanel();
+        this.jPanel.setLayout(new javax.swing.BoxLayout(this.jPanel, javax.swing.BoxLayout.LINE_AXIS));
         this.elements = List.create();
         this.direction = HorizontalDirection.LeftToRight;
-
-        this.jPanel = new javax.swing.JPanel();
-        final javax.swing.BoxLayout boxLayout = new javax.swing.BoxLayout(this.jPanel, javax.swing.BoxLayout.LINE_AXIS);
-        this.jPanel.setLayout(boxLayout);
     }
 
-    public static SwingUIHorizontalLayout create(Display display)
+    public static SwingUIHorizontalLayout create(JavaUIBase base)
     {
-        return new SwingUIHorizontalLayout(display);
+        return new SwingUIHorizontalLayout(base);
+    }
+
+    public static SwingUIHorizontalLayout create(Display display, AsyncRunner asyncRunner)
+    {
+        return SwingUIHorizontalLayout.create(JavaUIBase.create(display, asyncRunner));
     }
 
     @Override
-    public javax.swing.JPanel getJComponent()
+    public javax.swing.JPanel getComponent()
     {
         return this.jPanel;
     }
@@ -43,13 +46,7 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIEleme
     @Override
     public Distance getWidth()
     {
-        final int widthInPixels = this.getJComponent().getWidth();
-        final Distance result = this.display.convertHorizontalPixelsToDistance(widthInPixels);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
-
-        return result;
+        return this.uiBase.getWidth(this.jPanel);
     }
 
     @Override
@@ -61,13 +58,7 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIEleme
     @Override
     public Distance getHeight()
     {
-        final int heightInPixels = this.getJComponent().getHeight();
-        final Distance result = this.display.convertVerticalPixelsToDistance(heightInPixels);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
-
-        return result;
+        return this.uiBase.getHeight(this.jPanel);
     }
 
     @Override
@@ -79,16 +70,14 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIEleme
     @Override
     public SwingUIHorizontalLayout setSize(Distance width, Distance height)
     {
-        PreCondition.assertNotNull(width, "width");
-        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
-        PreCondition.assertNotNull(height, "height");
-        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
-
-        final double widthInPixels = this.display.convertHorizontalDistanceToPixels(width);
-        final double heightInPixels = this.display.convertVerticalDistanceToPixels(height);
-        this.getJComponent().setSize((int)widthInPixels, (int)heightInPixels);
-
+        this.uiBase.setSize(this.jPanel, width, height);
         return this;
+    }
+
+    @Override
+    public Disposable onSizeChanged(Action0 callback)
+    {
+        return this.uiBase.onSizeChanged(this.jPanel, callback);
     }
 
     @Override
@@ -101,20 +90,14 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIEleme
             this.jPanel.removeAll();
 
             this.direction = direction;
-            if (this.direction == HorizontalDirection.LeftToRight)
+
+            if (this.direction == HorizontalDirection.RightToLeft)
             {
-                for (final SwingUIElement element : this.elements)
-                {
-                    this.jPanel.add(element.getJComponent());
-                }
-            }
-            else
-            {
-                for (final SwingUIElement element : this.elements)
-                {
-                    this.jPanel.add(element.getJComponent(), 0);
-                }
                 this.jPanel.add(javax.swing.Box.createHorizontalGlue(), 0);
+            }
+            for (final JavaUIElement element : this.elements)
+            {
+                this.jPanel.add(element.getComponent());
             }
             this.jPanel.revalidate();
         }
@@ -129,30 +112,30 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIEleme
     }
 
     @Override
-    public SwingUIHorizontalLayout add(UIElement element)
+    public SwingUIHorizontalLayout add(UIElement uiElement)
     {
-        PreCondition.assertNotNull(element, "element");
-        PreCondition.assertInstanceOf(element, SwingUIElement.class, "element");
+        PreCondition.assertNotNull(uiElement, "uiElement");
+        PreCondition.assertInstanceOf(uiElement, JavaUIElement.class, "uiElement");
 
-        final SwingUIElement swingElement = (SwingUIElement)element;
-        this.elements.add(swingElement);
+        final JavaUIElement javaUIElement = (JavaUIElement)uiElement;
+        this.elements.add(javaUIElement);
 
-        final javax.swing.JComponent jComponent = swingElement.getJComponent();
-        this.jPanel.add(jComponent);
+        final java.awt.Component component = javaUIElement.getComponent();
+        this.jPanel.add(component);
         this.jPanel.revalidate();
 
         return this;
     }
 
     @Override
-    public SwingUIHorizontalLayout addAll(UIElement... elements)
+    public SwingUIHorizontalLayout addAll(UIElement... uiElements)
     {
-        return (SwingUIHorizontalLayout)UIHorizontalLayout.super.addAll(elements);
+        return (SwingUIHorizontalLayout)UIHorizontalLayout.super.addAll(uiElements);
     }
 
     @Override
-    public SwingUIHorizontalLayout addAll(Iterable<? extends UIElement> elements)
+    public SwingUIHorizontalLayout addAll(Iterable<? extends UIElement> uiElements)
     {
-        return (SwingUIHorizontalLayout)UIHorizontalLayout.super.addAll(elements);
+        return (SwingUIHorizontalLayout)UIHorizontalLayout.super.addAll(uiElements);
     }
 }

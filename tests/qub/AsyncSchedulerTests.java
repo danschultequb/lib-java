@@ -63,35 +63,6 @@ public interface AsyncSchedulerTests
                     });
                 });
             });
-
-            runner.testGroup("scheduleResult(Function0<Result<T>>)", () ->
-            {
-                runner.test("with null function", (Test test) ->
-                {
-                    CurrentThread.withAsyncScheduler(creator, (AsyncScheduler asyncScheduler) ->
-                    {
-                        test.assertThrows(() -> asyncScheduler.scheduleResult((Function0<Result<Integer>>)null),
-                            new PreConditionFailure("function cannot be null."));
-                    });
-                });
-
-                runner.test("with non-null function", (Test test) ->
-                {
-                    CurrentThread.withAsyncScheduler(creator, (AsyncScheduler asyncScheduler) ->
-                    {
-                        final Value<Integer> value = Value.create();
-                        final Result<Integer> result = asyncScheduler.scheduleResult(() ->
-                        {
-                            value.set(10);
-                            return Result.success(5);
-                        });
-                        test.assertNotNull(result);
-
-                        test.assertEqual(5, result.await());
-                        test.assertEqual(10, value.get());
-                    });
-                });
-            });
         });
     }
 }

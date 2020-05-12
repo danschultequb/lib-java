@@ -23,7 +23,7 @@ public interface UIVerticalLayoutTests
 
             runner.testGroup("setHeight(Distance)", () ->
             {
-                runner.test("should return " + Types.getTypeName(UIButton.class), (Test test) ->
+                runner.test("should return " + Types.getTypeName(UIVerticalLayout.class), (Test test) ->
                 {
                     final UIVerticalLayout verticalLayout = creator.run(test);
                     final UIVerticalLayout setHeightResult = verticalLayout.setHeight(Distance.inches(1));
@@ -33,7 +33,7 @@ public interface UIVerticalLayoutTests
 
             runner.testGroup("setSize(Size2D)", () ->
             {
-                runner.test("should return " + Types.getTypeName(UIButton.class), (Test test) ->
+                runner.test("should return " + Types.getTypeName(UIVerticalLayout.class), (Test test) ->
                 {
                     final UIVerticalLayout verticalLayout = creator.run(test);
                     final UIVerticalLayout setHeightResult = verticalLayout.setSize(new Size2D(Distance.inches(2), Distance.inches(3)));
@@ -43,7 +43,7 @@ public interface UIVerticalLayoutTests
 
             runner.testGroup("setSize(Distance,Distance)", () ->
             {
-                runner.test("should return " + Types.getTypeName(UIButton.class), (Test test) ->
+                runner.test("should return " + Types.getTypeName(UIVerticalLayout.class), (Test test) ->
                 {
                     final UIVerticalLayout verticalLayout = creator.run(test);
                     final UIVerticalLayout setHeightResult = verticalLayout.setSize(Distance.inches(2), Distance.inches(3));
@@ -91,7 +91,7 @@ public interface UIVerticalLayoutTests
                 {
                     final UIVerticalLayout verticalLayout = creator.run(test);
                     test.assertThrows(() -> verticalLayout.add((UIElement)null),
-                        new PreConditionFailure("element cannot be null."));
+                        new PreConditionFailure("uiElement cannot be null."));
                 });
 
                 runner.test("with non-null", (Test test) ->
@@ -111,7 +111,7 @@ public interface UIVerticalLayoutTests
                     final UIVerticalLayout verticalLayout = creator.run(test);
 
                     test.assertThrows(() -> verticalLayout.addAll((UIElement)null),
-                        new PreConditionFailure("element cannot be null."));
+                        new PreConditionFailure("uiElement cannot be null."));
                 });
 
                 runner.test("with no arguments", (Test test) ->
@@ -146,7 +146,7 @@ public interface UIVerticalLayoutTests
                     final UIVerticalLayout verticalLayout = creator.run(test);
 
                     test.assertThrows(() -> verticalLayout.addAll((UIElement[])null),
-                        new PreConditionFailure("elements cannot be null."));
+                        new PreConditionFailure("uiElements cannot be null."));
                 });
 
                 runner.test("with empty array", (Test test) ->
@@ -184,7 +184,7 @@ public interface UIVerticalLayoutTests
                     final UIVerticalLayout verticalLayout = creator.run(test);
 
                     test.assertThrows(() -> verticalLayout.addAll((Iterable<UIElement>)null),
-                        new PreConditionFailure("elements cannot be null."));
+                        new PreConditionFailure("uiElements cannot be null."));
                 });
 
                 runner.test("with empty Iterable", (Test test) ->

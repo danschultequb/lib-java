@@ -22,14 +22,6 @@ public class ParallelAsyncRunner implements AsyncScheduler
     }
 
     @Override
-    public <T> AsyncTask<T> scheduleResult(Function0<Result<T>> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        return schedule(createResult(function));
-    }
-
-    @Override
     public AsyncTask<Void> create(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
@@ -43,14 +35,6 @@ public class ParallelAsyncRunner implements AsyncScheduler
         PreCondition.assertNotNull(function, "function");
 
         return new AsyncTask<>(this, function);
-    }
-
-    @Override
-    public <T> AsyncTask<T> createResult(Function0<Result<T>> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        return new AsyncTask<>(this, () -> function.run().await());
     }
 
     @Override

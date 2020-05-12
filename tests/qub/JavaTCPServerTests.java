@@ -160,11 +160,11 @@ public interface JavaTCPServerTests
                     final byte[] bytes = new byte[] { 1, 2, 3, 4, 5, 6 };
                     final Network network = JavaNetwork.create(test.getClock());
                     final Value<byte[]> clientReadBytes = Value.create();
-                    final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
+                    final AsyncRunner parallelAsyncRunner = test.getParallelAsyncRunner();
 
                     try (final TCPServer tcpServer = network.createTCPServer(ipAddress, port.get()).await())
                     {
-                        final Result<Void> clientTask = asyncRunner.schedule(() ->
+                        final Result<Void> clientTask = parallelAsyncRunner.schedule(() ->
                         {
                             try (final TCPClient tcpClient = network.createTCPClient(ipAddress, port.get()).await())
                             {
@@ -174,7 +174,7 @@ public interface JavaTCPServerTests
                         });
 
 
-                        try (final TCPClient serverClient = asyncRunner.scheduleResult(tcpServer::accept).await())
+                        try (final TCPClient serverClient = parallelAsyncRunner.schedule(() -> tcpServer.accept().await()).await())
                         {
                             final byte[] serverReadBytes = serverClient.readBytes(bytes.length).await();
                             test.assertEqual(bytes, serverReadBytes);

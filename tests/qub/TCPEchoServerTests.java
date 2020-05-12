@@ -13,9 +13,10 @@ public interface TCPEchoServerTests
                 final Network network = JavaNetwork.create(test.getClock());
                 try (final TCPEchoServer echoServer = TCPEchoServer.create(network, port.increment().getAsInt()).await())
                 {
-                    final Result<Void> serverTask = test.getParallelAsyncRunner().scheduleResult(echoServer::echo);
+                    final AsyncRunner parallelAsyncRunner = test.getParallelAsyncRunner();
+                    final Result<Void> serverTask = parallelAsyncRunner.schedule((() -> echoServer.echo().await()));
 
-                    final Result<Void> clientTask = test.getParallelAsyncRunner().schedule(() ->
+                    final Result<Void> clientTask = parallelAsyncRunner.schedule(() ->
                     {
                         try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port.get()).await())
                         {

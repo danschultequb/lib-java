@@ -25,13 +25,7 @@ public class BasicDisposable implements Disposable
      */
     public static BasicDisposable create(Action0 onDisposed)
     {
-        PreCondition.assertNotNull(onDisposed, "onDisposed");
-
-        final BasicDisposable result = new BasicDisposable(onDisposed);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return new BasicDisposable(onDisposed);
     }
 
     @Override
@@ -43,18 +37,15 @@ public class BasicDisposable implements Disposable
     @Override
     public Result<Boolean> dispose()
     {
-        Result<Boolean> result;
-        if (disposed)
+        return Result.create(() ->
         {
-            result = Result.successFalse();
-        }
-        else
-        {
-            onDisposed.run();
-
-            disposed = true;
-            result = Result.successTrue();
-        }
-        return result;
+            final boolean result = !this.disposed;
+            if (result)
+            {
+                this.disposed = true;
+                this.onDisposed.run();
+            }
+            return result;
+        });
     }
 }

@@ -9,10 +9,54 @@ public interface SwingUITextTests
             final Function1<Test,SwingUIText> creator = (Test test) ->
             {
                 final Display display = test.getDisplays().first();
-                return SwingUIText.create(display);
+                final AsyncRunner asyncRunner = test.getMainAsyncRunner();
+                final JavaUIBase base = JavaUIBase.create(display, asyncRunner);
+                return SwingUIText.create(base);
             };
 
             UITextTests.test(runner, creator);
+
+            runner.testGroup("create(JavaUIBase)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> SwingUIText.create((JavaUIBase)null),
+                        new PreConditionFailure("uiBase cannot be null."));
+                });
+
+                runner.test("with non-null", (Test test) ->
+                {
+                    final SwingUIText text = SwingUIText.create(JavaUIBase.create(test.getDisplays().first(), test.getMainAsyncRunner()));
+                    test.assertNotNull(text);
+                    test.assertEqual("", text.getText());
+                    final javax.swing.JLabel jLabel = text.getComponent();
+                    test.assertNotNull(jLabel);
+                });
+            });
+
+            runner.testGroup("create(Display,AsyncRunner)", () ->
+            {
+                runner.test("with null display", (Test test) ->
+                {
+                    test.assertThrows(() -> SwingUIText.create(null, test.getMainAsyncRunner()),
+                        new PreConditionFailure("display cannot be null."));
+                });
+
+                runner.test("with null asyncRunner", (Test test) ->
+                {
+                    test.assertThrows(() -> SwingUIText.create(test.getDisplays().first(), null),
+                        new PreConditionFailure("asyncRunner cannot be null."));
+                });
+
+                runner.test("with non-null arguments", (Test test) ->
+                {
+                    final SwingUIText text = SwingUIText.create(test.getDisplays().first(), test.getMainAsyncRunner());
+                    test.assertNotNull(text);
+                    test.assertEqual("", text.getText());
+                    final javax.swing.JLabel jLabel = text.getComponent();
+                    test.assertNotNull(jLabel);
+                });
+            });
             
             runner.testGroup("setWidth(Distance)", () ->
             {

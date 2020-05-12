@@ -13,7 +13,7 @@ public class ManualAsyncRunner implements AsyncScheduler
 
     public ManualAsyncRunner()
     {
-        scheduledTasks = new Locked<>(List.create());
+        this.scheduledTasks = new Locked<>(List.create());
     }
 
     /**
@@ -22,7 +22,7 @@ public class ManualAsyncRunner implements AsyncScheduler
      */
     public Iterable<AsyncTask<?>> getScheduledTasks()
     {
-        return scheduledTasks.get((List<AsyncTask<?>> tasks) -> tasks);
+        return this.scheduledTasks.get((List<AsyncTask<?>> tasks) -> tasks);
     }
 
     /**
@@ -31,7 +31,7 @@ public class ManualAsyncRunner implements AsyncScheduler
      */
     public int getScheduledTaskCount()
     {
-        return scheduledTasks.get((List<AsyncTask<?>> tasks) -> tasks.getCount());
+        return this.scheduledTasks.get((List<AsyncTask<?>> tasks) -> tasks.getCount());
     }
 
     @Override
@@ -39,7 +39,7 @@ public class ManualAsyncRunner implements AsyncScheduler
     {
         PreCondition.assertNotNull(action, "action");
 
-        return schedule(create(action));
+        return this.schedule(this.create(action));
     }
 
     @Override
@@ -47,15 +47,7 @@ public class ManualAsyncRunner implements AsyncScheduler
     {
         PreCondition.assertNotNull(function, "function");
 
-        return schedule(create(function));
-    }
-
-    @Override
-    public <T> AsyncTask<T> scheduleResult(Function0<Result<T>> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        return schedule(createResult(function));
+        return this.schedule(this.create(function));
     }
 
     @Override
@@ -75,20 +67,12 @@ public class ManualAsyncRunner implements AsyncScheduler
     }
 
     @Override
-    public <T> AsyncTask<T> createResult(Function0<Result<T>> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        return new AsyncTask<>(this, () -> function.run().await());
-    }
-
-    @Override
     public <T> AsyncTask<T> schedule(AsyncTask<T> task)
     {
         PreCondition.assertNotNull(task, "task");
         PreCondition.assertFalse(task.isCompleted(), "task.isCompleted()");
 
-        scheduledTasks.get((List<AsyncTask<?>> tasks) ->
+        this.scheduledTasks.get((List<AsyncTask<?>> tasks) ->
         {
             tasks.add(task);
         });
@@ -103,7 +87,7 @@ public class ManualAsyncRunner implements AsyncScheduler
 
         while (!result.isCompleted())
         {
-            final AsyncTask<?> asyncTask = scheduledTasks.get((List<AsyncTask<?>> tasks) -> tasks.any() ? tasks.removeFirst() : null);
+            final AsyncTask<?> asyncTask = this.scheduledTasks.get((List<AsyncTask<?>> tasks) -> tasks.any() ? tasks.removeFirst() : null);
             if (asyncTask != null)
             {
                 asyncTask.run();

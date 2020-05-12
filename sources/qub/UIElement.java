@@ -71,4 +71,11 @@ public interface UIElement
     {
         return new Size2D(this.getWidth(), this.getHeight());
     }
+
+    /**
+     * Register the provided callback to be invoked when this UIElement's size changes.
+     * @param callback The callback to be invoked when this UIElement's size changes.
+     * @return A Disposable that can be disposed to unregister the provided callback.
+     */
+    Disposable onSizeChanged(Action0 callback);
 }

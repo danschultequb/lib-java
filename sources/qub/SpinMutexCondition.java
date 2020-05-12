@@ -18,7 +18,7 @@ public class SpinMutexCondition implements MutexCondition
 
         this.mutex = mutex;
         this.clock = clock;
-        this.gate = new SpinGate(clock, false);
+        this.gate = SpinGate.create(clock);
         this.condition = condition;
     }
 

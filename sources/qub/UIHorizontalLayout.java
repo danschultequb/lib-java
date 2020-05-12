@@ -48,26 +48,26 @@ public interface UIHorizontalLayout extends UIElement
 
     /**
      * Add the provided elements to this UIHorizontalLayout.
-     * @param elements The elements to add to this UIHorizontalLayout.
+     * @param uiElements The elements to add to this UIHorizontalLayout.
      * @return This object for method chaining.
      */
-    default UIHorizontalLayout addAll(UIElement... elements)
+    default UIHorizontalLayout addAll(UIElement... uiElements)
     {
-        PreCondition.assertNotNull(elements, "elements");
+        PreCondition.assertNotNull(uiElements, "uiElements");
 
-        return this.addAll(Iterable.create(elements));
+        return this.addAll(Iterable.create(uiElements));
     }
 
     /**
      * Add the provided elements to this UIHorizontalLayout.
-     * @param elements The elements to add to this UIHorizontalLayout.
+     * @param uiElements The elements to add to this UIHorizontalLayout.
      * @return This object for method chaining.
      */
-    default UIHorizontalLayout addAll(Iterable<? extends UIElement> elements)
+    default UIHorizontalLayout addAll(Iterable<? extends UIElement> uiElements)
     {
-        PreCondition.assertNotNull(elements, "elements");
+        PreCondition.assertNotNull(uiElements, "uiElements");
 
-        for (final UIElement element : elements)
+        for (final UIElement element : uiElements)
         {
             this.add(element);
         }

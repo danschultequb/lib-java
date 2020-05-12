@@ -43,7 +43,7 @@ public interface SwingUIButtonTests
                     test.assertEqual(Distance.zero, button.getWidth());
                     test.assertEqual(Distance.zero, button.getHeight());
 
-                    final javax.swing.JButton jButton = button.getJComponent();
+                    final javax.swing.JButton jButton = button.getComponent();
                     test.assertNotNull(jButton);
                 });
             });
@@ -113,36 +113,56 @@ public interface SwingUIButtonTests
                 runner.test("with callback that throws an exception", (Test test) ->
                 {
                     final SwingUIButton button = creator.run(test);
+                    final IntegerValue value = IntegerValue.create(0);
 
-                    final Disposable subscription = button.onClick(() -> { throw new RuntimeException("hello"); });
+                    final Disposable subscription = button.onClick(() ->
+                    {
+                        value.increment();
+                        throw new RuntimeException("hello");
+                    });
                     test.assertNotNull(subscription);
 
-                    test.assertThrows(() -> button.click(),
+                    test.assertThrows(button::click,
                         new RuntimeException("hello"));
+                    test.assertEqual(1, value.get());
 
                     test.assertTrue(subscription.dispose().await());
+
                     // Nothing should happen.
                     button.click();
+                    test.assertEqual(1, value.get());
                 });
 
                 runner.test("with callback that doesn't throw an exception", (Test test) ->
                 {
                     final SwingUIButton button = creator.run(test);
 
+                    final AsyncRunner mainAsyncRunner = test.getMainAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);
-
-                    final Disposable subscription = button.onClick(value::increment);
+                    final SpinGate gate = SpinGate.create(test.getClock());
+                    final Disposable subscription = button.onClick(() ->
+                    {
+                        value.increment();
+                        gate.open();
+                    });
                     test.assertNotNull(subscription);
 
                     button.click();
+                    gate.passThrough(Duration.seconds(1), () -> mainAsyncRunner.schedule(Action0.empty).await());
                     test.assertEqual(1, value.getAsInt());
 
+                    gate.close();
+
                     button.click();
+                    gate.passThrough(Duration.seconds(1), () -> mainAsyncRunner.schedule(Action0.empty).await());
                     test.assertEqual(2, value.getAsInt());
 
                     test.assertTrue(subscription.dispose().await());
 
+                    gate.close();
+
                     button.click();
+                    gate.passThrough(Duration.seconds(1), () -> mainAsyncRunner.schedule(Action0.empty).await());
                     test.assertEqual(2, value.getAsInt());
                 });
             });

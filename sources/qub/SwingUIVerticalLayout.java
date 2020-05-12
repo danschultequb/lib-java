@@ -3,33 +3,36 @@ package qub;
 /**
  * A UIVerticalLayout that displays other SwingUIElements in a vertical stack.
  */
-public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
+public class SwingUIVerticalLayout implements UIVerticalLayout, JavaUIElement
 {
+    private final JavaUIBase uiBase;
     private final javax.swing.JPanel jPanel;
-    private final Display display;
-    private final List<SwingUIElement> elements;
+    private final List<JavaUIElement> elements;
     private VerticalDirection direction;
 
-    private SwingUIVerticalLayout(Display display)
+    private SwingUIVerticalLayout(JavaUIBase uiBase)
     {
-        PreCondition.assertNotNull(display, "display");
+        PreCondition.assertNotNull(uiBase, "uiBase");
 
-        this.display = display;
+        this.uiBase = uiBase;
+        this.jPanel = new javax.swing.JPanel();
+        this.jPanel.setLayout(new javax.swing.BoxLayout(this.jPanel, javax.swing.BoxLayout.PAGE_AXIS));
         this.elements = List.create();
         this.direction = VerticalDirection.TopToBottom;
-
-        this.jPanel = new javax.swing.JPanel();
-        final javax.swing.BoxLayout boxLayout = new javax.swing.BoxLayout(this.jPanel, javax.swing.BoxLayout.PAGE_AXIS);
-        this.jPanel.setLayout(boxLayout);
     }
 
-    public static SwingUIVerticalLayout create(Display display)
+    public static SwingUIVerticalLayout create(JavaUIBase base)
     {
-        return new SwingUIVerticalLayout(display);
+        return new SwingUIVerticalLayout(base);
+    }
+
+    public static SwingUIVerticalLayout create(Display display, AsyncRunner asyncRunner)
+    {
+        return SwingUIVerticalLayout.create(JavaUIBase.create(display, asyncRunner));
     }
 
     @Override
-    public javax.swing.JPanel getJComponent()
+    public javax.swing.JPanel getComponent()
     {
         return this.jPanel;
     }
@@ -43,13 +46,7 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     @Override
     public Distance getWidth()
     {
-        final int widthInPixels = this.getJComponent().getWidth();
-        final Distance result = this.display.convertHorizontalPixelsToDistance(widthInPixels);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
-
-        return result;
+        return this.uiBase.getWidth(this.jPanel);
     }
 
     @Override
@@ -61,13 +58,7 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     @Override
     public Distance getHeight()
     {
-        final int heightInPixels = this.getJComponent().getHeight();
-        final Distance result = this.display.convertVerticalPixelsToDistance(heightInPixels);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
-
-        return result;
+        return this.uiBase.getHeight(this.jPanel);
     }
 
     @Override
@@ -79,16 +70,14 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     @Override
     public SwingUIVerticalLayout setSize(Distance width, Distance height)
     {
-        PreCondition.assertNotNull(width, "width");
-        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
-        PreCondition.assertNotNull(height, "height");
-        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
-
-        final double widthInPixels = this.display.convertHorizontalDistanceToPixels(width);
-        final double heightInPixels = this.display.convertVerticalDistanceToPixels(height);
-        this.getJComponent().setSize((int)widthInPixels, (int)heightInPixels);
-
+        this.uiBase.setSize(this.jPanel, width, height);
         return this;
+    }
+
+    @Override
+    public Disposable onSizeChanged(Action0 callback)
+    {
+        return this.uiBase.onSizeChanged(this.jPanel, callback);
     }
 
     @Override
@@ -101,20 +90,13 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
             this.jPanel.removeAll();
 
             this.direction = direction;
-            if (this.direction == VerticalDirection.TopToBottom)
+            if (this.direction == VerticalDirection.BottomToTop)
             {
-                for (final SwingUIElement element : this.elements)
-                {
-                    this.jPanel.add(element.getJComponent());
-                }
-            }
-            else
-            {
-                for (final SwingUIElement element : this.elements)
-                {
-                    this.jPanel.add(element.getJComponent(), 0);
-                }
                 this.jPanel.add(javax.swing.Box.createVerticalGlue(), 0);
+            }
+            for (final JavaUIElement element : this.elements)
+            {
+                this.jPanel.add(element.getComponent());
             }
             this.jPanel.revalidate();
         }
@@ -129,31 +111,30 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     }
 
     @Override
-    public SwingUIVerticalLayout add(UIElement element)
+    public SwingUIVerticalLayout add(UIElement uiElement)
     {
-        PreCondition.assertNotNull(element, "element");
-        PreCondition.assertInstanceOf(element, SwingUIElement.class, "element");
+        PreCondition.assertNotNull(uiElement, "uiElement");
+        PreCondition.assertInstanceOf(uiElement, JavaUIElement.class, "uiElement");
 
-        final SwingUIElement swingElement = (SwingUIElement)element;
-        this.elements.add(swingElement);
+        final JavaUIElement javaUIElement = (JavaUIElement)uiElement;
+        this.elements.add(javaUIElement);
 
-        final javax.swing.JComponent jComponent = swingElement.getJComponent();
-        jComponent.setAlignmentX(0.0f);
-        this.jPanel.add(jComponent);
+        final java.awt.Component component = javaUIElement.getComponent();
+        this.jPanel.add(component);
         this.jPanel.revalidate();
 
         return this;
     }
 
     @Override
-    public SwingUIVerticalLayout addAll(UIElement... elements)
+    public SwingUIVerticalLayout addAll(UIElement... uiElements)
     {
-        return (SwingUIVerticalLayout)UIVerticalLayout.super.addAll(elements);
+        return (SwingUIVerticalLayout)UIVerticalLayout.super.addAll(uiElements);
     }
 
     @Override
-    public SwingUIVerticalLayout addAll(Iterable<? extends UIElement> elements)
+    public SwingUIVerticalLayout addAll(Iterable<? extends UIElement> uiElements)
     {
-        return (SwingUIVerticalLayout)UIVerticalLayout.super.addAll(elements);
+        return (SwingUIVerticalLayout)UIVerticalLayout.super.addAll(uiElements);
     }
 }

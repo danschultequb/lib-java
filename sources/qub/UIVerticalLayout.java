@@ -41,33 +41,33 @@ public interface UIVerticalLayout extends UIElement
 
     /**
      * Add the provided element to this UIVerticalLayout.
-     * @param element The element to add to this UIVerticalLayout.
+     * @param uiElement The element to add to this UIVerticalLayout.
      * @return This object for method chaining.
      */
-    UIVerticalLayout add(UIElement element);
+    UIVerticalLayout add(UIElement uiElement);
 
     /**
      * Add the provided elements to this UIVerticalLayout.
-     * @param elements The elements to add to this UIVerticalLayout.
+     * @param uiElements The elements to add to this UIVerticalLayout.
      * @return This object for method chaining.
      */
-    default UIVerticalLayout addAll(UIElement... elements)
+    default UIVerticalLayout addAll(UIElement... uiElements)
     {
-        PreCondition.assertNotNull(elements, "elements");
+        PreCondition.assertNotNull(uiElements, "uiElements");
 
-        return this.addAll(Iterable.create(elements));
+        return this.addAll(Iterable.create(uiElements));
     }
 
     /**
      * Add the provided elements to this UIVerticalLayout.
-     * @param elements The elements to add to this UIVerticalLayout.
+     * @param uiElements The elements to add to this UIVerticalLayout.
      * @return This object for method chaining.
      */
-    default UIVerticalLayout addAll(Iterable<? extends UIElement> elements)
+    default UIVerticalLayout addAll(Iterable<? extends UIElement> uiElements)
     {
-        PreCondition.assertNotNull(elements, "elements");
+        PreCondition.assertNotNull(uiElements, "uiElements");
 
-        for (final UIElement element : elements)
+        for (final UIElement element : uiElements)
         {
             this.add(element);
         }

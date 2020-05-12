@@ -1,25 +1,30 @@
 package qub;
 
-public class SwingUIText implements UIText, SwingUIElement
+public class SwingUIText implements UIText, JavaUIElement
 {
+    private JavaUIBase uiBase;
     private final javax.swing.JLabel jLabel;
-    private final Display display;
 
-    private SwingUIText(Display display)
+    private SwingUIText(JavaUIBase uiBase)
     {
-        PreCondition.assertNotNull(display, "display");
+        PreCondition.assertNotNull(uiBase, "uiBase");
 
-        this.display = display;
+        this.uiBase = uiBase;
         this.jLabel = new javax.swing.JLabel();
     }
 
-    public static SwingUIText create(Display display)
+    public static SwingUIText create(JavaUIBase base)
     {
-        return new SwingUIText(display);
+        return new SwingUIText(base);
+    }
+
+    public static SwingUIText create(Display display, AsyncRunner asyncRunner)
+    {
+        return SwingUIText.create(JavaUIBase.create(display, asyncRunner));
     }
 
     @Override
-    public javax.swing.JLabel getJComponent()
+    public javax.swing.JLabel getComponent()
     {
         return this.jLabel;
     }
@@ -33,13 +38,7 @@ public class SwingUIText implements UIText, SwingUIElement
     @Override
     public Distance getWidth()
     {
-        final int widthInPixels = this.getJComponent().getWidth();
-        final Distance result = this.display.convertHorizontalPixelsToDistance(widthInPixels);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
-
-        return result;
+        return this.uiBase.getWidth(this.jLabel);
     }
 
     @Override
@@ -51,13 +50,7 @@ public class SwingUIText implements UIText, SwingUIElement
     @Override
     public Distance getHeight()
     {
-        final int heightInPixels = this.getJComponent().getHeight();
-        final Distance result = this.display.convertVerticalPixelsToDistance(heightInPixels);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
-
-        return result;
+        return this.uiBase.getHeight(this.jLabel);
     }
 
     @Override
@@ -69,16 +62,14 @@ public class SwingUIText implements UIText, SwingUIElement
     @Override
     public SwingUIText setSize(Distance width, Distance height)
     {
-        PreCondition.assertNotNull(width, "width");
-        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
-        PreCondition.assertNotNull(height, "height");
-        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
-
-        final double widthInPixels = this.display.convertHorizontalDistanceToPixels(width);
-        final double heightInPixels = this.display.convertVerticalDistanceToPixels(height);
-        this.getJComponent().setSize((int)widthInPixels, (int)heightInPixels);
-
+        this.uiBase.setSize(this.jLabel, width, height);
         return this;
+    }
+
+    @Override
+    public Disposable onSizeChanged(Action0 callback)
+    {
+        return this.uiBase.onSizeChanged(this.jLabel, callback);
     }
 
     @Override
@@ -100,26 +91,13 @@ public class SwingUIText implements UIText, SwingUIElement
     @Override
     public Distance getFontSize()
     {
-        final float fontSize2D = this.jLabel.getFont().getSize2D();
-        final Distance result = Distance.fontPoints(fontSize2D);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
-
-        return result;
+        return this.uiBase.getFontSize(this.jLabel);
     }
 
     @Override
     public SwingUIText setFontSize(Distance fontSize)
     {
-        PreCondition.assertNotNull(fontSize, "fontSize");
-        PreCondition.assertGreaterThanOrEqualTo(fontSize, Distance.zero, "fontSize");
-
-        final java.awt.Font font = this.jLabel.getFont();
-        final float fontPoints = (float)fontSize.toFontPoints().getValue();
-        final java.awt.Font updatedFont = font.deriveFont(fontPoints);
-        this.jLabel.setFont(updatedFont);
-
+        this.uiBase.setFontSize(this.jLabel, fontSize);
         return this;
     }
 }
