@@ -1,8 +1,8 @@
 package qub;
 
-public abstract class ListTests
+public interface ListTests
 {
-    public static void test(final TestRunner runner, final Function1<Integer,List<Integer>> createList)
+    static void test(final TestRunner runner, final Function1<Integer,List<Integer>> createList)
     {
         runner.testGroup(List.class, () ->
         {
@@ -331,6 +331,168 @@ public abstract class ListTests
                     test.assertThrows(() -> list.removeFirst(6),
                         new PreConditionFailure("valuesToRemove (6) must be between 1 and 5."));
                     test.assertEqual(Iterable.create(0, 1, 2, 3, 4), list);
+                });
+            });
+
+            runner.testGroup("removeLast()", () ->
+            {
+                runner.test("with empty List", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(0);
+                    test.assertThrows(list::removeLast,
+                        new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                });
+
+                runner.test("with single value List", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(1);
+                    test.assertEqual(0, list.removeLast());
+                    test.assertThrows(list::removeLast,
+                        new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                });
+
+                runner.test("with multiple value List", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(3);
+                    test.assertEqual(2, list.removeLast());
+                    test.assertEqual(1, list.removeLast());
+                    test.assertEqual(0, list.removeLast());
+                    test.assertThrows(list::removeLast,
+                        new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                });
+            });
+
+            runner.testGroup("removeAll(T...)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(5);
+                    test.assertThrows(() -> list.removeAll((Integer[])null),
+                        new PreConditionFailure("toRemove cannot be null."));
+                });
+
+                runner.test("with no arguments", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(5);
+                    final Iterable<Integer> removed = list.removeAll();
+                    test.assertEqual(Iterable.create(), removed);
+                    test.assertEqual(Iterable.create(0, 1, 2, 3, 4), list);
+                });
+
+                runner.test("with one argument that doesn't exist", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(5);
+                    final Iterable<Integer> removed = list.removeAll(7);
+                    test.assertEqual(Iterable.create(), removed);
+                    test.assertEqual(Iterable.create(0, 1, 2, 3, 4), list);
+                });
+
+                runner.test("with one argument that exists", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(5);
+                    final Iterable<Integer> removed = list.removeAll(3);
+                    test.assertEqual(Iterable.create(3), removed);
+                    test.assertEqual(Iterable.create(0, 1, 2, 4), list);
+                });
+
+                runner.test("with multiple arguments that exists", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(5);
+                    final Iterable<Integer> removed = list.removeAll(3, 0);
+                    test.assertEqual(Iterable.create(0, 3), removed);
+                    test.assertEqual(Iterable.create(1, 2, 4), list);
+                });
+
+                runner.test("with null argument", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(5);
+                    final Iterable<Integer> removed = list.removeAll(3, null, 0);
+                    test.assertEqual(Iterable.create(0, 3), removed);
+                    test.assertEqual(Iterable.create(1, 2, 4), list);
+                });
+            });
+
+            runner.testGroup("removeAll(Iterable<T>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(5);
+                    test.assertThrows(() -> list.removeAll((Iterable<Integer>)null),
+                        new PreConditionFailure("toRemove cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(5);
+                    final Iterable<Integer> removed = list.removeAll(Iterable.create());
+                    test.assertEqual(Iterable.create(), removed);
+                    test.assertEqual(Iterable.create(0, 1, 2, 3, 4), list);
+                });
+
+                runner.test("with one value that doesn't exist", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(5);
+                    final Iterable<Integer> removed = list.removeAll(Iterable.create(7));
+                    test.assertEqual(Iterable.create(), removed);
+                    test.assertEqual(Iterable.create(0, 1, 2, 3, 4), list);
+                });
+
+                runner.test("with one value that exists", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(5);
+                    final Iterable<Integer> removed = list.removeAll(Iterable.create(3));
+                    test.assertEqual(Iterable.create(3), removed);
+                    test.assertEqual(Iterable.create(0, 1, 2, 4), list);
+                });
+
+                runner.test("with multiple values that exists", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(5);
+                    final Iterable<Integer> removed = list.removeAll(Iterable.create(3, 0));
+                    test.assertEqual(Iterable.create(0, 3), removed);
+                    test.assertEqual(Iterable.create(1, 2, 4), list);
+                });
+
+                runner.test("with all values in list", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(5);
+                    final Iterable<Integer> removed = list.removeAll(list);
+                    test.assertEqual(Iterable.create(0, 1, 2, 3, 4), removed);
+                    test.assertEqual(Iterable.create(), list);
+                });
+
+                runner.test("with null value", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(5);
+                    final Iterable<Integer> removed = list.removeAll(Iterable.create(3, null, 0));
+                    test.assertEqual(Iterable.create(0, 3), removed);
+                    test.assertEqual(Iterable.create(1, 2, 4), list);
+                });
+            });
+
+            runner.testGroup("removeAll(Function1<T,Boolean>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(5);
+                    test.assertThrows(() -> list.removeAll((Function1<Integer,Boolean>)null),
+                        new PreConditionFailure("condition cannot be null."));
+                });
+
+                runner.test("with no matches", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(5);
+                    final Iterable<Integer> removed = list.removeAll((Integer value) -> value > 100);
+                    test.assertEqual(Iterable.create(), removed);
+                    test.assertEqual(Iterable.create(0, 1, 2, 3, 4), list);
+                });
+
+                runner.test("with some matches", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(5);
+                    final Iterable<Integer> removed = list.removeAll(Math::isOdd);
+                    test.assertEqual(Iterable.create(1, 3), removed);
+                    test.assertEqual(Iterable.create(0, 2, 4), list);
                 });
             });
 

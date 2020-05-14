@@ -191,8 +191,64 @@ public interface List<T> extends MutableIndexable<T>
      */
     default T removeLast()
     {
-        final int count = this.getCount();
-        return count == 0 ? null : this.removeAt(count - 1);
+        return this.removeAt(this.getCount() - 1);
+    }
+
+    /**
+     * Remove and return the values in this list that are contained in the provided values to remove.
+     * @param toRemove The values to remove from this list.
+     * @return The values in this list that were removed.
+     */
+    @SuppressWarnings("unchecked")
+    default Iterable<T> removeAll(T... toRemove)
+    {
+        PreCondition.assertNotNull(toRemove, "toRemove");
+
+        return this.removeAll(Iterable.create(toRemove));
+    }
+
+    /**
+     * Remove and return the values in this list that are contained in the provided values to remove.
+     * @param toRemove The values to remove from this list.
+     * @return The values in this list that were removed.
+     */
+    default Iterable<T> removeAll(Iterable<T> toRemove)
+    {
+        PreCondition.assertNotNull(toRemove, "toRemove");
+
+        final Iterable<T> result = toRemove.any()
+            ? this.removeAll(toRemove::contains)
+            : Iterable.create();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * Remove and return the values in this list that match the provided condition.
+     * @param condition The condition to check against each of the values in this list.
+     * @return The values in this list that were removed.
+     */
+    default Iterable<T> removeAll(Function1<T,Boolean> condition)
+    {
+        PreCondition.assertNotNull(condition, "condition");
+
+        final List<T> result = List.create();
+        for (int i = 0; i < this.getCount(); ++i)
+        {
+            final T value = this.get(i);
+            if (condition.run(value))
+            {
+                result.add(value);
+                this.removeAt(i);
+                --i;
+            }
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     /**
