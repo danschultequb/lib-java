@@ -279,7 +279,7 @@ public interface Integers
     }
 
     /**
-     * Parse an Integer create the provided text.
+     * Parse an Integer from the provided text.
      * @param text The text to parse.
      * @return The parsed Integer.
      */

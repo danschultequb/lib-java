@@ -1,8 +1,8 @@
 package qub;
 
-public class DoublesTests
+public interface DoublesTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(Doubles.class, () ->
         {
@@ -98,6 +98,41 @@ public class DoublesTests
                 {
                     test.assertThrows(() -> Doubles.toString((Double)null), new PreConditionFailure("value cannot be null."));
                 });
+            });
+
+            runner.testGroup("parse(String)", () ->
+            {
+                final Action2<String,Throwable> parseErrorTest = (String text, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
+                    {
+                        test.assertThrows(() -> Doubles.parse(text).await(), expected);
+                    });
+                };
+
+                parseErrorTest.run(null, new PreConditionFailure("text cannot be null."));
+                parseErrorTest.run("", new PreConditionFailure("text cannot be empty."));
+                parseErrorTest.run("abc", new java.lang.NumberFormatException("For input string: \"abc\""));
+
+                final Action2<String,Double> parseTest = (String text, Double expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
+                    {
+                        test.assertEqual(expected, Doubles.parse(text).await());
+                    });
+                };
+
+                parseTest.run("0", 0.0);
+                parseTest.run("0.", 0.0);
+                parseTest.run("0.0", 0.0);
+                parseTest.run(".0", 0.0);
+
+                parseTest.run("1", 1.0);
+                parseTest.run("1.", 1.0);
+                parseTest.run("1.0", 1.0);
+
+                parseTest.run("12.345", 12.345);
+                parseTest.run("-12.345", -12.345);
             });
         });
     }

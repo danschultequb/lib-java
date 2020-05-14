@@ -189,7 +189,7 @@ public interface SwingWindowTests
                     }
                 });
 
-                runner.test("when visible", runner.skip(false), (Test test) ->
+                runner.test("when visible", runner.skip(), (Test test) ->
                 {
                     final Display display = test.getDisplays().first();
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
