@@ -271,7 +271,8 @@ public class RealProcessFactory implements ProcessFactory
                         final Iterable<String> pathStrings = Iterable.create(pathEnvironmentVariable.split(";"));
                         for (final String pathString : pathStrings)
                         {
-                            if (Strings.isNullOrEmpty(pathString))
+                            final String resolvedPathString = this.environmentVariables.resolve(pathString);
+                            if (Strings.isNullOrEmpty(resolvedPathString))
                             {
                                 if (verbose != null)
                                 {
@@ -280,12 +281,12 @@ public class RealProcessFactory implements ProcessFactory
                             }
                             else
                             {
-                                final Path path = Path.parse(pathString);
+                                final Path path = Path.parse(resolvedPathString);
                                 if (!path.isRooted())
                                 {
                                     if (verbose != null)
                                     {
-                                        verbose.writeLine("WARNING: Skipping relative path string (" + Strings.escapeAndQuote(pathString) + ").").await();
+                                        verbose.writeLine("WARNING: Skipping relative path string (" + Strings.escapeAndQuote(resolvedPathString) + ").").await();
                                     }
                                 }
                                 else
