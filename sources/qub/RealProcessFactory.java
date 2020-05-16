@@ -271,14 +271,31 @@ public class RealProcessFactory implements ProcessFactory
                         final Iterable<String> pathStrings = Iterable.create(pathEnvironmentVariable.split(";"));
                         for (final String pathString : pathStrings)
                         {
-                            if (!Strings.isNullOrEmpty(pathString))
+                            if (Strings.isNullOrEmpty(pathString))
+                            {
+                                if (verbose != null)
+                                {
+                                    verbose.writeLine("WARNING: Found null or empty path string.").await();
+                                }
+                            }
+                            else
                             {
                                 final Path path = Path.parse(pathString);
-                                final Path resolvedExecutablePath = path.concatenateSegment(executablePath).normalize();
-                                result = this.getExecutableFile(resolvedExecutablePath, checkExtensions, verbose).catchError().await();
-                                if (result != null)
+                                if (!path.isRooted())
                                 {
-                                    break;
+                                    if (verbose != null)
+                                    {
+                                        verbose.writeLine("WARNING: Skipping relative path string (" + Strings.escapeAndQuote(pathString) + ").").await();
+                                    }
+                                }
+                                else
+                                {
+                                    final Path resolvedExecutablePath = path.concatenateSegment(executablePath).normalize();
+                                    result = this.getExecutableFile(resolvedExecutablePath, checkExtensions, verbose).catchError().await();
+                                    if (result != null)
+                                    {
+                                        break;
+                                    }
                                 }
                             }
                         }
