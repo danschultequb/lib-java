@@ -1,25 +1,16 @@
 package qub;
 
-public interface MutableSize2D
+public interface MutableSize2D extends Size2D
 {
-    static MutableSize2D create()
-    {
-        return MutableSize2D.create(Distance.zero, Distance.zero);
-    }
-
     static MutableSize2D create(Distance width, Distance height)
     {
         return BasicMutableSize2D.create(width, height);
     }
 
-    Distance getWidth();
-
     default MutableSize2D setWidth(Distance width)
     {
         return this.set(width, this.getHeight());
     }
-
-    Distance getHeight();
 
     default MutableSize2D setHeight(Distance height)
     {
@@ -37,32 +28,4 @@ public interface MutableSize2D
      * event.
      */
     Disposable onChanged(Action0 callback);
-
-    static String toString(MutableSize2D size)
-    {
-        PreCondition.assertNotNull(size, "size");
-
-        return "{\"width\":\"" + size.getWidth() + "\",\"height\":\"" + size.getHeight() + "\"}";
-    }
-
-    static boolean equals(MutableSize2D lhs, Object rhs)
-    {
-        PreCondition.assertNotNull(lhs, "lhs");
-
-        return rhs instanceof BasicMutableSize2D && lhs.equals((MutableSize2D)rhs);
-    }
-
-    default boolean equals(MutableSize2D rhs)
-    {
-        return rhs != null &&
-            this.getWidth().equals(rhs.getWidth()) &&
-            this.getHeight().equals(rhs.getHeight());
-    }
-
-    static int hashCode(MutableSize2D size)
-    {
-        PreCondition.assertNotNull(size, "size");
-
-        return Hash.getHashCode(size.getWidth(), size.getHeight());
-    }
 }

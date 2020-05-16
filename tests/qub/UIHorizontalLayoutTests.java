@@ -36,7 +36,7 @@ public interface UIHorizontalLayoutTests
                 runner.test("should return " + Types.getTypeName(UIHorizontalLayout.class), (Test test) ->
                 {
                     final UIHorizontalLayout verticalLayout = creator.run(test);
-                    final UIHorizontalLayout setHeightResult = verticalLayout.setSize(new Size2D(Distance.inches(2), Distance.inches(3)));
+                    final UIHorizontalLayout setHeightResult = verticalLayout.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
                     test.assertSame(verticalLayout, setHeightResult);
                 });
             });

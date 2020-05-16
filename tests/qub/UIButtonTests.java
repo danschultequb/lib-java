@@ -36,7 +36,7 @@ public interface UIButtonTests
                 runner.test("should return " + Types.getTypeName(UIButton.class), (Test test) ->
                 {
                     final UIButton button = creator.run(test);
-                    final UIButton setHeightResult = button.setSize(new Size2D(Distance.inches(2), Distance.inches(3)));
+                    final UIButton setHeightResult = button.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
                     test.assertSame(button, setHeightResult);
                 });
             });

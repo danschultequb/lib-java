@@ -97,7 +97,7 @@ public interface SwingUIVerticalLayoutTests
                 runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
                 {
                     final SwingUIVerticalLayout verticalLayout = creator.run(test);
-                    final SwingUIVerticalLayout setHeightResult = verticalLayout.setSize(new Size2D(Distance.inches(2), Distance.inches(3)));
+                    final SwingUIVerticalLayout setHeightResult = verticalLayout.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
                     test.assertSame(verticalLayout, setHeightResult);
                 });
             });

@@ -64,18 +64,18 @@ public class BasicMutableSize2D implements MutableSize2D
     @Override
     public String toString()
     {
-        return MutableSize2D.toString(this);
+        return Size2D.toString(this);
     }
 
     @Override
     public boolean equals(Object rhs)
     {
-        return MutableSize2D.equals(this, rhs);
+        return Size2D.equals(this, rhs);
     }
 
     @Override
     public int hashCode()
     {
-        return MutableSize2D.hashCode(this);
+        return Size2D.hashCode(this);
     }
 }

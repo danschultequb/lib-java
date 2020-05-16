@@ -73,7 +73,7 @@ public interface SwingUIButtonTests
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
                     final SwingUIButton button = creator.run(test);
-                    final SwingUIButton setHeightResult = button.setSize(new Size2D(Distance.inches(2), Distance.inches(3)));
+                    final SwingUIButton setHeightResult = button.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
                     test.assertSame(button, setHeightResult);
                 });
             });

@@ -36,7 +36,7 @@ public interface UITextTests
                 runner.test("should return " + Types.getTypeName(UIText.class), (Test test) ->
                 {
                     final UIText text = creator.run(test);
-                    final UIText setHeightResult = text.setSize(new Size2D(Distance.inches(2), Distance.inches(3)));
+                    final UIText setHeightResult = text.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
                     test.assertSame(text, setHeightResult);
                 });
             });

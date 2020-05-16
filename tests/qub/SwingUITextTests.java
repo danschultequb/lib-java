@@ -83,7 +83,7 @@ public interface SwingUITextTests
                 runner.test("should return " + Types.getTypeName(SwingUIText.class), (Test test) ->
                 {
                     final SwingUIText text = creator.run(test);
-                    final SwingUIText setHeightResult = text.setSize(new Size2D(Distance.inches(2), Distance.inches(3)));
+                    final SwingUIText setHeightResult = text.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
                     test.assertSame(text, setHeightResult);
                 });
             });

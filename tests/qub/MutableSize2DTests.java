@@ -6,18 +6,6 @@ public interface MutableSize2DTests
     {
         runner.testGroup(MutableSize2D.class, () ->
         {
-            runner.test("create()", (Test test) ->
-            {
-                final MutableSize2D size1 = MutableSize2D.create();
-                test.assertNotNull(size1);
-                test.assertEqual(Distance.zero, size1.getWidth());
-                test.assertEqual(Distance.zero, size1.getHeight());
-
-                final MutableSize2D size2 = MutableSize2D.create();
-                test.assertEqual(size1, size2);
-                test.assertNotSame(size1, size2);
-            });
-
             runner.testGroup("create(Distance,Distance)", () ->
             {
                 final Action3<Distance,Distance,Throwable> createErrorTest = (Distance width, Distance height, Throwable expected) ->

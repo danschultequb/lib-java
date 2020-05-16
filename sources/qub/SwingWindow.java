@@ -241,7 +241,7 @@ public class SwingWindow implements Window, Disposable
      */
     public Size2D getSize()
     {
-        return new Size2D(this.getWidth(), this.getHeight());
+        return Size2D.create(this.getWidth(), this.getHeight());
     }
 
     /**

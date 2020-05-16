@@ -1,31 +1,38 @@
 package qub;
 
-public class Size2D
+/**
+ * An immutable two-dimensional size.
+ */
+public interface Size2D
 {
-    public static final Size2D zero = new Size2D(Distance.zero, Distance.zero);
-
-    private final Distance width;
-    private final Distance height;
-
-    public Size2D(Distance width, Distance height)
+    /**
+     * Create a new Size2D with the provided width and height.
+     * @param width The width of the new Size2D.
+     * @param height The height of the new Size2D.
+     * @return The new Size2D.
+     */
+    static Size2D create(Distance width, Distance height)
     {
-        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
-        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
-
-        this.width = width;
-        this.height = height;
+        return BasicSize2D.create(width, height);
     }
 
-    public Distance getWidth()
-    {
-        return width;
-    }
+    /**
+     * Get the width of this Size2D.
+     * @return The width of this Size2D.
+     */
+    Distance getWidth();
 
-    public Size2D changeWidth(Distance width)
+    /**
+     * Create a new Size2D based on this Size2D but with the provided width.
+     * @param width The width of the new Size2D.
+     * @return A new Size2D based on this Size2D but with the provided width.
+     */
+    default Size2D changeWidth(Distance width)
     {
+        PreCondition.assertNotNull(width, "width");
         PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
 
-        final Size2D result = (this.width.equals(width) ? this : new Size2D(width, height));
+        final Size2D result = (this.getWidth().equals(width) ? this : Size2D.create(width, this.getHeight()));
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertEqual(width, result.getWidth(), "result.getWidth()");
@@ -33,16 +40,23 @@ public class Size2D
         return result;
     }
 
-    public Distance getHeight()
-    {
-        return height;
-    }
+    /**
+     * Get the height of this Size2D.
+     * @return The height of this Size2D.
+     */
+    Distance getHeight();
 
-    public Size2D changeHeight(Distance height)
+    /**
+     * Create a new Size2D based on this Size2D but with the provided height.
+     * @param height The height of the new Size2D.
+     * @return A new Size2D based on this Size2D but with the provided height.
+     */
+    default Size2D changeHeight(Distance height)
     {
+        PreCondition.assertNotNull(height, "height");
         PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
 
-        final Size2D result = (this.height.equals(height) ? this : new Size2D(width, height));
+        final Size2D result = (this.getHeight().equals(height) ? this : Size2D.create(this.getWidth(), height));
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertEqual(height, result.getHeight(), "result.getHeight()");
@@ -50,28 +64,31 @@ public class Size2D
         return result;
     }
 
-    @Override
-    public String toString()
+    static String toString(Size2D size)
     {
-        return "{\"type\":\"Size2D\",\"width\":\"" + width + "\",\"height\":\"" + height + "\"}";
+        PreCondition.assertNotNull(size, "size");
+
+        return "{\"width\":\"" + size.getWidth() + "\",\"height\":\"" + size.getHeight() + "\"}";
     }
 
-    @Override
-    public boolean equals(Object rhs)
+    static boolean equals(Size2D lhs, Object rhs)
     {
-        return rhs instanceof Size2D && equals((Size2D)rhs);
+        PreCondition.assertNotNull(lhs, "lhs");
+
+        return rhs instanceof Size2D && lhs.equals((Size2D) rhs);
     }
 
-    public boolean equals(Size2D rhs)
+    default boolean equals(Size2D rhs)
     {
         return rhs != null &&
-            width.equals(rhs.width) &&
-            height.equals(rhs.height);
+            this.getWidth().equals(rhs.getWidth()) &&
+            this.getHeight().equals(rhs.getHeight());
     }
 
-    @Override
-    public int hashCode()
+    static int hashCode(Size2D size)
     {
-        return Hash.getHashCode(width, height);
+        PreCondition.assertNotNull(size, "size");
+
+        return Hash.getHashCode(size.getWidth(), size.getHeight());
     }
 }

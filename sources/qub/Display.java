@@ -139,7 +139,7 @@ public class Display
 
         final Distance horizontalDistance = convertHorizontalPixelsToDistance(horizontalPixels);
         final Distance verticalDistance = convertVerticalPixelsToDistance(verticalPixels);
-        final Size2D result = new Size2D(horizontalDistance, verticalDistance);
+        final Size2D result = Size2D.create(horizontalDistance, verticalDistance);
 
         PostCondition.assertNotNull(result, "result");
 

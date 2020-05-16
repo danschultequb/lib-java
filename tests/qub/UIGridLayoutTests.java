@@ -36,7 +36,7 @@ public interface UIGridLayoutTests
                 runner.test("should return " + Types.getTypeName(UIGridLayout.class), (Test test) ->
                 {
                     final UIGridLayout gridLayout = creator.run(test);
-                    final UIGridLayout setHeightResult = gridLayout.setSize(new Size2D(Distance.inches(2), Distance.inches(3)));
+                    final UIGridLayout setHeightResult = gridLayout.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
                     test.assertSame(gridLayout, setHeightResult);
                 });
             });

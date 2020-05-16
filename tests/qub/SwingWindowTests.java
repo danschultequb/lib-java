@@ -416,10 +416,10 @@ public interface SwingWindowTests
                     });
                 };
 
-                setSizeTest.run(Size2D.zero);
-                setSizeTest.run(new Size2D(Distance.zero, Distance.inches(1)));
-                setSizeTest.run(new Size2D(Distance.inches(1), Distance.zero));
-                setSizeTest.run(new Size2D(Distance.inches(2), Distance.inches(3)));
+                setSizeTest.run(Size2D.create(Distance.zero, Distance.zero));
+                setSizeTest.run(Size2D.create(Distance.zero, Distance.inches(1)));
+                setSizeTest.run(Size2D.create(Distance.inches(1), Distance.zero));
+                setSizeTest.run(Size2D.create(Distance.inches(2), Distance.inches(3)));
             });
 
             runner.testGroup("setSize(Distance,Distance)", () ->
