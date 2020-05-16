@@ -148,4 +148,12 @@ public abstract class ProcessBuilderDecorator<T extends ProcessBuilder> implemen
         this.processBuilder.redirectErrorLines(onErrorLine);
         return (T)this;
     }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setVerbose(CharacterWriteStream verbose)
+    {
+        this.processBuilder.setVerbose(verbose);
+        return (T)this;
+    }
 }
