@@ -179,7 +179,7 @@ public interface AsyncTaskTests
                     CurrentThread.withManualAsyncScheduler((ManualAsyncRunner asyncRunner) ->
                     {
                         final AsyncTask<Void> parentResult = asyncRunner.schedule(() -> {
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         final IntegerValue value = IntegerValue.create(0);
                         final Value<Throwable> value2 = Value.create();
@@ -190,7 +190,7 @@ public interface AsyncTaskTests
                         });
                         test.assertNull(asyncTask.await());
                         test.assertEqual(1, value.get());
-                        test.assertEqual(new AwaitException(new FolderNotFoundException("abc")), value2.get());
+                        test.assertEqual(new AwaitException(new FolderNotFoundException("/abc")), value2.get());
                     });
                 });
 
@@ -199,7 +199,7 @@ public interface AsyncTaskTests
                     CurrentThread.withManualAsyncScheduler((ManualAsyncRunner asyncRunner) ->
                     {
                         final AsyncTask<Void> parentResult = asyncRunner.schedule(() -> {
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         final IntegerValue value = IntegerValue.create(0);
                         final Value<Throwable> value2 = Value.create();
@@ -210,7 +210,7 @@ public interface AsyncTaskTests
                         });
                         test.assertNull(asyncTask.await());
                         test.assertEqual(1, value.get());
-                        test.assertEqual(new AwaitException(new FolderNotFoundException("abc")), value2.get());
+                        test.assertEqual(new AwaitException(new FolderNotFoundException("/abc")), value2.get());
                     });
                 });
             });
@@ -312,10 +312,10 @@ public interface AsyncTaskTests
                     CurrentThread.withManualAsyncScheduler((ManualAsyncRunner asyncRunner) ->
                     {
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> {
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
                         test.assertThrows(() -> asyncTask.await(NotFoundException.class),
-                            new FileNotFoundException("abc"));
+                            new FileNotFoundException("/abc"));
                     });
                 });
 
@@ -324,12 +324,12 @@ public interface AsyncTaskTests
                     CurrentThread.withManualAsyncScheduler((ManualAsyncRunner asyncRunner) ->
                     {
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() -> {
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
                         test.assertThrows(() -> asyncTask.await(NotFoundException.class),
-                            new FileNotFoundException("abc"));
+                            new FileNotFoundException("/abc"));
                         test.assertThrows(() -> asyncTask.await(NotFoundException.class),
-                            new FileNotFoundException("abc"));
+                            new FileNotFoundException("/abc"));
                     });
                 });
 
@@ -357,7 +357,7 @@ public interface AsyncTaskTests
                     CurrentThread.withManualAsyncScheduler((ManualAsyncRunner asyncRunner) ->
                     {
                         final AsyncTask<Void> parentResult = asyncRunner.schedule(() -> {
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         final IntegerValue value = IntegerValue.create(0);
                         final Value<Throwable> value2 = Value.create();
@@ -368,7 +368,7 @@ public interface AsyncTaskTests
                         });
                         test.assertNull(asyncTask.await(AwaitException.class));
                         test.assertEqual(1, value.get());
-                        test.assertEqual(new AwaitException(new FolderNotFoundException("abc")), value2.get());
+                        test.assertEqual(new AwaitException(new FolderNotFoundException("/abc")), value2.get());
                     });
                 });
 
@@ -377,7 +377,7 @@ public interface AsyncTaskTests
                     CurrentThread.withManualAsyncScheduler((ManualAsyncRunner asyncRunner) ->
                     {
                         final AsyncTask<Void> parentResult = asyncRunner.schedule(() -> {
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         final IntegerValue value = IntegerValue.create(0);
                         final Value<Throwable> value2 = Value.create();
@@ -388,7 +388,7 @@ public interface AsyncTaskTests
                         });
                         test.assertNull(asyncTask.await(RuntimeException.class));
                         test.assertEqual(1, value.get());
-                        test.assertEqual(new AwaitException(new FolderNotFoundException("abc")), value2.get());
+                        test.assertEqual(new AwaitException(new FolderNotFoundException("/abc")), value2.get());
                     });
                 });
 
@@ -397,7 +397,7 @@ public interface AsyncTaskTests
                     CurrentThread.withManualAsyncScheduler((ManualAsyncRunner asyncRunner) ->
                     {
                         final AsyncTask<Void> parentResult = asyncRunner.schedule(() -> {
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         final IntegerValue value = IntegerValue.create(0);
                         final Value<Throwable> value2 = Value.create();
@@ -406,7 +406,7 @@ public interface AsyncTaskTests
                             value.increment();
                             value2.set(parentError);
                         });
-                        test.assertThrows(() -> asyncTask.await(QueueEmptyException.class), new AwaitException(new FolderNotFoundException("abc")));
+                        test.assertThrows(() -> asyncTask.await(QueueEmptyException.class), new AwaitException(new FolderNotFoundException("/abc")));
                         test.assertEqual(0, value.get());
                         test.assertFalse(value2.hasValue());
                     });
@@ -417,7 +417,7 @@ public interface AsyncTaskTests
                     CurrentThread.withManualAsyncScheduler((ManualAsyncRunner asyncRunner) ->
                     {
                         final AsyncTask<Void> parentResult = asyncRunner.schedule(() -> {
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         final IntegerValue value = IntegerValue.create(0);
                         final Value<Throwable> value2 = Value.create();
@@ -426,7 +426,7 @@ public interface AsyncTaskTests
                             value.increment();
                             value2.set(parentError);
                         });
-                        test.assertThrows(() -> asyncTask.await(FolderNotFoundException.class), new FolderNotFoundException("abc"));
+                        test.assertThrows(() -> asyncTask.await(FolderNotFoundException.class), new FolderNotFoundException("/abc"));
                         test.assertEqual(0, value.get());
                         test.assertFalse(value2.hasValue());
                     });
@@ -437,7 +437,7 @@ public interface AsyncTaskTests
                     CurrentThread.withManualAsyncScheduler((ManualAsyncRunner asyncRunner) ->
                     {
                         final AsyncTask<Void> parentResult = asyncRunner.schedule(() -> {
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         final IntegerValue value = IntegerValue.create(0);
                         final Value<Throwable> value2 = Value.create();
@@ -449,7 +449,7 @@ public interface AsyncTaskTests
                         });
                         test.assertThrows(() -> asyncTask.await(FileNotFoundException.class), new FileNotFoundException("blah"));
                         test.assertEqual(1, value.get());
-                        test.assertEqual(new FolderNotFoundException("abc"), value2.get());
+                        test.assertEqual(new FolderNotFoundException("/abc"), value2.get());
                     });
                 });
             });
@@ -571,7 +571,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value.increment(); });
 
                         final Result<Void> result = asyncTask.then((Action0)() -> {
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -581,7 +581,7 @@ public interface AsyncTaskTests
                         test.assertNull(asyncTask.await());
                         test.assertEqual(1, value.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("abc"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/abc"));
                         test.assertEqual(1, value.get());
                     });
                 });
@@ -594,14 +594,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value.increment(); });
 
                         final Result<Void> result = asyncTask.then((Action0)() -> {
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                         test.assertEqual(0, value.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("abc"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/abc"));
                         test.assertEqual(1, value.get());
 
                         test.assertNull(asyncTask.await());
@@ -743,7 +743,7 @@ public interface AsyncTaskTests
                         });
 
                         final Result<Void> result = asyncTask.then((Action1<Integer>)(Integer parentValue) -> {
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -753,7 +753,7 @@ public interface AsyncTaskTests
                         test.assertEqual(5, asyncTask.await());
                         test.assertEqual(1, value.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("abc"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/abc"));
                         test.assertEqual(1, value.get());
                     });
                 });
@@ -770,14 +770,14 @@ public interface AsyncTaskTests
                         });
 
                         final Result<Void> result = asyncTask.then((Action1<Integer>)(Integer parentValue) -> {
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                         test.assertEqual(0, value.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("abc"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/abc"));
                         test.assertEqual(1, value.get());
 
                         test.assertEqual(5, asyncTask.await());
@@ -917,7 +917,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value.increment(); });
 
                         final Result<String> result = asyncTask.then((Function0<String>)() -> {
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -927,7 +927,7 @@ public interface AsyncTaskTests
                         test.assertNull(asyncTask.await());
                         test.assertEqual(1, value.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("abc"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/abc"));
                         test.assertEqual(1, value.get());
                     });
                 });
@@ -940,14 +940,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Void> asyncTask = asyncRunner.schedule(() -> { value.increment(); });
 
                         final Result<String> result = asyncTask.then((Function0<String>)() -> {
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                         test.assertEqual(0, value.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("abc"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/abc"));
                         test.assertEqual(1, value.get());
 
                         test.assertNull(asyncTask.await());
@@ -1126,7 +1126,7 @@ public interface AsyncTaskTests
                         final Result<String> result = asyncTask.then((Function1<Boolean,String>)(Boolean parentValue) ->
                         {
                             value3.set(parentValue);
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -1138,7 +1138,7 @@ public interface AsyncTaskTests
                         test.assertEqual(1, value1.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("abc"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertTrue(value3.get());
                     });
@@ -1159,7 +1159,7 @@ public interface AsyncTaskTests
                         final Result<String> result = asyncTask.then((Function1<Boolean,String>)(Boolean parentValue) ->
                         {
                             value3.set(parentValue);
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -1167,7 +1167,7 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("abc"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertTrue(value3.get());
 
@@ -1307,7 +1307,7 @@ public interface AsyncTaskTests
                         });
 
                         final Result<Boolean> result = asyncTask.onValue((Action0)() -> {
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -1317,7 +1317,7 @@ public interface AsyncTaskTests
                         test.assertFalse(asyncTask.await());
                         test.assertEqual(1, value.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("abc"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/abc"));
                         test.assertEqual(1, value.get());
                     });
                 });
@@ -1334,14 +1334,14 @@ public interface AsyncTaskTests
                         });
 
                         final Result<Boolean> result = asyncTask.onValue((Action0)() -> {
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
 
                         test.assertEqual(0, value.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("abc"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/abc"));
                         test.assertEqual(1, value.get());
 
                         test.assertTrue(asyncTask.await());
@@ -1518,7 +1518,7 @@ public interface AsyncTaskTests
                         final Result<Boolean> result = asyncTask.onValue((Boolean parentValue) ->
                         {
                             value3.set(parentValue);
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -1530,7 +1530,7 @@ public interface AsyncTaskTests
                         test.assertEqual(1, value.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("abc"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/abc"));
                         test.assertEqual(1, value.get());
                         test.assertFalse(value3.get());
                     });
@@ -1551,7 +1551,7 @@ public interface AsyncTaskTests
                         final Result<Boolean> result = asyncTask.onValue((Boolean parentValue) ->
                         {
                             value3.set(parentValue);
-                            throw new FolderNotFoundException("abc");
+                            throw new FolderNotFoundException("/abc");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -1559,7 +1559,7 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("abc"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/abc"));
                         test.assertEqual(1, value.get());
                         test.assertTrue(value3.get());
 
@@ -1805,7 +1805,7 @@ public interface AsyncTaskTests
                         });
 
                         final Result<Boolean> result = asyncTask.catchError((Action0)() -> {
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -1835,7 +1835,7 @@ public interface AsyncTaskTests
                         final Result<Boolean> result = asyncTask.catchError((Action0)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -1861,14 +1861,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Result<Boolean> result = asyncTask.catchError((Action0)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -1876,11 +1876,11 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
                     });
@@ -1894,14 +1894,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Result<Boolean> result = asyncTask.catchError((Action0)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -1909,11 +1909,11 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
                     });
@@ -2088,7 +2088,7 @@ public interface AsyncTaskTests
                         final Result<Boolean> result = asyncTask.catchError((Action1<Throwable>)(Throwable parentError) ->
                         {
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -2123,7 +2123,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -2152,7 +2152,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
@@ -2161,7 +2161,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -2170,15 +2170,15 @@ public interface AsyncTaskTests
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
-                        test.assertEqual(new FileNotFoundException("abc"), value3.get());
+                        test.assertEqual(new FileNotFoundException("/abc"), value3.get());
                     });
                 });
 
@@ -2190,7 +2190,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
@@ -2199,7 +2199,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -2208,15 +2208,15 @@ public interface AsyncTaskTests
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
-                        test.assertEqual(new FileNotFoundException("abc"), value3.get());
+                        test.assertEqual(new FileNotFoundException("/abc"), value3.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
-                        test.assertEqual(new FileNotFoundException("abc"), value3.get());
+                        test.assertEqual(new FileNotFoundException("/abc"), value3.get());
                     });
                 });
             });
@@ -2436,7 +2436,7 @@ public interface AsyncTaskTests
                         final Result<Boolean> result = asyncTask.catchError(FileNotFoundException.class, (Action0)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -2469,7 +2469,7 @@ public interface AsyncTaskTests
                         final Result<Boolean> result = asyncTask.catchError(FileNotFoundException.class, (Action0)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -2495,14 +2495,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Result<Boolean> result = asyncTask.catchError(FileNotFoundException.class, (Action0)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -2510,11 +2510,11 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
                     });
@@ -2528,14 +2528,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Result<Boolean> result = asyncTask.catchError(FileNotFoundException.class, (Action0)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -2543,11 +2543,11 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
                     });
@@ -2561,14 +2561,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Result<Boolean> result = asyncTask.catchError(QueueEmptyException.class, (Action0)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -2576,11 +2576,11 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(result::await, new FileNotFoundException("abc"));
+                        test.assertThrows(result::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                     });
@@ -2594,14 +2594,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Result<Boolean> result = asyncTask.catchError(QueueEmptyException.class, (Action0)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -2609,11 +2609,11 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(result::await, new FileNotFoundException("abc"));
+                        test.assertThrows(result::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                     });
@@ -2867,7 +2867,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -2905,7 +2905,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -2934,7 +2934,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
@@ -2943,7 +2943,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -2952,15 +2952,15 @@ public interface AsyncTaskTests
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
-                        test.assertEqual(new FileNotFoundException("abc"), value3.get());
+                        test.assertEqual(new FileNotFoundException("/abc"), value3.get());
                     });
                 });
 
@@ -2972,7 +2972,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
@@ -2981,7 +2981,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -2990,15 +2990,15 @@ public interface AsyncTaskTests
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
-                        test.assertEqual(new FileNotFoundException("abc"), value3.get());
+                        test.assertEqual(new FileNotFoundException("/abc"), value3.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
-                        test.assertEqual(new FileNotFoundException("abc"), value3.get());
+                        test.assertEqual(new FileNotFoundException("/abc"), value3.get());
                     });
                 });
 
@@ -3010,7 +3010,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
@@ -3019,7 +3019,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -3028,12 +3028,12 @@ public interface AsyncTaskTests
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FileNotFoundException("abc"));
+                        test.assertThrows(result::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
@@ -3048,7 +3048,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
@@ -3057,7 +3057,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -3066,12 +3066,12 @@ public interface AsyncTaskTests
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FileNotFoundException("abc"));
+                        test.assertThrows(result::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
@@ -3228,7 +3228,7 @@ public interface AsyncTaskTests
                         });
 
                         final Result<Boolean> result = asyncTask.catchError((Function0<Boolean>)() -> {
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -3258,7 +3258,7 @@ public interface AsyncTaskTests
                         final Result<Boolean> result = asyncTask.catchError((Function0<Boolean>)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -3284,14 +3284,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Result<Boolean> result = asyncTask.catchError((Function0<Boolean>)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -3299,11 +3299,11 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
                     });
@@ -3317,14 +3317,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Result<Boolean> result = asyncTask.catchError((Function0<Boolean>)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -3332,11 +3332,11 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
                     });
@@ -3515,7 +3515,7 @@ public interface AsyncTaskTests
                         final Result<Boolean> result = asyncTask.catchError((Function1<Throwable,Boolean>)(Throwable parentError) ->
                         {
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -3550,7 +3550,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -3579,7 +3579,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
@@ -3588,7 +3588,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -3597,15 +3597,15 @@ public interface AsyncTaskTests
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
-                        test.assertEqual(new FileNotFoundException("abc"), value3.get());
+                        test.assertEqual(new FileNotFoundException("/abc"), value3.get());
                     });
                 });
 
@@ -3617,7 +3617,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
@@ -3626,7 +3626,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -3635,15 +3635,15 @@ public interface AsyncTaskTests
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
-                        test.assertEqual(new FileNotFoundException("abc"), value3.get());
+                        test.assertEqual(new FileNotFoundException("/abc"), value3.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
-                        test.assertEqual(new FileNotFoundException("abc"), value3.get());
+                        test.assertEqual(new FileNotFoundException("/abc"), value3.get());
                     });
                 });
             });
@@ -3869,7 +3869,7 @@ public interface AsyncTaskTests
                         final Result<Boolean> result = asyncTask.catchError(FileNotFoundException.class, (Function0<Boolean>)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -3902,7 +3902,7 @@ public interface AsyncTaskTests
                         final Result<Boolean> result = asyncTask.catchError(FileNotFoundException.class, (Function0<Boolean>)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -3928,14 +3928,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Result<Boolean> result = asyncTask.catchError(FileNotFoundException.class, (Function0<Boolean>)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -3943,11 +3943,11 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
                     });
@@ -3961,14 +3961,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Result<Boolean> result = asyncTask.catchError(FileNotFoundException.class, (Function0<Boolean>)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -3976,11 +3976,11 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
                     });
@@ -3994,14 +3994,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Result<Boolean> result = asyncTask.catchError(QueueEmptyException.class, (Function0<Boolean>)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -4009,11 +4009,11 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(result::await, new FileNotFoundException("abc"));
+                        test.assertThrows(result::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                     });
@@ -4027,14 +4027,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Result<Boolean> result = asyncTask.catchError(QueueEmptyException.class, (Function0<Boolean>)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -4042,11 +4042,11 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(result::await, new FileNotFoundException("abc"));
+                        test.assertThrows(result::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                     });
@@ -4306,7 +4306,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -4344,7 +4344,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -4373,7 +4373,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
@@ -4382,7 +4382,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -4391,15 +4391,15 @@ public interface AsyncTaskTests
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
-                        test.assertEqual(new FileNotFoundException("abc"), value3.get());
+                        test.assertEqual(new FileNotFoundException("/abc"), value3.get());
                     });
                 });
 
@@ -4411,7 +4411,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
@@ -4420,7 +4420,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -4429,15 +4429,15 @@ public interface AsyncTaskTests
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
-                        test.assertEqual(new FileNotFoundException("abc"), value3.get());
+                        test.assertEqual(new FileNotFoundException("/abc"), value3.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
-                        test.assertEqual(new FileNotFoundException("abc"), value3.get());
+                        test.assertEqual(new FileNotFoundException("/abc"), value3.get());
                     });
                 });
 
@@ -4449,7 +4449,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
@@ -4458,7 +4458,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -4467,12 +4467,12 @@ public interface AsyncTaskTests
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FileNotFoundException("abc"));
+                        test.assertThrows(result::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
@@ -4487,7 +4487,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
@@ -4496,7 +4496,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -4505,12 +4505,12 @@ public interface AsyncTaskTests
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FileNotFoundException("abc"));
+                        test.assertThrows(result::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
@@ -4651,7 +4651,7 @@ public interface AsyncTaskTests
                         });
 
                         final Result<Boolean> result = asyncTask.onError((Action0)() -> {
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -4681,7 +4681,7 @@ public interface AsyncTaskTests
                         final Result<Boolean> result = asyncTask.onError((Action0)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -4707,14 +4707,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Result<Boolean> result = asyncTask.onError((Action0)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -4722,11 +4722,11 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
                     });
@@ -4740,14 +4740,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Result<Boolean> result = asyncTask.onError((Action0)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -4755,11 +4755,11 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
                     });
@@ -4934,7 +4934,7 @@ public interface AsyncTaskTests
                         final Result<Boolean> result = asyncTask.onError((Action1<Throwable>)(Throwable parentError) ->
                         {
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -4969,7 +4969,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -4998,7 +4998,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
@@ -5007,7 +5007,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -5016,15 +5016,15 @@ public interface AsyncTaskTests
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
-                        test.assertEqual(new FileNotFoundException("abc"), value3.get());
+                        test.assertEqual(new FileNotFoundException("/abc"), value3.get());
                     });
                 });
 
@@ -5036,7 +5036,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
@@ -5045,7 +5045,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -5054,15 +5054,15 @@ public interface AsyncTaskTests
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
-                        test.assertEqual(new FileNotFoundException("abc"), value3.get());
+                        test.assertEqual(new FileNotFoundException("/abc"), value3.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
-                        test.assertEqual(new FileNotFoundException("abc"), value3.get());
+                        test.assertEqual(new FileNotFoundException("/abc"), value3.get());
                     });
                 });
             });
@@ -5282,7 +5282,7 @@ public interface AsyncTaskTests
                         final Result<Boolean> result = asyncTask.onError(FileNotFoundException.class, (Action0)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -5315,7 +5315,7 @@ public interface AsyncTaskTests
                         final Result<Boolean> result = asyncTask.onError(FileNotFoundException.class, (Action0)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -5341,14 +5341,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Result<Boolean> result = asyncTask.onError(FileNotFoundException.class, (Action0)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -5356,11 +5356,11 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
                     });
@@ -5374,14 +5374,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Result<Boolean> result = asyncTask.onError(FileNotFoundException.class, (Action0)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -5389,11 +5389,11 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
                     });
@@ -5407,14 +5407,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Result<Boolean> result = asyncTask.onError(QueueEmptyException.class, (Action0)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -5422,11 +5422,11 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(result::await, new FileNotFoundException("abc"));
+                        test.assertThrows(result::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                     });
@@ -5440,14 +5440,14 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Result<Boolean> result = asyncTask.onError(QueueEmptyException.class, (Action0)() ->
                         {
                             value2.increment();
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -5455,11 +5455,11 @@ public interface AsyncTaskTests
                         test.assertEqual(0, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(result::await, new FileNotFoundException("abc"));
+                        test.assertThrows(result::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                     });
@@ -5713,7 +5713,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -5751,7 +5751,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -5780,7 +5780,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
@@ -5789,7 +5789,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -5798,15 +5798,15 @@ public interface AsyncTaskTests
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
-                        test.assertEqual(new FileNotFoundException("abc"), value3.get());
+                        test.assertEqual(new FileNotFoundException("/abc"), value3.get());
                     });
                 });
 
@@ -5818,7 +5818,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
@@ -5827,7 +5827,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -5836,15 +5836,15 @@ public interface AsyncTaskTests
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FolderNotFoundException("blah"));
+                        test.assertThrows(result::await, new FolderNotFoundException("/blah"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
-                        test.assertEqual(new FileNotFoundException("abc"), value3.get());
+                        test.assertEqual(new FileNotFoundException("/abc"), value3.get());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(11, value2.get());
-                        test.assertEqual(new FileNotFoundException("abc"), value3.get());
+                        test.assertEqual(new FileNotFoundException("/abc"), value3.get());
                     });
                 });
 
@@ -5856,7 +5856,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
@@ -5865,7 +5865,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -5874,12 +5874,12 @@ public interface AsyncTaskTests
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FileNotFoundException("abc"));
+                        test.assertThrows(result::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
@@ -5894,7 +5894,7 @@ public interface AsyncTaskTests
                         final AsyncTask<Boolean> asyncTask = asyncRunner.schedule(() ->
                         {
                             value1.increment();
-                            throw new FileNotFoundException("abc");
+                            throw new FileNotFoundException("/abc");
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
@@ -5903,7 +5903,7 @@ public interface AsyncTaskTests
                         {
                             value2.increment();
                             value3.set(parentError);
-                            throw new FolderNotFoundException("blah");
+                            throw new FolderNotFoundException("/blah");
                         });
                         test.assertNotNull(result);
                         test.assertEqual(Iterable.create(result), asyncTask.getNextTasks());
@@ -5912,12 +5912,12 @@ public interface AsyncTaskTests
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(result::await, new FileNotFoundException("abc"));
+                        test.assertThrows(result::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());
 
-                        test.assertThrows(asyncTask::await, new FileNotFoundException("abc"));
+                        test.assertThrows(asyncTask::await, new FileNotFoundException("/abc"));
                         test.assertEqual(1, value1.get());
                         test.assertEqual(10, value2.get());
                         test.assertFalse(value3.hasValue());

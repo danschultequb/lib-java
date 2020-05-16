@@ -42,7 +42,7 @@ public interface InMemoryFileSystemTests
                 runner.test("when parent folder doesn't exist", (Test test) ->
                 {
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
-                    test.assertEqual("C:", fileSystem.createRoot("C:\\").await().toString());
+                    test.assertEqual("C:/", fileSystem.createRoot("C:\\").await().toString());
                     test.assertThrows(() -> fileSystem.setFileCanDelete("C:\\folder\\file.bmp", true).await(),
                         new FileNotFoundException("C:\\folder\\file.bmp"));
                 });
@@ -50,8 +50,8 @@ public interface InMemoryFileSystemTests
                 runner.test("when file doesn't exist", (Test test) ->
                 {
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
-                    test.assertEqual("C:", fileSystem.createRoot("C:\\").await().toString());
-                    test.assertEqual("C:/folder", fileSystem.createFolder("C:\\folder").await().toString());
+                    test.assertEqual("C:/", fileSystem.createRoot("C:\\").await().toString());
+                    test.assertEqual("C:/folder/", fileSystem.createFolder("C:\\folder").await().toString());
                     test.assertThrows(() -> fileSystem.setFileCanDelete("C:\\folder\\file.bmp", true).await(),
                         new FileNotFoundException("C:/folder/file.bmp"));
                 });

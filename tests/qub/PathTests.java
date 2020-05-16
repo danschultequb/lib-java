@@ -498,7 +498,7 @@ public interface PathTests
 
                 relativeToErrorTest.run("C:/a/b/c.d", null, new PreConditionFailure("folder cannot be null."));
                 relativeToErrorTest.run("C:/a/b/c.d", "/folder/", new PreConditionFailure("basePath.getRoot().await() (/) must be C:."));
-                relativeToErrorTest.run("C:/a/b/c.d", "C:/a/b/c.d", new PreConditionFailure("basePath (C:/a/b/c.d) must not be C:/a/b/c.d."));
+                relativeToErrorTest.run("C:/a/b/c.d", "C:/a/b/c.d", new PreConditionFailure("basePath (C:/a/b/c.d/) must not be C:/a/b/c.d."));
                 relativeToErrorTest.run("/", "/", new PreConditionFailure("basePath (/) must not be /."));
 
                 final Action3<String,String,String> relativeToTest = (String pathString, String basePathString, String expectedPathString) ->

@@ -8,11 +8,24 @@ public class Folder extends FileSystemEntry
     /**
      * Create a new Folder reference.
      * @param fileSystem The FileSystem that contains this Folder.
-     * @param path The Path to this Folder.
+     * @param folderPath The Path to this Folder.
      */
-    public Folder(FileSystem fileSystem, Path path)
+    public Folder(FileSystem fileSystem, Path folderPath)
     {
-        super(fileSystem, path);
+        super(fileSystem, Folder.normalizeFolderPath(folderPath));
+    }
+
+    private static Path normalizeFolderPath(Path folderPath)
+    {
+        PreCondition.assertNotNull(folderPath, "folderPath");
+        PreCondition.assertTrue(folderPath.isRooted(), "folderPath.isRooted()");
+
+        folderPath = folderPath.normalize();
+        if (!folderPath.endsWith('/'))
+        {
+            folderPath = Path.parse(folderPath.toString() + '/');
+        }
+        return folderPath;
     }
 
     /**

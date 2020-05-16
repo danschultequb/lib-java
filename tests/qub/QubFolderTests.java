@@ -121,7 +121,7 @@ public interface QubFolderTests
                     final QubFolder qubFolder = QubFolderTests.getQubFolder(test, "/qub/");
                     final QubPublisherFolder qubPublisherFolder = qubFolder.getPublisherFolder("spam").await();
                     test.assertNotNull(qubPublisherFolder);
-                    test.assertEqual(Path.parse("/qub/spam"), qubPublisherFolder.getPath());
+                    test.assertEqual(Path.parse("/qub/spam/"), qubPublisherFolder.getPath());
                 });
 
                 runner.test("with existing publisher", (Test test) ->
@@ -132,7 +132,7 @@ public interface QubFolderTests
                     folder.createFolder("spam").await();
                     final QubPublisherFolder qubPublisherFolder = qubFolder.getPublisherFolder("spam").await();
                     test.assertNotNull(qubPublisherFolder);
-                    test.assertEqual(Path.parse("/qub/spam"), qubPublisherFolder.getPath());
+                    test.assertEqual(Path.parse("/qub/spam/"), qubPublisherFolder.getPath());
                 });
             });
 
@@ -227,7 +227,7 @@ public interface QubFolderTests
                     final QubFolder qubFolder = QubFolderTests.getQubFolder(test, "/qub/");
                     final QubProjectFolder projectFolder = qubFolder.getProjectFolder("spam", "my-project").await();
                     test.assertNotNull(projectFolder);
-                    test.assertEqual(Path.parse("/qub/spam/my-project"), projectFolder.getPath());
+                    test.assertEqual(Path.parse("/qub/spam/my-project/"), projectFolder.getPath());
                 });
 
                 runner.test("with non-existing project", (Test test) ->
@@ -238,7 +238,7 @@ public interface QubFolderTests
                     folder.createFolder("spam").await();
                     final QubProjectFolder projectFolder = qubFolder.getProjectFolder("spam", "my-project").await();
                     test.assertNotNull(projectFolder);
-                    test.assertEqual(Path.parse("/qub/spam/my-project"), projectFolder.getPath());
+                    test.assertEqual(Path.parse("/qub/spam/my-project/"), projectFolder.getPath());
                 });
 
                 runner.test("with existing project", (Test test) ->
@@ -249,7 +249,7 @@ public interface QubFolderTests
                     folder.createFolder("spam/my-project/").await();
                     final QubProjectFolder projectFolder = qubFolder.getProjectFolder("spam", "my-project").await();
                     test.assertNotNull(projectFolder);
-                    test.assertEqual(Path.parse("/qub/spam/my-project"), projectFolder.getPath());
+                    test.assertEqual(Path.parse("/qub/spam/my-project/"), projectFolder.getPath());
                 });
             });
 

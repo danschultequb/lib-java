@@ -234,7 +234,7 @@ public interface FileSystemTests
                         fileSystem.createFile("/file1.txt").await();
                         fileSystem.createFile("/folderA/file2.csv").await();
                     },
-                    new String[] { "/folderA", "/file1.txt" },
+                    new String[] { "/folderA/", "/file1.txt" },
                     null);
                 getFilesAndFoldersTest.run(
                     "/..",
@@ -300,7 +300,7 @@ public interface FileSystemTests
                         fileSystem.createFile("/file1.txt").await();
                         fileSystem.createFile("/folderA/file2.csv").await();
                     },
-                    new String[] { "/folderA", "/file1.txt" },
+                    new String[] { "/folderA/", "/file1.txt" },
                     null);
                 getFilesAndFoldersTest.run(
                     "/..",
@@ -383,7 +383,7 @@ public interface FileSystemTests
                 };
 
                 getFoldersRecursivelyTest.run("F:/test/folder", null, null, new RootNotFoundException("F:"));
-                getFoldersRecursivelyTest.run("/test/folder", null, null, new FolderNotFoundException("/test/folder"));
+                getFoldersRecursivelyTest.run("/test/folder", null, null, new FolderNotFoundException("/test/folder/"));
                 getFoldersRecursivelyTest.run(
                     "/test/folder",
                     (FileSystem fileSystem) ->
@@ -391,7 +391,7 @@ public interface FileSystemTests
                         fileSystem.createFolder("/test/").await();
                     },
                     null,
-                    new FolderNotFoundException("/test/folder"));
+                    new FolderNotFoundException("/test/folder/"));
                 getFoldersRecursivelyTest.run(
                     "/test/folder/",
                     (FileSystem fileSystem) ->
@@ -416,7 +416,7 @@ public interface FileSystemTests
                         fileSystem.createFolder("/test/folder/1.txt").await();
                         fileSystem.createFolder("/test/folder/2.txt").await();
                     },
-                    new String[] { "/test/folder/1.txt", "/test/folder/2.txt" },
+                    new String[] { "/test/folder/1.txt/", "/test/folder/2.txt/" },
                     null);
                 getFoldersRecursivelyTest.run(
                     "/test/folder",
@@ -428,7 +428,7 @@ public interface FileSystemTests
                         fileSystem.createFile("/test/folder/B/C/4.xml").await();
                         fileSystem.createFile("/test/folder/A/5.png").await();
                     },
-                    new String[] { "/test/folder/A", "/test/folder/B", "/test/folder/B/C" },
+                    new String[] { "/test/folder/A/", "/test/folder/B/", "/test/folder/B/C/" },
                     null);
                 getFoldersRecursivelyTest.run(
                     "/..",
@@ -487,8 +487,16 @@ public interface FileSystemTests
                     });
                 };
 
-                getFoldersRecursivelyTest.run("F:/test/folder", null, null, new RootNotFoundException("F:"));
-                getFoldersRecursivelyTest.run("/test/folder", null, null, new FolderNotFoundException("/test/folder"));
+                getFoldersRecursivelyTest.run(
+                    "F:/test/folder",
+                    null,
+                    null,
+                    new RootNotFoundException("F:"));
+                getFoldersRecursivelyTest.run(
+                    "/test/folder",
+                    null,
+                    null,
+                    new FolderNotFoundException("/test/folder/"));
                 getFoldersRecursivelyTest.run(
                     "/test/folder",
                     (FileSystem fileSystem) ->
@@ -496,7 +504,7 @@ public interface FileSystemTests
                         fileSystem.createFolder("/test/").await();
                     },
                     null,
-                    new FolderNotFoundException("/test/folder"));
+                    new FolderNotFoundException("/test/folder/"));
                 getFoldersRecursivelyTest.run(
                     "/test/folder/",
                     (FileSystem fileSystem) ->
@@ -521,7 +529,7 @@ public interface FileSystemTests
                         fileSystem.createFolder("/test/folder/1.txt").await();
                         fileSystem.createFolder("/test/folder/2.txt").await();
                     },
-                    new String[] { "/test/folder/1.txt", "/test/folder/2.txt" },
+                    new String[] { "/test/folder/1.txt/", "/test/folder/2.txt/" },
                     null);
                 getFoldersRecursivelyTest.run(
                     "/test/folder",
@@ -533,7 +541,7 @@ public interface FileSystemTests
                         fileSystem.createFile("/test/folder/B/C/4.xml").await();
                         fileSystem.createFile("/test/folder/A/5.png").await();
                     },
-                    new String[] { "/test/folder/A", "/test/folder/B", "/test/folder/B/C" },
+                    new String[] { "/test/folder/A/", "/test/folder/B/", "/test/folder/B/C/" },
                     null);
                 getFoldersRecursivelyTest.run(
                     "/..",
@@ -707,12 +715,12 @@ public interface FileSystemTests
                 };
 
                 getFilesRecursivelyTest.run("F:/test/folder", null, null, new RootNotFoundException("F:"));
-                getFilesRecursivelyTest.run("/test/folder", null, null, new FolderNotFoundException("/test/folder"));
+                getFilesRecursivelyTest.run("/test/folder", null, null, new FolderNotFoundException("/test/folder/"));
                 getFilesRecursivelyTest.run(
                     "/test/folder",
                     (FileSystem fileSystem) -> fileSystem.createFolder("/test").await(),
                     null,
-                    new FolderNotFoundException("/test/folder"));
+                    new FolderNotFoundException("/test/folder/"));
                 getFilesRecursivelyTest.run(
                     "/test/folder",
                     (FileSystem fileSystem) -> fileSystem.createFolder("/test/folder").await(),
@@ -804,7 +812,7 @@ public interface FileSystemTests
                 getFolderTest.run("/", "/", null);
                 getFolderTest.run("\\", "/", null);
                 getFolderTest.run("Z:\\", "Z:/", null);
-                getFolderTest.run("/a/b", "/a/b", null);
+                getFolderTest.run("/a/b", "/a/b/", null);
                 getFolderTest.run("/..", null, new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 getFolderTest.run("/a/..", "/", null);
             });
@@ -947,20 +955,35 @@ public interface FileSystemTests
                     });
                 };
 
-                createFolderTest.run("with root", "/", null, null, new FolderAlreadyExistsException("/"));
-                createFolderTest.run("with root that doesn't exist", "C:/", null, null, new RootNotFoundException("C:"));
+                createFolderTest.run(
+                    "with root",
+                    "/",
+                    null,
+                    null,
+                    new FolderAlreadyExistsException("/"));
+                createFolderTest.run(
+                    "with root that doesn't exist",
+                    "C:/",
+                    null,
+                    null,
+                    new RootNotFoundException("C:"));
                 createFolderTest.run(
                     "with rooted path with root that doesn't exist",
                     "C:/folder/",
                     null,
                     null,
                     new RootNotFoundException("C:"));
-                createFolderTest.run("with rooted path that doesn't exist", "/folder", null, "/folder", null);
+                createFolderTest.run(
+                    "with rooted path that doesn't exist",
+                    "/folder",
+                    null,
+                    "/folder/",
+                    null);
                 createFolderTest.run(
                     "with rooted path that already exists",
                     "/folder",
                     (FileSystem fileSystem) -> fileSystem.createFolder("/folder").await(),
-                    "/folder",
+                    "/folder/",
                     new FolderAlreadyExistsException("/folder"));
                 createFolderTest.run(
                     "with rooted path that resolves outside of its root",
@@ -1014,12 +1037,12 @@ public interface FileSystemTests
                     });
                 };
 
-                createFolderTest.run("with rooted path that doesn't exist", "/folder", null, "/folder", null);
+                createFolderTest.run("with rooted path that doesn't exist", "/folder", null, "/folder/", null);
                 createFolderTest.run(
                     "with rooted path that already exists",
                     "/folder",
                     (FileSystem fileSystem) -> fileSystem.createFolder("/folder").await(),
-                    "/folder",
+                    "/folder/",
                     new FolderAlreadyExistsException("/folder"));
                 createFolderTest.run(
                     "with rooted path that resolves outside of its root",
@@ -2399,7 +2422,7 @@ public interface FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test);
                     test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively("/test/folder").await(),
-                        new FolderNotFoundException("/test/folder"));
+                        new FolderNotFoundException("/test/folder/"));
                 });
 
                 runner.test("with rooted path when folder doesn't exist", (Test test) ->
@@ -2408,7 +2431,7 @@ public interface FileSystemTests
                     fileSystem.createFolder("/test/").await();
 
                     test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively("/test/folder").await(),
-                        new FolderNotFoundException("/test/folder"));
+                        new FolderNotFoundException("/test/folder/"));
                 });
 
                 runner.test("with rooted path when folder is empty", (Test test) ->

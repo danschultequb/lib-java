@@ -288,7 +288,7 @@ public interface FakeProcessRunTests
                     final Folder folder = fileSystem.getFolder("/folder").await();
                     final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setWorkingFolder(folder));
-                    test.assertEqual(Path.parse("/folder"), fakeProcessRun.getWorkingFolderPath());
+                    test.assertEqual(Path.parse("/folder/"), fakeProcessRun.getWorkingFolderPath());
                 });
             });
 

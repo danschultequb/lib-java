@@ -12,6 +12,7 @@ public class BasicProcessBuilder implements ProcessBuilder
     private ByteReadStream redirectedInputStream;
     private Action1<ByteReadStream> redirectOutputAction;
     private Action1<ByteReadStream> redirectErrorAction;
+    private CharacterWriteStream verbose;
 
     public BasicProcessBuilder(ProcessFactory factory, Path executablePath, Path workingFolderPath)
     {
@@ -26,6 +27,13 @@ public class BasicProcessBuilder implements ProcessBuilder
     }
 
     @Override
+    public BasicProcessBuilder setVerbose(CharacterWriteStream verbose)
+    {
+        this.verbose = verbose;
+        return this;
+    }
+
+    @Override
     public Result<Integer> run()
     {
         return this.factory.run(
@@ -34,7 +42,8 @@ public class BasicProcessBuilder implements ProcessBuilder
             this.workingFolderPath,
             this.redirectedInputStream,
             this.redirectOutputAction,
-            this.redirectErrorAction);
+            this.redirectErrorAction,
+            this.verbose);
     }
 
     @Override

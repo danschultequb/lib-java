@@ -60,7 +60,7 @@ public interface RealProcessFactoryTests
                 runner.test("with not found executablePath", (Test test) ->
                 {
                     final RealProcessFactory factory = RealProcessFactoryTests.create(test);
-                    test.assertThrows(() -> factory.run(Path.parse("doesntExist"), Iterable.create(), test.getProcess().getCurrentFolderPath(), null, null, null).await(),
+                    test.assertThrows(() -> factory.run(Path.parse("doesntExist"), Iterable.create(), test.getProcess().getCurrentFolderPath(), null, null, null, null).await(),
                         new FileNotFoundException("doesntExist"));
                 });
             });

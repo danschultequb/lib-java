@@ -99,14 +99,14 @@ public interface ProcessBuilder
     /**
      * Redirect the output stream create the created processes to the provided ByteWriteStream.
      * @param redirectedOutputStream The ByteWriteStream to redirect process output to.
-     * @return This ProcessBuilder.
+     * @return This object for method chaining.
      */
     ProcessBuilder redirectOutput(ByteWriteStream redirectedOutputStream);
 
     /**
      * Redirect the output stream lines create the processes that are created by this ProcessBuilder.
      * @param onOutputLine The function to call when a process writes a line to its output stream.
-     * @return This ProcessBuilder.
+     * @return This object for method chaining.
      */
     ProcessBuilder redirectOutputLines(Action1<String> onOutputLine);
 
@@ -121,14 +121,21 @@ public interface ProcessBuilder
     /**
      * Redirect the error stream create the created processes to the provided ByteWriteStream.
      * @param redirectedErrorStream The ByteWriteStream to redirect process error to.
-     * @return This ProcessBuilder.
+     * @return This object for method chaining.
      */
     ProcessBuilder redirectError(ByteWriteStream redirectedErrorStream);
 
     /**
      * Redirect the error stream lines create the processes that are created by this ProcessBuilder.
      * @param onErrorLine The function to call when a process writes a line to its error stream.
-     * @return This ProcessBuilder.
+     * @return This object for method chaining.
      */
     ProcessBuilder redirectErrorLines(Action1<String> onErrorLine);
+
+    /**
+     * Set the CharacterWriteStream that this ProcessBuilder will write verbose logs to.
+     * @param verbose The CharacterWriteStream that this ProcessBuilder will write verbose logs to.
+     * @return This object for method chaining.
+     */
+    ProcessBuilder setVerbose(CharacterWriteStream verbose);
 }

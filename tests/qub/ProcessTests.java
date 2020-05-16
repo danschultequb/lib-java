@@ -531,9 +531,9 @@ public interface ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        final ProcessBuilder builder = process.getProcessBuilder("pom.xml").await();
+                        final ProcessBuilder builder = process.getProcessBuilder("project.json").await();
                         test.assertNotNull(builder);
-                        test.assertEqual(Path.parse("pom.xml"), builder.getExecutablePath());
+                        test.assertEqual(Path.parse("project.json"), builder.getExecutablePath());
                         test.assertEqual(Iterable.create(), builder.getArguments());
                     }
                 });
@@ -542,9 +542,9 @@ public interface ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        final ProcessBuilder builder = process.getProcessBuilder("pom").await();
-                        test.assertNotNull(builder, "The builder not have been null.");
-                        test.assertEqual(Path.parse("pom"), builder.getExecutablePath());
+                        final ProcessBuilder builder = process.getProcessBuilder("project").await();
+                        test.assertNotNull(builder);
+                        test.assertEqual(Path.parse("project"), builder.getExecutablePath());
                         test.assertEqual(Iterable.create(), builder.getArguments());
                     }
                 });
@@ -553,7 +553,7 @@ public interface ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        final Path executablePath = process.getCurrentFolder().await().getFile("pom.xml").await().getPath();
+                        final Path executablePath = process.getCurrentFolder().await().getFile("project.json").await().getPath();
                         final ProcessBuilder builder = process.getProcessBuilder(executablePath).await();
                         test.assertNotNull(builder);
                         test.assertEqual(executablePath, builder.getExecutablePath());
@@ -565,7 +565,7 @@ public interface ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        final Path executablePath = process.getCurrentFolder().await().getFile("pom").await().getPath();
+                        final Path executablePath = process.getCurrentFolder().await().getFile("project").await().getPath();
                         final ProcessBuilder builder = process.getProcessBuilder(executablePath).await();
                         test.assertNotNull(builder);
                         test.assertEqual(executablePath, builder.getExecutablePath());
@@ -583,6 +583,29 @@ public interface ProcessTests
                             test.assertEqual("javac.exe", builder.getExecutablePath().getSegments().last());
                             test.assertEqual(Iterable.create(), builder.getArguments());
                             test.assertEqual(2, builder.run().await());
+                        }
+                    }
+                });
+
+                runner.test("with rooted path to executable (with verbose logging)", (Test test) ->
+                {
+                    try (final Process process = creator.run())
+                    {
+                        if (process.onWindows().await())
+                        {
+                            final InMemoryCharacterStream verbose = InMemoryCharacterStream.create();
+                            final ProcessBuilder builder = process.getProcessBuilder("C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe").await()
+                                .setVerbose(verbose);
+                            test.assertEqual("", verbose.getText().await());
+                            test.assertEqual("javac.exe", builder.getExecutablePath().getSegments().last());
+                            test.assertEqual(Iterable.create(), builder.getArguments());
+                            test.assertEqual(2, builder.run().await());
+                            test.assertEqual(
+                                Iterable.create(
+                                    "Looking for executable: \"C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe\" (check extensions: true)",
+                                    "Checking \"C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe\"... Yes!",
+                                    "C:/Users/dansc/Sources/lib-java/: C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe"),
+                                Strings.getLines(verbose.getText().await()));
                         }
                     }
                 });
@@ -616,6 +639,42 @@ public interface ProcessTests
                             test.assertEqual("javac.exe", builder.getExecutablePath().getSegments().last());
                             test.assertEqual(Iterable.create(), builder.getArguments());
                             test.assertEqual(2, builder.run().await());
+                        }
+                    }
+                });
+
+                runner.test("with path with file extension relative to PATH environment variable (with verbose logging)", (Test test) ->
+                {
+                    try (final Process process = creator.run())
+                    {
+                        if (process.onWindows().await())
+                        {
+                            final InMemoryCharacterStream verbose = InMemoryCharacterStream.create();
+                            final ProcessBuilder builder = process.getProcessBuilder("javac.exe").await()
+                                .setVerbose(verbose);
+                            test.assertEqual("javac.exe", builder.getExecutablePath().getSegments().last());
+                            test.assertEqual(Iterable.create(), builder.getArguments());
+                            test.assertEqual(2, builder.run().await());
+                            test.assertEqual(
+                                Iterable.create(
+                                    "Looking for executable: \"javac.exe\" (check extensions: true)",
+                                    "Checking \"C:/Users/dansc/Sources/lib-java/javac.exe\"... No.",
+                                    "Checking \"C:/Users/dansc/cmder/bin/javac.exe\"... No.",
+                                    "Checking \"C:/Users/dansc/cmder/vendor/bin/javac.exe\"... No.",
+                                    "Checking \"C:/Users/dansc/cmder/vendor/conemu-maximus5/ConEmu/Scripts/javac.exe\"... No.",
+                                    "Checking \"C:/Users/dansc/cmder/vendor/conemu-maximus5/javac.exe\"... No.",
+                                    "Checking \"C:/Users/dansc/cmder/vendor/conemu-maximus5/ConEmu/javac.exe\"... No.",
+                                    "Checking \"C:/Program Files (x86)/Python37-32/Scripts/javac.exe\"... No.",
+                                    "Checking \"C:/Program Files (x86)/Python37-32/javac.exe\"... No.",
+                                    "Checking \"C:/Program Files (x86)/Common Files/Oracle/Java/javapath/javac.exe\"... No.",
+                                    "Checking \"C:/WINDOWS/system32/javac.exe\"... No.",
+                                    "Checking \"C:/WINDOWS/javac.exe\"... No.",
+                                    "Checking \"C:/WINDOWS/System32/Wbem/javac.exe\"... No.",
+                                    "Checking \"C:/WINDOWS/System32/WindowsPowerShell/v1.0/javac.exe\"... No.",
+                                    "Checking \"C:/WINDOWS/System32/OpenSSH/javac.exe\"... No.",
+                                    "Checking \"C:/Program Files/Java/jdk-11.0.1/bin/javac.exe\"... Yes!",
+                                    "C:/Users/dansc/Sources/lib-java/: C:/Program Files/Java/jdk-11.0.1/bin/javac.exe"),
+                                Strings.getLines(verbose.getText().await()));
                         }
                     }
                 });
@@ -682,8 +741,7 @@ public interface ProcessTests
                             .await();
                         builder.setWorkingFolder(workingFolder);
                         test.assertThrows(() -> builder.run().await(),
-                            new java.io.IOException("Cannot run program \"C:/Program Files/Java/jdk-11.0.1/bin/javac.exe\" (in directory \"C:\\Users\\dansc\\Sources\\lib-java\\I don't exist\"): CreateProcess error=267, The directory name is invalid",
-                                new java.io.IOException("CreateProcess error=267, The directory name is invalid")));
+                            new FolderNotFoundException(workingFolder));
                         test.assertEqual("", output.getText().await());
                         test.assertEqual("", error.getText().await());
                     }

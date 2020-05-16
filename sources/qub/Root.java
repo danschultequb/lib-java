@@ -10,11 +10,14 @@ public class Root
     /**
      * Create a new Root reference object.
      * @param fileSystem The file system that this root exists in.
-     * @param path The path to this root.
+     * @param rootPath The path to this root.
      */
-    public Root(FileSystem fileSystem, Path path)
+    public Root(FileSystem fileSystem, Path rootPath)
     {
-        folder = new Folder(fileSystem, path);
+        PreCondition.assertNotNull(rootPath, "rootPath");
+        PreCondition.assertTrue(rootPath.isRooted(), "rootPath.isRooted()");
+
+        folder = new Folder(fileSystem, rootPath);
     }
 
     /**

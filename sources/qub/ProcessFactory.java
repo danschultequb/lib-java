@@ -50,9 +50,10 @@ public interface ProcessFactory
      * @param redirectedInputStream The input stream that the new process will use.
      * @param redirectedOutputStream The action that will be invoked each time the process writes to its output stream.
      * @param redirectedErrorStream The action that will be invoked each time the process writes to its error stream.
+     * @param verbose The CharacterWriteStream that verbose logs will be written to.
      * @return The exit code of the process.
      */
-    Result<Integer> run(Path executablePath, Iterable<String> arguments, Path workingFolderPath, ByteReadStream redirectedInputStream, Action1<ByteReadStream> redirectedOutputStream, Action1<ByteReadStream> redirectedErrorStream);
+    Result<Integer> run(Path executablePath, Iterable<String> arguments, Path workingFolderPath, ByteReadStream redirectedInputStream, Action1<ByteReadStream> redirectedOutputStream, Action1<ByteReadStream> redirectedErrorStream, CharacterWriteStream verbose);
 
     /**
      * Get the full command line string that will be run.

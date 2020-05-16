@@ -85,8 +85,8 @@ public interface FolderTests
                     });
                 };
 
-                relativeToErrorTests.run("/apples/grapes", "/apples/grapes", new PreConditionFailure("basePath (/apples/grapes) must not be /apples/grapes."));
-                relativeToErrorTests.run("/apples/grapes", "/apples/grapes/", new PreConditionFailure("basePath (/apples/grapes/) must not be /apples/grapes."));
+                relativeToErrorTests.run("/apples/grapes", "/apples/grapes", new PreConditionFailure("basePath (/apples/grapes) must not be /apples/grapes/."));
+                relativeToErrorTests.run("/apples/grapes", "/apples/grapes/", new PreConditionFailure("basePath (/apples/grapes/) must not be /apples/grapes/."));
 
                 final Action3<String,String,String> relativeToTests = (String path, String basePath, String expectedPath) ->
                 {
@@ -116,8 +116,8 @@ public interface FolderTests
                     });
                 };
 
-                relativeToErrorTests.run("/apples/grapes", "/apples/grapes", new PreConditionFailure("basePath (/apples/grapes) must not be /apples/grapes."));
-                relativeToErrorTests.run("/apples/grapes", "/apples/grapes/", new PreConditionFailure("basePath (/apples/grapes/) must not be /apples/grapes."));
+                relativeToErrorTests.run("/apples/grapes", "/apples/grapes", new PreConditionFailure("basePath (/apples/grapes) must not be /apples/grapes/."));
+                relativeToErrorTests.run("/apples/grapes", "/apples/grapes/", new PreConditionFailure("basePath (/apples/grapes/) must not be /apples/grapes/."));
 
                 final Action3<String,String,String> relativeToTests = (String path, String basePath, String expectedPath) ->
                 {
@@ -149,8 +149,8 @@ public interface FolderTests
                     });
                 };
 
-                relativeToErrorTests.run("/apples/grapes", "/apples/grapes", new PreConditionFailure("basePath (/apples/grapes) must not be /apples/grapes."));
-                relativeToErrorTests.run("/apples/grapes", "/apples/grapes/", new PreConditionFailure("basePath (/apples/grapes/) must not be /apples/grapes."));
+                relativeToErrorTests.run("/apples/grapes", "/apples/grapes", new PreConditionFailure("basePath (/apples/grapes/) must not be /apples/grapes/."));
+                relativeToErrorTests.run("/apples/grapes", "/apples/grapes/", new PreConditionFailure("basePath (/apples/grapes/) must not be /apples/grapes/."));
 
                 final Action3<String,String,String> relativeToTests = (String path, String basePath, String expectedPath) ->
                 {
@@ -208,7 +208,7 @@ public interface FolderTests
                 {
                     final Folder folder = FolderTests.getFolder(test);
                     test.assertThrows(() -> folder.delete().await(),
-                        new FolderNotFoundException("/test/folder"));
+                        new FolderNotFoundException("/test/folder/"));
                 });
 
                 runner.test("when folder exists", (Test test) ->
@@ -264,7 +264,7 @@ public interface FolderTests
                     final Folder folder = FolderTests.getFolder(test);
 
                     final Folder createdFolder = folder.createFolder("thing").await();
-                    test.assertEqual("/test/folder/thing", createdFolder.toString());
+                    test.assertEqual("/test/folder/thing/", createdFolder.toString());
 
                     test.assertTrue(folder.exists().await());
                     test.assertTrue(createdFolder.exists().await());
@@ -284,7 +284,7 @@ public interface FolderTests
                     final Folder folder = FolderTests.getFolder(test);
 
                     final Folder createdFolder = folder.createFolder("place").await();
-                    test.assertEqual("/test/folder/place", createdFolder.toString());
+                    test.assertEqual("/test/folder/place/", createdFolder.toString());
 
                     test.assertTrue(folder.exists().await());
                     test.assertTrue(createdFolder.exists().await());
@@ -381,19 +381,19 @@ public interface FolderTests
                 final Folder folder = FolderTests.getFolder(test);
                 test.assertFalse(folder.exists().await());
                 test.assertThrows(() -> folder.getFolders().await(),
-                    new FolderNotFoundException("/test/folder"));
+                    new FolderNotFoundException("/test/folder/"));
 
                 test.assertNull(folder.create().await());
                 test.assertTrue(folder.exists().await());
                 test.assertEqual(Iterable.create(), folder.getFolders().await());
 
                 final Folder childFolder = folder.createFolder("childFolder1").await();
-                test.assertEqual("/test/folder/childFolder1", childFolder.toString());
+                test.assertEqual("/test/folder/childFolder1/", childFolder.toString());
 
-                test.assertEqual(Iterable.create("/test/folder/childFolder1"), folder.getFolders().await().map(Folder::toString));
+                test.assertEqual(Iterable.create("/test/folder/childFolder1/"), folder.getFolders().await().map(Folder::toString));
 
-                test.assertEqual("/test/folder/childFolder1/grandchildFolder1", childFolder.createFolder("grandchildFolder1").await().toString());
-                test.assertEqual(Iterable.create("/test/folder/childFolder1"), folder.getFolders().await().map(Folder::toString));
+                test.assertEqual("/test/folder/childFolder1/grandchildFolder1/", childFolder.createFolder("grandchildFolder1").await().toString());
+                test.assertEqual(Iterable.create("/test/folder/childFolder1/"), folder.getFolders().await().map(Folder::toString));
             });
 
             runner.testGroup("getFiles()", () ->
@@ -402,7 +402,7 @@ public interface FolderTests
                 {
                     final Folder folder = FolderTests.getFolder(test);
                     test.assertFalse(folder.exists().await());
-                    test.assertThrows(() -> folder.getFiles().await(), new FolderNotFoundException("/test/folder"));
+                    test.assertThrows(() -> folder.getFiles().await(), new FolderNotFoundException("/test/folder/"));
                 });
 
                 runner.test("when folder exists but is empty", (Test test) ->
@@ -439,7 +439,7 @@ public interface FolderTests
                     final Folder folder = FolderTests.getFolder(test);
                     test.assertFalse(folder.exists().await());
                     test.assertThrows(() -> folder.getFilesAndFolders().await(),
-                        new FolderNotFoundException("/test/folder"));
+                        new FolderNotFoundException("/test/folder/"));
                 });
 
                 runner.test("when folder exists but is empty", (Test test) ->
@@ -453,8 +453,8 @@ public interface FolderTests
                 {
                     final Folder folder = FolderTests.getFolder(test);
                     test.assertNull(folder.create().await());
-                    test.assertEqual("/test/folder/subfolder", folder.createFolder("subfolder").await().toString());
-                    test.assertEqual(Iterable.create("/test/folder/subfolder"), folder.getFilesAndFolders().await().map(FileSystemEntry::toString));
+                    test.assertEqual("/test/folder/subfolder/", folder.createFolder("subfolder").await().toString());
+                    test.assertEqual(Iterable.create("/test/folder/subfolder/"), folder.getFilesAndFolders().await().map(FileSystemEntry::toString));
                 });
 
                 runner.test("when folder exists and has one child file", (Test test) ->
@@ -473,7 +473,7 @@ public interface FolderTests
                     folder.createFolder("childfolder").await();
                     test.assertEqual(
                         Iterable.create(
-                            "/test/folder/childfolder",
+                            "/test/folder/childfolder/",
                             "/test/folder/file.java"),
                         folder.getFilesAndFolders().await().map(FileSystemEntry::toString));
                 });

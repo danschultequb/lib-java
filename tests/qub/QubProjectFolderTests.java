@@ -171,7 +171,7 @@ public interface QubProjectFolderTests
                     final String projectName = "b";
                     final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
                     projectFolder.getProjectVersionFolder("1").await().create().await();
-                    test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/1", projectFolder.getLatestProjectVersionFolder().await().toString());
+                    test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/1/", projectFolder.getLatestProjectVersionFolder().await().toString());
                 });
 
                 runner.test("with two versions", (Test test) ->
@@ -181,7 +181,7 @@ public interface QubProjectFolderTests
                     final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
                     projectFolder.getProjectVersionFolder("2").await().create().await();
                     projectFolder.getProjectVersionFolder("3").await().create().await();
-                    test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/3", projectFolder.getLatestProjectVersionFolder().await().toString());
+                    test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/3/", projectFolder.getLatestProjectVersionFolder().await().toString());
                 });
 
                 runner.test("with three non-sorted versions", (Test test) ->
@@ -192,7 +192,7 @@ public interface QubProjectFolderTests
                     projectFolder.getProjectVersionFolder("2").await().create().await();
                     projectFolder.getProjectVersionFolder("30").await().create().await();
                     projectFolder.getProjectVersionFolder("13").await().create().await();
-                    test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/30", projectFolder.getLatestProjectVersionFolder().await().toString());
+                    test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/30/", projectFolder.getLatestProjectVersionFolder().await().toString());
                 });
 
                 runner.test("with non-integer versions", (Test test) ->
@@ -203,7 +203,7 @@ public interface QubProjectFolderTests
                     projectFolder.getProjectVersionFolder("2").await().create().await();
                     projectFolder.getProjectVersionFolder("3.0.3").await().create().await();
                     projectFolder.getProjectVersionFolder("1.3").await().create().await();
-                    test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/2", projectFolder.getLatestProjectVersionFolder().await().toString());
+                    test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/2/", projectFolder.getLatestProjectVersionFolder().await().toString());
                 });
             });
 
@@ -212,7 +212,7 @@ public interface QubProjectFolderTests
                 final String publisherName = "a";
                 final String projectName = "b";
                 final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
-                test.assertEqual("/qub/" + publisherName + "/" + projectName + "/data", projectFolder.getProjectDataFolder().await().toString());
+                test.assertEqual("/qub/" + publisherName + "/" + projectName + "/data/", projectFolder.getProjectDataFolder().await().toString());
             });
 
             runner.test("getProjectVersionsFolder()", (Test test) ->
@@ -220,7 +220,7 @@ public interface QubProjectFolderTests
                 final String publisherName = "a";
                 final String projectName = "b";
                 final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
-                test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions", projectFolder.getProjectVersionsFolder().await().toString());
+                test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/", projectFolder.getProjectVersionsFolder().await().toString());
             });
 
             runner.testGroup("getProjectJSONFile(String)", () ->

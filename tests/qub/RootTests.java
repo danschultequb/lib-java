@@ -18,7 +18,14 @@ public interface RootTests
                 {
                     final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
                     test.assertThrows(() -> new Root(fileSystem, null),
-                        new PreConditionFailure("path cannot be null."));
+                        new PreConditionFailure("rootPath cannot be null."));
+                });
+
+                runner.test("with relative path", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    test.assertThrows(() -> new Root(fileSystem, Path.parse("hello")),
+                        new PreConditionFailure("rootPath.isRooted() cannot be false."));
                 });
 
                 runner.test("with valid arguments", (Test test) ->
@@ -176,7 +183,7 @@ public interface RootTests
                 {
                     final Root root = getRoot(test);
                     final Folder folder = root.getFolder("folderName").await();
-                    test.assertEqual("/folderName", folder.toString());
+                    test.assertEqual("/folderName/", folder.toString());
                 });
 
                 runner.test("with relative path that exists", (Test test) ->
@@ -186,7 +193,7 @@ public interface RootTests
                     root.createFolder("folderName").await();
 
                     final Folder folder = root.getFolder("folderName").await();
-                    test.assertEqual("/folderName", folder.toString());
+                    test.assertEqual("/folderName/", folder.toString());
                 });
             });
 
@@ -201,7 +208,7 @@ public interface RootTests
                 runner.test("with relative path that doesn't exist", (Test test) ->
                 {
                     final Root root = getRoot(test);
-                    test.assertEqual("/folderName", root.getFolder(Path.parse("folderName")).await().toString());
+                    test.assertEqual("/folderName/", root.getFolder(Path.parse("folderName")).await().toString());
                 });
 
                 runner.test("with relative path that exists", (Test test) ->
@@ -209,7 +216,7 @@ public interface RootTests
                     final Root root = getRoot(test);
                     root.createFolder("folderName").await();
 
-                    test.assertEqual("/folderName", root.getFolder(Path.parse("folderName")).await().toString());
+                    test.assertEqual("/folderName/", root.getFolder(Path.parse("folderName")).await().toString());
                 });
             });
 
@@ -283,7 +290,7 @@ public interface RootTests
                 {
                     final Root root = getRoot(test);
                     final Folder folder = root.createFolder("folderName").await();
-                    test.assertEqual("/folderName", folder.toString());
+                    test.assertEqual("/folderName/", folder.toString());
                 });
 
                 runner.test("with relative Path when root doesn't exist", (Test test) ->
@@ -316,7 +323,7 @@ public interface RootTests
                     final Root root = getRoot(test);
                     final Folder result = root.createFolder(Path.parse("folderName")).await();
                     test.assertNotNull(result);
-                    test.assertEqual("/folderName", result.toString());
+                    test.assertEqual("/folderName/", result.toString());
                 });
 
                 runner.test("with non-existing folder when root doesn't exist", (Test test) ->

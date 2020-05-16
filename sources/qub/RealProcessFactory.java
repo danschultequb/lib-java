@@ -23,7 +23,7 @@ public class RealProcessFactory implements ProcessFactory
     @Override
     public Path getWorkingFolderPath()
     {
-        return this.currentFolder.getPath();
+        return this.currentFolder.getPath().normalize();
     }
 
     /**
@@ -38,12 +38,12 @@ public class RealProcessFactory implements ProcessFactory
 
         return Result.create(() ->
         {
-            return new BasicProcessBuilder(this, executablePath, this.currentFolder.getPath());
+            return new BasicProcessBuilder(this, executablePath, this.getWorkingFolderPath());
         });
     }
 
     @Override
-    public Result<Integer> run(Path executablePath, Iterable<String> arguments, Path workingFolderPath, ByteReadStream redirectedInputStream, Action1<ByteReadStream> redirectOutputAction, Action1<ByteReadStream> redirectErrorAction)
+    public Result<Integer> run(Path executablePath, Iterable<String> arguments, Path workingFolderPath, ByteReadStream redirectedInputStream, Action1<ByteReadStream> redirectOutputAction, Action1<ByteReadStream> redirectErrorAction, CharacterWriteStream verbose)
     {
         PreCondition.assertNotNull(executablePath, "executablePath");
         PreCondition.assertNotNull(arguments, "arguments");
@@ -51,8 +51,8 @@ public class RealProcessFactory implements ProcessFactory
 
         return Result.create(() ->
         {
-            final File executableFile = findExecutableFile(executablePath, true)
-                .catchError(FileNotFoundException.class, () -> findExecutableFile(executablePath, false).await())
+            final File executableFile = this.findExecutableFile(executablePath, true, workingFolderPath, verbose)
+                .catchError(FileNotFoundException.class, () -> this.findExecutableFile(executablePath, false, workingFolderPath, verbose).await())
                 .await();
 
             final java.lang.ProcessBuilder builder = new java.lang.ProcessBuilder(executableFile.toString());
@@ -85,6 +85,17 @@ public class RealProcessFactory implements ProcessFactory
             int exitCode;
             try
             {
+                if (verbose != null)
+                {
+                    verbose.write(workingFolderPath.toString()).await();
+                    verbose.write(':').await();
+                    for (final String commandPart : builder.command())
+                    {
+                        verbose.write(' ').await();
+                        verbose.write(commandPart).await();
+                    }
+                    verbose.writeLine();
+                }
                 final java.lang.Process process = builder.start();
 
                 final Result<Void> inputAction = redirectedInputStream == null
@@ -116,7 +127,7 @@ public class RealProcessFactory implements ProcessFactory
         });
     }
 
-    public Result<File> getExecutableFile(final Path executableFilePath, boolean checkExtensions)
+    public Result<File> getExecutableFile(Path executableFilePath, boolean checkExtensions, CharacterWriteStream verbose)
     {
         PreCondition.assertNotNull(executableFilePath, "executableFilePath");
         PreCondition.assertTrue(executableFilePath.isRooted(), "executableFilePath.isRooted()");
@@ -127,12 +138,24 @@ public class RealProcessFactory implements ProcessFactory
             final FileSystem fileSystem = this.currentFolder.getFileSystem();
             if (checkExtensions)
             {
+                if (verbose != null)
+                {
+                    verbose.write("Checking " + Strings.escapeAndQuote(executableFilePath) + "... ").await();
+                }
                 if (fileSystem.fileExists(executableFilePath).await())
                 {
+                    if (verbose != null)
+                    {
+                        verbose.writeLine("Yes!").await();
+                    }
                     result = fileSystem.getFile(executableFilePath).await();
                 }
                 else
                 {
+                    if (verbose != null)
+                    {
+                        verbose.writeLine("No.").await();
+                    }
                     throw new FileNotFoundException(executableFilePath);
                 }
             }
@@ -150,19 +173,49 @@ public class RealProcessFactory implements ProcessFactory
                     final Path executablePathWithExtension = Strings.isNullOrEmpty(executableExtension)
                         ? executablePathWithoutExtension
                         : executablePathWithoutExtension.concatenate(executableExtension);
+                    if (verbose != null)
+                    {
+                        verbose.write("Checking " + Strings.escapeAndQuote(executablePathWithExtension) + "... ").await();
+                    }
                     result = files.first((File file) -> executablePathWithExtension.equals(file.getPath()));
                     if (result != null)
                     {
+                        if (verbose != null)
+                        {
+                            verbose.writeLine("Yes!").await();
+                        }
                         break;
+                    }
+                    else
+                    {
+                        if (verbose != null)
+                        {
+                            verbose.writeLine("No.").await();
+                        }
                     }
                 }
 
                 if (result == null)
                 {
+                    if (verbose != null)
+                    {
+                        verbose.write("Checking " + Strings.escapeAndQuote(executablePathWithoutExtension) + "... ").await();
+                    }
                     result = files.first((File file) -> executablePathWithoutExtension.equals(file.getPath().withoutFileExtension()));
                     if (result == null)
                     {
+                        if (verbose != null)
+                        {
+                            verbose.writeLine("No.").await();
+                        }
                         throw new FileNotFoundException(executablePathWithoutExtension);
+                    }
+                    else
+                    {
+                        if (verbose != null)
+                        {
+                            verbose.writeLine("Yes!").await();
+                        }
                     }
                 }
             }
@@ -182,24 +235,29 @@ public class RealProcessFactory implements ProcessFactory
      *                        match "program.cmd", but it would match if checkExtensions is false.
      * @return The file to execute.
      */
-    public Result<File> findExecutableFile(Path executablePath, boolean checkExtensions)
+    public Result<File> findExecutableFile(Path executablePath, boolean checkExtensions, Path workingFolderPath, CharacterWriteStream verbose)
     {
         PreCondition.assertNotNull(executablePath, "executablePath");
+        PreCondition.assertNotNull(workingFolderPath, "workingFolderPath");
 
         return Result.create(() ->
         {
+            if (verbose != null)
+            {
+                verbose.writeLine("Looking for executable: " + Strings.escapeAndQuote(executablePath) + " (check extensions: " + checkExtensions + ")").await();
+            }
+
             File result;
 
             if (executablePath.isRooted())
             {
-                result = this.getExecutableFile(executablePath, checkExtensions).await();
+                result = this.getExecutableFile(executablePath.normalize(), checkExtensions, verbose).await();
             }
             else
             {
-                final Path currentFolderPath = this.currentFolder.getPath();
-                final Path currentFolderExecutablePath = currentFolderPath.concatenateSegment(executablePath);
+                final Path currentFolderExecutablePath = workingFolderPath.concatenateSegment(executablePath);
 
-                result = getExecutableFile(currentFolderExecutablePath, checkExtensions)
+                result = this.getExecutableFile(currentFolderExecutablePath.normalize(), checkExtensions, verbose)
                     .catchError(FileNotFoundException.class)
                     .await();
 
@@ -216,8 +274,8 @@ public class RealProcessFactory implements ProcessFactory
                             if (!Strings.isNullOrEmpty(pathString))
                             {
                                 final Path path = Path.parse(pathString);
-                                final Path resolvedExecutablePath = path.concatenateSegment(executablePath);
-                                result = getExecutableFile(resolvedExecutablePath, checkExtensions).catchError().await();
+                                final Path resolvedExecutablePath = path.concatenateSegment(executablePath).normalize();
+                                result = this.getExecutableFile(resolvedExecutablePath, checkExtensions, verbose).catchError().await();
                                 if (result != null)
                                 {
                                     break;

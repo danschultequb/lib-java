@@ -97,21 +97,21 @@ public interface ProcessFactoryTests
                 runner.test("with null executablePath", (Test test) ->
                 {
                     final ProcessFactory factory = creator.run(test);
-                    test.assertThrows(() -> factory.run(null, Iterable.create("a", "b"), Path.parse("/working/folder/"), null, null, null),
+                    test.assertThrows(() -> factory.run(null, Iterable.create("a", "b"), Path.parse("/working/folder/"), null, null, null, null),
                         new PreConditionFailure("executablePath cannot be null."));
                 });
 
                 runner.test("with null arguments", (Test test) ->
                 {
                     final ProcessFactory factory = creator.run(test);
-                    test.assertThrows(() -> factory.run(Path.parse("javac"), null, Path.parse("/working/folder/"), null, null, null),
+                    test.assertThrows(() -> factory.run(Path.parse("javac"), null, Path.parse("/working/folder/"), null, null, null, null),
                         new PreConditionFailure("arguments cannot be null."));
                 });
 
                 runner.test("with null workingFolderPath", (Test test) ->
                 {
                     final ProcessFactory factory = creator.run(test);
-                    test.assertThrows(() -> factory.run(Path.parse("javac"), Iterable.create(), null, null, null, null),
+                    test.assertThrows(() -> factory.run(Path.parse("javac"), Iterable.create(), null, null, null, null, null),
                         new PreConditionFailure("workingFolderPath cannot be null."));
                 });
             });

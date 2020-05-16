@@ -95,7 +95,7 @@ public interface QubPublisherFolderTests
                     final QubPublisherFolder publisherFolder = QubPublisherFolderTests.getQubPublisherFolder(test, "/qub/me/");
                     final QubProjectFolder projectFolder = publisherFolder.getProjectFolder("spam").await();
                     test.assertNotNull(projectFolder);
-                    test.assertEqual(Path.parse("/qub/me/spam"), projectFolder.getPath());
+                    test.assertEqual(Path.parse("/qub/me/spam/"), projectFolder.getPath());
                 });
 
                 runner.test("with existing publisher", (Test test) ->
@@ -106,7 +106,7 @@ public interface QubPublisherFolderTests
                     folder.createFolder("spam").await();
                     final QubProjectFolder projectFolder = publisherFolder.getProjectFolder("spam").await();
                     test.assertNotNull(projectFolder);
-                    test.assertEqual(Path.parse("/qub/me/spam"), projectFolder.getPath());
+                    test.assertEqual(Path.parse("/qub/me/spam/"), projectFolder.getPath());
                 });
             });
 
