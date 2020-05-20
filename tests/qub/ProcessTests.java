@@ -307,9 +307,12 @@ public interface ProcessTests
                 runner.test("with null", (Test test) ->
                 {
                     final Process process = creator.run();
-                    process.setFileSystem((FileSystem)null);
-                    test.assertNull(process.getFileSystem());
-                    test.assertNull(process.getCurrentFolderPathString());
+                    final FileSystem oldFileSystem = process.getFileSystem();
+                    final Folder oldCurrentFolder = process.getCurrentFolder();
+                    test.assertThrows(() -> process.setFileSystem(null),
+                        new PreConditionFailure("fileSystem cannot be null."));
+                    test.assertSame(oldFileSystem, process.getFileSystem());
+                    test.assertSame(oldCurrentFolder, process.getCurrentFolder());
                 });
 
                 runner.test("with non-null", (Test test) ->
@@ -354,6 +357,7 @@ public interface ProcessTests
                 final String currentFolderPathString = process.getCurrentFolderPathString();
                 test.assertNotNull(currentFolderPathString);
                 test.assertFalse(currentFolderPathString.isEmpty());
+                test.assertEndsWith(currentFolderPathString, "/");
                 test.assertTrue(process.getFileSystem().folderExists(currentFolderPathString).await());
             });
 
@@ -362,22 +366,28 @@ public interface ProcessTests
                 runner.test("with null string", (Test test) ->
                 {
                     final Process process = creator.run();
-                    process.setCurrentFolderPathString(null);
-                    test.assertNull(process.getCurrentFolderPathString());
+                    final Folder old = process.getCurrentFolder();
+                    test.assertThrows(() -> process.setCurrentFolderPathString(null),
+                        new PreConditionFailure("currentFolderPathString cannot be null."));
+                    test.assertEqual(old, process.getCurrentFolder());
                 });
 
                 runner.test("with empty string", (Test test) ->
                 {
                     final Process process = creator.run();
-                    process.setCurrentFolderPathString("");
-                    test.assertEqual("", process.getCurrentFolderPathString());
+                    final Folder old = process.getCurrentFolder();
+                    test.assertThrows(() -> process.setCurrentFolderPathString(""),
+                        new PreConditionFailure("currentFolderPathString cannot be empty."));
+                    test.assertEqual(old, process.getCurrentFolder());
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
                     final Process process = creator.run();
-                    process.setCurrentFolderPathString("hello there");
-                    test.assertEqual("hello there", process.getCurrentFolderPathString());
+                    final Folder old = process.getCurrentFolder();
+                    test.assertThrows(() -> process.setCurrentFolderPathString("hello there"),
+                        new PreConditionFailure("currentFolderPath.isRooted() cannot be false."));
+                    test.assertEqual(old, process.getCurrentFolder());
                 });
             });
 
@@ -387,20 +397,23 @@ public interface ProcessTests
                 final Path currentFolderPath = process.getCurrentFolderPath();
                 test.assertNotNull(currentFolderPath);
                 test.assertTrue(currentFolderPath.isRooted());
+                test.assertEndsWith(currentFolderPath.toString(), "/");
                 test.assertTrue(process.getFileSystem().folderExists(currentFolderPath).await());
             });
 
             runner.test("setCurrentFolderPath(Path) with null", (Test test) ->
             {
                 final Process process = creator.run();
-                process.setCurrentFolderPath(null);
-                test.assertNull(process.getCurrentFolderPath());
+                final Path old = process.getCurrentFolderPath();
+                test.assertThrows(() -> process.setCurrentFolderPath(null),
+                    new PreConditionFailure("currentFolderPath cannot be null."));
+                test.assertEqual(old, process.getCurrentFolderPath());
             });
 
             runner.test("getCurrentFolder()", (Test test) ->
             {
                 final Process process = creator.run();
-                final Folder currentFolder = process.getCurrentFolder().await();
+                final Folder currentFolder = process.getCurrentFolder();
                 test.assertNotNull(currentFolder);
                 test.assertTrue(currentFolder.exists().await());
             });
@@ -553,7 +566,7 @@ public interface ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        final Path executablePath = process.getCurrentFolder().await().getFile("project.json").await().getPath();
+                        final Path executablePath = process.getCurrentFolder().getFile("project.json").await().getPath();
                         final ProcessBuilder builder = process.getProcessBuilder(executablePath).await();
                         test.assertNotNull(builder);
                         test.assertEqual(executablePath, builder.getExecutablePath());
@@ -565,7 +578,7 @@ public interface ProcessTests
                 {
                     try (final Process process = creator.run())
                     {
-                        final Path executablePath = process.getCurrentFolder().await().getFile("project").await().getPath();
+                        final Path executablePath = process.getCurrentFolder().getFile("project").await().getPath();
                         final ProcessBuilder builder = process.getProcessBuilder(executablePath).await();
                         test.assertNotNull(builder);
                         test.assertEqual(executablePath, builder.getExecutablePath());
@@ -664,6 +677,8 @@ public interface ProcessTests
                                     "Checking \"C:/Users/dansc/cmder/vendor/conemu-maximus5/ConEmu/Scripts/javac.exe\"... No.",
                                     "Checking \"C:/Users/dansc/cmder/vendor/conemu-maximus5/javac.exe\"... No.",
                                     "Checking \"C:/Users/dansc/cmder/vendor/conemu-maximus5/ConEmu/javac.exe\"... No.",
+                                    "Checking \"C:/Program Files (x86)/Python38-32/Scripts/javac.exe\"... No.",
+                                    "Checking \"C:/Program Files (x86)/Python38-32/javac.exe\"... No.",
                                     "Checking \"C:/Program Files (x86)/Python37-32/Scripts/javac.exe\"... No.",
                                     "Checking \"C:/Program Files (x86)/Python37-32/javac.exe\"... No.",
                                     "Checking \"C:/Program Files (x86)/Common Files/Oracle/Java/javapath/javac.exe\"... No.",
@@ -736,9 +751,7 @@ public interface ProcessTests
                         final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                         builder.redirectError(error);
 
-                        final Folder workingFolder = test.getProcess().getCurrentFolder()
-                            .then((Folder currentFolder) -> currentFolder.getFolder("I don't exist").await())
-                            .await();
+                        final Folder workingFolder = test.getProcess().getCurrentFolder().getFolder("I don't exist").await();
                         builder.setWorkingFolder(workingFolder);
                         test.assertThrows(() -> builder.run().await(),
                             new FolderNotFoundException(workingFolder));
@@ -759,7 +772,7 @@ public interface ProcessTests
                         final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                         builder.redirectError(error);
 
-                        final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                        final Folder currentFolder = test.getProcess().getCurrentFolder();
                         final Folder workingFolder = currentFolder.createFolder("temp2").await();
                         try
                         {
@@ -793,7 +806,7 @@ public interface ProcessTests
                         final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
                         builder.redirectError(error);
 
-                        final Folder workingFolder = test.getProcess().getCurrentFolder().await();
+                        final Folder workingFolder = test.getProcess().getCurrentFolder();
                         builder.setWorkingFolder(workingFolder);
                         test.assertEqual(2, builder.run().await());
 

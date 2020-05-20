@@ -355,7 +355,7 @@ public interface CommandLineParametersTests
                         final CommandLineArguments arguments = CommandLineArguments.create();
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
                         final CommandLineParameter<Folder> parameter = parameters.addFolder("a", process);
-                        test.assertEqual(process.getCurrentFolder().await(), parameter.getValue().await());
+                        test.assertEqual(process.getCurrentFolder(), parameter.getValue().await());
                     }
                 });
 
@@ -366,7 +366,7 @@ public interface CommandLineParametersTests
                         final CommandLineArguments arguments = CommandLineArguments.create("--a");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
                         final CommandLineParameter<Folder> parameter = parameters.addFolder("a", process);
-                        test.assertEqual(process.getCurrentFolder().await(), parameter.getValue().await());
+                        test.assertEqual(process.getCurrentFolder(), parameter.getValue().await());
                     }
                 });
 
@@ -377,7 +377,7 @@ public interface CommandLineParametersTests
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
                         final CommandLineParameter<Folder> parameter = parameters.addFolder("a", process);
-                        test.assertEqual(process.getCurrentFolder().await(), parameter.getValue().await());
+                        test.assertEqual(process.getCurrentFolder(), parameter.getValue().await());
                     }
                 });
 
@@ -388,7 +388,7 @@ public interface CommandLineParametersTests
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=folder/subfolder/");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
                         final CommandLineParameter<Folder> parameter = parameters.addFolder("a", process);
-                        test.assertEqual(process.getCurrentFolder().await().getFolder("folder/subfolder").await(), parameter.getValue().await());
+                        test.assertEqual(process.getCurrentFolder().getFolder("folder/subfolder").await(), parameter.getValue().await());
                     }
                 });
 
@@ -440,7 +440,7 @@ public interface CommandLineParametersTests
                         final CommandLineArguments arguments = CommandLineArguments.create();
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
                         final CommandLineParameter<Folder> parameter = parameters.addPositionalFolder("a", process);
-                        test.assertEqual(process.getCurrentFolder().await(), parameter.getValue().await());
+                        test.assertEqual(process.getCurrentFolder(), parameter.getValue().await());
                     }
                 });
 
@@ -451,7 +451,7 @@ public interface CommandLineParametersTests
                         final CommandLineArguments arguments = CommandLineArguments.create("testing");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
                         final CommandLineParameter<Folder> parameter = parameters.addPositionalFolder("a", process);
-                        test.assertEqual(process.getCurrentFolder().await().getFolder("testing").await(), parameter.getValue().await());
+                        test.assertEqual(process.getCurrentFolder().getFolder("testing").await(), parameter.getValue().await());
                     }
                 });
 
@@ -462,7 +462,7 @@ public interface CommandLineParametersTests
                         final CommandLineArguments arguments = CommandLineArguments.create("--a");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
                         final CommandLineParameter<Folder> parameter = parameters.addPositionalFolder("a", process);
-                        test.assertEqual(process.getCurrentFolder().await(), parameter.getValue().await());
+                        test.assertEqual(process.getCurrentFolder(), parameter.getValue().await());
                     }
                 });
 
@@ -473,7 +473,7 @@ public interface CommandLineParametersTests
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
                         final CommandLineParameter<Folder> parameter = parameters.addPositionalFolder("a", process);
-                        test.assertEqual(process.getCurrentFolder().await(), parameter.getValue().await());
+                        test.assertEqual(process.getCurrentFolder(), parameter.getValue().await());
                     }
                 });
 
@@ -484,7 +484,7 @@ public interface CommandLineParametersTests
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=folder/subfolder/");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
                         final CommandLineParameter<Folder> parameter = parameters.addPositionalFolder("a", process);
-                        test.assertEqual(process.getCurrentFolder().await().getFolder("folder/subfolder").await(), parameter.getValue().await());
+                        test.assertEqual(process.getCurrentFolder().getFolder("folder/subfolder").await(), parameter.getValue().await());
                     }
                 });
 
@@ -581,7 +581,7 @@ public interface CommandLineParametersTests
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=folder/subfolder/file");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
                         final CommandLineParameter<File> parameter = parameters.addFile("a", process);
-                        test.assertEqual(process.getCurrentFolder().await().getFile("folder/subfolder/file").await(), parameter.getValue().await());
+                        test.assertEqual(process.getCurrentFolder().getFile("folder/subfolder/file").await(), parameter.getValue().await());
                     }
                 });
 
@@ -656,7 +656,7 @@ public interface CommandLineParametersTests
                         final CommandLineArguments arguments = CommandLineArguments.create("testing");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
                         final CommandLineParameter<File> parameter = parameters.addPositionalFile("a", process);
-                        test.assertEqual(process.getCurrentFolder().await().getFile("testing").await(), parameter.getValue().await());
+                        test.assertEqual(process.getCurrentFolder().getFile("testing").await(), parameter.getValue().await());
                     }
                 });
 
@@ -701,7 +701,7 @@ public interface CommandLineParametersTests
                         final CommandLineArguments arguments = CommandLineArguments.create("--a=folder/subfolder/file");
                         final CommandLineParameters parameters = new CommandLineParameters().setArguments(arguments);
                         final CommandLineParameter<File> parameter = parameters.addPositionalFile("a", process);
-                        test.assertEqual(process.getCurrentFolder().await().getFile("folder/subfolder/file").await(), parameter.getValue().await());
+                        test.assertEqual(process.getCurrentFolder().getFile("folder/subfolder/file").await(), parameter.getValue().await());
                     }
                 });
 

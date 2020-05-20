@@ -10,7 +10,7 @@ public interface CharacterReadStream extends Disposable
      * @param byteReadStream The ByteReadStream to wrap with a CharacterToByteReadStream.
      * @return The wrapping CharacterToByteReadStream.
      */
-    static CharacterToByteReadStream create(ByteReadStream byteReadStream)
+    static CharacterReadStream create(ByteReadStream byteReadStream)
     {
         return CharacterToByteReadStream.create(byteReadStream);
     }

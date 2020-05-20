@@ -2052,22 +2052,15 @@ public interface TestTests
                     });
                 };
 
-                assertEndsWithTest.run(null, null, new TestError("abc", Iterable.create(
-                    "Expected null to end with null.")));
-                assertEndsWithTest.run(null, "", new TestError("abc", Iterable.create(
-                    "Expected null to end with \"\".")));
-                assertEndsWithTest.run(null, "ba", new TestError("abc", Iterable.create(
-                    "Expected null to end with \"ba\".")));
-                assertEndsWithTest.run("", null, new TestError("abc", Iterable.create(
-                    "Expected \"\" to end with null.")));
-                assertEndsWithTest.run("", "", new TestError("abc", Iterable.create(
-                    "Expected \"\" to end with \"\".")));
+                assertEndsWithTest.run(null, null, new PreConditionFailure("text cannot be null."));
+                assertEndsWithTest.run(null, "", new PreConditionFailure("text cannot be null."));
+                assertEndsWithTest.run(null, "ba", new PreConditionFailure("text cannot be null."));
+                assertEndsWithTest.run("", null, new PreConditionFailure("suffix cannot be null."));
+                assertEndsWithTest.run("", "", new PreConditionFailure("suffix cannot be empty."));
                 assertEndsWithTest.run("", "ba", new TestError("abc", Iterable.create(
                     "Expected \"\" to end with \"ba\".")));
-                assertEndsWithTest.run("apples", null, new TestError("abc", Iterable.create(
-                    "Expected \"apples\" to end with null.")));
-                assertEndsWithTest.run("apples", "", new TestError("abc", Iterable.create(
-                    "Expected \"apples\" to end with \"\".")));
+                assertEndsWithTest.run("apples", null, new PreConditionFailure("suffix cannot be null."));
+                assertEndsWithTest.run("apples", "", new PreConditionFailure("suffix cannot be empty."));
                 assertEndsWithTest.run("apples", "ba", new TestError("abc", Iterable.create(
                     "Expected \"apples\" to end with \"ba\".")));
                 assertEndsWithTest.run("apples", "LES", new TestError("abc", Iterable.create(
@@ -2093,30 +2086,16 @@ public interface TestTests
                     });
                 };
 
-                assertEndsWithTest.run(null, null, new TestError("abc", Iterable.create(
-                    "hello",
-                    "Expected null to end with null.")));
-                assertEndsWithTest.run(null, "", new TestError("abc", Iterable.create(
-                    "hello",
-                    "Expected null to end with \"\".")));
-                assertEndsWithTest.run(null, "ba", new TestError("abc", Iterable.create(
-                    "hello",
-                    "Expected null to end with \"ba\".")));
-                assertEndsWithTest.run("", null, new TestError("abc", Iterable.create(
-                    "hello",
-                    "Expected \"\" to end with null.")));
-                assertEndsWithTest.run("", "", new TestError("abc", Iterable.create(
-                    "hello",
-                    "Expected \"\" to end with \"\".")));
+                assertEndsWithTest.run(null, null, new PreConditionFailure("text cannot be null."));
+                assertEndsWithTest.run(null, "", new PreConditionFailure("text cannot be null."));
+                assertEndsWithTest.run(null, "ba", new PreConditionFailure("text cannot be null."));
+                assertEndsWithTest.run("", null, new PreConditionFailure("suffix cannot be null."));
+                assertEndsWithTest.run("", "", new PreConditionFailure("suffix cannot be empty."));
                 assertEndsWithTest.run("", "ba", new TestError("abc", Iterable.create(
                     "hello",
                     "Expected \"\" to end with \"ba\".")));
-                assertEndsWithTest.run("apples", null, new TestError("abc", Iterable.create(
-                    "hello",
-                    "Expected \"apples\" to end with null.")));
-                assertEndsWithTest.run("apples", "", new TestError("abc", Iterable.create(
-                    "hello",
-                    "Expected \"apples\" to end with \"\".")));
+                assertEndsWithTest.run("apples", null, new PreConditionFailure("suffix cannot be null."));
+                assertEndsWithTest.run("apples", "", new PreConditionFailure("suffix cannot be empty."));
                 assertEndsWithTest.run("apples", "ba", new TestError("abc", Iterable.create(
                     "hello",
                     "Expected \"apples\" to end with \"ba\".")));

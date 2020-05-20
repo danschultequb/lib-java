@@ -408,9 +408,31 @@ public interface Process extends Disposable
 
     Process setNetwork(Network network);
 
-    String getCurrentFolderPathString();
+    /**
+     * Get the String representation of the folder path that this process is running under.
+     * @return The String representation of the folder path that this process is running under.
+     */
+    default String getCurrentFolderPathString()
+    {
+        final String result = this.getCurrentFolderPath().toString();
 
-    Process setCurrentFolderPathString(String currentFolderPathString);
+        PostCondition.assertNotNullAndNotEmpty(result, "result");
+        PostCondition.assertTrue(result.endsWith("/"), "result.endsWith(\"/\")");
+
+        return result;
+    }
+
+    /**
+     * Set the path to the folder that this Process is currently running in.
+     * @param currentFolderPathString The folder to the path that this Process is currently running in.
+     * @return This object for method chaining.
+     */
+    default Process setCurrentFolderPathString(String currentFolderPathString)
+    {
+        PreCondition.assertNotNullAndNotEmpty(currentFolderPathString, "currentFolderPathString");
+
+        return this.setCurrentFolderPath(Path.parse(currentFolderPathString));
+    }
 
     /**
      * Get the path to the folder that this Process is currently running in.
@@ -418,26 +440,35 @@ public interface Process extends Disposable
      */
     default Path getCurrentFolderPath()
     {
-        final String currentFolderPathString = this.getCurrentFolderPathString();
-        return Strings.isNullOrEmpty(currentFolderPathString) ? null : Path.parse(currentFolderPathString);
+        return this.getCurrentFolder().getPath();
     }
 
     /**
      * Set the path to the folder that this Process is currently running in.
      * @param currentFolderPath The folder to the path that this Process is currently running in.
+     * @return This object for method chaining.
      */
     default Process setCurrentFolderPath(Path currentFolderPath)
     {
-        return this.setCurrentFolderPathString(currentFolderPath == null ? null : currentFolderPath.toString());
+        PreCondition.assertNotNull(currentFolderPath, "currentFolderPath");
+        PreCondition.assertTrue(currentFolderPath.isRooted(), "currentFolderPath.isRooted()");
+        PreCondition.assertNotNull(this.getFileSystem(), "this.getFileSystem()");
+
+        return this.setCurrentFolder(this.getFileSystem().getFolder(currentFolderPath).await());
     }
 
-    default Result<Folder> getCurrentFolder()
-    {
-        final FileSystem fileSystem = this.getFileSystem();
-        return fileSystem == null
-            ? Result.error(new IllegalArgumentException("No FileSystem has been set."))
-            : fileSystem.getFolder(getCurrentFolderPath());
-    }
+    /**
+     * Get the folder that this Process is currently running in.
+     * @return The folder that this Process is currently running in.
+     */
+    Folder getCurrentFolder();
+
+    /**
+     * Set the folder that this Process is currently running in.
+     * @param currentFolder The folder that this Process is currently running in.
+     * @return This object for method chaining.
+     */
+    Process setCurrentFolder(Folder currentFolder);
 
     /**
      * Set the environment variables that will be used by this Application.

@@ -16,7 +16,7 @@ public class JavaProcess implements QubProcess
     private final Value<Random> random;
     private final Value<FileSystem> fileSystem;
     private final Value<Network> network;
-    private final Value<String> currentFolderPathString;
+    private final Value<Folder> currentFolder;
     private final Value<EnvironmentVariables> environmentVariables;
     private final Value<Synchronization> synchronization;
     private final Value<Function0<Stopwatch>> stopwatchCreator;
@@ -92,7 +92,7 @@ public class JavaProcess implements QubProcess
         this.random = Value.create();
         this.fileSystem = Value.create();
         this.network = Value.create();
-        this.currentFolderPathString = Value.create();
+        this.currentFolder = Value.create();
         this.environmentVariables = Value.create();
         this.synchronization = Value.create();
         this.stopwatchCreator = Value.create();
@@ -232,6 +232,7 @@ public class JavaProcess implements QubProcess
         return this;
     }
 
+    @Override
     public CharacterEncoding getCharacterEncoding()
     {
         if (!this.characterEncoding.hasValue())
@@ -241,6 +242,7 @@ public class JavaProcess implements QubProcess
         return this.characterEncoding.get();
     }
 
+    @Override
     public JavaProcess setLineSeparator(String lineSeparator)
     {
         this.lineSeparator.set(lineSeparator);
@@ -255,6 +257,7 @@ public class JavaProcess implements QubProcess
         return this;
     }
 
+    @Override
     public String getLineSeparator()
     {
         if (!lineSeparator.hasValue())
@@ -264,42 +267,27 @@ public class JavaProcess implements QubProcess
         return lineSeparator.get();
     }
 
-    /**
-     * Set the ByteReadStream that is assigned to this Console's input.
-     * @param inputByteReadStream The ByteReadStream that is assigned to this Console's input.
-     * @return This object for method chaining.
-     */
+    @Override
     public JavaProcess setInputReadStream(ByteReadStream inputByteReadStream)
     {
         return this.setInputReadStream(CharacterToByteReadStream.create(inputByteReadStream));
     }
 
-    /**
-     * Set the CharacterToByteReadStream that is assigned to this Console's input.
-     * @param inputCharacterReadStream The CharacterToByteReadStream that is assigned to this Console's
-     *                                 input.
-     * @return This object for method chaining.
-     */
+    @Override
     public JavaProcess setInputReadStream(CharacterToByteReadStream inputCharacterReadStream)
     {
         this.inputReadStream.set(inputCharacterReadStream);
         return this;
     }
 
-    /**
-     * Set the Random number generator assigned to this Console.
-     * @param random The Random number generator assigned to this Console.
-     */
+    @Override
     public JavaProcess setRandom(Random random)
     {
         this.random.set(random);
         return this;
     }
 
-    /**
-     * Get the Random number generator assigned to this Console.
-     * @return The Random number generator assigned to this Console.
-     */
+    @Override
     public Random getRandom()
     {
         if (!random.hasValue())
@@ -309,37 +297,28 @@ public class JavaProcess implements QubProcess
         return random.get();
     }
 
-    /**
-     * Get the FileSystem assigned to this Console.
-     * @return The FileSystem assigned to this Console.
-     */
+    @Override
     public FileSystem getFileSystem()
     {
-        if (!fileSystem.hasValue())
+        if (!this.fileSystem.hasValue())
         {
-            setFileSystem(new JavaFileSystem());
+            this.fileSystem.set(new JavaFileSystem());
         }
-        return fileSystem.get();
+        return this.fileSystem.get();
     }
 
-    /**
-     * Set the FileSystem that is assigned to this Console.
-     * @param fileSystem The FileSystem that will be assigned to this Console.
-     */
+    @Override
     public JavaProcess setFileSystem(FileSystem fileSystem)
     {
+        PreCondition.assertNotNull(fileSystem, "fileSystem");
+
         this.fileSystem.set(fileSystem);
-        if (fileSystem == null)
-        {
-            setCurrentFolderPathString(null);
-        }
-        else
-        {
-            currentFolderPathString.clear();
-        }
+        this.currentFolder.clear();
+
         return this;
     }
 
+    @Override
     public Network getNetwork()
     {
         if (!network.hasValue())
@@ -349,53 +328,34 @@ public class JavaProcess implements QubProcess
         return network.get();
     }
 
+    @Override
     public JavaProcess setNetwork(Network network)
     {
         this.network.set(network);
         return this;
     }
 
-    public String getCurrentFolderPathString()
+    @Override
+    public JavaProcess setCurrentFolder(Folder currentFolder)
     {
-        if (!currentFolderPathString.hasValue())
+        PreCondition.assertNotNull(currentFolder, "currentFolder");
+        PreCondition.assertSame(this.getFileSystem(), currentFolder.getFileSystem(), "currentFolder.getFileSystem()");
+
+        this.currentFolder.set(currentFolder);
+        return this;
+    }
+
+    @Override
+    public Folder getCurrentFolder()
+    {
+        PreCondition.assertNotNull(this.getFileSystem(), "this.getFileSystem()");
+
+        if (!this.currentFolder.hasValue())
         {
-            currentFolderPathString.set(java.nio.file.Paths.get(".").toAbsolutePath().normalize().toString());
+            final String currentFolderPathString = java.nio.file.Paths.get(".").toAbsolutePath().normalize().toString();
+            this.currentFolder.set(this.getFileSystem().getFolder(currentFolderPathString).await());
         }
-        return currentFolderPathString.get();
-    }
-
-    public JavaProcess setCurrentFolderPathString(String currentFolderPathString)
-    {
-        this.currentFolderPathString.set(currentFolderPathString);
-        return this;
-    }
-
-    /**
-     * Get the path to the folder that this Console is currently running in.
-     * @return The path to the folder that this Console is currently running in.
-     */
-    public Path getCurrentFolderPath()
-    {
-        final String currentFolderPathString = getCurrentFolderPathString();
-        return Strings.isNullOrEmpty(currentFolderPathString) ? null : Path.parse(currentFolderPathString);
-    }
-
-    /**
-     * Set the path to the folder that this Console is currently running in.
-     * @param currentFolderPath The folder to the path that this Console is currently running in.
-     */
-    public JavaProcess setCurrentFolderPath(Path currentFolderPath)
-    {
-        currentFolderPathString.set(currentFolderPath == null ? null : currentFolderPath.toString());
-        return this;
-    }
-
-    public Result<Folder> getCurrentFolder()
-    {
-        final FileSystem fileSystem = getFileSystem();
-        return fileSystem == null
-            ? Result.error(new IllegalArgumentException("No FileSystem has been set."))
-            : fileSystem.getFolder(getCurrentFolderPath());
+        return this.currentFolder.get();
     }
 
     /**
@@ -584,7 +544,7 @@ public class JavaProcess implements QubProcess
         {
             final AsyncRunner parallelAsyncRunner = this.getParallelAsyncRunner();
             final EnvironmentVariables environmentVariables = this.getEnvironmentVariables();
-            final Folder currentFolder = this.getCurrentFolder().await();
+            final Folder currentFolder = this.getCurrentFolder();
             this.processFactory.set(new RealProcessFactory(parallelAsyncRunner, environmentVariables, currentFolder));
         }
         return this.processFactory.get();

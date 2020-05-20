@@ -29,6 +29,120 @@ public interface StringsTests
                 });
             });
 
+            runner.testGroup("endsWith(String,char)", () ->
+            {
+                final Action3<String,String,Throwable> endsWithErrorTest = (String text, String suffix, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(text, suffix).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        test.assertThrows(() -> Strings.endsWith(text, suffix), expected);
+                    });
+                };
+
+                endsWithErrorTest.run(null, "b", new PreConditionFailure("text cannot be null."));
+
+                final Action3<String,Character,Boolean> endsWithTest = (String text, Character suffix, Boolean expected) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(text, suffix).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.endsWith(text, suffix));
+                    });
+                };
+
+                endsWithTest.run("", 'b', false);
+                endsWithTest.run("a", 'b', false);
+                endsWithTest.run("b", 'b', true);
+                endsWithTest.run("ab", 'b', true);
+            });
+
+            runner.testGroup("endsWith(String,String)", () ->
+            {
+                final Action3<String,String,Throwable> endsWithErrorTest = (String text, String suffix, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(text, suffix).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        test.assertThrows(() -> Strings.endsWith(text, suffix), expected);
+                    });
+                };
+
+                endsWithErrorTest.run(null, "b", new PreConditionFailure("text cannot be null."));
+                endsWithErrorTest.run("a", null, new PreConditionFailure("suffix cannot be null."));
+                endsWithErrorTest.run("a", "", new PreConditionFailure("suffix cannot be empty."));
+
+                final Action3<String,String,Boolean> endsWithTest = (String text, String suffix, Boolean expected) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(text, suffix).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.endsWith(text, suffix));
+                    });
+                };
+
+                endsWithTest.run("", "b", false);
+                endsWithTest.run("a", "b", false);
+                endsWithTest.run("b", "b", true);
+                endsWithTest.run("ab", "b", true);
+                endsWithTest.run("ab", "bc", false);
+                endsWithTest.run("ac", "bc", false);
+                endsWithTest.run("abc", "bc", true);
+            });
+
+            runner.testGroup("ensureEndsWith(String,char)", () ->
+            {
+                final Action3<String,Character,Throwable> endsWithErrorTest = (String text, Character suffix, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(text, suffix).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        test.assertThrows(() -> Strings.ensureEndsWith(text, suffix), expected);
+                    });
+                };
+
+                endsWithErrorTest.run(null, 'b', new PreConditionFailure("text cannot be null."));
+
+                final Action3<String,Character,String> ensureEndsWithTest = (String text, Character suffix, String expected) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(text, suffix).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.ensureEndsWith(text, suffix));
+                    });
+                };
+
+                ensureEndsWithTest.run("", 'b', "b");
+                ensureEndsWithTest.run("a", 'b', "ab");
+                ensureEndsWithTest.run("b", 'b', "b");
+                ensureEndsWithTest.run("ab", 'b', "ab");
+            });
+
+            runner.testGroup("ensureEndsWith(String,String)", () ->
+            {
+                final Action3<String,String,Throwable> endsWithErrorTest = (String text, String suffix, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(text, suffix).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        test.assertThrows(() -> Strings.ensureEndsWith(text, suffix), expected);
+                    });
+                };
+
+                endsWithErrorTest.run(null, "b", new PreConditionFailure("text cannot be null."));
+                endsWithErrorTest.run("a", null, new PreConditionFailure("suffix cannot be null."));
+                endsWithErrorTest.run("a", "", new PreConditionFailure("suffix cannot be empty."));
+
+                final Action3<String,String,String> ensureEndsWithTest = (String text, String suffix, String expected) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(text, suffix).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.ensureEndsWith(text, suffix));
+                    });
+                };
+
+                ensureEndsWithTest.run("", "b", "b");
+                ensureEndsWithTest.run("a", "b", "ab");
+                ensureEndsWithTest.run("b", "b", "b");
+                ensureEndsWithTest.run("ab", "b", "ab");
+                ensureEndsWithTest.run("ab", "bc", "abbc");
+                ensureEndsWithTest.run("ac", "bc", "acbc");
+                ensureEndsWithTest.run("abc", "bc", "abc");
+            });
+
             runner.testGroup("containsAny(String,char[])", () ->
             {
                 final Action3<String,char[],Boolean> containsAnyTest = (String text, char[] characters, Boolean expected) ->

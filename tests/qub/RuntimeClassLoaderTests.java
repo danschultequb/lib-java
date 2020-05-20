@@ -64,7 +64,7 @@ public interface RuntimeClassLoaderTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                    final Folder currentFolder = test.getProcess().getCurrentFolder();
                     final Folder nonExistingFolder = currentFolder.getFolder("idontexist").await();
                     try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(nonExistingFolder))
                     {
@@ -75,7 +75,7 @@ public interface RuntimeClassLoaderTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                    final Folder currentFolder = test.getProcess().getCurrentFolder();
                     final Folder nonExistingFolder = currentFolder.getFolder("idontexist").await();
                     try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(nonExistingFolder))
                     {
@@ -86,7 +86,7 @@ public interface RuntimeClassLoaderTests
 
                 runner.test("when folder doesn't exist", (Test test) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                    final Folder currentFolder = test.getProcess().getCurrentFolder();
                     final Folder nonExistingFolder = currentFolder.getFolder("idontexist").await();
                     try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(nonExistingFolder))
                     {
@@ -97,7 +97,7 @@ public interface RuntimeClassLoaderTests
 
                 runner.test("when folder does exist, but the class file doesn't exist", (Test test) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                    final Folder currentFolder = test.getProcess().getCurrentFolder();
                     try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(currentFolder))
                     {
                         test.assertThrows(() -> classLoader.loadClass("not.a.FakeClass"),
@@ -107,7 +107,7 @@ public interface RuntimeClassLoaderTests
 
                 runner.test("when folder and class file exists", (Test test) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                    final Folder currentFolder = test.getProcess().getCurrentFolder();
                     final Folder outputFolder = currentFolder.getFolder("outputs").await();
                     try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(outputFolder))
                     {
@@ -120,7 +120,7 @@ public interface RuntimeClassLoaderTests
 
                 runner.test("when disposed", (Test test) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                    final Folder currentFolder = test.getProcess().getCurrentFolder();
                     final Folder outputFolder = currentFolder.getFolder("outputs").await();
                     try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(outputFolder))
                     {

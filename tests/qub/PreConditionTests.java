@@ -664,8 +664,8 @@ public interface PreConditionTests
                     });
                 };
 
-                assertEndsWithErrorTest.run(null, null, null, new PreConditionFailure("Expected null (null) to end with null."));
-                assertEndsWithErrorTest.run("", "", "", new PreConditionFailure("Expected  (\"\") to end with \"\"."));
+                assertEndsWithErrorTest.run(null, null, null, new PreConditionFailure("text cannot be null."));
+                assertEndsWithErrorTest.run("", "", "", new PreConditionFailure("suffix cannot be empty."));
                 assertEndsWithErrorTest.run("a", "b", "c", new PreConditionFailure("Expected c (\"a\") to end with \"b\"."));
                 assertEndsWithErrorTest.run("hello", "O", "myVariable", new PreConditionFailure("Expected myVariable (\"hello\") to end with \"O\"."));
 

@@ -6,7 +6,7 @@ public interface RealProcessFactoryTests
     {
         final AsyncRunner parallelAsyncRunner = test.getParallelAsyncRunner();
         final EnvironmentVariables environmentVariables = test.getProcess().getEnvironmentVariables();
-        final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+        final Folder currentFolder = test.getProcess().getCurrentFolder();
         return new RealProcessFactory(parallelAsyncRunner, environmentVariables, currentFolder);
     }
 
@@ -22,7 +22,7 @@ public interface RealProcessFactoryTests
                 {
                     final AsyncRunner parallelAsyncRunner = null;
                     final EnvironmentVariables environmentVariables = test.getProcess().getEnvironmentVariables();
-                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                    final Folder currentFolder = test.getProcess().getCurrentFolder();
                     test.assertThrows(() -> new RealProcessFactory(parallelAsyncRunner, environmentVariables, currentFolder),
                         new PreConditionFailure("parallelAsyncRunner cannot be null."));
                 });
@@ -31,7 +31,7 @@ public interface RealProcessFactoryTests
                 {
                     final AsyncRunner parallelAsyncRunner = test.getParallelAsyncRunner();
                     final EnvironmentVariables environmentVariables = null;
-                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                    final Folder currentFolder = test.getProcess().getCurrentFolder();
                     test.assertThrows(() -> new RealProcessFactory(parallelAsyncRunner, environmentVariables, currentFolder),
                         new PreConditionFailure("environmentVariables cannot be null."));
                 });
@@ -49,7 +49,7 @@ public interface RealProcessFactoryTests
                 {
                     final AsyncRunner parallelAsyncRunner = test.getParallelAsyncRunner();
                     final EnvironmentVariables environmentVariables = test.getProcess().getEnvironmentVariables();
-                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                    final Folder currentFolder = test.getProcess().getCurrentFolder();
                     final RealProcessFactory factory = new RealProcessFactory(parallelAsyncRunner, environmentVariables, currentFolder);
                     test.assertNotNull(factory);
                 });

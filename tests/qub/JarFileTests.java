@@ -18,7 +18,7 @@ public interface JarFileTests
 
                 runner.test("with non-existing file", (Test test) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                    final Folder currentFolder = test.getProcess().getCurrentFolder();
                     final File fakeFile = currentFolder.getFile("fake.jar").await();
                     test.assertThrows(() -> JarFile.open(fakeFile).await(),
                         new FileNotFoundException(fakeFile));
@@ -38,7 +38,7 @@ public interface JarFileTests
 
                 runner.test("with existing non-jar file", (Test test) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder().await();
+                    final Folder currentFolder = test.getProcess().getCurrentFolder();
                     final File projectJsonFile = currentFolder.getFile("project.json").await();
                     test.assertThrows(() -> JarFile.open(projectJsonFile).await(),
                         new java.util.zip.ZipException("error in opening zip file"));

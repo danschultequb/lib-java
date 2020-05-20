@@ -290,7 +290,7 @@ public class CommandLineParameters
                 Folder folder;
                 if (Strings.isNullOrEmpty(value))
                 {
-                    folder = process.getCurrentFolder().await();
+                    folder = process.getCurrentFolder();
                 }
                 else
                 {

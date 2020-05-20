@@ -73,9 +73,58 @@ public interface Strings
         return result;
     }
 
+    /**
+     * Get whether or not the provided text ends with the provided suffix.
+     * @param text The text to check.
+     * @param suffix The suffix to check for.
+     * @return Whether or not the provided text ends with the provided suffix.
+     */
+    static boolean endsWith(String text, char suffix)
+    {
+        return Strings.endsWith(text, Characters.toString(suffix));
+    }
+
+    /**
+     * Get whether or not the provided text ends with the provided suffix.
+     * @param text The text to check.
+     * @param suffix The suffix to check for.
+     * @return Whether or not the provided text ends with the provided suffix.
+     */
     static boolean endsWith(String text, String suffix)
     {
-        return !Strings.isNullOrEmpty(text) && !Strings.isNullOrEmpty(suffix) && text.endsWith(suffix);
+        PreCondition.assertNotNull(text, "text");
+        PreCondition.assertNotNullAndNotEmpty(suffix, "suffix");
+
+        return text.endsWith(suffix);
+    }
+
+    /**
+     * Ensure that the provided text ends with the provided suffix. If it does, then return the
+     * provided text. If it doesn't, then return the text with the provided suffix appended at the
+     * end.
+     * @param text The text to check.
+     * @param suffix The suffix to check for.
+     * @return The text with the provided suffix at the end.
+     */
+    static String ensureEndsWith(String text, char suffix)
+    {
+        return Strings.ensureEndsWith(text, Characters.toString(suffix));
+    }
+
+    /**
+     * Ensure that the provided text ends with the provided suffix. If it does, then return the
+     * provided text. If it doesn't, then return the text with the provided suffix appended at the
+     * end.
+     * @param text The text to check.
+     * @param suffix The suffix to check for.
+     * @return The text with the provided suffix at the end.
+     */
+    static String ensureEndsWith(String text, String suffix)
+    {
+        PreCondition.assertNotNull(text, "text");
+        PreCondition.assertNotNullAndNotEmpty(suffix, "suffix");
+
+        return text.endsWith(suffix) ? text : text + suffix;
     }
 
     static boolean contains(String text, String substring)
