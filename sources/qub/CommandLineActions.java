@@ -165,14 +165,10 @@ public class CommandLineActions<TProcess extends Process>
 
         final String actionName = actionParameter.removeValue().await();
         CommandLineAction<TProcess> action = Strings.isNullOrEmpty(actionName)
-            ? null
+            ? this.getDefaultAction()
             : this.getAction(actionName)
                 .catchError(NotFoundException.class)
                 .await();
-        if (action == null)
-        {
-            action = this.getDefaultAction();
-        }
         if (action == null)
         {
             process.getCommandLineArguments().addNamedArgument("?");
