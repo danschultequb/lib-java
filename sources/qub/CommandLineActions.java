@@ -61,6 +61,16 @@ public class CommandLineActions<TProcess extends Process>
         return this.applicationDescription;
     }
 
+    public CommandLineAction<TProcess> getDefaultAction()
+    {
+        return this.actions.first(CommandLineAction::isDefaultAction);
+    }
+
+    public boolean hasDefaultAction()
+    {
+        return this.getDefaultAction() != null;
+    }
+
     public Result<CommandLineAction<TProcess>> getAction(String actionName)
     {
         PreCondition.assertNotNullAndNotEmpty(actionName, "actionName");
@@ -154,11 +164,15 @@ public class CommandLineActions<TProcess extends Process>
         final CommandLineParameterHelp helpParameter = parameters.addHelp();
 
         final String actionName = actionParameter.removeValue().await();
-        final CommandLineAction<TProcess> action = Strings.isNullOrEmpty(actionName)
+        CommandLineAction<TProcess> action = Strings.isNullOrEmpty(actionName)
             ? null
             : this.getAction(actionName)
                 .catchError(NotFoundException.class)
                 .await();
+        if (action == null)
+        {
+            action = this.getDefaultAction();
+        }
         if (action == null)
         {
             process.getCommandLineArguments().addNamedArgument("?");
@@ -175,6 +189,10 @@ public class CommandLineActions<TProcess extends Process>
                     for (final CommandLineAction<TProcess> a : this.actions.order((CommandLineAction<TProcess> lhs, CommandLineAction<TProcess> rhs) -> Strings.lessThan(lhs.getName(), rhs.getName())))
                     {
                         output.write(a.getName()).await();
+                        if (a.isDefaultAction())
+                        {
+                            output.write(" (default)").await();
+                        }
                         if (!Strings.isNullOrEmpty(a.getDescription()))
                         {
                             output.write(": " + a.getDescription()).await();

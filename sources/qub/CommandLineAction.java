@@ -8,6 +8,7 @@ public class CommandLineAction<TProcess extends Process>
     private final String name;
     private final Action1<TProcess> mainAction;
     private final List<String> aliases;
+    private boolean defaultAction;
     private String description;
     private CommandLineActions<TProcess> parentActions;
 
@@ -114,6 +115,20 @@ public class CommandLineAction<TProcess extends Process>
         {
             this.addAlias(alias);
         }
+
+        return this;
+    }
+
+    public boolean isDefaultAction()
+    {
+        return this.defaultAction;
+    }
+
+    public CommandLineAction<TProcess> setDefaultAction()
+    {
+        PreCondition.assertTrue(this.isDefaultAction() || this.parentActions == null || !this.parentActions.hasDefaultAction(), "this.isDefaultAction() || this.parentActions == null || !this.parentActions.hasDefaultAction()");
+
+        this.defaultAction = true;
 
         return this;
     }

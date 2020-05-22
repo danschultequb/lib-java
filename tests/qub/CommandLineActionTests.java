@@ -28,6 +28,7 @@ public interface CommandLineActionTests
                     test.assertEqual("hello", action.getName());
                     test.assertEqual(Iterable.create(), action.getAliases());
                     test.assertNull(action.getDescription());
+                    test.assertFalse(action.isDefaultAction());
                 });
 
                 runner.test("with null mainAction", (Test test) ->
@@ -310,6 +311,57 @@ public interface CommandLineActionTests
                     final CommandLineAction<Process> action = CommandLineAction.create("hello", (Process process) -> {});
                     test.assertSame(action, action.setDescription("there"));
                     test.assertEqual("there", action.getDescription());
+                });
+            });
+
+            runner.testGroup("setDefaultAction()", () ->
+            {
+                runner.test("with no parent actions", (Test test) ->
+                {
+                    final CommandLineAction<Process> action = CommandLineAction.create("hello", (Process process) -> {});
+
+                    final CommandLineAction<Process> setDefaultActionResult = action.setDefaultAction();
+                    test.assertSame(action, setDefaultActionResult);
+                    test.assertTrue(action.isDefaultAction());
+
+                    final CommandLineAction<Process> setDefaultActionResult2 = action.setDefaultAction();
+                    test.assertSame(action, setDefaultActionResult2);
+                    test.assertTrue(action.isDefaultAction());
+                });
+
+                runner.test("with parent actions with no other actions", (Test test) ->
+                {
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
+                    final CommandLineAction<Process> action = CommandLineAction.create("hello", (Process process) -> {})
+                        .setParentActions(actions);
+
+                    final CommandLineAction<Process> setDefaultActionResult = action.setDefaultAction();
+                    test.assertSame(action, setDefaultActionResult);
+                    test.assertTrue(action.isDefaultAction());
+
+                    final CommandLineAction<Process> setDefaultActionResult2 = action.setDefaultAction();
+                    test.assertSame(action, setDefaultActionResult2);
+                    test.assertTrue(action.isDefaultAction());
+                });
+
+                runner.test("with parent actions with a different default action", (Test test) ->
+                {
+                    final CommandLineActions<Process> actions = CommandLineActions.create();
+                    final CommandLineAction<Process> action1 = actions.addAction("hello", (Process process) -> {});
+                    final CommandLineAction<Process> action2 = actions.addAction("there", (Process process) -> {});
+
+                    final CommandLineAction<Process> setDefaultActionResult = action1.setDefaultAction();
+                    test.assertSame(action1, setDefaultActionResult);
+                    test.assertTrue(action1.isDefaultAction());
+                    test.assertTrue(actions.hasDefaultAction());
+                    test.assertSame(action1, actions.getDefaultAction());
+
+                    test.assertThrows(() -> action2.setDefaultAction(),
+                        new PreConditionFailure("this.isDefaultAction() || this.parentActions == null || !this.parentActions.hasDefaultAction() cannot be false."));
+                    test.assertFalse(action2.isDefaultAction());
+                    test.assertTrue(action1.isDefaultAction());
+                    test.assertTrue(actions.hasDefaultAction());
+                    test.assertSame(action1, actions.getDefaultAction());
                 });
             });
 
