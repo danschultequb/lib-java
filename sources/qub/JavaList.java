@@ -16,9 +16,10 @@ public class JavaList<T> implements List<T>
     }
 
     @Override
-    public void add(T value)
+    public JavaList<T> add(T value)
     {
         list.add(value);
+        return this;
     }
 
     @Override

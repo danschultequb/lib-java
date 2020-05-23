@@ -12,7 +12,7 @@ public class DoubleLinkList<T> implements List<T>
     }
 
     @Override
-    public void add(T value)
+    public DoubleLinkList<T> add(T value)
     {
         final DoubleLinkNode<T> nodeToAdd = new DoubleLinkNode<>(value);
         if (head == null)
@@ -26,6 +26,7 @@ public class DoubleLinkList<T> implements List<T>
             tail.setNext(nodeToAdd);
             tail = nodeToAdd;
         }
+        return this;
     }
 
     @Override

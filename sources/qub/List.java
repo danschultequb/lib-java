@@ -58,9 +58,9 @@ public interface List<T> extends MutableIndexable<T>
      * Add the provided value at the end of this List.
      * @param value The value to add.
      */
-    default void add(T value)
+    default List<T> add(T value)
     {
-        this.insert(getCount(), value);
+        return this.insert(getCount(), value);
     }
 
     /**
@@ -91,7 +91,7 @@ public interface List<T> extends MutableIndexable<T>
      * Add the provided values at the end of this List.
      * @param values The values to add.
      */
-    default void addAll(Iterator<? extends T> values)
+    default List<T> addAll(Iterator<? extends T> values)
     {
         if (values != null && values.any())
         {
@@ -100,6 +100,7 @@ public interface List<T> extends MutableIndexable<T>
                 this.add(value);
             }
         }
+        return this;
     }
 
     /**
