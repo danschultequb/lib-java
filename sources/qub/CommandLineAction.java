@@ -47,6 +47,27 @@ public class CommandLineAction<TProcess extends Process>
     }
 
     /**
+     * Get the full name of this action (including its parent actions's application name).
+     * @return The full name of this action (including its parent actions's application name).
+     */
+    public String getFullName()
+    {
+        String result = this.getName();
+        if (this.parentActions != null)
+        {
+            final String applicationName = this.parentActions.getApplicationName();
+            if (!Strings.isNullOrEmpty(applicationName))
+            {
+                result = applicationName + " " + result;
+            }
+        }
+
+        PostCondition.assertNotNullAndNotEmpty(result, "result");
+
+        return result;
+    }
+
+    /**
      * Get the aliases of this CommandLineAction.
      * @return The aliases of this CommandLineAction.
      */

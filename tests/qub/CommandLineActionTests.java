@@ -38,6 +38,42 @@ public interface CommandLineActionTests
                 });
             });
 
+            runner.testGroup("getFullName()", () ->
+            {
+                runner.test("with no parentActions set", (Test test) ->
+                {
+                    final CommandLineAction<Process> action = CommandLineAction.create("hello", (Process process) -> {});
+                    test.assertEqual("hello", action.getName());
+                    test.assertEqual("hello", action.getFullName());
+                });
+
+                runner.test("with parentActions set with null applicationName", (Test test) ->
+                {
+                    final CommandLineActions<Process> parentActions = CommandLineActions.create();
+                    final CommandLineAction<Process> action = parentActions.addAction("hello", (Process process) -> {});
+                    test.assertEqual("hello", action.getName());
+                    test.assertEqual("hello", action.getFullName());
+                });
+
+                runner.test("with parentActions set with empty applicationName", (Test test) ->
+                {
+                    final CommandLineActions<Process> parentActions = CommandLineActions.create();
+                    parentActions.setApplicationName("");
+                    final CommandLineAction<Process> action = parentActions.addAction("hello", (Process process) -> {});
+                    test.assertEqual("hello", action.getName());
+                    test.assertEqual("hello", action.getFullName());
+                });
+
+                runner.test("with parentActions set with non-empty applicationName", (Test test) ->
+                {
+                    final CommandLineActions<Process> parentActions = CommandLineActions.create();
+                    parentActions.setApplicationName("abc");
+                    final CommandLineAction<Process> action = parentActions.addAction("hello", (Process process) -> {});
+                    test.assertEqual("hello", action.getName());
+                    test.assertEqual("abc hello", action.getFullName());
+                });
+            });
+
             runner.testGroup("addAlias(String)", () ->
             {
                 runner.test("with null", (Test test) ->
