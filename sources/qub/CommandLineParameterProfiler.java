@@ -112,6 +112,24 @@ public class CommandLineParameterProfiler extends CommandLineParameterBoolean
             final VisualVMProcessBuilder visualVMProcessBuilder = VisualVMProcessBuilder.get(this.process).await()
                 .setOpenPid(processId)
                 .setShowSplashScreen(false);
+
+            final EnvironmentVariables environmentVariables = this.process.getEnvironmentVariables();
+            final String javaHomeString = environmentVariables.get("JAVA_HOME")
+                .catchError(NotFoundException.class)
+                .await();
+            if (!Strings.isNullOrEmpty(javaHomeString))
+            {
+                final String resolvedJavaHomeString = environmentVariables.resolve(javaHomeString);
+                if (!Strings.isNullOrEmpty(resolvedJavaHomeString))
+                {
+                    final Path javaHomePath = Path.parse(resolvedJavaHomeString);
+                    if (javaHomePath.isRooted())
+                    {
+                        visualVMProcessBuilder.setJDKHome(javaHomePath);
+                    }
+                }
+            }
+
             visualVMProcessBuilder.run().await();
 
             output.writeLine(" Press enter to continue...").await();

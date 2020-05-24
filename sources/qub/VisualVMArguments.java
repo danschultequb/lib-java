@@ -52,4 +52,26 @@ public interface VisualVMArguments<T>
         final Distance fontPoints = fontSize.toFontPoints();
         return this.addArguments("--fontsize", Integers.toString((int)fontPoints.getValue()));
     }
+
+    default T setJDKHome(String jdkHome)
+    {
+        PreCondition.assertNotNullAndNotEmpty(jdkHome, "jdkHome");
+
+        return this.setJDKHome(Path.parse(jdkHome));
+    }
+
+    default T setJDKHome(Path jdkHome)
+    {
+        PreCondition.assertNotNull(jdkHome, "jdkHome");
+        PreCondition.assertTrue(jdkHome.isRooted(), "jdkHome.isRooted()");
+
+        return this.addArguments("--jdkhome", Strings.escapeAndQuote(jdkHome.toString()));
+    }
+
+    default T setJDKHome(Folder jdkHome)
+    {
+        PreCondition.assertNotNull(jdkHome, "jdkHome");
+
+        return this.setJDKHome(jdkHome.getPath());
+    }
 }
