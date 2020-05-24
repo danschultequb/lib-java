@@ -592,7 +592,7 @@ public interface ProcessTests
                     {
                         if (process.onWindows().await())
                         {
-                            final ProcessBuilder builder = process.getProcessBuilder("C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe").await();
+                            final ProcessBuilder builder = process.getProcessBuilder("C:/qub/openjdk/jdk/versions/14.0.1/bin/javac.exe").await();
                             test.assertEqual("javac.exe", builder.getExecutablePath().getSegments().last());
                             test.assertEqual(Iterable.create(), builder.getArguments());
                             test.assertEqual(2, builder.run().await());
@@ -607,7 +607,7 @@ public interface ProcessTests
                         if (process.onWindows().await())
                         {
                             final InMemoryCharacterStream verbose = InMemoryCharacterStream.create();
-                            final ProcessBuilder builder = process.getProcessBuilder("C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe").await()
+                            final ProcessBuilder builder = process.getProcessBuilder("C:/qub/openjdk/jdk/versions/14.0.1/bin/javac.exe").await()
                                 .setVerbose(verbose);
                             test.assertEqual("", verbose.getText().await());
                             test.assertEqual("javac.exe", builder.getExecutablePath().getSegments().last());
@@ -615,9 +615,9 @@ public interface ProcessTests
                             test.assertEqual(2, builder.run().await());
                             test.assertEqual(
                                 Iterable.create(
-                                    "Looking for executable: \"C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe\" (check extensions: true)",
-                                    "Checking \"C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe\"... Yes!",
-                                    "C:/Users/dansc/Sources/lib-java/: C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe"),
+                                    "Looking for executable: \"C:/qub/openjdk/jdk/versions/14.0.1/bin/javac.exe\" (check extensions: true)",
+                                    "Checking \"C:/qub/openjdk/jdk/versions/14.0.1/bin/javac.exe\"... Yes!",
+                                    "C:/Users/dansc/Sources/lib-java/: C:/qub/openjdk/jdk/versions/14.0.1/bin/javac.exe"),
                                 Strings.getLines(verbose.getText().await()));
                         }
                     }
@@ -681,14 +681,13 @@ public interface ProcessTests
                                     "Checking \"C:/Program Files (x86)/Python38-32/javac.exe\"... No.",
                                     "Checking \"C:/Program Files (x86)/Python37-32/Scripts/javac.exe\"... No.",
                                     "Checking \"C:/Program Files (x86)/Python37-32/javac.exe\"... No.",
-                                    "Checking \"C:/Program Files (x86)/Common Files/Oracle/Java/javapath/javac.exe\"... No.",
                                     "Checking \"C:/WINDOWS/system32/javac.exe\"... No.",
                                     "Checking \"C:/WINDOWS/javac.exe\"... No.",
                                     "Checking \"C:/WINDOWS/System32/Wbem/javac.exe\"... No.",
                                     "Checking \"C:/WINDOWS/System32/WindowsPowerShell/v1.0/javac.exe\"... No.",
                                     "Checking \"C:/WINDOWS/System32/OpenSSH/javac.exe\"... No.",
-                                    "Checking \"C:/Program Files/Java/jdk-11.0.1/bin/javac.exe\"... Yes!",
-                                    "C:/Users/dansc/Sources/lib-java/: C:/Program Files/Java/jdk-11.0.1/bin/javac.exe"),
+                                    "Checking \"C:/qub/openjdk/jdk/versions/14.0.1/bin/javac.exe\"... Yes!",
+                                    "C:/Users/dansc/Sources/lib-java/: C:/qub/openjdk/jdk/versions/14.0.1/bin/javac.exe"),
                                 Strings.getLines(verbose.getText().await()));
                         }
                     }

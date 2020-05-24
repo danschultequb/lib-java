@@ -243,6 +243,12 @@ public interface Process extends Disposable
     }
 
     /**
+     * Get the id of this process.
+     * @return The id of this process.
+     */
+    long getProcessId();
+
+    /**
      * Get the exit code that this process will return when it finishes.
      * @return The exit code that this process will return when it finishes.
      */

@@ -43,7 +43,7 @@ public interface JavaTCPServerTests
                     try
                     {
                         test.assertThrows(() -> JavaTCPServer.create(port.get(), test.getClock()).await(),
-                            new RuntimeException(new java.net.BindException("Address already in use: JVM_Bind")));
+                            new RuntimeException(new java.net.BindException("Address already in use: bind")));
                     }
                     finally
                     {
@@ -98,7 +98,7 @@ public interface JavaTCPServerTests
                     try
                     {
                         test.assertThrows(() -> JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), port.get(), test.getClock()).await(),
-                            new java.net.BindException("Address already in use: JVM_Bind"));
+                            new java.net.BindException("Address already in use: bind"));
                     }
                     finally
                     {

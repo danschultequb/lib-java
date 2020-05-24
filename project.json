@@ -1,8 +1,6 @@
 {
   "publisher": "qub",
   "project": "lib-java",
-  "version": "41",
-  "java": {
-    "version": "1.8"
-  }
+  "version": "43",
+  "java": {}
 }

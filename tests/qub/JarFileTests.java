@@ -4,7 +4,7 @@ public interface JarFileTests
 {
     static void test(TestRunner runner)
     {
-        final Path jarFilePath = Path.parse("C:/qub/qub/pack-java/1/pack-java.jar");
+        final Path jarFilePath = Path.parse("C:/qub/qub/pack-java/versions/20/pack-java.jar");
 
         runner.testGroup(JarFile.class, () ->
         {
@@ -41,7 +41,7 @@ public interface JarFileTests
                     final Folder currentFolder = test.getProcess().getCurrentFolder();
                     final File projectJsonFile = currentFolder.getFile("project.json").await();
                     test.assertThrows(() -> JarFile.open(projectJsonFile).await(),
-                        new java.util.zip.ZipException("error in opening zip file"));
+                        new java.util.zip.ZipException("zip END header not found"));
                 });
 
                 runner.test("with existing jar file with different extension", (Test test) ->

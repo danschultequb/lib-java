@@ -247,7 +247,7 @@ public class TypesTests
                 runner.test("with String", (Test test) ->
                 {
                     final Iterable<String> actual = Types.getMemberVariables("test").map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = Iterable.create("value", "hash", "serialVersionUID", "serialPersistentFields", "CASE_INSENSITIVE_ORDER");
+                    final Iterable<String> expected = Iterable.create("value", "coder", "hash", "hashIsZero", "serialVersionUID", "COMPACT_STRINGS", "serialPersistentFields", "CASE_INSENSITIVE_ORDER", "LATIN1", "UTF16");
                     test.assertEqual(expected, actual);
                 });
 
@@ -283,14 +283,14 @@ public class TypesTests
                 runner.test("with String.getClass()", (Test test) ->
                 {
                     final Iterable<String> actual = Types.getMemberVariables("test").map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = Iterable.create("value", "hash", "serialVersionUID", "serialPersistentFields", "CASE_INSENSITIVE_ORDER");
+                    final Iterable<String> expected = Iterable.create("value", "coder", "hash", "hashIsZero", "serialVersionUID", "COMPACT_STRINGS", "serialPersistentFields", "CASE_INSENSITIVE_ORDER", "LATIN1", "UTF16");
                     test.assertEqual(expected, actual);
                 });
 
                 runner.test("with String.class", (Test test) ->
                 {
                     final Iterable<String> actual = Types.getMemberVariables(String.class).map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = Iterable.create("value", "hash", "serialVersionUID", "serialPersistentFields", "CASE_INSENSITIVE_ORDER");
+                    final Iterable<String> expected = Iterable.create("value", "coder", "hash", "hashIsZero", "serialVersionUID", "COMPACT_STRINGS", "serialPersistentFields", "CASE_INSENSITIVE_ORDER", "LATIN1", "UTF16");
                     test.assertEqual(expected, actual);
                 });
 

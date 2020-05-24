@@ -617,7 +617,7 @@ public interface AssertionMessagesTests
 
                 runner.test("with empty values", (Test test) ->
                 {
-                    test.assertThrows(new java.lang.ArrayIndexOutOfBoundsException("-1"),
+                    test.assertThrows(new java.lang.ArrayIndexOutOfBoundsException("Index -1 out of bounds for length 0"),
                         () -> AssertionMessages.oneOf('a', new char[0], "blah"));
                 });
 
@@ -662,7 +662,7 @@ public interface AssertionMessagesTests
 
                 runner.test("with empty values", (Test test) ->
                 {
-                    test.assertThrows(new java.lang.ArrayIndexOutOfBoundsException("-1"),
+                    test.assertThrows(new java.lang.ArrayIndexOutOfBoundsException("Index -1 out of bounds for length 0"),
                         () -> AssertionMessages.oneOf(5, new int[0], "blah"));
                 });
 
@@ -707,7 +707,7 @@ public interface AssertionMessagesTests
 
                 runner.test("with empty values", (Test test) ->
                 {
-                    test.assertThrows(new java.lang.ArrayIndexOutOfBoundsException("-1"),
+                    test.assertThrows(new java.lang.ArrayIndexOutOfBoundsException("Index -1 out of bounds for length 0"),
                         () -> AssertionMessages.oneOf(5, new long[0], "blah"));
                 });
 
@@ -752,7 +752,7 @@ public interface AssertionMessagesTests
 
                 runner.test("with empty values", (Test test) ->
                 {
-                    test.assertThrows(new ArrayIndexOutOfBoundsException("-1"),
+                    test.assertThrows(new ArrayIndexOutOfBoundsException("Index -1 out of bounds for length 0"),
                         () -> AssertionMessages.oneOf("a", new String[0], "blah"));
                 });
 

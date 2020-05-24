@@ -101,14 +101,23 @@ public class CommandLineParameterProfiler extends CommandLineParameterBoolean
         PreCondition.assertNotNull(this.process, "process");
         PreCondition.assertNotNull(this.classToAttachTo, "classToAttachTo");
 
-        if (getValue().await())
+        if (this.getValue().await())
         {
-            this.process.getOutputWriteStream()
-                .writeLine("Attach a profiler now to " + Types.getTypeName(this.classToAttachTo) + ". Press enter to continue...")
-                .await();
-            this.process.getInputReadStream()
-                .readLine()
-                .await();
+            final String classtoAttachToName = Types.getTypeName(this.classToAttachTo);
+            final long processId = this.process.getProcessId();
+
+            final CharacterWriteStream output = this.process.getOutputWriteStream();
+            output.write("Attaching a profiler now to " + classtoAttachToName + " (" + processId + ")...").await();
+
+            final VisualVMProcessBuilder visualVMProcessBuilder = VisualVMProcessBuilder.get(this.process).await()
+                .setOpenPid(processId)
+                .setShowSplashScreen(false);
+            visualVMProcessBuilder.run().await();
+
+            output.writeLine(" Press enter to continue...").await();
+
+            final CharacterReadStream input = this.process.getInputReadStream();
+            input.readLine().await();
         }
     }
 }

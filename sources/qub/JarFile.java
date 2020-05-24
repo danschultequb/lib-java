@@ -32,23 +32,23 @@ public class JarFile extends File implements Disposable
     {
         PreCondition.assertNotNull(file, "file");
 
-        Result<JarFile> result;
-        try
+        return Result.create(() ->
         {
-            result = Result.success(new JarFile(file));
-        }
-        catch (java.io.FileNotFoundException error)
-        {
-            result = Result.error(new FileNotFoundException(file));
-        }
-        catch (java.io.IOException error)
-        {
-            result = Result.error(error);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+            JarFile result;
+            try
+            {
+                result = new JarFile(file);
+            }
+            catch (java.nio.file.NoSuchFileException error)
+            {
+                throw new FileNotFoundException(file);
+            }
+            catch (Throwable error)
+            {
+                throw Exceptions.asRuntime(error);
+            }
+            return result;
+        });
     }
 
     @Override

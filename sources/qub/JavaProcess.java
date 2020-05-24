@@ -76,6 +76,12 @@ public class JavaProcess implements QubProcess
         return new JavaProcess(commandLineArguments, mainAsyncRunner);
     }
 
+    @Override
+    public long getProcessId()
+    {
+        return java.lang.ProcessHandle.current().pid();
+    }
+
     private JavaProcess(CommandLineArguments commandLineArguments, AsyncScheduler mainAsyncRunner)
     {
         PreCondition.assertNotNull(commandLineArguments, "commandLineArguments");
