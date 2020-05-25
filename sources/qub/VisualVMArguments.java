@@ -74,4 +74,14 @@ public interface VisualVMArguments<T>
 
         return this.setJDKHome(jdkHome.getPath());
     }
+
+    @SuppressWarnings("unchecked")
+    default T setSuppressConsoleOutput(boolean suppressConsoleOutput)
+    {
+        if (suppressConsoleOutput)
+        {
+            this.addArguments("--console", "suppress");
+        }
+        return (T)this;
+    }
 }

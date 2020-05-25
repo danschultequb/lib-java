@@ -12,6 +12,14 @@ public interface ProcessBuilder
     Result<Integer> run();
 
     /**
+     * Start the executable path with the configured arguments. Return a ChildProcess object that
+     * can be used to monitor the started process. This process will not wait for the child process
+     * to complete before returning.
+     * @return The ChildProcess that can be used to monitor the started process.
+     */
+    Result<ChildProcess> start();
+
+    /**
      * Get the path to the executable that this ProcessBuilder will invoke.
      * @return The path to the executable that this ProcessBuilder will invoke.
      */

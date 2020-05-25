@@ -110,8 +110,7 @@ public class CommandLineParameterProfiler extends CommandLineParameterBoolean
             output.write("Attaching a profiler now to " + classtoAttachToName + " (" + processId + ")...").await();
 
             final VisualVMProcessBuilder visualVMProcessBuilder = VisualVMProcessBuilder.get(this.process).await()
-                .setOpenPid(processId)
-                .setShowSplashScreen(false);
+                .setOpenPid(processId);
 
             final EnvironmentVariables environmentVariables = this.process.getEnvironmentVariables();
             final String javaHomeString = environmentVariables.get("JAVA_HOME")
@@ -130,7 +129,8 @@ public class CommandLineParameterProfiler extends CommandLineParameterBoolean
                 }
             }
 
-            visualVMProcessBuilder.run().await();
+            // Don't await the result of run() so that the process will just run in the background.
+            visualVMProcessBuilder.run();
 
             output.writeLine(" Press enter to continue...").await();
 

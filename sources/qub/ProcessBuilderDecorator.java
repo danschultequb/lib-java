@@ -22,6 +22,12 @@ public abstract class ProcessBuilderDecorator<T extends ProcessBuilder> implemen
     }
 
     @Override
+    public Result<ChildProcess> start()
+    {
+        return this.processBuilder.start();
+    }
+
+    @Override
     public Path getExecutablePath()
     {
         return this.processBuilder.getExecutablePath();

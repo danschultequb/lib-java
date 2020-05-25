@@ -47,6 +47,19 @@ public class BasicProcessBuilder implements ProcessBuilder
     }
 
     @Override
+    public Result<ChildProcess> start()
+    {
+        return this.factory.start(
+            this.executablePath,
+            this.arguments,
+            this.workingFolderPath,
+            this.redirectedInputStream,
+            this.redirectOutputAction,
+            this.redirectErrorAction,
+            this.verbose);
+    }
+
+    @Override
     public Path getExecutablePath()
     {
         return this.executablePath;

@@ -68,83 +68,94 @@ public class FakeProcessFactory implements ProcessFactory
     }
 
     @Override
-    public Result<Integer> run(Path executablePath, Iterable<String> arguments, Path workingFolderPath, ByteReadStream redirectedInputStream, Action1<ByteReadStream> redirectedOutputStream, Action1<ByteReadStream> redirectedErrorStream, CharacterWriteStream verbose)
+    public Result<ChildProcess> start(Path executablePath, Iterable<String> arguments, Path workingFolderPath, ByteReadStream redirectedInputStream, Action1<ByteReadStream> redirectedOutputStream, Action1<ByteReadStream> redirectedErrorStream, CharacterWriteStream verbose)
     {
         PreCondition.assertNotNull(executablePath, "executablePath");
         PreCondition.assertNotNull(arguments, "arguments");
         PreCondition.assertNotNull(workingFolderPath, "workingFolderPath");
 
-        FakeProcessRun partialMatch = null;
-        FakeProcessRun match = null;
-        final int fakeProcessRunCount = this.fakeProcessRuns.getCount();
-        for (int i = fakeProcessRunCount - 1; 0 <= i; --i)
+        return Result.create(() ->
         {
-            final FakeProcessRun fakeProcessRun = this.fakeProcessRuns.get(i);
-
-            if (executablePath.equals(fakeProcessRun.getExecutablePath()) && arguments.equals(fakeProcessRun.getArguments()))
+            FakeProcessRun partialMatch = null;
+            FakeProcessRun match = null;
+            final int fakeProcessRunCount = this.fakeProcessRuns.getCount();
+            for (int i = fakeProcessRunCount - 1; 0 <= i; --i)
             {
-                final Path runWorkingFolderPath = fakeProcessRun.getWorkingFolderPath();
-                if (workingFolderPath.equals(runWorkingFolderPath))
+                final FakeProcessRun fakeProcessRun = this.fakeProcessRuns.get(i);
+
+                if (executablePath.equals(fakeProcessRun.getExecutablePath()) && arguments.equals(fakeProcessRun.getArguments()))
                 {
-                    match = fakeProcessRun;
-                    break;
-                }
-                else if (runWorkingFolderPath == null && partialMatch == null)
-                {
-                    partialMatch = fakeProcessRun;
+                    final Path runWorkingFolderPath = fakeProcessRun.getWorkingFolderPath();
+                    if (workingFolderPath.equals(runWorkingFolderPath))
+                    {
+                        match = fakeProcessRun;
+                        break;
+                    }
+                    else if (runWorkingFolderPath == null && partialMatch == null)
+                    {
+                        partialMatch = fakeProcessRun;
+                    }
                 }
             }
-        }
 
-        if (match == null && partialMatch != null)
-        {
-            match = partialMatch;
-        }
-
-        Result<Integer> result;
-        if (match != null)
-        {
-            final Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer> function = match.getFunction();
-            if (function == null)
+            if (match == null && partialMatch != null)
             {
-                result = Result.successZero();
+                match = partialMatch;
+            }
+
+            ChildProcess result;
+            if (match == null)
+            {
+                final String command = ProcessFactory.getCommand(executablePath, arguments, workingFolderPath);
+                throw new NotFoundException("No fake process run found for " + Strings.escapeAndQuote(command) + ".");
             }
             else
             {
-                try
+                final Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer> function = match.getFunction();
+                if (function == null)
                 {
-                    final ByteReadStream input = redirectedInputStream != null
-                        ? redirectedInputStream
-                        : InMemoryByteStream.create().endOfStream();
-                    final InMemoryByteStream output = InMemoryByteStream.create();
-                    final InMemoryByteStream error = InMemoryByteStream.create();
-                    final Result<Void> outputTask = redirectedOutputStream != null
-                        ? this.asyncRunner.schedule(() -> redirectedOutputStream.run(output))
-                        : Result.success();
-                    final Result<Void> errorTask = redirectedErrorStream != null
-                        ? this.asyncRunner.schedule(() -> redirectedErrorStream.run(error))
-                        : Result.success();
-                    final Integer actionExitCode = function.run(input, output, error);
-                    output.endOfStream();
-                    error.endOfStream();
-                    Result.await(outputTask, errorTask);
-                    result = Result.success(actionExitCode);
+                    result = BasicChildProcess.create(0);
                 }
-                catch (Throwable error)
+                else
                 {
-                    result = Result.error(error);
+                    try
+                    {
+                        final ByteReadStream input = redirectedInputStream != null
+                            ? redirectedInputStream
+                            : InMemoryByteStream.create().endOfStream();
+                        final Result<Void> inputTask = Result.success();
+
+                        final InMemoryByteStream output = InMemoryByteStream.create();
+                        final Result<Void> outputTask = redirectedOutputStream != null
+                            ? this.asyncRunner.schedule(() -> redirectedOutputStream.run(output))
+                            : Result.success();
+
+                        final InMemoryByteStream error = InMemoryByteStream.create();
+                        final Result<Void> errorTask = redirectedErrorStream != null
+                            ? this.asyncRunner.schedule(() -> redirectedErrorStream.run(error))
+                            : Result.success();
+
+                        final Function0<Integer> processFunction = () ->
+                        {
+                            final int exitCode = function.run(input, output, error);
+                            output.endOfStream();
+                            error.endOfStream();
+                            return exitCode;
+                        };
+
+                        result = BasicChildProcess.create(processFunction, inputTask, outputTask, errorTask);
+                    }
+                    catch (Throwable error)
+                    {
+                        throw Exceptions.asRuntime(error);
+                    }
                 }
             }
-        }
-        else
-        {
-            final String command = ProcessFactory.getCommand(executablePath, arguments, workingFolderPath);
-            result = Result.error(new NotFoundException("No fake process run found for " + Strings.escapeAndQuote(command) + "."));
-        }
 
-        PostCondition.assertNotNull(result, "result");
+            PostCondition.assertNotNull(result, "result");
 
-        return result;
+            return result;
+        });
     }
 
     @Override

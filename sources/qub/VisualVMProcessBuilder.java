@@ -2,7 +2,7 @@ package qub;
 
 public class VisualVMProcessBuilder extends ProcessBuilderDecorator<VisualVMProcessBuilder> implements VisualVMArguments<VisualVMProcessBuilder>
 {
-    public static final String executablePathString = "visualvm";
+    public static final String executablePathString = "visualvm.exe";
     public static final Path executablePath = Path.parse(VisualVMProcessBuilder.executablePathString);
 
     private VisualVMProcessBuilder(ProcessBuilder processBuilder)

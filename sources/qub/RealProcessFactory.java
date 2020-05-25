@@ -43,7 +43,7 @@ public class RealProcessFactory implements ProcessFactory
     }
 
     @Override
-    public Result<Integer> run(Path executablePath, Iterable<String> arguments, Path workingFolderPath, ByteReadStream redirectedInputStream, Action1<ByteReadStream> redirectOutputAction, Action1<ByteReadStream> redirectErrorAction, CharacterWriteStream verbose)
+    public Result<ChildProcess> start(Path executablePath, Iterable<String> arguments, Path workingFolderPath, ByteReadStream redirectedInputStream, Action1<ByteReadStream> redirectOutputAction, Action1<ByteReadStream> redirectErrorAction, CharacterWriteStream verbose)
     {
         PreCondition.assertNotNull(executablePath, "executablePath");
         PreCondition.assertNotNull(arguments, "arguments");
@@ -82,7 +82,7 @@ public class RealProcessFactory implements ProcessFactory
                 builder.redirectError();
             }
 
-            int exitCode;
+            ChildProcess result;
             try
             {
                 if (verbose != null)
@@ -96,34 +96,46 @@ public class RealProcessFactory implements ProcessFactory
                     }
                     verbose.writeLine();
                 }
-                final java.lang.Process process = builder.start();
+                final java.lang.Process childProcess = builder.start();
 
                 final Result<Void> inputAction = redirectedInputStream == null
                     ? Result.success()
                     : this.parallelAsyncRunner.schedule(() ->
                         {
-                            final OutputStreamToByteWriteStream processInputStream = new OutputStreamToByteWriteStream(process.getOutputStream(), true);
+                            final OutputStreamToByteWriteStream processInputStream = new OutputStreamToByteWriteStream(childProcess.getOutputStream(), true);
                             processInputStream.writeAll(redirectedInputStream).catchError().await();
                         });
 
                 final Result<Void> outputAction = redirectOutputAction == null
                     ? Result.success()
-                    : this.parallelAsyncRunner.schedule(() -> redirectOutputAction.run(new InputStreamToByteReadStream(process.getInputStream())));
+                    : this.parallelAsyncRunner.schedule(() -> redirectOutputAction.run(new InputStreamToByteReadStream(childProcess.getInputStream())));
 
                 final Result<Void> errorAction = redirectErrorAction == null
                     ? Result.success()
-                    : this.parallelAsyncRunner.schedule(() -> redirectErrorAction.run(new InputStreamToByteReadStream(process.getErrorStream())));
+                    : this.parallelAsyncRunner.schedule(() -> redirectErrorAction.run(new InputStreamToByteReadStream(childProcess.getErrorStream())));
 
-                exitCode = process.waitFor();
+                final Function0<Integer> processFunction = () ->
+                {
+                    final int exitCode;
+                    try
+                    {
+                        exitCode = childProcess.waitFor();
+                    }
+                    catch (Throwable e)
+                    {
+                        throw Exceptions.asRuntime(e);
+                    }
+                    return exitCode;
+                };
 
-                Result.await(inputAction, outputAction, errorAction);
+                result = BasicChildProcess.create(processFunction, inputAction, outputAction, errorAction);
             }
             catch (Throwable e)
             {
                 throw Exceptions.asRuntime(e);
             }
 
-            return exitCode;
+            return result;
         });
     }
 

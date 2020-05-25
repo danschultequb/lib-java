@@ -43,7 +43,8 @@ public interface ProcessFactory
     }
 
     /**
-     * Run the provided executable with the provided arguments.
+     * Run the provided executable with the provided arguments. This method will wait for the
+     * started child process to complete before returning.
      * @param executablePath The executable to run.
      * @param arguments The arguments to provide to the executable.
      * @param workingFolderPath The folder that the process will be executed from.
@@ -51,9 +52,27 @@ public interface ProcessFactory
      * @param redirectedOutputStream The action that will be invoked each time the process writes to its output stream.
      * @param redirectedErrorStream The action that will be invoked each time the process writes to its error stream.
      * @param verbose The CharacterWriteStream that verbose logs will be written to.
-     * @return The exit code of the process.
+     * @return The exit code of the created child process.
      */
-    Result<Integer> run(Path executablePath, Iterable<String> arguments, Path workingFolderPath, ByteReadStream redirectedInputStream, Action1<ByteReadStream> redirectedOutputStream, Action1<ByteReadStream> redirectedErrorStream, CharacterWriteStream verbose);
+    default Result<Integer> run(Path executablePath, Iterable<String> arguments, Path workingFolderPath, ByteReadStream redirectedInputStream, Action1<ByteReadStream> redirectedOutputStream, Action1<ByteReadStream> redirectedErrorStream, CharacterWriteStream verbose)
+    {
+        return this.start(executablePath, arguments, workingFolderPath, redirectedInputStream, redirectedOutputStream, redirectedErrorStream, verbose)
+            .then(ChildProcess::await);
+    }
+
+    /**
+     * Start the provided executable with the provided arguments. This method will not wait for the
+     * started child process to complete before returning.
+     * @param executablePath The executable to run.
+     * @param arguments The arguments to provide to the executable.
+     * @param workingFolderPath The folder that the process will be executed from.
+     * @param redirectedInputStream The input stream that the new process will use.
+     * @param redirectedOutputStream The action that will be invoked each time the process writes to its output stream.
+     * @param redirectedErrorStream The action that will be invoked each time the process writes to its error stream.
+     * @param verbose The CharacterWriteStream that verbose logs will be written to.
+     * @return A reference to the created child process.
+     */
+    Result<ChildProcess> start(Path executablePath, Iterable<String> arguments, Path workingFolderPath, ByteReadStream redirectedInputStream, Action1<ByteReadStream> redirectedOutputStream, Action1<ByteReadStream> redirectedErrorStream, CharacterWriteStream verbose);
 
     /**
      * Get the full command line string that will be run.
