@@ -736,19 +736,29 @@ public class JavaProcess implements QubProcess
     @Override
     public Result<Boolean> dispose()
     {
-        Result<Boolean> result;
-        if (disposed)
+        return Result.create(() ->
         {
-            result = Result.successFalse();
-        }
-        else
-        {
-            disposed = true;
-            result = Result.successTrue();
-        }
+            final boolean result = !this.disposed;
+            if (!result)
+            {
+                this.disposed = true;
 
-        PostCondition.assertNotNull(result, "result");
+                if (this.inputReadStream.hasValue())
+                {
+                    this.inputReadStream.get().dispose().await();
+                }
 
-        return result;
+                if (this.outputWriteStream.hasValue())
+                {
+                    this.outputWriteStream.get().dispose().await();
+                }
+
+                if (this.errorWriteStream.hasValue())
+                {
+                    this.errorWriteStream.get().dispose().await();
+                }
+            }
+            return result;
+        });
     }
 }
