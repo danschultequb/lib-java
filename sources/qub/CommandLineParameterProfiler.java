@@ -129,8 +129,7 @@ public class CommandLineParameterProfiler extends CommandLineParameterBoolean
                 }
             }
 
-            // Don't await the result of run() so that the process will just run in the background.
-            visualVMProcessBuilder.run();
+            visualVMProcessBuilder.start().await();
 
             output.writeLine(" Press enter to continue...").await();
 
