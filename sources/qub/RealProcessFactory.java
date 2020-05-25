@@ -98,13 +98,14 @@ public class RealProcessFactory implements ProcessFactory
                 }
                 final java.lang.Process childProcess = builder.start();
 
-                final Result<Void> inputAction = redirectedInputStream == null
-                    ? Result.success()
-                    : this.parallelAsyncRunner.schedule(() ->
-                        {
-                            final OutputStreamToByteWriteStream processInputStream = new OutputStreamToByteWriteStream(childProcess.getOutputStream(), true);
-                            processInputStream.writeAll(redirectedInputStream).catchError().await();
-                        });
+                if (redirectedInputStream != null)
+                {
+                    this.parallelAsyncRunner.schedule(() ->
+                    {
+                        final OutputStreamToByteWriteStream processInputStream = new OutputStreamToByteWriteStream(childProcess.getOutputStream(), true);
+                        processInputStream.writeAll(redirectedInputStream).catchError().await();
+                    });
+                }
 
                 final Result<Void> outputAction = redirectOutputAction == null
                     ? Result.success()
@@ -128,7 +129,7 @@ public class RealProcessFactory implements ProcessFactory
                     return exitCode;
                 };
 
-                result = BasicChildProcess.create(processFunction, inputAction, outputAction, errorAction);
+                result = BasicChildProcess.create(processFunction, outputAction, errorAction);
             }
             catch (Throwable e)
             {

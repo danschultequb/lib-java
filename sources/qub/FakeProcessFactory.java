@@ -123,7 +123,6 @@ public class FakeProcessFactory implements ProcessFactory
                         final ByteReadStream input = redirectedInputStream != null
                             ? redirectedInputStream
                             : InMemoryByteStream.create().endOfStream();
-                        final Result<Void> inputTask = Result.success();
 
                         final InMemoryByteStream output = InMemoryByteStream.create();
                         final Result<Void> outputTask = redirectedOutputStream != null
@@ -143,7 +142,7 @@ public class FakeProcessFactory implements ProcessFactory
                             return exitCode;
                         };
 
-                        result = BasicChildProcess.create(processFunction, inputTask, outputTask, errorTask);
+                        result = BasicChildProcess.create(processFunction, outputTask, errorTask);
                     }
                     catch (Throwable error)
                     {
