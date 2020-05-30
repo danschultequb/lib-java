@@ -6,1081 +6,6 @@ public interface ResultTests
     {
         runner.testGroup(Result.class, () ->
         {
-            runner.testGroup("await()", () ->
-            {
-                runner.test("with no error", (Test test) ->
-                {
-                    test.assertEqual(null, Result.success().await());
-                });
-
-                runner.test("with RuntimeException", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.error(new RuntimeException("abc")).await(), new AwaitException(new RuntimeException("abc")));
-                });
-
-                runner.test("with Exception", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.error(new Exception("abc")).await(), new AwaitException(new Exception("abc")));
-                });
-            });
-
-            runner.testGroup("await()", () ->
-            {
-                runner.test("with no error", (Test test) ->
-                {
-                    test.assertEqual(null, Result.success().await());
-                });
-
-                runner.test("with RuntimeException", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.error(new RuntimeException("abc")).await(), new RuntimeException("abc"));
-                });
-
-                runner.test("with Exception", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.error(new Exception("abc")).await(), new RuntimeException(new Exception("abc")));
-                });
-            });
-
-            runner.testGroup("then(Action0)", () ->
-            {
-                runner.test("with null action", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.success().then((Action0)null), new PreConditionFailure("action cannot be null."));
-                });
-
-                runner.test("with non-error Result and non-throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Boolean> value = Value.create();
-                    final Result<Void> result2 = result1.then(() -> { value.set(false); });
-                    test.assertNull(result2.await());
-                    test.assertEqual(false, value.get());
-                });
-
-                runner.test("with non-error Result and throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Result<Void> result2 = result1.then((Action0)() ->
-                    {
-                        throw new RuntimeException("foo");
-                    });
-                    test.assertThrows(result2::await, new RuntimeException("foo"));
-                });
-
-                runner.test("with error Result and non-throwing action", (Test test) ->
-                {
-                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
-                    final Value<Character> value = Value.create();
-                    final Result<Void> result2 = result1.then(() -> { value.set('z'); });
-                    test.assertThrows(result2::await, new RuntimeException("blah"));
-                    test.assertFalse(value.hasValue());
-                });
-
-                runner.test("with error Result and throwing action", (Test test) ->
-                {
-                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
-                    final Result<Void> result2 = result1.then((Action0)() ->
-                    {
-                        throw new RuntimeException("abc");
-                    });
-                    test.assertThrows(result2::await, new RuntimeException("blah"));
-                });
-            });
-
-            runner.testGroup("then(Action1<T>)", () ->
-            {
-                runner.test("with null action", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.successTrue().then((Action1<Boolean>)null), new PreConditionFailure("action cannot be null."));
-                });
-
-                runner.test("with non-error Result and non-throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Boolean> value = Value.create();
-                    final Result<Void> result2 = result1.then((Action1<Boolean>)value::set);
-                    test.assertNull(result2.await());
-                    test.assertTrue(value.hasValue());
-                    test.assertEqual(true, value.get());
-                });
-
-                runner.test("with non-error Result and throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Result<Void> result2 = result1.then((Action1<Boolean>)(Boolean value) ->
-                    {
-                        throw new RuntimeException("foo");
-                    });
-                    test.assertThrows(result2::await, new RuntimeException("foo"));
-                });
-
-                runner.test("with error Result and non-throwing action", (Test test) ->
-                {
-                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
-                    final Value<Character> value = Value.create();
-                    final Result<Void> result2 = result1.then((Action1<Character>)value::set);
-                    test.assertThrows(result2::await, new RuntimeException("blah"));
-                    test.assertFalse(value.hasValue());
-                });
-
-                runner.test("with error Result and throwing action", (Test test) ->
-                {
-                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
-                    final Result<Void> result2 = result1.then((Action1<Character>)(Character c) ->
-                    {
-                        throw new RuntimeException("abc");
-                    });
-                    test.assertThrows(result2::await, new RuntimeException("blah"));
-                });
-            });
-
-            runner.testGroup("then(Function0<U>)", () ->
-            {
-                runner.test("with null function", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.successTrue().then((Function0<Integer>)null), new PreConditionFailure("function cannot be null."));
-                });
-
-                runner.test("with non-error Result and non-throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Result<Integer> result2 = result1.then(() -> 1);
-                    test.assertEqual(1, result2.await());
-                });
-
-                runner.test("with non-error Result and throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Result<Integer> result2 = result1.then(() ->
-                    {
-                        throw new RuntimeException("foo");
-                    });
-                    test.assertThrows(result2::await, new RuntimeException("foo"));
-                });
-
-                runner.test("with error Result and non-throwing function", (Test test) ->
-                {
-                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
-                    final Result<Integer> result2 = result1.then(() -> 1);
-                    test.assertThrows(result2::await, new RuntimeException("blah"));
-                });
-
-                runner.test("with error Result and throwing function", (Test test) ->
-                {
-                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
-                    final Result<Integer> result2 = result1.then(() ->
-                    {
-                        throw new RuntimeException("abc");
-                    });
-                    test.assertThrows(result2::await, new RuntimeException("blah"));
-                });
-            });
-
-            runner.testGroup("then(Function1<T,U>)", () ->
-            {
-                runner.test("with null function", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.successTrue().then((Function1<Boolean,Integer>)null), new PreConditionFailure("function cannot be null."));
-                });
-
-                runner.test("with non-error Result and non-throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Result<Integer> result2 = result1.then((Boolean value) -> value ? 1 : 0);
-                    test.assertEqual(1, result2.await());
-                });
-
-                runner.test("with non-error Result and throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Result<Integer> result2 = result1.then((Boolean value) ->
-                    {
-                        throw new RuntimeException("foo");
-                    });
-                    test.assertThrows(result2::await, new RuntimeException("foo"));
-                });
-
-                runner.test("with error Result and non-throwing function", (Test test) ->
-                {
-                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
-                    final Result<Integer> result2 = result1.then(Object::hashCode);
-                    test.assertThrows(result2::await, new RuntimeException("blah"));
-                });
-
-                runner.test("with error Result and throwing function", (Test test) ->
-                {
-                    final Result<Character> result1 = Result.error(new RuntimeException("blah"));
-                    final Result<Integer> result2 = result1.then((Character c) ->
-                    {
-                        throw new RuntimeException("abc");
-                    });
-                    test.assertThrows(result2::await, new RuntimeException("blah"));
-                });
-            });
-
-            runner.testGroup("catchError(Action0)", () ->
-            {
-                runner.test("with null action", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.success().catchError((Action0)null), new PreConditionFailure("action cannot be null."));
-                });
-
-                runner.test("with non-error Result and non-throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError((Action0)() -> value.set(5));
-                    test.assertSame(result2, result1);
-                    test.assertEqual(0, value.get());
-                });
-
-                runner.test("with non-error Result and throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Result<Boolean> result2 = result1.catchError((Action0)() -> { throw new RuntimeException("abc"); });
-                    test.assertSame(result2, result1);
-                });
-
-                runner.test("with error Result and non-throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError((Action0)() -> value.set(5));
-                    test.assertNull(result2.await());
-                    test.assertEqual(5, value.get());
-                });
-
-                runner.test("with error Result and throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Result<Boolean> result2 = result1.catchError((Action0)() -> { throw new RuntimeException("xyz"); });
-                    test.assertThrows(result2::await, new RuntimeException("xyz"));
-                });
-            });
-
-            runner.testGroup("catchError(Action1<Throwable>)", () ->
-            {
-                runner.test("with null action", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.success().catchError((Action1<Throwable>)null), new PreConditionFailure("action cannot be null."));
-                });
-
-                runner.test("with non-error Result and non-throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError((Throwable error) -> value.set(5));
-                    test.assertSame(result2, result1);
-                    test.assertEqual(0, value.get());
-                });
-
-                runner.test("with non-error Result and throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Result<Boolean> result2 = result1.catchError((Throwable error) -> { throw new RuntimeException("abc"); });
-                    test.assertSame(result2, result1);
-                });
-
-                runner.test("with error Result and non-throwing action", (Test test) ->
-                {
-                    final Value<Integer> value = Value.create(0);
-                    test.assertNull(Result.error(new RuntimeException("abc"))
-                        .catchError((Throwable error) -> { value.set(5); })
-                        .await());
-                    test.assertEqual(5, value.get());
-                });
-
-                runner.test("with error Result and throwing action", (Test test) ->
-                {
-                    final Result<?> result = Result.error(new RuntimeException("abc"))
-                        .catchError((Throwable error) -> { throw new RuntimeException("xyz"); });
-                    test.assertThrows(result::await, new RuntimeException("xyz"));
-                });
-            });
-
-            runner.testGroup("catchError(Class<TError>,Action0)", () ->
-            {
-                runner.test("with null errorType", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.success().catchError(null, (Action0)null), new PreConditionFailure("errorType cannot be null."));
-                });
-
-                runner.test("with null action", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.success().catchError(RuntimeException.class, (Action0)null), new PreConditionFailure("action cannot be null."));
-                });
-
-                runner.test("with non-error Result and non-throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Action0)() -> value.set(5));
-                    test.assertSame(result2, result1);
-                    test.assertEqual(0, value.get());
-                });
-
-                runner.test("with non-error Result and throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Action0)() -> { throw new RuntimeException("abc"); });
-                    test.assertSame(result2, result1);
-                });
-
-                runner.test("with error Result with wrong error type and non-throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Action0)() -> value.set(5));
-                    test.assertSame(result2, result1);
-                    test.assertEqual(0, value.get());
-                });
-
-                runner.test("with error Result with RuntimeException-wrapped wrong error type and non-throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException(new RuntimeException("abc")));
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Action0)() -> value.set(5));
-                    test.assertSame(result2, result1);
-                    test.assertEqual(0, value.get());
-                });
-
-                runner.test("with error Result with AwaitException-wrapped wrong error type and non-throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException(new RuntimeException("abc")));
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Action0)() -> value.set(5));
-                    test.assertSame(result1, result2);
-                    test.assertEqual(0, value.get());
-                });
-
-                runner.test("with error Result with correct error type and non-throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError(RuntimeException.class, (Action0)() -> value.set(5));
-                    test.assertNull(result2.await());
-                    test.assertEqual(5, value.get());
-                });
-
-                runner.test("with error Result with RuntimeException-wrapped correct error type and non-throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException(new NotFoundException("abc")));
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError(NotFoundException.class, (Action0)() -> value.set(5));
-                    test.assertNull(result2.await());
-                    test.assertEqual(5, value.get());
-                });
-
-                runner.test("with error Result with AwaitException-wrapped correct error type and non-throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new AwaitException(new NotFoundException("abc")));
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError(NotFoundException.class, (Action0)() -> value.set(5));
-                    test.assertNull(result2.await());
-                    test.assertEqual(5, value.get());
-                });
-
-                runner.test("with error Result with wrong error type and throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Action0)() -> { throw new NullPointerException("abc"); });
-                    test.assertSame(result2, result1);
-                });
-
-                runner.test("with error Result with correct error type and throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Result<Boolean> result2 = result1.catchError(RuntimeException.class, (Action0)() -> { throw new NullPointerException("abc"); });
-                    test.assertThrows(result2::await, new NullPointerException("abc"));
-                });
-            });
-
-            runner.testGroup("catchError(Class<TError>,Action1<TError>)", () ->
-            {
-                runner.test("with null errorType", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.success().catchError(null, (Action1<RuntimeException>)null), new PreConditionFailure("errorType cannot be null."));
-                });
-
-                runner.test("with null action", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.success().catchError(RuntimeException.class, (Action1<RuntimeException>)null), new PreConditionFailure("action cannot be null."));
-                });
-
-                runner.test("with non-error Result and non-throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Action1<NullPointerException>)error -> value.set(5));
-                    test.assertSame(result2, result1);
-                    test.assertEqual(0, value.get());
-                });
-
-                runner.test("with non-error Result and throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Action1<NullPointerException>)error -> { throw new RuntimeException("abc"); });
-                    test.assertSame(result2, result1);
-                });
-
-                runner.test("with error Result with wrong error type and non-throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Action1<NullPointerException>)error -> value.set(5));
-                    test.assertSame(result2, result1);
-                    test.assertEqual(0, value.get());
-                });
-
-                runner.test("with error Result with correct error type and non-throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError(RuntimeException.class, (Action1<RuntimeException>)error -> value.set(5));
-                    test.assertNull(result2.await());
-                    test.assertEqual(5, value.get());
-                });
-
-                runner.test("with error Result with wrong error type and throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Action1<NullPointerException>)error -> { throw new NullPointerException("abc"); });
-                    test.assertSame(result2, result1);
-                });
-
-                runner.test("with error Result with correct error type and throwing action", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Result<Boolean> result2 = result1.catchError(RuntimeException.class, (Action1<RuntimeException>)error -> { throw new NullPointerException("abc"); });
-                    test.assertThrows(result2::await, new NullPointerException("abc"));
-                });
-            });
-
-            runner.testGroup("catchError(Function0<T>)", () ->
-            {
-                runner.test("with null function", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.successTrue().catchError((Function0<Boolean>)null), new PreConditionFailure("function cannot be null."));
-                });
-
-                runner.test("with non-error Result and non-throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError(() ->
-                    {
-                        value.set(5);
-                        return false;
-                    });
-                    test.assertSame(result2, result1);
-                    test.assertEqual(0, value.get());
-                });
-
-                runner.test("with non-error Result and throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Result<Boolean> result2 = result1.catchError((Function0<Boolean>)() -> { throw new RuntimeException("abc"); });
-                    test.assertSame(result2, result1);
-                });
-
-                runner.test("with error Result and null-returning function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError((Function0<Boolean>)() ->
-                    {
-                        value.set(5);
-                        return null;
-                    });
-                    test.assertNull(result2.await());
-                    test.assertEqual(5, value.get());
-                });
-
-                runner.test("with error Result and non-throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError(() ->
-                    {
-                        value.set(5);
-                        return false;
-                    });
-                    test.assertFalse(result2.await());
-                    test.assertEqual(5, value.get());
-                });
-
-                runner.test("with error Result and throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Result<Boolean> result2 = result1.catchError((Function0<Boolean>)() -> { throw new RuntimeException("xyz"); });
-                    test.assertThrows(result2::await, new RuntimeException("xyz"));
-                });
-            });
-
-            runner.testGroup("catchError(Function1<Throwable,T>)", () ->
-            {
-                runner.test("with null function", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.successTrue().catchError((Function1<Throwable,Boolean>)null), new PreConditionFailure("function cannot be null."));
-                });
-
-                runner.test("with non-error Result and non-throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError((Throwable error) ->
-                    {
-                        value.set(5);
-                        return false;
-                    });
-                    test.assertSame(result2, result1);
-                    test.assertEqual(0, value.get());
-                });
-
-                runner.test("with non-error Result and throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Result<Boolean> result2 = result1.catchError((Function1<Throwable,Boolean>)(Throwable error) -> { throw new RuntimeException("abc"); });
-                    test.assertSame(result2, result1);
-                });
-
-                runner.test("with error Result and null-returning function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError((Throwable error) ->
-                    {
-                        value.set(5);
-                        return null;
-                    });
-                    test.assertNull(result2.await());
-                    test.assertEqual(5, value.get());
-                });
-
-                runner.test("with error Result and non-throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError((Throwable error) ->
-                    {
-                        value.set(5);
-                        return false;
-                    });
-                    test.assertFalse(result2.await());
-                    test.assertEqual(5, value.get());
-                });
-
-                runner.test("with error Result and throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Result<Boolean> result2 = result1.catchError((Function1<Throwable,Boolean>)(Throwable error) -> { throw new RuntimeException("xyz"); });
-                    test.assertThrows(result2::await, new RuntimeException("xyz"));
-                });
-            });
-
-            runner.testGroup("catchError(Class<TError>,Function0<T>)", () ->
-            {
-                runner.test("with null errorType", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.<Void>success().catchError(null, (Function0<Void>)null), new PreConditionFailure("errorType cannot be null."));
-                });
-
-                runner.test("with null function", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.<Void>success().catchError(RuntimeException.class, (Function0<Void>)null), new PreConditionFailure("function cannot be null."));
-                });
-
-                runner.test("with non-error Result and non-throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, () ->
-                    {
-                        value.set(5);
-                        return false;
-                    });
-                    test.assertSame(result2, result1);
-                    test.assertEqual(0, value.get());
-                });
-
-                runner.test("with non-error Result and throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Function0<Boolean>)() -> { throw new RuntimeException("abc"); });
-                    test.assertSame(result2, result1);
-                });
-
-                runner.test("with error Result with wrong error type and non-throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, () ->
-                    {
-                        value.set(5);
-                        return false;
-                    });
-                    test.assertSame(result2, result1);
-                    test.assertEqual(0, value.get());
-                });
-
-                runner.test("with error Result with correct error type and non-throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError(RuntimeException.class, () ->
-                    {
-                        value.set(5);
-                        return false;
-                    });
-                    test.assertFalse(result2.await());
-                    test.assertEqual(5, value.get());
-                });
-
-                runner.test("with error Result with wrong error type and throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Function0<Boolean>)() -> { throw new NullPointerException("abc"); });
-                    test.assertSame(result2, result1);
-                });
-
-                runner.test("with error Result with correct error type and throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Result<Boolean> result2 = result1.catchError(RuntimeException.class, (Function0<Boolean>)() -> { throw new NullPointerException("abc"); });
-                    test.assertThrows(result2::await, new NullPointerException("abc"));
-                });
-            });
-
-            runner.testGroup("catchError(Class<TError>,Function1<TError,T>)", () ->
-            {
-                runner.test("with null errorType", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.<Void>success().catchError(null, (Function1<RuntimeException,Void>)null), new PreConditionFailure("errorType cannot be null."));
-                });
-
-                runner.test("with null function", (Test test) ->
-                {
-                    test.assertThrows(() -> Result.<Void>success().catchError(RuntimeException.class, (Function1<RuntimeException,Void>)null), new PreConditionFailure("function cannot be null."));
-                });
-
-                runner.test("with non-error Result and non-throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, error ->
-                    {
-                        value.set(5);
-                        return false;
-                    });
-                    test.assertSame(result2, result1);
-                    test.assertEqual(0, value.get());
-                });
-
-                runner.test("with non-error Result and throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.successTrue();
-                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Function1<NullPointerException,Boolean>)error -> { throw new RuntimeException("abc"); });
-                    test.assertSame(result2, result1);
-                });
-
-                runner.test("with error Result with wrong error type and non-throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, error ->
-                    {
-                        value.set(5);
-                        return false;
-                    });
-                    test.assertSame(result2, result1);
-                    test.assertEqual(0, value.get());
-                });
-
-                runner.test("with error Result with correct error type and non-throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Value<Integer> value = Value.create(0);
-                    final Result<Boolean> result2 = result1.catchError(RuntimeException.class, error ->
-                    {
-                        value.set(5);
-                        return false;
-                    });
-                    test.assertFalse(result2.await());
-                    test.assertEqual(5, value.get());
-                });
-
-                runner.test("with error Result with wrong error type and throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Result<Boolean> result2 = result1.catchError(NullPointerException.class, (Function1<NullPointerException,Boolean>)error -> { throw new NullPointerException("abc"); });
-                    test.assertSame(result2, result1);
-                });
-
-                runner.test("with error Result with correct error type and throwing function", (Test test) ->
-                {
-                    final Result<Boolean> result1 = Result.error(new RuntimeException("abc"));
-                    final Result<Boolean> result2 = result1.catchError(RuntimeException.class, (Function1<RuntimeException,Boolean>)error -> { throw new NullPointerException("abc"); });
-                    test.assertThrows(result2::await, new NullPointerException("abc"));
-                });
-            });
-
-            runner.testGroup("onError(Action0)", () ->
-            {
-                runner.test("with null action", (Test test) ->
-                {
-                    final Result<Integer> result = Result.success();
-                    test.assertThrows(() -> result.onError((Action0)null),
-                        new PreConditionFailure("action cannot be null."));
-                });
-
-                runner.test("with successful Result", (Test test) ->
-                {
-                    final Value<Integer> value = Value.create();
-                    Result.success()
-                        .onError(() -> value.set(5));
-                    test.assertFalse(value.hasValue());
-                });
-
-                runner.test("with error Result", (Test test) ->
-                {
-                    final Value<Integer> value = Value.create();
-                    Result.error(new NullPointerException())
-                        .onError(() -> value.set(5));
-                    test.assertEqual(5, value.get());
-                });
-            });
-
-            runner.testGroup("onError(Action1<Throwable>)", () ->
-            {
-                runner.test("with null action", (Test test) ->
-                {
-                    final Result<Integer> result = Result.success();
-                    test.assertThrows(() -> result.onError((Action1<Throwable>)null),
-                        new PreConditionFailure("action cannot be null."));
-                });
-
-                runner.test("with successful Result", (Test test) ->
-                {
-                    final Value<Integer> value = Value.create();
-                    Result.success()
-                        .onError((Throwable error) -> value.set(5));
-                    test.assertFalse(value.hasValue());
-                });
-
-                runner.test("with error Result", (Test test) ->
-                {
-                    final Value<Integer> value = Value.create();
-                    Result.error(new NullPointerException("a"))
-                        .onError((Throwable error) ->
-                        {
-                            test.assertEqual(new NullPointerException("a"), error);
-                            value.set(5);
-                        });
-                    test.assertEqual(5, value.get());
-                });
-            });
-
-            runner.testGroup("onError(Class<TError>,Action0)", () ->
-            {
-                runner.test("with null errorType", (Test test) ->
-                {
-                    final Result<Integer> result = Result.success();
-                    test.assertThrows(() -> result.onError(null, () -> {}),
-                        new PreConditionFailure("errorType cannot be null."));
-                });
-
-                runner.test("with null action", (Test test) ->
-                {
-                    final Result<Integer> result = Result.success();
-                    test.assertThrows(() -> result.onError(NullPointerException.class, (Action0)null),
-                        new PreConditionFailure("action cannot be null."));
-                });
-
-                runner.test("with successful Result", (Test test) ->
-                {
-                    final Value<Integer> value = Value.create();
-                    Result.success()
-                        .onError(NullPointerException.class, () -> value.set(5));
-                    test.assertFalse(value.hasValue());
-                });
-
-                runner.test("with error Result with different error type", (Test test) ->
-                {
-                    final Value<Integer> value = Value.create();
-                    Result.error(new NullPointerException())
-                        .onError(NotFoundException.class, () -> value.set(5));
-                    test.assertFalse(value.hasValue());
-                });
-
-                runner.test("with error Result with same error type", (Test test) ->
-                {
-                    final Value<Integer> value = Value.create();
-                    Result.error(new NullPointerException())
-                        .onError(NullPointerException.class, () -> value.set(5));
-                    test.assertEqual(5, value.get());
-                });
-
-                runner.test("with error Result with super error type", (Test test) ->
-                {
-                    final Value<Integer> value = Value.create();
-                    Result.error(new NullPointerException())
-                        .onError(RuntimeException.class, () -> value.set(5));
-                    test.assertEqual(5, value.get());
-                });
-            });
-
-            runner.testGroup("onError(Class<TError>,Action1<TError>)", () ->
-            {
-                runner.test("with null errorType", (Test test) ->
-                {
-                    final Result<Integer> result = Result.success();
-                    test.assertThrows(() -> result.onError(null, (NullPointerException error) -> {}),
-                        new PreConditionFailure("errorType cannot be null."));
-                });
-
-                runner.test("with null action", (Test test) ->
-                {
-                    final Result<Integer> result = Result.success();
-                    test.assertThrows(() -> result.onError(NullPointerException.class, (Action1<NullPointerException>)null),
-                        new PreConditionFailure("action cannot be null."));
-                });
-
-                runner.test("with successful Result", (Test test) ->
-                {
-                    final Value<Integer> value = Value.create();
-                    Result.success()
-                        .onError(NullPointerException.class, (NullPointerException error) -> value.set(5));
-                    test.assertFalse(value.hasValue());
-                });
-
-                runner.test("with error Result with different error type", (Test test) ->
-                {
-                    final Value<Integer> value = Value.create();
-                    Result.error(new NullPointerException())
-                        .onError(NotFoundException.class, (NotFoundException error) -> value.set(5));
-                    test.assertFalse(value.hasValue());
-                });
-
-                runner.test("with error Result with same error type", (Test test) ->
-                {
-                    final Value<Integer> value = Value.create();
-                    Result.error(new NullPointerException("a"))
-                        .onError(NullPointerException.class, (NullPointerException error) ->
-                        {
-                            test.assertEqual(new NullPointerException("a"), error);
-                            value.set(5);
-                        });
-                    test.assertEqual(5, value.get());
-                });
-
-                runner.test("with error Result with super error type", (Test test) ->
-                {
-                    final Value<Integer> value = Value.create();
-                    Result.error(new NullPointerException("a"))
-                        .onError(RuntimeException.class, (RuntimeException error) ->
-                        {
-                            test.assertEqual(new NullPointerException("a"), error);
-                            value.set(5);
-                        });
-                    test.assertEqual(5, value.get());
-                });
-            });
-
-            runner.testGroup("convertError(Function0<TErrorOut>)", () ->
-            {
-                runner.test("with null function", (Test test) ->
-                {
-                    final Result<Void> result = Result.success();
-                    test.assertThrows(() -> result.convertError((Function0<NotFoundException>)null),
-                        new PreConditionFailure("function cannot be null."));
-                });
-
-                runner.test("with successful Result", (Test test) ->
-                {
-                    final Result<Void> result = Result.success();
-                    test.assertNull(result.convertError(() -> new NotFoundException("blah")).await());
-                });
-
-                runner.test("with error Result", (Test test) ->
-                {
-                    final Result<Void> result = Result.error(new NotFoundException("blah"));
-                    test.assertThrows(() -> result.convertError(() -> new NotFoundException("blah2")).await(),
-                        new NotFoundException("blah2"));
-                });
-            });
-
-            runner.testGroup("convertError(Function1<Throwable,TErrorOut>)", () ->
-            {
-                runner.test("with null function", (Test test) ->
-                {
-                    final Result<Void> result = Result.success();
-                    test.assertThrows(() -> result.convertError((Function1<Throwable,NotFoundException>)null),
-                        new PreConditionFailure("function cannot be null."));
-                });
-
-                runner.test("with successful Result", (Test test) ->
-                {
-                    final Result<Void> result = Result.success();
-                    final Value<Throwable> caughtError = Value.create();
-                    test.assertNull(result.convertError((Throwable error) ->
-                        {
-                            caughtError.set(error);
-                            return new NotFoundException("blah");
-                        })
-                        .await());
-                    test.assertFalse(caughtError.hasValue());
-                });
-
-                runner.test("with error Result", (Test test) ->
-                {
-                    final Result<Void> result = Result.error(new NotFoundException("blah"));
-                    final Value<Throwable> caughtError = Value.create();
-                    test.assertThrows(() -> result.convertError((Throwable error) ->
-                        {
-                            caughtError.set(error);
-                            return new NotFoundException("blah2");
-                        })
-                        .await(),
-                        new NotFoundException("blah2"));
-                    test.assertEqual(new NotFoundException("blah"), caughtError.get());
-                });
-            });
-
-            runner.testGroup("convertError(Class<TErrorIn>,Function0<TErrorOut>)", () ->
-            {
-                runner.test("with null errorType", (Test test) ->
-                {
-                    final Result<Void> result = Result.success();
-                    test.assertThrows(() -> result.convertError(null, () -> new NotFoundException("blah")),
-                        new PreConditionFailure("errorType cannot be null."));
-                });
-
-                runner.test("with null function", (Test test) ->
-                {
-                    final Result<Void> result = Result.success();
-                    test.assertThrows(() -> result.convertError(NotFoundException.class, (Function0<NotFoundException>)null),
-                        new PreConditionFailure("function cannot be null."));
-                });
-
-                runner.test("with successful Result", (Test test) ->
-                {
-                    final Result<Void> result = Result.success();
-                    test.assertNull(result.convertError(NotFoundException.class, () -> new NotFoundException("blah")).await());
-                });
-
-                runner.test("with error Result with different error type", (Test test) ->
-                {
-                    final Result<Void> result = Result.error(new NotFoundException("blah"));
-                    test.assertThrows(() -> result.convertError(NullPointerException.class, () -> new EndOfStreamException()).await(),
-                        new NotFoundException("blah"));
-                });
-
-                runner.test("with error Result with same error type", (Test test) ->
-                {
-                    final Result<Void> result = Result.error(new NotFoundException("blah"));
-                    test.assertThrows(() -> result.convertError(NotFoundException.class, () -> new EndOfStreamException()).await(),
-                        new EndOfStreamException());
-                });
-
-                runner.test("with error Result with parent error type", (Test test) ->
-                {
-                    final Result<Void> result = Result.error(new NotFoundException("blah"));
-                    test.assertThrows(() -> result.convertError(RuntimeException.class, () -> new EndOfStreamException()).await(),
-                        new EndOfStreamException());
-                });
-            });
-
-            runner.testGroup("convertError(Class<TErrorIn>,Function1<TErrorIn,TErrorOut>)", () ->
-            {
-                runner.test("with null errorType", (Test test) ->
-                {
-                    final Result<Void> result = Result.success();
-                    test.assertThrows(() -> result.convertError(null, (NullPointerException error) -> new NotFoundException("blah")),
-                        new PreConditionFailure("errorType cannot be null."));
-                });
-
-                runner.test("with null function", (Test test) ->
-                {
-                    final Result<Void> result = Result.success();
-                    test.assertThrows(() -> result.convertError(NullPointerException.class, (Function1<NullPointerException,NotFoundException>)null),
-                        new PreConditionFailure("function cannot be null."));
-                });
-
-                runner.test("with successful Result", (Test test) ->
-                {
-                    final Result<Void> result = Result.success();
-                    final Value<Throwable> caughtError = Value.create();
-                    test.assertNull(result.convertError(NullPointerException.class, (NullPointerException error) ->
-                    {
-                        caughtError.set(error);
-                        return new NotFoundException("blah");
-                    })
-                        .await());
-                    test.assertFalse(caughtError.hasValue());
-                });
-
-                runner.test("with error Result with different error type", (Test test) ->
-                {
-                    final Result<Void> result = Result.error(new NullPointerException("blah"));
-                    final Value<Throwable> caughtError = Value.create();
-                    test.assertThrows(() -> result.convertError(EndOfStreamException.class, (EndOfStreamException error) ->
-                        {
-                            caughtError.set(error);
-                            return new NotFoundException("blah2");
-                        })
-                            .await(),
-                        new NullPointerException("blah"));
-                    test.assertFalse(caughtError.hasValue());
-                });
-
-                runner.test("with error Result with same error type", (Test test) ->
-                {
-                    final Result<Void> result = Result.error(new NullPointerException("blah"));
-                    final Value<NullPointerException> caughtError = Value.create();
-                    test.assertThrows(() -> result.convertError(NullPointerException.class, (NullPointerException error) ->
-                        {
-                            caughtError.set(error);
-                            return new NotFoundException("blah2");
-                        })
-                            .await(),
-                        new NotFoundException("blah2"));
-                    test.assertEqual(new NullPointerException("blah"), caughtError.get());
-                });
-
-                runner.test("with error Result with parent error type", (Test test) ->
-                {
-                    final Result<Void> result = Result.error(new NullPointerException("blah"));
-                    final Value<Throwable> caughtError = Value.create();
-                    test.assertThrows(() -> result.convertError(RuntimeException.class, (RuntimeException error) ->
-                        {
-                            caughtError.set(error);
-                            return new NotFoundException("blah2");
-                        })
-                            .await(),
-                        new NotFoundException("blah2"));
-                    test.assertEqual(new NullPointerException("blah"), caughtError.get());
-                });
-            });
-
-            runner.testGroup("toString()", () ->
-            {
-                runner.test("with successful result with null value", (Test test) ->
-                {
-                    test.assertEqual("value: null", Result.success(null).toString());
-                });
-
-                runner.test("with successful result with non-null value", (Test test) ->
-                {
-                    test.assertEqual("value: 6", Result.success(6).toString());
-                });
-
-                runner.test("with error result", (Test test) ->
-                {
-                    test.assertEqual("error: java.lang.NullPointerException: oops", Result.error(new NullPointerException("oops")).toString());
-                });
-            });
-
             runner.testGroup("success(T)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -1096,14 +21,14 @@ public interface ResultTests
 
             runner.test("successFalse()", (Test test) ->
             {
-                final Result<Boolean> result = Result.successFalse();
+                final SyncResult<Boolean> result = Result.successFalse();
                 test.assertFalse(result.await());
                 test.assertSame(result, Result.successFalse());
             });
 
             runner.test("successTrue()", (Test test) ->
             {
-                final Result<Boolean> result = Result.successTrue();
+                final SyncResult<Boolean> result = Result.successTrue();
                 test.assertTrue(result.await());
                 test.assertSame(result, Result.successTrue());
             });
@@ -1127,6 +52,3277 @@ public interface ResultTests
                     final Result<Integer> result = Result.error(new Exception("abc"));
                     test.assertNotNull(result);
                     test.assertThrows(result::await, new RuntimeException(new Exception("abc")));
+                });
+            });
+        });
+    }
+
+    static void test(TestRunner runner, Function1<Function0<Integer>,Result<Integer>> creator)
+    {
+        runner.testGroup(Result.class, () ->
+        {
+            runner.testGroup("await()", () ->
+            {
+                runner.test("with null value", (Test test) ->
+                {
+                    final Result<Integer> result = creator.run(() -> null);
+
+                    test.assertNull(result.await());
+                    test.assertTrue(result.isCompleted());
+
+                    test.assertNull(result.await());
+                    test.assertTrue(result.isCompleted());
+                });
+
+                runner.test("with non-null value", (Test test) ->
+                {
+                    final Result<Integer> result = creator.run(() -> 1);
+
+                    test.assertEqual(1, result.await());
+                    test.assertTrue(result.isCompleted());
+
+                    test.assertEqual(1, result.await());
+                    test.assertTrue(result.isCompleted());
+                });
+
+                runner.test("with error", (Test test) ->
+                {
+                    final Result<Integer> result = creator.run(() -> { throw new NotFoundException("blah"); });
+
+                    for (int i = 0; i < 2; ++i)
+                    {
+                        test.assertThrows(result::await, new AwaitException(new NotFoundException("blah")));
+                        test.assertTrue(result.isCompleted());
+                    }
+                });
+            });
+
+            runner.testGroup("await(Class<TError>)", () ->
+            {
+                runner.test("with null error type", (Test test) ->
+                {
+                    final Result<Integer> result = creator.run(() -> null);
+
+                    for (int i = 0; i < 2; ++i)
+                    {
+                        test.assertThrows(new PreConditionFailure("expectedErrorType cannot be null."), () ->
+                        {
+                            try
+                            {
+                                result.await((Class<java.io.IOException>)null);
+                                test.fail("Expected an exception to be thrown.");
+                            }
+                            catch (PreConditionFailure e)
+                            {
+                                throw e;
+                            }
+                            catch (Throwable e)
+                            {
+                                test.fail(e);
+                            }
+                        });
+                    }
+                });
+
+                runner.test("with no error value", (Test test) ->
+                {
+                    final Result<Integer> result = creator.run(() -> 1);
+
+                    for (int i = 0; i < 2; ++i)
+                    {
+                        try
+                        {
+                            test.assertEqual(1, result.await(java.io.IOException.class));
+                            test.assertTrue(result.isCompleted());
+                        }
+                        catch (java.io.IOException e)
+                        {
+                            test.fail(e);
+                        }
+                    }
+                });
+
+                runner.test("with non-matching error", (Test test) ->
+                {
+                    final Result<Integer> result = creator.run(() -> { throw Exceptions.asRuntime(new Exception("blah")); });
+
+                    for (int i = 0; i < 2; ++i)
+                    {
+                        test.assertThrows(new AwaitException(new Exception("blah")), () ->
+                        {
+                            try
+                            {
+                                result.await(java.io.IOException.class);
+                                test.fail("Expected an exception to be thrown.");
+                            }
+                            catch (java.io.IOException e)
+                            {
+                                test.fail(e);
+                            }
+                        });
+                        test.assertTrue(result.isCompleted());
+                    }
+                });
+
+                runner.test("with matching error", (Test test) ->
+                {
+                    final Result<Integer> result = creator.run(() -> { throw Exceptions.asRuntime(new java.io.IOException("hello")); });
+
+                    for (int i = 0; i < 2; ++i)
+                    {
+                        try
+                        {
+                            result.await(java.io.IOException.class);
+                            test.fail("Expected a java.io.IOException to be thrown.");
+                        }
+                        catch (java.io.IOException e)
+                        {
+                            test.assertEqual("hello", e.getMessage());
+                        }
+                        test.assertTrue(result.isCompleted());
+                    }
+                });
+
+                runner.test("with super-matching error", (Test test) ->
+                {
+                    final Result<Integer> result = creator.run(() -> { throw Exceptions.asRuntime(new java.net.SocketException("hello")); });
+
+                    for (int i = 0; i < 2; ++i)
+                    {
+                        try
+                        {
+                            result.await(java.io.IOException.class);
+                            test.fail("Expected a java.io.IOException to be thrown.");
+                        }
+                        catch (java.io.IOException e)
+                        {
+                            test.assertInstanceOf(e, java.net.SocketException.class);
+                            test.assertEqual("hello", e.getMessage());
+                        }
+                        test.assertTrue(result.isCompleted());
+                    }
+                });
+            });
+
+            runner.testGroup("then(Action0)", () ->
+            {
+                runner.test("with non-throwing parent result and null then-action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.then((Action0)null),
+                        new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and non-throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<Void> thenResult = parentResult.then(() -> { thenCounter.increment(); });
+
+                    test.assertNull(thenResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertNull(thenResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+
+                runner.test("with non-throwing parent result and throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<Void> thenResult = parentResult.then((Action0)() ->
+                    {
+                        thenCounter.increment();
+                        throw new RuntimeException("foo");
+                    });
+
+                    test.assertThrows(thenResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertThrows(thenResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and non-throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<Void> thenResult = parentResult.then((Action0)() ->
+                    {
+                        thenCounter.increment();
+                    });
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<Void> thenResult = parentResult.then((Action0)() ->
+                    {
+                        thenCounter.increment();
+                        throw new RuntimeException("abc");
+                    });
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("then(Action1<T>)", () ->
+            {
+                runner.test("with non-throwing parent result and null then-action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.then((Action1<Integer>)null),
+                        new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and non-throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<Void> thenResult = parentResult.then((Integer parentValue) -> { thenCounter.plusAssign(parentValue); });
+
+                    test.assertNull(thenResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(5, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertNull(thenResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(5, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+
+                runner.test("with non-throwing parent result and throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<Void> thenResult = parentResult.then((Action1<Integer>)(Integer parentValue) ->
+                    {
+                        thenCounter.plusAssign(parentValue);
+                        throw new RuntimeException("foo");
+                    });
+
+                    test.assertThrows(thenResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(5, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertThrows(thenResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(5, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and non-throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<Void> thenResult = parentResult.then((Integer parentValue) ->
+                    {
+                        thenCounter.plusAssign(parentValue);
+                    });
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<Void> thenResult = parentResult.then((Action1<Integer>)(Integer parentValue) ->
+                    {
+                        thenCounter.plusAssign(parentValue);
+                        throw new RuntimeException("abc");
+                    });
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("then(Function0<U>)", () ->
+            {
+                runner.test("with non-throwing parent result and null then-action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.then((Function0<String>)null),
+                        new PreConditionFailure("function cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and non-throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<String> thenResult = parentResult.then(() ->
+                    {
+                        thenCounter.increment();
+                        return "abc";
+                    });
+
+                    test.assertEqual("abc", thenResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertEqual("abc", thenResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+
+                runner.test("with non-throwing parent result and throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<String> thenResult = parentResult.then((Function0<String>)() ->
+                    {
+                        thenCounter.increment();
+                        throw new RuntimeException("foo");
+                    });
+
+                    test.assertThrows(thenResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertThrows(thenResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and non-throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<String> thenResult = parentResult.then(() ->
+                    {
+                        thenCounter.increment();
+                        return "abc";
+                    });
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<String> thenResult = parentResult.then((Function0<String>)() ->
+                    {
+                        thenCounter.increment();
+                        throw new RuntimeException("abc");
+                    });
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("then(Function1<T,U>)", () ->
+            {
+                runner.test("with non-throwing parent result and null then-action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.then((Function1<Integer,String>)null),
+                        new PreConditionFailure("function cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and non-throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<String> thenResult = parentResult.then((Integer parentValue) ->
+                    {
+                        thenCounter.plusAssign(parentValue);
+                        return "abc";
+                    });
+
+                    test.assertEqual("abc", thenResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(5, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertEqual("abc", thenResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(5, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+
+                runner.test("with non-throwing parent result and throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<String> thenResult = parentResult.then((Function1<Integer,String>)(Integer parentValue) ->
+                    {
+                        thenCounter.plusAssign(parentValue);
+                        throw new RuntimeException("foo");
+                    });
+
+                    test.assertThrows(thenResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(5, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertThrows(thenResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(5, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and non-throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<String> thenResult = parentResult.then((Integer parentValue) ->
+                    {
+                        thenCounter.plusAssign(parentValue);
+                        return "abc";
+                    });
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<String> thenResult = parentResult.then((Function1<Integer,String>)(Integer parentValue) ->
+                    {
+                        thenCounter.plusAssign(parentValue);
+                        throw new RuntimeException("abc");
+                    });
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("onValue(Action0)", () ->
+            {
+                runner.test("with non-throwing parent result and null then-action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.onValue((Action0)null),
+                        new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and non-throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<Integer> thenResult = parentResult.onValue(() -> { thenCounter.increment(); });
+
+                    test.assertEqual(5, thenResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertEqual(5, thenResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+
+                runner.test("with non-throwing parent result and throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<Integer> thenResult = parentResult.onValue((Action0)() ->
+                    {
+                        thenCounter.increment();
+                        throw new RuntimeException("foo");
+                    });
+
+                    test.assertThrows(thenResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertThrows(thenResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and non-throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<Integer> thenResult = parentResult.onValue((Action0)() ->
+                    {
+                        thenCounter.increment();
+                    });
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<Integer> thenResult = parentResult.onValue((Action0)() ->
+                    {
+                        thenCounter.increment();
+                        throw new RuntimeException("abc");
+                    });
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("onValue(Action1<T>)", () ->
+            {
+                runner.test("with non-throwing parent result and null then-action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.onValue((Action1<Integer>)null),
+                        new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and non-throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<Integer> thenResult = parentResult.onValue((Integer parentValue) -> { thenCounter.plusAssign(parentValue); });
+
+                    test.assertEqual(5, thenResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(5, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertEqual(5, thenResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(5, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+
+                runner.test("with non-throwing parent result and throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<Integer> thenResult = parentResult.onValue((Action1<Integer>)(Integer parentValue) ->
+                    {
+                        thenCounter.plusAssign(parentValue);
+                        throw new RuntimeException("foo");
+                    });
+
+                    test.assertThrows(thenResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(5, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertThrows(thenResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(5, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and non-throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<Integer> thenResult = parentResult.onValue((Integer parentValue) ->
+                    {
+                        thenCounter.plusAssign(parentValue);
+                    });
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final IntegerValue thenCounter = IntegerValue.create(0);
+                    final Result<Integer> thenResult = parentResult.onValue((Action1<Integer>)(Integer parentValue) ->
+                    {
+                        thenCounter.plusAssign(parentValue);
+                        throw new RuntimeException("abc");
+                    });
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+
+                    test.assertThrows(thenResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, thenCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(thenResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("catchError()", () ->
+            {
+                runner.test("with non-throwing parent result", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final Result<Integer> catchErrorResult = parentResult.catchError();
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("foo");
+                    });
+
+                    final Result<Integer> catchErrorResult = parentResult.catchError();
+
+                    test.assertNull(catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertNull(catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("catchError(Action0)", () ->
+            {
+                runner.test("with non-throwing parent result and null catchError-action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.catchError((Action0)null),
+                        new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and non-throwing catchError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue catchErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> catchErrorResult = parentResult.catchError(() -> { catchErrorCounter.increment(); });
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with non-throwing parent result and throwing catchError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue catchErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> catchErrorResult = parentResult.catchError((Action0)() ->
+                    {
+                        catchErrorCounter.increment();
+                        throw new RuntimeException("foo");
+                    });
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and non-throwing catchError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final IntegerValue catchErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> catchErrorResult = parentResult.catchError((Action0)() ->
+                    {
+                        catchErrorCounter.increment();
+                    });
+
+                    test.assertNull(catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertNull(catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and throwing catchError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final IntegerValue catchErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> catchErrorResult = parentResult.catchError((Action0)() ->
+                    {
+                        catchErrorCounter.increment();
+                        throw new RuntimeException("abc");
+                    });
+
+                    test.assertThrows(catchErrorResult::await, new RuntimeException("abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertThrows(catchErrorResult::await, new RuntimeException("abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("catchError(Action1<Throwable>)", () ->
+            {
+                runner.test("with non-throwing parent result and null catchError-action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.catchError((Action1<Throwable>)null),
+                        new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and non-throwing catchError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final List<Throwable> caughtExceptions = List.create();
+                    final Result<Integer> catchErrorResult = parentResult.catchError(caughtExceptions::add);
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), caughtExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), caughtExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with non-throwing parent result and throwing catchError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final List<Throwable> caughtExceptions = List.create();
+                    final Result<Integer> catchErrorResult = parentResult.catchError((Action1<Throwable>)(Throwable parentError) ->
+                    {
+                        caughtExceptions.add(parentError);
+                        throw new RuntimeException("foo");
+                    });
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), caughtExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), caughtExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and non-throwing catchError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/hello");
+                    });
+
+                    final List<Throwable> caughtExceptions = List.create();
+                    final Result<Integer> catchErrorResult = parentResult.catchError((Throwable parentError) ->
+                    {
+                        caughtExceptions.add(parentError);
+                    });
+
+                    test.assertNull(catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/hello")), caughtExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertNull(catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/hello")), caughtExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and throwing catchError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/hello");
+                    });
+
+                    final List<Throwable> caughtExceptions = List.create();
+                    final Result<Integer> catchErrorResult = parentResult.catchError((Action1<Throwable>)(Throwable parentError) ->
+                    {
+                        caughtExceptions.add(parentError);
+                        throw new FolderNotFoundException("/abc");
+                    });
+
+                    test.assertThrows(catchErrorResult::await, new FolderNotFoundException("/abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/hello")), caughtExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertThrows(catchErrorResult::await, new FolderNotFoundException("/abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/hello")), caughtExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("catchError(Class<TError extends Throwable>)", () ->
+            {
+                runner.test("with non-throwing parent result and null error type", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.catchError((Class<? extends Throwable>)null),
+                        new PreConditionFailure("errorType cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class);
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with non-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("foo");
+                    });
+
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class);
+
+                    test.assertThrows(catchErrorResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertThrows(catchErrorResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with exact-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class);
+
+                    test.assertNull(catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertNull(catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with super-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class);
+
+                    test.assertNull(catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertNull(catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("catchError(Class<TError extends Throwable>,Action0)", () ->
+            {
+                runner.test("with non-throwing parent result and null error type", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.catchError((Class<? extends Throwable>)null, Action0.empty),
+                        new PreConditionFailure("errorType cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and null catch-error action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.catchError(NotFoundException.class, (Action0)null),
+                        new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue catchErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, () ->
+                    {
+                        catchErrorCounter.increment();
+                    });
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with non-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("foo");
+                    });
+
+                    final IntegerValue catchErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, () ->
+                    {
+                        catchErrorCounter.increment();
+                    });
+
+                    test.assertThrows(catchErrorResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertThrows(catchErrorResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with exact-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final IntegerValue catchErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> catchErrorResult = parentResult.catchError(FileNotFoundException.class, () ->
+                    {
+                        catchErrorCounter.increment();
+                    });
+
+                    test.assertNull(catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertNull(catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with super-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("foo");
+                    });
+
+                    final IntegerValue catchErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, () ->
+                    {
+                        catchErrorCounter.increment();
+                    });
+
+                    test.assertNull(catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertNull(catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with super-matching error type and throwing catchError action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("foo");
+                    });
+
+                    final IntegerValue catchErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, (Action0)() ->
+                    {
+                        catchErrorCounter.increment();
+                        throw new QueueEmptyException();
+                    });
+
+                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("catchError(Class<TError extends Throwable>,Action1<TError>)", () ->
+            {
+                runner.test("with non-throwing parent result and null error type", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.catchError((Class<NotFoundException>)null, (NotFoundException parentError) -> {}),
+                        new PreConditionFailure("errorType cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and null catch-error action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.catchError(NotFoundException.class, (Action1<NotFoundException>)null),
+                        new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final List<NotFoundException> caughtErrors = List.create();
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, (NotFoundException parentError) ->
+                    {
+                        caughtErrors.add(parentError);
+                    });
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with non-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("foo");
+                    });
+
+                    final List<NotFoundException> caughtErrors = List.create();
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, (NotFoundException parentError) ->
+                    {
+                        caughtErrors.add(parentError);
+                    });
+
+                    test.assertThrows(catchErrorResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertThrows(catchErrorResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with exact-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final List<Throwable> caughtErrors = List.create();
+                    final Result<Integer> catchErrorResult = parentResult.catchError(FileNotFoundException.class, (FileNotFoundException parentError) ->
+                    {
+                        caughtErrors.add(parentError);
+                    });
+
+                    test.assertNull(catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertNull(catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with super-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final List<Throwable> caughtErrors = List.create();
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, (NotFoundException parentError) ->
+                    {
+                        caughtErrors.add(parentError);
+                    });
+
+                    test.assertNull(catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertNull(catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with super-matching error type and throwing catchError action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final List<RuntimeException> caughtErrors = List.create();
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, (Action1<NotFoundException>)(NotFoundException parentError) ->
+                    {
+                        caughtErrors.add(parentError);
+                        throw new QueueEmptyException();
+                    });
+
+                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("catchError(Function0<T>)", () ->
+            {
+                runner.test("with non-throwing parent result and null catch-error function", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.catchError((Function0<Integer>)null),
+                        new PreConditionFailure("function cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue catchErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> catchErrorResult = parentResult.catchError(() ->
+                    {
+                        catchErrorCounter.increment();
+                        return 7;
+                    });
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("foo");
+                    });
+
+                    final IntegerValue catchErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> catchErrorResult = parentResult.catchError(() ->
+                    {
+                        catchErrorCounter.increment();
+                        return 7;
+                    });
+
+                    test.assertEqual(7, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertEqual(7, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and throwing catchError function", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("foo");
+                    });
+
+                    final IntegerValue catchErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> catchErrorResult = parentResult.catchError((Function0<Integer>)() ->
+                    {
+                        catchErrorCounter.increment();
+                        throw new QueueEmptyException();
+                    });
+
+                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("catchError(Function1<Throwable,T>)", () ->
+            {
+                runner.test("with non-throwing parent result and null catch-error function", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.catchError((Function1<Throwable,Integer>)null),
+                        new PreConditionFailure("function cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final List<Throwable> caughtExceptions = List.create();
+                    final Result<Integer> catchErrorResult = parentResult.catchError((Throwable error) ->
+                    {
+                        caughtExceptions.add(error);
+                        return 7;
+                    });
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), caughtExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), caughtExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final List<Throwable> caughtExceptions = List.create();
+                    final Result<Integer> catchErrorResult = parentResult.catchError((Throwable error) ->
+                    {
+                        caughtExceptions.add(error);
+                        return 7;
+                    });
+
+                    test.assertEqual(7, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertEqual(7, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and throwing catchError function", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final List<Throwable> caughtExceptions = List.create();
+                    final Result<Integer> catchErrorResult = parentResult.catchError((Function1<Throwable,Integer>)(Throwable error) ->
+                    {
+                        caughtExceptions.add(error);
+                        throw new QueueEmptyException();
+                    });
+
+                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("catchError(Class<TError extends Throwable>,Function0<T>)", () ->
+            {
+                runner.test("with non-throwing parent result and null error type", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.catchError((Class<? extends Throwable>)null, () -> 5),
+                        new PreConditionFailure("errorType cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and null catch-error action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.catchError(NotFoundException.class, (Function0<Integer>)null),
+                        new PreConditionFailure("function cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue catchErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, () ->
+                    {
+                        catchErrorCounter.increment();
+                        return 7;
+                    });
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with non-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("foo");
+                    });
+
+                    final IntegerValue catchErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, () ->
+                    {
+                        catchErrorCounter.increment();
+                        return 7;
+                    });
+
+                    test.assertThrows(catchErrorResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertThrows(catchErrorResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with exact-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final IntegerValue catchErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> catchErrorResult = parentResult.catchError(FileNotFoundException.class, () ->
+                    {
+                        catchErrorCounter.increment();
+                        return 7;
+                    });
+
+                    test.assertEqual(7, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertEqual(7, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with super-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final IntegerValue catchErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, () ->
+                    {
+                        catchErrorCounter.increment();
+                        return 7;
+                    });
+
+                    test.assertEqual(7, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertEqual(7, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with super-matching error type and throwing catchError function", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("foo");
+                    });
+
+                    final IntegerValue catchErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, (Function0<Integer>)() ->
+                    {
+                        catchErrorCounter.increment();
+                        throw new QueueEmptyException();
+                    });
+
+                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, catchErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("catchError(Class<TError extends Throwable>,Function1<TError,T>)", () ->
+            {
+                runner.test("with non-throwing parent result and null error type", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.catchError((Class<NotFoundException>)null, (NotFoundException parentError) -> { return 7; }),
+                        new PreConditionFailure("errorType cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and null catch-error action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.catchError(NotFoundException.class, (Function1<NotFoundException,Integer>)null),
+                        new PreConditionFailure("function cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final List<NotFoundException> caughtErrors = List.create();
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, (NotFoundException parentError) ->
+                    {
+                        caughtErrors.add(parentError);
+                        return 7;
+                    });
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertEqual(5, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with non-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("foo");
+                    });
+
+                    final List<NotFoundException> caughtErrors = List.create();
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, (NotFoundException parentError) ->
+                    {
+                        caughtErrors.add(parentError);
+                        return 7;
+                    });
+
+                    test.assertThrows(catchErrorResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertThrows(catchErrorResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with exact-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final List<RuntimeException> caughtErrors = List.create();
+                    final Result<Integer> catchErrorResult = parentResult.catchError(FileNotFoundException.class, (FileNotFoundException parentError) ->
+                    {
+                        caughtErrors.add(parentError);
+                        return 7;
+                    });
+
+                    test.assertEqual(7, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertEqual(7, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with super-matching error type and non-throwing catchError function", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final List<Throwable> caughtErrors = List.create();
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, (NotFoundException parentError) ->
+                    {
+                        caughtErrors.add(parentError);
+                        return 7;
+                    });
+
+                    test.assertEqual(7, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertEqual(7, catchErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with super-matching error type and throwing catchError function", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final List<Throwable> caughtErrors = List.create();
+                    final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, (Function1<NotFoundException,Integer>)(NotFoundException parentError) ->
+                    {
+                        caughtErrors.add(parentError);
+                        throw new FolderNotFoundException("/abc");
+                    });
+
+                    test.assertThrows(catchErrorResult::await, new FolderNotFoundException("/abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+
+                    test.assertThrows(catchErrorResult::await, new FolderNotFoundException("/abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(catchErrorResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("onError(Action0)", () ->
+            {
+                runner.test("with non-throwing parent result and null then-action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.onError((Action0)null),
+                        new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and non-throwing onError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue onErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> onErrorResult = parentResult.onError(() ->
+                    {
+                        onErrorCounter.increment();
+                    });
+
+                    test.assertEqual(5, onErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, onErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+
+                    test.assertEqual(5, onErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, onErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+                });
+
+                runner.test("with non-throwing parent result and throwing onError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue onErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> onErrorResult = parentResult.onError((Action0)() ->
+                    {
+                        onErrorCounter.increment();
+                        throw new RuntimeException("foo");
+                    });
+
+                    test.assertEqual(5, onErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, onErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+
+                    test.assertEqual(5, onErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, onErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and non-throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final IntegerValue onErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> onErrorResult = parentResult.onError((Action0)() ->
+                    {
+                        onErrorCounter.increment();
+                    });
+
+                    test.assertThrows(onErrorResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, onErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+
+                    test.assertThrows(onErrorResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, onErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final IntegerValue onErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> onErrorResult = parentResult.onError((Action0)() ->
+                    {
+                        onErrorCounter.increment();
+                        throw new RuntimeException("abc");
+                    });
+
+                    test.assertThrows(onErrorResult::await, new RuntimeException("abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, onErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+
+                    test.assertThrows(onErrorResult::await, new RuntimeException("abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, onErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("onError(Action1<Throwable>)", () ->
+            {
+                runner.test("with non-throwing parent result and null onError-action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.onError((Action1<Throwable>)null),
+                        new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and non-throwing onError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final List<Throwable> foundExceptions = List.create();
+                    final Result<Integer> onErrorResult = parentResult.onError(foundExceptions::add);
+
+                    test.assertEqual(5, onErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), foundExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+
+                    test.assertEqual(5, onErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), foundExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+                });
+
+                runner.test("with non-throwing parent result and throwing onError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final List<Throwable> foundExceptions = List.create();
+                    final Result<Integer> onErrorResult = parentResult.onError((Action1<Throwable>)(Throwable parentError) ->
+                    {
+                        foundExceptions.add(parentError);
+                        throw new RuntimeException("foo");
+                    });
+
+                    test.assertEqual(5, onErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), foundExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+
+                    test.assertEqual(5, onErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), foundExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and non-throwing onError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final List<Throwable> foundExceptions = List.create();
+                    final Result<Integer> onErrorResult = parentResult.onError(foundExceptions::add);
+
+                    test.assertThrows(onErrorResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new RuntimeException("hello")), foundExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+
+                    test.assertThrows(onErrorResult::await, new RuntimeException("hello"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new RuntimeException("hello")), foundExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and throwing onError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/hello");
+                    });
+
+                    final List<Throwable> foundExceptions = List.create();
+                    final Result<Integer> onErrorResult = parentResult.onError((Action1<Throwable>)(Throwable parentError) ->
+                    {
+                        foundExceptions.add(parentError);
+                        throw new FolderNotFoundException("/abc");
+                    });
+
+                    test.assertThrows(onErrorResult::await, new FolderNotFoundException("/abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/hello")), foundExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+
+                    test.assertThrows(onErrorResult::await, new FolderNotFoundException("/abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/hello")), foundExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("onError(Class<TError extends Throwable>,Action0)", () ->
+            {
+                runner.test("with non-throwing parent result and null error type", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.onError((Class<? extends Throwable>)null, Action0.empty),
+                        new PreConditionFailure("errorType cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and null onError action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.onError(NotFoundException.class, (Action0)null),
+                        new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue onErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> onErrorResult = parentResult.onError(NotFoundException.class, () ->
+                    {
+                        onErrorCounter.increment();
+                    });
+
+                    test.assertEqual(5, onErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, onErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+
+                    test.assertEqual(5, onErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, onErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with non-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("foo");
+                    });
+
+                    final IntegerValue onErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> onErrorResult = parentResult.onError(NotFoundException.class, () ->
+                    {
+                        onErrorCounter.increment();
+                    });
+
+                    test.assertThrows(onErrorResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, onErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+
+                    test.assertThrows(onErrorResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, onErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with exact-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final IntegerValue onErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> onErrorResult = parentResult.onError(FileNotFoundException.class, () ->
+                    {
+                        onErrorCounter.increment();
+                    });
+
+                    test.assertThrows(onErrorResult::await, new FileNotFoundException("/foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, onErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+
+                    test.assertThrows(onErrorResult::await, new FileNotFoundException("/foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, onErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with super-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final IntegerValue onErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> onErrorResult = parentResult.onError(NotFoundException.class, () ->
+                    {
+                        onErrorCounter.increment();
+                    });
+
+                    test.assertThrows(onErrorResult::await, new FileNotFoundException("/foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, onErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+
+                    test.assertThrows(onErrorResult::await, new FileNotFoundException("/foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, onErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with matching error type and throwing onError action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final IntegerValue onErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> onErrorResult = parentResult.onError(NotFoundException.class, () ->
+                    {
+                        onErrorCounter.increment();
+                        throw new FolderNotFoundException("/abc");
+                    });
+
+                    test.assertThrows(onErrorResult::await, new FolderNotFoundException("/abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, onErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+
+                    test.assertThrows(onErrorResult::await, new FolderNotFoundException("/abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, onErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("onError(Class<TError extends Throwable>,Action1<TError>)", () ->
+            {
+                runner.test("with non-throwing parent result and null error type", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.onError((Class<NotFoundException>)null, (NotFoundException parentError) -> {}),
+                        new PreConditionFailure("errorType cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and null onError action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.onError(NotFoundException.class, (Action1<NotFoundException>)null),
+                        new PreConditionFailure("action cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final List<NotFoundException> foundErrors = List.create();
+                    final Result<Integer> onErrorResult = parentResult.onError(NotFoundException.class, (NotFoundException parentError) ->
+                    {
+                        foundErrors.add(parentError);
+                    });
+
+                    test.assertEqual(5, onErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), foundErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+
+                    test.assertEqual(5, onErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), foundErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with non-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("foo");
+                    });
+
+                    final List<NotFoundException> foundErrors = List.create();
+                    final Result<Integer> onErrorResult = parentResult.onError(NotFoundException.class, (NotFoundException parentError) ->
+                    {
+                        foundErrors.add(parentError);
+                    });
+
+                    test.assertThrows(onErrorResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), foundErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+
+                    test.assertThrows(onErrorResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), foundErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with exact-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final List<Throwable> foundErrors = List.create();
+                    final Result<Integer> onErrorResult = parentResult.onError(FileNotFoundException.class, (FileNotFoundException parentError) ->
+                    {
+                        foundErrors.add(parentError);
+                    });
+
+                    test.assertThrows(onErrorResult::await, new FileNotFoundException("/foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), foundErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+
+                    test.assertThrows(onErrorResult::await, new FileNotFoundException("/foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), foundErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with super-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final List<RuntimeException> caughtErrors = List.create();
+                    final Result<Integer> onErrorResult = parentResult.onError(NotFoundException.class, (NotFoundException parentError) ->
+                    {
+                        caughtErrors.add(parentError);
+                    });
+
+                    test.assertThrows(onErrorResult::await, new FileNotFoundException("/foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+
+                    test.assertThrows(onErrorResult::await, new FileNotFoundException("/foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with super-matching error type and throwing onError action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final List<Throwable> caughtErrors = List.create();
+                    final Result<Integer> onErrorResult = parentResult.onError(NotFoundException.class, (NotFoundException parentError) ->
+                    {
+                        caughtErrors.add(parentError);
+                        throw new FolderNotFoundException("/abc");
+                    });
+
+                    test.assertThrows(onErrorResult::await, new FolderNotFoundException("/abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+
+                    test.assertThrows(onErrorResult::await, new FolderNotFoundException("/abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(onErrorResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("convertError(Function0<? extends Throwable>)", () ->
+            {
+                runner.test("with non-throwing parent result and null then-action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.convertError((Function0<Throwable>)null),
+                        new PreConditionFailure("function cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and non-throwing convertError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue convertErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> convertErrorResult = parentResult.convertError(() ->
+                    {
+                        convertErrorCounter.increment();
+                        return new NotFoundException("abc");
+                    });
+
+                    test.assertEqual(5, convertErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, convertErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+
+                    test.assertEqual(5, convertErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, convertErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+                });
+
+                runner.test("with non-throwing parent result and throwing convertError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue convertErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> convertErrorResult = parentResult.convertError((Function0<Throwable>)() ->
+                    {
+                        convertErrorCounter.increment();
+                        throw new RuntimeException("foo");
+                    });
+
+                    test.assertEqual(5, convertErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, convertErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+
+                    test.assertEqual(5, convertErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, convertErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and non-throwing convertError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final IntegerValue convertErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> convertErrorResult = parentResult.convertError((Function0<Throwable>)() ->
+                    {
+                        convertErrorCounter.increment();
+                        return new NotFoundException("abc");
+                    });
+
+                    test.assertThrows(convertErrorResult::await, new NotFoundException("abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, convertErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+
+                    test.assertThrows(convertErrorResult::await, new NotFoundException("abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, convertErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and throwing then-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final IntegerValue convertErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> convertErrorResult = parentResult.convertError((Function0<Throwable>)() ->
+                    {
+                        convertErrorCounter.increment();
+                        throw new RuntimeException("abc");
+                    });
+
+                    test.assertThrows(convertErrorResult::await, new RuntimeException("abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, convertErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+
+                    test.assertThrows(convertErrorResult::await, new RuntimeException("abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, convertErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("convertError(Function1<Throwable,? extends Throwable>)", () ->
+            {
+                runner.test("with non-throwing parent result and null convertError-action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.convertError((Function1<Throwable,Throwable>)null),
+                        new PreConditionFailure("function cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and non-throwing convertError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final List<Throwable> foundExceptions = List.create();
+                    final Result<Integer> convertErrorResult = parentResult.convertError((Throwable parentError) ->
+                    {
+                        foundExceptions.add(parentError);
+                        return new NotFoundException("abc");
+                    });
+
+                    test.assertEqual(5, convertErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), foundExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+
+                    test.assertEqual(5, convertErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), foundExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+                });
+
+                runner.test("with non-throwing parent result and throwing convertError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final List<Throwable> foundExceptions = List.create();
+                    final Result<Integer> convertErrorResult = parentResult.convertError((Function1<Throwable,Throwable>)(Throwable parentError) ->
+                    {
+                        foundExceptions.add(parentError);
+                        throw new RuntimeException("foo");
+                    });
+
+                    test.assertEqual(5, convertErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), foundExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+
+                    test.assertEqual(5, convertErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), foundExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and non-throwing convertError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("hello");
+                    });
+
+                    final List<Throwable> foundExceptions = List.create();
+                    final Result<Integer> convertErrorResult = parentResult.convertError((Throwable parentError) ->
+                    {
+                        foundExceptions.add(parentError);
+                        return new NotFoundException("abc");
+                    });
+
+                    test.assertThrows(convertErrorResult::await, new NotFoundException("abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new RuntimeException("hello")), foundExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+
+                    test.assertThrows(convertErrorResult::await, new NotFoundException("abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new RuntimeException("hello")), foundExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result and throwing convertError-action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/hello");
+                    });
+
+                    final List<Throwable> foundExceptions = List.create();
+                    final Result<Integer> convertErrorResult = parentResult.convertError((Function1<Throwable,Throwable>)(Throwable parentError) ->
+                    {
+                        foundExceptions.add(parentError);
+                        throw new FolderNotFoundException("/abc");
+                    });
+
+                    test.assertThrows(convertErrorResult::await, new FolderNotFoundException("/abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/hello")), foundExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+
+                    test.assertThrows(convertErrorResult::await, new FolderNotFoundException("/abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/hello")), foundExceptions);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("convertError(Class<? extends Throwable>,Function0<? extends Throwable>)", () ->
+            {
+                runner.test("with non-throwing parent result and null error type", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.convertError((Class<? extends Throwable>)null, () -> new RuntimeException("abc")),
+                        new PreConditionFailure("errorType cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and null convertError action", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.convertError(NotFoundException.class, (Function0<Throwable>)null),
+                        new PreConditionFailure("function cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final IntegerValue convertErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> convertErrorResult = parentResult.convertError(NotFoundException.class, () ->
+                    {
+                        convertErrorCounter.increment();
+                        return new NotFoundException("abc");
+                    });
+
+                    test.assertEqual(5, convertErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, convertErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+
+                    test.assertEqual(5, convertErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, convertErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with non-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new RuntimeException("foo");
+                    });
+
+                    final IntegerValue convertErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> convertErrorResult = parentResult.convertError(NotFoundException.class, () ->
+                    {
+                        convertErrorCounter.increment();
+                        return new QueueEmptyException();
+                    });
+
+                    test.assertThrows(convertErrorResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, convertErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+
+                    test.assertThrows(convertErrorResult::await, new RuntimeException("foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(0, convertErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with exact-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final IntegerValue convertErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> convertErrorResult = parentResult.convertError(FileNotFoundException.class, () ->
+                    {
+                        convertErrorCounter.increment();
+                        return new QueueEmptyException();
+                    });
+
+                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, convertErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+
+                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, convertErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with super-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final IntegerValue convertErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> convertErrorResult = parentResult.convertError(NotFoundException.class, () ->
+                    {
+                        convertErrorCounter.increment();
+                        return new QueueEmptyException();
+                    });
+
+                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, convertErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+
+                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, convertErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with matching error type and throwing convertError action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final IntegerValue convertErrorCounter = IntegerValue.create(0);
+                    final Result<Integer> convertErrorResult = parentResult.convertError(NotFoundException.class, (Function0<Throwable>)() ->
+                    {
+                        convertErrorCounter.increment();
+                        throw new QueueEmptyException();
+                    });
+
+                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, convertErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+
+                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(1, convertErrorCounter.get());
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("convertError(Class<TError extends Throwable>,Function1<TError,? extends Throwable>)", () ->
+            {
+                runner.test("with non-throwing parent result and null error type", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.convertError((Class<NotFoundException>)null, (NotFoundException parentError) -> { return new RuntimeException("abc"); }),
+                        new PreConditionFailure("errorType cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result and null convertError function", (Test test) ->
+                {
+                    final Result<Integer> parentResult = creator.run(() -> 5);
+
+                    test.assertThrows(() -> parentResult.convertError(NotFoundException.class, (Function1<NotFoundException,Throwable>)null),
+                        new PreConditionFailure("function cannot be null."));
+                });
+
+                runner.test("with non-throwing parent result", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        return 5;
+                    });
+
+                    final List<NotFoundException> foundErrors = List.create();
+                    final Result<Integer> convertErrorResult = parentResult.convertError(NotFoundException.class, (NotFoundException parentError) ->
+                    {
+                        foundErrors.add(parentError);
+                        return new QueueEmptyException();
+                    });
+
+                    test.assertEqual(5, convertErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), foundErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+
+                    test.assertEqual(5, convertErrorResult.await());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), foundErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with non-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final List<Throwable> foundErrors = List.create();
+                    final Result<Integer> convertErrorResult = parentResult.convertError(ParseException.class, (ParseException parentError) ->
+                    {
+                        foundErrors.add(parentError);
+                        return new QueueEmptyException();
+                    });
+
+                    test.assertThrows(convertErrorResult::await, new FileNotFoundException("/foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), foundErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+
+                    test.assertThrows(convertErrorResult::await, new FileNotFoundException("/foo"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(), foundErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with exact-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final List<RuntimeException> foundErrors = List.create();
+                    final Result<Integer> convertErrorResult = parentResult.convertError(FileNotFoundException.class, (FileNotFoundException parentError) ->
+                    {
+                        foundErrors.add(parentError);
+                        return new QueueEmptyException();
+                    });
+
+                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), foundErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+
+                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), foundErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with super-matching error type", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final List<RuntimeException> caughtErrors = List.create();
+                    final Result<Integer> convertErrorResult = parentResult.convertError(NotFoundException.class, (NotFoundException parentError) ->
+                    {
+                        caughtErrors.add(parentError);
+                        return new QueueEmptyException();
+                    });
+
+                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+
+                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+                });
+
+                runner.test("with throwing parent result with super-matching error type and throwing convertError action", (Test test) ->
+                {
+                    final IntegerValue parentCounter = IntegerValue.create(0);
+                    final Result<Integer> parentResult = creator.run(() ->
+                    {
+                        parentCounter.increment();
+                        throw new FileNotFoundException("/foo");
+                    });
+
+                    final List<RuntimeException> caughtErrors = List.create();
+                    final Result<Integer> convertErrorResult = parentResult.convertError(NotFoundException.class, (Function1<NotFoundException,Throwable>)(NotFoundException parentError) ->
+                    {
+                        caughtErrors.add(parentError);
+                        throw new FolderNotFoundException("/abc");
+                    });
+
+                    test.assertThrows(convertErrorResult::await, new FolderNotFoundException("/abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
+
+                    test.assertThrows(convertErrorResult::await, new FolderNotFoundException("/abc"));
+                    test.assertEqual(1, parentCounter.get());
+                    test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
+                    test.assertTrue(parentResult.isCompleted());
+                    test.assertTrue(convertErrorResult.isCompleted());
                 });
             });
         });

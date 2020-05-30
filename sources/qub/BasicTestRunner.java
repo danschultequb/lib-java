@@ -207,61 +207,67 @@ public final class BasicTestRunner implements TestRunner
         final Test test = new Test(testName, this.currentTestGroup, skip, this.process);
         if (test.matches(this.testPattern))
         {
+            final AsyncScheduler currentThreadAsyncScheduler = CurrentThread.getAsyncRunner();
             try
             {
-                if (this.beforeTestAction != null)
+                try
                 {
-                    this.beforeTestAction.run(test);
-                }
-
-                if (test.shouldSkip())
-                {
-                    addSkippedTest(test);
-                    if (afterTestSkippedAction != null)
+                    if (this.beforeTestAction != null)
                     {
-                        afterTestSkippedAction.run(test);
+                        this.beforeTestAction.run(test);
                     }
-                }
-                else
-                {
-                    try
-                    {
-                        testAction.run(test);
 
-                        incrementPassedTestCount();
-                        if (afterTestSuccessAction != null)
+                    if (test.shouldSkip())
+                    {
+                        addSkippedTest(test);
+                        if (afterTestSkippedAction != null)
                         {
-                            afterTestSuccessAction.run(test);
+                            afterTestSkippedAction.run(test);
                         }
                     }
-                    catch (TestError failure)
+                    else
                     {
-                        addFailedTest(failure);
-                        if (afterTestFailureAction != null)
+                        try
                         {
-                            afterTestFailureAction.run(test, failure);
+                            testAction.run(test);
+
+                            incrementPassedTestCount();
+                            if (afterTestSuccessAction != null)
+                            {
+                                afterTestSuccessAction.run(test);
+                            }
+                        }
+                        catch (TestError failure)
+                        {
+                            addFailedTest(failure);
+                            if (afterTestFailureAction != null)
+                            {
+                                afterTestFailureAction.run(test, failure);
+                            }
                         }
                     }
                 }
-            }
-            catch (Throwable error)
-            {
-                final String testFullName = test.getFullName();
-                final TestError testError = new TestError(testFullName, "An unexpected error occurred during " + Strings.escapeAndQuote(testFullName) + ".", error);
-                addFailedTest(testError);
-
-                if (afterTestFailureAction != null)
+                catch (Throwable error)
                 {
-                    afterTestFailureAction.run(test, testError);
+                    final String testFullName = test.getFullName();
+                    final TestError testError = new TestError(testFullName, "An unexpected error occurred during " + Strings.escapeAndQuote(testFullName) + ".", error);
+                    addFailedTest(testError);
+
+                    if (afterTestFailureAction != null)
+                    {
+                        afterTestFailureAction.run(test, testError);
+                    }
+                }
+
+                if (afterTestAction != null)
+                {
+                    afterTestAction.run(test);
                 }
             }
-
-            if (afterTestAction != null)
+            finally
             {
-                afterTestAction.run(test);
+                CurrentThread.setAsyncRunner(currentThreadAsyncScheduler);
             }
-
-            CurrentThread.setAsyncRunner(process.getMainAsyncRunner());
         }
     }
 

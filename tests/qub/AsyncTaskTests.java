@@ -6,6 +6,14 @@ public interface AsyncTaskTests
     {
         runner.testGroup(AsyncTask.class, () ->
         {
+            CurrentThread.withAsyncScheduler((AsyncScheduler asyncScheduler) ->
+            {
+                ResultTests.test(runner, (Function0<Integer> function) ->
+                {
+                    return asyncScheduler.schedule(function);
+                });
+            });
+
             runner.testGroup("constructor(AsyncScheduler,Action0)", () ->
             {
                 runner.test("with null AsyncScheduler", (Test test) ->
@@ -163,7 +171,7 @@ public interface AsyncTaskTests
                         });
                         final IntegerValue value = IntegerValue.create(0);
                         final Value<Throwable> value2 = Value.create();
-                        final AsyncTask<Void> asyncTask = parentResult.catchError(AwaitException.class, (AwaitException parentError) ->
+                        final Result<Void> asyncTask = parentResult.catchError(AwaitException.class, (AwaitException parentError) ->
                         {
                             value.increment();
                             value2.set(parentError);
@@ -183,7 +191,7 @@ public interface AsyncTaskTests
                         });
                         final IntegerValue value = IntegerValue.create(0);
                         final Value<Throwable> value2 = Value.create();
-                        final AsyncTask<Void> asyncTask = parentResult.catchError(AwaitException.class, (AwaitException parentError) ->
+                        final Result<Void> asyncTask = parentResult.catchError(AwaitException.class, (AwaitException parentError) ->
                         {
                             value.increment();
                             value2.set(parentError);
@@ -203,7 +211,7 @@ public interface AsyncTaskTests
                         });
                         final IntegerValue value = IntegerValue.create(0);
                         final Value<Throwable> value2 = Value.create();
-                        final AsyncTask<Void> asyncTask = parentResult.catchError(RuntimeException.class, (RuntimeException parentError) ->
+                        final Result<Void> asyncTask = parentResult.catchError(RuntimeException.class, (RuntimeException parentError) ->
                         {
                             value.increment();
                             value2.set(parentError);
@@ -341,7 +349,7 @@ public interface AsyncTaskTests
                         });
                         final IntegerValue value = IntegerValue.create(0);
                         final Value<Throwable> value2 = Value.create();
-                        final AsyncTask<Void> asyncTask = parentResult.catchError(AwaitException.class, (AwaitException parentError) ->
+                        final Result<Void> asyncTask = parentResult.catchError(AwaitException.class, (AwaitException parentError) ->
                         {
                             value.increment();
                             value2.set(parentError);
@@ -361,7 +369,7 @@ public interface AsyncTaskTests
                         });
                         final IntegerValue value = IntegerValue.create(0);
                         final Value<Throwable> value2 = Value.create();
-                        final AsyncTask<Void> asyncTask = parentResult.catchError(AwaitException.class, (AwaitException parentError) ->
+                        final Result<Void> asyncTask = parentResult.catchError(AwaitException.class, (AwaitException parentError) ->
                         {
                             value.increment();
                             value2.set(parentError);
@@ -381,7 +389,7 @@ public interface AsyncTaskTests
                         });
                         final IntegerValue value = IntegerValue.create(0);
                         final Value<Throwable> value2 = Value.create();
-                        final AsyncTask<Void> asyncTask = parentResult.catchError(RuntimeException.class, (RuntimeException parentError) ->
+                        final Result<Void> asyncTask = parentResult.catchError(RuntimeException.class, (RuntimeException parentError) ->
                         {
                             value.increment();
                             value2.set(parentError);
@@ -401,7 +409,7 @@ public interface AsyncTaskTests
                         });
                         final IntegerValue value = IntegerValue.create(0);
                         final Value<Throwable> value2 = Value.create();
-                        final AsyncTask<Void> asyncTask = parentResult.catchError(QueueEmptyException.class, (QueueEmptyException parentError) ->
+                        final Result<Void> asyncTask = parentResult.catchError(QueueEmptyException.class, (QueueEmptyException parentError) ->
                         {
                             value.increment();
                             value2.set(parentError);
@@ -421,7 +429,7 @@ public interface AsyncTaskTests
                         });
                         final IntegerValue value = IntegerValue.create(0);
                         final Value<Throwable> value2 = Value.create();
-                        final AsyncTask<Void> asyncTask = parentResult.catchError(QueueEmptyException.class, (QueueEmptyException parentError) ->
+                        final Result<Void> asyncTask = parentResult.catchError(QueueEmptyException.class, (QueueEmptyException parentError) ->
                         {
                             value.increment();
                             value2.set(parentError);
@@ -441,7 +449,7 @@ public interface AsyncTaskTests
                         });
                         final IntegerValue value = IntegerValue.create(0);
                         final Value<Throwable> value2 = Value.create();
-                        final AsyncTask<Void> asyncTask = parentResult.catchError(NotFoundException.class, (Action1<NotFoundException>)(NotFoundException parentError) ->
+                        final Result<Void> asyncTask = parentResult.catchError(NotFoundException.class, (Action1<NotFoundException>)(NotFoundException parentError) ->
                         {
                             value.increment();
                             value2.set(parentError);

@@ -32,7 +32,16 @@ public interface Result<T>
      * @param action The action to run if this result does not have an error.
      * @return The Result of running the provided action.
      */
-    Result<Void> then(Action0 action);
+    default Result<Void> then(Action0 action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return this.then((T parentValue) ->
+        {
+            action.run();
+            return null;
+        });
+    }
 
     /**
      * If this Result doesn't have an error, then run the provided action and return a new Result
@@ -40,7 +49,16 @@ public interface Result<T>
      * @param action The action to run if this result does not have an error.
      * @return The Result of running the provided action.
      */
-    Result<Void> then(Action1<T> action);
+    default Result<Void> then(Action1<T> action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return this.then((T parentValue) ->
+        {
+            action.run(parentValue);
+            return null;
+        });
+    }
 
     /**
      * If this Result doesn't have an error, then run the provided function and return a new Result
@@ -49,7 +67,15 @@ public interface Result<T>
      * @param <U> The type of value stored in the returned Result object.
      * @return The Result of running the provided function.
      */
-    <U> Result<U> then(Function0<U> function);
+    default <U> Result<U> then(Function0<U> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        return this.then((T parentValue) ->
+        {
+            return function.run();
+        });
+    }
 
     /**
      * If this Result doesn't have an error, then run the provided function and return a new Result
@@ -66,7 +92,15 @@ public interface Result<T>
      * @param action The action to run if this result does not have an error.
      * @return This Result object.
      */
-    Result<T> onValue(Action0 action);
+    default Result<T> onValue(Action0 action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return this.onValue((T parentValue) ->
+        {
+            action.run();
+        });
+    }
 
     /**
      * If this result doesn't have an error, then run the provided action and return this Result
@@ -74,7 +108,16 @@ public interface Result<T>
      * @param action The action to run if this result does not have an error.
      * @return This Result object.
      */
-    Result<T> onValue(Action1<T> action);
+    default Result<T> onValue(Action1<T> action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return this.then((T parentValue) ->
+        {
+            action.run(parentValue);
+            return parentValue;
+        });
+    }
 
     /**
      * If this Result has an error of the provided type, then catch that error and return a
@@ -82,7 +125,34 @@ public interface Result<T>
      */
     default Result<T> catchError()
     {
-        return catchError(() -> (T)null);
+        return this.catchError(Action0.empty);
+    }
+
+    /**
+     * If this Result has an error, then run the provided action.
+     * @param action The action to run if this result has an error.
+     * @return This result.
+     */
+    default Result<T> catchError(Action0 action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return this.catchError(Throwable.class, action);
+    }
+
+    /**
+     * If this Result has an error, then run the provided action.
+     * @param action The action to run if this result has an error.
+     * @return This result.
+     */
+    default Result<T> catchError(Action1<Throwable> action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return this.catchError(Throwable.class, (Throwable parentError) ->
+        {
+            action.run(Exceptions.unwrap(parentError));
+        });
     }
 
     /**
@@ -93,56 +163,85 @@ public interface Result<T>
      * @return This Result if it is successful, or an empty successful Result if this Result
      * contains an error of the provided type.
      */
-    <TError extends Throwable> Result<T> catchError(Class<TError> errorType);
+    default <TError extends Throwable> Result<T> catchError(Class<TError> errorType)
+    {
+        PreCondition.assertNotNull(errorType, "errorType");
+
+        return this.catchError(errorType, Action0.empty);
+    }
 
     /**
      * If this Result has an error, then run the provided action.
      * @param action The action to run if this result has an error.
      * @return This result.
      */
-    Result<T> catchError(Action0 action);
+    default <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Action0 action)
+    {
+        PreCondition.assertNotNull(errorType, "errorType");
+        PreCondition.assertNotNull(action, "action");
+
+        return this.catchError(errorType, (TError parentError) ->
+        {
+            action.run();
+        });
+    }
 
     /**
      * If this Result has an error, then run the provided action.
      * @param action The action to run if this result has an error.
      * @return This result.
      */
-    Result<T> catchError(Action1<Throwable> action);
+    default <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Action1<TError> action)
+    {
+        PreCondition.assertNotNull(errorType, "errorType");
+        PreCondition.assertNotNull(action, "action");
 
-    /**
-     * If this Result has an error, then run the provided action.
-     * @param action The action to run if this result has an error.
-     * @return This result.
-     */
-    <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Action0 action);
-
-    /**
-     * If this Result has an error, then run the provided action.
-     * @param action The action to run if this result has an error.
-     * @return This result.
-     */
-    <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Action1<TError> action);
+        return this.catchError(errorType, (TError parentError) ->
+        {
+            action.run(parentError);
+            return null;
+        });
+    }
 
     /**
      * If this Result has an error, then run the provided function.
      * @param function The function to run if this result has an error.
      * @return This Result of running the provided function.
      */
-    Result<T> catchError(Function0<T> function);
+    default Result<T> catchError(Function0<T> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        return this.catchError(Throwable.class, function);
+    }
 
     /**
      * If this Result has an error, then run the provided function.
      * @param function The function to run if this result has an error.
      * @return This Result of running the provided function.
      */
-    Result<T> catchError(Function1<Throwable,T> function);
+    default Result<T> catchError(Function1<Throwable,T> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        return this.catchError(Throwable.class, (Throwable parentError) ->
+        {
+            return function.run(Exceptions.unwrap(parentError));
+        });
+    }
 
     /**
      * If this Result has an error, then run the provided function.
      * @param function The function to run if this result has an error.
      * @return This Result of running the provided function.
      */
-    <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Function0<T> function);
+    default <TError extends Throwable> Result<T> catchError(Class<TError> errorType, Function0<T> function)
+    {
+        PreCondition.assertNotNull(errorType, "errorType");
+        PreCondition.assertNotNull(function, "function");
+
+        return this.catchError(errorType, (TError parentError) -> function.run());
+    }
 
     /**
      * If this Result has an error, then run the provided function.
@@ -156,14 +255,30 @@ public interface Result<T>
      * @param action The action to run if this Result has an error.
      * @return This Result with its error.
      */
-    Result<T> onError(Action0 action);
+    default Result<T> onError(Action0 action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return this.onError((Throwable error) ->
+        {
+            action.run();
+        });
+    }
 
     /**
      * Run the provided action if this Result has an error.
      * @param action The action to run if this Result has an error.
      * @return This Result with its error.
      */
-    Result<T> onError(Action1<Throwable> action);
+    default Result<T> onError(Action1<Throwable> action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return this.onError(Throwable.class, (Throwable parentError) ->
+        {
+            action.run(Exceptions.unwrap(parentError));
+        });
+    }
 
     /**
      * Run the provided action if this Result has an error of the provided type.
@@ -171,7 +286,16 @@ public interface Result<T>
      * @param action The action to run if this Result has an error of the provided type.
      * @return This Result with its error.
      */
-    <TError extends Throwable> Result<T> onError(Class<TError> errorType, Action0 action);
+    default <TError extends Throwable> Result<T> onError(Class<TError> errorType, Action0 action)
+    {
+        PreCondition.assertNotNull(errorType, "errorType");
+        PreCondition.assertNotNull(action, "action");
+
+        return this.onError(errorType, (TError error) ->
+        {
+            action.run();
+        });
+    }
 
     /**
      * Run the provided action if this Result has an error of the provided type.
@@ -179,16 +303,29 @@ public interface Result<T>
      * @param action The action to run if this Result has an error of the provided type.
      * @return This Result with its error.
      */
-    <TError extends Throwable> Result<T> onError(Class<TError> errorType, Action1<TError> action);
+    default <TError extends Throwable> Result<T> onError(Class<TError> errorType, Action1<TError> action)
+    {
+        PreCondition.assertNotNull(errorType, "errorType");
+        PreCondition.assertNotNull(action, "action");
+
+        return this.catchError(Throwable.class, (Throwable parentError) ->
+        {
+            final TError expectedError = Exceptions.getInstanceOf(parentError, errorType);
+            if (expectedError != null)
+            {
+                action.run(expectedError);
+            }
+            throw Exceptions.asRuntime(parentError);
+        });
+    }
 
     /**
      * If this Result has an error, catch it and convert it to the error returned by the provided
      * function.
      * @param function The function that will return the new error.
-     * @param <TErrorOut> The type of error that will be returned by the function.
      * @return The Result with the new error.
      */
-    default <TErrorOut extends Throwable> Result<T> convertError(Function0<TErrorOut> function)
+    default Result<T> convertError(Function0<? extends Throwable> function)
     {
         PreCondition.assertNotNull(function, "function");
 
@@ -202,16 +339,15 @@ public interface Result<T>
      * If this Result has an error, catch it and convert it to the error returned by the provided
      * function.
      * @param function The function that will return the new error.
-     * @param <TErrorOut> The type of error that will be returned by the function.
      * @return The Result with the new error.
      */
-    default <TErrorOut extends Throwable> Result<T> convertError(Function1<Throwable,TErrorOut> function)
+    default Result<T> convertError(Function1<Throwable,? extends Throwable> function)
     {
         PreCondition.assertNotNull(function, "function");
 
         return this.catchError((Throwable error) ->
         {
-            throw Exceptions.asRuntime(function.run(error));
+            throw Exceptions.asRuntime(function.run(Exceptions.unwrap(error)));
         });
     }
 
@@ -219,11 +355,9 @@ public interface Result<T>
      * If this Result has an error of the provided errorType, catch it and convert it to the error
      * returned by the provided function.
      * @param function The function that will return the new error.
-     * @param <TErrorIn> The type of error that was caught.
-     * @param <TErrorOut> The type of error that will be returned by the function.
      * @return The Result with the new error.
      */
-    default <TErrorIn extends Throwable, TErrorOut extends Throwable> Result<T> convertError(Class<TErrorIn> errorType, Function0<TErrorOut> function)
+    default Result<T> convertError(Class<? extends Throwable> errorType, Function0<? extends Throwable> function)
     {
         PreCondition.assertNotNull(errorType, "errorType");
         PreCondition.assertNotNull(function, "function");
@@ -239,10 +373,9 @@ public interface Result<T>
      * returned by the provided function.
      * @param function The function that will return the new error.
      * @param <TErrorIn> The type of error that was caught.
-     * @param <TErrorOut> The type of error that will be returned by the function.
      * @return The Result with the new error.
      */
-    default <TErrorIn extends Throwable, TErrorOut extends Throwable> Result<T> convertError(Class<TErrorIn> errorType, Function1<TErrorIn,TErrorOut> function)
+    default <TErrorIn extends Throwable> Result<T> convertError(Class<TErrorIn> errorType, Function1<TErrorIn,? extends Throwable> function)
     {
         PreCondition.assertNotNull(errorType, "errorType");
         PreCondition.assertNotNull(function, "function");
@@ -509,5 +642,41 @@ public interface Result<T>
         PostCondition.assertEqual(resultsToAwait.getCount(), result.getCount(), "result.getCount()");
 
         return result;
+    }
+
+    static <T> String toString(Result<T> result)
+    {
+        PreCondition.assertNotNull(result, "result");
+
+        final CharacterList builder = CharacterList.create();
+        builder.add('{');
+
+        builder.addAll("\"type\":");
+        builder.addAll(Strings.escapeAndQuote(Types.getTypeName(result)));
+        builder.add(',');
+
+        final boolean isCompleted = result.isCompleted();
+        builder.addAll("\"isCompleted\":");
+        builder.addAll(Booleans.toString(isCompleted));
+        if (isCompleted)
+        {
+            builder.add(',');
+            result
+                .then((T value) ->
+                {
+                    builder.addAll("\"value\":");
+                    builder.addAll(Strings.escapeAndQuote(value));
+                })
+                .catchError((Throwable error) ->
+                {
+                    builder.addAll("\"error\":");
+                    builder.addAll(Strings.escapeAndQuote(error));
+                })
+                .await();
+        }
+
+        builder.add('}');
+
+        return builder.toString(true);
     }
 }

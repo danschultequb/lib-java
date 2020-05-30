@@ -141,7 +141,7 @@ public class AsyncTask<T> implements PausedAsyncTask<T>
      */
     public Iterable<AsyncTask<?>> getNextTasks()
     {
-        return nextTasks;
+        return this.nextTasks;
     }
 
     /**
@@ -151,17 +151,18 @@ public class AsyncTask<T> implements PausedAsyncTask<T>
     @Override
     public boolean isCompleted()
     {
-        return completed.get();
+        return this.completed.get();
     }
 
     /**
      * Schedule this AsyncTask to run on its AsyncRunner.
      */
+    @Override
     public void schedule()
     {
-        PreCondition.assertFalse(isCompleted(), "isCompleted()");
+        PreCondition.assertFalse(this.isCompleted(), "this.isCompleted()");
 
-        asyncScheduler.schedule(this);
+        this.asyncScheduler.schedule(this);
     }
 
     @SuppressWarnings("unchecked")
@@ -171,27 +172,27 @@ public class AsyncTask<T> implements PausedAsyncTask<T>
 
         try
         {
-            value = (T)parentResult.await();
-            if (successFunction != null)
+            this.value = (T)this.parentResult.await();
+            if (this.successFunction != null)
             {
-                value = successFunction.run();
+                this.value = this.successFunction.run();
             }
         }
         catch (Throwable error)
         {
-            if (expectedErrorType != null)
+            if (this.expectedErrorType != null)
             {
-                Throwable expectedError = Exceptions.getInstanceOf(error, expectedErrorType);
+                Throwable expectedError = Exceptions.getInstanceOf(error, this.expectedErrorType);
                 if (expectedError != null)
                 {
-                    if (!Exceptions.defaultErrorTypesToGoPast.contains(expectedErrorType))
+                    if (!Exceptions.defaultErrorTypesToGoPast.contains(this.expectedErrorType))
                     {
                         expectedError = Exceptions.unwrap(expectedError);
                     }
 
                     try
                     {
-                        value = errorFunction.run(expectedError);
+                        this.value = this.errorFunction.run(expectedError);
                     }
                     catch (Throwable innerError)
                     {
@@ -213,23 +214,26 @@ public class AsyncTask<T> implements PausedAsyncTask<T>
         {
             nextTask.schedule();
         }
-        completed.set(true);
+        this.completed.set(true);
     }
 
-    @Override
-    public T await()
+    private void ensureIsCompleted()
     {
         if (!isCompleted())
         {
             final AsyncScheduler currentThreadAsyncRunner = CurrentThread.getAsyncRunner();
             currentThreadAsyncRunner.await(this);
         }
+    }
 
-        if (error != null)
+    @Override
+    public T await()
+    {
+        this.ensureIsCompleted();
+        if (this.error != null)
         {
             throw new AwaitException(error);
         }
-
         return value;
     }
 
@@ -238,22 +242,17 @@ public class AsyncTask<T> implements PausedAsyncTask<T>
     {
         PreCondition.assertNotNull(expectedErrorType, "expectedErrorType");
 
-        if (!isCompleted())
+        this.ensureIsCompleted();
+        if (this.error != null)
         {
-            final AsyncScheduler currentThreadAsyncRunner = CurrentThread.getAsyncRunner();
-            currentThreadAsyncRunner.await(this);
-        }
-
-        if (error != null)
-        {
-            final TError matchingError = Types.as(error, expectedErrorType);
+            final TError matchingError = Exceptions.getInstanceOf(this.error, expectedErrorType);
             if (matchingError != null)
             {
                 throw matchingError;
             }
             else
             {
-                throw new AwaitException(error);
+                throw new AwaitException(this.error);
             }
         }
 
@@ -261,183 +260,11 @@ public class AsyncTask<T> implements PausedAsyncTask<T>
     }
 
     @Override
-    public AsyncTask<Void> then(Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        final AsyncTask<Void> result = new AsyncTask<>(asyncScheduler, this, action);
-        this.nextTasks.add(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    @Override
-    public AsyncTask<Void> then(Action1<T> action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        final AsyncTask<Void> result = new AsyncTask<>(asyncScheduler, this, () -> action.run(value));
-        this.nextTasks.add(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    @Override
-    public <U> AsyncTask<U> then(Function0<U> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        final AsyncTask<U> result = new AsyncTask<>(asyncScheduler, this, function);
-        this.nextTasks.add(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    @Override
     public <U> AsyncTask<U> then(Function1<T,U> function)
     {
         PreCondition.assertNotNull(function, "function");
 
-        final AsyncTask<U> result = new AsyncTask<>(asyncScheduler, this, () -> function.run(value));
-        this.nextTasks.add(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    @Override
-    public AsyncTask<T> onValue(Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        final AsyncTask<T> result = new AsyncTask<>(asyncScheduler, this, () -> { action.run(); return value; });
-        this.nextTasks.add(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    @Override
-    public AsyncTask<T> onValue(Action1<T> action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        final AsyncTask<T> result = new AsyncTask<>(asyncScheduler, this, () -> { action.run(value); return value; });
-        this.nextTasks.add(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    @Override
-    public <TError extends Throwable> AsyncTask<T> catchError(Class<TError> errorType)
-    {
-        PreCondition.assertNotNull(errorType, "errorType");
-
-        final AsyncTask<T> result = new AsyncTask<>(asyncScheduler, this, errorType, (Throwable error) -> null);
-        this.nextTasks.add(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    @Override
-    public AsyncTask<T> catchError(Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        final AsyncTask<T> result = new AsyncTask<>(asyncScheduler, this, Throwable.class, (Throwable error) -> { action.run(); return value; });
-        this.nextTasks.add(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    @Override
-    public AsyncTask<T> catchError(Action1<Throwable> action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        final AsyncTask<T> result = new AsyncTask<>(asyncScheduler, this, Throwable.class, (Throwable error) -> { action.run(error); return value; });
-        this.nextTasks.add(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    @Override
-    public <TError extends Throwable> AsyncTask<T> catchError(Class<TError> errorType, Action0 action)
-    {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(action, "action");
-
-        final AsyncTask<T> result = new AsyncTask<>(asyncScheduler, this, errorType, (Throwable error) -> { action.run(); return value; });
-        this.nextTasks.add(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    @Override
-    public <TError extends Throwable> AsyncTask<T> catchError(Class<TError> errorType, Action1<TError> action)
-    {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(action, "action");
-
-        final AsyncTask<T> result = new AsyncTask<>(asyncScheduler, this, errorType, (Throwable error) -> { action.run(Exceptions.getInstanceOf(error, errorType)); return value; });
-        this.nextTasks.add(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    @Override
-    public AsyncTask<T> catchError(Function0<T> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        final AsyncTask<T> result = new AsyncTask<>(asyncScheduler, this, Throwable.class, (Throwable error) -> function.run());
-        this.nextTasks.add(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    @Override
-    public AsyncTask<T> catchError(Function1<Throwable,T> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        final AsyncTask<T> result = new AsyncTask<>(asyncScheduler, this, Throwable.class, (Throwable error) -> function.run(Exceptions.unwrap(error)));
-        this.nextTasks.add(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    @Override
-    public <TError extends Throwable> AsyncTask<T> catchError(Class<TError> errorType, Function0<T> function)
-    {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(function, "function");
-
-        final AsyncTask<T> result = new AsyncTask<>(asyncScheduler, this, errorType, (Throwable error) -> function.run());
+        final AsyncTask<U> result = new AsyncTask<>(this.asyncScheduler, this, () -> function.run(this.value));
         this.nextTasks.add(result);
 
         PostCondition.assertNotNull(result, "result");
@@ -451,7 +278,7 @@ public class AsyncTask<T> implements PausedAsyncTask<T>
         PreCondition.assertNotNull(errorType, "errorType");
         PreCondition.assertNotNull(function, "function");
 
-        final AsyncTask<T> result = new AsyncTask<>(asyncScheduler, this, errorType, (Throwable error) -> function.run(Exceptions.getInstanceOf(error, errorType)));
+        final AsyncTask<T> result = new AsyncTask<>(this.asyncScheduler, this, errorType, (Throwable error) -> function.run(Exceptions.getInstanceOf(error, errorType)));
         this.nextTasks.add(result);
 
         PostCondition.assertNotNull(result, "result");
@@ -460,88 +287,8 @@ public class AsyncTask<T> implements PausedAsyncTask<T>
     }
 
     @Override
-    public AsyncTask<T> onError(Action0 action)
+    public String toString()
     {
-        PreCondition.assertNotNull(action, "action");
-
-        final AsyncTask<T> result = new AsyncTask<>(
-            asyncScheduler,
-            this,
-            Throwable.class,
-            (Throwable error) ->
-            {
-                action.run();
-                throw Exceptions.asRuntime(error);
-            });
-        this.nextTasks.add(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    @Override
-    public AsyncTask<T> onError(Action1<Throwable> action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        final AsyncTask<T> result = new AsyncTask<>(
-            asyncScheduler,
-            this,
-            Throwable.class,
-            (Throwable error) ->
-            {
-                action.run(error);
-                throw Exceptions.asRuntime(error);
-            });
-        this.nextTasks.add(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    @Override
-    public <TError extends Throwable> AsyncTask<T> onError(Class<TError> errorType, Action0 action)
-    {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(action, "action");
-
-        final AsyncTask<T> result = new AsyncTask<>(
-            asyncScheduler,
-            this,
-            errorType,
-            (Throwable error) ->
-            {
-                action.run();
-                throw Exceptions.asRuntime(error);
-            });
-        this.nextTasks.add(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    @Override
-    public <TError extends Throwable> AsyncTask<T> onError(Class<TError> errorType, Action1<TError> action)
-    {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(action, "action");
-
-        final AsyncTask<T> result = new AsyncTask<>(
-            asyncScheduler,
-            this,
-            errorType,
-            (Throwable error) ->
-            {
-                action.run(Exceptions.getInstanceOf(error, errorType));
-                throw Exceptions.asRuntime(error);
-            });
-        this.nextTasks.add(result);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return Result.toString(this);
     }
 }

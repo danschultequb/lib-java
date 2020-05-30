@@ -35,7 +35,7 @@ public interface Exceptions
      */
     static <TError extends Throwable> boolean instanceOf(Throwable error, Class<TError> errorType)
     {
-        return getInstanceOf(error, errorType) != null;
+        return Exceptions.getInstanceOf(error, errorType) != null;
     }
 
     /**
@@ -49,7 +49,7 @@ public interface Exceptions
      */
     static <TError extends Throwable> boolean instanceOf(Throwable error, Class<TError> errorType, Iterable<Class<? extends Throwable>> errorTypesToGoPast)
     {
-        return getInstanceOf(error, errorType, errorTypesToGoPast) != null;
+        return Exceptions.getInstanceOf(error, errorType, errorTypesToGoPast) != null;
     }
 
     /**
@@ -65,7 +65,7 @@ public interface Exceptions
     @SuppressWarnings("unchecked")
     static <TError extends Throwable> TError getInstanceOf(Throwable error, Class<TError> errorType)
     {
-        return getInstanceOf(error, errorType, Exceptions.defaultErrorTypesToGoPast);
+        return Exceptions.getInstanceOf(error, errorType, Exceptions.defaultErrorTypesToGoPast);
     }
 
     /**
