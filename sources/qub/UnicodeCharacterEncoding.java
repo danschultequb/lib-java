@@ -17,7 +17,7 @@ public interface UnicodeCharacterEncoding extends CharacterEncoding
         PreCondition.assertStartIndex(startIndex, characters.length);
         PreCondition.assertLength(length, startIndex, characters.length);
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
-        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream");
 
         return this.encodeCharacters(CharacterArray.create(characters, startIndex, length).iterate(), byteWriteStream);
     }
@@ -27,7 +27,7 @@ public interface UnicodeCharacterEncoding extends CharacterEncoding
     {
         PreCondition.assertNotNull(characters, "characters");
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
-        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream");
 
         return this.encodeUnicodeCodePoints(CharacterToUnicodeCodePointIterator.create(characters), byteWriteStream);
     }
@@ -104,7 +104,7 @@ public interface UnicodeCharacterEncoding extends CharacterEncoding
     {
         PreCondition.assertNotNull(unicodeCodePoints, "unicodeCodePoints");
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
-        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream");
 
         return Result.create(() ->
         {

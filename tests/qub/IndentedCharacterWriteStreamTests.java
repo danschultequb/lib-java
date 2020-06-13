@@ -356,7 +356,7 @@ public interface IndentedCharacterWriteStreamTests
                     innerStream.dispose().await();
                     final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertThrows(() -> writeStream.write('a'),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual("", innerStream.getText().await());
                 });
 
@@ -471,7 +471,7 @@ public interface IndentedCharacterWriteStreamTests
                     innerStream.dispose().await();
                     final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertThrows(() -> writeStream.write(new char[] { 'a', 'b', 'c' }, 1, 2),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual("", innerStream.getText().await());
                 });
 
@@ -768,7 +768,7 @@ public interface IndentedCharacterWriteStreamTests
                     innerStream.dispose().await();
                     final IndentedCharacterWriteStream writeStream = IndentedCharacterWriteStream.create(innerStream);
                     test.assertThrows(() -> writeStream.write("abc"),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual("", innerStream.getText().await());
                 });
 

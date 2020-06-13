@@ -6,7 +6,7 @@ public class USASCIICharacterEncoding implements CharacterEncoding
     public Result<Integer> encodeCharacter(char character, ByteWriteStream byteWriteStream)
     {
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
-        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream");
         PreCondition.assertBetween(0, character, 255, "character");
 
         return byteWriteStream.write((byte)character);

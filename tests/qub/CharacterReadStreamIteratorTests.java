@@ -28,7 +28,7 @@ public interface CharacterReadStreamIteratorTests
                         new PreConditionFailure("this.hasCurrent() cannot be false."));
 
                     test.assertThrows(iterator::next,
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertTrue(iterator.hasStarted());
                     test.assertFalse(iterator.hasCurrent());
                     test.assertThrows(iterator::getCurrent,

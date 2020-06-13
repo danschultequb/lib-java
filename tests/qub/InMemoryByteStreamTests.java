@@ -71,7 +71,7 @@ public interface InMemoryByteStreamTests
                     final InMemoryByteStream readStream = create(test);
                     readStream.dispose().await();
 
-                    test.assertThrows(readStream::readByte, new PreConditionFailure("isDisposed() cannot be true."));
+                    test.assertThrows(readStream::readByte, new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
             });
             
@@ -96,7 +96,7 @@ public interface InMemoryByteStreamTests
 
                 test.assertTrue(readStream2.dispose().await());
 
-                test.assertThrows(() -> readStream2.readBytes(1), new PreConditionFailure("isDisposed() cannot be true."));
+                test.assertThrows(() -> readStream2.readBytes(1), new PreConditionFailure("this.isDisposed() cannot be true."));
             });
 
             runner.testGroup("readBytes(byte[])", () ->
@@ -108,7 +108,7 @@ public interface InMemoryByteStreamTests
 
                     final byte[] outputBytes = new byte[10];
                     test.assertThrows(() -> stream.readBytes(outputBytes),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual(new byte[10], outputBytes);
                 });
 
@@ -182,7 +182,7 @@ public interface InMemoryByteStreamTests
 
                     final byte[] outputBytes = new byte[10];
                     test.assertThrows(() -> stream.readBytes(outputBytes, 1, 3),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual(new byte[10], outputBytes);
                 });
 
@@ -284,7 +284,7 @@ public interface InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = create(test);
                     stream.dispose();
-                    test.assertThrows(stream::readAllBytes, new PreConditionFailure("isDisposed() cannot be true."));
+                    test.assertThrows(stream::readAllBytes, new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
@@ -301,7 +301,7 @@ public interface InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = create(test);
                     test.assertTrue(stream.dispose().await());
-                    test.assertThrows(() -> stream.readBytesUntil((byte)5), new PreConditionFailure("isDisposed() cannot be true."));
+                    test.assertThrows(() -> stream.readBytesUntil((byte)5), new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
@@ -332,7 +332,7 @@ public interface InMemoryByteStreamTests
                     final InMemoryByteStream stream = create(test);
                     test.assertTrue(stream.dispose().await());
                     test.assertThrows(() -> stream.readBytesUntil(ByteArray.create(5)),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("with no bytes to read", (Test test) ->

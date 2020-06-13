@@ -110,7 +110,7 @@ public interface InMemoryCharacterToByteStreamTests
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
                     characterReadStream.dispose();
                     test.assertThrows(characterReadStream::readCharacter,
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("with no characters to read", (Test test) ->
@@ -145,7 +145,7 @@ public interface InMemoryCharacterToByteStreamTests
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
                     characterReadStream.dispose();
                     test.assertThrows(() -> characterReadStream.readCharacters(5),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("with negative charactersToRead", (Test test) ->
@@ -201,7 +201,7 @@ public interface InMemoryCharacterToByteStreamTests
                     test.assertTrue(characterReadStream.dispose().await());
                     final char[] outputCharacters = new char[5];
                     test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("with null outputCharacters", (Test test) ->
@@ -265,7 +265,7 @@ public interface InMemoryCharacterToByteStreamTests
                     test.assertTrue(characterReadStream.dispose().await());
                     final char[] outputCharacters = new char[5];
                     test.assertThrows(() -> characterReadStream.readCharacters(outputCharacters, 2, 3),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("with null outputCharacters", (Test test) ->
@@ -369,7 +369,7 @@ public interface InMemoryCharacterToByteStreamTests
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
                     test.assertTrue(characterReadStream.dispose().await());
                     test.assertThrows(characterReadStream::readAllCharacters,
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("with no characters to read", (Test test) ->
@@ -399,7 +399,7 @@ public interface InMemoryCharacterToByteStreamTests
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
                     characterReadStream.dispose();
                     test.assertThrows(() -> characterReadStream.readString(5),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("with no characters to read", (Test test) ->
@@ -441,7 +441,7 @@ public interface InMemoryCharacterToByteStreamTests
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
                     test.assertTrue(characterReadStream.dispose().await());
                     test.assertThrows(characterReadStream::readLine,
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 final Action2<String,Iterable<String>> readLineTest = (String text, Iterable<String> expectedLines) ->
@@ -479,7 +479,7 @@ public interface InMemoryCharacterToByteStreamTests
                         final InMemoryCharacterToByteStream characterReadStream = createStream();
                         test.assertTrue(characterReadStream.dispose().await());
                         test.assertThrows(characterReadStream::readLine,
-                            new PreConditionFailure("isDisposed() cannot be true."));
+                            new PreConditionFailure("this.isDisposed() cannot be true."));
                     });
 
                     final Action2<String,Iterable<String>> readLineTest = (String text, Iterable<String> expectedLines) ->
@@ -515,7 +515,7 @@ public interface InMemoryCharacterToByteStreamTests
                         final InMemoryCharacterToByteStream characterReadStream = createStream();
                         test.assertTrue(characterReadStream.dispose().await());
                         test.assertThrows(characterReadStream::readLine,
-                            new PreConditionFailure("isDisposed() cannot be true."));
+                            new PreConditionFailure("this.isDisposed() cannot be true."));
                     });
 
                     final Action2<String,Iterable<String>> readLineTest = (String text, Iterable<String> expectedLines) ->

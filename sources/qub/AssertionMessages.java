@@ -125,6 +125,11 @@ public interface AssertionMessages
         return expressionName + " (" + Types.getFullTypeName(value) + ") must be of type " + Types.getFullTypeName(type) + ".";
     }
 
+    static String instanceOf(Object value, Iterable<Class<?>> types, String expressionName)
+    {
+        return expressionName + " (" + Types.getFullTypeName(value) + ") must be of type " + English.orList(types.map(Types::getFullTypeName)) + ".";
+    }
+
     static String oneOf(char value, char[] values, String expressionName)
     {
         final StringBuilder builder = new StringBuilder();

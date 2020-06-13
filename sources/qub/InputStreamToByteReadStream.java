@@ -49,7 +49,7 @@ public class InputStreamToByteReadStream implements ByteReadStream
     @Override
     public Result<Byte> readByte()
     {
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         Result<Byte> result;
         try
@@ -77,7 +77,7 @@ public class InputStreamToByteReadStream implements ByteReadStream
         PreCondition.assertNotNull(outputBytes, "outputBytes");
         PreCondition.assertStartIndex(startIndex, outputBytes.length);
         PreCondition.assertLength(length, startIndex, outputBytes.length);
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         Result<Integer> result;
         try

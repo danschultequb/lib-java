@@ -130,7 +130,7 @@ public interface RuntimeClassLoaderTests
                         test.assertTrue(classLoader.isDisposed());
 
                         test.assertThrows(() -> classLoader.loadClass("qub.RuntimeClassLoaderTests"),
-                            new PreConditionFailure("isDisposed() cannot be true."));
+                            new PreConditionFailure("this.isDisposed() cannot be true."));
                     }
                 });
             });

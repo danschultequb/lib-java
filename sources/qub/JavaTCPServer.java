@@ -92,7 +92,7 @@ class JavaTCPServer implements TCPServer
     {
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(timeout);
         return accept(dateTimeTimeout);

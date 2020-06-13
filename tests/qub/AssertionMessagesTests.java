@@ -584,7 +584,7 @@ public interface AssertionMessagesTests
 
                 runner.test("with null type", (Test test) ->
                 {
-                    test.assertThrows(() -> AssertionMessages.instanceOf(20, null, "blah"),
+                    test.assertThrows(() -> AssertionMessages.instanceOf(20, (Class<?>)null, "blah"),
                         new PreConditionFailure("type cannot be null."));
                 });
 
@@ -604,6 +604,51 @@ public interface AssertionMessagesTests
                 {
                     test.assertEqual("blah (java.lang.String) must be of type qub.IntegerValue.",
                         AssertionMessages.instanceOf("abc", IntegerValue.class, "blah"));
+                });
+            });
+
+            runner.testGroup("instanceOf(Object,Iterable<Class<?>>,String)", () ->
+            {
+                runner.test("with null value", (Test test) ->
+                {
+                    test.assertThrows(() -> AssertionMessages.instanceOf(null, Iterable.create(String.class), "blah"),
+                        new PreConditionFailure("value cannot be null."));
+                });
+
+                runner.test("with empty value", (Test test) ->
+                {
+                    test.assertEqual("blah (java.lang.String) must be of type qub.IntegerValue.",
+                        AssertionMessages.instanceOf("", Iterable.create(IntegerValue.class), "blah"));
+                });
+
+                runner.test("with null types", (Test test) ->
+                {
+                    test.assertThrows(() -> AssertionMessages.instanceOf(20, (Iterable<Class<?>>)null, "blah"),
+                        new NullPointerException());
+                });
+
+                runner.test("with empty types", (Test test) ->
+                {
+                    test.assertEqual("blah (java.lang.Integer) must be of type .",
+                        AssertionMessages.instanceOf(20, Iterable.create(), "blah"));
+                });
+
+                runner.test("with null expressionName", (Test test) ->
+                {
+                    test.assertEqual("null (java.lang.String) must be of type qub.IntegerValue.",
+                        AssertionMessages.instanceOf("abc", Iterable.create(IntegerValue.class), null));
+                });
+
+                runner.test("with empty expressionName", (Test test) ->
+                {
+                    test.assertEqual(" (java.lang.String) must be of type qub.IntegerValue.",
+                        AssertionMessages.instanceOf("abc", Iterable.create(IntegerValue.class), ""));
+                });
+
+                runner.test("with non-empty expressionName", (Test test) ->
+                {
+                    test.assertEqual("blah (java.lang.String) must be of type qub.IntegerValue.",
+                        AssertionMessages.instanceOf("abc", Iterable.create(IntegerValue.class), "blah"));
                 });
             });
 

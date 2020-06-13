@@ -860,20 +860,106 @@ public class TypesTests
 
             runner.testGroup("instanceOf(Object,Class<?>)", () ->
             {
-                runner.test("with null and String class", (Test test) ->
+                final Action3<Object,Class<?>,Boolean> instanceOfTest = (Object value, Class<?> type, Boolean expected) ->
                 {
-                    test.assertFalse(Types.instanceOf(null, String.class));
-                });
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(value), type), (Test test) ->
+                    {
+                        test.assertEqual(expected, Types.instanceOf(value, type));
+                    });
+                };
 
-                runner.test("with String value and String class", (Test test) ->
-                {
-                    test.assertTrue(Types.instanceOf("hello", String.class));
-                });
+                instanceOfTest.run(null, null, true);
+                instanceOfTest.run(null, String.class, false);
+                instanceOfTest.run("hello", null, false);
+                instanceOfTest.run("hello", Number.class, false);
+                instanceOfTest.run("hello", String.class, true);
+                instanceOfTest.run("hello", CharSequence.class, true);
+                instanceOfTest.run("hello", Object.class, true);
+            });
 
-                runner.test("with String value and Object class", (Test test) ->
+            runner.testGroup("instanceOf(Class<?>,Class<?>)", () ->
+            {
+                final Action3<Class<?>,Class<?>,Boolean> instanceOfTest = (Class<?> subType, Class<?> type, Boolean expected) ->
                 {
-                    test.assertTrue(Types.instanceOf("hello", Object.class));
-                });
+                    runner.test("with " + English.andList(subType, type), (Test test) ->
+                    {
+                        test.assertEqual(expected, Types.instanceOf(subType, type));
+                    });
+                };
+
+                instanceOfTest.run(null, null, true);
+                instanceOfTest.run(null, String.class, false);
+                instanceOfTest.run(String.class, null, false);
+                instanceOfTest.run(String.class, Number.class, false);
+                instanceOfTest.run(String.class, String.class, true);
+                instanceOfTest.run(String.class, CharSequence.class, true);
+                instanceOfTest.run(String.class, Object.class, true);
+            });
+
+            runner.testGroup("instanceOf(Object,Iterable<Class<?>>)", () ->
+            {
+                final Action3<Object,Iterable<Class<?>>,Throwable> instanceOfErrorTest = (Object value, Iterable<Class<?>> types, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(value), types), (Test test) ->
+                    {
+                        test.assertThrows(() -> Types.instanceOf(value, types), expected);
+                    });
+                };
+
+                instanceOfErrorTest.run(null, null, new PreConditionFailure("types cannot be null."));
+                instanceOfErrorTest.run(null, Iterable.create(), new PreConditionFailure("types cannot be empty."));
+
+                final Action3<Object,Iterable<Class<?>>,Boolean> instanceOfTest = (Object value, Iterable<Class<?>> types, Boolean expected) ->
+                {
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(value), types), (Test test) ->
+                    {
+                        test.assertEqual(expected, Types.instanceOf(value, types));
+                    });
+                };
+
+                instanceOfTest.run(null, Iterable.create((Class<?>)null), true);
+                instanceOfTest.run(null, Iterable.create(String.class), false);
+                instanceOfTest.run("hello", Iterable.create((Class<?>)null), false);
+                instanceOfTest.run("hello", Iterable.create(Number.class), false);
+                instanceOfTest.run("hello", Iterable.create(String.class), true);
+                instanceOfTest.run("hello", Iterable.create(CharSequence.class), true);
+                instanceOfTest.run("hello", Iterable.create(CharSequence.class, String.class), true);
+                instanceOfTest.run("hello", Iterable.create(CharSequence.class, Object.class), true);
+                instanceOfTest.run("hello", Iterable.create(CharSequence.class, Number.class), true);
+                instanceOfTest.run("hello", Iterable.create(Object.class), true);
+            });
+
+            runner.testGroup("instanceOf(Class<?>,Iterable<Class<?>>)", () ->
+            {
+                final Action3<Class<?>,Iterable<Class<?>>,Throwable> instanceOfErrorTest = (Class<?> subType, Iterable<Class<?>> types, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(subType), types), (Test test) ->
+                    {
+                        test.assertThrows(() -> Types.instanceOf(subType, types), expected);
+                    });
+                };
+
+                instanceOfErrorTest.run(null, null, new PreConditionFailure("types cannot be null."));
+                instanceOfErrorTest.run(null, Iterable.create(), new PreConditionFailure("types cannot be empty."));
+
+                final Action3<Class<?>,Iterable<Class<?>>,Boolean> instanceOfTest = (Class<?> subType, Iterable<Class<?>> types, Boolean expected) ->
+                {
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(subType), types), (Test test) ->
+                    {
+                        test.assertEqual(expected, Types.instanceOf(subType, types));
+                    });
+                };
+
+                instanceOfTest.run(null, Iterable.create((Class<?>)null), true);
+                instanceOfTest.run(null, Iterable.create(String.class), false);
+                instanceOfTest.run(String.class, Iterable.create((Class<?>)null), false);
+                instanceOfTest.run(String.class, Iterable.create(Number.class), false);
+                instanceOfTest.run(String.class, Iterable.create(String.class), true);
+                instanceOfTest.run(String.class, Iterable.create(CharSequence.class), true);
+                instanceOfTest.run(String.class, Iterable.create(CharSequence.class, String.class), true);
+                instanceOfTest.run(String.class, Iterable.create(CharSequence.class, Object.class), true);
+                instanceOfTest.run(String.class, Iterable.create(CharSequence.class, Number.class), true);
+                instanceOfTest.run(String.class, Iterable.create(Object.class), true);
             });
 
             runner.testGroup("as(Object)", () ->
@@ -885,7 +971,8 @@ public class TypesTests
 
                 runner.test("Integer as null", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.as(20, null), new PreConditionFailure("type cannot be null."));
+                    test.assertThrows(() -> Types.as(20, null),
+                        new PreConditionFailure("type cannot be null."));
                 });
 
                 runner.test("Integer as Number", (Test test) ->

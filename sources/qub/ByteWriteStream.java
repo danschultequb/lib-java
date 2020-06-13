@@ -22,7 +22,7 @@ public interface ByteWriteStream extends Disposable
     default Result<Integer> write(byte[] toWrite)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.write(toWrite, 0, toWrite.length);
     }
@@ -46,7 +46,7 @@ public interface ByteWriteStream extends Disposable
     default Result<Integer> writeAll(byte[] toWrite)
     {
         PreCondition.assertNotNull(toWrite, "toWrite");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.writeAll(toWrite, 0, toWrite.length);
     }
@@ -93,9 +93,9 @@ public interface ByteWriteStream extends Disposable
     default Result<Long> writeAll(ByteReadStream byteReadStream, int initialBufferCapacity)
     {
         PreCondition.assertNotNull(byteReadStream, "byteReadStream");
-        PreCondition.assertNotDisposed(byteReadStream, "byteReadStream.isDisposed()");
+        PreCondition.assertNotDisposed(byteReadStream, "byteReadStream");
         PreCondition.assertGreaterThanOrEqualTo(initialBufferCapacity, 1, "initialBufferCapacity");
-        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {

@@ -28,7 +28,7 @@ public interface InputStreamToByteReadStreamTests
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
                     test.assertTrue(readStream.dispose().await());
                     test.assertThrows(readStream::readByte,
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("with bytes to read", (Test test) ->
@@ -68,7 +68,7 @@ public interface InputStreamToByteReadStreamTests
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
                     test.assertTrue(readStream.dispose().await());
                     test.assertThrows(() -> readStream.readBytes(5),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("with negative", (Test test) ->
@@ -129,7 +129,7 @@ public interface InputStreamToByteReadStreamTests
                     test.assertTrue(readStream.dispose().await());
                     final byte[] outputBytes = new byte[10];
                     test.assertThrows(() -> readStream.readBytes(outputBytes),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("with null", (Test test) ->
@@ -201,7 +201,7 @@ public interface InputStreamToByteReadStreamTests
                     test.assertTrue(readStream.dispose().await());
                     final byte[] outputBytes = new byte[10];
                     test.assertThrows(() -> readStream.readBytes(outputBytes, 0, 1),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("with null", (Test test) ->
@@ -313,7 +313,7 @@ public interface InputStreamToByteReadStreamTests
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
                     test.assertTrue(readStream.dispose().await());
                     test.assertThrows(readStream::readAllBytes,
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("when empty", (Test test) ->
@@ -339,7 +339,7 @@ public interface InputStreamToByteReadStreamTests
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
                     test.assertTrue(readStream.dispose().await());
                     test.assertThrows(() -> readStream.readBytesUntil((byte)3),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("when empty", (Test test) ->
@@ -374,7 +374,7 @@ public interface InputStreamToByteReadStreamTests
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
                     test.assertTrue(readStream.dispose().await());
                     test.assertThrows(() -> readStream.readBytesUntil(new byte[] { 3 }),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("when empty", (Test test) ->
@@ -431,7 +431,7 @@ public interface InputStreamToByteReadStreamTests
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
                     test.assertTrue(readStream.dispose().await());
                     test.assertThrows(() -> readStream.readBytesUntil(ByteArray.create(3)),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("when empty", (Test test) ->

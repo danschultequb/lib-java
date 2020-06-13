@@ -33,7 +33,7 @@ public class ThrottledByteReadStream implements ByteReadStream
     @Override
     public Result<Byte> readByte()
     {
-        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {
@@ -48,7 +48,7 @@ public class ThrottledByteReadStream implements ByteReadStream
         PreCondition.assertNotNull(outputBytes, "outputBytes");
         PreCondition.assertStartIndex(startIndex, outputBytes.length);
         PreCondition.assertLength(length, startIndex, outputBytes.length);
-        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {

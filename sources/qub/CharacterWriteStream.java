@@ -66,7 +66,7 @@ public interface CharacterWriteStream extends Disposable
     default Result<Integer> write(char[] toWrite)
     {
         PreCondition.assertNotNull(toWrite, "toWrite");
-        PreCondition.assertFalse(this.isDisposed(), "this.isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.write(toWrite, 0, toWrite.length);
     }
@@ -84,7 +84,7 @@ public interface CharacterWriteStream extends Disposable
         PreCondition.assertNotNull(toWrite, "toWrite");
         PreCondition.assertStartIndex(startIndex, toWrite.length);
         PreCondition.assertLength(length, startIndex, toWrite.length);
-        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {
@@ -111,7 +111,7 @@ public interface CharacterWriteStream extends Disposable
      */
     default Result<Integer> writeLine()
     {
-        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {

@@ -40,7 +40,7 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
     @Override
     public Result<Integer> write(byte toWrite)
     {
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         Result<Integer> result;
         try
@@ -66,7 +66,7 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
     public Result<Integer> write(byte[] toWrite)
     {
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {
@@ -92,7 +92,7 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
         PreCondition.assertNotNullAndNotEmpty(toWrite, "toWrite");
         PreCondition.assertNonEmptyStartIndex(startIndex, toWrite.length);
         PreCondition.assertNonEmptyLength(length, startIndex, toWrite.length);
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         Result<Integer> result;
         try

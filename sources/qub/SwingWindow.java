@@ -119,7 +119,7 @@ public class SwingWindow implements Window, Disposable
      */
     public SwingWindow setVisible(boolean visible)
     {
-        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         this.jFrame.setVisible(visible);
 

@@ -55,7 +55,7 @@ public interface CharacterToByteWriteStream extends CharacterWriteStream, ByteWr
     @Override
     default Result<Integer> writeLine()
     {
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.write(this.getNewLine());
     }

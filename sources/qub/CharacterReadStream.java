@@ -32,7 +32,7 @@ public interface CharacterReadStream extends Disposable
     default Result<char[]> readCharacters(int charactersToRead)
     {
         PreCondition.assertGreaterThanOrEqualTo(charactersToRead, 0, "charactersToRead");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         final char[] buffer = new char[charactersToRead];
         return this.readCharacters(buffer)
@@ -54,7 +54,7 @@ public interface CharacterReadStream extends Disposable
     default Result<Integer> readCharacters(char[] outputCharacters)
     {
         PreCondition.assertNotNull(outputCharacters, "outputCharacters");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.readCharacters(outputCharacters, 0, outputCharacters.length);
     }
@@ -73,7 +73,7 @@ public interface CharacterReadStream extends Disposable
         PreCondition.assertNotNull(outputCharacters, "outputCharacters");
         PreCondition.assertStartIndex(startIndex, outputCharacters.length);
         PreCondition.assertLength(length, startIndex, outputCharacters.length);
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {
@@ -109,7 +109,7 @@ public interface CharacterReadStream extends Disposable
      */
     default Result<char[]> readAllCharacters()
     {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {
@@ -152,7 +152,7 @@ public interface CharacterReadStream extends Disposable
      */
     default Result<char[]> readCharactersUntil(char value)
     {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return readCharactersUntil(new char[] { value });
     }
@@ -166,7 +166,7 @@ public interface CharacterReadStream extends Disposable
     default Result<char[]> readCharactersUntil(char[] values)
     {
         PreCondition.assertNotNullAndNotEmpty(values, "characters");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.readCharactersUntil(String.valueOf(values));
     }
@@ -180,7 +180,7 @@ public interface CharacterReadStream extends Disposable
     default Result<char[]> readCharactersUntil(String value)
     {
         PreCondition.assertNotNullAndNotEmpty(value, "value");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {
@@ -222,7 +222,7 @@ public interface CharacterReadStream extends Disposable
     default Result<String> readString(int charactersToRead)
     {
         PreCondition.assertGreaterThan(charactersToRead, 0, "charactersToRead");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return readCharacters(charactersToRead)
             .then((char[] characters) -> characters == null ? null : String.valueOf(characters));
@@ -237,7 +237,7 @@ public interface CharacterReadStream extends Disposable
      */
     default Result<String> readEntireString()
     {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return readAllCharacters()
             .then((char[] characters) -> String.valueOf(characters));
@@ -251,7 +251,7 @@ public interface CharacterReadStream extends Disposable
      */
     default Result<String> readStringUntil(char value)
     {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return readStringUntil(new char[] { value });
     }
@@ -265,7 +265,7 @@ public interface CharacterReadStream extends Disposable
     default Result<String> readStringUntil(char[] values)
     {
         PreCondition.assertNotNullAndNotEmpty(values, "values");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return readStringUntil(String.valueOf(values));
     }
@@ -279,7 +279,7 @@ public interface CharacterReadStream extends Disposable
     default Result<String> readStringUntil(String value)
     {
         PreCondition.assertNotNullAndNotEmpty(value, "value");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return readCharactersUntil(value)
             .then((Function1<char[],String>)String::valueOf);
@@ -302,7 +302,7 @@ public interface CharacterReadStream extends Disposable
      */
     default Result<String> readLine(boolean includeNewLine)
     {
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         String result;
         int charactersRead = 0;

@@ -48,8 +48,7 @@ public interface ExceptionsTests
 
                 runner.test("with null type", (Test test) ->
                 {
-                    test.assertThrows(() -> Exceptions.instanceOf(new EndOfStreamException(), null),
-                        new PreConditionFailure("type cannot be null."));
+                    test.assertFalse(Exceptions.instanceOf(new EndOfStreamException(), null));
                 });
 
                 runner.test("with same type", (Test test) ->
@@ -114,8 +113,7 @@ public interface ExceptionsTests
 
                     runner.test("with null type", (Test test) ->
                     {
-                        test.assertThrows(() -> Exceptions.instanceOf(new EndOfStreamException(), null, null),
-                            new PreConditionFailure("type cannot be null."));
+                        test.assertFalse(Exceptions.instanceOf(new EndOfStreamException(), null, null));
                     });
 
                     runner.test("with same type", (Test test) ->
@@ -178,8 +176,7 @@ public interface ExceptionsTests
 
                     runner.test("with null type", (Test test) ->
                     {
-                        test.assertThrows(() -> Exceptions.instanceOf(new EndOfStreamException(), null, Iterable.create()),
-                            new PreConditionFailure("type cannot be null."));
+                        test.assertFalse(Exceptions.instanceOf(new EndOfStreamException(), null, Iterable.create()));
                     });
 
                     runner.test("with same type", (Test test) ->
@@ -242,8 +239,7 @@ public interface ExceptionsTests
 
                     runner.test("with null type", (Test test) ->
                     {
-                        test.assertThrows(() -> Exceptions.instanceOf(new EndOfStreamException(), null, Iterable.create(RuntimeException.class)),
-                            new PreConditionFailure("type cannot be null."));
+                        test.assertFalse(Exceptions.instanceOf(new EndOfStreamException(), null, Iterable.create(RuntimeException.class)));
                     });
 
                     runner.test("with same type", (Test test) ->
@@ -306,8 +302,7 @@ public interface ExceptionsTests
 
                     runner.test("with null type", (Test test) ->
                     {
-                        test.assertThrows(() -> Exceptions.instanceOf(new EndOfStreamException(), null, Iterable.create(AwaitException.class)),
-                            new PreConditionFailure("type cannot be null."));
+                        test.assertFalse(Exceptions.instanceOf(new EndOfStreamException(), null, Iterable.create(AwaitException.class)));
                     });
 
                     runner.test("with same type", (Test test) ->
@@ -370,8 +365,7 @@ public interface ExceptionsTests
 
                     runner.test("with null type", (Test test) ->
                     {
-                        test.assertThrows(() -> Exceptions.instanceOf(new EndOfStreamException(), null, Iterable.create(AwaitException.class, RuntimeException.class)),
-                            new PreConditionFailure("type cannot be null."));
+                        test.assertFalse(Exceptions.instanceOf(new EndOfStreamException(), null, Iterable.create(AwaitException.class, RuntimeException.class)));
                     });
 
                     runner.test("with same type", (Test test) ->

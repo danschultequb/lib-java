@@ -42,7 +42,7 @@ public class FakeTCPServer implements TCPServer
     @Override
     public Result<TCPClient> accept()
     {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return mutex.criticalSection(() ->
         {
@@ -50,7 +50,7 @@ public class FakeTCPServer implements TCPServer
 
             if (this.isDisposed())
             {
-                throw new IllegalStateException("isDisposed() cannot be true.");
+                throw new IllegalStateException("this.isDisposed() cannot be true.");
             }
             return clientsToAccept.removeFirst();
         });
@@ -61,7 +61,7 @@ public class FakeTCPServer implements TCPServer
     {
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(timeout);
         return accept(dateTimeTimeout);
@@ -71,7 +71,7 @@ public class FakeTCPServer implements TCPServer
     public Result<TCPClient> accept(DateTime timeout)
     {
         PreCondition.assertNotNull(timeout, "timeout");
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return mutex.criticalSection(timeout, () ->
         {
@@ -79,7 +79,7 @@ public class FakeTCPServer implements TCPServer
 
             if (this.isDisposed())
             {
-                throw new IllegalStateException("isDisposed() cannot be true.");
+                throw new IllegalStateException("this.isDisposed() cannot be true.");
             }
             return clientsToAccept.removeFirst();
         });

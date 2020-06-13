@@ -1329,6 +1329,21 @@ public class Test
     }
 
     /**
+     * Assert that the provided value is an instance of one of the provided types.
+     * @param value The value to check.
+     * @param types The types to look for.
+     */
+    public void assertInstanceOf(Object value, Iterable<Class<?>> types)
+    {
+        if (!Types.instanceOf(value, types))
+        {
+            throw new TestError(
+                getFullName(),
+                AssertionMessages.instanceOf(value, types, "value"));
+        }
+    }
+
+    /**
      * Cause the test to fail instantly with the provided message.
      * @param message The message to display that should explain the failure.
      */

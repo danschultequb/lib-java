@@ -30,7 +30,7 @@ public interface UTF8CharacterEncodingTests
                     final InMemoryByteStream byteWriteStream = InMemoryByteStream.create();
                     test.assertTrue(byteWriteStream.dispose().await());
                     test.assertThrows(() -> encoding.writeByteOrderMark(byteWriteStream),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("with not disposed", (Test test) ->

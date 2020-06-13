@@ -111,7 +111,7 @@ public class RuntimeClassLoader extends java.net.URLClassLoader implements Dispo
     public Class<?> loadClass(String fullClassName)
     {
         PreCondition.assertNotNullAndNotEmpty(fullClassName, "fullClassName");
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         Class<?> result;
         try

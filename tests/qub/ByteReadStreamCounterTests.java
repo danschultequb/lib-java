@@ -43,7 +43,7 @@ public interface ByteReadStreamCounterTests
                     innerStream.dispose().await();
                     final ByteReadStreamCounter counter = new ByteReadStreamCounter(innerStream);
                     test.assertThrows(() -> counter.readByte().await(),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual(0, counter.getBytesRead());
                     test.assertEqual(0, counter.getBitsRead());
                 });
@@ -76,7 +76,7 @@ public interface ByteReadStreamCounterTests
                     innerStream.dispose().await();
                     final ByteReadStreamCounter counter = new ByteReadStreamCounter(innerStream);
                     test.assertThrows(() -> counter.readBytes(10).await(),
-                        new PreConditionFailure("isDisposed() cannot be true."));
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual(0, counter.getBytesRead());
                     test.assertEqual(0, counter.getBitsRead());
                 });

@@ -22,7 +22,7 @@ public class BasicCharacterToByteReadStream implements CharacterToByteReadStream
     @Override
     public Result<Character> readCharacter()
     {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {

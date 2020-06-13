@@ -61,7 +61,7 @@ public interface CharacterEncoding
     {
         PreCondition.assertNotNull(text, "text");
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
-        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream");
 
         return this.encodeCharacters(Strings.iterable(text), byteWriteStream);
     }
@@ -114,7 +114,7 @@ public interface CharacterEncoding
         PreCondition.assertStartIndex(startIndex, characters.length);
         PreCondition.assertLength(length, startIndex, characters.length);
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
-        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream");
 
         return Result.create(() ->
         {
@@ -159,7 +159,7 @@ public interface CharacterEncoding
     {
         PreCondition.assertNotNull(characters, "characters");
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
-        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream");
 
         return this.encodeCharacters(characters.iterate(), byteWriteStream);
     }
@@ -193,7 +193,7 @@ public interface CharacterEncoding
     {
         PreCondition.assertNotNull(characters, "characters");
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
-        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream");
 
         return Result.create(() ->
         {
@@ -316,7 +316,7 @@ public interface CharacterEncoding
     default Iterator<Character> iterateDecodedCharacters(ByteReadStream bytes)
     {
         PreCondition.assertNotNull(bytes, "bytes");
-        PreCondition.assertNotDisposed(bytes, "bytes.isDisposed()");
+        PreCondition.assertNotDisposed(bytes, "bytes");
 
         return this.iterateDecodedCharacters(ByteReadStream.iterate(bytes));
     }

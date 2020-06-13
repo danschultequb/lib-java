@@ -69,7 +69,7 @@ public class PostCondition
         assertNotNull(value, variableName);
         if (!value.any())
         {
-            throw new PreConditionFailure(AssertionMessages.notEmpty(variableName));
+            throw new PostConditionFailure(AssertionMessages.notEmpty(variableName));
         }
     }
 
@@ -85,7 +85,7 @@ public class PostCondition
         assertNotNull(value, variableName);
         if (value.length() == 0)
         {
-            throw new PreConditionFailure(AssertionMessages.notEmpty(variableName));
+            throw new PostConditionFailure(AssertionMessages.notEmpty(variableName));
         }
     }
 
@@ -272,5 +272,99 @@ public class PostCondition
         {
             throw new PostConditionFailure(AssertionMessages.between(lowerBound, value, upperBound, variableName));
         }
+    }
+
+    /**
+     * Assert that the provided value starts with the provided prefix.
+     * @param value The value to check.
+     * @param prefix The prefix to look for at the beginning of the provided value.
+     */
+    public static void assertStartsWith(String value, String prefix, String expressionName)
+    {
+        if (!Strings.startsWith(value, prefix))
+        {
+            throw new PostConditionFailure(AssertionMessages.startsWith(value, prefix, expressionName));
+        }
+    }
+
+    /**
+     * Assert that the provided value starts with the provided prefix.
+     * @param value The value to check.
+     * @param prefix The prefix to look for at the beginning of the provided value.
+     */
+    public static void assertStartsWith(String value, String prefix, CharacterComparer characterComparer, String expressionName)
+    {
+        PreCondition.assertNotNull(characterComparer, "characterComparer");
+
+        if (!Strings.startsWith(value, prefix, characterComparer))
+        {
+            throw new PostConditionFailure(AssertionMessages.startsWith(value, prefix, expressionName));
+        }
+    }
+
+    /**
+     * Assert that the provided value ends with the provided suffix.
+     * @param value The value to check.
+     * @param suffix The suffix to look for at the end of the provided value.
+     */
+    public static void assertEndsWith(String value, String suffix, String expressionName)
+    {
+        if (!Strings.endsWith(value, suffix))
+        {
+            throw new PostConditionFailure(AssertionMessages.endsWith(value, suffix, expressionName));
+        }
+    }
+
+    public static void assertContains(String value, String substring, String expressionName)
+    {
+        if (!Strings.contains(value, substring))
+        {
+            throw new PostConditionFailure(AssertionMessages.contains(value, substring, expressionName));
+        }
+    }
+
+    /**
+     * Assert that the provided value contains only the provided characters. It doesn't have to
+     * contain all of the characters and it can contain multiple instances of each character, but
+     * each character in the provided value must be contained in the provided set of characters.
+     * @param value The value to check.
+     * @param characters The characters to allow.
+     * @param variableName The name of the variable that produced value.
+     * @preCondition value != null
+     * @preCondition characters != null && characters.length > 0
+     * @preCondition variableName != null && variableName.length() > 0
+     */
+    public static void assertContainsOnly(String value, char[] characters, String variableName)
+    {
+        if (!Comparer.containsOnly(value, characters))
+        {
+            throw new PostConditionFailure(AssertionMessages.containsOnly(value, characters, variableName));
+        }
+    }
+
+    public static void assertInstanceOf(Object value, Class<?> type, String variableName)
+    {
+        if (!Types.instanceOf(value, type))
+        {
+            throw new PostConditionFailure(AssertionMessages.instanceOf(value, type, variableName));
+        }
+    }
+    
+    public static void assertInstanceOf(Object value, Iterable<Class<?>> types, String variableName)
+    {
+        if (!Types.instanceOf(value, types))
+        {
+            throw new PostConditionFailure(AssertionMessages.instanceOf(value, types, variableName));
+        }
+    }
+
+    /**
+     * Assert that the provided value is not disposed.
+     * @param value The value to check.
+     * @param expressionName The expression that created the value.
+     */
+    public static void assertNotDisposed(Disposable value, String expressionName)
+    {
+        PostCondition.assertFalse(value.isDisposed(), expressionName + ".isDisposed()");
     }
 }

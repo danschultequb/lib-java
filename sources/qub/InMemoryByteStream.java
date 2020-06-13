@@ -53,7 +53,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     @Override
     public Result<Byte> readByte()
     {
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.mutex.criticalSection(() ->
         {
@@ -64,7 +64,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
 
             if (this.isDisposed())
             {
-                throw new IllegalStateException("isDisposed() cannot be true.");
+                throw new IllegalStateException("this.isDisposed() cannot be true.");
             }
 
             if (!this.bytes.any())
@@ -82,7 +82,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
         PreCondition.assertNotNull(outputBytes, "outputBytes");
         PreCondition.assertStartIndex(startIndex, outputBytes.length);
         PreCondition.assertLength(length, startIndex, outputBytes.length);
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         return mutex.criticalSection(() ->
         {
@@ -96,7 +96,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
 
                 if (this.isDisposed())
                 {
-                    throw new IllegalStateException("isDisposed() cannot be true.");
+                    throw new IllegalStateException("this.isDisposed() cannot be true.");
                 }
                 else if (!bytes.any())
                 {
@@ -118,7 +118,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     public Disposable onDisposed(Action0 callback)
     {
         PreCondition.assertNotNull(callback, "callback");
-        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.disposedEvent.subscribe(callback);
     }
@@ -167,7 +167,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     @Override
     public Result<Integer> write(byte toWrite)
     {
-        PreCondition.assertFalse(this.isDisposed(), "this.isDisposed()");
+        PreCondition.assertFalse(this.isDisposed(), "this");
         PreCondition.assertFalse(this.endOfStream, "this.endOfStream");
 
         return this.mutex.criticalSection(() ->
@@ -184,7 +184,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
         PreCondition.assertNotNull(bytes, "bytes");
         PreCondition.assertStartIndex(startIndex, bytes.length);
         PreCondition.assertLength(length, startIndex, bytes.length);
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
         PreCondition.assertFalse(endOfStream, "endOfStream");
 
         return mutex.criticalSection(() ->

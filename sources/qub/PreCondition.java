@@ -1000,13 +1000,12 @@ public class PreCondition
         }
     }
 
-    /**
-     * Assert that the provided value is not disposed.
-     * @param value The value to check.
-     */
-    public static void assertNotDisposed(Disposable value)
+    public static void assertInstanceOf(Object value, Iterable<Class<?>> types, String variableName)
     {
-        PreCondition.assertNotDisposed(value, "isDisposed()");
+        if (!Types.instanceOf(value, types))
+        {
+            throw new PreConditionFailure(AssertionMessages.instanceOf(value, types, variableName));
+        }
     }
 
     /**
@@ -1016,6 +1015,6 @@ public class PreCondition
      */
     public static void assertNotDisposed(Disposable value, String expressionName)
     {
-        PreCondition.assertFalse(value.isDisposed(), expressionName);
+        PreCondition.assertFalse(value.isDisposed(), expressionName + ".isDisposed()");
     }
 }

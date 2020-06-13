@@ -32,7 +32,7 @@ public interface ByteReadStream extends Disposable
     default Result<byte[]> readBytes(int bytesToRead)
     {
         PreCondition.assertGreaterThanOrEqualTo(bytesToRead, 0, "bytesToRead");
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {
@@ -54,7 +54,7 @@ public interface ByteReadStream extends Disposable
     default Result<Integer> readBytes(byte[] outputBytes)
     {
         PreCondition.assertNotNull(outputBytes, "outputBytes");
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.readBytes(outputBytes, 0, outputBytes.length);
     }
@@ -79,7 +79,7 @@ public interface ByteReadStream extends Disposable
      */
     default Result<byte[]> readAllBytes()
     {
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {
@@ -102,7 +102,7 @@ public interface ByteReadStream extends Disposable
      */
     default Result<byte[]> readBytesUntil(byte stopByte)
     {
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.readBytesUntil(new byte[] { stopByte });
     }
@@ -116,7 +116,7 @@ public interface ByteReadStream extends Disposable
     default Result<byte[]> readBytesUntil(byte[] stopBytes)
     {
         PreCondition.assertNotNullAndNotEmpty(stopBytes, "stopBytes");
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.readBytesUntil(ByteArray.create(stopBytes));
     }
@@ -130,7 +130,7 @@ public interface ByteReadStream extends Disposable
     default Result<byte[]> readBytesUntil(Iterable<Byte> stopBytes)
     {
         PreCondition.assertNotNullAndNotEmpty(stopBytes, "stopBytes");
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {

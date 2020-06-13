@@ -60,7 +60,7 @@ public class BasicCharacterToByteWriteStream implements CharacterToByteWriteStre
     @Override
     public Result<Integer> write(char toWrite)
     {
-        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {
@@ -73,7 +73,7 @@ public class BasicCharacterToByteWriteStream implements CharacterToByteWriteStre
     public Result<Integer> write(String toWrite, Object... formattedStringArguments)
     {
         PreCondition.assertNotNull(toWrite, "toWrite");
-        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {
@@ -86,7 +86,7 @@ public class BasicCharacterToByteWriteStream implements CharacterToByteWriteStre
     @Override
     public Result<Integer> write(byte toWrite)
     {
-        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.byteWriteStream.write(toWrite);
     }
@@ -94,7 +94,7 @@ public class BasicCharacterToByteWriteStream implements CharacterToByteWriteStre
     @Override
     public Result<Integer> write(byte[] toWrite, int startIndex, int length)
     {
-        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.byteWriteStream.write(toWrite, startIndex, length);
     }

@@ -65,7 +65,7 @@ public class BufferedByteWriteStream implements ByteWriteStream
     @Override
     public Result<Integer> write(byte toWrite)
     {
-        PreCondition.assertFalse(this.isDisposed(), "this.isDisposed()");
+        PreCondition.assertFalse(this.isDisposed(), "this");
 
         return Result.create(() ->
         {
@@ -81,7 +81,7 @@ public class BufferedByteWriteStream implements ByteWriteStream
         PreCondition.assertNotNullAndNotEmpty(bytes, "bytes");
         PreCondition.assertStartIndex(startIndex, bytes.length);
         PreCondition.assertLength(length, startIndex, bytes.length);
-        PreCondition.assertFalse(isDisposed(), "isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         final int bytesToAddToBuffer = Math.minimum(length, buffer.length - currentBufferIndex);
         Array.copy(bytes, startIndex, buffer, currentBufferIndex, bytesToAddToBuffer);
@@ -122,7 +122,7 @@ public class BufferedByteWriteStream implements ByteWriteStream
      */
     public Result<Integer> flush()
     {
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         return byteWriteStream.write(buffer, 0, currentBufferIndex)
             .onValue((Integer bytesWritten) ->

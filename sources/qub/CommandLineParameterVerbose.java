@@ -109,7 +109,7 @@ public class CommandLineParameterVerbose extends CommandLineParameterBoolean
     {
         PreCondition.assertNotNull(message, "message");
         PreCondition.assertNotNull(writeStream, "writeStream");
-        PreCondition.assertNotDisposed(writeStream, "writeStream.isDisposed()");
+        PreCondition.assertNotDisposed(writeStream, "writeStream");
 
         return Result.create(() ->
         {

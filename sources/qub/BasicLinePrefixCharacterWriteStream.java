@@ -65,7 +65,7 @@ public class BasicLinePrefixCharacterWriteStream implements LinePrefixCharacterW
     @Override
     public Result<Integer> write(char toWrite)
     {
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {
@@ -88,7 +88,7 @@ public class BasicLinePrefixCharacterWriteStream implements LinePrefixCharacterW
         PreCondition.assertNotNull(toWrite, "toWrite");
         PreCondition.assertStartIndex(startIndex, toWrite.length);
         PreCondition.assertLength(length, startIndex, toWrite.length);
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         final int endIndex = startIndex + length;
         return Result.create(() ->
@@ -137,7 +137,7 @@ public class BasicLinePrefixCharacterWriteStream implements LinePrefixCharacterW
     public Result<Integer> write(String toWrite, Object... formattedStringArguments)
     {
         PreCondition.assertNotNull(toWrite, "toWrite");
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {

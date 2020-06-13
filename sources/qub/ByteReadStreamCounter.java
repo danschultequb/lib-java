@@ -36,7 +36,7 @@ public class ByteReadStreamCounter implements ByteReadStream
     @Override
     public Result<Byte> readByte()
     {
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         return innerStream.readByte()
             .onValue((Byte value) ->
@@ -49,7 +49,7 @@ public class ByteReadStreamCounter implements ByteReadStream
     public Result<byte[]> readBytes(int bytesToRead)
     {
         PreCondition.assertGreaterThanOrEqualTo(bytesToRead, 1, "bytesToRead");
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         return innerStream.readBytes(bytesToRead)
             .onValue((byte[] values) ->
@@ -62,7 +62,7 @@ public class ByteReadStreamCounter implements ByteReadStream
     public Result<Integer> readBytes(byte[] outputBytes)
     {
         PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         return innerStream.readBytes(outputBytes)
             .onValue((Integer bytesRead) ->
@@ -77,7 +77,7 @@ public class ByteReadStreamCounter implements ByteReadStream
         PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
         PreCondition.assertStartIndex(startIndex, outputBytes.length);
         PreCondition.assertLength(length, startIndex, outputBytes.length);
-        PreCondition.assertNotDisposed(this);
+        PreCondition.assertNotDisposed(this, "this");
 
         return innerStream.readBytes(outputBytes, startIndex, length)
             .onValue((Integer bytesRead) ->

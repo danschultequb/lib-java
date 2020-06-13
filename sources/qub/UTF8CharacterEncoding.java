@@ -31,7 +31,7 @@ public class UTF8CharacterEncoding implements UnicodeCharacterEncoding
     {
         PreCondition.assertGreaterThanOrEqualTo(unicodeCodePoint, 0, "unicodeCodePoint");
         PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
-        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream.isDisposed()");
+        PreCondition.assertNotDisposed(byteWriteStream, "byteWriteStream");
 
         return Result.create(() ->
         {

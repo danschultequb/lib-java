@@ -423,6 +423,16 @@ public interface Types
     }
 
     /**
+     * Get the type of the provided value, or null if the provided value is null.
+     * @param value The value to get the type of.
+     * @return The type of the provided value, or null if the provided value is null.
+     */
+    static Class<?> getType(Object value)
+    {
+        return value == null ? null : value.getClass();
+    }
+
+    /**
      * Get whether or not the provided value is an instance of the provided type.
      * @param value The value to check.
      * @param type The type to check.
@@ -430,9 +440,7 @@ public interface Types
      */
     static boolean instanceOf(Object value, Class<?> type)
     {
-        PreCondition.assertNotNull(type, "type");
-
-        return value != null && instanceOf(value.getClass(), type);
+        return Types.instanceOf(Types.getType(value), type);
     }
 
     /**
@@ -443,9 +451,33 @@ public interface Types
      */
     static boolean instanceOf(Class<?> subType, Class<?> type)
     {
-        PreCondition.assertNotNull(type, "type");
+        return (subType == type) || (subType != null && type != null && type.isAssignableFrom(subType));
+    }
 
-        return subType != null && type.isAssignableFrom(subType);
+    /**
+     * Get whether or not the provided value is an instance of one of the provided types.
+     * @param value The value to check.
+     * @param types The types to check.
+     * @return Whether or not the provided value is an instance of one of the provided type.
+     */
+    static boolean instanceOf(Object value, Iterable<Class<?>> types)
+    {
+        PreCondition.assertNotNullAndNotEmpty(types, "types");
+
+        return Types.instanceOf(Types.getType(value), types);
+    }
+
+    /**
+     * Get whether or not the provided subType is an instance of one of the provided types.
+     * @param subType The subType to check.
+     * @param types The types to check.
+     * @return Whether or not the provided subType is an instance of one of the provided types.
+     */
+    static boolean instanceOf(Class<?> subType, Iterable<Class<?>> types)
+    {
+        PreCondition.assertNotNullAndNotEmpty(types, "types");
+
+        return types.contains((Class<?> type) -> Types.instanceOf(subType, type));
     }
 
     /**
@@ -459,6 +491,8 @@ public interface Types
     @SuppressWarnings("unchecked")
     static <T> T as(Object value, Class<T> type)
     {
+        PreCondition.assertNotNull(type, "type");
+
         T result;
         if (Types.instanceOf(value, type))
         {

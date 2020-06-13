@@ -93,7 +93,8 @@ public interface BufferedByteReadStreamTests
                     final InMemoryByteStream innerStream = InMemoryByteStream.create(new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 }).endOfStream();
                     final BufferedByteReadStream byteReadStream = BufferedByteReadStream.create(innerStream, 1);
                     test.assertTrue(byteReadStream.dispose().await());
-                    test.assertThrows(byteReadStream::readByte, new PreConditionFailure("isDisposed() cannot be true."));
+                    test.assertThrows(byteReadStream::readByte,
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 
                 runner.test("when empty", (Test test) ->

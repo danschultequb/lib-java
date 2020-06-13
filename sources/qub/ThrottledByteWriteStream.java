@@ -30,7 +30,7 @@ public class ThrottledByteWriteStream implements ByteWriteStream
     @Override
     public Result<Integer> write(byte toWrite)
     {
-        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {
@@ -45,7 +45,7 @@ public class ThrottledByteWriteStream implements ByteWriteStream
         PreCondition.assertNotNull(toWrite, "toWrite");
         PreCondition.assertStartIndex(startIndex, toWrite.length);
         PreCondition.assertLength(length, startIndex, toWrite.length);
-        PreCondition.assertNotDisposed(this, "this.isDisposed()");
+        PreCondition.assertNotDisposed(this, "this");
 
         return Result.create(() ->
         {
