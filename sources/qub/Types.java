@@ -538,9 +538,7 @@ public interface Types
      */
     static String getTypeName(Class<?> type)
     {
-        PreCondition.assertNotNull(type, "type");
-
-        return type.getSimpleName();
+        return type == null ? "null" : type.getSimpleName();
     }
 
     /**
@@ -550,9 +548,7 @@ public interface Types
      */
     static String getTypeName(Object value)
     {
-        PreCondition.assertNotNull(value, "value");
-
-        return getTypeName(value.getClass());
+        return Types.getTypeName(value == null ? null : value.getClass());
     }
 
     /**
@@ -562,9 +558,7 @@ public interface Types
      */
     static String getFullTypeName(Class<?> type)
     {
-        PreCondition.assertNotNull(type, "type");
-
-        return type.getCanonicalName();
+        return type == null ? "null" : type.getCanonicalName();
     }
 
     /**
@@ -574,9 +568,7 @@ public interface Types
      */
     static String getFullTypeName(Object value)
     {
-        PreCondition.assertNotNull(value, "value");
-
-        return getFullTypeName(value.getClass());
+        return Types.getFullTypeName(value == null ? null : value.getClass());
     }
 
     static Result<String> getTypeContainerPathString(String fullTypeName)

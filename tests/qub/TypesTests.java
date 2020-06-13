@@ -1030,7 +1030,7 @@ public class TypesTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getTypeName((Object)null), new PreConditionFailure("value cannot be null."));
+                    test.assertEqual("null", Types.getTypeName((Object)null));
                 });
 
                 runner.test("with Object", (Test test) ->
@@ -1048,7 +1048,7 @@ public class TypesTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getTypeName((Class<?>)null), new PreConditionFailure("type cannot be null."));
+                    test.assertEqual("null", Types.getTypeName((Class<?>)null));
                 });
 
                 runner.test("with Object.getClass()", (Test test) ->
@@ -1076,7 +1076,7 @@ public class TypesTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getFullTypeName((Object)null), new PreConditionFailure("value cannot be null."));
+                    test.assertEqual("null", Types.getFullTypeName((Object)null));
                 });
 
                 runner.test("with Object", (Test test) ->
@@ -1094,7 +1094,7 @@ public class TypesTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getFullTypeName((Class<?>)null), new PreConditionFailure("type cannot be null."));
+                    test.assertEqual("null", Types.getFullTypeName((Class<?>)null));
                 });
 
                 runner.test("with Object.getClass()", (Test test) ->

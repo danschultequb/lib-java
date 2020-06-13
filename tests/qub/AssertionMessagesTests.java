@@ -572,8 +572,8 @@ public interface AssertionMessagesTests
             {
                 runner.test("with null value", (Test test) ->
                 {
-                    test.assertThrows(() -> AssertionMessages.instanceOf(null, String.class, "blah"),
-                        new PreConditionFailure("value cannot be null."));
+                    test.assertEqual("blah (null) must be of type java.lang.String.",
+                        AssertionMessages.instanceOf(null, String.class, "blah"));
                 });
 
                 runner.test("with empty value", (Test test) ->
@@ -584,8 +584,8 @@ public interface AssertionMessagesTests
 
                 runner.test("with null type", (Test test) ->
                 {
-                    test.assertThrows(() -> AssertionMessages.instanceOf(20, (Class<?>)null, "blah"),
-                        new PreConditionFailure("type cannot be null."));
+                    test.assertEqual("blah (java.lang.Integer) must be of type null.",
+                        AssertionMessages.instanceOf(20, (Class<?>)null, "blah"));
                 });
 
                 runner.test("with null expressionName", (Test test) ->
@@ -611,8 +611,8 @@ public interface AssertionMessagesTests
             {
                 runner.test("with null value", (Test test) ->
                 {
-                    test.assertThrows(() -> AssertionMessages.instanceOf(null, Iterable.create(String.class), "blah"),
-                        new PreConditionFailure("value cannot be null."));
+                    test.assertEqual("blah (null) must be of type java.lang.String.",
+                        AssertionMessages.instanceOf(null, Iterable.create(String.class), "blah"));
                 });
 
                 runner.test("with empty value", (Test test) ->
