@@ -3,14 +3,14 @@ package qub;
 /**
  * A UIVerticalLayout that displays other SwingUIElements in a vertical stack.
  */
-public class SwingUIVerticalLayout implements UIVerticalLayout, JavaUIElement
+public class SwingUIVerticalLayout implements UIVerticalLayout, AWTUIElement
 {
-    private final JavaUIBase uiBase;
+    private final AWTUIBase uiBase;
     private final javax.swing.JPanel jPanel;
-    private final List<JavaUIElement> elements;
+    private final List<AWTUIElement> elements;
     private VerticalDirection direction;
 
-    private SwingUIVerticalLayout(JavaUIBase uiBase)
+    private SwingUIVerticalLayout(AWTUIBase uiBase)
     {
         PreCondition.assertNotNull(uiBase, "uiBase");
 
@@ -21,14 +21,14 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, JavaUIElement
         this.direction = VerticalDirection.TopToBottom;
     }
 
-    public static SwingUIVerticalLayout create(JavaUIBase base)
+    public static SwingUIVerticalLayout create(AWTUIBase base)
     {
         return new SwingUIVerticalLayout(base);
     }
 
     public static SwingUIVerticalLayout create(Display display, AsyncRunner asyncRunner)
     {
-        return SwingUIVerticalLayout.create(JavaUIBase.create(display, asyncRunner));
+        return SwingUIVerticalLayout.create(AWTUIBase.create(display, asyncRunner));
     }
 
     @Override
@@ -94,7 +94,7 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, JavaUIElement
             {
                 this.jPanel.add(javax.swing.Box.createVerticalGlue(), 0);
             }
-            for (final JavaUIElement element : this.elements)
+            for (final AWTUIElement element : this.elements)
             {
                 this.jPanel.add(element.getComponent());
             }
@@ -114,12 +114,12 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, JavaUIElement
     public SwingUIVerticalLayout add(UIElement uiElement)
     {
         PreCondition.assertNotNull(uiElement, "uiElement");
-        PreCondition.assertInstanceOf(uiElement, JavaUIElement.class, "uiElement");
+        PreCondition.assertInstanceOf(uiElement, AWTUIElement.class, "uiElement");
 
-        final JavaUIElement javaUIElement = (JavaUIElement)uiElement;
-        this.elements.add(javaUIElement);
+        final AWTUIElement AWTUIElement = (AWTUIElement)uiElement;
+        this.elements.add(AWTUIElement);
 
-        final java.awt.Component component = javaUIElement.getComponent();
+        final java.awt.Component component = AWTUIElement.getComponent();
         this.jPanel.add(component);
         this.jPanel.revalidate();
 

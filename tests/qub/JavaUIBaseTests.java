@@ -4,13 +4,13 @@ public interface JavaUIBaseTests
 {
     static void test(TestRunner runner)
     {
-        runner.testGroup(JavaUIBase.class, () ->
+        runner.testGroup(AWTUIBase.class, () ->
         {
             runner.testGroup("onSizeChanged(java.awt.Component,Action0)", () ->
             {
                 runner.test("with null component", (Test test) ->
                 {
-                    final JavaUIBase uiBase = JavaUIBase.create(test.getDisplays().first(), test.getMainAsyncRunner());
+                    final AWTUIBase uiBase = AWTUIBase.create(test.getDisplays().first(), test.getMainAsyncRunner());
                     final java.awt.Component component = null;
                     final Action0 callback = () -> {};
                     test.assertThrows(() -> uiBase.onSizeChanged(component, callback),
@@ -19,7 +19,7 @@ public interface JavaUIBaseTests
 
                 runner.test("with null callback", (Test test) ->
                 {
-                    final JavaUIBase uiBase = JavaUIBase.create(test.getDisplays().first(), test.getMainAsyncRunner());
+                    final AWTUIBase uiBase = AWTUIBase.create(test.getDisplays().first(), test.getMainAsyncRunner());
                     final java.awt.Component component = new javax.swing.JButton();
                     final Action0 callback = null;
                     test.assertThrows(() -> uiBase.onSizeChanged(component, callback),
@@ -28,7 +28,7 @@ public interface JavaUIBaseTests
 
                 runner.test("with valid arguments", (Test test) ->
                 {
-                    final JavaUIBase uiBase = JavaUIBase.create(test.getDisplays().first(), test.getMainAsyncRunner());
+                    final AWTUIBase uiBase = AWTUIBase.create(test.getDisplays().first(), test.getMainAsyncRunner());
                     final java.awt.Component component = new javax.swing.JButton();
                     final Action0 callback = () -> {};
 

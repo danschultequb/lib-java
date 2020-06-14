@@ -10,7 +10,7 @@ public interface SwingWindowTests
             {
                 final Display display = test.getDisplays().first();
                 final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                final JavaUIBase base = JavaUIBase.create(display, asyncRunner);
+                final AWTUIBase base = AWTUIBase.create(display, asyncRunner);
                 return SwingWindow.create(base);
             };
 
@@ -189,24 +189,26 @@ public interface SwingWindowTests
                     }
                 });
 
-                runner.test("when visible", runner.skip(), (Test test) ->
+                runner.test("when visible", runner.skip(false), (Test test) ->
                 {
                     final Display display = test.getDisplays().first();
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    final JavaUIBase base = JavaUIBase.create(display, asyncRunner);
+                    final SwingUIBase base = SwingUIBase.create(display, asyncRunner);
                     try (final SwingWindow window = SwingWindow.create(base).setTitle(test.getFullName()))
                     {
                         window.setSize(Distance.inches(4), Distance.inches(4));
 
+                        final UITextBox textBox = SwingUITextBox.create(base)
+                            .setFontSize(Distance.inches(0.5));
+
                         final UIText text = SwingUIText.create(base)
                             .setFontSize(Distance.inches(0.5));
 
-                        final Action0 setText = () -> text.setText("[" + window.getWidth().toString("#.#") + ", " + window.getHeight().toString("#.#") + "]");
-                        setText.run();
+                        textBox.onTextChanged(text::setText);
 
-                        window.onSizeChanged(setText);
-
-                        window.setContent(SwingUIVerticalLayout.create(base).add(text));
+                        window.setContent(SwingUIVerticalLayout.create(base)
+                            .add(textBox)
+                            .add(text));
 
                         window.setVisible(true);
 
@@ -271,7 +273,7 @@ public interface SwingWindowTests
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                     try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
                     {
-                        test.assertThrows(() -> window.setContent((JavaUIElement)null),
+                        test.assertThrows(() -> window.setContent((AWTUIElement)null),
                                 new PreConditionFailure("content cannot be null."));
                         test.assertNull(window.getContent());
                     }
@@ -284,7 +286,7 @@ public interface SwingWindowTests
                     try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
                     {
                         final SwingUIButton content = SwingUIButton.create(display, asyncRunner).setText("Hello World!");
-                        final SwingWindow setContentResult = window.setContent((JavaUIElement)content);
+                        final SwingWindow setContentResult = window.setContent((AWTUIElement)content);
                         test.assertSame(window, setContentResult);
                         test.assertSame(content, window.getContent());
                     }
@@ -301,7 +303,7 @@ public interface SwingWindowTests
                         test.assertSame(content1, window.getContent());
 
                         final SwingUIButton content2 = SwingUIButton.create(display, asyncRunner).setText("Hello World!");
-                        final SwingWindow setContentResult = window.setContent((JavaUIElement)content2);
+                        final SwingWindow setContentResult = window.setContent((AWTUIElement)content2);
                         test.assertSame(window, setContentResult);
                         test.assertSame(content2, window.getContent());
                     }

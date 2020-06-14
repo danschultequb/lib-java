@@ -27,7 +27,7 @@ public interface SwingUIVerticalLayoutTests
                 {
                     final Display display = test.getDisplays().first();
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    final JavaUIBase base = JavaUIBase.create(display, asyncRunner);
+                    final AWTUIBase base = AWTUIBase.create(display, asyncRunner);
                     final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayout.create(base);
                     test.assertNotNull(verticalLayout);
                     test.assertEqual(Distance.zero, verticalLayout.getWidth());

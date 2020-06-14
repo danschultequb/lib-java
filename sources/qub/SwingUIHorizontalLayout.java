@@ -3,14 +3,14 @@ package qub;
 /**
  * A UIHorizontalLayout that displays other SwingUIElements in a horizontal stack.
  */
-public class SwingUIHorizontalLayout implements UIHorizontalLayout, JavaUIElement
+public class SwingUIHorizontalLayout implements UIHorizontalLayout, AWTUIElement
 {
     private final javax.swing.JPanel jPanel;
-    private final JavaUIBase uiBase;
-    private final List<JavaUIElement> elements;
+    private final AWTUIBase uiBase;
+    private final List<AWTUIElement> elements;
     private HorizontalDirection direction;
 
-    private SwingUIHorizontalLayout(JavaUIBase uiBase)
+    private SwingUIHorizontalLayout(AWTUIBase uiBase)
     {
         PreCondition.assertNotNull(uiBase, "uiBase");
 
@@ -21,14 +21,14 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, JavaUIElemen
         this.direction = HorizontalDirection.LeftToRight;
     }
 
-    public static SwingUIHorizontalLayout create(JavaUIBase base)
+    public static SwingUIHorizontalLayout create(AWTUIBase base)
     {
         return new SwingUIHorizontalLayout(base);
     }
 
     public static SwingUIHorizontalLayout create(Display display, AsyncRunner asyncRunner)
     {
-        return SwingUIHorizontalLayout.create(JavaUIBase.create(display, asyncRunner));
+        return SwingUIHorizontalLayout.create(AWTUIBase.create(display, asyncRunner));
     }
 
     @Override
@@ -95,7 +95,7 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, JavaUIElemen
             {
                 this.jPanel.add(javax.swing.Box.createHorizontalGlue(), 0);
             }
-            for (final JavaUIElement element : this.elements)
+            for (final AWTUIElement element : this.elements)
             {
                 this.jPanel.add(element.getComponent());
             }
@@ -115,12 +115,12 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, JavaUIElemen
     public SwingUIHorizontalLayout add(UIElement uiElement)
     {
         PreCondition.assertNotNull(uiElement, "uiElement");
-        PreCondition.assertInstanceOf(uiElement, JavaUIElement.class, "uiElement");
+        PreCondition.assertInstanceOf(uiElement, AWTUIElement.class, "uiElement");
 
-        final JavaUIElement javaUIElement = (JavaUIElement)uiElement;
-        this.elements.add(javaUIElement);
+        final AWTUIElement AWTUIElement = (AWTUIElement)uiElement;
+        this.elements.add(AWTUIElement);
 
-        final java.awt.Component component = javaUIElement.getComponent();
+        final java.awt.Component component = AWTUIElement.getComponent();
         this.jPanel.add(component);
         this.jPanel.revalidate();
 

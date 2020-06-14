@@ -2,13 +2,13 @@ package qub;
 
 public class SwingWindow implements Window, Disposable
 {
-    private final JavaUIBase uiBase;
+    private final AWTUIBase uiBase;
     private final javax.swing.JFrame jFrame;
     private final PausedAsyncTask<Void> disposedTask;
     private boolean isDisposed;
-    private JavaUIElement content;
+    private AWTUIElement content;
 
-    private SwingWindow(JavaUIBase uiBase)
+    private SwingWindow(AWTUIBase uiBase)
     {
         PreCondition.assertNotNull(uiBase, "uiBase");
 
@@ -56,7 +56,7 @@ public class SwingWindow implements Window, Disposable
         this.disposedTask = uiBase.createPausedAsyncTask();
     }
 
-    public static SwingWindow create(JavaUIBase base)
+    public static SwingWindow create(AWTUIBase base)
     {
         PreCondition.assertNotNull(base, "base");
 
@@ -71,7 +71,7 @@ public class SwingWindow implements Window, Disposable
      */
     public static SwingWindow create(Display display, AsyncRunner asyncRunner)
     {
-        return SwingWindow.create(JavaUIBase.create(display, asyncRunner));
+        return SwingWindow.create(AWTUIBase.create(display, asyncRunner));
     }
 
     @Override
@@ -94,20 +94,20 @@ public class SwingWindow implements Window, Disposable
     public SwingWindow setContent(UIElement content)
     {
         PreCondition.assertNotNull(content, "content");
-        PreCondition.assertInstanceOf(content, JavaUIElement.class, "content");
+        PreCondition.assertInstanceOf(content, AWTUIElement.class, "content");
 
         if (this.content != null)
         {
             this.jFrame.remove(this.content.getComponent());
         }
-        this.content = (JavaUIElement)content;
+        this.content = (AWTUIElement)content;
         this.jFrame.add(this.content.getComponent());
 
         return this;
     }
 
     @Override
-    public JavaUIElement getContent()
+    public AWTUIElement getContent()
     {
         return this.content;
     }

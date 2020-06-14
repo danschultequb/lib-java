@@ -10,7 +10,7 @@ public interface SwingUIHorizontalLayoutTests
             {
                 final Display display = test.getDisplays().first();
                 final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                final JavaUIBase base = JavaUIBase.create(display, asyncRunner);
+                final AWTUIBase base = AWTUIBase.create(display, asyncRunner);
                 return SwingUIHorizontalLayout.create(base);
             };
 
@@ -28,7 +28,7 @@ public interface SwingUIHorizontalLayoutTests
                 {
                     final Display display = test.getDisplays().first();
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    final JavaUIBase base = JavaUIBase.create(display, asyncRunner);
+                    final AWTUIBase base = AWTUIBase.create(display, asyncRunner);
                     final SwingUIHorizontalLayout verticalLayout = SwingUIHorizontalLayout.create(base);
                     test.assertNotNull(verticalLayout);
                     test.assertEqual(Distance.zero, verticalLayout.getWidth());

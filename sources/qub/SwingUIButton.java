@@ -3,12 +3,12 @@ package qub;
 /**
  * A UIButton that is implemented using a Swing JButton.
  */
-public class SwingUIButton implements UIButton, JavaUIElement
+public class SwingUIButton implements UIButton, SwingUIElement
 {
-    private final JavaUIBase uiBase;
+    private final AWTUIBase uiBase;
     private final javax.swing.JButton jButton;
 
-    private SwingUIButton(JavaUIBase uiBase)
+    private SwingUIButton(AWTUIBase uiBase)
     {
         PreCondition.assertNotNull(uiBase, "uiBase");
 
@@ -20,7 +20,7 @@ public class SwingUIButton implements UIButton, JavaUIElement
      * Create a new SwingUIButton.
      * @return The new SwingUIButton.
      */
-    public static SwingUIButton create(JavaUIBase base)
+    public static SwingUIButton create(AWTUIBase base)
     {
         return new SwingUIButton(base);
     }
@@ -33,11 +33,17 @@ public class SwingUIButton implements UIButton, JavaUIElement
      */
     public static SwingUIButton create(Display display, AsyncRunner asyncRunner)
     {
-        return SwingUIButton.create(JavaUIBase.create(display, asyncRunner));
+        return SwingUIButton.create(AWTUIBase.create(display, asyncRunner));
     }
 
     @Override
     public javax.swing.JButton getComponent()
+    {
+        return this.jButton;
+    }
+
+    @Override
+    public javax.swing.JButton getJComponent()
     {
         return this.jButton;
     }
@@ -51,7 +57,7 @@ public class SwingUIButton implements UIButton, JavaUIElement
     @Override
     public Distance getWidth()
     {
-        return this.uiBase.getWidth(this.jButton);
+        return this.uiBase.getWidth(this);
     }
 
     @Override
@@ -63,7 +69,7 @@ public class SwingUIButton implements UIButton, JavaUIElement
     @Override
     public Distance getHeight()
     {
-        return this.uiBase.getHeight(this.jButton);
+        return this.uiBase.getHeight(this);
     }
 
     @Override
@@ -75,14 +81,14 @@ public class SwingUIButton implements UIButton, JavaUIElement
     @Override
     public SwingUIButton setSize(Distance width, Distance height)
     {
-        this.uiBase.setSize(this.jButton, width, height);
+        this.uiBase.setSize(this, width, height);
         return this;
     }
 
     @Override
     public Disposable onSizeChanged(Action0 callback)
     {
-        return this.uiBase.onSizeChanged(this.jButton, callback);
+        return this.uiBase.onSizeChanged(this, callback);
     }
 
     @Override
@@ -104,13 +110,13 @@ public class SwingUIButton implements UIButton, JavaUIElement
     @Override
     public Distance getFontSize()
     {
-        return this.uiBase.getFontSize(this.jButton);
+        return this.uiBase.getFontSize(this);
     }
 
     @Override
     public SwingUIButton setFontSize(Distance fontSize)
     {
-        this.uiBase.setFontSize(this.jButton, fontSize);
+        this.uiBase.setFontSize(this, fontSize);
         return this;
     }
 

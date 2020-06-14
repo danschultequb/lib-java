@@ -43,8 +43,11 @@ public interface SwingUIButtonTests
                     test.assertEqual(Distance.zero, button.getWidth());
                     test.assertEqual(Distance.zero, button.getHeight());
 
-                    final javax.swing.JButton jButton = button.getComponent();
-                    test.assertNotNull(jButton);
+                    final javax.swing.JButton component = button.getComponent();
+                    test.assertNotNull(component);
+
+                    final javax.swing.JButton jComponent = button.getJComponent();
+                    test.assertNotNull(jComponent);
                 });
             });
 

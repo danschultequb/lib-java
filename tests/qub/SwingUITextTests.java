@@ -10,7 +10,7 @@ public interface SwingUITextTests
             {
                 final Display display = test.getDisplays().first();
                 final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                final JavaUIBase base = JavaUIBase.create(display, asyncRunner);
+                final AWTUIBase base = AWTUIBase.create(display, asyncRunner);
                 return SwingUIText.create(base);
             };
 
@@ -20,13 +20,13 @@ public interface SwingUITextTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> SwingUIText.create((JavaUIBase)null),
+                    test.assertThrows(() -> SwingUIText.create((AWTUIBase)null),
                         new PreConditionFailure("uiBase cannot be null."));
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final SwingUIText text = SwingUIText.create(JavaUIBase.create(test.getDisplays().first(), test.getMainAsyncRunner()));
+                    final SwingUIText text = SwingUIText.create(AWTUIBase.create(test.getDisplays().first(), test.getMainAsyncRunner()));
                     test.assertNotNull(text);
                     test.assertEqual("", text.getText());
                     final javax.swing.JLabel jLabel = text.getComponent();

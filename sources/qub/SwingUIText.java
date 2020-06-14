@@ -1,11 +1,11 @@
 package qub;
 
-public class SwingUIText implements UIText, JavaUIElement
+public class SwingUIText implements UIText, AWTUIElement
 {
-    private JavaUIBase uiBase;
+    private AWTUIBase uiBase;
     private final javax.swing.JLabel jLabel;
 
-    private SwingUIText(JavaUIBase uiBase)
+    private SwingUIText(AWTUIBase uiBase)
     {
         PreCondition.assertNotNull(uiBase, "uiBase");
 
@@ -13,14 +13,14 @@ public class SwingUIText implements UIText, JavaUIElement
         this.jLabel = new javax.swing.JLabel();
     }
 
-    public static SwingUIText create(JavaUIBase base)
+    public static SwingUIText create(AWTUIBase base)
     {
         return new SwingUIText(base);
     }
 
     public static SwingUIText create(Display display, AsyncRunner asyncRunner)
     {
-        return SwingUIText.create(JavaUIBase.create(display, asyncRunner));
+        return SwingUIText.create(AWTUIBase.create(display, asyncRunner));
     }
 
     @Override

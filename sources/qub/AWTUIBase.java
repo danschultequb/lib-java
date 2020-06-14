@@ -1,11 +1,11 @@
 package qub;
 
-public class JavaUIBase
+public class AWTUIBase
 {
     private final Display display;
     private final AsyncRunner asyncRunner;
 
-    private JavaUIBase(Display display, AsyncRunner asyncRunner)
+    protected AWTUIBase(Display display, AsyncRunner asyncRunner)
     {
         PreCondition.assertNotNull(display, "display");
         PreCondition.assertNotNull(asyncRunner, "asyncRunner");
@@ -14,9 +14,9 @@ public class JavaUIBase
         this.asyncRunner = asyncRunner;
     }
 
-    public static JavaUIBase create(Display display, AsyncRunner asyncRunner)
+    public static AWTUIBase create(Display display, AsyncRunner asyncRunner)
     {
-        return new JavaUIBase(display, asyncRunner);
+        return new AWTUIBase(display, asyncRunner);
     }
 
     public Result<Void> scheduleAsyncTask(Action0 action)
@@ -38,6 +38,13 @@ public class JavaUIBase
         return this.createPausedAsyncTask(() -> {});
     }
 
+    public Distance getWidth(AWTUIElement awtUIElement)
+    {
+        PreCondition.assertNotNull(awtUIElement, "awtUIElement");
+
+        return this.getWidth(awtUIElement.getComponent());
+    }
+
     public Distance getWidth(java.awt.Component component)
     {
         PreCondition.assertNotNull(component, "component");
@@ -49,6 +56,13 @@ public class JavaUIBase
         PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
 
         return result;
+    }
+
+    public Distance getHeight(AWTUIElement awtUiElement)
+    {
+        PreCondition.assertNotNull(awtUiElement, "awtUiElement");
+
+        return this.getHeight(awtUiElement.getComponent());
     }
 
     public Distance getHeight(java.awt.Component component)
@@ -64,6 +78,13 @@ public class JavaUIBase
         return result;
     }
 
+    public void setSize(AWTUIElement awtUiElement, Distance width, Distance height)
+    {
+        PreCondition.assertNotNull(awtUiElement, "awtUiElement");
+
+        this.setSize(awtUiElement.getComponent(), width, height);
+    }
+
     public void setSize(java.awt.Component component, Distance width, Distance height)
     {
         PreCondition.assertNotNull(component, "component");
@@ -75,6 +96,20 @@ public class JavaUIBase
         final int widthInPixels = (int)this.display.convertHorizontalDistanceToPixels(width);
         final int heightInPixels = (int)this.display.convertVerticalDistanceToPixels(height);
         component.setSize(widthInPixels, heightInPixels);
+    }
+
+    /**
+     * Register the provided callback to be invoked when the provided AWTUIElement's size changes.
+     * @param awtUiElement The AWTUIElement to watch.
+     * @param callback The callback to register.
+     * @return A Disposable that can be disposed to unregister the provided callback from the
+     * provided AWTUIElement.
+     */
+    public Disposable onSizeChanged(AWTUIElement awtUiElement, Action0 callback)
+    {
+        PreCondition.assertNotNull(awtUiElement, "awtUiElement");
+
+        return this.onSizeChanged(awtUiElement.getComponent(), callback);
     }
 
     /**
@@ -94,7 +129,7 @@ public class JavaUIBase
             @Override
             public void componentResized(java.awt.event.ComponentEvent e)
             {
-                JavaUIBase.this.scheduleAsyncTask(callback);
+                AWTUIBase.this.scheduleAsyncTask(callback);
             }
 
             @Override
@@ -117,27 +152,46 @@ public class JavaUIBase
     }
 
     /**
-     * Set the size of the font of the provided JComponent.
-     * @param jComponent The JComponent to set the font size for.
+     * Set the size of the font of the provided AWTUIElement.
+     * @param awtUiElement The AWTUIElement to set the font size for.
      * @param fontSize The size of the font to set.
      */
-    public void setFontSize(javax.swing.JComponent jComponent, Distance fontSize)
+    public void setFontSize(AWTUIElement awtUiElement, Distance fontSize)
     {
-        PreCondition.assertNotNull(jComponent, "jComponent");
+        PreCondition.assertNotNull(awtUiElement, "awtUiElement");
+
+        this.setFontSize(awtUiElement.getComponent(), fontSize);
+    }
+
+    /**
+     * Set the size of the font of the provided Component.
+     * @param component The Component to set the font size for.
+     * @param fontSize The size of the font to set.
+     */
+    public void setFontSize(java.awt.Component component, Distance fontSize)
+    {
+        PreCondition.assertNotNull(component, "component");
         PreCondition.assertNotNull(fontSize, "fontSize");
         PreCondition.assertGreaterThanOrEqualTo(fontSize, Distance.zero, "fontSize");
 
-        final java.awt.Font font = jComponent.getFont();
+        final java.awt.Font font = component.getFont();
         final float fontPoints = (float)fontSize.toFontPoints().getValue();
         final java.awt.Font updatedFont = font.deriveFont(fontPoints);
-        jComponent.setFont(updatedFont);
+        component.setFont(updatedFont);
     }
 
-    public Distance getFontSize(javax.swing.JComponent jComponent)
+    public Distance getFontSize(AWTUIElement awtUiElement)
     {
-        PreCondition.assertNotNull(jComponent, "jComponent");
+        PreCondition.assertNotNull(awtUiElement, "awtUiElement");
 
-        final float fontSize2D = jComponent.getFont().getSize2D();
+        return this.getFontSize(awtUiElement.getComponent());
+    }
+
+    public Distance getFontSize(java.awt.Component component)
+    {
+        PreCondition.assertNotNull(component, "component");
+
+        final float fontSize2D = component.getFont().getSize2D();
         final Distance result = Distance.fontPoints(fontSize2D);
 
         PostCondition.assertNotNull(result, "result");
