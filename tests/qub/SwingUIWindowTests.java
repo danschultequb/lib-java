@@ -1,38 +1,38 @@
 package qub;
 
-public interface SwingWindowTests
+public interface SwingUIWindowTests
 {
     static void test(TestRunner runner)
     {
-        runner.testGroup(SwingWindow.class, () ->
+        runner.testGroup(SwingUIWindow.class, () ->
         {
-            final Function1<Test,SwingWindow> creator = (Test test) ->
+            final Function1<Test, SwingUIWindow> creator = (Test test) ->
             {
                 final Display display = test.getDisplays().first();
                 final AsyncRunner asyncRunner = test.getMainAsyncRunner();
                 final AWTUIBase base = AWTUIBase.create(display, asyncRunner);
-                return SwingWindow.create(base);
+                return SwingUIWindow.create(base);
             };
 
             runner.testGroup("create(Display)", () ->
             {
                 runner.test("with null Display", (Test test) ->
                 {
-                    test.assertThrows(() -> SwingWindow.create(null, test.getMainAsyncRunner()),
+                    test.assertThrows(() -> SwingUIWindow.create(null, test.getMainAsyncRunner()),
                         new PreConditionFailure("display cannot be null."));
                 });
 
                 runner.test("with null AsyncRunner", (Test test) ->
                 {
                     final Display display = new Display(1000, 1000, 100, 100);
-                    test.assertThrows(() -> SwingWindow.create(display, null),
+                    test.assertThrows(() -> SwingUIWindow.create(display, null),
                             new PreConditionFailure("asyncRunner cannot be null."));
                 });
 
                 runner.test("with valid arguments", (Test test) ->
                 {
                     final Display display = new Display(1000, 1000, 100, 100);
-                    try (final SwingWindow window = SwingWindow.create(display, test.getMainAsyncRunner()))
+                    try (final SwingUIWindow window = SwingUIWindow.create(display, test.getMainAsyncRunner()))
                     {
                         test.assertNotNull(window);
                         test.assertEqual("", window.getTitle());
@@ -51,7 +51,7 @@ public interface SwingWindowTests
                     {
                         final Display display = new Display(1000, 1000, 100, 100);
                         final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                        try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                        try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                         {
                             test.assertThrows(() -> window.setTitle(title), expected);
                             test.assertEqual("", window.getTitle());
@@ -67,9 +67,9 @@ public interface SwingWindowTests
                     {
                         final Display display = new Display(1000, 1000, 100, 100);
                         final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                        try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                        try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                         {
-                            final SwingWindow setTitleResult = window.setTitle(title);
+                            final SwingUIWindow setTitleResult = window.setTitle(title);
                             test.assertSame(window, setTitleResult);
                             test.assertEqual(title, window.getTitle());
                         }
@@ -87,9 +87,9 @@ public interface SwingWindowTests
                 {
                     final Display display = new Display(1000, 1000, 100, 100);
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                    try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                     {
-                        final SwingWindow setVisibleResult = window.setVisible(false);
+                        final SwingUIWindow setVisibleResult = window.setVisible(false);
                         test.assertSame(window, setVisibleResult);
                         test.assertFalse(window.isVisible());
                     }
@@ -99,9 +99,9 @@ public interface SwingWindowTests
                 {
                     final Display display = new Display(1000, 1000, 100, 100);
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                    try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                     {
-                        final SwingWindow setVisibleResult = window.setVisible(true);
+                        final SwingUIWindow setVisibleResult = window.setVisible(true);
                         test.assertSame(window, setVisibleResult);
                         test.assertTrue(window.isVisible());
                     }
@@ -111,9 +111,9 @@ public interface SwingWindowTests
                 {
                     final Display display = new Display(1000, 1000, 100, 100);
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    try (final SwingWindow window = SwingWindow.create(display, asyncRunner).setVisible(true))
+                    try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner).setVisible(true))
                     {
-                        final SwingWindow setVisibleResult = window.setVisible(false);
+                        final SwingUIWindow setVisibleResult = window.setVisible(false);
                         test.assertSame(window, setVisibleResult);
                         test.assertFalse(window.isVisible());
                     }
@@ -123,9 +123,9 @@ public interface SwingWindowTests
                 {
                     final Display display = new Display(1000, 1000, 100, 100);
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    try (final SwingWindow window = SwingWindow.create(display, asyncRunner).setVisible(true))
+                    try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner).setVisible(true))
                     {
-                        final SwingWindow setVisibleResult = window.setVisible(true);
+                        final SwingUIWindow setVisibleResult = window.setVisible(true);
                         test.assertSame(window, setVisibleResult);
                         test.assertTrue(window.isVisible());
                     }
@@ -135,7 +135,7 @@ public interface SwingWindowTests
                 {
                     final Display display = new Display(1000, 1000, 100, 100);
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                    try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                     {
                         window.dispose().await();
 
@@ -148,7 +148,7 @@ public interface SwingWindowTests
                 {
                     final Display display = new Display(1000, 1000, 100, 100);
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                    try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                     {
                         window.dispose().await();
 
@@ -162,7 +162,7 @@ public interface SwingWindowTests
             {
                 final Display display = new Display(1000, 1000, 100, 100);
                 final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                 {
                     test.assertFalse(window.isDisposed());
 
@@ -180,7 +180,7 @@ public interface SwingWindowTests
                 {
                     final Display display = test.getDisplays().first();
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                    try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                     {
                         test.assertThrows(() -> window.await(),
                                 new PreConditionFailure("this.isVisible() cannot be false."));
@@ -191,22 +191,20 @@ public interface SwingWindowTests
 
                 runner.test("when visible", runner.skip(false), (Test test) ->
                 {
-                    final Display display = test.getDisplays().first();
-                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    final SwingUIBase base = SwingUIBase.create(display, asyncRunner);
-                    try (final SwingWindow window = SwingWindow.create(base).setTitle(test.getFullName()))
+                    final SwingUIBuilder uiBuilder = SwingUIBuilder.create(test.getProcess());
+                    try (final SwingUIWindow window = uiBuilder.createUIWindow().setTitle(test.getFullName()))
                     {
                         window.setSize(Distance.inches(4), Distance.inches(4));
 
-                        final UITextBox textBox = SwingUITextBox.create(base)
+                        final UITextBox textBox = uiBuilder.createUITextBox()
                             .setFontSize(Distance.inches(0.5));
 
-                        final UIText text = SwingUIText.create(base)
+                        final UIText text = uiBuilder.createUIText()
                             .setFontSize(Distance.inches(0.5));
 
                         textBox.onTextChanged(text::setText);
 
-                        window.setContent(SwingUIVerticalLayout.create(base)
+                        window.setContent(uiBuilder.createUIVerticalLayout()
                             .add(textBox)
                             .add(text));
 
@@ -226,7 +224,7 @@ public interface SwingWindowTests
                 {
                     final Display display = test.getDisplays().first();
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                    try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                     {
                         test.assertThrows(() -> window.setContent((UIElement)null),
                                 new PreConditionFailure("content cannot be null."));
@@ -238,10 +236,10 @@ public interface SwingWindowTests
                 {
                     final Display display = test.getDisplays().first();
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                    try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                     {
                         final SwingUIButton content = SwingUIButton.create(display, asyncRunner).setText("Hello World!");
-                        final SwingWindow setContentResult = window.setContent((UIElement)content);
+                        final SwingUIWindow setContentResult = window.setContent((UIElement)content);
                         test.assertSame(window, setContentResult);
                         test.assertSame(content, window.getContent());
                     }
@@ -251,14 +249,14 @@ public interface SwingWindowTests
                 {
                     final Display display = test.getDisplays().first();
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                    try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                     {
                         final SwingUIButton content1 = SwingUIButton.create(display, asyncRunner).setText("First Content");
                         window.setContent(content1);
                         test.assertSame(content1, window.getContent());
 
                         final SwingUIButton content2 = SwingUIButton.create(display, asyncRunner).setText("Hello World!");
-                        final SwingWindow setContentResult = window.setContent((UIElement)content2);
+                        final SwingUIWindow setContentResult = window.setContent((UIElement)content2);
                         test.assertSame(window, setContentResult);
                         test.assertSame(content2, window.getContent());
                     }
@@ -271,7 +269,7 @@ public interface SwingWindowTests
                 {
                     final Display display = test.getDisplays().first();
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                    try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                     {
                         test.assertThrows(() -> window.setContent((AWTUIElement)null),
                                 new PreConditionFailure("content cannot be null."));
@@ -283,10 +281,10 @@ public interface SwingWindowTests
                 {
                     final Display display = test.getDisplays().first();
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                    try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                     {
                         final SwingUIButton content = SwingUIButton.create(display, asyncRunner).setText("Hello World!");
-                        final SwingWindow setContentResult = window.setContent((AWTUIElement)content);
+                        final SwingUIWindow setContentResult = window.setContent((AWTUIElement)content);
                         test.assertSame(window, setContentResult);
                         test.assertSame(content, window.getContent());
                     }
@@ -296,14 +294,14 @@ public interface SwingWindowTests
                 {
                     final Display display = test.getDisplays().first();
                     final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                    try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                     {
                         final SwingUIButton content1 = SwingUIButton.create(display, asyncRunner).setText("First Content");
                         window.setContent(content1);
                         test.assertSame(content1, window.getContent());
 
                         final SwingUIButton content2 = SwingUIButton.create(display, asyncRunner).setText("Hello World!");
-                        final SwingWindow setContentResult = window.setContent((AWTUIElement)content2);
+                        final SwingUIWindow setContentResult = window.setContent((AWTUIElement)content2);
                         test.assertSame(window, setContentResult);
                         test.assertSame(content2, window.getContent());
                     }
@@ -318,7 +316,7 @@ public interface SwingWindowTests
                     {
                         final Display display = new Display(1000, 1000, 100, 100);
                         final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                        try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                        try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                         {
                             test.assertThrows(() -> window.setWidth(width), expected);
                         }
@@ -334,9 +332,9 @@ public interface SwingWindowTests
                     {
                         final Display display = new Display(1000, 1000, 100, 100);
                         final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                        try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                        try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                         {
-                            final SwingWindow setWidthResult = window.setWidth(width);
+                            final SwingUIWindow setWidthResult = window.setWidth(width);
                             test.assertSame(window, setWidthResult);
                             test.assertEqual(expectedWidth, window.getWidth());
                         }
@@ -356,7 +354,7 @@ public interface SwingWindowTests
                     {
                         final Display display = new Display(1000, 1000, 100, 100);
                         final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                        try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                        try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                         {
                             test.assertThrows(() -> window.setHeight(height), expected);
                         }
@@ -372,9 +370,9 @@ public interface SwingWindowTests
                     {
                         final Display display = new Display(1000, 1000, 100, 100);
                         final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                        try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                        try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                         {
-                            final SwingWindow setHeightResult = window.setHeight(height);
+                            final SwingUIWindow setHeightResult = window.setHeight(height);
                             test.assertSame(window, setHeightResult);
                             test.assertEqual(height, window.getHeight());
                         }
@@ -394,7 +392,7 @@ public interface SwingWindowTests
                     {
                         final Display display = new Display(1000, 1000, 100, 100);
                         final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                        try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                        try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                         {
                             test.assertThrows(() -> window.setSize(size), expected);
                         }
@@ -409,9 +407,9 @@ public interface SwingWindowTests
                     {
                         final Display display = new Display(1000, 1000, 100, 100);
                         final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                        try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                        try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                         {
-                            final SwingWindow setSizeResult = window.setSize(size);
+                            final SwingUIWindow setSizeResult = window.setSize(size);
                             test.assertSame(window, setSizeResult);
                             test.assertEqual(size, window.getSize());
                         }
@@ -432,7 +430,7 @@ public interface SwingWindowTests
                     {
                         final Display display = new Display(1000, 1000, 100, 100);
                         final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                        try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                        try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                         {
                             test.assertThrows(() -> window.setSize(width, height), expected);
                         }
@@ -450,9 +448,9 @@ public interface SwingWindowTests
                     {
                         final Display display = new Display(1000, 1000, 100, 100);
                         final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                        try (final SwingWindow window = SwingWindow.create(display, asyncRunner))
+                        try (final SwingUIWindow window = SwingUIWindow.create(display, asyncRunner))
                         {
-                            final SwingWindow setHeightResult = window.setSize(width, height);
+                            final SwingUIWindow setHeightResult = window.setSize(width, height);
                             test.assertSame(window, setHeightResult);
                             test.assertEqual(width, window.getWidth());
                             test.assertEqual(height, window.getHeight());

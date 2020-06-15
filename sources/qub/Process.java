@@ -748,5 +748,5 @@ public interface Process extends Disposable
      * so it will not be visible initially.
      * @return The new Window.
      */
-    Result<Window> createWindow();
+    Result<UIWindow> createWindow();
 }

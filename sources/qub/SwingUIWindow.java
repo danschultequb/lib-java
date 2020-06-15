@@ -1,6 +1,6 @@
 package qub;
 
-public class SwingWindow implements Window, Disposable
+public class SwingUIWindow implements UIWindow
 {
     private final AWTUIBase uiBase;
     private final javax.swing.JFrame jFrame;
@@ -8,7 +8,7 @@ public class SwingWindow implements Window, Disposable
     private boolean isDisposed;
     private AWTUIElement content;
 
-    private SwingWindow(AWTUIBase uiBase)
+    private SwingUIWindow(AWTUIBase uiBase)
     {
         PreCondition.assertNotNull(uiBase, "uiBase");
 
@@ -30,7 +30,7 @@ public class SwingWindow implements Window, Disposable
             @Override
             public void windowClosed(java.awt.event.WindowEvent e)
             {
-                SwingWindow.this.dispose().await();
+                SwingUIWindow.this.dispose().await();
             }
 
             @Override
@@ -56,11 +56,11 @@ public class SwingWindow implements Window, Disposable
         this.disposedTask = uiBase.createPausedAsyncTask();
     }
 
-    public static SwingWindow create(AWTUIBase base)
+    public static SwingUIWindow create(AWTUIBase base)
     {
         PreCondition.assertNotNull(base, "base");
 
-        return new SwingWindow(base);
+        return new SwingUIWindow(base);
     }
 
     /**
@@ -69,13 +69,13 @@ public class SwingWindow implements Window, Disposable
      * @param asyncRunner The AsyncRunner that UI events will be scheduled on.
      * @return The new Java Swing Window.
      */
-    public static SwingWindow create(Display display, AsyncRunner asyncRunner)
+    public static SwingUIWindow create(Display display, AsyncRunner asyncRunner)
     {
-        return SwingWindow.create(AWTUIBase.create(display, asyncRunner));
+        return SwingUIWindow.create(AWTUIBase.create(display, asyncRunner));
     }
 
     @Override
-    public SwingWindow setTitle(String title)
+    public SwingUIWindow setTitle(String title)
     {
         PreCondition.assertNotNull(title, "title");
 
@@ -91,7 +91,7 @@ public class SwingWindow implements Window, Disposable
     }
 
     @Override
-    public SwingWindow setContent(UIElement content)
+    public SwingUIWindow setContent(UIElement content)
     {
         PreCondition.assertNotNull(content, "content");
         PreCondition.assertInstanceOf(content, AWTUIElement.class, "content");
@@ -117,7 +117,7 @@ public class SwingWindow implements Window, Disposable
      * @param visible Whether or not this SwingWindow is visible.
      * @return This object for method chaining.
      */
-    public SwingWindow setVisible(boolean visible)
+    public SwingUIWindow setVisible(boolean visible)
     {
         PreCondition.assertNotDisposed(this, "this");
 
@@ -172,7 +172,7 @@ public class SwingWindow implements Window, Disposable
      * @param width The width of this Window.
      * @return This object for method chaining.
      */
-    public SwingWindow setWidth(Distance width)
+    public SwingUIWindow setWidth(Distance width)
     {
         PreCondition.assertNotNull(width, "width");
         PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
@@ -194,7 +194,7 @@ public class SwingWindow implements Window, Disposable
      * @param height The height of this Window.
      * @return This object for method chaining.
      */
-    public SwingWindow setHeight(Distance height)
+    public SwingUIWindow setHeight(Distance height)
     {
         PreCondition.assertNotNull(height, "height");
         PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
@@ -216,7 +216,7 @@ public class SwingWindow implements Window, Disposable
      * @param size The size of this Window.
      * @return This object for method chaining.
      */
-    public SwingWindow setSize(Size2D size)
+    public SwingUIWindow setSize(Size2D size)
     {
         PreCondition.assertNotNull(size, "size");
 
@@ -229,7 +229,7 @@ public class SwingWindow implements Window, Disposable
      * @param height The height of this Window.
      * @return This object for method chaining.
      */
-    public SwingWindow setSize(Distance width, Distance height)
+    public SwingUIWindow setSize(Distance width, Distance height)
     {
         this.uiBase.setSize(this.jFrame, width, height);
         return this;

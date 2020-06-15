@@ -1,7 +1,5 @@
 package qub;
 
-import javax.swing.event.DocumentEvent;
-
 public class SwingUIBase extends AWTUIBase
 {
     protected SwingUIBase(Display display, AsyncRunner asyncRunner)
@@ -12,6 +10,11 @@ public class SwingUIBase extends AWTUIBase
     public static SwingUIBase create(Display display, AsyncRunner asyncRunner)
     {
         return new SwingUIBase(display, asyncRunner);
+    }
+
+    public static SwingUIBase create(Process process)
+    {
+        return SwingUIBase.create(process.getDisplays().first(), process.getMainAsyncRunner());
     }
 
     /**
@@ -30,19 +33,19 @@ public class SwingUIBase extends AWTUIBase
         {
 
             @Override
-            public void insertUpdate(DocumentEvent e)
+            public void insertUpdate(javax.swing.event.DocumentEvent e)
             {
                 callback.run(jTextComponent.getText());
             }
 
             @Override
-            public void removeUpdate(DocumentEvent e)
+            public void removeUpdate(javax.swing.event.DocumentEvent e)
             {
                 callback.run(jTextComponent.getText());
             }
 
             @Override
-            public void changedUpdate(DocumentEvent e)
+            public void changedUpdate(javax.swing.event.DocumentEvent e)
             {
                 callback.run(jTextComponent.getText());
             }

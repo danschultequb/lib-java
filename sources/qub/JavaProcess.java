@@ -722,7 +722,7 @@ public class JavaProcess implements QubProcess
     }
 
     @Override
-    public Result<Window> createWindow()
+    public Result<UIWindow> createWindow()
     {
         return null;
     }
