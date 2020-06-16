@@ -10,8 +10,8 @@ public interface SwingUIWindowTests
             {
                 final Display display = test.getDisplays().first();
                 final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                final AWTUIBase base = AWTUIBase.create(display, asyncRunner);
-                return SwingUIWindow.create(base);
+                final SwingUIBase uiBase = SwingUIBase.create(display, asyncRunner);
+                return SwingUIWindow.create(uiBase);
             };
 
             runner.testGroup("create(Display)", () ->
@@ -189,22 +189,23 @@ public interface SwingUIWindowTests
                     }
                 });
 
-                runner.test("when visible", runner.skip(false), (Test test) ->
+                runner.test("when visible", runner.skip(), (Test test) ->
                 {
                     final SwingUIBuilder uiBuilder = SwingUIBuilder.create(test.getProcess());
-                    try (final SwingUIWindow window = uiBuilder.createUIWindow().setTitle(test.getFullName()))
+                    try (final SwingUIWindow window = uiBuilder.createSwingUIWindow().await())
                     {
+                        window.setTitle(test.getFullName());
                         window.setSize(Distance.inches(4), Distance.inches(4));
 
-                        final UITextBox textBox = uiBuilder.createUITextBox()
+                        final UITextBox textBox = uiBuilder.createUITextBox().await()
                             .setFontSize(Distance.inches(0.5));
 
-                        final UIText text = uiBuilder.createUIText()
+                        final UIText text = uiBuilder.createUIText().await()
                             .setFontSize(Distance.inches(0.5));
 
                         textBox.onTextChanged(text::setText);
 
-                        window.setContent(uiBuilder.createUIVerticalLayout()
+                        window.setContent(uiBuilder.createUIVerticalLayout().await()
                             .add(textBox)
                             .add(text));
 

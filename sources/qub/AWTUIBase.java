@@ -1,41 +1,15 @@
 package qub;
 
-public class AWTUIBase
+public class AWTUIBase extends UIBase
 {
-    private final Display display;
-    private final AsyncRunner asyncRunner;
-
     protected AWTUIBase(Display display, AsyncRunner asyncRunner)
     {
-        PreCondition.assertNotNull(display, "display");
-        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
-
-        this.display = display;
-        this.asyncRunner = asyncRunner;
+        super(display, asyncRunner);
     }
 
     public static AWTUIBase create(Display display, AsyncRunner asyncRunner)
     {
         return new AWTUIBase(display, asyncRunner);
-    }
-
-    public Result<Void> scheduleAsyncTask(Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        return this.asyncRunner.schedule(action);
-    }
-
-    public PausedAsyncTask<Void> createPausedAsyncTask(Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        return this.asyncRunner.create(action);
-    }
-
-    public PausedAsyncTask<Void> createPausedAsyncTask()
-    {
-        return this.createPausedAsyncTask(() -> {});
     }
 
     public Distance getWidth(AWTUIElement awtUIElement)
@@ -50,7 +24,7 @@ public class AWTUIBase
         PreCondition.assertNotNull(component, "component");
 
         final int widthInPixels = component.getWidth();
-        final Distance result = this.display.convertHorizontalPixelsToDistance(widthInPixels);
+        final Distance result = this.convertHorizontalPixelsToDistance(widthInPixels);
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
@@ -70,7 +44,7 @@ public class AWTUIBase
         PreCondition.assertNotNull(component, "component");
 
         final int heightInPixels = component.getHeight();
-        final Distance result = this.display.convertVerticalPixelsToDistance(heightInPixels);
+        final Distance result = this.convertVerticalPixelsToDistance(heightInPixels);
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
@@ -93,8 +67,8 @@ public class AWTUIBase
         PreCondition.assertNotNull(height, "height");
         PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
 
-        final int widthInPixels = (int)this.display.convertHorizontalDistanceToPixels(width);
-        final int heightInPixels = (int)this.display.convertVerticalDistanceToPixels(height);
+        final int widthInPixels = (int)this.convertHorizontalDistanceToPixels(width);
+        final int heightInPixels = (int)this.convertVerticalDistanceToPixels(height);
         component.setSize(widthInPixels, heightInPixels);
     }
 

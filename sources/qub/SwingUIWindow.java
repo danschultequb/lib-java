@@ -56,7 +56,7 @@ public class SwingUIWindow implements UIWindow
         this.disposedTask = uiBase.createPausedAsyncTask();
     }
 
-    public static SwingUIWindow create(AWTUIBase base)
+    public static SwingUIWindow create(SwingUIBase base)
     {
         PreCondition.assertNotNull(base, "base");
 
@@ -71,7 +71,7 @@ public class SwingUIWindow implements UIWindow
      */
     public static SwingUIWindow create(Display display, AsyncRunner asyncRunner)
     {
-        return SwingUIWindow.create(AWTUIBase.create(display, asyncRunner));
+        return SwingUIWindow.create(SwingUIBase.create(display, asyncRunner));
     }
 
     @Override

@@ -3,7 +3,7 @@ package qub;
 /**
  * An object that can be used to build Swing user interfaces.
  */
-public class SwingUIBuilder implements UIBuilder
+public class SwingUIBuilder extends BasicUIBuilder
 {
     private final SwingUIBase uiBase;
 
@@ -12,6 +12,12 @@ public class SwingUIBuilder implements UIBuilder
         PreCondition.assertNotNull(uiBase, "uiBase");
 
         this.uiBase = uiBase;
+
+        this.setCreator(Iterable.create(SwingUIButton.class, UIButton.class), SwingUIButton::create);
+        this.setCreator(Iterable.create(SwingUIText.class, UIText.class), SwingUIText::create);
+        this.setCreator(Iterable.create(SwingUITextBox.class, UITextBox.class), SwingUITextBox::create);
+        this.setCreator(Iterable.create(SwingUIHorizontalLayout.class, UIHorizontalLayout.class), SwingUIHorizontalLayout::create);
+        this.setCreator(Iterable.create(SwingUIVerticalLayout.class, UIVerticalLayout.class), SwingUIVerticalLayout::create);
     }
 
     public static SwingUIBuilder create(Display display, AsyncRunner asyncRunner)
@@ -35,39 +41,44 @@ public class SwingUIBuilder implements UIBuilder
         return SwingUIBuilder.create(SwingUIBase.create(process));
     }
 
-    @Override
-    public SwingUIWindow createUIWindow()
+    /**
+     * Set the creator function that will be used when an object of the type U is requested.
+     * @param uiType The type that will invoke the provided uiElementCreator when it is requested.
+     * @param uiCreator The creator that will be invoked when a uiType is requested.
+     * @param <U> The type that will invoke the provided uiCreator when it is requested.
+     * @param <T>The type that will be created.
+     * @return This object for method chaining.
+     */
+    public <U extends UIElement, T extends U> SwingUIBuilder setCreator(Class<? extends U> uiType, Function1<SwingUIBase,T> uiCreator)
     {
-        return SwingUIWindow.create(this.uiBase);
+        PreCondition.assertNotNull(uiType, "uiType");
+        PreCondition.assertNotNull(uiCreator, "uiType");
+
+        return this.setCreator(Iterable.create(uiType), uiCreator);
     }
 
-    @Override
-    public SwingUIButton createUIButton()
+    /**
+     * Set the creator function that will be used when an object of the type U is requested.
+     * @param uiTypes The types of UIElement that will invoke the provided uiCreator when it is requested.
+     * @param uiCreator The creator that will be invoked when any of the uiTypes are requested.
+     * @param <U> The type of that will invoke the provided uiCreator when it is requested.
+     * @param <T>The type that will be created.
+     * @return This object for method chaining.
+     */
+    public <U extends UIElement, T extends U> SwingUIBuilder setCreator(Iterable<Class<? extends U>> uiTypes, Function1<SwingUIBase,T> uiCreator)
     {
-        return SwingUIButton.create(this.uiBase);
+        PreCondition.assertNotNull(uiTypes, "uiTypes");
+        PreCondition.assertNotNull(uiCreator, "uiType");
+
+        return (SwingUIBuilder)this.setCreator(uiTypes, () -> uiCreator.run(this.uiBase));
     }
 
-    @Override
-    public SwingUIText createUIText()
+    /**
+     * Create a new SwingUIWindow object.
+     * @return The new SwingUIWindow object.
+     */
+    public Result<SwingUIWindow> createSwingUIWindow()
     {
-        return SwingUIText.create(this.uiBase);
-    }
-
-    @Override
-    public SwingUITextBox createUITextBox()
-    {
-        return SwingUITextBox.create(this.uiBase);
-    }
-
-    @Override
-    public SwingUIVerticalLayout createUIVerticalLayout()
-    {
-        return SwingUIVerticalLayout.create(this.uiBase);
-    }
-
-    @Override
-    public SwingUIHorizontalLayout createUIHorizontalLayout()
-    {
-        return SwingUIHorizontalLayout.create(this.uiBase);
+        return Result.success(SwingUIWindow.create(this.uiBase));
     }
 }

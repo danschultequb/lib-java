@@ -6,6 +6,8 @@ public interface SwingUIBuilderTests
     {
         runner.testGroup(SwingUIBuilder.class, () ->
         {
+            UIBuilderTests.test(runner, (Test test) -> SwingUIBuilder.create(test.getProcess()));
+
             runner.testGroup("create(Display,AsyncRunner)", () ->
             {
                 runner.test("with null Display", (Test test) ->
@@ -58,53 +60,21 @@ public interface SwingUIBuilderTests
                 });
             });
 
-            runner.test("createUIWindow()", (Test test) ->
+            runner.testGroup("setCreator(Class<U>,Function1<SwingUIBase,T>)", () ->
             {
-                final SwingUIBuilder uiBuilder = SwingUIBuilder.create(test.getProcess());
-                try (final SwingUIWindow window = uiBuilder.createUIWindow())
+                runner.test("with null type", (Test test) ->
                 {
-                    test.assertNotNull(window);
-                    test.assertFalse(window.isVisible());
-                    test.assertEqual("", window.getTitle());
-                }
-            });
+                    final SwingUIBuilder uiBuilder = SwingUIBuilder.create(test.getProcess());
+                    test.assertThrows(() -> uiBuilder.setCreator((Class<UIElement>)null, (SwingUIBase uiBase) -> SwingUIButton.create(uiBase)),
+                        new PreConditionFailure("uiType cannot be null."));
+                });
 
-            runner.test("createUIButton()", (Test test) ->
-            {
-                final SwingUIBuilder uiBuilder = SwingUIBuilder.create(test.getProcess());
-                final SwingUIButton button = uiBuilder.createUIButton();
-                test.assertNotNull(button);
-                test.assertEqual("", button.getText());
-            });
-
-            runner.test("createUIText()", (Test test) ->
-            {
-                final SwingUIBuilder uiBuilder = SwingUIBuilder.create(test.getProcess());
-                final SwingUIText text = uiBuilder.createUIText();
-                test.assertNotNull(text);
-                test.assertEqual("", text.getText());
-            });
-
-            runner.test("createUITextBox()", (Test test) ->
-            {
-                final SwingUIBuilder uiBuilder = SwingUIBuilder.create(test.getProcess());
-                final SwingUITextBox textBox = uiBuilder.createUITextBox();
-                test.assertNotNull(textBox);
-                test.assertEqual("", textBox.getText());
-            });
-
-            runner.test("createUIVerticalLayout()", (Test test) ->
-            {
-                final SwingUIBuilder uiBuilder = SwingUIBuilder.create(test.getProcess());
-                final SwingUIVerticalLayout verticalLayout = uiBuilder.createUIVerticalLayout();
-                test.assertNotNull(verticalLayout);
-            });
-
-            runner.test("createUIHorizontalLayout()", (Test test) ->
-            {
-                final SwingUIBuilder uiBuilder = SwingUIBuilder.create(test.getProcess());
-                final SwingUIHorizontalLayout horizontalLayout = uiBuilder.createUIHorizontalLayout();
-                test.assertNotNull(horizontalLayout);
+                runner.test("with null type", (Test test) ->
+                {
+                    final SwingUIBuilder uiBuilder = SwingUIBuilder.create(test.getProcess());
+                    test.assertThrows(() -> uiBuilder.setCreator((Class<UIElement>)null, (SwingUIBase uiBase) -> SwingUIButton.create(uiBase)),
+                        new PreConditionFailure("uiType cannot be null."));
+                });
             });
         });
     }
