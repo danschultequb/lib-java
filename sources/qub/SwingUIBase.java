@@ -2,19 +2,19 @@ package qub;
 
 public class SwingUIBase extends AWTUIBase
 {
-    protected SwingUIBase(Display display, AsyncRunner asyncRunner)
+    protected SwingUIBase(Display display, AsyncRunner mainAsyncRunner, AsyncScheduler parallelAsyncRunner)
     {
-        super(display, asyncRunner);
+        super(display, mainAsyncRunner, parallelAsyncRunner);
     }
 
-    public static SwingUIBase create(Display display, AsyncRunner asyncRunner)
+    public static SwingUIBase create(Display display, AsyncRunner mainAsyncRunner, AsyncScheduler parallelAsyncRunner)
     {
-        return new SwingUIBase(display, asyncRunner);
+        return new SwingUIBase(display, mainAsyncRunner, parallelAsyncRunner);
     }
 
     public static SwingUIBase create(Process process)
     {
-        return SwingUIBase.create(process.getDisplays().first(), process.getMainAsyncRunner());
+        return SwingUIBase.create(process.getDisplays().first(), process.getMainAsyncRunner(), process.getParallelAsyncRunner());
     }
 
     /**
@@ -52,5 +52,16 @@ public class SwingUIBase extends AWTUIBase
         };
         jTextComponent.getDocument().addDocumentListener(documentListener);
         return Disposable.create(() -> jTextComponent.getDocument().removeDocumentListener(documentListener));
+    }
+
+    @Override
+    public void setBackgroundColor(java.awt.Component component, Color backgroundColor)
+    {
+        super.setBackgroundColor(component, backgroundColor);
+
+        if (component instanceof javax.swing.JComponent)
+        {
+            ((javax.swing.JComponent)component).setOpaque(backgroundColor.getAlphaComponent() != Color.ComponentMin);
+        }
     }
 }

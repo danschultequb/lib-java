@@ -9,8 +9,6 @@ public interface UIVerticalLayoutTests
 
         runner.testGroup(UIVerticalLayout.class, () ->
         {
-            UIElementTests.test(runner, creator);
-
             runner.testGroup("setWidth(Distance)", () ->
             {
                 runner.test("should return " + Types.getTypeName(UIVerticalLayout.class), (Test test) ->
@@ -49,40 +47,6 @@ public interface UIVerticalLayoutTests
                     final UIVerticalLayout setHeightResult = verticalLayout.setSize(Distance.inches(2), Distance.inches(3));
                     test.assertSame(verticalLayout, setHeightResult);
                 });
-            });
-
-            runner.testGroup("setDirection(VerticalDirection)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    test.assertThrows(() -> verticalLayout.setDirection(null),
-                        new PreConditionFailure("direction cannot be null."));
-                });
-
-                final Action2<VerticalDirection,VerticalDirection> setDirectionTest = (VerticalDirection oldDirection, VerticalDirection newDirection) ->
-                {
-                    runner.test("from " + oldDirection + " to " + newDirection, (Test test) ->
-                    {
-                        final UIVerticalLayout verticalLayout = creator.run(test);
-
-                        final Iterable<UIElement> childElements = Iterable.create(creator.run(test), creator.run(test), creator.run(test));
-                        verticalLayout.addAll(childElements);
-
-                        final UIVerticalLayout setDirectionResult1 = verticalLayout.setDirection(oldDirection);
-                        test.assertSame(verticalLayout, setDirectionResult1);
-                        test.assertEqual(oldDirection, verticalLayout.getDirection());
-
-                        final UIVerticalLayout setDirectionResult2 = verticalLayout.setDirection(newDirection);
-                        test.assertSame(verticalLayout, setDirectionResult2);
-                        test.assertEqual(newDirection, verticalLayout.getDirection());
-                    });
-                };
-
-                setDirectionTest.run(VerticalDirection.TopToBottom, VerticalDirection.TopToBottom);
-                setDirectionTest.run(VerticalDirection.TopToBottom, VerticalDirection.BottomToTop);
-                setDirectionTest.run(VerticalDirection.BottomToTop, VerticalDirection.TopToBottom);
-                setDirectionTest.run(VerticalDirection.BottomToTop, VerticalDirection.BottomToTop);
             });
 
             runner.testGroup("add(UIElement)", () ->
@@ -213,6 +177,58 @@ public interface UIVerticalLayoutTests
                     final UIVerticalLayout addResult = verticalLayout.addAll(Iterable.create(element1, element2));
                     test.assertSame(verticalLayout, addResult);
                 });
+            });
+
+            runner.testGroup("setElementHorizontalAlignment(HorizontalAlignment)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    test.assertThrows(() -> verticalLayout.setElementHorizontalAlignment(null),
+                        new PreConditionFailure("elementHorizontalAlignment cannot be null."));
+                    test.assertEqual(HorizontalAlignment.Left, verticalLayout.getElementHorizontalAlignment());
+                });
+
+                final Action1<HorizontalAlignment> setElementHorizontalAlignmentTest = (HorizontalAlignment elementHorizontalAlignment) ->
+                {
+                    runner.test("with " + elementHorizontalAlignment, (Test test) ->
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(test);
+                        final UIVerticalLayout setElementHorizontalAlignmentResult = verticalLayout.setElementHorizontalAlignment(elementHorizontalAlignment);
+                        test.assertSame(verticalLayout, setElementHorizontalAlignmentResult);
+                        test.assertEqual(elementHorizontalAlignment, verticalLayout.getElementHorizontalAlignment());
+                    });
+                };
+
+                setElementHorizontalAlignmentTest.run(HorizontalAlignment.Left);
+                setElementHorizontalAlignmentTest.run(HorizontalAlignment.Center);
+                setElementHorizontalAlignmentTest.run(HorizontalAlignment.Right);
+            });
+
+            runner.testGroup("setElementVerticalAlignment(VerticalAlignment)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    test.assertThrows(() -> verticalLayout.setElementVerticalAlignment(null),
+                        new PreConditionFailure("elementVerticalAlignment cannot be null."));
+                    test.assertEqual(VerticalAlignment.Top, verticalLayout.getElementVerticalAlignment());
+                });
+
+                final Action1<VerticalAlignment> setElementVerticalAlignmentTest = (VerticalAlignment elementVerticalAlignment) ->
+                {
+                    runner.test("with " + elementVerticalAlignment, (Test test) ->
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(test);
+                        final UIVerticalLayout setElementVerticalAlignmentResult = verticalLayout.setElementVerticalAlignment(elementVerticalAlignment);
+                        test.assertSame(verticalLayout, setElementVerticalAlignmentResult);
+                        test.assertEqual(elementVerticalAlignment, verticalLayout.getElementVerticalAlignment());
+                    });
+                };
+
+                setElementVerticalAlignmentTest.run(VerticalAlignment.Top);
+                setElementVerticalAlignmentTest.run(VerticalAlignment.Center);
+                setElementVerticalAlignmentTest.run(VerticalAlignment.Bottom);
             });
         });
     }

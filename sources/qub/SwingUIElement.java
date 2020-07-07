@@ -6,7 +6,25 @@ package qub;
 public interface SwingUIElement extends AWTUIElement
 {
     @Override
-    default java.awt.Component getComponent()
+    SwingUIElement setWidth(Distance width);
+
+    @Override
+    SwingUIElement setHeight(Distance height);
+
+    @Override
+    default SwingUIElement setSize(Size2D size)
+    {
+        return (SwingUIElement)AWTUIElement.super.setSize(size);
+    }
+
+    @Override
+    SwingUIElement setSize(Distance width, Distance height);
+
+    @Override
+    SwingUIElement setBackgroundColor(Color backgroundColor);
+
+    @Override
+    default javax.swing.JComponent getComponent()
     {
         return this.getJComponent();
     }

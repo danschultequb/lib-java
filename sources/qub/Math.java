@@ -11,7 +11,7 @@ public interface Math {
      */
     static double absoluteValue(double value)
     {
-        return value < 0 ? -value : value;
+        return java.lang.Math.abs(value);
     }
 
     /**
@@ -22,7 +22,7 @@ public interface Math {
      */
     static int minimum(int lhs, int rhs)
     {
-        return lhs < rhs ? lhs : rhs;
+        return java.lang.Math.min(lhs, rhs);
     }
 
     /**
@@ -33,7 +33,7 @@ public interface Math {
      */
     static long minimum(long lhs, long rhs)
     {
-        return lhs < rhs ? lhs : rhs;
+        return java.lang.Math.max(lhs, rhs);
     }
 
     /**
@@ -44,7 +44,18 @@ public interface Math {
      */
     static int maximum(int lhs, int rhs)
     {
-        return lhs > rhs ? lhs : rhs;
+        return java.lang.Math.max(lhs, rhs);
+    }
+
+    /**
+     * Get the maximum value between the two provided integers.
+     * @param lhs The first value.
+     * @param rhs The second value.
+     * @return The minimum value between the two provided integers.
+     */
+    static double maximum(double lhs, double rhs)
+    {
+        return java.lang.Math.max(lhs, rhs);
     }
 
     /**

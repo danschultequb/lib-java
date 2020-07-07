@@ -6,45 +6,28 @@ package qub;
 public interface UIVerticalLayout extends UIElement
 {
     @Override
-    default UIVerticalLayout setWidth(Distance width)
-    {
-        return (UIVerticalLayout)UIElement.super.setWidth(width);
-    }
+    UIVerticalLayout setWidth(Distance width);
 
     @Override
-    default UIVerticalLayout setHeight(Distance height)
-    {
-        return (UIVerticalLayout)UIElement.super.setHeight(height);
-    }
+    UIVerticalLayout setHeight(Distance height);
 
     @Override
-    default UIVerticalLayout setSize(Size2D size)
-    {
-        return (UIVerticalLayout)UIElement.super.setSize(size);
-    }
+    UIVerticalLayout setSize(Size2D size);
 
     @Override
     UIVerticalLayout setSize(Distance width, Distance height);
-
-    /**
-     * Set the direction that elements will flow in this UIVerticalLayout.
-     * @param direction The direction that elements will flow in this UIVerticalLayout.
-     * @return This object for method chaining.
-     */
-    UIVerticalLayout setDirection(VerticalDirection direction);
-
-    /**
-     * Get the direction that elements will flow in this UIVerticalLayout.
-     * @return The direction that elements will flow in this UIVerticalLayout.
-     */
-    VerticalDirection getDirection();
 
     /**
      * Add the provided element to this UIVerticalLayout.
      * @param uiElement The element to add to this UIVerticalLayout.
      * @return This object for method chaining.
      */
-    UIVerticalLayout add(UIElement uiElement);
+    default UIVerticalLayout add(UIElement uiElement)
+    {
+        PreCondition.assertNotNull(uiElement, "uiElement");
+
+        return this.addAll(Iterable.create(uiElement));
+    }
 
     /**
      * Add the provided elements to this UIVerticalLayout.
@@ -63,15 +46,31 @@ public interface UIVerticalLayout extends UIElement
      * @param uiElements The elements to add to this UIVerticalLayout.
      * @return This object for method chaining.
      */
-    default UIVerticalLayout addAll(Iterable<? extends UIElement> uiElements)
-    {
-        PreCondition.assertNotNull(uiElements, "uiElements");
+    UIVerticalLayout addAll(Iterable<? extends UIElement> uiElements);
 
-        for (final UIElement element : uiElements)
-        {
-            this.add(element);
-        }
+    /**
+     * Set the horizontal alignment of the elements in this UIVerticalLayout.
+     * @param elementHorizontalAlignment The horizontal alignment of the elements in this UIVerticalLayout.
+     * @return This object for method chaining.
+     */
+    UIVerticalLayout setElementHorizontalAlignment(HorizontalAlignment elementHorizontalAlignment);
 
-        return this;
-    }
+    /**
+     * Get the horizontal alignment of the elements in this UIVerticalLayout.
+     * @return The horizontal alignment of the elements in this UIVerticalLayout.
+     */
+    HorizontalAlignment getElementHorizontalAlignment();
+
+    /**
+     * Set the vertical alignment of the elements in this UIVerticalLayout.
+     * @param elementVerticalAlignment The vertical alignment of the elements in this UIVerticalLayout.
+     * @return This object for method chaining.
+     */
+    UIVerticalLayout setElementVerticalAlignment(VerticalAlignment elementVerticalAlignment);
+
+    /**
+     * Get the vertical alignment of the elements in this UIVerticalLayout.
+     * @return The vertical alignment of the elements in this UIVerticalLayout.
+     */
+    VerticalAlignment getElementVerticalAlignment();
 }

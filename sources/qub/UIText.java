@@ -3,20 +3,16 @@ package qub;
 public interface UIText extends UIElement
 {
     @Override
-    default UIText setWidth(Distance width)
-    {
-        return (UIText)UIElement.super.setWidth(width);
-    }
+    UIText setWidth(Distance width);
 
     @Override
-    default UIText setHeight(Distance height)
-    {
-        return (UIText)UIElement.super.setHeight(height);
-    }
+    UIText setHeight(Distance height);
 
     @Override
     default UIText setSize(Size2D size)
     {
+        PreCondition.assertNotNull(size, "size");
+
         return (UIText)UIElement.super.setSize(size);
     }
 
@@ -48,4 +44,7 @@ public interface UIText extends UIElement
      * @return This object for method chaining.
      */
     UIText setFontSize(Distance fontSize);
+
+    @Override
+    UIText setBackgroundColor(Color backgroundColor);
 }

@@ -6,22 +6,13 @@ package qub;
 public interface UITextBox extends UIElement
 {
     @Override
-    default UITextBox setWidth(Distance width)
-    {
-        return (UITextBox)UIElement.super.setWidth(width);
-    }
+    UITextBox setWidth(Distance width);
 
     @Override
-    default UITextBox setHeight(Distance height)
-    {
-        return (UITextBox)UIElement.super.setHeight(height);
-    }
+    UITextBox setHeight(Distance height);
 
     @Override
-    default UITextBox setSize(Size2D size)
-    {
-        return (UITextBox)UIElement.super.setSize(size);
-    }
+    UITextBox setSize(Size2D size);
 
     @Override
     UITextBox setSize(Distance width, Distance height);

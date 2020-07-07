@@ -6,22 +6,13 @@ package qub;
 public interface UIButton extends UIElement
 {
     @Override
-    default UIButton setWidth(Distance width)
-    {
-        return (UIButton)UIElement.super.setWidth(width);
-    }
+    UIButton setWidth(Distance width);
 
     @Override
-    default UIButton setHeight(Distance height)
-    {
-        return (UIButton)UIElement.super.setHeight(height);
-    }
+    UIButton setHeight(Distance height);
 
     @Override
-    default UIButton setSize(Size2D size)
-    {
-        return (UIButton)UIElement.super.setSize(size);
-    }
+    UIButton setSize(Size2D size);
 
     @Override
     UIButton setSize(Distance width, Distance height);

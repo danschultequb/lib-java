@@ -2,52 +2,71 @@ package qub;
 
 public interface SwingUIButtonTests
 {
+    static SwingUIBase createUIBase(Test test)
+    {
+        PreCondition.assertNotNull(test, "test");
+
+        final Display display = new Display(1000, 1000, 100, 100);
+        final SwingUIBase result = SwingUIBase.create(display, test.getMainAsyncRunner(), test.getParallelAsyncRunner());
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    static SwingUIBuilder createUIBuilder(Test test)
+    {
+        PreCondition.assertNotNull(test, "test");
+
+        final SwingUIBase uiBase = SwingUIButtonTests.createUIBase(test);
+        final SwingUIBuilder result = SwingUIBuilder.create(uiBase);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    static SwingUIButton createUIButton(Test test)
+    {
+        final SwingUIBuilder uiBuilder = SwingUIButtonTests.createUIBuilder(test);
+        final SwingUIButton result = uiBuilder.create(SwingUIButton.class).await();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
     static void test(TestRunner runner)
     {
         runner.testGroup(SwingUIButton.class, () ->
         {
-            final Function1<Test,SwingUIButton> creator = (Test test) ->
-            {
-                final Display display = test.getDisplays().first();
-                final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                return SwingUIButton.create(display, asyncRunner);
-            };
+            UIButtonTests.test(runner, SwingUIButtonTests::createUIButton);
+            SwingUIElementTests.test(runner, SwingUIButtonTests::createUIButton);
 
-            UIButtonTests.test(runner, creator);
-
-            runner.testGroup("create(Display,AsyncRunner)", () ->
+            runner.testGroup("create(SwingUIBase)", () ->
             {
-                runner.test("with null display", (Test test) ->
+                runner.test("with null", (Test test) ->
                 {
-                    final Display display = null;
-                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    test.assertThrows(() -> SwingUIButton.create(display, asyncRunner),
-                        new PreConditionFailure("display cannot be null."));
+                    test.assertThrows(() -> SwingUIButton.create(null),
+                        new PreConditionFailure("uiBase cannot be null."));
                 });
 
-                runner.test("with null asyncRunner", (Test test) ->
+                runner.test("with non-null", (Test test) ->
                 {
-                    final Display display = test.getDisplays().first();
-                    final AsyncRunner asyncRunner = null;
-                    test.assertThrows(() -> SwingUIButton.create(display, asyncRunner),
-                        new PreConditionFailure("asyncRunner cannot be null."));
-                });
+                    final SwingUIBase uiBase = SwingUIButtonTests.createUIBase(test);
+                    final SwingUIButton uiButton = SwingUIButton.create(uiBase);
+                    test.assertNotNull(uiButton);
+                    test.assertEqual(Distance.inches(0.34), uiButton.getWidth());
+                    test.assertEqual(Distance.inches(0.1), uiButton.getHeight());
+                    test.assertEqual("", uiButton.getText());
+                    test.assertEqual(Distance.fontPoints(12), uiButton.getFontSize());
 
-                runner.test("with valid arguments", (Test test) ->
-                {
-                    final Display display = new Display(1000, 1000, 100, 100);
-                    final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                    final SwingUIButton button = SwingUIButton.create(display, asyncRunner);
-                    test.assertNotNull(button);
-                    test.assertEqual("", button.getText());
-                    test.assertEqual(Distance.zero, button.getWidth());
-                    test.assertEqual(Distance.zero, button.getHeight());
-
-                    final javax.swing.JButton component = button.getComponent();
+                    final javax.swing.JButton component = uiButton.getComponent();
                     test.assertNotNull(component);
 
-                    final javax.swing.JButton jComponent = button.getJComponent();
+                    final javax.swing.JButton jComponent = uiButton.getJComponent();
                     test.assertNotNull(jComponent);
+                    test.assertSame(component, jComponent);
                 });
             });
 
@@ -55,7 +74,7 @@ public interface SwingUIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
-                    final SwingUIButton button = creator.run(test);
+                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
                     final SwingUIButton setWidthResult = button.setWidth(Distance.inches(1));
                     test.assertSame(button, setWidthResult);
                 });
@@ -65,7 +84,7 @@ public interface SwingUIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
-                    final SwingUIButton button = creator.run(test);
+                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
                     final SwingUIButton setHeightResult = button.setHeight(Distance.inches(1));
                     test.assertSame(button, setHeightResult);
                 });
@@ -75,7 +94,7 @@ public interface SwingUIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
-                    final SwingUIButton button = creator.run(test);
+                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
                     final SwingUIButton setHeightResult = button.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
                     test.assertSame(button, setHeightResult);
                 });
@@ -85,7 +104,7 @@ public interface SwingUIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
-                    final SwingUIButton button = creator.run(test);
+                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
                     final SwingUIButton setHeightResult = button.setSize(Distance.inches(2), Distance.inches(3));
                     test.assertSame(button, setHeightResult);
                 });
@@ -95,7 +114,7 @@ public interface SwingUIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
-                    final SwingUIButton button = creator.run(test);
+                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
                     final SwingUIButton setHeightResult = button.setText("hello");
                     test.assertSame(button, setHeightResult);
                 });
@@ -105,7 +124,7 @@ public interface SwingUIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
-                    final SwingUIButton button = creator.run(test);
+                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
                     final SwingUIButton setFontSizeResult = button.setFontSize(Distance.inches(1));
                     test.assertSame(button, setFontSizeResult);
                 });
@@ -115,7 +134,7 @@ public interface SwingUIButtonTests
             {
                 runner.test("with callback that throws an exception", (Test test) ->
                 {
-                    final SwingUIButton button = creator.run(test);
+                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
                     final IntegerValue value = IntegerValue.create(0);
 
                     final Disposable subscription = button.onClick(() ->
@@ -125,7 +144,7 @@ public interface SwingUIButtonTests
                     });
                     test.assertNotNull(subscription);
 
-                    test.assertThrows(button::click,
+                    test.assertThrows(() -> button.click(),
                         new RuntimeException("hello"));
                     test.assertEqual(1, value.get());
 
@@ -138,7 +157,7 @@ public interface SwingUIButtonTests
 
                 runner.test("with callback that doesn't throw an exception", (Test test) ->
                 {
-                    final SwingUIButton button = creator.run(test);
+                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
 
                     final AsyncRunner mainAsyncRunner = test.getMainAsyncRunner();
                     final IntegerValue value = IntegerValue.create(0);

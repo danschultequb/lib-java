@@ -9,8 +9,6 @@ public interface UIButtonTests
 
         runner.testGroup(UIButton.class, () ->
         {
-            UIElementTests.test(runner, creator);
-
             runner.testGroup("setWidth(Distance)", () ->
             {
                 runner.test("should return " + Types.getTypeName(UIButton.class), (Test test) ->

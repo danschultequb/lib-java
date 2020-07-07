@@ -5,35 +5,24 @@ package qub;
  */
 public class SwingUIButton implements UIButton, SwingUIElement
 {
-    private final AWTUIBase uiBase;
+    private final SwingUIElementBase uiElementBase;
     private final javax.swing.JButton jButton;
 
-    private SwingUIButton(AWTUIBase uiBase)
+    private SwingUIButton(SwingUIBase uiBase)
     {
         PreCondition.assertNotNull(uiBase, "uiBase");
 
-        this.uiBase = uiBase;
         this.jButton = new javax.swing.JButton();
+        this.uiElementBase = new SwingUIElementBase(uiBase, this.jButton);
     }
 
     /**
      * Create a new SwingUIButton.
      * @return The new SwingUIButton.
      */
-    public static SwingUIButton create(AWTUIBase base)
+    public static SwingUIButton create(SwingUIBase base)
     {
         return new SwingUIButton(base);
-    }
-
-    /**
-     * Create a new SwingUIButton.
-     * @param display The display that the SwingUIButton will be shown on.
-     * @param asyncRunner The AsyncRunner that this SwingUIButton's events will be invoked on.
-     * @return The new SwingUIButton.
-     */
-    public static SwingUIButton create(Display display, AsyncRunner asyncRunner)
-    {
-        return SwingUIButton.create(AWTUIBase.create(display, asyncRunner));
     }
 
     @Override
@@ -51,44 +40,66 @@ public class SwingUIButton implements UIButton, SwingUIElement
     @Override
     public SwingUIButton setWidth(Distance width)
     {
-        return (SwingUIButton)UIButton.super.setWidth(width);
+        this.uiElementBase.setWidth(width);
+        return this;
     }
 
     @Override
     public Distance getWidth()
     {
-        return this.uiBase.getWidth(this);
+        return this.uiElementBase.getWidth();
     }
 
     @Override
     public SwingUIButton setHeight(Distance height)
     {
-        return (SwingUIButton)UIButton.super.setHeight(height);
+        this.uiElementBase.setHeight(height);
+        return this;
     }
 
     @Override
     public Distance getHeight()
     {
-        return this.uiBase.getHeight(this);
+        return this.uiElementBase.getHeight();
     }
 
     @Override
     public SwingUIButton setSize(Size2D size)
     {
-        return (SwingUIButton)UIButton.super.setSize(size);
+        this.uiElementBase.setSize(size);
+        return this;
     }
 
     @Override
     public SwingUIButton setSize(Distance width, Distance height)
     {
-        this.uiBase.setSize(this, width, height);
+        this.uiElementBase.setSize(width, height);
         return this;
+    }
+
+    @Override
+    public SwingUIButton setBackgroundColor(Color backgroundColor)
+    {
+        this.uiElementBase.setBackgroundColor(backgroundColor);
+        return this;
+    }
+
+    @Override
+    public Color getBackgroundColor()
+    {
+        return this.uiElementBase.getBackgroundColor();
+    }
+
+    @Override
+    public Size2D getSize()
+    {
+        return this.uiElementBase.getSize();
     }
 
     @Override
     public Disposable onSizeChanged(Action0 callback)
     {
-        return this.uiBase.onSizeChanged(this, callback);
+        return this.uiElementBase.onSizeChanged(callback);
     }
 
     @Override
@@ -103,6 +114,7 @@ public class SwingUIButton implements UIButton, SwingUIElement
         PreCondition.assertNotNull(text, "text");
 
         this.jButton.setText(text);
+        this.uiElementBase.updateSize();
 
         return this;
     }
@@ -110,13 +122,13 @@ public class SwingUIButton implements UIButton, SwingUIElement
     @Override
     public Distance getFontSize()
     {
-        return this.uiBase.getFontSize(this);
+        return this.uiElementBase.getFontSize();
     }
 
     @Override
     public SwingUIButton setFontSize(Distance fontSize)
     {
-        this.uiBase.setFontSize(this, fontSize);
+        this.uiElementBase.setFontSize(fontSize);
         return this;
     }
 
@@ -127,7 +139,7 @@ public class SwingUIButton implements UIButton, SwingUIElement
 
         final java.awt.event.ActionListener actionListener = (java.awt.event.ActionEvent actionEvent) ->
         {
-            this.uiBase.scheduleAsyncTask(callback).await();
+            this.uiElementBase.scheduleAsyncTask(callback).await();
         };
         this.jButton.addActionListener(actionListener);
         return Disposable.create(() ->

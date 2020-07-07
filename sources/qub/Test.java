@@ -1344,6 +1344,14 @@ public class Test
     }
 
     /**
+     * Cause the test to fail instantly.
+     */
+    public void fail()
+    {
+        throw new TestError(getFullName(), "Unexplained test failure.");
+    }
+
+    /**
      * Cause the test to fail instantly with the provided message.
      * @param message The message to display that should explain the failure.
      */

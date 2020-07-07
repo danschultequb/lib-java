@@ -9,8 +9,6 @@ public interface UITextTests
 
         runner.testGroup(UIText.class, () ->
         {
-            UIElementTests.test(runner, creator);
-            
             runner.testGroup("setWidth(Distance)", () ->
             {
                 runner.test("should return " + Types.getTypeName(UIText.class), (Test test) ->

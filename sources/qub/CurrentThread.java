@@ -39,12 +39,11 @@ public final class CurrentThread
      * Get the AsyncScheduler that has been registered with the current thread.
      * @return The AsyncScheduler that has been registered with the current thread.
      */
-    static AsyncScheduler getAsyncRunner()
+    static Result<AsyncScheduler> getAsyncRunner()
     {
         final long currentThreadId = getId();
         return asyncSchedulers.get(currentThreadId)
-            .catchError(NotFoundException.class)
-            .await();
+            .convertError(NotFoundException.class, () -> new NotFoundException("No AsyncRunner has been registered with thread id " + currentThreadId + "."));
     }
 
     /**
@@ -60,15 +59,15 @@ public final class CurrentThread
         PreCondition.assertNotNull(asyncScheduler, "asyncScheduler");
         PreCondition.assertNotNull(action, "action");
 
-        final AsyncScheduler backupAsyncScheduler = getAsyncRunner();
-        setAsyncRunner(asyncScheduler);
+        final AsyncScheduler backupAsyncScheduler = getAsyncRunner().catchError(NotFoundException.class).await();
+        CurrentThread.setAsyncRunner(asyncScheduler);
         try
         {
             action.run();
         }
         finally
         {
-            setAsyncRunner(backupAsyncScheduler);
+            CurrentThread.setAsyncRunner(backupAsyncScheduler);
         }
     }
 

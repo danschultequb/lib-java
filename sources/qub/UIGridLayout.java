@@ -6,22 +6,13 @@ package qub;
 public interface UIGridLayout extends UIElement
 {
     @Override
-    default UIGridLayout setWidth(Distance width)
-    {
-        return (UIGridLayout)UIElement.super.setWidth(width);
-    }
+    UIGridLayout setWidth(Distance width);
 
     @Override
-    default UIGridLayout setHeight(Distance height)
-    {
-        return (UIGridLayout)UIElement.super.setHeight(height);
-    }
+    UIGridLayout setHeight(Distance height);
 
     @Override
-    default UIGridLayout setSize(Size2D size)
-    {
-        return (UIGridLayout)UIElement.super.setSize(size);
-    }
+    UIGridLayout setSize(Size2D size);
 
     @Override
     UIGridLayout setSize(Distance width, Distance height);
@@ -41,5 +32,5 @@ public interface UIGridLayout extends UIElement
      * @param y The y-coordinate in the UIGridLayout to get the element from.
      * @return The element at the provided x and y coordinates.
      */
-    Result<UIElement> getUIElement(int x, int y);
+    Result<? extends UIElement> getUIElement(int x, int y);
 }

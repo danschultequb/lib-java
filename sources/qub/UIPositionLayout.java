@@ -7,22 +7,13 @@ package qub;
 public interface UIPositionLayout extends UIElement
 {
     @Override
-    default UIPositionLayout setWidth(Distance width)
-    {
-        return (UIPositionLayout)UIElement.super.setWidth(width);
-    }
+    UIPositionLayout setWidth(Distance width);
 
     @Override
-    default UIPositionLayout setHeight(Distance height)
-    {
-        return (UIPositionLayout)UIElement.super.setHeight(height);
-    }
+    UIPositionLayout setHeight(Distance height);
 
     @Override
-    default UIPositionLayout setSize(Size2D size)
-    {
-        return (UIPositionLayout)UIElement.super.setSize(size);
-    }
+    UIPositionLayout setSize(Size2D size);
 
     @Override
     UIPositionLayout setSize(Distance width, Distance height);

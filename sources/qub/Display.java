@@ -145,4 +145,24 @@ public class Display
 
         return result;
     }
+
+    /**
+     * Convert the provided pixels quantities to a Point2D.
+     * @param horizontalPixels The horizontal pixel quantity.
+     * @param verticalPixels The vertical pixel quantity.
+     * @return The converted Point2D.
+     */
+    public Point2D convertPixelsToPoint2D(double horizontalPixels, double verticalPixels)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(horizontalPixels, 0, "horizontalPixels");
+        PreCondition.assertGreaterThanOrEqualTo(verticalPixels, 0, "verticalPixels");
+
+        final Distance horizontalDistance = this.convertHorizontalPixelsToDistance(horizontalPixels);
+        final Distance verticalDistance = this.convertVerticalPixelsToDistance(verticalPixels);
+        final Point2D result = new Point2D(horizontalDistance, verticalDistance);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
 }

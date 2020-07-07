@@ -219,9 +219,9 @@ public class AsyncTask<T> implements PausedAsyncTask<T>
 
     private void ensureIsCompleted()
     {
-        if (!isCompleted())
+        if (!this.isCompleted())
         {
-            final AsyncScheduler currentThreadAsyncRunner = CurrentThread.getAsyncRunner();
+            final AsyncScheduler currentThreadAsyncRunner = CurrentThread.getAsyncRunner().await();
             currentThreadAsyncRunner.await(this);
         }
     }

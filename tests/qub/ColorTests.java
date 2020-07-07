@@ -1,93 +1,93 @@
 package qub;
 
-public class ColorTests
+public interface ColorTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(Color.class, () ->
         {
-            runner.testGroup("rgb(double,double,double)", () ->
+            runner.testGroup("create(int,int,int)", () ->
             {
-                final Action4<Double,Double,Double,Throwable> rgbThrowTest = (Double red, Double green, Double blue, Throwable expectedError) ->
+                final Action4<Integer,Integer,Integer,Throwable> createErrorTest = (Integer redComponent, Integer greenComponent, Integer blueComponent, Throwable expectedError) ->
                 {
-                    runner.test("with " + red + ", " + green + ", and " + blue, (Test test) ->
+                    runner.test("with " + redComponent + ", " + greenComponent + ", and " + blueComponent, (Test test) ->
                     {
-                        test.assertThrows(() -> Color.rgb(red, green, blue), expectedError);
+                        test.assertThrows(() -> Color.create(redComponent, greenComponent, blueComponent), expectedError);
                     });
                 };
 
-                rgbThrowTest.run(-0.1, 0.0, 0.0, new PreConditionFailure("red (-0.1) must be between 0.0 and 1.0."));
-                rgbThrowTest.run(1.1, 0.0, 0.0, new PreConditionFailure("red (1.1) must be between 0.0 and 1.0."));
-                rgbThrowTest.run(0.0, -1.0, 0.0, new PreConditionFailure("green (-1.0) must be between 0.0 and 1.0."));
-                rgbThrowTest.run(0.0, 10.0, 0.0, new PreConditionFailure("green (10.0) must be between 0.0 and 1.0."));
-                rgbThrowTest.run(0.0, 0.0, -20.0, new PreConditionFailure("blue (-20.0) must be between 0.0 and 1.0."));
-                rgbThrowTest.run(0.0, 0.0, 1.001, new PreConditionFailure("blue (1.001) must be between 0.0 and 1.0."));
+                createErrorTest.run(-1, 0, 0, new PreConditionFailure("redComponent (-1) must be between 0 and 255."));
+                createErrorTest.run(256, 0, 0, new PreConditionFailure("redComponent (256) must be between 0 and 255."));
+                createErrorTest.run(0, -1, 0, new PreConditionFailure("greenComponent (-1) must be between 0 and 255."));
+                createErrorTest.run(0, 256, 0, new PreConditionFailure("greenComponent (256) must be between 0 and 255."));
+                createErrorTest.run(0, 0, -1, new PreConditionFailure("blueComponent (-1) must be between 0 and 255."));
+                createErrorTest.run(0, 0, 256, new PreConditionFailure("blueComponent (256) must be between 0 and 255."));
 
-                final Action3<Double,Double,Double> rgbTest = (Double red, Double green, Double blue) ->
+                final Action3<Integer,Integer,Integer> createTest = (Integer redComponent, Integer greenComponent, Integer blueComponent) ->
                 {
-                    runner.test("with " + red + ", " + green + ", and " + blue, (Test test) ->
+                    runner.test("with " + redComponent + ", " + greenComponent + ", and " + blueComponent, (Test test) ->
                     {
-                        final Color color = Color.rgb(red, green, blue);
+                        final Color color = Color.create(redComponent, greenComponent, blueComponent);
                         test.assertNotNull(color);
-                        test.assertEqual(red, color.getRed());
-                        test.assertEqual(green, color.getGreen());
-                        test.assertEqual(blue, color.getBlue());
-                        test.assertEqual(1, color.getAlpha());
+                        test.assertEqual(redComponent, color.getRedComponent());
+                        test.assertEqual(greenComponent, color.getGreenComponent());
+                        test.assertEqual(blueComponent, color.getBlueComponent());
+                        test.assertEqual(255, color.getAlphaComponent());
                     });
                 };
 
-                rgbTest.run(0.1, 0.2, 0.3);
-                rgbTest.run(1.0, 0.0, 0.5);
+                createTest.run(1, 2, 3);
+                createTest.run(255, 0, 128);
             });
 
-            runner.testGroup("rgba(double,double,double,double)", () ->
+            runner.testGroup("create(int,int,int,int)", () ->
             {
-                final Action5<Double,Double,Double,Double,Throwable> rgbaThrowTest = (Double red, Double green, Double blue, Double alpha, Throwable expectedError) ->
+                final Action5<Integer,Integer,Integer,Integer,Throwable> createErrorTest = (Integer red, Integer green, Integer blue, Integer alpha, Throwable expectedError) ->
                 {
                     runner.test("with " + red + ", " + green + ", " + blue + ", and " + alpha, (Test test) ->
                     {
-                        test.assertThrows(() -> Color.rgba(red, green, blue, alpha), expectedError);
+                        test.assertThrows(() -> Color.create(red, green, blue, alpha), expectedError);
                     });
                 };
 
-                rgbaThrowTest.run(-0.1, 0.0, 0.0, 0.0, new PreConditionFailure("red (-0.1) must be between 0.0 and 1.0."));
-                rgbaThrowTest.run(1.1, 0.0, 0.0, 0.0, new PreConditionFailure("red (1.1) must be between 0.0 and 1.0."));
-                rgbaThrowTest.run(0.0, -1.0, 0.0, 0.0, new PreConditionFailure("green (-1.0) must be between 0.0 and 1.0."));
-                rgbaThrowTest.run(0.0, 10.0, 0.0, 0.0, new PreConditionFailure("green (10.0) must be between 0.0 and 1.0."));
-                rgbaThrowTest.run(0.0, 0.0, -20.0, 0.0, new PreConditionFailure("blue (-20.0) must be between 0.0 and 1.0."));
-                rgbaThrowTest.run(0.0, 0.0, 1.001, 0.0, new PreConditionFailure("blue (1.001) must be between 0.0 and 1.0."));
-                rgbaThrowTest.run(0.0, 0.0, 0.0, -20.0, new PreConditionFailure("alpha (-20.0) must be between 0.0 and 1.0."));
-                rgbaThrowTest.run(0.0, 0.0, 0.0, 1.001, new PreConditionFailure("alpha (1.001) must be between 0.0 and 1.0."));
+                createErrorTest.run(-1, 0, 0, 0, new PreConditionFailure("redComponent (-1) must be between 0 and 255."));
+                createErrorTest.run(256, 0, 0, 0, new PreConditionFailure("redComponent (256) must be between 0 and 255."));
+                createErrorTest.run(0, -1, 0, 0, new PreConditionFailure("greenComponent (-1) must be between 0 and 255."));
+                createErrorTest.run(0, 256, 0, 0, new PreConditionFailure("greenComponent (256) must be between 0 and 255."));
+                createErrorTest.run(0, 0, -1, 0, new PreConditionFailure("blueComponent (-1) must be between 0 and 255."));
+                createErrorTest.run(0, 0, 256, 0, new PreConditionFailure("blueComponent (256) must be between 0 and 255."));
+                createErrorTest.run(0, 0, 0, -1, new PreConditionFailure("alphaComponent (-1) must be between 0 and 255."));
+                createErrorTest.run(0, 0, 0, 256, new PreConditionFailure("alphaComponent (256) must be between 0 and 255."));
 
-                final Action4<Double,Double,Double,Double> rgbaTest = (Double red, Double green, Double blue, Double alpha) ->
+                final Action4<Integer,Integer,Integer,Integer> createTest = (Integer redComponent, Integer greenComponent, Integer blueComponent, Integer alphaComponent) ->
                 {
-                    runner.test("with " + red + ", " + green + ", " + blue + ", and " + alpha, (Test test) ->
+                    runner.test("with " + redComponent + ", " + greenComponent + ", " + blueComponent + ", and " + alphaComponent, (Test test) ->
                     {
-                        final Color color = Color.rgba(red, green, blue, alpha);
+                        final Color color = Color.create(redComponent, greenComponent, blueComponent, alphaComponent);
                         test.assertNotNull(color);
-                        test.assertEqual(red, color.getRed());
-                        test.assertEqual(green, color.getGreen());
-                        test.assertEqual(blue, color.getBlue());
-                        test.assertEqual(alpha, color.getAlpha());
+                        test.assertEqual(redComponent, color.getRedComponent());
+                        test.assertEqual(greenComponent, color.getGreenComponent());
+                        test.assertEqual(blueComponent, color.getBlueComponent());
+                        test.assertEqual(alphaComponent, color.getAlphaComponent());
                     });
                 };
 
-                rgbaTest.run(0.1, 0.2, 0.3, 0.4);
-                rgbaTest.run(1.0, 0.0, 0.5, 0.73);
+                createTest.run(1, 2, 3, 4);
+                createTest.run(255, 0, 128, 184);
             });
 
             runner.testGroup("toString()", () ->
             {
-                runner.test("with 0.0, 0.1, 0.2, and 0.3", (Test test) ->
+                runner.test("with " + English.andList(0, 1, 2), (Test test) ->
                 {
-                    final Color color = Color.rgba(0.0, 0.1, 0.2, 0.3);
-                    test.assertEqual("{\"red\":\"0.0\",\"green\":\"0.1\",\"blue\":\"0.2\",\"alpha\":\"0.3\"}", color.toString());
+                    final Color color = Color.create(0, 1, 2);
+                    test.assertEqual("{\"redComponent\":\"0\",\"greenComponent\":\"1\",\"blueComponent\":\"2\",\"alphaComponent\":\"255\"}", color.toString());
                 });
 
-                runner.test("with 0.4, 0.5, 0.6, and 0.7", (Test test) ->
+                runner.test("with " + English.andList(40, 50, 60, 70), (Test test) ->
                 {
-                    final Color color = Color.rgba(0.4, 0.5, 0.6, 0.7);
-                    test.assertEqual("{\"red\":\"0.4\",\"green\":\"0.5\",\"blue\":\"0.6\",\"alpha\":\"0.7\"}", color.toString());
+                    final Color color = Color.create(40, 50, 60, 70);
+                    test.assertEqual("{\"redComponent\":\"40\",\"greenComponent\":\"50\",\"blueComponent\":\"60\",\"alphaComponent\":\"70\"}", color.toString());
                 });
             });
 
@@ -110,7 +110,7 @@ public class ColorTests
 
                 runner.test("with equal", (Test test) ->
                 {
-                    test.assertTrue(Color.red.equals((Object)Color.rgb(1, 0, 0)));
+                    test.assertTrue(Color.red.equals((Object)Color.create(255, 0, 0)));
                 });
 
                 runner.test("with different", (Test test) ->
@@ -133,7 +133,7 @@ public class ColorTests
 
                 runner.test("with equal", (Test test) ->
                 {
-                    test.assertTrue(Color.red.equals(Color.rgb(1, 0, 0)));
+                    test.assertTrue(Color.red.equals(Color.create(255, 0, 0)));
                 });
 
                 runner.test("with different", (Test test) ->
@@ -151,7 +151,7 @@ public class ColorTests
 
                 runner.test("with equal", (Test test) ->
                 {
-                    test.assertEqual(Color.rgb(0.1, 0.2, 0.3).hashCode(), Color.rgb(0.1, 0.2, 0.3).hashCode());
+                    test.assertEqual(Color.create(1, 2, 3).hashCode(), Color.create(1, 2, 3).hashCode());
                 });
 
                 runner.test("with different", (Test test) ->
@@ -164,50 +164,50 @@ public class ColorTests
             {
                 final Color white = Color.white;
                 test.assertNotNull(white);
-                test.assertEqual(1, white.getRed());
-                test.assertEqual(1, white.getGreen());
-                test.assertEqual(1, white.getBlue());
-                test.assertEqual(1, white.getAlpha());
+                test.assertEqual(255, white.getRedComponent());
+                test.assertEqual(255, white.getGreenComponent());
+                test.assertEqual(255, white.getBlueComponent());
+                test.assertEqual(255, white.getAlphaComponent());
             });
 
             runner.test("black", (Test test) ->
             {
                 final Color black = Color.black;
                 test.assertNotNull(black);
-                test.assertEqual(0, black.getRed());
-                test.assertEqual(0, black.getGreen());
-                test.assertEqual(0, black.getBlue());
-                test.assertEqual(1, black.getAlpha());
+                test.assertEqual(0, black.getRedComponent());
+                test.assertEqual(0, black.getGreenComponent());
+                test.assertEqual(0, black.getBlueComponent());
+                test.assertEqual(255, black.getAlphaComponent());
             });
 
             runner.test("red", (Test test) ->
             {
                 final Color red = Color.red;
                 test.assertNotNull(red);
-                test.assertEqual(1, red.getRed());
-                test.assertEqual(0, red.getGreen());
-                test.assertEqual(0, red.getBlue());
-                test.assertEqual(1, red.getAlpha());
+                test.assertEqual(255, red.getRedComponent());
+                test.assertEqual(0, red.getGreenComponent());
+                test.assertEqual(0, red.getBlueComponent());
+                test.assertEqual(255, red.getAlphaComponent());
             });
 
             runner.test("green", (Test test) ->
             {
                 final Color green = Color.green;
                 test.assertNotNull(green);
-                test.assertEqual(0, green.getRed());
-                test.assertEqual(1, green.getGreen());
-                test.assertEqual(0, green.getBlue());
-                test.assertEqual(1, green.getAlpha());
+                test.assertEqual(0, green.getRedComponent());
+                test.assertEqual(255, green.getGreenComponent());
+                test.assertEqual(0, green.getBlueComponent());
+                test.assertEqual(255, green.getAlphaComponent());
             });
 
             runner.test("blue", (Test test) ->
             {
                 final Color blue = Color.blue;
                 test.assertNotNull(blue);
-                test.assertEqual(0, blue.getRed());
-                test.assertEqual(0, blue.getGreen());
-                test.assertEqual(1, blue.getBlue());
-                test.assertEqual(1, blue.getAlpha());
+                test.assertEqual(0, blue.getRedComponent());
+                test.assertEqual(0, blue.getGreenComponent());
+                test.assertEqual(255, blue.getBlueComponent());
+                test.assertEqual(255, blue.getAlphaComponent());
             });
         });
     }

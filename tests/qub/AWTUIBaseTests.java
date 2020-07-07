@@ -1,6 +1,6 @@
 package qub;
 
-public interface JavaUIBaseTests
+public interface AWTUIBaseTests
 {
     static void test(TestRunner runner)
     {
@@ -10,7 +10,7 @@ public interface JavaUIBaseTests
             {
                 runner.test("with null component", (Test test) ->
                 {
-                    final AWTUIBase uiBase = AWTUIBase.create(test.getDisplays().first(), test.getMainAsyncRunner());
+                    final AWTUIBase uiBase = AWTUIBase.create(test.getProcess());
                     final java.awt.Component component = null;
                     final Action0 callback = () -> {};
                     test.assertThrows(() -> uiBase.onSizeChanged(component, callback),
@@ -19,7 +19,7 @@ public interface JavaUIBaseTests
 
                 runner.test("with null callback", (Test test) ->
                 {
-                    final AWTUIBase uiBase = AWTUIBase.create(test.getDisplays().first(), test.getMainAsyncRunner());
+                    final AWTUIBase uiBase = AWTUIBase.create(test.getProcess());
                     final java.awt.Component component = new javax.swing.JButton();
                     final Action0 callback = null;
                     test.assertThrows(() -> uiBase.onSizeChanged(component, callback),
@@ -28,7 +28,7 @@ public interface JavaUIBaseTests
 
                 runner.test("with valid arguments", (Test test) ->
                 {
-                    final AWTUIBase uiBase = AWTUIBase.create(test.getDisplays().first(), test.getMainAsyncRunner());
+                    final AWTUIBase uiBase = AWTUIBase.create(test.getProcess());
                     final java.awt.Component component = new javax.swing.JButton();
                     final Action0 callback = () -> {};
 

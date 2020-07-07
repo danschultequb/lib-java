@@ -25,6 +25,17 @@ public class Point2D
     }
 
     /**
+     * Create a new Point2D object.
+     * @param x The x-coordinate of the point.
+     * @param y The y-coordinate of the point.
+     * @return The new Point2D object.
+     */
+    public static Point2D create(Distance x, Distance y)
+    {
+        return new Point2D(x, y);
+    }
+
+    /**
      * Get the x-coordinate of the point.
      * @return The x-coordinate of the point.
      */

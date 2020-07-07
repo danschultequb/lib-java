@@ -6,6 +6,11 @@ package qub;
 public interface Size2D
 {
     /**
+     * An empty size.
+     */
+    Size2D zero = Size2D.create(Distance.zero, Distance.zero);
+
+    /**
      * Create a new Size2D with the provided width and height.
      * @param width The width of the new Size2D.
      * @param height The height of the new Size2D.

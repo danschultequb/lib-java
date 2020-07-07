@@ -9,8 +9,6 @@ public interface UIGridLayoutTests
         
         runner.testGroup(UIGridLayout.class, () ->
         {
-            UIElementTests.test(runner, creator);
-            
             runner.testGroup("setWidth(Distance)", () ->
             {
                 runner.test("should return " + Types.getTypeName(UIGridLayout.class), (Test test) ->

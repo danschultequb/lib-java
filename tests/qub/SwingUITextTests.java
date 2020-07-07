@@ -2,59 +2,56 @@ package qub;
 
 public interface SwingUITextTests
 {
+    static SwingUIBase createUIBase(Test test)
+    {
+        final Display display = new Display(1000, 1000, 100, 100);
+        return SwingUIBase.create(display, test.getMainAsyncRunner(), test.getParallelAsyncRunner());
+    }
+
+    static SwingUIBuilder createUIBuilder(Test test)
+    {
+        final SwingUIBase uiBase = SwingUIVerticalLayoutTests.createUIBase(test);
+        return SwingUIBuilder.create(uiBase);
+    }
+    
+    static SwingUIText createUIText(Test test)
+    {
+        final SwingUIBuilder uiBuilder = SwingUITextTests.createUIBuilder(test);
+        return uiBuilder.create(SwingUIText.class).await();
+    }
+    
     static void test(TestRunner runner)
     {
         runner.testGroup(SwingUIText.class, () ->
         {
-            final Function1<Test,SwingUIText> creator = (Test test) ->
-            {
-                final Display display = test.getDisplays().first();
-                final AsyncRunner asyncRunner = test.getMainAsyncRunner();
-                final AWTUIBase base = AWTUIBase.create(display, asyncRunner);
-                return SwingUIText.create(base);
-            };
+            UITextTests.test(runner, SwingUITextTests::createUIText);
+            SwingUIElementTests.test(runner, SwingUITextTests::createUIText);
 
-            UITextTests.test(runner, creator);
-
-            runner.testGroup("create(JavaUIBase)", () ->
+            runner.testGroup("create(SwingUIBase)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> SwingUIText.create((AWTUIBase)null),
+                    test.assertThrows(() -> SwingUIText.create((SwingUIBase)null),
                         new PreConditionFailure("uiBase cannot be null."));
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final SwingUIText text = SwingUIText.create(AWTUIBase.create(test.getDisplays().first(), test.getMainAsyncRunner()));
+                    final SwingUIBase uiBase = SwingUITextTests.createUIBase(test);
+                    final SwingUIText text = SwingUIText.create(uiBase);
                     test.assertNotNull(text);
+                    test.assertEqual(Distance.zero, text.getWidth());
+                    test.assertEqual(Distance.zero, text.getHeight());
+                    test.assertEqual(Size2D.create(Distance.zero, Distance.zero), text.getSize());
+                    test.assertEqual(Distance.fontPoints(12), text.getFontSize());
                     test.assertEqual("", text.getText());
-                    final javax.swing.JLabel jLabel = text.getComponent();
-                    test.assertNotNull(jLabel);
-                });
-            });
 
-            runner.testGroup("create(Display,AsyncRunner)", () ->
-            {
-                runner.test("with null display", (Test test) ->
-                {
-                    test.assertThrows(() -> SwingUIText.create(null, test.getMainAsyncRunner()),
-                        new PreConditionFailure("display cannot be null."));
-                });
+                    final javax.swing.JLabel component = text.getComponent();
+                    test.assertNotNull(component);
 
-                runner.test("with null asyncRunner", (Test test) ->
-                {
-                    test.assertThrows(() -> SwingUIText.create(test.getDisplays().first(), null),
-                        new PreConditionFailure("asyncRunner cannot be null."));
-                });
-
-                runner.test("with non-null arguments", (Test test) ->
-                {
-                    final SwingUIText text = SwingUIText.create(test.getDisplays().first(), test.getMainAsyncRunner());
-                    test.assertNotNull(text);
-                    test.assertEqual("", text.getText());
-                    final javax.swing.JLabel jLabel = text.getComponent();
-                    test.assertNotNull(jLabel);
+                    final javax.swing.JLabel jComponent = text.getJComponent();
+                    test.assertNotNull(jComponent);
+                    test.assertSame(component, jComponent);
                 });
             });
             
@@ -62,7 +59,7 @@ public interface SwingUITextTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIText.class), (Test test) ->
                 {
-                    final SwingUIText text = creator.run(test);
+                    final SwingUIText text = SwingUITextTests.createUIText(test);
                     final SwingUIText setWidthResult = text.setWidth(Distance.inches(1));
                     test.assertSame(text, setWidthResult);
                 });
@@ -72,7 +69,7 @@ public interface SwingUITextTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIText.class), (Test test) ->
                 {
-                    final SwingUIText text = creator.run(test);
+                    final SwingUIText text = SwingUITextTests.createUIText(test);
                     final SwingUIText setHeightResult = text.setHeight(Distance.inches(1));
                     test.assertSame(text, setHeightResult);
                 });
@@ -82,7 +79,7 @@ public interface SwingUITextTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIText.class), (Test test) ->
                 {
-                    final SwingUIText text = creator.run(test);
+                    final SwingUIText text = SwingUITextTests.createUIText(test);
                     final SwingUIText setHeightResult = text.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
                     test.assertSame(text, setHeightResult);
                 });
@@ -92,7 +89,7 @@ public interface SwingUITextTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIText.class), (Test test) ->
                 {
-                    final SwingUIText text = creator.run(test);
+                    final SwingUIText text = SwingUITextTests.createUIText(test);
                     final SwingUIText setHeightResult = text.setSize(Distance.inches(2), Distance.inches(3));
                     test.assertSame(text, setHeightResult);
                 });
@@ -102,9 +99,14 @@ public interface SwingUITextTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIText.class), (Test test) ->
                 {
-                    final SwingUIText text = creator.run(test);
+                    final SwingUIText text = SwingUITextTests.createUIText(test);
                     final SwingUIText setHeightResult = text.setText("hello");
                     test.assertSame(text, setHeightResult);
+
+                    test.assertEqual(Distance.inches(0.27), text.getWidth());
+                    test.assertEqual(Distance.inches(0.16), text.getHeight());
+                    test.assertEqual(Size2D.create(Distance.inches(0.27), Distance.inches(0.16)), text.getSize());
+                    test.assertEqual("hello", text.getText());
                 });
             });
 
@@ -112,9 +114,14 @@ public interface SwingUITextTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
-                    final SwingUIText text = creator.run(test);
+                    final SwingUIText text = SwingUITextTests.createUIText(test);
                     final SwingUIText setFontSizeResult = text.setFontSize(Distance.inches(1));
                     test.assertSame(text, setFontSizeResult);
+
+                    test.assertEqual(Distance.zero, text.getWidth());
+                    test.assertEqual(Distance.zero, text.getHeight());
+                    test.assertEqual(Size2D.create(Distance.zero, Distance.zero), text.getSize());
+                    test.assertEqual(Distance.inches(1), text.getFontSize());
                 });
             });
         });

@@ -125,7 +125,7 @@ public interface ProcessTests
                 final AsyncScheduler mainAsyncRunner = process.getMainAsyncRunner();
                 test.assertNotNull(mainAsyncRunner);
                 test.assertSame(mainAsyncRunner, process.getMainAsyncRunner());
-                test.assertSame(mainAsyncRunner, CurrentThread.getAsyncRunner());
+                test.assertSame(mainAsyncRunner, CurrentThread.getAsyncRunner().await());
             });
 
             runner.test("getParallelAsyncRunner()", (Test test) ->
@@ -135,7 +135,7 @@ public interface ProcessTests
                     final AsyncScheduler parallelAsyncRunner = process.getParallelAsyncRunner();
                     test.assertNotNull(parallelAsyncRunner);
                     test.assertSame(parallelAsyncRunner, process.getParallelAsyncRunner());
-                    test.assertNotSame(parallelAsyncRunner, CurrentThread.getAsyncRunner());
+                    test.assertNotSame(parallelAsyncRunner, CurrentThread.getAsyncRunner().await());
                 }
             });
 

@@ -5,15 +5,15 @@ package qub;
  */
 public class SwingUITextBox implements UITextBox, SwingUIElement
 {
-    private final SwingUIBase uiBase;
+    private final SwingUIElementBase uiElementBase;
     private final javax.swing.JTextField jTextField;
 
     private SwingUITextBox(SwingUIBase uiBase)
     {
         PreCondition.assertNotNull(uiBase, "uiBase");
 
-        this.uiBase = uiBase;
         this.jTextField = new javax.swing.JTextField();
+        this.uiElementBase = new SwingUIElementBase(uiBase, this.jTextField);
     }
 
     /**
@@ -23,17 +23,6 @@ public class SwingUITextBox implements UITextBox, SwingUIElement
     public static SwingUITextBox create(SwingUIBase base)
     {
         return new SwingUITextBox(base);
-    }
-
-    /**
-     * Create a new SwingUITextBox.
-     * @param display The display that the SwingUITextBox will be shown on.
-     * @param asyncRunner The AsyncRunner that this SwingUITextBox's events will be invoked on.
-     * @return The new SwingUITextBox.
-     */
-    public static SwingUITextBox create(Display display, AsyncRunner asyncRunner)
-    {
-        return SwingUITextBox.create(SwingUIBase.create(display, asyncRunner));
     }
 
     @Override
@@ -51,44 +40,66 @@ public class SwingUITextBox implements UITextBox, SwingUIElement
     @Override
     public SwingUITextBox setWidth(Distance width)
     {
-        return (SwingUITextBox)UITextBox.super.setWidth(width);
+        this.uiElementBase.setWidth(width);
+        return this;
     }
 
     @Override
     public Distance getWidth()
     {
-        return this.uiBase.getWidth(this);
+        return this.uiElementBase.getWidth();
     }
 
     @Override
     public SwingUITextBox setHeight(Distance height)
     {
-        return (SwingUITextBox)UITextBox.super.setHeight(height);
+        this.uiElementBase.setHeight(height);
+        return this;
     }
 
     @Override
     public Distance getHeight()
     {
-        return this.uiBase.getHeight(this);
+        return this.uiElementBase.getHeight();
     }
 
     @Override
     public SwingUITextBox setSize(Size2D size)
     {
-        return (SwingUITextBox)UITextBox.super.setSize(size);
+        this.uiElementBase.setSize(size);
+        return this;
     }
 
     @Override
     public SwingUITextBox setSize(Distance width, Distance height)
     {
-        this.uiBase.setSize(this, width, height);
+        this.uiElementBase.setSize(width, height);
         return this;
+    }
+
+    @Override
+    public Size2D getSize()
+    {
+        return this.uiElementBase.getSize();
     }
 
     @Override
     public Disposable onSizeChanged(Action0 callback)
     {
-        return this.uiBase.onSizeChanged(this, callback);
+        return this.uiElementBase.onSizeChanged(callback);
+    }
+
+    @Override
+    public SwingUITextBox setBackgroundColor(Color backgroundColor)
+    {
+        this.uiElementBase.setBackgroundColor(backgroundColor);
+        return this;
+    }
+
+    @Override
+    public Color getBackgroundColor()
+    {
+        return this.uiElementBase.getBackgroundColor();
     }
 
     @Override
@@ -112,19 +123,19 @@ public class SwingUITextBox implements UITextBox, SwingUIElement
     {
         PreCondition.assertNotNull(callback, "callback");
 
-        return this.uiBase.onTextChanged(this.jTextField, callback);
+        return this.uiElementBase.onTextChanged(this.jTextField, callback);
     }
 
     @Override
     public Distance getFontSize()
     {
-        return this.uiBase.getFontSize(this);
+        return this.uiElementBase.getFontSize();
     }
 
     @Override
     public SwingUITextBox setFontSize(Distance fontSize)
     {
-        this.uiBase.setFontSize(this, fontSize);
+        this.uiElementBase.setFontSize(fontSize);
         return this;
     }
 }

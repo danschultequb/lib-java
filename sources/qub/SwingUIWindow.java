@@ -2,7 +2,7 @@ package qub;
 
 public class SwingUIWindow implements UIWindow
 {
-    private final AWTUIBase uiBase;
+    private final AWTUIElementBase uiElementBase;
     private final javax.swing.JFrame jFrame;
     private final PausedAsyncTask<Void> disposedTask;
     private boolean isDisposed;
@@ -12,14 +12,15 @@ public class SwingUIWindow implements UIWindow
     {
         PreCondition.assertNotNull(uiBase, "uiBase");
 
-        this.uiBase = uiBase;
         this.jFrame = new javax.swing.JFrame();
         this.jFrame.setDefaultCloseOperation(javax.swing.JFrame.DISPOSE_ON_CLOSE);
+        this.jFrame.pack();
         this.jFrame.addWindowListener(new java.awt.event.WindowListener()
         {
             @Override
             public void windowOpened(java.awt.event.WindowEvent e)
             {
+                uiBase.registerUIEventThread();
             }
 
             @Override
@@ -54,24 +55,19 @@ public class SwingUIWindow implements UIWindow
             }
         });
         this.disposedTask = uiBase.createPausedAsyncTask();
+        this.uiElementBase = new AWTUIElementBase(uiBase, this.jFrame);
     }
 
-    public static SwingUIWindow create(SwingUIBase base)
+    public static SwingUIWindow create(AWTUIBase base)
     {
         PreCondition.assertNotNull(base, "base");
 
         return new SwingUIWindow(base);
     }
 
-    /**
-     * Create a new Java Swing Window.
-     * @param display The display that this SwingWindow will use.
-     * @param asyncRunner The AsyncRunner that UI events will be scheduled on.
-     * @return The new Java Swing Window.
-     */
-    public static SwingUIWindow create(Display display, AsyncRunner asyncRunner)
+    public javax.swing.JFrame getJFrame()
     {
-        return SwingUIWindow.create(SwingUIBase.create(display, asyncRunner));
+        return this.jFrame;
     }
 
     @Override
@@ -96,12 +92,20 @@ public class SwingUIWindow implements UIWindow
         PreCondition.assertNotNull(content, "content");
         PreCondition.assertInstanceOf(content, AWTUIElement.class, "content");
 
+        return this.setContent((AWTUIElement)content);
+    }
+
+    public SwingUIWindow setContent(AWTUIElement content)
+    {
+        PreCondition.assertNotNull(content, "content");
+
         if (this.content != null)
         {
             this.jFrame.remove(this.content.getComponent());
         }
-        this.content = (AWTUIElement)content;
+        this.content = content;
         this.jFrame.add(this.content.getComponent());
+        this.uiElementBase.updateSize();
 
         return this;
     }
@@ -174,10 +178,8 @@ public class SwingUIWindow implements UIWindow
      */
     public SwingUIWindow setWidth(Distance width)
     {
-        PreCondition.assertNotNull(width, "width");
-        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
-
-        return this.setSize(width, this.getHeight());
+        this.uiElementBase.setWidth(width);
+        return this;
     }
 
     /**
@@ -186,7 +188,7 @@ public class SwingUIWindow implements UIWindow
      */
     public Distance getWidth()
     {
-        return this.uiBase.getWidth(this.jFrame);
+        return this.uiElementBase.getWidth();
     }
 
     /**
@@ -196,10 +198,8 @@ public class SwingUIWindow implements UIWindow
      */
     public SwingUIWindow setHeight(Distance height)
     {
-        PreCondition.assertNotNull(height, "height");
-        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
-
-        return this.setSize(this.getWidth(), height);
+        this.uiElementBase.setHeight(height);
+        return this;
     }
 
     /**
@@ -208,7 +208,7 @@ public class SwingUIWindow implements UIWindow
      */
     public Distance getHeight()
     {
-        return this.uiBase.getHeight(this.jFrame);
+        return this.uiElementBase.getHeight();
     }
 
     /**
@@ -218,9 +218,8 @@ public class SwingUIWindow implements UIWindow
      */
     public SwingUIWindow setSize(Size2D size)
     {
-        PreCondition.assertNotNull(size, "size");
-
-        return this.setSize(size.getWidth(), size.getHeight());
+        this.uiElementBase.setSize(size);
+        return this;
     }
 
     /**
@@ -231,7 +230,7 @@ public class SwingUIWindow implements UIWindow
      */
     public SwingUIWindow setSize(Distance width, Distance height)
     {
-        this.uiBase.setSize(this.jFrame, width, height);
+        this.uiElementBase.setSize(width, height);
         return this;
     }
 
@@ -241,7 +240,7 @@ public class SwingUIWindow implements UIWindow
      */
     public Size2D getSize()
     {
-        return Size2D.create(this.getWidth(), this.getHeight());
+        return this.uiElementBase.getSize();
     }
 
     /**
@@ -251,6 +250,84 @@ public class SwingUIWindow implements UIWindow
      */
     public Disposable onSizeChanged(Action0 callback)
     {
-        return this.uiBase.onSizeChanged(this.jFrame, callback);
+        return this.uiElementBase.onSizeChanged(callback);
+    }
+
+    /**
+     * Set the width of this Window.
+     * @param contentWidth The width of this Window.
+     * @return This object for method chaining.
+     */
+    public SwingUIWindow setContentWidth(Distance contentWidth)
+    {
+        PreCondition.assertNotNull(contentWidth, "contentWidth");
+        PreCondition.assertGreaterThanOrEqualTo(contentWidth, Distance.zero, "contentWidth");
+
+        return this.setContentSize(contentWidth, this.getContentHeight());
+    }
+
+    /**
+     * Get the content width of this Window.
+     * @return The content width of this Window.
+     */
+    public Distance getContentWidth()
+    {
+        return this.uiElementBase.getContentWidth(this.jFrame);
+    }
+
+    /**
+     * Set the content height of this Window.
+     * @param contentHeight The content height of this Window.
+     * @return This object for method chaining.
+     */
+    public SwingUIWindow setContentHeight(Distance contentHeight)
+    {
+        PreCondition.assertNotNull(contentHeight, "contentHeight");
+        PreCondition.assertGreaterThanOrEqualTo(contentHeight, Distance.zero, "contentHeight");
+
+        return this.setContentSize(this.getContentWidth(), contentHeight);
+    }
+
+    /**
+     * Get the height of this Window.
+     * @return The height of this Window.
+     */
+    public Distance getContentHeight()
+    {
+        return this.uiElementBase.getContentHeight(this.jFrame);
+    }
+
+    /**
+     * Set the content size of this Window.
+     * @param contentSize The content size of this Window.
+     * @return This object for method chaining.
+     */
+    public SwingUIWindow setContentSize(Size2D contentSize)
+    {
+        PreCondition.assertNotNull(contentSize, "contentSize");
+
+        this.uiElementBase.setContentSize(this.jFrame, contentSize);
+        return this;
+    }
+
+    /**
+     * Set the content size of this Window.
+     * @param contentWidth The width of this Window.
+     * @param contentHeight The height of this Window.
+     * @return This object for method chaining.
+     */
+    public SwingUIWindow setContentSize(Distance contentWidth, Distance contentHeight)
+    {
+        this.uiElementBase.setContentSize(this.jFrame, contentWidth, contentHeight);
+        return this;
+    }
+
+    /**
+     * Get the size of this Window.
+     * @return The size of this Window.
+     */
+    public Size2D getContentSize()
+    {
+        return this.uiElementBase.getContentSize(this.jFrame);
     }
 }

@@ -20,12 +20,13 @@ public class SwingUIBuilder extends BasicUIBuilder
         this.setCreator(Iterable.create(SwingUIVerticalLayout.class, UIVerticalLayout.class), SwingUIVerticalLayout::create);
     }
 
-    public static SwingUIBuilder create(Display display, AsyncRunner asyncRunner)
+    public static SwingUIBuilder create(Display display, AsyncRunner mainAsyncRunner, AsyncScheduler parallelAsyncRunner)
     {
         PreCondition.assertNotNull(display, "display");
-        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+        PreCondition.assertNotNull(mainAsyncRunner, "mainAsyncRunner");
+        PreCondition.assertNotNull(parallelAsyncRunner, "parallelAsyncRunner");
 
-        final SwingUIBase uiBase = SwingUIBase.create(display, asyncRunner);
+        final SwingUIBase uiBase = SwingUIBase.create(display, mainAsyncRunner, parallelAsyncRunner);
         return SwingUIBuilder.create(uiBase);
     }
 

@@ -1,26 +1,21 @@
 package qub;
 
-public class SwingUIText implements UIText, AWTUIElement
+public class SwingUIText implements UIText, SwingUIElement
 {
-    private AWTUIBase uiBase;
+    private final SwingUIElementBase uiElementBase;
     private final javax.swing.JLabel jLabel;
 
-    private SwingUIText(AWTUIBase uiBase)
+    private SwingUIText(SwingUIBase uiBase)
     {
         PreCondition.assertNotNull(uiBase, "uiBase");
 
-        this.uiBase = uiBase;
         this.jLabel = new javax.swing.JLabel();
+        this.uiElementBase = new SwingUIElementBase(uiBase, this.jLabel);
     }
 
-    public static SwingUIText create(AWTUIBase base)
+    public static SwingUIText create(SwingUIBase base)
     {
         return new SwingUIText(base);
-    }
-
-    public static SwingUIText create(Display display, AsyncRunner asyncRunner)
-    {
-        return SwingUIText.create(AWTUIBase.create(display, asyncRunner));
     }
 
     @Override
@@ -30,46 +25,74 @@ public class SwingUIText implements UIText, AWTUIElement
     }
 
     @Override
+    public javax.swing.JLabel getJComponent()
+    {
+        return this.jLabel;
+    }
+
+    @Override
     public SwingUIText setWidth(Distance width)
     {
-        return (SwingUIText)UIText.super.setWidth(width);
+        this.uiElementBase.setWidth(width);
+        return this;
     }
 
     @Override
     public Distance getWidth()
     {
-        return this.uiBase.getWidth(this.jLabel);
+        return this.uiElementBase.getWidth();
     }
 
     @Override
     public SwingUIText setHeight(Distance height)
     {
-        return (SwingUIText)UIText.super.setHeight(height);
+        this.uiElementBase.setHeight(height);
+        return this;
     }
 
     @Override
     public Distance getHeight()
     {
-        return this.uiBase.getHeight(this.jLabel);
+        return this.uiElementBase.getHeight();
     }
 
     @Override
     public SwingUIText setSize(Size2D size)
     {
-        return (SwingUIText)UIText.super.setSize(size);
+        this.uiElementBase.setSize(size);
+        return this;
     }
 
     @Override
     public SwingUIText setSize(Distance width, Distance height)
     {
-        this.uiBase.setSize(this.jLabel, width, height);
+        this.uiElementBase.setSize(width, height);
         return this;
+    }
+
+    @Override
+    public Size2D getSize()
+    {
+        return this.uiElementBase.getSize();
     }
 
     @Override
     public Disposable onSizeChanged(Action0 callback)
     {
-        return this.uiBase.onSizeChanged(this.jLabel, callback);
+        return this.uiElementBase.onSizeChanged(callback);
+    }
+
+    @Override
+    public SwingUIText setBackgroundColor(Color backgroundColor)
+    {
+        this.uiElementBase.setBackgroundColor(backgroundColor);
+        return this;
+    }
+
+    @Override
+    public Color getBackgroundColor()
+    {
+        return this.uiElementBase.getBackgroundColor();
     }
 
     @Override
@@ -84,6 +107,7 @@ public class SwingUIText implements UIText, AWTUIElement
         PreCondition.assertNotNull(text, "text");
 
         this.jLabel.setText(text);
+        this.uiElementBase.updateSize();
 
         return this;
     }
@@ -91,13 +115,14 @@ public class SwingUIText implements UIText, AWTUIElement
     @Override
     public Distance getFontSize()
     {
-        return this.uiBase.getFontSize(this.jLabel);
+        return this.uiElementBase.getFontSize();
     }
 
     @Override
     public SwingUIText setFontSize(Distance fontSize)
     {
-        this.uiBase.setFontSize(this.jLabel, fontSize);
+        this.uiElementBase.setFontSize(fontSize);
+
         return this;
     }
 }

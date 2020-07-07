@@ -3,29 +3,29 @@ package qub;
 public abstract class UIBase
 {
     private final Display display;
-    private final AsyncRunner asyncRunner;
+    private final AsyncRunner mainAsyncRunner;
 
-    protected UIBase(Display display, AsyncRunner asyncRunner)
+    protected UIBase(Display display, AsyncRunner mainAsyncRunner)
     {
         PreCondition.assertNotNull(display, "display");
-        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+        PreCondition.assertNotNull(mainAsyncRunner, "mainAsyncRunner");
 
         this.display = display;
-        this.asyncRunner = asyncRunner;
+        this.mainAsyncRunner = mainAsyncRunner;
     }
 
     public Result<Void> scheduleAsyncTask(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        return this.asyncRunner.schedule(action);
+        return this.mainAsyncRunner.schedule(action);
     }
 
     public PausedAsyncTask<Void> createPausedAsyncTask(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        return this.asyncRunner.create(action);
+        return this.mainAsyncRunner.create(action);
     }
 
     public PausedAsyncTask<Void> createPausedAsyncTask()
@@ -35,45 +35,31 @@ public abstract class UIBase
 
     public double convertHorizontalDistanceToPixels(Distance horizontalDistance)
     {
-        PreCondition.assertNotNull(horizontalDistance, "horizontalDistance");
-
-        final double result = this.display.convertHorizontalDistanceToPixels(horizontalDistance);
-
-        PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
-
-        return result;
+        return this.display.convertHorizontalDistanceToPixels(horizontalDistance);
     }
 
     public Distance convertHorizontalPixelsToDistance(double horizontalPixels)
     {
-        PreCondition.assertGreaterThanOrEqualTo(horizontalPixels, 0, "horizontalPixels");
-
-        final Distance result = this.display.convertHorizontalPixelsToDistance(horizontalPixels);
-
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
-
-        return result;
+        return this.display.convertHorizontalPixelsToDistance(horizontalPixels);
     }
 
     public double convertVerticalDistanceToPixels(Distance verticalDistance)
     {
-        PreCondition.assertNotNull(verticalDistance, "verticalDistance");
-
-        final double result = this.display.convertVerticalDistanceToPixels(verticalDistance);
-
-        PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
-
-        return result;
+        return this.display.convertVerticalDistanceToPixels(verticalDistance);
     }
 
     public Distance convertVerticalPixelsToDistance(double verticalPixels)
     {
-        PreCondition.assertGreaterThanOrEqualTo(verticalPixels, 0, "verticalPixels");
+        return this.display.convertVerticalPixelsToDistance(verticalPixels);
+    }
 
-        final Distance result = this.display.convertVerticalPixelsToDistance(verticalPixels);
+    public Size2D convertPixelsToSize2D(double horizontalPixels, double verticalPixels)
+    {
+        return this.display.convertPixelsToSize2D(horizontalPixels, verticalPixels);
+    }
 
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
-
-        return result;
+    public Point2D convertPixelsToPoint2D(double horizontalPixels, double verticalPixels)
+    {
+        return this.display.convertPixelsToPoint2D(horizontalPixels, verticalPixels);
     }
 }

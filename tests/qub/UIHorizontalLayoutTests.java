@@ -9,8 +9,6 @@ public interface UIHorizontalLayoutTests
 
         runner.testGroup(UIHorizontalLayout.class, () ->
         {
-            UIElementTests.test(runner, creator);
-
             runner.testGroup("setWidth(Distance)", () ->
             {
                 runner.test("should return " + Types.getTypeName(UIHorizontalLayout.class), (Test test) ->
@@ -49,40 +47,6 @@ public interface UIHorizontalLayoutTests
                     final UIHorizontalLayout setHeightResult = verticalLayout.setSize(Distance.inches(2), Distance.inches(3));
                     test.assertSame(verticalLayout, setHeightResult);
                 });
-            });
-
-            runner.testGroup("setDirection(HorizontalDirection)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final UIHorizontalLayout verticalLayout = creator.run(test);
-                    test.assertThrows(() -> verticalLayout.setDirection(null),
-                        new PreConditionFailure("direction cannot be null."));
-                });
-
-                final Action2<HorizontalDirection,HorizontalDirection> setDirectionTest = (HorizontalDirection oldDirection, HorizontalDirection newDirection) ->
-                {
-                    runner.test("from " + oldDirection + " to " + newDirection, (Test test) ->
-                    {
-                        final UIHorizontalLayout verticalLayout = creator.run(test);
-
-                        final Iterable<UIElement> childElements = Iterable.create(creator.run(test), creator.run(test), creator.run(test));
-                        verticalLayout.addAll(childElements);
-
-                        final UIHorizontalLayout setDirectionResult1 = verticalLayout.setDirection(oldDirection);
-                        test.assertSame(verticalLayout, setDirectionResult1);
-                        test.assertEqual(oldDirection, verticalLayout.getDirection());
-
-                        final UIHorizontalLayout setDirectionResult2 = verticalLayout.setDirection(newDirection);
-                        test.assertSame(verticalLayout, setDirectionResult2);
-                        test.assertEqual(newDirection, verticalLayout.getDirection());
-                    });
-                };
-
-                setDirectionTest.run(HorizontalDirection.LeftToRight, HorizontalDirection.LeftToRight);
-                setDirectionTest.run(HorizontalDirection.LeftToRight, HorizontalDirection.RightToLeft);
-                setDirectionTest.run(HorizontalDirection.RightToLeft, HorizontalDirection.LeftToRight);
-                setDirectionTest.run(HorizontalDirection.RightToLeft, HorizontalDirection.RightToLeft);
             });
 
             runner.testGroup("add(UIElement)", () ->

@@ -8,27 +8,6 @@ public interface SwingUIBuilderTests
         {
             UIBuilderTests.test(runner, (Test test) -> SwingUIBuilder.create(test.getProcess()));
 
-            runner.testGroup("create(Display,AsyncRunner)", () ->
-            {
-                runner.test("with null Display", (Test test) ->
-                {
-                    test.assertThrows(() -> SwingUIBuilder.create(null, test.getMainAsyncRunner()),
-                        new PreConditionFailure("display cannot be null."));
-                });
-
-                runner.test("with null AsyncRunner", (Test test) ->
-                {
-                    test.assertThrows(() -> SwingUIBuilder.create(test.getDisplays().first(), null),
-                        new PreConditionFailure("asyncRunner cannot be null."));
-                });
-
-                runner.test("with non-null values", (Test test) ->
-                {
-                    final SwingUIBuilder uiBuilder = SwingUIBuilder.create(test.getDisplays().first(), test.getMainAsyncRunner());
-                    test.assertNotNull(uiBuilder);
-                });
-            });
-
             runner.testGroup("create(SwingUIBase)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -39,7 +18,7 @@ public interface SwingUIBuilderTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final SwingUIBase uiBase = SwingUIBase.create(test.getDisplays().first(), test.getMainAsyncRunner());
+                    final SwingUIBase uiBase = SwingUIBase.create(test.getDisplays().first(), test.getMainAsyncRunner(), test.getParallelAsyncRunner());
                     final SwingUIBuilder uiBuilder = SwingUIBuilder.create(uiBase);
                     test.assertNotNull(uiBuilder);
                 });

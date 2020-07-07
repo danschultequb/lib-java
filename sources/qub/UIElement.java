@@ -10,13 +10,7 @@ public interface UIElement
      * @param width The width of this Window.
      * @return This object for method chaining.
      */
-    default UIElement setWidth(Distance width)
-    {
-        PreCondition.assertNotNull(width, "width");
-        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
-
-        return this.setSize(width, this.getHeight());
-    }
+    UIElement setWidth(Distance width);
 
     /**
      * Get the width of this Window.
@@ -29,13 +23,7 @@ public interface UIElement
      * @param height The height of this Window.
      * @return This object for method chaining.
      */
-    default UIElement setHeight(Distance height)
-    {
-        PreCondition.assertNotNull(height, "height");
-        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
-
-        return this.setSize(this.getWidth(), height);
-    }
+    UIElement setHeight(Distance height);
 
     /**
      * Get the height of this Window.
@@ -67,10 +55,7 @@ public interface UIElement
      * Get the size of this Window.
      * @return The size of this Window.
      */
-    default Size2D getSize()
-    {
-        return Size2D.create(this.getWidth(), this.getHeight());
-    }
+    Size2D getSize();
 
     /**
      * Register the provided callback to be invoked when this UIElement's size changes.
@@ -78,4 +63,17 @@ public interface UIElement
      * @return A Disposable that can be disposed to unregister the provided callback.
      */
     Disposable onSizeChanged(Action0 callback);
+
+    /**
+     * Get the background color of this UIElement.
+     * @return The background color of this UIElement.
+     */
+    Color getBackgroundColor();
+
+    /**
+     * Set the background color of this UIElement.
+     * @param backgroundColor The background color of this UIElement.
+     * @return This object for method chaining.
+     */
+    UIElement setBackgroundColor(Color backgroundColor);
 }

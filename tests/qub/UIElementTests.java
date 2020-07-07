@@ -1,8 +1,5 @@
 package qub;
 
-import javax.swing.*;
-import java.lang.reflect.InvocationTargetException;
-
 public interface UIElementTests
 {
     static void test(TestRunner runner, Function1<Test,? extends UIElement> creator)
@@ -205,6 +202,26 @@ public interface UIElementTests
                     test.assertFalse(gate.isOpen());
                     test.assertFalse(eventThreadId.hasValue());
                     test.assertEqual(0, value.get());
+                });
+            });
+
+            runner.testGroup("setBackgroundColor(Color)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    final Color initialColor = uiElement.getBackgroundColor();
+                    test.assertThrows(() -> uiElement.setBackgroundColor(null),
+                        new PreConditionFailure("backgroundColor cannot be null."));
+                    test.assertEqual(initialColor, uiElement.getBackgroundColor());
+                });
+
+                runner.test("with non-null", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    final UIElement setBackgroundColorResult = uiElement.setBackgroundColor(Color.blue);
+                    test.assertSame(uiElement, setBackgroundColorResult);
+                    test.assertEqual(Color.blue, uiElement.getBackgroundColor());
                 });
             });
         });

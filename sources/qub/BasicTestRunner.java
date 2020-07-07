@@ -207,7 +207,7 @@ public final class BasicTestRunner implements TestRunner
         final Test test = new Test(testName, this.currentTestGroup, skip, this.process);
         if (test.matches(this.testPattern))
         {
-            final AsyncScheduler currentThreadAsyncScheduler = CurrentThread.getAsyncRunner();
+            final AsyncScheduler currentThreadAsyncScheduler = CurrentThread.getAsyncRunner().await();
             try
             {
                 try

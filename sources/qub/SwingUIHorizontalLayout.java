@@ -1,34 +1,29 @@
 package qub;
 
+import javax.swing.*;
+
 /**
  * A UIHorizontalLayout that displays other SwingUIElements in a horizontal stack.
  */
-public class SwingUIHorizontalLayout implements UIHorizontalLayout, AWTUIElement
+public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIElement
 {
     private final javax.swing.JPanel jPanel;
-    private final AWTUIBase uiBase;
+    private final SwingUIElementBase uiElementBase;
     private final List<AWTUIElement> elements;
-    private HorizontalDirection direction;
 
-    private SwingUIHorizontalLayout(AWTUIBase uiBase)
+    private SwingUIHorizontalLayout(SwingUIBase uiBase)
     {
         PreCondition.assertNotNull(uiBase, "uiBase");
 
-        this.uiBase = uiBase;
         this.jPanel = new javax.swing.JPanel();
-        this.jPanel.setLayout(new javax.swing.BoxLayout(this.jPanel, javax.swing.BoxLayout.LINE_AXIS));
+        this.jPanel.setLayout(null);
+        this.uiElementBase = new SwingUIElementBase(uiBase, this.jPanel);
         this.elements = List.create();
-        this.direction = HorizontalDirection.LeftToRight;
     }
 
-    public static SwingUIHorizontalLayout create(AWTUIBase base)
+    public static SwingUIHorizontalLayout create(SwingUIBase uiBase)
     {
-        return new SwingUIHorizontalLayout(base);
-    }
-
-    public static SwingUIHorizontalLayout create(Display display, AsyncRunner asyncRunner)
-    {
-        return SwingUIHorizontalLayout.create(AWTUIBase.create(display, asyncRunner));
+        return new SwingUIHorizontalLayout(uiBase);
     }
 
     @Override
@@ -38,93 +33,80 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, AWTUIElement
     }
 
     @Override
+    public javax.swing.JPanel getJComponent()
+    {
+        return this.jPanel;
+    }
+
+    @Override
     public SwingUIHorizontalLayout setWidth(Distance width)
     {
-        return (SwingUIHorizontalLayout)UIHorizontalLayout.super.setWidth(width);
+        this.uiElementBase.setWidth(width);
+        return this;
     }
 
     @Override
     public Distance getWidth()
     {
-        return this.uiBase.getWidth(this.jPanel);
+        return this.uiElementBase.getWidth();
     }
 
     @Override
     public SwingUIHorizontalLayout setHeight(Distance height)
     {
-        return (SwingUIHorizontalLayout)UIHorizontalLayout.super.setHeight(height);
+        this.uiElementBase.setHeight(height);
+        return this;
     }
 
     @Override
     public Distance getHeight()
     {
-        return this.uiBase.getHeight(this.jPanel);
+        return this.uiElementBase.getHeight();
     }
 
     @Override
     public SwingUIHorizontalLayout setSize(Size2D size)
     {
-        return (SwingUIHorizontalLayout)UIHorizontalLayout.super.setSize(size);
+        this.uiElementBase.setSize(size);
+        return this;
     }
 
     @Override
     public SwingUIHorizontalLayout setSize(Distance width, Distance height)
     {
-        this.uiBase.setSize(this.jPanel, width, height);
+        this.uiElementBase.setSize(width, height);
         return this;
+    }
+
+    @Override
+    public SwingUIHorizontalLayout setBackgroundColor(Color backgroundColor)
+    {
+        this.uiElementBase.setBackgroundColor(backgroundColor);
+        return this;
+    }
+
+    @Override
+    public Color getBackgroundColor()
+    {
+        return this.uiElementBase.getBackgroundColor();
+    }
+
+    @Override
+    public Size2D getSize()
+    {
+        return this.uiElementBase.getSize();
     }
 
     @Override
     public Disposable onSizeChanged(Action0 callback)
     {
-        return this.uiBase.onSizeChanged(this.jPanel, callback);
-    }
-
-    @Override
-    public SwingUIHorizontalLayout setDirection(HorizontalDirection direction)
-    {
-        PreCondition.assertNotNull(direction, "direction");
-
-        if (this.direction != direction)
-        {
-            this.jPanel.removeAll();
-
-            this.direction = direction;
-
-            if (this.direction == HorizontalDirection.RightToLeft)
-            {
-                this.jPanel.add(javax.swing.Box.createHorizontalGlue(), 0);
-            }
-            for (final AWTUIElement element : this.elements)
-            {
-                this.jPanel.add(element.getComponent());
-            }
-            this.jPanel.revalidate();
-        }
-
-        return this;
-    }
-
-    @Override
-    public HorizontalDirection getDirection()
-    {
-        return this.direction;
+        return this.uiElementBase.onSizeChanged(callback);
     }
 
     @Override
     public SwingUIHorizontalLayout add(UIElement uiElement)
     {
-        PreCondition.assertNotNull(uiElement, "uiElement");
-        PreCondition.assertInstanceOf(uiElement, AWTUIElement.class, "uiElement");
-
-        final AWTUIElement AWTUIElement = (AWTUIElement)uiElement;
-        this.elements.add(AWTUIElement);
-
-        final java.awt.Component component = AWTUIElement.getComponent();
-        this.jPanel.add(component);
-        this.jPanel.revalidate();
-
-        return this;
+        return (SwingUIHorizontalLayout)UIHorizontalLayout.super.add(uiElement);
     }
 
     @Override
@@ -136,6 +118,52 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, AWTUIElement
     @Override
     public SwingUIHorizontalLayout addAll(Iterable<? extends UIElement> uiElements)
     {
-        return (SwingUIHorizontalLayout)UIHorizontalLayout.super.addAll(uiElements);
+        PreCondition.assertNotNull(uiElements, "uiElements");
+
+        if (uiElements.any())
+        {
+            final List<java.awt.Component> components = List.create();
+            for (final UIElement uiElement : uiElements)
+            {
+                PreCondition.assertNotNull(uiElement, "uiElement");
+                PreCondition.assertInstanceOf(uiElement, AWTUIElement.class, "uiElement");
+
+                final AWTUIElement awtUiElement = (AWTUIElement)uiElement;
+                this.elements.add(awtUiElement);
+
+                components.add(awtUiElement.getComponent());
+            }
+
+            final java.awt.Dimension jPanelPreferredSize = this.jPanel.getPreferredSize();
+            final java.awt.Insets jPanelInsets = this.jPanel.getInsets();
+
+            int jPanelContentHeight = jPanelPreferredSize.height - jPanelInsets.top - jPanelInsets.bottom;
+            for (final java.awt.Component component : components)
+            {
+                final int componentHeight = component.getHeight();
+                if (componentHeight > jPanelContentHeight)
+                {
+                    jPanelContentHeight = componentHeight;
+                }
+            }
+            jPanelPreferredSize.height = jPanelContentHeight + jPanelInsets.left + jPanelInsets.right;
+
+            final int componentY = jPanelInsets.top;
+            int componentX = jPanelPreferredSize.width - jPanelInsets.right;
+            for (final java.awt.Component component : components)
+            {
+                this.jPanel.add(component);
+
+                component.setLocation(componentX, componentY);
+
+                componentX += component.getWidth();
+            }
+            jPanelPreferredSize.width = componentX + jPanelInsets.right;
+
+            this.jPanel.setPreferredSize(jPanelPreferredSize);
+            this.uiElementBase.updateSize();
+        }
+
+        return this;
     }
 }
