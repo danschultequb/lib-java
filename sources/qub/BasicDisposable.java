@@ -20,6 +20,14 @@ public class BasicDisposable implements Disposable
     }
 
     /**
+     * Create a new BasicDisposable that will do nothing when it is disposed.
+     */
+    public static BasicDisposable create()
+    {
+        return BasicDisposable.create(Action0.empty);
+    }
+
+    /**
      * Create a new BasicDisposable that will run the provided action when it is disposed.
      * @param onDisposed The action to run when the BasicDisposable is disposed.
      */
