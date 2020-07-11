@@ -129,6 +129,11 @@ public class AWTUIBase extends UIBase
         return Disposable.create(() -> component.removeComponentListener(componentListener));
     }
 
+    /**
+     * Get the position of the provided AWT Component relative to its parent container.
+     * @param component The AWT Component to get the relative position of.
+     * @return The position of the provided AWT Component relative to its parent container.
+     */
     public Point2D getPosition(java.awt.Component component)
     {
         PreCondition.assertNotNull(component, "component");
@@ -159,8 +164,8 @@ public class AWTUIBase extends UIBase
         PreCondition.assertNotNull(container, "container");
 
         final int widthInPixels = container.getWidth();
-        final java.awt.Insets jFrameInsets = container.getInsets();
-        final int result = widthInPixels - jFrameInsets.left - jFrameInsets.right;
+        final java.awt.Insets insets = container.getInsets();
+        final int result = widthInPixels - insets.left - insets.right;
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
@@ -186,8 +191,8 @@ public class AWTUIBase extends UIBase
         PreCondition.assertNotNull(container, "container");
 
         final int heightInPixels = container.getHeight();
-        final java.awt.Insets jFrameInsets = container.getInsets();
-        final int result = heightInPixels - jFrameInsets.top - jFrameInsets.bottom;
+        final java.awt.Insets insets = container.getInsets();
+        final int result = heightInPixels - insets.top - insets.bottom;
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
@@ -201,9 +206,9 @@ public class AWTUIBase extends UIBase
 
         final int widthInPixels = container.getWidth();
         final int heightInPixels = container.getHeight();
-        final java.awt.Insets jFrameInsets = container.getInsets();
-        final int contentWidthInPixels = widthInPixels - jFrameInsets.left - jFrameInsets.right;
-        final int contentHeightInPixels = heightInPixels - jFrameInsets.top - jFrameInsets.bottom;
+        final java.awt.Insets insets = container.getInsets();
+        final int contentWidthInPixels = widthInPixels - insets.left - insets.right;
+        final int contentHeightInPixels = heightInPixels - insets.top - insets.bottom;
         final Size2D result = this.convertPixelsToSize2D(contentWidthInPixels, contentHeightInPixels);
 
         PostCondition.assertNotNull(result, "result");

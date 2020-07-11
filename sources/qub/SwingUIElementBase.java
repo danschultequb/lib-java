@@ -24,6 +24,16 @@ public class SwingUIElementBase extends AWTUIElementBase
         return this.getComponent();
     }
 
+    public UIPadding getPadding()
+    {
+        return this.getUIBase().getPadding(this.getJComponent());
+    }
+
+    public void setPadding(UIPadding padding)
+    {
+        this.getUIBase().setPadding(this.getJComponent(), padding);
+    }
+
     /**
      * Register the provided callback to be invoked when the provided component's text changes.
      * @param jTextComponent The component to watch.

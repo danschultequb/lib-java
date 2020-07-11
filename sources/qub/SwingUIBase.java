@@ -18,6 +18,41 @@ public class SwingUIBase extends AWTUIBase
     }
 
     /**
+     * Get the padding of the provided Swing JComponent.
+     * @param jComponent The JComponent to get the padding of.
+     * @return The padding of the provided Swing JComponent.
+     */
+    public UIPadding getPadding(javax.swing.JComponent jComponent)
+    {
+        PreCondition.assertNotNull(jComponent, "jComponent");
+
+        final java.awt.Insets insets = jComponent.getInsets();
+        return UIPadding.create(
+            this.convertHorizontalPixelsToDistance(insets.left),
+            this.convertVerticalPixelsToDistance(insets.top),
+            this.convertHorizontalPixelsToDistance(insets.right),
+            this.convertVerticalPixelsToDistance(insets.bottom));
+    }
+
+    /**
+     * Set the padding for the provided JComponent.
+     * @param jComponent The JComponent to set the padding of.
+     * @param padding The padding to set.
+     */
+    public void setPadding(javax.swing.JComponent jComponent, UIPadding padding)
+    {
+        PreCondition.assertNotNull(jComponent, "jComponent");
+        PreCondition.assertNotNull(padding, "padding");
+
+        final javax.swing.border.Border border = javax.swing.BorderFactory.createEmptyBorder(
+            (int)this.convertVerticalDistanceToPixels(padding.getTop()),
+            (int)this.convertHorizontalDistanceToPixels(padding.getLeft()),
+            (int)this.convertVerticalDistanceToPixels(padding.getBottom()),
+            (int)this.convertHorizontalDistanceToPixels(padding.getRight()));
+        jComponent.setBorder(border);
+    }
+
+    /**
      * Register the provided callback to be invoked when the provided component's text changes.
      * @param jTextComponent The component to watch.
      * @param callback The callback to register.

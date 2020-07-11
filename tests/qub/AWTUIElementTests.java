@@ -51,6 +51,16 @@ public interface AWTUIElementTests
                 });
             });
 
+            runner.testGroup("setPadding(UIPadding)", () ->
+            {
+                runner.test("returns AWTUIElement", (Test test) ->
+                {
+                    final AWTUIElement uiElement = creator.run(test);
+                    final AWTUIElement setPaddingResult = uiElement.setPadding(UIPadding.zero);
+                    test.assertSame(uiElement, setPaddingResult);
+                });
+            });
+
             runner.testGroup("setBackgroundColor(Color)", () ->
             {
                 runner.test("returns AWTUIElement", (Test test) ->

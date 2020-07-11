@@ -39,6 +39,9 @@ public interface AWTUIElement extends UIElement
     AWTUIElement setSize(Distance width, Distance height);
 
     @Override
+    AWTUIElement setPadding(UIPadding padding);
+
+    @Override
     AWTUIElement setBackgroundColor(Color backgroundColor);
 
     /**

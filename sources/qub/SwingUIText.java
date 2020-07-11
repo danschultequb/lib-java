@@ -1,5 +1,8 @@
 package qub;
 
+/**
+ * A UIText implementation that is based on a javax.swing.JLabel.
+ */
 public class SwingUIText implements UIText, SwingUIElement
 {
     private final SwingUIElementBase uiElementBase;
@@ -80,6 +83,55 @@ public class SwingUIText implements UIText, SwingUIElement
     public Disposable onSizeChanged(Action0 callback)
     {
         return this.uiElementBase.onSizeChanged(callback);
+    }
+
+    @Override
+    public UIPadding getPadding()
+    {
+        return this.uiElementBase.getPadding();
+    }
+
+    @Override
+    public SwingUIText setPadding(UIPadding padding)
+    {
+        this.uiElementBase.setPadding(padding);
+        return this;
+    }
+
+    @Override
+    public Size2D getContentSpaceSize()
+    {
+        return null;
+    }
+
+    @Override
+    public Size2D getContentSpaceWidth()
+    {
+        return null;
+    }
+
+    @Override
+    public Size2D getContentSpaceHeight()
+    {
+        return null;
+    }
+
+    @Override
+    public Size2D getContentSize()
+    {
+        return null;
+    }
+
+    @Override
+    public Distance getContentWidth()
+    {
+        return null;
+    }
+
+    @Override
+    public Distance getContentHeight()
+    {
+        return null;
     }
 
     @Override

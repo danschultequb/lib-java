@@ -51,6 +51,16 @@ public interface SwingUIElementTests
                 });
             });
 
+            runner.testGroup("setPadding(UIPadding)", () ->
+            {
+                runner.test("returns SwingUIElement", (Test test) ->
+                {
+                    final SwingUIElement uiElement = creator.run(test);
+                    final SwingUIElement setPaddingResult = uiElement.setPadding(UIPadding.zero);
+                    test.assertSame(uiElement, setPaddingResult);
+                });
+            });
+
             runner.testGroup("setBackgroundColor(Color)", () ->
             {
                 runner.test("returns SwingUIElement", (Test test) ->

@@ -205,6 +205,35 @@ public interface UIElementTests
                 });
             });
 
+            runner.test("getPadding()", (Test test) ->
+            {
+                final UIElement uiElement = creator.run(test);
+                final UIPadding padding = uiElement.getPadding();
+                test.assertNotNull(padding);
+                test.assertEqual(padding, uiElement.getPadding());
+            });
+
+            runner.testGroup("setPadding(UIPadding)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    final UIPadding padding = uiElement.getPadding();
+                    test.assertThrows(() -> uiElement.setPadding(null),
+                        new PreConditionFailure("padding cannot be null."));
+                    test.assertEqual(padding, uiElement.getPadding());
+                });
+
+                runner.test("with non-null", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    final UIPadding padding = UIPadding.create(Distance.inches(1), Distance.inches(2), Distance.inches(3), Distance.inches(4));
+                    final UIElement setPaddingResult = uiElement.setPadding(padding);
+                    test.assertSame(uiElement, setPaddingResult);
+                    test.assertEqual(padding, uiElement.getPadding());
+                });
+            });
+
             runner.testGroup("setBackgroundColor(Color)", () ->
             {
                 runner.test("with null", (Test test) ->

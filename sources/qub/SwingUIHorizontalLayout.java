@@ -1,7 +1,5 @@
 package qub;
 
-import javax.swing.*;
-
 /**
  * A UIHorizontalLayout that displays other SwingUIElements in a horizontal stack.
  */
@@ -101,6 +99,55 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIEleme
     public Disposable onSizeChanged(Action0 callback)
     {
         return this.uiElementBase.onSizeChanged(callback);
+    }
+
+    @Override
+    public UIPadding getPadding()
+    {
+        return this.uiElementBase.getPadding();
+    }
+
+    @Override
+    public SwingUIHorizontalLayout setPadding(UIPadding padding)
+    {
+        this.uiElementBase.setPadding(padding);
+        return this;
+    }
+
+    @Override
+    public Size2D getContentSpaceSize()
+    {
+        return null;
+    }
+
+    @Override
+    public Size2D getContentSpaceWidth()
+    {
+        return null;
+    }
+
+    @Override
+    public Size2D getContentSpaceHeight()
+    {
+        return null;
+    }
+
+    @Override
+    public Size2D getContentSize()
+    {
+        return null;
+    }
+
+    @Override
+    public Distance getContentWidth()
+    {
+        return null;
+    }
+
+    @Override
+    public Distance getContentHeight()
+    {
+        return null;
     }
 
     @Override

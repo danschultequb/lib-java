@@ -98,6 +98,55 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     }
 
     @Override
+    public UIPadding getPadding()
+    {
+        return this.uiElementBase.getPadding();
+    }
+
+    @Override
+    public SwingUIVerticalLayout setPadding(UIPadding padding)
+    {
+        this.uiElementBase.setPadding(padding);
+        return this;
+    }
+
+    @Override
+    public Size2D getContentSpaceSize()
+    {
+        return null;
+    }
+
+    @Override
+    public Size2D getContentSpaceWidth()
+    {
+        return null;
+    }
+
+    @Override
+    public Size2D getContentSpaceHeight()
+    {
+        return null;
+    }
+
+    @Override
+    public Size2D getContentSize()
+    {
+        return null;
+    }
+
+    @Override
+    public Distance getContentWidth()
+    {
+        return null;
+    }
+
+    @Override
+    public Distance getContentHeight()
+    {
+        return null;
+    }
+
+    @Override
     public SwingUIVerticalLayout setBackgroundColor(Color backgroundColor)
     {
         this.uiElementBase.setBackgroundColor(backgroundColor);

@@ -115,6 +115,11 @@ public class AWTUIElementBase
         return this.getSize(this.component);
     }
 
+    public Disposable onSizeChanged(Action0 callback)
+    {
+        return this.uiBase.onSizeChanged(this.component, callback);
+    }
+
     /**
      * Get the background color of this AWTUIElementBase's Component.
      * @return The background color of this AWTUIElementBase's Component.
@@ -148,11 +153,6 @@ public class AWTUIElementBase
     public Point2D getPosition()
     {
         return this.getPosition(this.component);
-    }
-
-    public Disposable onSizeChanged(Action0 callback)
-    {
-        return this.uiBase.onSizeChanged(this.component, callback);
     }
 
     public void updateSize()
