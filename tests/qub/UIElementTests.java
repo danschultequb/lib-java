@@ -234,6 +234,111 @@ public interface UIElementTests
                 });
             });
 
+            runner.testGroup("onPaddingChanged(Action0)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    test.assertThrows(() -> uiElement.onPaddingChanged((Action0)null),
+                        new PreConditionFailure("callback cannot be null."));
+                });
+
+                runner.test("when padding set to equal padding", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    final IntegerValue changes = IntegerValue.create(0);
+                    uiElement.onPaddingChanged(changes::increment);
+
+                    uiElement.setPadding(uiElement.getPadding());
+
+                    test.assertEqual(0, changes.get());
+                });
+
+                runner.test("when padding set to different padding", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    final IntegerValue changes = IntegerValue.create(0);
+                    uiElement.onPaddingChanged(changes::increment);
+
+                    uiElement.setPadding(UIPadding.create(Distance.inches(1)));
+
+                    test.assertEqual(1, changes.get());
+                });
+            });
+
+            runner.testGroup("onPaddingChanged(Action1<UIPadding>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    test.assertThrows(() -> uiElement.onPaddingChanged((Action1<UIPadding>)null),
+                        new PreConditionFailure("callback cannot be null."));
+                });
+
+                runner.test("when padding set to equal padding", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+
+                    final List<UIPadding> changes = List.create();
+                    uiElement.onPaddingChanged((UIPadding newPadding) -> changes.add(newPadding));
+
+                    uiElement.setPadding(uiElement.getPadding());
+
+                    test.assertEqual(Iterable.create(), changes);
+                });
+
+                runner.test("when padding set to equal padding", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+
+                    final List<UIPadding> changes = List.create();
+                    uiElement.onPaddingChanged((UIPadding newPadding) -> changes.add(newPadding));
+
+                    uiElement.setPadding(UIPadding.create(Distance.inches(1)));
+
+                    test.assertEqual(Iterable.create(UIPadding.create(Distance.inches(1))), changes);
+                });
+            });
+
+            runner.testGroup("onPaddingChanged(Action2<UIPadding,UIPadding>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    test.assertThrows(() -> uiElement.onPaddingChanged((Action2<UIPadding,UIPadding>)null),
+                        new PreConditionFailure("callback cannot be null."));
+                });
+
+                runner.test("when padding set to equal padding", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+
+                    final List<UIPadding> changes = List.create();
+                    uiElement.onPaddingChanged((UIPadding oldPadding, UIPadding newPadding) -> changes.add(newPadding));
+
+                    uiElement.setPadding(uiElement.getPadding());
+
+                    test.assertEqual(Iterable.create(), changes);
+                });
+
+                runner.test("when padding set to equal padding", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    final UIPadding currentPadding = uiElement.getPadding();
+
+                    final List<UIPadding> changes = List.create();
+                    uiElement.onPaddingChanged((UIPadding oldPadding, UIPadding newPadding) -> changes.addAll(oldPadding, newPadding));
+
+                    uiElement.setPadding(UIPadding.create(Distance.inches(1)));
+
+                    test.assertEqual(
+                        Iterable.create(
+                            currentPadding,
+                            UIPadding.create(Distance.inches(1))),
+                        changes);
+                });
+            });
+
             runner.testGroup("setBackgroundColor(Color)", () ->
             {
                 runner.test("with null", (Test test) ->

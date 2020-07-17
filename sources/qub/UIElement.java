@@ -78,6 +78,37 @@ public interface UIElement
     UIElement setPadding(UIPadding padding);
 
     /**
+     * Subscribe to be notified when this UIElement's padding changes.
+     * @param callback The callback that will be invoked when this UIElement's padding changes.
+     * @return A Disposable that can be disposed to unsubscribe the provided callback.
+     */
+    default Disposable onPaddingChanged(Action0 callback)
+    {
+        PreCondition.assertNotNull(callback, "callback");
+
+        return this.onPaddingChanged((UIPadding newPadding) -> callback.run());
+    }
+
+    /**
+     * Subscribe to be notified when this UIElement's padding changes.
+     * @param callback The callback that will be invoked when this UIElement's padding changes.
+     * @return A Disposable that can be disposed to unsubscribe the provided callback.
+     */
+    default Disposable onPaddingChanged(Action1<UIPadding> callback)
+    {
+        PreCondition.assertNotNull(callback, "callback");
+
+        return this.onPaddingChanged((UIPadding oldPadding, UIPadding newPadding) -> callback.run(newPadding));
+    }
+
+    /**
+     * Subscribe to be notified when this UIElement's padding changes.
+     * @param callback The callback that will be invoked when this UIElement's padding changes.
+     * @return A Disposable that can be disposed to unsubscribe the provided callback.
+     */
+    Disposable onPaddingChanged(Action2<UIPadding,UIPadding> callback);
+
+    /**
      * Get the size of the space available for the content of this UIElement.
      * @return The size of the space available for the content of this UIElement.
      */

@@ -99,6 +99,12 @@ public class SwingUIText implements UIText, SwingUIElement
     }
 
     @Override
+    public Disposable onPaddingChanged(Action2<UIPadding, UIPadding> callback)
+    {
+        return this.uiElementBase.onPaddingChanged(callback);
+    }
+
+    @Override
     public Size2D getContentSpaceSize()
     {
         return null;

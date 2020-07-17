@@ -54,10 +54,11 @@ public class AWTUIElementBase
         return this.uiBase.createPausedAsyncTask();
     }
 
-    public void setWidth(Distance width)
+    public AWTUIElementBase setWidth(Distance width)
     {
         this.autoWidth = false;
-        this.setSizeInner(width, this.getHeight());
+        this.uiBase.setWidth(this.component, width);
+        return this;
     }
 
     public Distance getWidth(java.awt.Component component)
@@ -70,10 +71,11 @@ public class AWTUIElementBase
         return this.getWidth(this.component);
     }
 
-    public void setHeight(Distance height)
+    public AWTUIElementBase setHeight(Distance height)
     {
         this.autoHeight = false;
-        this.setSizeInner(this.getWidth(), height);
+        this.uiBase.setHeight(this.component, height);
+        return this;
     }
 
     public Distance getHeight(java.awt.Component component)
@@ -86,23 +88,19 @@ public class AWTUIElementBase
         return this.getHeight(this.component);
     }
 
-    public void setSize(Size2D size)
+    public AWTUIElementBase setSize(Size2D size)
     {
         PreCondition.assertNotNull(size, "size");
 
-        this.setSize(size.getWidth(), size.getHeight());
+        return this.setSize(size.getWidth(), size.getHeight());
     }
 
-    public void setSize(Distance width, Distance height)
+    public AWTUIElementBase setSize(Distance width, Distance height)
     {
         this.autoWidth = false;
         this.autoHeight = false;
-        this.setSizeInner(width, height);
-    }
-
-    private void setSizeInner(Distance width, Distance height)
-    {
         this.uiBase.setSize(this.component, width, height);
+        return this;
     }
 
     public Size2D getSize(java.awt.Component component)
@@ -133,9 +131,10 @@ public class AWTUIElementBase
      * Set the background color of this AWTUIElementBase's Component.
      * @param backgroundColor The background color of this AWTUIElementBase's Component.
      */
-    public void setBackgroundColor(Color backgroundColor)
+    public AWTUIElementBase setBackgroundColor(Color backgroundColor)
     {
         this.uiBase.setBackgroundColor(this.component, backgroundColor);
+        return this;
     }
 
     public Point2D getPosition(AWTUIElement awtUiElement)
@@ -221,8 +220,9 @@ public class AWTUIElementBase
         return this.uiBase.getFontSize(this.component);
     }
 
-    public void setFontSize(Distance fontSize)
+    public AWTUIElementBase setFontSize(Distance fontSize)
     {
         this.uiBase.setFontSize(this.component, fontSize);
+        return this;
     }
 }

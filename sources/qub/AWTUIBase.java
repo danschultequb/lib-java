@@ -51,6 +51,17 @@ public class AWTUIBase extends UIBase
         return result;
     }
 
+    public void setWidth(java.awt.Component component, Distance width)
+    {
+        PreCondition.assertNotNull(component, "component");
+        PreCondition.assertNotNull(width, "width");
+        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
+
+        final int widthInPixels = (int)this.convertHorizontalDistanceToPixels(width);
+        final int heightInPixels = component.getHeight();
+        component.setSize(widthInPixels, heightInPixels);
+    }
+
     public Distance getHeight(java.awt.Component component)
     {
         PreCondition.assertNotNull(component, "component");
@@ -62,6 +73,17 @@ public class AWTUIBase extends UIBase
         PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
 
         return result;
+    }
+
+    public void setHeight(java.awt.Component component, Distance height)
+    {
+        PreCondition.assertNotNull(component, "component");
+        PreCondition.assertNotNull(height, "height");
+        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
+
+        final int widthInPixels = component.getWidth();
+        final int heightInPixels = (int)this.convertVerticalDistanceToPixels(height);
+        component.setSize(widthInPixels, heightInPixels);
     }
 
     public void setSize(java.awt.Component component, Distance width, Distance height)
