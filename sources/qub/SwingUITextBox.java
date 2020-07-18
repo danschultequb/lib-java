@@ -119,7 +119,7 @@ public class SwingUITextBox implements UITextBox, SwingUIElement
     @Override
     public UIPaddingInPixels getPaddingInPixels()
     {
-        return null;
+        return this.uiElementBase.getPaddingInPixels();
     }
 
     @Override

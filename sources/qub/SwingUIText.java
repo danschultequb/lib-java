@@ -115,7 +115,7 @@ public class SwingUIText implements UIText, SwingUIElement
     @Override
     public UIPaddingInPixels getPaddingInPixels()
     {
-        return null;
+        return this.uiElementBase.getPaddingInPixels();
     }
 
     @Override

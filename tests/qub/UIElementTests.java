@@ -328,6 +328,27 @@ public interface UIElementTests
                 });
             });
 
+            runner.testGroup("setPaddingInPixels(UIPaddingInPixels)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    final UIPaddingInPixels padding = uiElement.getPaddingInPixels();
+                    test.assertThrows(() -> uiElement.setPaddingInPixels(null),
+                        new PreConditionFailure("padding cannot be null."));
+                    test.assertEqual(padding, uiElement.getPaddingInPixels());
+                });
+
+                runner.test("with non-null", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    final UIPaddingInPixels padding = UIPaddingInPixels.create(1, 2, 3, 4);
+                    final UIElement setPaddingResult = uiElement.setPaddingInPixels(padding);
+                    test.assertSame(uiElement, setPaddingResult);
+                    test.assertEqual(padding, uiElement.getPaddingInPixels());
+                });
+            });
+
             runner.testGroup("onPaddingChanged(Action0)", () ->
             {
                 runner.test("with null", (Test test) ->

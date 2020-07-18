@@ -127,7 +127,7 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     @Override
     public UIPaddingInPixels getPaddingInPixels()
     {
-        return null;
+        return this.uiElementBase.getPaddingInPixels();
     }
 
     @Override
