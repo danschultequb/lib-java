@@ -8,10 +8,10 @@ public interface AWTUIElement extends UIElement
     @Override
     AWTUIElement setWidth(Distance width);
 
-    /**
-     * Get the width of this AWTUIElement in pixels.
-     * @return The width of this AWTUIElement in pixels.
-     */
+    @Override
+    AWTUIElement setWidthInPixels(int widthInPixels);
+
+    @Override
     default int getWidthInPixels()
     {
         return this.getComponent().getWidth();
@@ -19,6 +19,9 @@ public interface AWTUIElement extends UIElement
 
     @Override
     AWTUIElement setHeight(Distance height);
+
+    @Override
+    AWTUIElement setHeightInPixels(int heightInPixels);
 
     /**
      * Get the height of this AWTUIElement in pixels.

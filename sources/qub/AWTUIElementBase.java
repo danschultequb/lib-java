@@ -61,20 +61,62 @@ public class AWTUIElementBase
         return this;
     }
 
+    public AWTUIElementBase setWidthInPixels(int widthInPixels)
+    {
+        this.autoWidth = false;
+        this.uiBase.setWidthInPixels(this.component, widthInPixels);
+        return this;
+    }
+
+    /**
+     * Get the width of the provided component.
+     * @param component The component to get the width of.
+     * @return The width of the provided component.
+     */
     public Distance getWidth(java.awt.Component component)
     {
         return this.uiBase.getWidth(component);
     }
 
+    /**
+     * Get the width of this AWTUIElementBase's component.
+     * @return The width of this AWTUIElementBase's component.
+     */
     public Distance getWidth()
     {
         return this.getWidth(this.component);
+    }
+
+    /**
+     * Get the width of the provided component in pixels.
+     * @param component The component to get the width of.
+     * @return The width of the provided component in pixels.
+     */
+    public int getWidthInPixels(java.awt.Component component)
+    {
+        return this.uiBase.getWidthInPixels(component);
+    }
+
+    /**
+     * Get the width of this AWTUIElementBase's component in pixels.
+     * @return The width of this AWTUIElementBase's component in pixels.
+     */
+    public int getWidthInPixels()
+    {
+        return this.getWidthInPixels(this.component);
     }
 
     public AWTUIElementBase setHeight(Distance height)
     {
         this.autoHeight = false;
         this.uiBase.setHeight(this.component, height);
+        return this;
+    }
+
+    public AWTUIElementBase setHeightInPixels(int heightInPixels)
+    {
+        this.autoHeight = false;
+        this.uiBase.setHeightInPixels(this.component, heightInPixels);
         return this;
     }
 

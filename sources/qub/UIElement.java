@@ -13,10 +13,23 @@ public interface UIElement
     UIElement setWidth(Distance width);
 
     /**
+     * Set the width of this UIElement in pixels.
+     * @param widthInPixels The width of this UIElement in pixels.
+     * @return This object for method chaining.
+     */
+    UIElement setWidthInPixels(int widthInPixels);
+
+    /**
      * Get the width of this UIElement.
      * @return The width of this UIElement.
      */
     Distance getWidth();
+
+    /**
+     * Get the width of this UIElement in pixels.
+     * @return The width of this UIElement in pixels;
+     */
+    int getWidthInPixels();
 
     /**
      * Set the height of this UIElement.
@@ -26,10 +39,23 @@ public interface UIElement
     UIElement setHeight(Distance height);
 
     /**
+     * Set the height of this UIElement in pixels.
+     * @param heightInPixels The height of this UIElement in pixels.
+     * @return This object for method chaining.
+     */
+    UIElement setHeightInPixels(int heightInPixels);
+
+    /**
      * Get the height of this UIElement.
      * @return The height of this UIElement.
      */
     Distance getHeight();
+
+    /**
+     * Get the height of this UIElement in pixels.
+     * @return The height of this UIElement in pixels;
+     */
+    int getHeightInPixels();
 
     /**
      * Set the size of this UIElement.

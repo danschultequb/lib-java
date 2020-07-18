@@ -21,6 +21,16 @@ public interface AWTUIElementTests
                 });
             });
 
+            runner.testGroup("setWidthInPixels(int)", () ->
+            {
+                runner.test("returns AWTUIElement", (Test test) ->
+                {
+                    final AWTUIElement uiElement = creator.run(test);
+                    final AWTUIElement setWidthInPixelsResult = uiElement.setWidthInPixels(2);
+                    test.assertSame(uiElement, setWidthInPixelsResult);
+                });
+            });
+
             runner.testGroup("setHeight(Distance)", () ->
             {
                 runner.test("returns AWTUIElement", (Test test) ->
@@ -28,6 +38,16 @@ public interface AWTUIElementTests
                     final AWTUIElement uiElement = creator.run(test);
                     final AWTUIElement setHeightResult = uiElement.setHeight(Distance.inches(3));
                     test.assertSame(uiElement, setHeightResult);
+                });
+            });
+
+            runner.testGroup("setHeightInPixels(int)", () ->
+            {
+                runner.test("returns AWTUIElement", (Test test) ->
+                {
+                    final AWTUIElement uiElement = creator.run(test);
+                    final AWTUIElement setHeightInPixelsResult = uiElement.setHeightInPixels(2);
+                    test.assertSame(uiElement, setHeightInPixelsResult);
                 });
             });
 

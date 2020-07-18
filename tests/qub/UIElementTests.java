@@ -39,6 +39,37 @@ public interface UIElementTests
                 setWidthTest.run(Distance.inches(1));
                 setWidthTest.run(Distance.inches(5));
             });
+
+            runner.testGroup("setWidthInPixels(int)", () ->
+            {
+                final Action2<Integer,Throwable> setWidthInPixelsErrorTest = (Integer widthInPixels, Throwable expected) ->
+                {
+                    runner.test("with " + widthInPixels, (Test test) ->
+                    {
+                        final UIElement uiElement = creator.run(test);
+                        test.assertThrows(() -> uiElement.setWidthInPixels(widthInPixels), expected);
+                    });
+                };
+
+                setWidthInPixelsErrorTest.run(-1, new PreConditionFailure("widthInPixels (-1) must be greater than or equal to 0."));
+
+                final Action1<Integer> setWidthInPixelsTest = (Integer widthInPixels) ->
+                {
+                    runner.test("with " + widthInPixels, (Test test) ->
+                    {
+                        final UIElement uiElement = creator.run(test);
+
+                        final UIElement setWidthResult = uiElement.setWidthInPixels(widthInPixels);
+                        test.assertSame(uiElement, setWidthResult);
+
+                        test.assertEqual(widthInPixels, uiElement.getWidthInPixels());
+                    });
+                };
+
+                setWidthInPixelsTest.run(0);
+                setWidthInPixelsTest.run(1);
+                setWidthInPixelsTest.run(100);
+            });
     
             runner.testGroup("setHeight(Distance)", () ->
             {
@@ -69,6 +100,37 @@ public interface UIElementTests
     
                 setHeightTest.run(Distance.inches(1));
                 setHeightTest.run(Distance.inches(5));
+            });
+
+            runner.testGroup("setHeightInPixels(int)", () ->
+            {
+                final Action2<Integer,Throwable> setHeightInPixelsErrorTest = (Integer heightInPixels, Throwable expected) ->
+                {
+                    runner.test("with " + heightInPixels, (Test test) ->
+                    {
+                        final UIElement uiElement = creator.run(test);
+                        test.assertThrows(() -> uiElement.setHeightInPixels(heightInPixels), expected);
+                    });
+                };
+
+                setHeightInPixelsErrorTest.run(-1, new PreConditionFailure("heightInPixels (-1) must be greater than or equal to 0."));
+
+                final Action1<Integer> setHeightInPixelsTest = (Integer heightInPixels) ->
+                {
+                    runner.test("with " + heightInPixels, (Test test) ->
+                    {
+                        final UIElement uiElement = creator.run(test);
+
+                        final UIElement setHeightInPixelsResult = uiElement.setHeightInPixels(heightInPixels);
+                        test.assertSame(uiElement, setHeightInPixelsResult);
+
+                        test.assertEqual(heightInPixels, uiElement.getHeightInPixels());
+                    });
+                };
+
+                setHeightInPixelsTest.run(0);
+                setHeightInPixelsTest.run(1);
+                setHeightInPixelsTest.run(100);
             });
     
             runner.testGroup("setSize(Size2D)", () ->

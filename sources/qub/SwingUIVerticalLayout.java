@@ -53,6 +53,13 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     }
 
     @Override
+    public SwingUIVerticalLayout setWidthInPixels(int widthInPixels)
+    {
+        this.uiElementBase.setWidthInPixels(widthInPixels);
+        return this;
+    }
+
+    @Override
     public Distance getWidth()
     {
         return this.uiElementBase.getWidth();
@@ -62,6 +69,13 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     public SwingUIVerticalLayout setHeight(Distance height)
     {
         this.uiElementBase.setHeight(height);
+        return this;
+    }
+
+    @Override
+    public SwingUIVerticalLayout setHeightInPixels(int heightInPixels)
+    {
+        this.uiElementBase.setHeightInPixels(heightInPixels);
         return this;
     }
 

@@ -58,6 +58,16 @@ public interface SwingUIHorizontalLayoutTests
                 });
             });
 
+            runner.testGroup("setWidthInPixels(int)", () ->
+            {
+                runner.test("should return " + Types.getTypeName(UIVerticalLayout.class), (Test test) ->
+                {
+                    final SwingUIHorizontalLayout verticalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
+                    final SwingUIHorizontalLayout setWidthInPixelsResult = verticalLayout.setWidthInPixels(1);
+                    test.assertSame(verticalLayout, setWidthInPixelsResult);
+                });
+            });
+
             runner.testGroup("setHeight(Distance)", () ->
             {
                 runner.test("should return " + Types.getTypeName(SwingUIHorizontalLayout.class), (Test test) ->
@@ -65,6 +75,16 @@ public interface SwingUIHorizontalLayoutTests
                     final SwingUIHorizontalLayout verticalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
                     final SwingUIHorizontalLayout setHeightResult = verticalLayout.setHeight(Distance.inches(1));
                     test.assertSame(verticalLayout, setHeightResult);
+                });
+            });
+
+            runner.testGroup("setHeightInPixels(Distance)", () ->
+            {
+                runner.test("should return " + Types.getTypeName(SwingUIHorizontalLayout.class), (Test test) ->
+                {
+                    final SwingUIHorizontalLayout verticalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
+                    final SwingUIHorizontalLayout setHeightInPixelsResult = verticalLayout.setHeightInPixels(1);
+                    test.assertSame(verticalLayout, setHeightInPixelsResult);
                 });
             });
 

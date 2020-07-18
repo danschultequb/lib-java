@@ -27,6 +27,16 @@ public interface SwingUITextBoxTests
                 });
             });
 
+            runner.testGroup("setWidthInPixels(int)", () ->
+            {
+                runner.test("should return " + Types.getTypeName(SwingUITextBox.class), (Test test) ->
+                {
+                    final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(test);
+                    final SwingUITextBox setWidthInPixelsResult = textBox.setWidthInPixels(1);
+                    test.assertSame(textBox, setWidthInPixelsResult);
+                });
+            });
+
             runner.testGroup("setHeight(Distance)", () ->
             {
                 runner.test("should return " + Types.getTypeName(SwingUITextBox.class), (Test test) ->
@@ -34,6 +44,16 @@ public interface SwingUITextBoxTests
                     final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(test);
                     final SwingUITextBox setHeightResult = textBox.setHeight(Distance.inches(1));
                     test.assertSame(textBox, setHeightResult);
+                });
+            });
+
+            runner.testGroup("setHeightInPixels(Distance)", () ->
+            {
+                runner.test("should return " + Types.getTypeName(SwingUITextBox.class), (Test test) ->
+                {
+                    final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(test);
+                    final SwingUITextBox setHeightInPixelsResult = textBox.setHeightInPixels(1);
+                    test.assertSame(textBox, setHeightInPixelsResult);
                 });
             });
 

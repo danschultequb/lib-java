@@ -41,6 +41,13 @@ public class SwingUIText implements UIText, SwingUIElement
     }
 
     @Override
+    public SwingUIText setWidthInPixels(int widthInPixels)
+    {
+        this.uiElementBase.setWidthInPixels(widthInPixels);
+        return this;
+    }
+
+    @Override
     public Distance getWidth()
     {
         return this.uiElementBase.getWidth();
@@ -50,6 +57,13 @@ public class SwingUIText implements UIText, SwingUIElement
     public SwingUIText setHeight(Distance height)
     {
         this.uiElementBase.setHeight(height);
+        return this;
+    }
+
+    @Override
+    public SwingUIText setHeightInPixels(int heightInPixels)
+    {
+        this.uiElementBase.setHeightInPixels(heightInPixels);
         return this;
     }
 

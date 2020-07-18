@@ -21,6 +21,16 @@ public interface SwingUIElementTests
                 });
             });
 
+            runner.testGroup("setWidthInPixels(int)", () ->
+            {
+                runner.test("returns SwingUIElement", (Test test) ->
+                {
+                    final SwingUIElement uiElement = creator.run(test);
+                    final SwingUIElement setWidthInPixelsResult = uiElement.setWidthInPixels(2);
+                    test.assertSame(uiElement, setWidthInPixelsResult);
+                });
+            });
+
             runner.testGroup("setHeight(Distance)", () ->
             {
                 runner.test("returns SwingUIElement", (Test test) ->
@@ -28,6 +38,16 @@ public interface SwingUIElementTests
                     final SwingUIElement uiElement = creator.run(test);
                     final SwingUIElement setHeightResult = uiElement.setHeight(Distance.inches(3));
                     test.assertSame(uiElement, setHeightResult);
+                });
+            });
+
+            runner.testGroup("setHeightInPixels(int)", () ->
+            {
+                runner.test("returns SwingUIElement", (Test test) ->
+                {
+                    final SwingUIElement uiElement = creator.run(test);
+                    final SwingUIElement setHeightInPixelsResult = uiElement.setHeightInPixels(2);
+                    test.assertSame(uiElement, setHeightInPixelsResult);
                 });
             });
 

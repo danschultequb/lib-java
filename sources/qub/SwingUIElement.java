@@ -9,7 +9,13 @@ public interface SwingUIElement extends AWTUIElement
     SwingUIElement setWidth(Distance width);
 
     @Override
+    SwingUIElement setWidthInPixels(int widthInPixels);
+
+    @Override
     SwingUIElement setHeight(Distance height);
+
+    @Override
+    SwingUIElement setHeightInPixels(int heightInPixels);
 
     @Override
     default SwingUIElement setSize(Size2D size)

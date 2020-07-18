@@ -45,6 +45,13 @@ public class SwingUITextBox implements UITextBox, SwingUIElement
     }
 
     @Override
+    public SwingUITextBox setWidthInPixels(int widthInPixels)
+    {
+        this.uiElementBase.setWidthInPixels(widthInPixels);
+        return this;
+    }
+
+    @Override
     public Distance getWidth()
     {
         return this.uiElementBase.getWidth();
@@ -54,6 +61,13 @@ public class SwingUITextBox implements UITextBox, SwingUIElement
     public SwingUITextBox setHeight(Distance height)
     {
         this.uiElementBase.setHeight(height);
+        return this;
+    }
+
+    @Override
+    public SwingUITextBox setHeightInPixels(int heightInPixels)
+    {
+        this.uiElementBase.setHeightInPixels(heightInPixels);
         return this;
     }
 

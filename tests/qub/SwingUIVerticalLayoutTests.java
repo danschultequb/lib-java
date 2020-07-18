@@ -54,11 +54,21 @@ public interface SwingUIVerticalLayoutTests
 
             runner.testGroup("setWidth(Distance)", () ->
             {
-                runner.test("should return " + Types.getTypeName(UIVerticalLayout.class), (Test test) ->
+                runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
                 {
                     final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
                     final SwingUIVerticalLayout setWidthResult = verticalLayout.setWidth(Distance.inches(1));
                     test.assertSame(verticalLayout, setWidthResult);
+                });
+            });
+
+            runner.testGroup("setWidthInPixels(int)", () ->
+            {
+                runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
+                {
+                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
+                    final SwingUIVerticalLayout setWidthInPixelsResult = verticalLayout.setWidthInPixels(1);
+                    test.assertSame(verticalLayout, setWidthInPixelsResult);
                 });
             });
 
@@ -69,6 +79,16 @@ public interface SwingUIVerticalLayoutTests
                     final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
                     final SwingUIVerticalLayout setHeightResult = verticalLayout.setHeight(Distance.inches(1));
                     test.assertSame(verticalLayout, setHeightResult);
+                });
+            });
+
+            runner.testGroup("setHeightInPixels(Distance)", () ->
+            {
+                runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
+                {
+                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
+                    final SwingUIVerticalLayout setHeightInPixelsResult = verticalLayout.setHeightInPixels(1);
+                    test.assertSame(verticalLayout, setHeightInPixelsResult);
                 });
             });
 

@@ -65,6 +65,16 @@ public interface SwingUITextTests
                 });
             });
 
+            runner.testGroup("setWidthInPixels(Distance)", () ->
+            {
+                runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
+                {
+                    final SwingUIText text = SwingUITextTests.createUIText(test);
+                    final SwingUIText setWidthInPixelsResult = text.setWidthInPixels(1);
+                    test.assertSame(text, setWidthInPixelsResult);
+                });
+            });
+
             runner.testGroup("setHeight(Distance)", () ->
             {
                 runner.test("should return " + Types.getTypeName(SwingUIText.class), (Test test) ->
@@ -72,6 +82,16 @@ public interface SwingUITextTests
                     final SwingUIText text = SwingUITextTests.createUIText(test);
                     final SwingUIText setHeightResult = text.setHeight(Distance.inches(1));
                     test.assertSame(text, setHeightResult);
+                });
+            });
+
+            runner.testGroup("setHeightInPixels(int)", () ->
+            {
+                runner.test("should return " + Types.getTypeName(SwingUIText.class), (Test test) ->
+                {
+                    final SwingUIText text = SwingUITextTests.createUIText(test);
+                    final SwingUIText setHeightInPixelsResult = text.setHeightInPixels(1);
+                    test.assertSame(text, setHeightInPixelsResult);
                 });
             });
 
