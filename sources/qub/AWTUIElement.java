@@ -42,6 +42,9 @@ public interface AWTUIElement extends UIElement
     AWTUIElement setSize(Distance width, Distance height);
 
     @Override
+    AWTUIElement setSizeInPixels(int widthInPixels, int heightInPixels);
+
+    @Override
     AWTUIElement setPadding(UIPadding padding);
 
     @Override

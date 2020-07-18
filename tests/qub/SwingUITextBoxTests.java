@@ -62,8 +62,8 @@ public interface SwingUITextBoxTests
                 runner.test("should return " + Types.getTypeName(SwingUITextBox.class), (Test test) ->
                 {
                     final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(test);
-                    final SwingUITextBox setHeightResult = textBox.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
-                    test.assertSame(textBox, setHeightResult);
+                    final SwingUITextBox setSizeResult = textBox.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
+                    test.assertSame(textBox, setSizeResult);
                 });
             });
 
@@ -72,8 +72,18 @@ public interface SwingUITextBoxTests
                 runner.test("should return " + Types.getTypeName(SwingUITextBox.class), (Test test) ->
                 {
                     final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(test);
-                    final SwingUITextBox setHeightResult = textBox.setSize(Distance.inches(2), Distance.inches(3));
-                    test.assertSame(textBox, setHeightResult);
+                    final SwingUITextBox setSizeResult = textBox.setSize(Distance.inches(2), Distance.inches(3));
+                    test.assertSame(textBox, setSizeResult);
+                });
+            });
+
+            runner.testGroup("setSizeInPixels(Distance,Distance)", () ->
+            {
+                runner.test("should return " + Types.getTypeName(SwingUITextBox.class), (Test test) ->
+                {
+                    final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(test);
+                    final SwingUITextBox setSizeInPixelsResult = textBox.setSizeInPixels(2, 3);
+                    test.assertSame(textBox, setSizeInPixelsResult);
                 });
             });
 

@@ -92,6 +92,13 @@ public class SwingUITextBox implements UITextBox, SwingUIElement
     }
 
     @Override
+    public SwingUITextBox setSizeInPixels(int widthInPixels, int heightInPixels)
+    {
+        this.uiElementBase.setSizeInPixels(widthInPixels, heightInPixels);
+        return this;
+    }
+
+    @Override
     public Size2D getSize()
     {
         return this.uiElementBase.getSize();

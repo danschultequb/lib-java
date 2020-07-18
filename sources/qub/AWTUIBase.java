@@ -88,7 +88,7 @@ public class AWTUIBase extends UIBase
         PreCondition.assertGreaterThanOrEqualTo(widthInPixels, 0, "widthInPixels");
 
         final int heightInPixels = this.getHeightInPixels(component);
-        component.setSize(widthInPixels, heightInPixels);
+        this.setSizeInPixels(component, widthInPixels, heightInPixels);
     }
 
     /**
@@ -141,7 +141,7 @@ public class AWTUIBase extends UIBase
         PreCondition.assertGreaterThanOrEqualTo(heightInPixels, 0, "heightInPixels");
 
         final int widthInPixels = this.getWidthInPixels(component);
-        component.setSize(widthInPixels, heightInPixels);
+        this.setSizeInPixels(component, widthInPixels, heightInPixels);
     }
 
     public void setSize(java.awt.Component component, Distance width, Distance height)
@@ -154,6 +154,21 @@ public class AWTUIBase extends UIBase
 
         final int widthInPixels = (int)this.convertHorizontalDistanceToPixels(width);
         final int heightInPixels = (int)this.convertVerticalDistanceToPixels(height);
+        this.setSizeInPixels(component, widthInPixels, heightInPixels);
+    }
+
+    /**
+     * Set the size of the provided component to be the provided pixel distances.
+     * @param component The component to set the size of.
+     * @param widthInPixels The width of the component in pixels.
+     * @param heightInPixels The height of the component in pixels.
+     */
+    public void setSizeInPixels(java.awt.Component component, int widthInPixels, int heightInPixels)
+    {
+        PreCondition.assertNotNull(component, "component");
+        PreCondition.assertGreaterThanOrEqualTo(widthInPixels, 0, "widthInPixels");
+        PreCondition.assertGreaterThanOrEqualTo(heightInPixels, 0, "heightInPixels");
+
         component.setSize(widthInPixels, heightInPixels);
     }
 

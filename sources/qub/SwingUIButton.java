@@ -92,6 +92,13 @@ public class SwingUIButton implements UIButton, SwingUIElement
     }
 
     @Override
+    public SwingUIButton setSizeInPixels(int widthInPixels, int heightInPixels)
+    {
+        this.uiElementBase.setSizeInPixels(widthInPixels, heightInPixels);
+        return this;
+    }
+
+    @Override
     public SwingUIButton setBackgroundColor(Color backgroundColor)
     {
         this.uiElementBase.setBackgroundColor(backgroundColor);

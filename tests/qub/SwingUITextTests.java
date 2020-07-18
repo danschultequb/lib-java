@@ -100,8 +100,8 @@ public interface SwingUITextTests
                 runner.test("should return " + Types.getTypeName(SwingUIText.class), (Test test) ->
                 {
                     final SwingUIText text = SwingUITextTests.createUIText(test);
-                    final SwingUIText setHeightResult = text.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
-                    test.assertSame(text, setHeightResult);
+                    final SwingUIText setSizeResult = text.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
+                    test.assertSame(text, setSizeResult);
                 });
             });
 
@@ -110,8 +110,18 @@ public interface SwingUITextTests
                 runner.test("should return " + Types.getTypeName(SwingUIText.class), (Test test) ->
                 {
                     final SwingUIText text = SwingUITextTests.createUIText(test);
-                    final SwingUIText setHeightResult = text.setSize(Distance.inches(2), Distance.inches(3));
-                    test.assertSame(text, setHeightResult);
+                    final SwingUIText setSizeResult = text.setSize(Distance.inches(2), Distance.inches(3));
+                    test.assertSame(text, setSizeResult);
+                });
+            });
+
+            runner.testGroup("setSizeInPixels(int,int)", () ->
+            {
+                runner.test("should return " + Types.getTypeName(SwingUIText.class), (Test test) ->
+                {
+                    final SwingUIText text = SwingUITextTests.createUIText(test);
+                    final SwingUIText setSizeInPixelsResult = text.setSizeInPixels(2, 3);
+                    test.assertSame(text, setSizeInPixelsResult);
                 });
             });
 

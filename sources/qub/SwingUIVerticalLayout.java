@@ -100,6 +100,13 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     }
 
     @Override
+    public SwingUIVerticalLayout setSizeInPixels(int widthInPixels, int heightInPixels)
+    {
+        this.uiElementBase.setSizeInPixels(widthInPixels, heightInPixels);
+        return this;
+    }
+
+    @Override
     public Size2D getSize()
     {
         return this.uiElementBase.getSize();

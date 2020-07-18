@@ -145,6 +145,14 @@ public class AWTUIElementBase
         return this;
     }
 
+    public AWTUIElementBase setSizeInPixels(int widthInPixels, int heightInPixels)
+    {
+        this.autoWidth = false;
+        this.autoHeight = false;
+        this.uiBase.setSizeInPixels(this.component, widthInPixels, heightInPixels);
+        return this;
+    }
+
     public Size2D getSize(java.awt.Component component)
     {
         return this.uiBase.getSize(component);

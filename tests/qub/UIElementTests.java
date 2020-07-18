@@ -197,6 +197,38 @@ public interface UIElementTests
                 setSizeTest.run(Distance.inches(5), Distance.inches(4));
             });
 
+            runner.testGroup("setSizeInPixels(int,int)", () ->
+            {
+                final Action3<Integer,Integer,Throwable> setSizeInPixelsErrorTest = (Integer widthInPixels, Integer heightInPixels, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(widthInPixels, heightInPixels), (Test test) ->
+                    {
+                        final UIElement uiElement = creator.run(test);
+                        test.assertThrows(() -> uiElement.setSizeInPixels(widthInPixels, heightInPixels), expected);
+                    });
+                };
+
+                setSizeInPixelsErrorTest.run(-1, 1, new PreConditionFailure("widthInPixels (-1) must be greater than or equal to 0."));
+                setSizeInPixelsErrorTest.run(0, -1, new PreConditionFailure("heightInPixels (-1) must be greater than or equal to 0."));
+
+                final Action2<Integer,Integer> setSizeInPixelsTest = (Integer widthInPixels, Integer heightInPixels) ->
+                {
+                    runner.test("with " + English.andList(widthInPixels, heightInPixels), (Test test) ->
+                    {
+                        final UIElement uiElement = creator.run(test);
+                        final UIElement setSizeResult = uiElement.setSizeInPixels(widthInPixels, heightInPixels);
+                        test.assertSame(uiElement, setSizeResult);
+                        test.assertEqual(widthInPixels, uiElement.getWidthInPixels());
+                        test.assertEqual(heightInPixels, uiElement.getHeightInPixels());
+                    });
+                };
+
+                setSizeInPixelsTest.run(0, 0);
+                setSizeInPixelsTest.run(0, 2);
+                setSizeInPixelsTest.run(1, 0);
+                setSizeInPixelsTest.run(5, 4);
+            });
+
             runner.testGroup("onSizeChanged(Action0)", () ->
             {
                 runner.test("with null", (Test test) ->

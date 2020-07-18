@@ -97,8 +97,8 @@ public interface SwingUIVerticalLayoutTests
                 runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
                 {
                     final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
-                    final SwingUIVerticalLayout setHeightResult = verticalLayout.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
-                    test.assertSame(verticalLayout, setHeightResult);
+                    final SwingUIVerticalLayout setSizeResult = verticalLayout.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
+                    test.assertSame(verticalLayout, setSizeResult);
                 });
             });
 
@@ -107,8 +107,18 @@ public interface SwingUIVerticalLayoutTests
                 runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
                 {
                     final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
-                    final SwingUIVerticalLayout setHeightResult = verticalLayout.setSize(Distance.inches(2), Distance.inches(3));
-                    test.assertSame(verticalLayout, setHeightResult);
+                    final SwingUIVerticalLayout setSizeResult = verticalLayout.setSize(Distance.inches(2), Distance.inches(3));
+                    test.assertSame(verticalLayout, setSizeResult);
+                });
+            });
+
+            runner.testGroup("setSizeInPixels(int,int)", () ->
+            {
+                runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
+                {
+                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
+                    final SwingUIVerticalLayout setSizeInPixelsResult = verticalLayout.setSizeInPixels(2, 3);
+                    test.assertSame(verticalLayout, setSizeInPixelsResult);
                 });
             });
 

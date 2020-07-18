@@ -27,6 +27,9 @@ public interface SwingUIElement extends AWTUIElement
     SwingUIElement setSize(Distance width, Distance height);
 
     @Override
+    SwingUIElement setSizeInPixels(int widthInPixels, int heightInPixels);
+
+    @Override
     SwingUIElement setPadding(UIPadding padding);
 
     @Override

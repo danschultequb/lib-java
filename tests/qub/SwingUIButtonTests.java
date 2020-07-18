@@ -115,8 +115,8 @@ public interface SwingUIButtonTests
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
                     final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
-                    final SwingUIButton setHeightResult = button.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
-                    test.assertSame(button, setHeightResult);
+                    final SwingUIButton setSizeResult = button.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
+                    test.assertSame(button, setSizeResult);
                 });
             });
 
@@ -125,8 +125,18 @@ public interface SwingUIButtonTests
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
                     final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
-                    final SwingUIButton setHeightResult = button.setSize(Distance.inches(2), Distance.inches(3));
-                    test.assertSame(button, setHeightResult);
+                    final SwingUIButton setSizeResult = button.setSize(Distance.inches(2), Distance.inches(3));
+                    test.assertSame(button, setSizeResult);
+                });
+            });
+
+            runner.testGroup("setSizeInPixels(int,int)", () ->
+            {
+                runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
+                {
+                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
+                    final SwingUIButton setSizeInPixelsResult = button.setSizeInPixels(2, 3);
+                    test.assertSame(button, setSizeInPixelsResult);
                 });
             });
 

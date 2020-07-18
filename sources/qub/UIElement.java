@@ -78,6 +78,14 @@ public interface UIElement
     UIElement setSize(Distance width, Distance height);
 
     /**
+     * Set the size of this UIElement in pixels.
+     * @param widthInPixels The width of this UIElement in pixels.
+     * @param heightInPixels The height of this UIElement in pixels.
+     * @return This object for method chaining.
+     */
+    UIElement setSizeInPixels(int widthInPixels, int heightInPixels);
+
+    /**
      * Get the size of this UIElement.
      * @return The size of this UIElement.
      */

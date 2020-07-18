@@ -88,6 +88,13 @@ public class SwingUIText implements UIText, SwingUIElement
     }
 
     @Override
+    public SwingUIText setSizeInPixels(int widthInPixels, int heightInPixels)
+    {
+        this.uiElementBase.setSizeInPixels(widthInPixels, heightInPixels);
+        return this;
+    }
+
+    @Override
     public Size2D getSize()
     {
         return this.uiElementBase.getSize();

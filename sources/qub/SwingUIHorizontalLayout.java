@@ -91,6 +91,13 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIEleme
     }
 
     @Override
+    public SwingUIHorizontalLayout setSizeInPixels(int widthInPixels, int heightInPixels)
+    {
+        this.uiElementBase.setSizeInPixels(widthInPixels, heightInPixels);
+        return this;
+    }
+
+    @Override
     public SwingUIHorizontalLayout setBackgroundColor(Color backgroundColor)
     {
         this.uiElementBase.setBackgroundColor(backgroundColor);

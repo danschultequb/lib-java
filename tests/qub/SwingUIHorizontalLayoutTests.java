@@ -38,33 +38,33 @@ public interface SwingUIHorizontalLayoutTests
                 runner.test("with valid arguments", (Test test) ->
                 {
                     final SwingUIBase base = SwingUIHorizontalLayoutTests.createUIBase(test);
-                    final SwingUIHorizontalLayout verticalLayout = SwingUIHorizontalLayout.create(base);
-                    test.assertNotNull(verticalLayout);
-                    test.assertEqual(Distance.zero, verticalLayout.getWidth());
-                    test.assertEqual(Distance.zero, verticalLayout.getHeight());
+                    final SwingUIHorizontalLayout horizontalLayout = SwingUIHorizontalLayout.create(base);
+                    test.assertNotNull(horizontalLayout);
+                    test.assertEqual(Distance.zero, horizontalLayout.getWidth());
+                    test.assertEqual(Distance.zero, horizontalLayout.getHeight());
 
-                    final javax.swing.JPanel jComponent = verticalLayout.getComponent();
+                    final javax.swing.JPanel jComponent = horizontalLayout.getComponent();
                     test.assertNotNull(jComponent);
                 });
             });
 
             runner.testGroup("setWidth(Distance)", () ->
             {
-                runner.test("should return " + Types.getTypeName(UIVerticalLayout.class), (Test test) ->
+                runner.test("should return " + Types.getTypeName(UIHorizontalLayout.class), (Test test) ->
                 {
-                    final SwingUIHorizontalLayout verticalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
-                    final SwingUIHorizontalLayout setWidthResult = verticalLayout.setWidth(Distance.inches(1));
-                    test.assertSame(verticalLayout, setWidthResult);
+                    final SwingUIHorizontalLayout horizontalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
+                    final SwingUIHorizontalLayout setWidthResult = horizontalLayout.setWidth(Distance.inches(1));
+                    test.assertSame(horizontalLayout, setWidthResult);
                 });
             });
 
             runner.testGroup("setWidthInPixels(int)", () ->
             {
-                runner.test("should return " + Types.getTypeName(UIVerticalLayout.class), (Test test) ->
+                runner.test("should return " + Types.getTypeName(UIHorizontalLayout.class), (Test test) ->
                 {
-                    final SwingUIHorizontalLayout verticalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
-                    final SwingUIHorizontalLayout setWidthInPixelsResult = verticalLayout.setWidthInPixels(1);
-                    test.assertSame(verticalLayout, setWidthInPixelsResult);
+                    final SwingUIHorizontalLayout horizontalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
+                    final SwingUIHorizontalLayout setWidthInPixelsResult = horizontalLayout.setWidthInPixels(1);
+                    test.assertSame(horizontalLayout, setWidthInPixelsResult);
                 });
             });
 
@@ -72,9 +72,9 @@ public interface SwingUIHorizontalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIHorizontalLayout.class), (Test test) ->
                 {
-                    final SwingUIHorizontalLayout verticalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
-                    final SwingUIHorizontalLayout setHeightResult = verticalLayout.setHeight(Distance.inches(1));
-                    test.assertSame(verticalLayout, setHeightResult);
+                    final SwingUIHorizontalLayout horizontalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
+                    final SwingUIHorizontalLayout setHeightResult = horizontalLayout.setHeight(Distance.inches(1));
+                    test.assertSame(horizontalLayout, setHeightResult);
                 });
             });
 
@@ -82,9 +82,9 @@ public interface SwingUIHorizontalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIHorizontalLayout.class), (Test test) ->
                 {
-                    final SwingUIHorizontalLayout verticalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
-                    final SwingUIHorizontalLayout setHeightInPixelsResult = verticalLayout.setHeightInPixels(1);
-                    test.assertSame(verticalLayout, setHeightInPixelsResult);
+                    final SwingUIHorizontalLayout horizontalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
+                    final SwingUIHorizontalLayout setHeightInPixelsResult = horizontalLayout.setHeightInPixels(1);
+                    test.assertSame(horizontalLayout, setHeightInPixelsResult);
                 });
             });
 
@@ -92,9 +92,9 @@ public interface SwingUIHorizontalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIHorizontalLayout.class), (Test test) ->
                 {
-                    final SwingUIHorizontalLayout verticalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
-                    final SwingUIHorizontalLayout setHeightResult = verticalLayout.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
-                    test.assertSame(verticalLayout, setHeightResult);
+                    final SwingUIHorizontalLayout horizontalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
+                    final SwingUIHorizontalLayout setSizeResult = horizontalLayout.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
+                    test.assertSame(horizontalLayout, setSizeResult);
                 });
             });
 
@@ -102,9 +102,19 @@ public interface SwingUIHorizontalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIHorizontalLayout.class), (Test test) ->
                 {
-                    final SwingUIHorizontalLayout verticalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
-                    final SwingUIHorizontalLayout setHeightResult = verticalLayout.setSize(Distance.inches(2), Distance.inches(3));
-                    test.assertSame(verticalLayout, setHeightResult);
+                    final SwingUIHorizontalLayout horizontalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
+                    final SwingUIHorizontalLayout setSizeResult = horizontalLayout.setSize(Distance.inches(2), Distance.inches(3));
+                    test.assertSame(horizontalLayout, setSizeResult);
+                });
+            });
+
+            runner.testGroup("setSizeInPixels(int,int)", () ->
+            {
+                runner.test("should return " + Types.getTypeName(SwingUIHorizontalLayout.class), (Test test) ->
+                {
+                    final SwingUIHorizontalLayout horizontalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
+                    final SwingUIHorizontalLayout setSizeInPixelsResult = horizontalLayout.setSizeInPixels(2, 3);
+                    test.assertSame(horizontalLayout, setSizeInPixelsResult);
                 });
             });
 
@@ -112,11 +122,11 @@ public interface SwingUIHorizontalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIHorizontalLayout.class), (Test test) ->
                 {
-                    final SwingUIHorizontalLayout verticalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
+                    final SwingUIHorizontalLayout horizontalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
                     final UIElement element = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
 
-                    final SwingUIHorizontalLayout addResult = verticalLayout.add(element);
-                    test.assertSame(verticalLayout, addResult);
+                    final SwingUIHorizontalLayout addResult = horizontalLayout.add(element);
+                    test.assertSame(horizontalLayout, addResult);
                 });
             });
 
@@ -124,10 +134,10 @@ public interface SwingUIHorizontalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIHorizontalLayout.class), (Test test) ->
                 {
-                    final SwingUIHorizontalLayout verticalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
+                    final SwingUIHorizontalLayout horizontalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
 
-                    final SwingUIHorizontalLayout addAllResult = verticalLayout.addAll();
-                    test.assertSame(verticalLayout, addAllResult);
+                    final SwingUIHorizontalLayout addAllResult = horizontalLayout.addAll();
+                    test.assertSame(horizontalLayout, addAllResult);
                 });
             });
 
@@ -135,10 +145,10 @@ public interface SwingUIHorizontalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIHorizontalLayout.class), (Test test) ->
                 {
-                    final SwingUIHorizontalLayout verticalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
+                    final SwingUIHorizontalLayout horizontalLayout = SwingUIHorizontalLayoutTests.createUIHorizontalLayout(test);
 
-                    final SwingUIHorizontalLayout addResult = verticalLayout.addAll(Iterable.create());
-                    test.assertSame(verticalLayout, addResult);
+                    final SwingUIHorizontalLayout addResult = horizontalLayout.addAll(Iterable.create());
+                    test.assertSame(horizontalLayout, addResult);
                 });
             });
 

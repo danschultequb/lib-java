@@ -56,8 +56,8 @@ public interface AWTUIElementTests
                 runner.test("returns AWTUIElement", (Test test) ->
                 {
                     final AWTUIElement uiElement = creator.run(test);
-                    final AWTUIElement setWidthResult = uiElement.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
-                    test.assertSame(uiElement, setWidthResult);
+                    final AWTUIElement setSizeResult = uiElement.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
+                    test.assertSame(uiElement, setSizeResult);
                 });
             });
 
@@ -66,8 +66,18 @@ public interface AWTUIElementTests
                 runner.test("returns AWTUIElement", (Test test) ->
                 {
                     final AWTUIElement uiElement = creator.run(test);
-                    final AWTUIElement setWidthResult = uiElement.setSize(Distance.inches(2), Distance.inches(3));
-                    test.assertSame(uiElement, setWidthResult);
+                    final AWTUIElement setSizeResult = uiElement.setSize(Distance.inches(2), Distance.inches(3));
+                    test.assertSame(uiElement, setSizeResult);
+                });
+            });
+
+            runner.testGroup("setSizeInPixels(Distance,Distance)", () ->
+            {
+                runner.test("returns AWTUIElement", (Test test) ->
+                {
+                    final AWTUIElement uiElement = creator.run(test);
+                    final AWTUIElement setSizeInPixelsResult = uiElement.setSizeInPixels(2, 3);
+                    test.assertSame(uiElement, setSizeInPixelsResult);
                 });
             });
 
