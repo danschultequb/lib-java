@@ -42,6 +42,7 @@ public interface SwingUIVerticalLayoutTests
                     test.assertNotNull(verticalLayout);
                     test.assertEqual(Distance.zero, verticalLayout.getWidth());
                     test.assertEqual(Distance.zero, verticalLayout.getHeight());
+                    test.assertEqual(UIPaddingInPixels.create(), verticalLayout.getPaddingInPixels());
 
                     final javax.swing.JPanel component = verticalLayout.getComponent();
                     test.assertNotNull(component);

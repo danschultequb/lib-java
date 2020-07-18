@@ -45,6 +45,7 @@ public interface SwingUITextTests
                     test.assertEqual(Size2D.create(Distance.zero, Distance.zero), text.getSize());
                     test.assertEqual(Distance.fontPoints(12), text.getFontSize());
                     test.assertEqual("", text.getText());
+                    test.assertEqual(UIPaddingInPixels.create(), text.getPaddingInPixels());
 
                     final javax.swing.JLabel component = text.getComponent();
                     test.assertNotNull(component);

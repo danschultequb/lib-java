@@ -17,6 +17,34 @@ public interface SwingUITextBoxTests
             UITextBoxTests.test(runner, SwingUITextBoxTests::createUITextBox);
             SwingUIElementTests.test(runner, SwingUITextBoxTests::createUITextBox);
 
+            runner.testGroup("create(SwingUIBase)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> SwingUITextBox.create((SwingUIBase)null),
+                        new PreConditionFailure("uiBase cannot be null."));
+                });
+
+                runner.test("with non-null", (Test test) ->
+                {
+                    final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(test);
+                    test.assertNotNull(textBox);
+                    test.assertEqual(Distance.inches(0.05), textBox.getWidth());
+                    test.assertEqual(Distance.inches(0.2), textBox.getHeight());
+                    test.assertEqual(Size2D.create(Distance.inches(0.05), Distance.inches(0.2)), textBox.getSize());
+                    test.assertEqual(Distance.fontPoints(12), textBox.getFontSize());
+                    test.assertEqual("", textBox.getText());
+                    test.assertEqual(UIPaddingInPixels.create(2), textBox.getPaddingInPixels());
+
+                    final javax.swing.JTextField component = textBox.getComponent();
+                    test.assertNotNull(component);
+
+                    final javax.swing.JTextField jComponent = textBox.getJComponent();
+                    test.assertNotNull(jComponent);
+                    test.assertSame(component, jComponent);
+                });
+            });
+
             runner.testGroup("setWidth(Distance)", () ->
             {
                 runner.test("should return " + Types.getTypeName(SwingUITextBox.class), (Test test) ->

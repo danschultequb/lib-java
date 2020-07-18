@@ -42,6 +42,7 @@ public interface SwingUIHorizontalLayoutTests
                     test.assertNotNull(horizontalLayout);
                     test.assertEqual(Distance.zero, horizontalLayout.getWidth());
                     test.assertEqual(Distance.zero, horizontalLayout.getHeight());
+                    test.assertEqual(UIPaddingInPixels.create(), horizontalLayout.getPaddingInPixels());
 
                     final javax.swing.JPanel jComponent = horizontalLayout.getComponent();
                     test.assertNotNull(jComponent);

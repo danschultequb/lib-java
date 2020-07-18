@@ -60,6 +60,7 @@ public interface SwingUIButtonTests
                     test.assertEqual(Distance.inches(0.1), uiButton.getHeight());
                     test.assertEqual("", uiButton.getText());
                     test.assertEqual(Distance.fontPoints(12), uiButton.getFontSize());
+                    test.assertEqual(UIPaddingInPixels.create(17, 5, 17, 5), uiButton.getPaddingInPixels());
 
                     final javax.swing.JButton component = uiButton.getComponent();
                     test.assertNotNull(component);
