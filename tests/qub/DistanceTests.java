@@ -574,6 +574,30 @@ public interface DistanceTests
                 });
             });
 
+            runner.testGroup("minus(Duration)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Distance.meters(5).minus(null),
+                        new PreConditionFailure("rhs cannot be null."));
+                });
+
+                runner.test("with negative", (Test test) ->
+                {
+                    assertDistance(test, Distance.millimeters(3).minus(Distance.centimeters(-5)), 53, DistanceUnit.Millimeters);
+                });
+
+                runner.test("with zero", (Test test) ->
+                {
+                    assertDistance(test, Distance.millimeters(3).minus(Distance.centimeters(0)), 3, DistanceUnit.Millimeters);
+                });
+
+                runner.test("with positive", (Test test) ->
+                {
+                    assertDistance(test, Distance.millimeters(3).minus(Distance.centimeters(2)), -17, DistanceUnit.Millimeters);
+                });
+            });
+
             runner.testGroup("times(double)", () ->
             {
                 runner.test("with -5", (Test test) ->

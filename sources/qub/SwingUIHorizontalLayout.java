@@ -129,6 +129,12 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIEleme
     }
 
     @Override
+    public UIPaddingInPixels getPaddingInPixels()
+    {
+        return this.uiElementBase.getPaddingInPixels();
+    }
+
+    @Override
     public SwingUIHorizontalLayout setPadding(UIPadding padding)
     {
         this.uiElementBase.setPadding(padding);
@@ -136,7 +142,14 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIEleme
     }
 
     @Override
-    public Disposable onPaddingChanged(Action2<UIPadding, UIPadding> callback)
+    public SwingUIHorizontalLayout setPaddingInPixels(UIPaddingInPixels padding)
+    {
+        this.uiElementBase.setPaddingInPixels(padding);
+        return this;
+    }
+
+    @Override
+    public Disposable onPaddingChanged(Action0 callback)
     {
         return this.uiElementBase.onPaddingChanged(callback);
     }
@@ -148,15 +161,27 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIEleme
     }
 
     @Override
-    public Size2D getContentSpaceWidth()
+    public Distance getContentSpaceWidth()
     {
         return null;
     }
 
     @Override
-    public Size2D getContentSpaceHeight()
+    public int getContentSpaceWidthInPixels()
+    {
+        return 0;
+    }
+
+    @Override
+    public Distance getContentSpaceHeight()
     {
         return null;
+    }
+
+    @Override
+    public int getContentSpaceHeightInPixels()
+    {
+        return 0;
     }
 
     @Override
@@ -172,9 +197,21 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIEleme
     }
 
     @Override
+    public int getContentWidthInPixels()
+    {
+        return 0;
+    }
+
+    @Override
     public Distance getContentHeight()
     {
         return null;
+    }
+
+    @Override
+    public int getContentHeightInPixels()
+    {
+        return 0;
     }
 
     @Override

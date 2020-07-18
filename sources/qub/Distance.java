@@ -460,6 +460,23 @@ public class Distance implements Comparable<Distance>
         return result;
     }
 
+    /**
+     * Get the difference between this Distance and the provided Distance.
+     * @param rhs The distance to subtract from this Distance.
+     * @return The difference between this Distance and the provided Distance.
+     */
+    public Distance minus(Distance rhs)
+    {
+        PreCondition.assertNotNull(rhs, "rhs");
+
+        final Distance result = (rhs.getValue() == 0 ? this : new Distance(value - rhs.convertTo(units).getValue(), units));
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(units, result.getUnits(), "result.getUnits()");
+
+        return result;
+    }
+
     public Distance times(double value)
     {
         final Distance result = (value == 1 ? this : new Distance(this.value * value, units));

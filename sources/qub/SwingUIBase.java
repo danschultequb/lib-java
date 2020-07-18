@@ -26,12 +26,20 @@ public class SwingUIBase extends AWTUIBase
     {
         PreCondition.assertNotNull(jComponent, "jComponent");
 
+        return this.convertUIPaddingInPixelsToUIPadding(this.getPaddingInPixels(jComponent));
+    }
+
+    /**
+     * Get the padding of the provided Swing JComponent in pixels.
+     * @param jComponent The JComponent to get the padding of.
+     * @return The padding of the provided Swing JComponent in pixels.
+     */
+    public UIPaddingInPixels getPaddingInPixels(javax.swing.JComponent jComponent)
+    {
+        PreCondition.assertNotNull(jComponent, "jComponent");
+
         final java.awt.Insets insets = jComponent.getInsets();
-        return UIPadding.create(
-            this.convertHorizontalPixelsToDistance(insets.left),
-            this.convertVerticalPixelsToDistance(insets.top),
-            this.convertHorizontalPixelsToDistance(insets.right),
-            this.convertVerticalPixelsToDistance(insets.bottom));
+        return UIPaddingInPixels.create(insets.left, insets.top, insets.right, insets.bottom);
     }
 
     /**
@@ -44,11 +52,24 @@ public class SwingUIBase extends AWTUIBase
         PreCondition.assertNotNull(jComponent, "jComponent");
         PreCondition.assertNotNull(padding, "padding");
 
+        this.setPaddingInPixels(jComponent, this.convertUIPaddingToUIPaddingInPixels(padding));
+    }
+
+    /**
+     * Set the padding for the provided JComponent in pixels.
+     * @param jComponent The JComponent to set the padding of.
+     * @param padding The padding to set in pixels.
+     */
+    public void setPaddingInPixels(javax.swing.JComponent jComponent, UIPaddingInPixels padding)
+    {
+        PreCondition.assertNotNull(jComponent, "jComponent");
+        PreCondition.assertNotNull(padding, "padding");
+
         final javax.swing.border.Border border = javax.swing.BorderFactory.createEmptyBorder(
-            (int)this.convertVerticalDistanceToPixels(padding.getTop()),
-            (int)this.convertHorizontalDistanceToPixels(padding.getLeft()),
-            (int)this.convertVerticalDistanceToPixels(padding.getBottom()),
-            (int)this.convertHorizontalDistanceToPixels(padding.getRight()));
+            padding.getTop(),
+            padding.getLeft(),
+            padding.getBottom(),
+            padding.getRight());
         jComponent.setBorder(border);
     }
 

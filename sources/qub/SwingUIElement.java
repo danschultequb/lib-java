@@ -33,6 +33,9 @@ public interface SwingUIElement extends AWTUIElement
     SwingUIElement setPadding(UIPadding padding);
 
     @Override
+    SwingUIElement setPaddingInPixels(UIPaddingInPixels padding);
+
+    @Override
     SwingUIElement setBackgroundColor(Color backgroundColor);
 
     @Override

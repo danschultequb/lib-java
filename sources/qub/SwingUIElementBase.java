@@ -2,13 +2,13 @@ package qub;
 
 public class SwingUIElementBase extends AWTUIElementBase
 {
-    private final RunnableEvent2<UIPadding,UIPadding> paddingChanged;
+    private final RunnableEvent0 paddingChanged;
 
     public SwingUIElementBase(SwingUIBase uiBase, javax.swing.JComponent jComponent)
     {
         super(uiBase, jComponent);
 
-        this.paddingChanged = Event2.create();
+        this.paddingChanged = Event0.create();
     }
 
     @Override
@@ -33,15 +33,27 @@ public class SwingUIElementBase extends AWTUIElementBase
         return this.getUIBase().getPadding(this.getJComponent());
     }
 
+    public UIPaddingInPixels getPaddingInPixels()
+    {
+        return this.getUIBase().getPaddingInPixels(this.getJComponent());
+    }
+
     public SwingUIElementBase setPadding(UIPadding padding)
+    {
+        PreCondition.assertNotNull(padding, "padding");
+
+        return this.setPaddingInPixels(this.getUIBase().convertUIPaddingToUIPaddingInPixels(padding));
+    }
+
+    public SwingUIElementBase setPaddingInPixels(UIPaddingInPixels padding)
     {
         final SwingUIBase uiBase = this.getUIBase();
         final javax.swing.JComponent jComponent = this.getJComponent();
-        final UIPadding oldPadding = uiBase.getPadding(jComponent);
+        final UIPaddingInPixels oldPadding = uiBase.getPaddingInPixels(jComponent);
         if (!oldPadding.equals(padding))
         {
-            uiBase.setPadding(jComponent, padding);
-            this.paddingChanged.run(oldPadding, padding);
+            uiBase.setPaddingInPixels(jComponent, padding);
+            this.paddingChanged.run();
         }
         return this;
     }
@@ -51,7 +63,7 @@ public class SwingUIElementBase extends AWTUIElementBase
      * @param callback The callback that will be invoked when this SwingUIElementBase's padding changes.
      * @return A Disposable that can be disposed to unsubscribe the provided callback.
      */
-    public Disposable onPaddingChanged(Action2<UIPadding,UIPadding> callback)
+    public Disposable onPaddingChanged(Action0 callback)
     {
         PreCondition.assertNotNull(callback, "callback");
 

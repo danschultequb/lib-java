@@ -168,6 +168,41 @@ public class AWTUIElementBase
         return this.uiBase.onSizeChanged(this.component, callback);
     }
 
+    public Distance getContentWidth(java.awt.Container container)
+    {
+        return this.uiBase.getContentWidth(container);
+    }
+
+    public int getContentWidthInPixels(java.awt.Container container)
+    {
+        return this.uiBase.getContentWidthInPixels(container);
+    }
+
+    public Distance getContentHeight(java.awt.Container container)
+    {
+        return this.uiBase.getContentHeight(container);
+    }
+
+    public int getContentHeightInPixels(java.awt.Container container)
+    {
+        return this.uiBase.getContentHeightInPixels(container);
+    }
+
+    public Size2D getContentSize(java.awt.Container container)
+    {
+        return this.uiBase.getContentSize(container);
+    }
+
+    public void setContentSize(java.awt.Container container, Size2D contentSize)
+    {
+        this.uiBase.setContentSize(container, contentSize);
+    }
+
+    public void setContentSize(java.awt.Container container, Distance contentWidth, Distance contentHeight)
+    {
+        this.uiBase.setContentSize(container, contentWidth, contentHeight);
+    }
+
     /**
      * Get the background color of this AWTUIElementBase's Component.
      * @return The background color of this AWTUIElementBase's Component.
@@ -228,41 +263,6 @@ public class AWTUIElementBase
             }
             this.component.setSize(newSize);
         }
-    }
-
-    public Distance getContentWidth(java.awt.Container container)
-    {
-        return this.uiBase.getContentWidth(container);
-    }
-
-    public int getContentWidthInPixels(java.awt.Container container)
-    {
-        return this.uiBase.getContentWidthInPixels(container);
-    }
-
-    public Distance getContentHeight(java.awt.Container container)
-    {
-        return this.uiBase.getContentHeight(container);
-    }
-
-    public int getContentHeightInPixels(java.awt.Container container)
-    {
-        return this.uiBase.getContentHeightInPixels(container);
-    }
-
-    public Size2D getContentSize(java.awt.Container container)
-    {
-        return this.uiBase.getContentSize(container);
-    }
-
-    public void setContentSize(java.awt.Container container, Size2D contentSize)
-    {
-        this.uiBase.setContentSize(container, contentSize);
-    }
-
-    public void setContentSize(java.awt.Container container, Distance contentWidth, Distance contentHeight)
-    {
-        this.uiBase.setContentSize(container, contentWidth, contentHeight);
     }
 
     public Distance getFontSize()

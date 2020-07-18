@@ -105,6 +105,12 @@ public interface UIElement
     UIPadding getPadding();
 
     /**
+     * Get the padding that surrounds this UIElement's content in pixels.
+     * @return The padding that surrounds this UIElement's content in pixels.
+     */
+    UIPaddingInPixels getPaddingInPixels();
+
+    /**
      * Set the padding for this UIElement.
      * @param padding The padding to set on this UIElement.
      * @return This object for method chaining.
@@ -112,35 +118,18 @@ public interface UIElement
     UIElement setPadding(UIPadding padding);
 
     /**
-     * Subscribe to be notified when this UIElement's padding changes.
-     * @param callback The callback that will be invoked when this UIElement's padding changes.
-     * @return A Disposable that can be disposed to unsubscribe the provided callback.
+     * Set the padding for this UIElement in pixels.
+     * @param padding The padding to set on this UIElement in pixels.
+     * @return This object for method chaining.
      */
-    default Disposable onPaddingChanged(Action0 callback)
-    {
-        PreCondition.assertNotNull(callback, "callback");
-
-        return this.onPaddingChanged((UIPadding newPadding) -> callback.run());
-    }
+    UIElement setPaddingInPixels(UIPaddingInPixels padding);
 
     /**
      * Subscribe to be notified when this UIElement's padding changes.
      * @param callback The callback that will be invoked when this UIElement's padding changes.
      * @return A Disposable that can be disposed to unsubscribe the provided callback.
      */
-    default Disposable onPaddingChanged(Action1<UIPadding> callback)
-    {
-        PreCondition.assertNotNull(callback, "callback");
-
-        return this.onPaddingChanged((UIPadding oldPadding, UIPadding newPadding) -> callback.run(newPadding));
-    }
-
-    /**
-     * Subscribe to be notified when this UIElement's padding changes.
-     * @param callback The callback that will be invoked when this UIElement's padding changes.
-     * @return A Disposable that can be disposed to unsubscribe the provided callback.
-     */
-    Disposable onPaddingChanged(Action2<UIPadding,UIPadding> callback);
+    Disposable onPaddingChanged(Action0 callback);
 
     /**
      * Get the size of the space available for the content of this UIElement.
@@ -152,13 +141,28 @@ public interface UIElement
      * Get the width of the space available for the content of this UIElement.
      * @return The width of the space available for the content of this UIElement.
      */
-    Size2D getContentSpaceWidth();
+    default Distance getContentSpaceWidth()
+    {
+        return this.getWidth().minus(this.getPadding().getWidth());
+    }
+
+    /**
+     * Get the width of the space available for the content of this UIElement in pixels.
+     * @return The width of the space available for the content of this UIElement in pixels.
+     */
+    int getContentSpaceWidthInPixels();
 
     /**
      * Get the height of the space available for the content of this UIElement.
      * @return The height of the space available for the content of this UIElement.
      */
-    Size2D getContentSpaceHeight();
+    Distance getContentSpaceHeight();
+
+    /**
+     * Get the height of the space available for the content of this UIElement in pixels.
+     * @return The height of the space available for the content of this UIElement in pixels.
+     */
+    int getContentSpaceHeightInPixels();
 
     /**
      * Get the actual size of the content of this UIElement.
@@ -173,10 +177,22 @@ public interface UIElement
     Distance getContentWidth();
 
     /**
+     * Get the actual width of the content of this UIElement in pixels.
+     * @return The actual width of the content of this UIElement in pixels.
+     */
+    int getContentWidthInPixels();
+
+    /**
      * Get the actual height of the content of this UIElement.
      * @return The actual height of the content of this UIElement.
      */
     Distance getContentHeight();
+
+    /**
+     * Get the actual height of the content of this UIElement in pixels.
+     * @return The actual height of the content of this UIElement in pixels.
+     */
+    int getContentHeightInPixels();
 
     /**
      * Get the background color of this UIElement.

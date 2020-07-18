@@ -69,6 +69,24 @@ public interface UIPadding
     Distance getBottom();
 
     /**
+     * Get the sum of the left and right padding.
+     * @return The sum of the left and right padding.
+     */
+    default Distance getWidth()
+    {
+        return this.getLeft().plus(this.getRight());
+    }
+
+    /**
+     * Get the sum of the top and bottom padding.
+     * @return The sum of the top and bottom padding.
+     */
+    default Distance getHeight()
+    {
+        return this.getTop().plus(this.getBottom());
+    }
+
+    /**
      * Get the String representation of the provided UIPadding.
      * @param uiPadding The UIPadding to get the String representation of.
      * @return The String representation of the provided UIPadding.

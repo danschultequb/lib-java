@@ -48,6 +48,9 @@ public interface AWTUIElement extends UIElement
     AWTUIElement setPadding(UIPadding padding);
 
     @Override
+    AWTUIElement setPaddingInPixels(UIPaddingInPixels padding);
+
+    @Override
     AWTUIElement setBackgroundColor(Color backgroundColor);
 
     /**

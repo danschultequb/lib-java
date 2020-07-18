@@ -62,4 +62,36 @@ public abstract class UIBase
     {
         return this.display.convertPixelsToPoint2D(horizontalPixels, verticalPixels);
     }
+
+    /**
+     * Convert the provided UIPaddingInPixels to a UIPadding.
+     * @param padding The UIPaddingInPixels to convert.
+     * @return The converted UIPadding.
+     */
+    public UIPadding convertUIPaddingInPixelsToUIPadding(UIPaddingInPixels padding)
+    {
+        PreCondition.assertNotNull(padding, "padding");
+
+        return UIPadding.create(
+            this.convertHorizontalPixelsToDistance(padding.getLeft()),
+            this.convertVerticalPixelsToDistance(padding.getTop()),
+            this.convertHorizontalPixelsToDistance(padding.getRight()),
+            this.convertVerticalPixelsToDistance(padding.getBottom()));
+    }
+
+    /**
+     * Convert the provided UIPadding to a UIPaddingInPixels.
+     * @param padding The UIPadding to convert.
+     * @return The converted UIPaddingInPixels.
+     */
+    public UIPaddingInPixels convertUIPaddingToUIPaddingInPixels(UIPadding padding)
+    {
+        PreCondition.assertNotNull(padding, "padding");
+
+        return UIPaddingInPixels.create(
+            (int)this.convertHorizontalDistanceToPixels(padding.getLeft()),
+            (int)this.convertVerticalDistanceToPixels(padding.getTop()),
+            (int)this.convertHorizontalDistanceToPixels(padding.getRight()),
+            (int)this.convertVerticalDistanceToPixels(padding.getBottom()));
+    }
 }

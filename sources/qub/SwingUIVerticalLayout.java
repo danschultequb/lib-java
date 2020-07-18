@@ -125,6 +125,12 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     }
 
     @Override
+    public UIPaddingInPixels getPaddingInPixels()
+    {
+        return null;
+    }
+
+    @Override
     public SwingUIVerticalLayout setPadding(UIPadding padding)
     {
         this.uiElementBase.setPadding(padding);
@@ -132,7 +138,14 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     }
 
     @Override
-    public Disposable onPaddingChanged(Action2<UIPadding, UIPadding> callback)
+    public SwingUIVerticalLayout setPaddingInPixels(UIPaddingInPixels padding)
+    {
+        this.uiElementBase.setPaddingInPixels(padding);
+        return this;
+    }
+
+    @Override
+    public Disposable onPaddingChanged(Action0 callback)
     {
         return this.uiElementBase.onPaddingChanged(callback);
     }
@@ -144,15 +157,27 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     }
 
     @Override
-    public Size2D getContentSpaceWidth()
+    public Distance getContentSpaceWidth()
     {
         return null;
     }
 
     @Override
-    public Size2D getContentSpaceHeight()
+    public int getContentSpaceWidthInPixels()
+    {
+        return 0;
+    }
+
+    @Override
+    public Distance getContentSpaceHeight()
     {
         return null;
+    }
+
+    @Override
+    public int getContentSpaceHeightInPixels()
+    {
+        return 0;
     }
 
     @Override
@@ -168,9 +193,21 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     }
 
     @Override
+    public int getContentWidthInPixels()
+    {
+        return 0;
+    }
+
+    @Override
     public Distance getContentHeight()
     {
         return null;
+    }
+
+    @Override
+    public int getContentHeightInPixels()
+    {
+        return 0;
     }
 
     @Override
