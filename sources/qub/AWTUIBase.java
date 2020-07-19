@@ -225,6 +225,125 @@ public class AWTUIBase extends UIBase
     }
 
     /**
+     * Get the padding of the provided AWT container.
+     * @param container The container to get the padding of.
+     * @return The padding of the provided AWT container.
+     */
+    public UIPadding getPadding(java.awt.Container container)
+    {
+        PreCondition.assertNotNull(container, "container");
+
+        return this.convertUIPaddingInPixelsToUIPadding(this.getPaddingInPixels(container));
+    }
+
+    /**
+     * Get the padding of the provided AWT container in pixels.
+     * @param container The container to get the padding of.
+     * @return The padding of the provided AWT container in pixels.
+     */
+    public UIPaddingInPixels getPaddingInPixels(java.awt.Container container)
+    {
+        PreCondition.assertNotNull(container, "container");
+
+        final java.awt.Insets insets = container.getInsets();
+        return UIPaddingInPixels.create(insets.left, insets.top, insets.right, insets.bottom);
+    }
+
+    public Size2D getContentSpaceSize(java.awt.Container container)
+    {
+        PreCondition.assertNotNull(container, "container");
+
+        final java.awt.Insets insets = container.getInsets();
+        final int paddingWidth = insets.left + insets.right;
+        final int paddingHeight = insets.top + insets.bottom;
+        final int containerWidth = container.getWidth();
+        final int containerHeight = container.getHeight();
+
+        Size2D result;
+        if (containerWidth < paddingWidth)
+        {
+            if (containerHeight < paddingHeight)
+            {
+                result = Size2D.zero;
+            }
+            else
+            {
+                result = Size2D.create(Distance.zero, this.convertVerticalPixelsToDistance(containerHeight - paddingHeight));
+            }
+        }
+        else
+        {
+            final Distance contentSpaceWidth = this.convertHorizontalPixelsToDistance(containerWidth - paddingWidth);
+            if (containerHeight < paddingHeight)
+            {
+                result = Size2D.create(contentSpaceWidth, Distance.zero);
+            }
+            else
+            {
+                result = Size2D.create(contentSpaceWidth, this.convertVerticalPixelsToDistance(containerHeight - paddingHeight));
+            }
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    public Distance getContentSpaceWidth(java.awt.Container container)
+    {
+        PreCondition.assertNotNull(container, "container");
+
+        final int contentSpaceWidthInPixels = this.getContentSpaceWidthInPixels(container);
+        final Distance result = contentSpaceWidthInPixels == 0 ? Distance.zero : this.convertHorizontalPixelsToDistance(contentSpaceWidthInPixels);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    public int getContentSpaceWidthInPixels(java.awt.Container container)
+    {
+        PreCondition.assertNotNull(container, "container");
+
+        final java.awt.Insets insets = container.getInsets();
+        final int paddingWidth = insets.left + insets.right;
+        final int containerWidth = container.getWidth();
+
+        final int result = containerWidth < paddingWidth ? 0 : containerWidth - paddingWidth;
+
+        PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
+
+        return result;
+    }
+
+    public Distance getContentSpaceHeight(java.awt.Container container)
+    {
+        PreCondition.assertNotNull(container, "container");
+
+        final int containerSpaceHeightInPixels = this.getContentSpaceHeightInPixels(container);
+        final Distance result = containerSpaceHeightInPixels == 0 ? Distance.zero : this.convertVerticalPixelsToDistance(containerSpaceHeightInPixels);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    public int getContentSpaceHeightInPixels(java.awt.Container container)
+    {
+        PreCondition.assertNotNull(container, "container");
+
+        final java.awt.Insets insets = container.getInsets();
+        final int paddingHeight = insets.top + insets.bottom;
+        final int containerHeight = container.getHeight();
+
+        final int result = containerHeight < paddingHeight ? 0 : containerHeight - paddingHeight;
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
      * Get the position of the provided AWT Component relative to its parent container.
      * @param component The AWT Component to get the relative position of.
      * @return The position of the provided AWT Component relative to its parent container.
@@ -239,102 +358,6 @@ public class AWTUIBase extends UIBase
         PostCondition.assertNotNull(result, "result");
 
         return result;
-    }
-
-    public Distance getContentWidth(java.awt.Container container)
-    {
-        PreCondition.assertNotNull(container, "container");
-
-        final int contentWidthInPixels = this.getContentWidthInPixels(container);
-        final Distance result = this.convertHorizontalPixelsToDistance(contentWidthInPixels);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
-
-        return result;
-    }
-
-    public int getContentWidthInPixels(java.awt.Container container)
-    {
-        PreCondition.assertNotNull(container, "container");
-
-        final int widthInPixels = container.getWidth();
-        final java.awt.Insets insets = container.getInsets();
-        final int result = widthInPixels - insets.left - insets.right;
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
-
-        return result;
-    }
-
-    public Distance getContentHeight(java.awt.Container container)
-    {
-        PreCondition.assertNotNull(container, "container");
-
-        final int contentHeightInPixels = this.getContentHeightInPixels(container);
-        final Distance result = this.convertVerticalPixelsToDistance(contentHeightInPixels);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
-
-        return result;
-    }
-
-    public int getContentHeightInPixels(java.awt.Container container)
-    {
-        PreCondition.assertNotNull(container, "container");
-
-        final int heightInPixels = container.getHeight();
-        final java.awt.Insets insets = container.getInsets();
-        final int result = heightInPixels - insets.top - insets.bottom;
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
-
-        return result;
-    }
-
-    public Size2D getContentSize(java.awt.Container container)
-    {
-        PreCondition.assertNotNull(container, "container");
-
-        final int widthInPixels = container.getWidth();
-        final int heightInPixels = container.getHeight();
-        final java.awt.Insets insets = container.getInsets();
-        final int contentWidthInPixels = widthInPixels - insets.left - insets.right;
-        final int contentHeightInPixels = heightInPixels - insets.top - insets.bottom;
-        final Size2D result = this.convertPixelsToSize2D(contentWidthInPixels, contentHeightInPixels);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    public void setContentSize(java.awt.Container container, Size2D contentSize)
-    {
-        PreCondition.assertNotNull(container, "container");
-        PreCondition.assertNotNull(contentSize, "contentSize");
-
-        this.setContentSize(container, contentSize.getWidth(), contentSize.getHeight());
-    }
-
-    public void setContentSize(java.awt.Container container, Distance contentWidth, Distance contentHeight)
-    {
-        PreCondition.assertNotNull(container, "container");
-        PreCondition.assertNotNull(contentWidth, "contentWidth");
-        PreCondition.assertGreaterThanOrEqualTo(contentWidth, Distance.zero, "contentWidth");
-        PreCondition.assertNotNull(contentHeight, "contentHeight");
-        PreCondition.assertGreaterThanOrEqualTo(contentHeight, Distance.zero, "contentHeight");
-
-        final int contentWidthInPixels = (int)this.convertHorizontalDistanceToPixels(contentWidth);
-        final int contentHeightInPixels = (int)this.convertVerticalDistanceToPixels(contentHeight);
-
-        final java.awt.Insets jFrameInsets = container.getInsets();
-        final int widthInPixels = contentWidthInPixels + jFrameInsets.left + jFrameInsets.right;
-        final int heightInPixels = contentHeightInPixels + jFrameInsets.top + jFrameInsets.bottom;
-
-        container.setSize(widthInPixels, heightInPixels);
     }
 
     /**

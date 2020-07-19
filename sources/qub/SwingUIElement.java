@@ -18,10 +18,7 @@ public interface SwingUIElement extends AWTUIElement
     SwingUIElement setHeightInPixels(int heightInPixels);
 
     @Override
-    default SwingUIElement setSize(Size2D size)
-    {
-        return (SwingUIElement)AWTUIElement.super.setSize(size);
-    }
+    SwingUIElement setSize(Size2D size);
 
     @Override
     SwingUIElement setSize(Distance width, Distance height);

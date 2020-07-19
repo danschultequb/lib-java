@@ -73,6 +73,100 @@ public class SwingUIBase extends AWTUIBase
         jComponent.setBorder(border);
     }
 
+    public Size2D getContentSpaceSize(javax.swing.JComponent jComponent)
+    {
+        PreCondition.assertNotNull(jComponent, "jComponent");
+
+        final java.awt.Insets insets = jComponent.getInsets();
+        final int paddingWidth = insets.left + insets.right;
+        final int paddingHeight = insets.top + insets.bottom;
+        final int jComponentWidth = jComponent.getWidth();
+        final int jComponentHeight = jComponent.getHeight();
+
+        Size2D result;
+        if (jComponentWidth < paddingWidth)
+        {
+            if (jComponentHeight < paddingHeight)
+            {
+                result = Size2D.zero;
+            }
+            else
+            {
+                result = Size2D.create(Distance.zero, this.convertVerticalPixelsToDistance(jComponentHeight - paddingHeight));
+            }
+        }
+        else
+        {
+            final Distance contentSpaceWidth = this.convertHorizontalPixelsToDistance(jComponentWidth - paddingWidth);
+            if (jComponentHeight < paddingHeight)
+            {
+                result = Size2D.create(contentSpaceWidth, Distance.zero);
+            }
+            else
+            {
+                result = Size2D.create(contentSpaceWidth, this.convertVerticalPixelsToDistance(jComponentHeight - paddingHeight));
+            }
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    public Distance getContentSpaceWidth(javax.swing.JComponent jComponent)
+    {
+        PreCondition.assertNotNull(jComponent, "jComponent");
+
+        final int contentSpaceWidthInPixels = this.getContentSpaceWidthInPixels(jComponent);
+        final Distance result = contentSpaceWidthInPixels == 0 ? Distance.zero : this.convertHorizontalPixelsToDistance(contentSpaceWidthInPixels);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    public int getContentSpaceWidthInPixels(javax.swing.JComponent container)
+    {
+        PreCondition.assertNotNull(container, "jComponent");
+
+        final java.awt.Insets insets = container.getInsets();
+        final int paddingWidth = insets.left + insets.right;
+        final int jComponentWidth = container.getWidth();
+
+        final int result = jComponentWidth < paddingWidth ? 0 : jComponentWidth - paddingWidth;
+
+        PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
+
+        return result;
+    }
+
+    public Distance getContentSpaceHeight(javax.swing.JComponent jComponent)
+    {
+        PreCondition.assertNotNull(jComponent, "jComponent");
+
+        final int contentSpaceHeightInPixels = this.getContentSpaceHeightInPixels(jComponent);
+        final Distance result = contentSpaceHeightInPixels == 0 ? Distance.zero : this.convertVerticalPixelsToDistance(contentSpaceHeightInPixels);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    public int getContentSpaceHeightInPixels(javax.swing.JComponent jComponent)
+    {
+        PreCondition.assertNotNull(jComponent, "jComponent");
+
+        final java.awt.Insets insets = jComponent.getInsets();
+        final int paddingHeight = insets.top + insets.bottom;
+        final int jComponentHeight = jComponent.getHeight();
+
+        final int result = jComponentHeight < paddingHeight ? 0 : jComponentHeight - paddingHeight;
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
     /**
      * Register the provided callback to be invoked when the provided component's text changes.
      * @param jTextComponent The component to watch.

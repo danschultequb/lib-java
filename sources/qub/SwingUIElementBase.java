@@ -70,6 +70,36 @@ public class SwingUIElementBase extends AWTUIElementBase
         return this.paddingChanged.subscribe(callback);
     }
 
+    public Size2D getContentSpaceSize()
+    {
+        return this.getContentSpaceSize(this.getJComponent());
+    }
+
+    public Size2D getContentSpaceSize(javax.swing.JComponent jComponent)
+    {
+        return this.getUIBase().getContentSpaceSize(jComponent);
+    }
+
+    public Distance getContentSpaceWidth()
+    {
+        return this.getContentSpaceWidth(this.getJComponent());
+    }
+
+    public Distance getContentSpaceWidth(javax.swing.JComponent jComponent)
+    {
+        return this.getUIBase().getContentSpaceWidth(jComponent);
+    }
+
+    public Distance getContentSpaceHeight()
+    {
+        return this.getContentSpaceHeight(this.getJComponent());
+    }
+
+    public Distance getContentSpaceHeight(javax.swing.JComponent jComponent)
+    {
+        return this.getUIBase().getContentSpaceHeight(jComponent);
+    }
+
     /**
      * Register the provided callback to be invoked when the provided component's text changes.
      * @param jTextComponent The component to watch.

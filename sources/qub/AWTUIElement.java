@@ -12,31 +12,13 @@ public interface AWTUIElement extends UIElement
     AWTUIElement setWidthInPixels(int widthInPixels);
 
     @Override
-    default int getWidthInPixels()
-    {
-        return this.getComponent().getWidth();
-    }
-
-    @Override
     AWTUIElement setHeight(Distance height);
 
     @Override
     AWTUIElement setHeightInPixels(int heightInPixels);
 
-    /**
-     * Get the height of this AWTUIElement in pixels.
-     * @return The height of this AWTUIElement in pixels.
-     */
-    default int getHeightInPixels()
-    {
-        return this.getComponent().getHeight();
-    }
-
     @Override
-    default AWTUIElement setSize(Size2D size)
-    {
-        return (AWTUIElement)UIElement.super.setSize(size);
-    }
+    AWTUIElement setSize(Size2D size);
 
     @Override
     AWTUIElement setSize(Distance width, Distance height);

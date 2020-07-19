@@ -62,12 +62,7 @@ public interface UIElement
      * @param size The size of this UIElement.
      * @return This object for method chaining.
      */
-    default UIElement setSize(Size2D size)
-    {
-        PreCondition.assertNotNull(size, "size");
-
-        return this.setSize(size.getWidth(), size.getHeight());
-    }
+    UIElement setSize(Size2D size);
 
     /**
      * Set the size of this UIElement.
@@ -141,10 +136,7 @@ public interface UIElement
      * Get the width of the space available for the content of this UIElement.
      * @return The width of the space available for the content of this UIElement.
      */
-    default Distance getContentSpaceWidth()
-    {
-        return this.getWidth().minus(this.getPadding().getWidth());
-    }
+    Distance getContentSpaceWidth();
 
     /**
      * Get the width of the space available for the content of this UIElement in pixels.

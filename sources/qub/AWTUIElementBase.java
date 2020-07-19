@@ -130,6 +130,11 @@ public class AWTUIElementBase
         return this.getHeight(this.component);
     }
 
+    public int getHeightInPixels()
+    {
+        return this.uiBase.getHeightInPixels(this.component);
+    }
+
     public AWTUIElementBase setSize(Size2D size)
     {
         PreCondition.assertNotNull(size, "size");
@@ -168,39 +173,39 @@ public class AWTUIElementBase
         return this.uiBase.onSizeChanged(this.component, callback);
     }
 
-    public Distance getContentWidth(java.awt.Container container)
+    public UIPadding getPadding(java.awt.Container container)
     {
-        return this.uiBase.getContentWidth(container);
+        return this.getUIBase().getPadding(container);
     }
 
-    public int getContentWidthInPixels(java.awt.Container container)
+    public UIPaddingInPixels getPaddingInPixels(java.awt.Container container)
     {
-        return this.uiBase.getContentWidthInPixels(container);
+        return this.getUIBase().getPaddingInPixels(container);
     }
 
-    public Distance getContentHeight(java.awt.Container container)
+    public Distance getContentSpaceWidth(java.awt.Container container)
     {
-        return this.uiBase.getContentHeight(container);
+        return this.uiBase.getContentSpaceWidth(container);
     }
 
-    public int getContentHeightInPixels(java.awt.Container container)
+    public int getContentSpaceWidthInPixels(java.awt.Container container)
     {
-        return this.uiBase.getContentHeightInPixels(container);
+        return this.uiBase.getContentSpaceWidthInPixels(container);
     }
 
-    public Size2D getContentSize(java.awt.Container container)
+    public Distance getContentSpaceHeight(java.awt.Container container)
     {
-        return this.uiBase.getContentSize(container);
+        return this.uiBase.getContentSpaceHeight(container);
     }
 
-    public void setContentSize(java.awt.Container container, Size2D contentSize)
+    public int getContentSpaceHeightInPixels(java.awt.Container container)
     {
-        this.uiBase.setContentSize(container, contentSize);
+        return this.uiBase.getContentSpaceHeightInPixels(container);
     }
 
-    public void setContentSize(java.awt.Container container, Distance contentWidth, Distance contentHeight)
+    public Size2D getContentSpaceSize(java.awt.Container container)
     {
-        this.uiBase.setContentSize(container, contentWidth, contentHeight);
+        return this.uiBase.getContentSpaceSize(container);
     }
 
     /**

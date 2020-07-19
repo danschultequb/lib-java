@@ -171,163 +171,201 @@ public class SwingUIWindow implements UIWindow
         this.disposedTask.await();
     }
 
-    /**
-     * Set the width of this Window.
-     * @param width The width of this Window.
-     * @return This object for method chaining.
-     */
+    @Override
     public SwingUIWindow setWidth(Distance width)
     {
         this.uiElementBase.setWidth(width);
         return this;
     }
 
-    /**
-     * Get the width of this Window.
-     * @return The width of this Window.
-     */
+    @Override
+    public SwingUIWindow setWidthInPixels(int widthInPixels)
+    {
+        this.uiElementBase.setWidthInPixels(widthInPixels);
+        return this;
+    }
+
+    @Override
     public Distance getWidth()
     {
         return this.uiElementBase.getWidth();
     }
 
-    /**
-     * Set the height of this Window.
-     * @param height The height of this Window.
-     * @return This object for method chaining.
-     */
+    @Override
+    public int getWidthInPixels()
+    {
+        return this.uiElementBase.getWidthInPixels();
+    }
+
+    @Override
     public SwingUIWindow setHeight(Distance height)
     {
         this.uiElementBase.setHeight(height);
         return this;
     }
 
-    /**
-     * Get the height of this Window.
-     * @return The height of this Window.
-     */
+    @Override
+    public SwingUIWindow setHeightInPixels(int heightInPixels)
+    {
+        this.uiElementBase.setHeightInPixels(heightInPixels);
+        return this;
+    }
+
+    @Override
     public Distance getHeight()
     {
         return this.uiElementBase.getHeight();
     }
 
-    /**
-     * Set the size of this Window.
-     * @param size The size of this Window.
-     * @return This object for method chaining.
-     */
+    @Override
+    public int getHeightInPixels()
+    {
+        return this.uiElementBase.getHeightInPixels();
+    }
+
+    @Override
     public SwingUIWindow setSize(Size2D size)
     {
         this.uiElementBase.setSize(size);
         return this;
     }
 
-    /**
-     * Set the size of this Window.
-     * @param width The width of this Window.
-     * @param height The height of this Window.
-     * @return This object for method chaining.
-     */
+    @Override
     public SwingUIWindow setSize(Distance width, Distance height)
     {
         this.uiElementBase.setSize(width, height);
         return this;
     }
 
-    /**
-     * Get the size of this Window.
-     * @return The size of this Window.
-     */
+    @Override
+    public SwingUIWindow setSizeInPixels(int widthInPixels, int heightInPixels)
+    {
+        this.uiElementBase.setSizeInPixels(widthInPixels, heightInPixels);
+        return this;
+    }
+
+    @Override
     public Size2D getSize()
     {
         return this.uiElementBase.getSize();
     }
 
-    /**
-     * Register the provided callback to be invoked when this SwingWindow's size changes.
-     * @param callback The callback to be invoked when this SwingWindow's size changes.
-     * @return A Disposable that can be disposed to unregister the provided callback.
-     */
+    @Override
     public Disposable onSizeChanged(Action0 callback)
     {
         return this.uiElementBase.onSizeChanged(callback);
     }
 
-    /**
-     * Set the width of this Window.
-     * @param contentWidth The width of this Window.
-     * @return This object for method chaining.
-     */
-    public SwingUIWindow setContentWidth(Distance contentWidth)
+    @Override
+    public UIPadding getPadding()
     {
-        PreCondition.assertNotNull(contentWidth, "contentWidth");
-        PreCondition.assertGreaterThanOrEqualTo(contentWidth, Distance.zero, "contentWidth");
-
-        return this.setContentSize(contentWidth, this.getContentHeight());
+        return this.uiElementBase.getPadding(this.jFrame);
     }
 
-    /**
-     * Get the content width of this Window.
-     * @return The content width of this Window.
-     */
-    public Distance getContentWidth()
+    @Override
+    public UIPaddingInPixels getPaddingInPixels()
     {
-        return this.uiElementBase.getContentWidth(this.jFrame);
+        return this.uiElementBase.getPaddingInPixels(this.jFrame);
     }
 
-    /**
-     * Set the content height of this Window.
-     * @param contentHeight The content height of this Window.
-     * @return This object for method chaining.
-     */
-    public SwingUIWindow setContentHeight(Distance contentHeight)
+    @Override
+    public Size2D getContentSpaceSize()
     {
-        PreCondition.assertNotNull(contentHeight, "contentHeight");
-        PreCondition.assertGreaterThanOrEqualTo(contentHeight, Distance.zero, "contentHeight");
-
-        return this.setContentSize(this.getContentWidth(), contentHeight);
+        return this.uiElementBase.getContentSpaceSize(this.jFrame);
     }
 
-    /**
-     * Get the height of this Window.
-     * @return The height of this Window.
-     */
-    public Distance getContentHeight()
+    public SwingUIWindow setContentSpaceSize(Size2D contentSpaceSize)
     {
-        return this.uiElementBase.getContentHeight(this.jFrame);
+        PreCondition.assertNotNull(contentSpaceSize, "contentSpaceSize");
+
+        return this.setContentSpaceSize(contentSpaceSize.getWidth(), contentSpaceSize.getHeight());
     }
 
-    /**
-     * Set the content size of this Window.
-     * @param contentSize The content size of this Window.
-     * @return This object for method chaining.
-     */
-    public SwingUIWindow setContentSize(Size2D contentSize)
+    public SwingUIWindow setContentSpaceSize(Distance contentSpaceWidth, Distance contentSpaceHeight)
     {
-        PreCondition.assertNotNull(contentSize, "contentSize");
+        PreCondition.assertNotNull(contentSpaceWidth, "contentSpaceWidth");
+        PreCondition.assertGreaterThanOrEqualTo(contentSpaceWidth, Distance.zero, "contentSpaceWidth");
+        PreCondition.assertNotNull(contentSpaceHeight, "contentSpaceHeight");
+        PreCondition.assertGreaterThanOrEqualTo(contentSpaceHeight, Distance.zero, "contentSpaceHeight");
 
-        this.uiElementBase.setContentSize(this.jFrame, contentSize);
+        final UIPadding padding = this.getPadding();
+        final Distance width = contentSpaceWidth.plus(padding.getWidth());
+        final Distance height = contentSpaceHeight.plus(padding.getHeight());
+        return this.setSize(Size2D.create(width, height));
+    }
+
+    @Override
+    public Distance getContentSpaceWidth()
+    {
+        return this.uiElementBase.getContentSpaceWidth(this.jFrame);
+    }
+
+    @Override
+    public int getContentSpaceWidthInPixels()
+    {
+        return this.uiElementBase.getContentSpaceWidthInPixels(this.jFrame);
+    }
+
+    public SwingUIWindow setContentSpaceWidth(Distance contentSpaceWidth)
+    {
+        PreCondition.assertNotNull(contentSpaceWidth, "contentSpaceWidth");
+        PreCondition.assertGreaterThanOrEqualTo(contentSpaceWidth, Distance.zero, "contentSpaceWidth");
+
+        final UIPadding padding = this.getPadding();
+        final Distance width = contentSpaceWidth.plus(padding.getWidth());
+        return this.setWidth(width);
+    }
+
+    public SwingUIWindow setContentSpaceWidthInPixels(int contentSpaceWidthInPixels)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(contentSpaceWidthInPixels, 0, "contentSpaceWidthInPixels");
+
+        final UIPaddingInPixels padding = this.getPaddingInPixels();
+        final int widthInPixels = contentSpaceWidthInPixels + padding.getWidth();
+        return this.setWidthInPixels(widthInPixels);
+    }
+
+    @Override
+    public Distance getContentSpaceHeight()
+    {
+        return this.uiElementBase.getContentSpaceHeight(this.jFrame);
+    }
+
+    @Override
+    public int getContentSpaceHeightInPixels()
+    {
+        return this.uiElementBase.getContentSpaceHeightInPixels(this.jFrame);
+    }
+
+    public SwingUIWindow setContentSpaceHeight(Distance contentSpaceHeight)
+    {
+        PreCondition.assertNotNull(contentSpaceHeight, "contentSpaceHeight");
+        PreCondition.assertGreaterThanOrEqualTo(contentSpaceHeight, Distance.zero, "contentSpaceHeight");
+
+        final UIPadding padding = this.getPadding();
+        final Distance height = contentSpaceHeight.plus(padding.getHeight());
+        return this.setHeight(height);
+    }
+
+    public SwingUIWindow setContentSpaceHeightInPixels(int contentSpaceHeightInPixels)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(contentSpaceHeightInPixels, 0, "contentSpaceHeightInPixels");
+
+        final UIPaddingInPixels padding = this.getPaddingInPixels();
+        final int widthInPixels = contentSpaceHeightInPixels + padding.getHeight();
+        return this.setHeightInPixels(widthInPixels);
+    }
+
+    @Override
+    public Color getBackgroundColor()
+    {
+        return this.uiElementBase.getBackgroundColor();
+    }
+
+    @Override
+    public SwingUIWindow setBackgroundColor(Color backgroundColor)
+    {
+        this.uiElementBase.setBackgroundColor(backgroundColor);
         return this;
-    }
-
-    /**
-     * Set the content size of this Window.
-     * @param contentWidth The width of this Window.
-     * @param contentHeight The height of this Window.
-     * @return This object for method chaining.
-     */
-    public SwingUIWindow setContentSize(Distance contentWidth, Distance contentHeight)
-    {
-        this.uiElementBase.setContentSize(this.jFrame, contentWidth, contentHeight);
-        return this;
-    }
-
-    /**
-     * Get the size of this Window.
-     * @return The size of this Window.
-     */
-    public Size2D getContentSize()
-    {
-        return this.uiElementBase.getContentSize(this.jFrame);
     }
 }

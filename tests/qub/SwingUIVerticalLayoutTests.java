@@ -346,7 +346,7 @@ public interface SwingUIVerticalLayoutTests
                     try (final SwingUIWindow window = uiBuilder.createSwingUIWindow().await())
                     {
                         window.setTitle(test.getFullName());
-                        window.setContentSize(Distance.inches(1), Distance.inches(3));
+                        window.setContentSpaceSize(Distance.inches(1), Distance.inches(3));
 
                         final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await();
                         for (int i = 1; i <= 3; ++i)
@@ -370,7 +370,7 @@ public interface SwingUIVerticalLayoutTests
                     try (final SwingUIWindow window = uiBuilder.createSwingUIWindow().await())
                     {
                         window.setTitle(test.getFullName());
-                        window.setContentSize(Distance.inches(3), Distance.inches(3));
+                        window.setContentSpaceSize(Distance.inches(3), Distance.inches(3));
 
                         final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await();
 

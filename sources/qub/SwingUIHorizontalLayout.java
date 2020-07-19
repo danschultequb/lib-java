@@ -57,6 +57,12 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIEleme
     }
 
     @Override
+    public int getWidthInPixels()
+    {
+        return this.uiElementBase.getWidthInPixels();
+    }
+
+    @Override
     public SwingUIHorizontalLayout setHeight(Distance height)
     {
         this.uiElementBase.setHeight(height);
@@ -74,6 +80,12 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIEleme
     public Distance getHeight()
     {
         return this.uiElementBase.getHeight();
+    }
+
+    @Override
+    public int getHeightInPixels()
+    {
+        return this.uiElementBase.getHeightInPixels();
     }
 
     @Override

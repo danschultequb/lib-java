@@ -9,12 +9,7 @@ public interface UIText extends UIElement
     UIText setHeight(Distance height);
 
     @Override
-    default UIText setSize(Size2D size)
-    {
-        PreCondition.assertNotNull(size, "size");
-
-        return (UIText)UIElement.super.setSize(size);
-    }
+    UIText setSize(Size2D size);
 
     @Override
     UIText setSize(Distance width, Distance height);

@@ -58,6 +58,12 @@ public class SwingUIButton implements UIButton, SwingUIElement
     }
 
     @Override
+    public int getWidthInPixels()
+    {
+        return this.uiElementBase.getWidthInPixels();
+    }
+
+    @Override
     public SwingUIButton setHeight(Distance height)
     {
         this.uiElementBase.setHeight(height);
@@ -75,6 +81,12 @@ public class SwingUIButton implements UIButton, SwingUIElement
     public Distance getHeight()
     {
         return this.uiElementBase.getHeight();
+    }
+
+    @Override
+    public int getHeightInPixels()
+    {
+        return this.uiElementBase.getHeightInPixels();
     }
 
     @Override
@@ -158,13 +170,13 @@ public class SwingUIButton implements UIButton, SwingUIElement
     @Override
     public Size2D getContentSpaceSize()
     {
-        return null;
+        return this.uiElementBase.getContentSpaceSize();
     }
 
     @Override
     public Distance getContentSpaceWidth()
     {
-        return null;
+        return this.uiElementBase.getContentSpaceWidth();
     }
 
     @Override
