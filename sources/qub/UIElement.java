@@ -13,6 +13,14 @@ public interface UIElement
     UIElement setWidth(Distance width);
 
     /**
+     * Set the width of this UIElement to match the provided DynamicDistance. As the
+     * DynamicDistance object changes in value, this UIElement will change to match it.
+     * @param dynamicWidth The dynamic width of this UIElement.
+     * @return This object for method chaining.
+     */
+    UIElement setDynamicWidth(DynamicDistance dynamicWidth);
+
+    /**
      * Set the width of this UIElement in pixels.
      * @param widthInPixels The width of this UIElement in pixels.
      * @return This object for method chaining.
@@ -24,6 +32,15 @@ public interface UIElement
      * @return The width of this UIElement.
      */
     Distance getWidth();
+
+    /**
+     * Get the dynamic width of this UIElement.
+     * @return The dynamic width of this UIElement.
+     */
+    default DynamicDistance getDynamicWidth()
+    {
+        return DynamicDistance.create(this::getWidth, this::onSizeChanged);
+    }
 
     /**
      * Get the width of this UIElement in pixels.
@@ -50,6 +67,15 @@ public interface UIElement
      * @return The height of this UIElement.
      */
     Distance getHeight();
+
+    /**
+     * Get the dynamic height of this UIElement.
+     * @return The dynamic height of this UIElement.
+     */
+    default DynamicDistance getDynamicHeight()
+    {
+        return DynamicDistance.create(this::getHeight, this::onSizeChanged);
+    }
 
     /**
      * Get the height of this UIElement in pixels.
@@ -139,6 +165,24 @@ public interface UIElement
     Distance getContentSpaceWidth();
 
     /**
+     * Get the dynamic content space width of this UIElement.
+     * @return The dynamic content space width of this UIElement.
+     */
+    default DynamicDistance getDynamicContentSpaceWidth()
+    {
+        return DynamicDistance.create(this::getContentSpaceWidth, (Action0 callback) ->
+        {
+            final Disposable sizeChangedSubscription = this.onSizeChanged(callback);
+            final Disposable paddingChangedSubscription = this.onPaddingChanged(callback);
+            return Disposable.create(() ->
+            {
+                sizeChangedSubscription.dispose().await();
+                paddingChangedSubscription.dispose().await();
+            });
+        });
+    }
+
+    /**
      * Get the width of the space available for the content of this UIElement in pixels.
      * @return The width of the space available for the content of this UIElement in pixels.
      */
@@ -149,6 +193,24 @@ public interface UIElement
      * @return The height of the space available for the content of this UIElement.
      */
     Distance getContentSpaceHeight();
+
+    /**
+     * Get the dynamic content space height of this UIElement.
+     * @return The dynamic content space height of this UIElement.
+     */
+    default DynamicDistance getDynamicContentSpaceHeight()
+    {
+        return DynamicDistance.create(this::getContentSpaceHeight, (Action0 callback) ->
+        {
+            final Disposable sizeChangedSubscription = this.onSizeChanged(callback);
+            final Disposable paddingChangedSubscription = this.onPaddingChanged(callback);
+            return Disposable.create(() ->
+            {
+                sizeChangedSubscription.dispose().await();
+                paddingChangedSubscription.dispose().await();
+            });
+        });
+    }
 
     /**
      * Get the height of the space available for the content of this UIElement in pixels.

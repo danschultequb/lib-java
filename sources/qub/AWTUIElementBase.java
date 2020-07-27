@@ -4,6 +4,10 @@ public class AWTUIElementBase
 {
     private final AWTUIBase uiBase;
     private final java.awt.Component component;
+    private final RunnableEvent0 sizeChanged;
+    private int widthInPixels;
+    private int heightInPixels;
+    private DynamicDistance dynamicWidth;
     private boolean autoWidth;
     private boolean autoHeight;
 
@@ -14,8 +18,37 @@ public class AWTUIElementBase
 
         this.uiBase = uiBase;
         this.component = component;
+        this.sizeChanged = Event0.create();
         this.autoWidth = true;
         this.autoHeight = true;
+
+        this.component.addComponentListener(new java.awt.event.ComponentListener()
+        {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e)
+            {
+                final AWTUIElementBase uiElementBase = AWTUIElementBase.this;
+                uiElementBase.uiBase.scheduleAsyncTask(() ->
+                {
+                    uiElementBase.setSizeInPixels(uiElementBase.component.getWidth(), uiElementBase.component.getHeight());
+                });
+            }
+
+            @Override
+            public void componentMoved(java.awt.event.ComponentEvent e)
+            {
+            }
+
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e)
+            {
+            }
+
+            @Override
+            public void componentHidden(java.awt.event.ComponentEvent e)
+            {
+            }
+        });
 
         this.updateSize();
     }
@@ -56,15 +89,80 @@ public class AWTUIElementBase
 
     public AWTUIElementBase setWidth(Distance width)
     {
+        PreCondition.assertNotNull(width, "width");
+        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
+
+        final int widthInPixels = (int)this.uiBase.convertHorizontalDistanceToPixels(width);
+        return this.setWidthInPixels(widthInPixels);
+    }
+
+    public AWTUIElementBase setDynamicWidth(DynamicDistance dynamicWidth)
+    {
+        PreCondition.assertNotNull(dynamicWidth, "dynamicWidth");
+
+        if (this.dynamicWidth != null)
+        {
+            this.dynamicWidth.dispose().await();
+            this.dynamicWidth = null;
+        }
+
+        this.dynamicWidth = dynamicWidth;
+        dynamicWidth.onChanged(() ->
+        {
+            this.uiBase.setWidth(this.component, this.dynamicWidth.get());
+        });
+
         this.autoWidth = false;
-        this.uiBase.setWidth(this.component, width);
+        final Distance width = dynamicWidth.get();
+        if (!this.getWidth().equals(width))
+        {
+            this.uiBase.setWidth(this.component, this.dynamicWidth.get());
+            this.sizeChanged.run();
+        }
+
         return this;
     }
 
     public AWTUIElementBase setWidthInPixels(int widthInPixels)
     {
+        PreCondition.assertGreaterThanOrEqualTo(widthInPixels, 0, "widthInPixels");
+
         this.autoWidth = false;
-        this.uiBase.setWidthInPixels(this.component, widthInPixels);
+        if (this.getWidthInPixels() != widthInPixels)
+        {
+            this.uiBase.setWidthInPixels(this.component, widthInPixels);
+            this.sizeChanged.run();
+        }
+        return this;
+    }
+
+    private AWTUIElementBase setComponentWidth(Distance width)
+    {
+        PreCondition.assertNotNull(width, "width");
+        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
+
+        this.autoWidth = false;
+        if (!this.getWidth().equals(width))
+        {
+            this.uiBase.setWidth(this.component, width);
+            this.sizeChanged.run();
+        }
+
+        return this;
+    }
+
+    private AWTUIElementBase setComponentWidthInPixels(int widthInPixels)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(widthInPixels, 0, "widthInPixels");
+
+        this.autoWidth = false;
+        if (this.getWidthInPixels() != widthInPixels)
+        {
+            this.widthInPixels = widthInPixels;
+            this.uiBase.setWidthInPixels(this.component, widthInPixels);
+            this.sizeChanged.run();
+        }
+
         return this;
     }
 
@@ -108,15 +206,28 @@ public class AWTUIElementBase
 
     public AWTUIElementBase setHeight(Distance height)
     {
+        PreCondition.assertNotNull(height, "height");
+        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
+
         this.autoHeight = false;
-        this.uiBase.setHeight(this.component, height);
+        if (!this.getHeight().equals(height))
+        {
+            this.uiBase.setHeight(this.component, height);
+            this.sizeChanged.run();
+        }
         return this;
     }
 
     public AWTUIElementBase setHeightInPixels(int heightInPixels)
     {
+        PreCondition.assertGreaterThanOrEqualTo(heightInPixels, 0, "heightInPixels");
+
         this.autoHeight = false;
-        this.uiBase.setHeightInPixels(this.component, heightInPixels);
+        if (this.getHeightInPixels() != heightInPixels)
+        {
+            this.uiBase.setHeightInPixels(this.component, heightInPixels);
+            this.sizeChanged.run();
+        }
         return this;
     }
 
@@ -144,17 +255,33 @@ public class AWTUIElementBase
 
     public AWTUIElementBase setSize(Distance width, Distance height)
     {
+        PreCondition.assertNotNull(width, "width");
+        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
+        PreCondition.assertNotNull(height, "height");
+        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
+
         this.autoWidth = false;
         this.autoHeight = false;
-        this.uiBase.setSize(this.component, width, height);
+        if (!this.getWidth().equals(width) || !this.getHeight().equals(height))
+        {
+            this.uiBase.setSize(this.component, width, height);
+            this.sizeChanged.run();
+        }
         return this;
     }
 
     public AWTUIElementBase setSizeInPixels(int widthInPixels, int heightInPixels)
     {
+        PreCondition.assertGreaterThanOrEqualTo(widthInPixels, 0, "widthInPixels");
+        PreCondition.assertGreaterThanOrEqualTo(heightInPixels, 0, "heightInPixels");
+
         this.autoWidth = false;
         this.autoHeight = false;
-        this.uiBase.setSizeInPixels(this.component, widthInPixels, heightInPixels);
+        if (this.getWidthInPixels() != widthInPixels || this.getHeightInPixels() != heightInPixels)
+        {
+            this.uiBase.setSizeInPixels(this.component, widthInPixels, heightInPixels);
+            this.sizeChanged.run();
+        }
         return this;
     }
 
@@ -170,7 +297,7 @@ public class AWTUIElementBase
 
     public Disposable onSizeChanged(Action0 callback)
     {
-        return this.uiBase.onSizeChanged(this.component, callback);
+        return this.sizeChanged.subscribe(callback);
     }
 
     public UIPadding getPadding(java.awt.Container container)

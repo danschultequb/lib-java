@@ -330,6 +330,31 @@ public interface SwingUIWindowTests
                     Iterable.create(Distance.feet(1)));
             });
 
+            runner.test("getDynamicWidth()", (Test test) ->
+            {
+                try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                {
+                    try (final DynamicDistance dynamicWidth = window.getDynamicWidth())
+                    {
+                        test.assertNotNull(dynamicWidth);
+                        test.assertEqual(window.getWidth(), dynamicWidth.get());
+
+                        final IntegerValue counter = IntegerValue.create(0);
+                        final SpinGate gate = SpinGate.create(test.getClock());
+                        dynamicWidth.onChanged(() ->
+                        {
+                            counter.increment();
+                            gate.open();
+                        });
+
+                        window.setWidth(Distance.inches(4));
+                        gate.passThrough(Duration.seconds(1), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
+                        test.assertEqual(Distance.inches(4), dynamicWidth.get());
+                        test.assertEqual(1, counter.get());
+                    }
+                }
+            });
+
             runner.testGroup("setHeight(Distance)", () ->
             {
                 final Action2<Distance,Throwable> setHeightErrorTest = (Distance height, Throwable expected) ->
@@ -368,6 +393,31 @@ public interface SwingUIWindowTests
                 setHeightTest.run(
                     Distance.feet(1),
                     Iterable.create(Distance.inches(7.35), Distance.inches(9.77)));
+            });
+
+            runner.test("getDynamicHeight()", (Test test) ->
+            {
+                try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                {
+                    try (final DynamicDistance dynamicHeight = window.getDynamicHeight())
+                    {
+                        test.assertNotNull(dynamicHeight);
+                        test.assertEqual(window.getHeight(), dynamicHeight.get());
+
+                        final IntegerValue counter = IntegerValue.create(0);
+                        final SpinGate gate = SpinGate.create(test.getClock());
+                        dynamicHeight.onChanged(() ->
+                        {
+                            counter.increment();
+                            gate.open();
+                        });
+
+                        window.setHeight(Distance.inches(4));
+                        gate.passThrough(Duration.seconds(1), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
+                        test.assertEqual(Distance.inches(4), dynamicHeight.get());
+                        test.assertEqual(1, counter.get());
+                    }
+                }
             });
 
             runner.testGroup("setSize(Size2D)", () ->
@@ -476,6 +526,56 @@ public interface SwingUIWindowTests
                     Distance.inches(4),
                     Iterable.create(Distance.inches(5)),
                     Iterable.create(Distance.inches(4)));
+            });
+
+            runner.test("getDynamicContentSpaceWidth()", (Test test) ->
+            {
+                try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                {
+                    try (final DynamicDistance dynamicContentSpaceWidth = window.getDynamicContentSpaceWidth())
+                    {
+                        test.assertNotNull(dynamicContentSpaceWidth);
+                        test.assertEqual(window.getContentSpaceWidth(), dynamicContentSpaceWidth.get());
+
+                        final IntegerValue counter = IntegerValue.create(0);
+                        final SpinGate gate = SpinGate.create(test.getClock());
+                        dynamicContentSpaceWidth.onChanged(() ->
+                        {
+                            counter.increment();
+                            gate.open();
+                        });
+
+                        window.setWidth(Distance.inches(4));
+                        gate.passThrough(Duration.seconds(1), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
+                        test.assertEqual(window.getContentSpaceWidth(), dynamicContentSpaceWidth.get());
+                        test.assertEqual(1, counter.get());
+                    }
+                }
+            });
+
+            runner.test("getDynamicContentSpaceHeight()", (Test test) ->
+            {
+                try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                {
+                    try (final DynamicDistance dynamicContentSpaceHeight = window.getDynamicContentSpaceHeight())
+                    {
+                        test.assertNotNull(dynamicContentSpaceHeight);
+                        test.assertEqual(window.getContentSpaceHeight(), dynamicContentSpaceHeight.get());
+
+                        final IntegerValue counter = IntegerValue.create(0);
+                        final SpinGate gate = SpinGate.create(test.getClock());
+                        dynamicContentSpaceHeight.onChanged(() ->
+                        {
+                            counter.increment();
+                            gate.open();
+                        });
+
+                        window.setHeight(Distance.inches(4));
+                        gate.passThrough(Duration.seconds(1), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
+                        test.assertEqual(window.getContentSpaceHeight(), dynamicContentSpaceHeight.get());
+                        test.assertEqual(1, counter.get());
+                    }
+                }
             });
         });
     }

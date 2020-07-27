@@ -90,6 +90,16 @@ public class SwingUIElementBase extends AWTUIElementBase
         return this.getUIBase().getContentSpaceWidth(jComponent);
     }
 
+    public int getContentSpaceWidthInPixels()
+    {
+        return this.getContentSpaceWidthInPixels(this.getJComponent());
+    }
+
+    public int getContentSpaceWidthInPixels(javax.swing.JComponent jComponent)
+    {
+        return this.getUIBase().getContentSpaceWidthInPixels(jComponent);
+    }
+
     public Distance getContentSpaceHeight()
     {
         return this.getContentSpaceHeight(this.getJComponent());
@@ -98,6 +108,16 @@ public class SwingUIElementBase extends AWTUIElementBase
     public Distance getContentSpaceHeight(javax.swing.JComponent jComponent)
     {
         return this.getUIBase().getContentSpaceHeight(jComponent);
+    }
+
+    public int getContentSpaceHeightInPixels()
+    {
+        return this.getContentSpaceHeightInPixels(this.getJComponent());
+    }
+
+    public int getContentSpaceHeightInPixels(javax.swing.JComponent jComponent)
+    {
+        return this.getUIBase().getContentSpaceHeightInPixels(jComponent);
     }
 
     /**

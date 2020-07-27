@@ -3,7 +3,7 @@ package qub;
 /**
  * A measurement between two points.
  */
-public class Distance implements Comparable<Distance>
+public class Distance implements ComparableWithError<Distance>
 {
     private static final double MilesToFeet = 5280;
     private static final double FeetToInches = 12;
@@ -584,6 +584,27 @@ public class Distance implements Comparable<Distance>
     @Override
     public Comparison compareTo(Distance value)
     {
-        return value == null ? Comparison.GreaterThan : Comparison.from(getValue() - value.convertTo(getUnits()).getValue());
+        return this.compareTo(value, Distance.zero);
+    }
+
+    @Override
+    public Comparison compareTo(Distance value, Distance marginOfError)
+    {
+        PreCondition.assertNotNull(marginOfError, "marginOfError");
+
+        Comparison result;
+        if (value == null)
+        {
+            result = Comparison.GreaterThan;
+        }
+        else
+        {
+            final DistanceUnit units = this.getUnits();
+            result = Comparison.from(this.getValue() - value.convertTo(units).getValue(), marginOfError.convertTo(units).getValue());
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 }

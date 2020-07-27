@@ -9,6 +9,9 @@ public interface AWTUIElement extends UIElement
     AWTUIElement setWidth(Distance width);
 
     @Override
+    AWTUIElement setDynamicWidth(DynamicDistance dynamicWidth);
+
+    @Override
     AWTUIElement setWidthInPixels(int widthInPixels);
 
     @Override

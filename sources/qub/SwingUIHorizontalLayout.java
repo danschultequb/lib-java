@@ -44,6 +44,13 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIEleme
     }
 
     @Override
+    public SwingUIHorizontalLayout setDynamicWidth(DynamicDistance dynamicWidth)
+    {
+        this.uiElementBase.setDynamicWidth(dynamicWidth);
+        return this;
+    }
+
+    @Override
     public SwingUIHorizontalLayout setWidthInPixels(int widthInPixels)
     {
         this.uiElementBase.setWidthInPixels(widthInPixels);
@@ -169,31 +176,31 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIEleme
     @Override
     public Size2D getContentSpaceSize()
     {
-        return null;
+        return this.uiElementBase.getContentSpaceSize();
     }
 
     @Override
     public Distance getContentSpaceWidth()
     {
-        return null;
+        return this.uiElementBase.getContentSpaceWidth();
     }
 
     @Override
     public int getContentSpaceWidthInPixels()
     {
-        return 0;
+        return this.uiElementBase.getContentSpaceWidthInPixels();
     }
 
     @Override
     public Distance getContentSpaceHeight()
     {
-        return null;
+        return this.uiElementBase.getContentSpaceHeight();
     }
 
     @Override
     public int getContentSpaceHeightInPixels()
     {
-        return 0;
+        return this.uiElementBase.getContentSpaceHeightInPixels();
     }
 
     @Override

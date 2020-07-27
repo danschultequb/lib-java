@@ -417,6 +417,41 @@ public interface SwingUIVerticalLayoutTests
                     }
                     test.fail();
                 });
+
+                runner.test("with dynamic width", runner.skip(), (Test test) ->
+                {
+                    final SwingUIBuilder uiBuilder = SwingUIBuilder.create(test.getProcess());
+                    try (final SwingUIWindow window = uiBuilder.createSwingUIWindow().await())
+                    {
+                        window.setTitle(test.getFullName());
+                        window.setContentSpaceSize(Distance.inches(5), Distance.inches(3));
+
+                        final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await()
+                            .setPadding(UIPadding.create(Distance.inches(0.25)))
+                            .setWidth(Distance.inches(4));
+
+                        verticalLayout.add(uiBuilder.createUIText().await()
+                            .setText("2 Inches")
+                            .setWidth(Distance.inches(2))
+                            .setBackgroundColor(Color.red));
+
+                        verticalLayout.add(uiBuilder.createUIText().await()
+                            .setText("Dynamic Width")
+                            .setDynamicWidth(verticalLayout.getDynamicWidth())
+                            .setBackgroundColor(Color.blue));
+
+                        verticalLayout.add(uiBuilder.createUIText().await()
+                            .setText("Dynamic Content Space Width")
+                            .setDynamicWidth(verticalLayout.getDynamicContentSpaceWidth())
+                            .setBackgroundColor(Color.green));
+
+                        window.setContent(verticalLayout);
+
+                        window.setVisible(true);
+                        window.await();
+                    }
+                    test.fail();
+                });
             });
         });
     }

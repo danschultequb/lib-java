@@ -70,6 +70,30 @@ public interface UIElementTests
                 setWidthInPixelsTest.run(1);
                 setWidthInPixelsTest.run(100);
             });
+
+            runner.test("getDynamicWidth()", (Test test) ->
+            {
+                final UIElement uiElement = creator.run(test);
+
+                try (final DynamicDistance dynamicWidth = uiElement.getDynamicWidth())
+                {
+                    test.assertNotNull(dynamicWidth);
+                    test.assertEqual(uiElement.getWidth(), dynamicWidth.get());
+
+                    final IntegerValue counter = IntegerValue.create(0);
+                    final SpinGate gate = SpinGate.create(test.getClock());
+                    dynamicWidth.onChanged(() ->
+                    {
+                        counter.increment();
+                        gate.open();
+                    });
+
+                    uiElement.setWidth(Distance.inches(4));
+                    gate.passThrough(() -> test.getMainAsyncRunner().schedule(Action0.empty).await());
+                    test.assertEqual(Distance.inches(4), dynamicWidth.get());
+                    test.assertEqual(1, counter.get());
+                }
+            });
     
             runner.testGroup("setHeight(Distance)", () ->
             {
@@ -131,6 +155,28 @@ public interface UIElementTests
                 setHeightInPixelsTest.run(0);
                 setHeightInPixelsTest.run(1);
                 setHeightInPixelsTest.run(100);
+            });
+
+            runner.test("getDynamicHeight()", (Test test) ->
+            {
+                final UIElement uiElement = creator.run(test);
+
+                final DynamicDistance dynamicHeight = uiElement.getDynamicHeight();
+                test.assertNotNull(dynamicHeight);
+                test.assertEqual(uiElement.getHeight(), dynamicHeight.get());
+
+                final IntegerValue counter = IntegerValue.create(0);
+                final SpinGate gate = SpinGate.create(test.getClock());
+                dynamicHeight.onChanged(() ->
+                {
+                    counter.increment();
+                    gate.open();
+                });
+
+                uiElement.setHeight(Distance.inches(4));
+                gate.passThrough(() -> test.getMainAsyncRunner().schedule(Action0.empty).await());
+                test.assertEqual(Distance.inches(4), dynamicHeight.get());
+                test.assertEqual(1, counter.get());
             });
     
             runner.testGroup("setSize(Size2D)", () ->
@@ -243,14 +289,12 @@ public interface UIElementTests
                     final UIElement uiElement = creator.run(test);
                     final long currentThreadId = CurrentThread.getId();
                     final LongValue eventThreadId = LongValue.create();
-                    final SpinGate gate = SpinGate.create(test.getClock());
 
                     final IntegerValue value = IntegerValue.create(0);
                     final Disposable subscription = uiElement.onSizeChanged(() ->
                     {
                         eventThreadId.set(CurrentThread.getId());
                         value.increment();
-                        gate.open();
                     });
                     test.assertNotNull(subscription);
                     test.assertFalse(subscription.isDisposed());
@@ -259,19 +303,6 @@ public interface UIElementTests
 
                     uiElement.setSize(Distance.inches(10), Distance.inches(12));
 
-                    // The callback should still not have been run, even though it's now been
-                    // scheduled on the main async runner.
-                    test.assertFalse(eventThreadId.hasValue());
-                    test.assertEqual(0, value.get());
-
-                    // Force the main async runner to run all of it's scheduled tasks.
-                    gate.passThrough(Duration.seconds(1), () ->
-                    {
-                        test.getMainAsyncRunner().schedule(() -> {}).await();
-                    }).await();
-
-                    test.assertTrue(gate.isOpen());
-                    test.assertTrue(eventThreadId.hasValue());
                     test.assertEqual(currentThreadId, eventThreadId.get());
                     test.assertEqual(1, value.get());
 
@@ -280,20 +311,9 @@ public interface UIElementTests
 
                     eventThreadId.clear();
                     value.set(0);
-                    gate.close();
 
                     uiElement.setSize(Distance.inches(9), Distance.inches(11));
 
-                    // Force the main async runner to run all of it's scheduled tasks.
-                    test.assertThrows(TimeoutException.class, () ->
-                    {
-                        gate.passThrough(Duration.seconds(1), () ->
-                        {
-                            test.getMainAsyncRunner().schedule(() -> {}).await();
-                        }).await();
-                    });
-
-                    test.assertFalse(gate.isOpen());
                     test.assertFalse(eventThreadId.hasValue());
                     test.assertEqual(0, value.get());
                 });
@@ -378,6 +398,200 @@ public interface UIElementTests
                     uiElement.setPadding(UIPadding.create(Distance.inches(1)));
 
                     test.assertEqual(1, changes.get());
+                });
+            });
+
+            runner.testGroup("getContentSpaceSize()", () ->
+            {
+                runner.test("with no padding", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    uiElement.setPadding(UIPadding.zero);
+
+                    final Size2D contentSpaceSize = uiElement.getContentSpaceSize();
+                    final Size2D size = uiElement.getSize();
+                    test.assertEqual(size, contentSpaceSize);
+                });
+
+                runner.test("with padding", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    final UIPadding padding = UIPadding.create(Distance.inches(0.01));
+                    uiElement.setPadding(padding);
+
+                    final Size2D contentSpaceSize = uiElement.getContentSpaceSize();
+                    final Distance width = uiElement.getWidth();
+                    final Distance expectedWidth = width.greaterThan(padding.getWidth()) ? width.minus(padding.getWidth()) : Distance.zero;
+                    final Distance height = uiElement.getHeight();
+                    final Distance expectedHeight = height.greaterThan(padding.getHeight()) ? height.minus(padding.getHeight()) : Distance.zero;
+                    final Size2D expectedSize = Size2D.create(expectedWidth, expectedHeight);
+                    test.assertEqual(expectedSize, contentSpaceSize, Size2D.create(Distance.inches(0.00001), Distance.inches(0.00001)));
+                });
+            });
+
+            runner.testGroup("getContentSpaceWidth()", () ->
+            {
+                runner.test("with no padding", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    uiElement.setPadding(UIPadding.zero);
+
+                    final Distance contentSpaceWidth = uiElement.getContentSpaceWidth();
+                    final Distance width = uiElement.getWidth();
+                    test.assertEqual(width, contentSpaceWidth);
+                });
+
+                runner.test("with padding", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    final UIPadding padding = UIPadding.create(Distance.inches(0.01));
+                    uiElement.setPadding(padding);
+
+                    final Distance contentSpaceWidth = uiElement.getContentSpaceWidth();
+                    final Distance width = uiElement.getWidth();
+                    final Distance expectedWidth = width.greaterThan(padding.getWidth()) ? width.minus(padding.getWidth()) : Distance.zero;
+                    test.assertEqual(expectedWidth, contentSpaceWidth, Distance.inches(0.00001));
+                });
+            });
+
+            runner.test("getDynamicContentSpaceWidth()", (Test test) ->
+            {
+                final UIElement uiElement = creator.run(test);
+                uiElement.setWidth(Distance.inches(2));
+                uiElement.setPadding(UIPadding.zero);
+
+                try (final DynamicDistance dynamicContentSpaceWidth = uiElement.getDynamicContentSpaceWidth())
+                {
+                    test.assertNotNull(dynamicContentSpaceWidth);
+                    test.assertEqual(uiElement.getContentSpaceWidth(), dynamicContentSpaceWidth.get());
+
+                    final IntegerValue counter = IntegerValue.create(0);
+                    final SpinGate gate = SpinGate.create(test.getClock());
+                    dynamicContentSpaceWidth.onChanged(() ->
+                    {
+                        counter.increment();
+                        gate.open();
+                    });
+
+                    uiElement.setWidth(Distance.inches(2.5));
+                    gate.passThrough(() -> test.getMainAsyncRunner().schedule(Action0.empty).await());
+                    test.assertEqual(Distance.inches(2.5), dynamicContentSpaceWidth.get());
+                    test.assertEqual(1, counter.get());
+
+                    gate.close();
+
+                    uiElement.setPadding(UIPadding.create(Distance.inches(0.25)));
+                    gate.passThrough(() -> test.getMainAsyncRunner().schedule(Action0.empty).await());
+                    test.assertEqual(Distance.inches(2), dynamicContentSpaceWidth.get());
+                    test.assertEqual(2, counter.get());
+                }
+            });
+
+            runner.testGroup("getContentSpaceWidthInPixels()", () ->
+            {
+                runner.test("with no padding", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    uiElement.setPadding(UIPadding.zero);
+
+                    final int contentSpaceWidth = uiElement.getContentSpaceWidthInPixels();
+                    final int width = uiElement.getWidthInPixels();
+                    test.assertEqual(width, contentSpaceWidth);
+                });
+
+                runner.test("with padding", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    final UIPaddingInPixels padding = UIPaddingInPixels.create(2);
+                    uiElement.setPaddingInPixels(padding);
+
+                    final int contentSpaceWidth = uiElement.getContentSpaceWidthInPixels();
+                    final int width = uiElement.getWidthInPixels();
+                    final int expectedWidth = padding.getWidth() < width ? width - padding.getWidth() : 0;
+                    test.assertEqual(expectedWidth, contentSpaceWidth);
+                });
+            });
+
+            runner.testGroup("getContentSpaceHeight()", () ->
+            {
+                runner.test("with no padding", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    uiElement.setPadding(UIPadding.zero);
+
+                    final Distance contentSpaceHeight = uiElement.getContentSpaceHeight();
+                    final Distance width = uiElement.getHeight();
+                    test.assertEqual(width, contentSpaceHeight);
+                });
+
+                runner.test("with padding", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    final UIPadding padding = UIPadding.create(Distance.inches(0.01));
+                    uiElement.setPadding(padding);
+
+                    final Distance contentSpaceHeight = uiElement.getContentSpaceHeight();
+                    final Distance height = uiElement.getHeight();
+                    final Distance expectedHeight = height.greaterThan(padding.getHeight()) ? height.minus(padding.getHeight()) : Distance.zero;
+                    test.assertEqual(expectedHeight, contentSpaceHeight, Distance.inches(0.00001));
+                });
+            });
+
+            runner.test("getDynamicContentSpaceHeight()", (Test test) ->
+            {
+                final UIElement uiElement = creator.run(test);
+                uiElement.setHeight(Distance.inches(2));
+                uiElement.setPadding(UIPadding.zero);
+
+                try (final DynamicDistance dynamicContentSpaceHeight = uiElement.getDynamicContentSpaceHeight())
+                {
+                    test.assertNotNull(dynamicContentSpaceHeight);
+                    test.assertEqual(uiElement.getContentSpaceHeight(), dynamicContentSpaceHeight.get());
+
+                    final IntegerValue counter = IntegerValue.create(0);
+                    final SpinGate gate = SpinGate.create(test.getClock());
+                    dynamicContentSpaceHeight.onChanged(() ->
+                    {
+                        counter.increment();
+                        gate.open();
+                    });
+
+                    uiElement.setHeight(Distance.inches(2.5));
+                    gate.passThrough(() -> test.getMainAsyncRunner().schedule(Action0.empty).await());
+                    test.assertEqual(Distance.inches(2.5), dynamicContentSpaceHeight.get());
+                    test.assertEqual(1, counter.get());
+
+                    gate.close();
+
+                    uiElement.setPadding(UIPadding.create(Distance.inches(0.25)));
+                    gate.passThrough(() -> test.getMainAsyncRunner().schedule(Action0.empty).await());
+                    test.assertEqual(Distance.inches(2), dynamicContentSpaceHeight.get());
+                    test.assertEqual(2, counter.get());
+                }
+            });
+
+            runner.testGroup("getContentSpaceHeightInPixels()", () ->
+            {
+                runner.test("with no padding", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    uiElement.setPadding(UIPadding.zero);
+
+                    final int contentSpaceHeight = uiElement.getContentSpaceHeightInPixels();
+                    final int width = uiElement.getHeightInPixels();
+                    test.assertEqual(width, contentSpaceHeight);
+                });
+
+                runner.test("with padding", (Test test) ->
+                {
+                    final UIElement uiElement = creator.run(test);
+                    final UIPaddingInPixels padding = UIPaddingInPixels.create(2);
+                    uiElement.setPaddingInPixels(padding);
+
+                    final int contentSpaceHeight = uiElement.getContentSpaceHeightInPixels();
+                    final int height = uiElement.getHeightInPixels();
+                    final int expectedHeight = padding.getHeight() < height ? height - padding.getHeight() : 0;
+                    test.assertEqual(expectedHeight, contentSpaceHeight);
                 });
             });
 

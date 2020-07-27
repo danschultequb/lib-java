@@ -3,7 +3,7 @@ package qub;
 /**
  * An immutable two-dimensional size.
  */
-public interface Size2D
+public interface Size2D extends ComparableWithError<Size2D>
 {
     /**
      * An empty size.
@@ -95,5 +95,42 @@ public interface Size2D
         PreCondition.assertNotNull(size, "size");
 
         return Hash.getHashCode(size.getWidth(), size.getHeight());
+    }
+
+    @Override
+    default Comparison compareTo(Size2D value)
+    {
+        return this.compareTo(value, Size2D.zero);
+    }
+
+    default Comparison compareTo(Size2D value, Distance marginOfError)
+    {
+        PreCondition.assertNotNull(marginOfError, "marginOfError");
+
+        return this.compareTo(value, Size2D.create(marginOfError, marginOfError));
+    }
+
+    @Override
+    default Comparison compareTo(Size2D value, Size2D marginOfError)
+    {
+        PreCondition.assertNotNull(marginOfError, "marginOfError");
+
+        Comparison result;
+        if (value == null)
+        {
+            result = Comparison.GreaterThan;
+        }
+        else
+        {
+            result = this.getWidth().compareTo(value.getWidth(), marginOfError.getWidth());
+            if (result == Comparison.Equal)
+            {
+                result = this.getHeight().compareTo(value.getHeight(), marginOfError.getHeight());
+            }
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 }

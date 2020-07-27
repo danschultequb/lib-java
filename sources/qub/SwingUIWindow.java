@@ -1,5 +1,7 @@
 package qub;
 
+import java.awt.event.ComponentEvent;
+
 public class SwingUIWindow implements UIWindow
 {
     private final AWTUIElementBase uiElementBase;

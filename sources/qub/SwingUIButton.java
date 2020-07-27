@@ -45,6 +45,13 @@ public class SwingUIButton implements UIButton, SwingUIElement
     }
 
     @Override
+    public SwingUIButton setDynamicWidth(DynamicDistance dynamicWidth)
+    {
+        this.uiElementBase.setDynamicWidth(dynamicWidth);
+        return this;
+    }
+
+    @Override
     public SwingUIButton setWidthInPixels(int widthInPixels)
     {
         this.uiElementBase.setWidthInPixels(widthInPixels);
@@ -182,19 +189,19 @@ public class SwingUIButton implements UIButton, SwingUIElement
     @Override
     public int getContentSpaceWidthInPixels()
     {
-        return 0;
+        return this.uiElementBase.getContentSpaceWidthInPixels();
     }
 
     @Override
     public Distance getContentSpaceHeight()
     {
-        return null;
+        return this.uiElementBase.getContentSpaceHeight();
     }
 
     @Override
     public int getContentSpaceHeightInPixels()
     {
-        return 0;
+        return this.uiElementBase.getContentSpaceHeightInPixels();
     }
 
     @Override

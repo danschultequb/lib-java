@@ -52,6 +52,15 @@ public interface UIWindow extends Disposable
     Distance getWidth();
 
     /**
+     * Get the dynamic width of this UIWindow.
+     * @return The dynamic width of this UIWindow.
+     */
+    default DynamicDistance getDynamicWidth()
+    {
+        return DynamicDistance.create(this::getWidth, this::onSizeChanged);
+    }
+
+    /**
      * Get the width of this UIWindow in pixels.
      * @return The width of this UIWindow in pixels;
      */
@@ -76,6 +85,15 @@ public interface UIWindow extends Disposable
      * @return The height of this UIWindow.
      */
     Distance getHeight();
+
+    /**
+     * Get the dynamic height of this UIWindow.
+     * @return The dynamic height of this UIWindow.
+     */
+    default DynamicDistance getDynamicHeight()
+    {
+        return DynamicDistance.create(this::getHeight, this::onSizeChanged);
+    }
 
     /**
      * Get the height of this UIWindow in pixels.
@@ -144,6 +162,15 @@ public interface UIWindow extends Disposable
     Distance getContentSpaceWidth();
 
     /**
+     * Get the dynamic content space width of this UIWindow.
+     * @return The dynamic content space width of this UIWindow.
+     */
+    default DynamicDistance getDynamicContentSpaceWidth()
+    {
+        return DynamicDistance.create(this::getContentSpaceWidth, this::onSizeChanged);
+    }
+
+    /**
      * Get the width of the space available for the content of this UIWindow in pixels.
      * @return The width of the space available for the content of this UIWindow in pixels.
      */
@@ -154,6 +181,15 @@ public interface UIWindow extends Disposable
      * @return The height of the space available for the content of this UIWindow.
      */
     Distance getContentSpaceHeight();
+
+    /**
+     * Get the dynamic content space height of this UIWindow.
+     * @return The dynamic content space height of this UIWindow.
+     */
+    default DynamicDistance getDynamicContentSpaceHeight()
+    {
+        return DynamicDistance.create(this::getContentSpaceHeight, this::onSizeChanged);
+    }
 
     /**
      * Get the height of the space available for the content of this UIWindow in pixels.

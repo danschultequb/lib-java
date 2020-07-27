@@ -9,6 +9,9 @@ public interface SwingUIElement extends AWTUIElement
     SwingUIElement setWidth(Distance width);
 
     @Override
+    SwingUIElement setDynamicWidth(DynamicDistance dynamicWidth);
+
+    @Override
     SwingUIElement setWidthInPixels(int widthInPixels);
 
     @Override

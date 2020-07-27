@@ -4,7 +4,7 @@ package qub;
  * A Type that can only be read from.
  * @param <T> The type of value that can be read.
  */
-public interface Getable<T>
+public interface Getter<T>
 {
     /**
      * Get whether or not this object has a value.

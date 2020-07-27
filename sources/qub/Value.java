@@ -4,7 +4,7 @@ package qub;
  * A wrapper around a value of type T.
  * @param <T> The type of the inner value.
  */
-public interface Value<T> extends Getable<T>, Setable<T>
+public interface Value<T> extends Getter<T>, Setter<T>
 {
     /**
      * Create a new Value object that stores the provided type.

@@ -41,6 +41,13 @@ public class SwingUIText implements UIText, SwingUIElement
     }
 
     @Override
+    public SwingUIText setDynamicWidth(DynamicDistance dynamicWidth)
+    {
+        this.uiElementBase.setDynamicWidth(dynamicWidth);
+        return this;
+    }
+
+    @Override
     public SwingUIText setWidthInPixels(int widthInPixels)
     {
         this.uiElementBase.setWidthInPixels(widthInPixels);
@@ -153,31 +160,31 @@ public class SwingUIText implements UIText, SwingUIElement
     @Override
     public Size2D getContentSpaceSize()
     {
-        return null;
+        return this.uiElementBase.getContentSpaceSize();
     }
 
     @Override
     public Distance getContentSpaceWidth()
     {
-        return null;
+        return this.uiElementBase.getContentSpaceWidth();
     }
 
     @Override
     public int getContentSpaceWidthInPixels()
     {
-        return 0;
+        return this.uiElementBase.getContentSpaceWidthInPixels();
     }
 
     @Override
     public Distance getContentSpaceHeight()
     {
-        return null;
+        return this.uiElementBase.getContentSpaceHeight();
     }
 
     @Override
     public int getContentSpaceHeightInPixels()
     {
-        return 0;
+        return this.uiElementBase.getContentSpaceHeightInPixels();
     }
 
     @Override

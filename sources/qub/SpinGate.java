@@ -122,7 +122,7 @@ public class SpinGate implements Gate
         PreCondition.assertNotNull(onWait, "onWait");
 
         final DateTime dateTimeTimeout = this.getClock().getCurrentDateTime().plus(timeout);
-        return passThrough(dateTimeTimeout, onWait);
+        return this.passThrough(dateTimeTimeout, onWait);
     }
 
     @Override
@@ -141,30 +141,28 @@ public class SpinGate implements Gate
     public Result<Void> passThrough(DateTime timeout, Action0 onWait)
     {
         PreCondition.assertNotNull(timeout, "timeout");
-        PreCondition.assertNotNull(getClock(), "getClock()");
+        PreCondition.assertNotNull(this.getClock(), "getClock()");
         PreCondition.assertNotNull(onWait, "onWait");
 
-        final Clock clock = getClock();
-        Result<Void> result = null;
-        while (result == null)
+        final Clock clock = this.getClock();
+        return Result.create(() ->
         {
-            if (timeout.lessThanOrEqualTo(clock.getCurrentDateTime()))
+            while (true)
             {
-                result = Result.error(new TimeoutException());
+                if (timeout.lessThanOrEqualTo(clock.getCurrentDateTime()))
+                {
+                    throw new TimeoutException();
+                }
+                else if (open.get())
+                {
+                    break;
+                }
+                else
+                {
+                    onWait.run();
+                    java.lang.Thread.yield();
+                }
             }
-            else if (open.get())
-            {
-                result = Result.success();
-            }
-            else
-            {
-                onWait.run();
-                java.lang.Thread.yield();
-            }
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        });
     }
 }

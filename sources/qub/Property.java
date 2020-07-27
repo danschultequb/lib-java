@@ -4,7 +4,7 @@ package qub;
  * An immutable property.
  * @param <T> The type of value that this property holds.
  */
-public interface Property<T> extends Getable<T>, Event1<T>, Event2<T,T>
+public interface Property<T> extends Getter<T>, Event1<T>, Event2<T,T>
 {
     /**
      * Create a new Value object that stores the provided type.
