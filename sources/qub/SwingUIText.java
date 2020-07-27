@@ -8,7 +8,7 @@ public class SwingUIText implements UIText, SwingUIElement
     private final SwingUIElementBase uiElementBase;
     private final javax.swing.JLabel jLabel;
 
-    private SwingUIText(SwingUIBase uiBase)
+    private SwingUIText(AWTUIBase uiBase)
     {
         PreCondition.assertNotNull(uiBase, "uiBase");
 
@@ -16,7 +16,7 @@ public class SwingUIText implements UIText, SwingUIElement
         this.uiElementBase = new SwingUIElementBase(uiBase, this.jLabel);
     }
 
-    public static SwingUIText create(SwingUIBase base)
+    public static SwingUIText create(AWTUIBase base)
     {
         return new SwingUIText(base);
     }

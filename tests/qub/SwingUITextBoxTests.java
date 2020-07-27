@@ -5,7 +5,7 @@ public interface SwingUITextBoxTests
     static SwingUITextBox createUITextBox(Test test)
     {
         final Display display = new Display(1000, 1000, 100, 100);
-        final SwingUIBase uiBase = SwingUIBase.create(display, test.getMainAsyncRunner(), test.getParallelAsyncRunner());
+        final AWTUIBase uiBase = AWTUIBase.create(display, test.getMainAsyncRunner(), test.getParallelAsyncRunner());
         final SwingUIBuilder uiBuilder = SwingUIBuilder.create(uiBase);
         return uiBuilder.create(SwingUITextBox.class).await();
     }
@@ -21,7 +21,7 @@ public interface SwingUITextBoxTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> SwingUITextBox.create((SwingUIBase)null),
+                    test.assertThrows(() -> SwingUITextBox.create((AWTUIBase)null),
                         new PreConditionFailure("uiBase cannot be null."));
                 });
 

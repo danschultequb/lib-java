@@ -2,15 +2,15 @@ package qub;
 
 public interface SwingUITextTests
 {
-    static SwingUIBase createUIBase(Test test)
+    static AWTUIBase createUIBase(Test test)
     {
         final Display display = new Display(1000, 1000, 100, 100);
-        return SwingUIBase.create(display, test.getMainAsyncRunner(), test.getParallelAsyncRunner());
+        return AWTUIBase.create(display, test.getMainAsyncRunner(), test.getParallelAsyncRunner());
     }
 
     static SwingUIBuilder createUIBuilder(Test test)
     {
-        final SwingUIBase uiBase = SwingUIVerticalLayoutTests.createUIBase(test);
+        final AWTUIBase uiBase = SwingUITextTests.createUIBase(test);
         return SwingUIBuilder.create(uiBase);
     }
     
@@ -31,13 +31,13 @@ public interface SwingUITextTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> SwingUIText.create((SwingUIBase)null),
+                    test.assertThrows(() -> SwingUIText.create((AWTUIBase)null),
                         new PreConditionFailure("uiBase cannot be null."));
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final SwingUIBase uiBase = SwingUITextTests.createUIBase(test);
+                    final AWTUIBase uiBase = SwingUITextTests.createUIBase(test);
                     final SwingUIText text = SwingUIText.create(uiBase);
                     test.assertNotNull(text);
                     test.assertEqual(Distance.zero, text.getWidth());

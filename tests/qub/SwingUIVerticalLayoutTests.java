@@ -2,15 +2,15 @@ package qub;
 
 public interface SwingUIVerticalLayoutTests
 {
-    static SwingUIBase createUIBase(Test test)
+    static AWTUIBase createUIBase(Test test)
     {
         final Display display = new Display(1000, 1000, 100, 100);
-        return SwingUIBase.create(display, test.getMainAsyncRunner(), test.getParallelAsyncRunner());
+        return AWTUIBase.create(display, test.getMainAsyncRunner(), test.getParallelAsyncRunner());
     }
 
     static SwingUIBuilder createUIBuilder(Test test)
     {
-        final SwingUIBase uiBase = SwingUIVerticalLayoutTests.createUIBase(test);
+        final AWTUIBase uiBase = SwingUIVerticalLayoutTests.createUIBase(test);
         return SwingUIBuilder.create(uiBase);
     }
 
@@ -37,7 +37,7 @@ public interface SwingUIVerticalLayoutTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final SwingUIBase uiBase = SwingUIVerticalLayoutTests.createUIBase(test);
+                    final AWTUIBase uiBase = SwingUIVerticalLayoutTests.createUIBase(test);
                     final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayout.create(uiBase);
                     test.assertNotNull(verticalLayout);
                     test.assertEqual(Distance.zero, verticalLayout.getWidth());

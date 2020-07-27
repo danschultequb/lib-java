@@ -12,13 +12,13 @@ public interface SwingUIBuilderTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> SwingUIBuilder.create((SwingUIBase)null),
+                    test.assertThrows(() -> SwingUIBuilder.create((AWTUIBase)null),
                         new PreConditionFailure("uiBase cannot be null."));
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final SwingUIBase uiBase = SwingUIBase.create(test.getDisplays().first(), test.getMainAsyncRunner(), test.getParallelAsyncRunner());
+                    final AWTUIBase uiBase = AWTUIBase.create(test.getDisplays().first(), test.getMainAsyncRunner(), test.getParallelAsyncRunner());
                     final SwingUIBuilder uiBuilder = SwingUIBuilder.create(uiBase);
                     test.assertNotNull(uiBuilder);
                 });
@@ -44,14 +44,14 @@ public interface SwingUIBuilderTests
                 runner.test("with null type", (Test test) ->
                 {
                     final SwingUIBuilder uiBuilder = SwingUIBuilder.create(test.getProcess());
-                    test.assertThrows(() -> uiBuilder.setCreator((Class<UIElement>)null, (SwingUIBase uiBase) -> SwingUIButton.create(uiBase)),
+                    test.assertThrows(() -> uiBuilder.setCreator((Class<UIElement>)null, (AWTUIBase uiBase) -> SwingUIButton.create(uiBase)),
                         new PreConditionFailure("uiType cannot be null."));
                 });
 
                 runner.test("with null type", (Test test) ->
                 {
                     final SwingUIBuilder uiBuilder = SwingUIBuilder.create(test.getProcess());
-                    test.assertThrows(() -> uiBuilder.setCreator((Class<UIElement>)null, (SwingUIBase uiBase) -> SwingUIButton.create(uiBase)),
+                    test.assertThrows(() -> uiBuilder.setCreator((Class<UIElement>)null, (AWTUIBase uiBase) -> SwingUIButton.create(uiBase)),
                         new PreConditionFailure("uiType cannot be null."));
                 });
             });

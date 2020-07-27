@@ -1,6 +1,6 @@
 package qub;
 
-public abstract class UIBase
+public class UIBase
 {
     private final Display display;
     private final AsyncRunner mainAsyncRunner;
@@ -12,6 +12,16 @@ public abstract class UIBase
 
         this.display = display;
         this.mainAsyncRunner = mainAsyncRunner;
+    }
+
+    public static UIBase create(Display display, AsyncRunner mainAsyncRunner)
+    {
+        return new UIBase(display, mainAsyncRunner);
+    }
+
+    public static UIBase create(Process process)
+    {
+        return UIBase.create(process.getDisplays().first(), process.getMainAsyncRunner());
     }
 
     public Result<Void> scheduleAsyncTask(Action0 action)

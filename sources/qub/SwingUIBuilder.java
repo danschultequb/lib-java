@@ -5,9 +5,9 @@ package qub;
  */
 public class SwingUIBuilder extends BasicUIBuilder
 {
-    private final SwingUIBase uiBase;
+    private final AWTUIBase uiBase;
 
-    private SwingUIBuilder(SwingUIBase uiBase)
+    private SwingUIBuilder(AWTUIBase uiBase)
     {
         PreCondition.assertNotNull(uiBase, "uiBase");
 
@@ -26,11 +26,11 @@ public class SwingUIBuilder extends BasicUIBuilder
         PreCondition.assertNotNull(mainAsyncRunner, "mainAsyncRunner");
         PreCondition.assertNotNull(parallelAsyncRunner, "parallelAsyncRunner");
 
-        final SwingUIBase uiBase = SwingUIBase.create(display, mainAsyncRunner, parallelAsyncRunner);
+        final AWTUIBase uiBase = AWTUIBase.create(display, mainAsyncRunner, parallelAsyncRunner);
         return SwingUIBuilder.create(uiBase);
     }
 
-    public static SwingUIBuilder create(SwingUIBase uiBase)
+    public static SwingUIBuilder create(AWTUIBase uiBase)
     {
         return new SwingUIBuilder(uiBase);
     }
@@ -39,7 +39,7 @@ public class SwingUIBuilder extends BasicUIBuilder
     {
         PreCondition.assertNotNull(process, "process");
 
-        return SwingUIBuilder.create(SwingUIBase.create(process));
+        return SwingUIBuilder.create(AWTUIBase.create(process));
     }
 
     /**
@@ -50,7 +50,7 @@ public class SwingUIBuilder extends BasicUIBuilder
      * @param <T>The type that will be created.
      * @return This object for method chaining.
      */
-    public <U extends UIElement, T extends U> SwingUIBuilder setCreator(Class<? extends U> uiType, Function1<SwingUIBase,T> uiCreator)
+    public <U extends UIElement, T extends U> SwingUIBuilder setCreator(Class<? extends U> uiType, Function1<AWTUIBase,T> uiCreator)
     {
         PreCondition.assertNotNull(uiType, "uiType");
         PreCondition.assertNotNull(uiCreator, "uiType");
@@ -66,7 +66,7 @@ public class SwingUIBuilder extends BasicUIBuilder
      * @param <T>The type that will be created.
      * @return This object for method chaining.
      */
-    public <U extends UIElement, T extends U> SwingUIBuilder setCreator(Iterable<Class<? extends U>> uiTypes, Function1<SwingUIBase,T> uiCreator)
+    public <U extends UIElement, T extends U> SwingUIBuilder setCreator(Iterable<Class<? extends U>> uiTypes, Function1<AWTUIBase,T> uiCreator)
     {
         PreCondition.assertNotNull(uiTypes, "uiTypes");
         PreCondition.assertNotNull(uiCreator, "uiType");

@@ -4,17 +4,11 @@ public class SwingUIElementBase extends AWTUIElementBase
 {
     private final RunnableEvent0 paddingChanged;
 
-    public SwingUIElementBase(SwingUIBase uiBase, javax.swing.JComponent jComponent)
+    public SwingUIElementBase(AWTUIBase uiBase, javax.swing.JComponent jComponent)
     {
         super(uiBase, jComponent);
 
         this.paddingChanged = Event0.create();
-    }
-
-    @Override
-    protected SwingUIBase getUIBase()
-    {
-        return (SwingUIBase)super.getUIBase();
     }
 
     @Override
@@ -28,16 +22,36 @@ public class SwingUIElementBase extends AWTUIElementBase
         return this.getComponent();
     }
 
+    /**
+     * Get the padding of this SwingUIElementBase's JComponent.
+     * @return The padding of this SwingUIElementBase's JComponent.
+     */
     public UIPadding getPadding()
     {
-        return this.getUIBase().getPadding(this.getJComponent());
+        final UIPaddingInPixels paddingInPixels = this.getPaddingInPixels();
+        final UIPadding result = this.getUIBase().convertUIPaddingInPixelsToUIPadding(paddingInPixels);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
+    /**
+     * Get the padding of this SwingUIElementBase's JComponent in pixels.
+     * @return The padding of this SwingUIElementBase's JComponent in pixels.
+     */
     public UIPaddingInPixels getPaddingInPixels()
     {
-        return this.getUIBase().getPaddingInPixels(this.getJComponent());
+        final javax.swing.JComponent jComponent = this.getJComponent();
+        final java.awt.Insets insets = jComponent.getInsets();
+        return UIPaddingInPixels.create(insets.left, insets.top, insets.right, insets.bottom);
     }
 
+    /**
+     * Set the padding of this SwingUIElementBase's JComponent.
+     * @param padding The padding of this SwingUIElementBase's JComponent.
+     * @return This object for method chaining.
+     */
     public SwingUIElementBase setPadding(UIPadding padding)
     {
         PreCondition.assertNotNull(padding, "padding");
@@ -45,14 +59,25 @@ public class SwingUIElementBase extends AWTUIElementBase
         return this.setPaddingInPixels(this.getUIBase().convertUIPaddingToUIPaddingInPixels(padding));
     }
 
+    /**
+     * Set the padding of this SwingUIElementBase's JComponent in pixels.
+     * @param padding The padding of this SwingUIElementBase's JComponent in pixels.
+     * @return This object for method chaining.
+     */
     public SwingUIElementBase setPaddingInPixels(UIPaddingInPixels padding)
     {
-        final SwingUIBase uiBase = this.getUIBase();
+        PreCondition.assertNotNull(padding, "padding");
+
         final javax.swing.JComponent jComponent = this.getJComponent();
-        final UIPaddingInPixels oldPadding = uiBase.getPaddingInPixels(jComponent);
+        final UIPaddingInPixels oldPadding = this.getPaddingInPixels();
         if (!oldPadding.equals(padding))
         {
-            uiBase.setPaddingInPixels(jComponent, padding);
+            final javax.swing.border.Border border = javax.swing.BorderFactory.createEmptyBorder(
+                padding.getTop(),
+                padding.getLeft(),
+                padding.getBottom(),
+                padding.getRight());
+            jComponent.setBorder(border);
             this.paddingChanged.run();
         }
         return this;
@@ -70,54 +95,191 @@ public class SwingUIElementBase extends AWTUIElementBase
         return this.paddingChanged.subscribe(callback);
     }
 
+    /**
+     * Get the space that is available for content (size minus padding) for this
+     * SwingUIElementBase's JComponent.
+     * @return The space that is available for content (size minus padding) for this
+     * SwingUIElementBase's JComponent.
+     */
     public Size2D getContentSpaceSize()
     {
         return this.getContentSpaceSize(this.getJComponent());
     }
 
+    /**
+     * Get the space that is available for content (size minus padding) for the provided
+     * JComponent.
+     * @return The space that is available for content (size minus padding) for the provided
+     * JComponent.
+     */
     public Size2D getContentSpaceSize(javax.swing.JComponent jComponent)
     {
-        return this.getUIBase().getContentSpaceSize(jComponent);
+        PreCondition.assertNotNull(jComponent, "jComponent");
+
+        final java.awt.Insets insets = jComponent.getInsets();
+        final int paddingWidth = insets.left + insets.right;
+        final int paddingHeight = insets.top + insets.bottom;
+        final int jComponentWidth = jComponent.getWidth();
+        final int jComponentHeight = jComponent.getHeight();
+
+        final UIBase uiBase = this.getUIBase();
+
+        Size2D result;
+        if (jComponentWidth < paddingWidth)
+        {
+            if (jComponentHeight < paddingHeight)
+            {
+                result = Size2D.zero;
+            }
+            else
+            {
+                result = Size2D.create(Distance.zero, uiBase.convertVerticalPixelsToDistance(jComponentHeight - paddingHeight));
+            }
+        }
+        else
+        {
+            final Distance contentSpaceWidth = uiBase.convertHorizontalPixelsToDistance(jComponentWidth - paddingWidth);
+            if (jComponentHeight < paddingHeight)
+            {
+                result = Size2D.create(contentSpaceWidth, Distance.zero);
+            }
+            else
+            {
+                result = Size2D.create(contentSpaceWidth, uiBase.convertVerticalPixelsToDistance(jComponentHeight - paddingHeight));
+            }
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
+    /**
+     * Get the width that is available for content (width minus padding width) for this
+     * SwingUIElementBase's JComponent.
+     * @return The width that is available for content (width minus padding width) for this
+     * SwingUIElementBase's JComponent.
+     */
     public Distance getContentSpaceWidth()
     {
         return this.getContentSpaceWidth(this.getJComponent());
     }
 
+    /**
+     * Get the width that is available for content (width minus padding width) for the provided
+     * JComponent.
+     * @return The width that is available for content (width minus padding width) for the provided
+     * JComponent.
+     */
     public Distance getContentSpaceWidth(javax.swing.JComponent jComponent)
     {
-        return this.getUIBase().getContentSpaceWidth(jComponent);
+        PreCondition.assertNotNull(jComponent, "jComponent");
+
+        final int contentSpaceWidthInPixels = this.getContentSpaceWidthInPixels(jComponent);
+        final UIBase uiBase = this.getUIBase();
+        final Distance result = contentSpaceWidthInPixels == 0
+            ? Distance.zero
+            : uiBase.convertHorizontalPixelsToDistance(contentSpaceWidthInPixels);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
+    /**
+     * Get the width that is available for content (width minus padding width) for this
+     * SwingUIElementBase's JComponent in pixels.
+     * @return The width that is available for content (width minus padding width) for this
+     * SwingUIElementBase's JComponent in pixels.
+     */
     public int getContentSpaceWidthInPixels()
     {
         return this.getContentSpaceWidthInPixels(this.getJComponent());
     }
 
+    /**
+     * Get the width that is available for content (width minus padding width) for the provided
+     * JComponent in pixels.
+     * @return The width that is available for content (width minus padding width) for the provided
+     * JComponent in pixels.
+     */
     public int getContentSpaceWidthInPixels(javax.swing.JComponent jComponent)
     {
-        return this.getUIBase().getContentSpaceWidthInPixels(jComponent);
+        PreCondition.assertNotNull(jComponent, "jComponent");
+
+        final java.awt.Insets insets = jComponent.getInsets();
+        final int paddingWidth = insets.left + insets.right;
+        final int jComponentWidth = jComponent.getWidth();
+
+        final int result = jComponentWidth < paddingWidth ? 0 : jComponentWidth - paddingWidth;
+
+        PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
+
+        return result;
     }
 
+    /**
+     * Get the height that is available for content (height minus padding height) for this
+     * SwingUIElementBase's JComponent.
+     * @return The height that is available for content (height minus padding height) for this
+     * SwingUIElementBase's JComponent.
+     */
     public Distance getContentSpaceHeight()
     {
         return this.getContentSpaceHeight(this.getJComponent());
     }
 
+    /**
+     * Get the height that is available for content (height minus padding height) for the provided
+     * JComponent.
+     * @return The height that is available for content (height minus padding height) for the
+     * provided JComponent.
+     */
     public Distance getContentSpaceHeight(javax.swing.JComponent jComponent)
     {
-        return this.getUIBase().getContentSpaceHeight(jComponent);
+        PreCondition.assertNotNull(jComponent, "jComponent");
+
+        final int contentSpaceHeightInPixels = this.getContentSpaceHeightInPixels(jComponent);
+        final UIBase uiBase = this.getUIBase();
+        final Distance result = contentSpaceHeightInPixels == 0
+            ? Distance.zero
+            : uiBase.convertVerticalPixelsToDistance(contentSpaceHeightInPixels);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
+    /**
+     * Get the height that is available for content (height minus padding height) for this
+     * SwingUIElementBase's JComponent in pixels.
+     * @return The height that is available for content (height minus padding height) for this
+     * SwingUIElementBase's JComponent in pixels.
+     */
     public int getContentSpaceHeightInPixels()
     {
         return this.getContentSpaceHeightInPixels(this.getJComponent());
     }
 
+    /**
+     * Get the height that is available for content (height minus padding height) for the provided
+     * JComponent in pixels.
+     * @return The height that is available for content (height minus padding height) for the
+     * provided JComponent in pixels.
+     */
     public int getContentSpaceHeightInPixels(javax.swing.JComponent jComponent)
     {
-        return this.getUIBase().getContentSpaceHeightInPixels(jComponent);
+        PreCondition.assertNotNull(jComponent, "jComponent");
+
+        final java.awt.Insets insets = jComponent.getInsets();
+        final int paddingHeight = insets.top + insets.bottom;
+        final int jComponentHeight = jComponent.getHeight();
+
+        final int result = jComponentHeight < paddingHeight ? 0 : jComponentHeight - paddingHeight;
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     /**
@@ -129,6 +291,42 @@ public class SwingUIElementBase extends AWTUIElementBase
      */
     public Disposable onTextChanged(javax.swing.text.JTextComponent jTextComponent, Action1<String> callback)
     {
-        return this.getUIBase().onTextChanged(jTextComponent, callback);
+        PreCondition.assertNotNull(jTextComponent, "jTextComponent");
+        PreCondition.assertNotNull(callback, "callback");
+
+        final javax.swing.event.DocumentListener documentListener = new javax.swing.event.DocumentListener()
+        {
+
+            @Override
+            public void insertUpdate(javax.swing.event.DocumentEvent e)
+            {
+                callback.run(jTextComponent.getText());
+            }
+
+            @Override
+            public void removeUpdate(javax.swing.event.DocumentEvent e)
+            {
+                callback.run(jTextComponent.getText());
+            }
+
+            @Override
+            public void changedUpdate(javax.swing.event.DocumentEvent e)
+            {
+                callback.run(jTextComponent.getText());
+            }
+        };
+        jTextComponent.getDocument().addDocumentListener(documentListener);
+        return Disposable.create(() -> jTextComponent.getDocument().removeDocumentListener(documentListener));
+    }
+
+    @Override
+    public SwingUIElementBase setBackgroundColor(Color backgroundColor)
+    {
+        super.setBackgroundColor(backgroundColor);
+
+        final javax.swing.JComponent jComponent = this.getJComponent();
+        jComponent.setOpaque(backgroundColor.getAlphaComponent() != Color.ComponentMin);
+
+        return this;
     }
 }

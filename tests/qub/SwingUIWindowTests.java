@@ -9,7 +9,7 @@ public interface SwingUIWindowTests
         final Display display = new Display(1000, 1000, 100, 100);
         final AsyncRunner mainAsyncRunner = test.getMainAsyncRunner();
         final AsyncScheduler parallelAsyncRunner = test.getParallelAsyncRunner();
-        final SwingUIBase uiBase = SwingUIBase.create(display, mainAsyncRunner, parallelAsyncRunner);
+        final AWTUIBase uiBase = AWTUIBase.create(display, mainAsyncRunner, parallelAsyncRunner);
         final SwingUIBuilder result = SwingUIBuilder.create(uiBase);
         
         PostCondition.assertNotNull(result, "result");

@@ -2,12 +2,12 @@ package qub;
 
 public interface SwingUIButtonTests
 {
-    static SwingUIBase createUIBase(Test test)
+    static AWTUIBase createUIBase(Test test)
     {
         PreCondition.assertNotNull(test, "test");
 
         final Display display = new Display(1000, 1000, 100, 100);
-        final SwingUIBase result = SwingUIBase.create(display, test.getMainAsyncRunner(), test.getParallelAsyncRunner());
+        final AWTUIBase result = AWTUIBase.create(display, test.getMainAsyncRunner(), test.getParallelAsyncRunner());
 
         PostCondition.assertNotNull(result, "result");
 
@@ -18,7 +18,7 @@ public interface SwingUIButtonTests
     {
         PreCondition.assertNotNull(test, "test");
 
-        final SwingUIBase uiBase = SwingUIButtonTests.createUIBase(test);
+        final AWTUIBase uiBase = SwingUIButtonTests.createUIBase(test);
         final SwingUIBuilder result = SwingUIBuilder.create(uiBase);
 
         PostCondition.assertNotNull(result, "result");
@@ -53,7 +53,7 @@ public interface SwingUIButtonTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final SwingUIBase uiBase = SwingUIButtonTests.createUIBase(test);
+                    final AWTUIBase uiBase = SwingUIButtonTests.createUIBase(test);
                     final SwingUIButton uiButton = SwingUIButton.create(uiBase);
                     test.assertNotNull(uiButton);
                     test.assertEqual(Distance.inches(0.34), uiButton.getWidth());

@@ -8,7 +8,7 @@ public class SwingUIButton implements UIButton, SwingUIElement
     private final SwingUIElementBase uiElementBase;
     private final javax.swing.JButton jButton;
 
-    private SwingUIButton(SwingUIBase uiBase)
+    private SwingUIButton(AWTUIBase uiBase)
     {
         PreCondition.assertNotNull(uiBase, "uiBase");
 
@@ -20,7 +20,7 @@ public class SwingUIButton implements UIButton, SwingUIElement
      * Create a new SwingUIButton.
      * @return The new SwingUIButton.
      */
-    public static SwingUIButton create(SwingUIBase base)
+    public static SwingUIButton create(AWTUIBase base)
     {
         return new SwingUIButton(base);
     }

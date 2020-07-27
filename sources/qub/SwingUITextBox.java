@@ -8,7 +8,7 @@ public class SwingUITextBox implements UITextBox, SwingUIElement
     private final SwingUIElementBase uiElementBase;
     private final javax.swing.JTextField jTextField;
 
-    private SwingUITextBox(SwingUIBase uiBase)
+    private SwingUITextBox(AWTUIBase uiBase)
     {
         PreCondition.assertNotNull(uiBase, "uiBase");
 
@@ -20,7 +20,7 @@ public class SwingUITextBox implements UITextBox, SwingUIElement
      * Create a new SwingUITextBox.
      * @return The new SwingUITextBox.
      */
-    public static SwingUITextBox create(SwingUIBase base)
+    public static SwingUITextBox create(AWTUIBase base)
     {
         return new SwingUITextBox(base);
     }

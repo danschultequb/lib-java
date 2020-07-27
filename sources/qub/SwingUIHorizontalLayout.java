@@ -9,7 +9,7 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIEleme
     private final SwingUIElementBase uiElementBase;
     private final List<AWTUIElement> elements;
 
-    private SwingUIHorizontalLayout(SwingUIBase uiBase)
+    private SwingUIHorizontalLayout(AWTUIBase uiBase)
     {
         PreCondition.assertNotNull(uiBase, "uiBase");
 
@@ -19,7 +19,7 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIEleme
         this.elements = List.create();
     }
 
-    public static SwingUIHorizontalLayout create(SwingUIBase uiBase)
+    public static SwingUIHorizontalLayout create(AWTUIBase uiBase)
     {
         return new SwingUIHorizontalLayout(uiBase);
     }

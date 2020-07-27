@@ -11,7 +11,7 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     private HorizontalAlignment elementHorizontalAlignment;
     private VerticalAlignment elementVerticalAlignment;
 
-    private SwingUIVerticalLayout(SwingUIBase uiBase)
+    private SwingUIVerticalLayout(AWTUIBase uiBase)
     {
         PreCondition.assertNotNull(uiBase, "uiBase");
 
@@ -28,7 +28,7 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
         });
     }
 
-    public static SwingUIVerticalLayout create(SwingUIBase uiBase)
+    public static SwingUIVerticalLayout create(AWTUIBase uiBase)
     {
         return new SwingUIVerticalLayout(uiBase);
     }

@@ -11,7 +11,7 @@ public interface BasicDynamicDistanceTests
             DynamicDistanceTests.test(runner, (Test test) ->
             {
                 final Display fakeDisplay = new Display(1000, 1000, 100, 100);
-                final SwingUIBase uiBase = SwingUIBase.create(fakeDisplay, test.getMainAsyncRunner(), test.getParallelAsyncRunner());
+                final AWTUIBase uiBase = AWTUIBase.create(fakeDisplay, test.getMainAsyncRunner(), test.getParallelAsyncRunner());
                 final SwingUIBuilder uiBuilder = SwingUIBuilder.create(uiBase);
                 final UIButton uiButton = uiBuilder.createUIButton().await();
                 return BasicDynamicDistance.create(uiButton::getWidth, uiButton::onSizeChanged);
