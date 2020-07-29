@@ -56,8 +56,8 @@ public class SwingUIWindow implements UIWindow
             {
             }
         });
-        this.disposedTask = uiBase.createPausedAsyncTask();
         this.uiElementBase = new AWTUIElementBase(uiBase, this.jFrame);
+        this.disposedTask = uiBase.createPausedAsyncTask();
     }
 
     public static SwingUIWindow create(AWTUIBase base)

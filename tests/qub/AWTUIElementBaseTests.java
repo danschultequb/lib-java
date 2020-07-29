@@ -1,38 +1,43 @@
 package qub;
 
-public interface AWTUIBaseTests
+public interface AWTUIElementBaseTests
 {
     static void test(TestRunner runner)
     {
-        runner.testGroup(AWTUIBase.class, () ->
+        runner.testGroup(AWTUIElementBase.class, () ->
         {
             runner.testGroup("onSizeChanged(java.awt.Component,Action0)", () ->
             {
                 runner.test("with null component", (Test test) ->
                 {
                     final AWTUIBase uiBase = AWTUIBase.create(test.getProcess());
-                    final java.awt.Component component = null;
+                    final javax.swing.JButton jButton = new javax.swing.JButton();
+                    final AWTUIElementBase uiElementBase = new AWTUIElementBase(uiBase, jButton);
                     final Action0 callback = () -> {};
-                    test.assertThrows(() -> uiBase.onSizeChanged(component, callback),
+                    test.assertThrows(() -> uiElementBase.onSizeChanged(null, callback),
                         new PreConditionFailure("component cannot be null."));
                 });
 
                 runner.test("with null callback", (Test test) ->
                 {
                     final AWTUIBase uiBase = AWTUIBase.create(test.getProcess());
+                    final javax.swing.JButton jButton = new javax.swing.JButton();
+                    final AWTUIElementBase uiElementBase = new AWTUIElementBase(uiBase, jButton);
                     final java.awt.Component component = new javax.swing.JButton();
                     final Action0 callback = null;
-                    test.assertThrows(() -> uiBase.onSizeChanged(component, callback),
+                    test.assertThrows(() -> uiElementBase.onSizeChanged(component, callback),
                         new PreConditionFailure("callback cannot be null."));
                 });
 
                 runner.test("with valid arguments", (Test test) ->
                 {
                     final AWTUIBase uiBase = AWTUIBase.create(test.getProcess());
+                    final javax.swing.JButton jButton = new javax.swing.JButton();
+                    final AWTUIElementBase uiElementBase = new AWTUIElementBase(uiBase, jButton);
                     final java.awt.Component component = new javax.swing.JButton();
                     final Action0 callback = () -> {};
 
-                    final Disposable disposable = uiBase.onSizeChanged(component, callback);
+                    final Disposable disposable = uiElementBase.onSizeChanged(component, callback);
                     test.assertNotNull(disposable);
                     test.assertFalse(disposable.isDisposed());
 
