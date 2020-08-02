@@ -144,6 +144,60 @@ public interface AWTUIElementBaseTests
                 });
             });
 
+            runner.testGroup("setWidthInPixels(int)", () ->
+            {
+                runner.test("with negative", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+                    final int widthInPixels = uiElementBase.getWidthInPixels();
+
+                    test.assertThrows(() -> uiElementBase.setWidthInPixels(-1),
+                        new PreConditionFailure("widthInPixels (-1) must be greater than or equal to 0."));
+
+                    test.assertEqual(widthInPixels, uiElementBase.getWidthInPixels());
+                });
+
+                runner.test("with zero", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+                    final AWTUIElementBase setWidthResult = uiElementBase.setWidthInPixels(0);
+                    test.assertSame(uiElementBase, setWidthResult);
+                    test.assertEqual(0, uiElementBase.getWidthInPixels());
+                });
+
+                runner.test("with positive", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+                    final AWTUIElementBase setWidthResult = uiElementBase.setWidthInPixels(200);
+                    test.assertSame(uiElementBase, setWidthResult);
+                    test.assertEqual(200, uiElementBase.getWidthInPixels());
+                });
+
+                runner.test("with size changed listener and width set to same value", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+
+                    final IntegerValue counter = IntegerValue.create(0);
+                    uiElementBase.onSizeChanged(counter::increment);
+
+                    uiElementBase.setWidthInPixels(uiElementBase.getWidthInPixels());
+
+                    test.assertEqual(0, counter.get());
+                });
+
+                runner.test("with size changed listener and width set to different value", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+
+                    final IntegerValue counter = IntegerValue.create(0);
+                    uiElementBase.onSizeChanged(counter::increment);
+
+                    uiElementBase.setWidthInPixels(uiElementBase.getWidthInPixels() + 100);
+
+                    test.assertEqual(1, counter.get());
+                });
+            });
+
             runner.testGroup("setDynamicWidth(DynamicDistance)", () ->
             {
                 runner.test("with null", (Test test) ->
