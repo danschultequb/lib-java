@@ -9,6 +9,8 @@ public class AWTUIElementBase
     private int componentHeightInPixels;
     private DynamicDistance dynamicWidth;
     private Disposable dynamicWidthChangedSubscription;
+    private DynamicDistance dynamicHeight;
+    private Disposable dynamicHeightChangedSubscription;
     private boolean autoWidth;
     private boolean autoHeight;
 
@@ -183,6 +185,7 @@ public class AWTUIElementBase
         PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
 
         this.autoHeight = false;
+        this.clearDynamicHeight();
         return this.setComponentHeight(height);
     }
 
@@ -191,7 +194,36 @@ public class AWTUIElementBase
         PreCondition.assertGreaterThanOrEqualTo(heightInPixels, 0, "heightInPixels");
 
         this.autoHeight = false;
+        this.clearDynamicHeight();
         return this.setComponentHeightInPixels(heightInPixels);
+    }
+
+    public AWTUIElementBase setDynamicHeight(DynamicDistance dynamicHeight)
+    {
+        PreCondition.assertNotNull(dynamicHeight, "dynamicHeight");
+
+        this.clearDynamicHeight();
+
+        this.autoHeight = false;
+        this.dynamicHeight = dynamicHeight;
+        this.dynamicHeightChangedSubscription = dynamicHeight.onChanged(() ->
+        {
+            this.setComponentHeight(dynamicHeight.get());
+        });
+        this.setComponentHeight(dynamicHeight.get());
+
+        return this;
+    }
+
+    private void clearDynamicHeight()
+    {
+        if (this.dynamicHeight != null)
+        {
+            this.dynamicHeightChangedSubscription.dispose().await();
+            this.dynamicHeightChangedSubscription = null;
+            this.dynamicHeight.dispose().await();
+            this.dynamicHeight = null;
+        }
     }
 
     private AWTUIElementBase setComponentHeight(Distance height)
@@ -217,15 +249,12 @@ public class AWTUIElementBase
     }
 
     /**
-     * Get the height of the provided component.
-     * @param component The component to get the height of.
-     * @return The height of the provided component.
+     * Get the height of this AWTUIElementBase's Component.
+     * @return The height of the this AWTUIElementBase's Component.
      */
-    public Distance getHeight(java.awt.Component component)
+    public Distance getHeight()
     {
-        PreCondition.assertNotNull(component, "component");
-
-        final int heightInPixels = this.getHeightInPixels(component);
+        final int heightInPixels = this.getHeightInPixels();
         final Distance result = this.getUIBase().convertVerticalPixelsToDistance(heightInPixels);
 
         PostCondition.assertNotNull(result, "result");
@@ -235,33 +264,12 @@ public class AWTUIElementBase
     }
 
     /**
-     * Get the height of this AWTUIElementBase's Component.
-     * @return The height of the this AWTUIElementBase's Component.
-     */
-    public Distance getHeight()
-    {
-        return this.getHeight(this.component);
-    }
-
-    /**
      * Get the height of this AWTUIElementBase's Component in pixels.
      * @return The height of the this AWTUIElementBase's Component in pixels.
      */
     public int getHeightInPixels()
     {
-        return this.getHeightInPixels(this.component);
-    }
-
-    /**
-     * Get the height of the provided component in pixels.
-     * @param component The component to get the height of.
-     * @return The height of the provided component in pixels.
-     */
-    public int getHeightInPixels(java.awt.Component component)
-    {
-        PreCondition.assertNotNull(component, "component");
-
-        final int result = component.getHeight();
+        final int result = this.component.getHeight();
 
         PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
 
@@ -284,6 +292,8 @@ public class AWTUIElementBase
 
         this.autoWidth = false;
         this.autoHeight = false;
+        this.clearDynamicWidth();
+        this.clearDynamicHeight();
         return this.setComponentSize(width, height);
     }
 
@@ -294,6 +304,8 @@ public class AWTUIElementBase
 
         this.autoWidth = false;
         this.autoHeight = false;
+        this.clearDynamicWidth();
+        this.clearDynamicHeight();
         return this.setComponentSizeInPixels(widthInPixels, heightInPixels);
     }
 
@@ -326,12 +338,10 @@ public class AWTUIElementBase
         return this;
     }
 
-    public Size2D getSize(java.awt.Component component)
+    public Size2D getSize()
     {
-        PreCondition.assertNotNull(component, "component");
-
-        final int widthInPixels = component.getWidth();
-        final int heightInPixels = component.getHeight();
+        final int widthInPixels = this.component.getWidth();
+        final int heightInPixels = this.component.getHeight();
         final Size2D result = this.getUIBase().convertPixelsToSize2D(widthInPixels, heightInPixels);
 
         PostCondition.assertNotNull(result, "result");
@@ -339,53 +349,9 @@ public class AWTUIElementBase
         return result;
     }
 
-    public Size2D getSize()
-    {
-        return this.getSize(this.component);
-    }
-
     public Disposable onSizeChanged(Action0 callback)
     {
         return this.sizeChanged.subscribe(callback);
-    }
-
-    /**
-     * Register the provided callback to be invoked when the provided component's size changes.
-     * @param component The component to watch.
-     * @param callback The callback to register.
-     * @return A Disposable that can be disposed to unregister the provided callback from the
-     * provided component.
-     */
-    public Disposable onSizeChanged(java.awt.Component component, Action0 callback)
-    {
-        PreCondition.assertNotNull(component, "component");
-        PreCondition.assertNotNull(callback, "callback");
-
-        final java.awt.event.ComponentListener componentListener = new java.awt.event.ComponentListener()
-        {
-            @Override
-            public void componentResized(java.awt.event.ComponentEvent e)
-            {
-                AWTUIElementBase.this.scheduleAsyncTask(callback);
-            }
-
-            @Override
-            public void componentMoved(java.awt.event.ComponentEvent e)
-            {
-            }
-
-            @Override
-            public void componentShown(java.awt.event.ComponentEvent e)
-            {
-            }
-
-            @Override
-            public void componentHidden(java.awt.event.ComponentEvent e)
-            {
-            }
-        };
-        component.addComponentListener(componentListener);
-        return Disposable.create(() -> component.removeComponentListener(componentListener));
     }
 
     /**

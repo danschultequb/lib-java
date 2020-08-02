@@ -276,6 +276,203 @@ public interface AWTUIElementBaseTests
                 });
             });
 
+            runner.testGroup("setHeight(Distance)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+                    final Distance height = uiElementBase.getHeight();
+
+                    test.assertThrows(() -> uiElementBase.setHeight((Distance)null),
+                        new PreConditionFailure("height cannot be null."));
+
+                    test.assertEqual(height, uiElementBase.getHeight());
+                });
+
+                runner.test("with negative", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+                    final Distance height = uiElementBase.getHeight();
+
+                    test.assertThrows(() -> uiElementBase.setHeight(Distance.inches(-1)),
+                        new PreConditionFailure("height (-1.0 Inches) must be greater than or equal to 0.0 Inches."));
+
+                    test.assertEqual(height, uiElementBase.getHeight());
+                });
+
+                runner.test("with zero", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+                    final AWTUIElementBase setHeightResult = uiElementBase.setHeight(Distance.zero);
+                    test.assertSame(uiElementBase, setHeightResult);
+                    test.assertEqual(Distance.zero, uiElementBase.getHeight());
+                });
+
+                runner.test("with positive", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+                    final AWTUIElementBase setHeightResult = uiElementBase.setHeight(Distance.inches(2));
+                    test.assertSame(uiElementBase, setHeightResult);
+                    test.assertEqual(Distance.inches(2), uiElementBase.getHeight());
+                });
+
+                runner.test("with size changed listener and width set to same value", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+
+                    final IntegerValue counter = IntegerValue.create(0);
+                    uiElementBase.onSizeChanged(counter::increment);
+
+                    uiElementBase.setHeight(uiElementBase.getHeight());
+
+                    test.assertEqual(0, counter.get());
+                });
+
+                runner.test("with size changed listener and width set to different value", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+
+                    final IntegerValue counter = IntegerValue.create(0);
+                    uiElementBase.onSizeChanged(counter::increment);
+
+                    uiElementBase.setHeight(uiElementBase.getHeight().plus(Distance.inches(1)));
+
+                    test.assertEqual(1, counter.get());
+                });
+            });
+
+            runner.testGroup("setHeightInPixels(int)", () ->
+            {
+                runner.test("with negative", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+                    final int heightInPixels = uiElementBase.getHeightInPixels();
+
+                    test.assertThrows(() -> uiElementBase.setHeightInPixels(-1),
+                        new PreConditionFailure("heightInPixels (-1) must be greater than or equal to 0."));
+
+                    test.assertEqual(heightInPixels, uiElementBase.getHeightInPixels());
+                });
+
+                runner.test("with zero", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+                    final AWTUIElementBase setHeightInPixelsResult = uiElementBase.setHeightInPixels(0);
+                    test.assertSame(uiElementBase, setHeightInPixelsResult);
+                    test.assertEqual(0, uiElementBase.getHeightInPixels());
+                });
+
+                runner.test("with positive", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+                    final AWTUIElementBase setHeightInPixelsResult = uiElementBase.setHeightInPixels(200);
+                    test.assertSame(uiElementBase, setHeightInPixelsResult);
+                    test.assertEqual(200, uiElementBase.getHeightInPixels());
+                });
+
+                runner.test("with size changed listener and height set to same value", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+
+                    final IntegerValue counter = IntegerValue.create(0);
+                    uiElementBase.onSizeChanged(counter::increment);
+
+                    uiElementBase.setHeightInPixels(uiElementBase.getHeightInPixels());
+
+                    test.assertEqual(0, counter.get());
+                });
+
+                runner.test("with size changed listener and height set to different value", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+
+                    final IntegerValue counter = IntegerValue.create(0);
+                    uiElementBase.onSizeChanged(counter::increment);
+
+                    uiElementBase.setHeightInPixels(uiElementBase.getHeightInPixels() + 100);
+
+                    test.assertEqual(1, counter.get());
+                });
+            });
+
+            runner.testGroup("setDynamicHeight(DynamicDistance)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+                    final Size2D size = uiElementBase.getSize();
+
+                    test.assertThrows(() -> uiElementBase.setDynamicHeight(null),
+                        new PreConditionFailure("dynamicHeight cannot be null."));
+
+                    test.assertEqual(size, uiElementBase.getSize());
+                });
+
+                runner.test("with non-null", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+                    final Value<Distance> distance = Value.create(Distance.zero);
+                    final RunnableEvent0 distanceChanged = Event0.create();
+                    final DynamicDistance dynamicDistance = DynamicDistance.create(distance::get, distanceChanged::subscribe);
+
+                    final IntegerValue eventCounter = IntegerValue.create(0);
+                    final List<Integer> sizeChangedEvents = List.create();
+                    uiElementBase.onSizeChanged(() -> sizeChangedEvents.add(eventCounter.incrementAndGet()));
+
+                    final AWTUIElementBase setDynamicHeightResult = uiElementBase.setDynamicHeight(dynamicDistance);
+                    test.assertSame(uiElementBase, setDynamicHeightResult);
+
+                    test.assertEqual(Distance.zero, uiElementBase.getHeight());
+                    test.assertEqual(Iterable.create(1), sizeChangedEvents);
+                    test.assertEqual(1, eventCounter.get());
+
+                    distance.set(Distance.inches(1));
+                    distanceChanged.run();
+
+                    test.assertEqual(Distance.inches(1), uiElementBase.getHeight());
+                    test.assertEqual(Iterable.create(1, 2), sizeChangedEvents);
+                    test.assertEqual(2, eventCounter.get());
+
+                    uiElementBase.setHeight(Distance.inches(2));
+                    test.assertEqual(Distance.inches(2), uiElementBase.getHeight());
+                    test.assertEqual(Iterable.create(1, 2, 3), sizeChangedEvents);
+                    test.assertEqual(3, eventCounter.get());
+
+                    distance.set(Distance.inches(3));
+                    distanceChanged.run();
+
+                    test.assertEqual(Distance.inches(2), uiElementBase.getHeight());
+                    test.assertEqual(Iterable.create(1, 2, 3), sizeChangedEvents);
+                    test.assertEqual(3, eventCounter.get());
+                });
+
+                runner.test("with equal dynamic height", (Test test) ->
+                {
+                    final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
+                    final Value<Distance> distance = Value.create(uiElementBase.getHeight());
+                    final RunnableEvent0 distanceChanged = Event0.create();
+                    final DynamicDistance dynamicDistance = DynamicDistance.create(distance::get, distanceChanged::subscribe);
+
+                    final IntegerValue eventCounter = IntegerValue.create(0);
+                    final List<Integer> sizeChangedEvents = List.create();
+                    uiElementBase.onSizeChanged(() -> sizeChangedEvents.add(eventCounter.incrementAndGet()));
+
+                    final AWTUIElementBase setDynamicHeightResult = uiElementBase.setDynamicHeight(dynamicDistance);
+                    test.assertSame(uiElementBase, setDynamicHeightResult);
+
+                    test.assertEqual(distance.get(), uiElementBase.getHeight());
+                    test.assertEqual(Iterable.create(), sizeChangedEvents);
+                    test.assertEqual(0, eventCounter.get());
+
+                    distance.set(Distance.inches(4));
+                    distanceChanged.run();
+
+                    test.assertEqual(Distance.inches(4), uiElementBase.getHeight());
+                    test.assertEqual(Iterable.create(1), sizeChangedEvents);
+                    test.assertEqual(1, eventCounter.get());
+                });
+            });
+
             runner.testGroup("component listener", () ->
             {
                 runner.test("when width changes", (Test test) ->
@@ -344,53 +541,6 @@ public interface AWTUIElementBaseTests
                     test.assertEqual(300, component.getWidth());
                     test.assertEqual(400, uiElementBase.getHeightInPixels());
                     test.assertEqual(400, component.getHeight());
-                });
-            });
-
-            runner.testGroup("onSizeChanged(java.awt.Component,Action0)", () ->
-            {
-                runner.test("with null component", (Test test) ->
-                {
-                    final AWTUIBase uiBase = AWTUIBase.create(test.getProcess());
-                    final javax.swing.JButton jButton = new javax.swing.JButton();
-                    final AWTUIElementBase uiElementBase = new AWTUIElementBase(uiBase, jButton);
-                    final Action0 callback = () -> {};
-                    test.assertThrows(() -> uiElementBase.onSizeChanged(null, callback),
-                        new PreConditionFailure("component cannot be null."));
-                });
-
-                runner.test("with null callback", (Test test) ->
-                {
-                    final AWTUIBase uiBase = AWTUIBase.create(test.getProcess());
-                    final javax.swing.JButton jButton = new javax.swing.JButton();
-                    final AWTUIElementBase uiElementBase = new AWTUIElementBase(uiBase, jButton);
-                    final java.awt.Component component = new javax.swing.JButton();
-                    final Action0 callback = null;
-                    test.assertThrows(() -> uiElementBase.onSizeChanged(component, callback),
-                        new PreConditionFailure("callback cannot be null."));
-                });
-
-                runner.test("with valid arguments", (Test test) ->
-                {
-                    final AWTUIBase uiBase = AWTUIBase.create(test.getProcess());
-                    final javax.swing.JButton jButton = new javax.swing.JButton();
-                    final AWTUIElementBase uiElementBase = new AWTUIElementBase(uiBase, jButton);
-                    final java.awt.Component component = new javax.swing.JButton();
-                    final Action0 callback = () -> {};
-
-                    final Disposable disposable = uiElementBase.onSizeChanged(component, callback);
-                    test.assertNotNull(disposable);
-                    test.assertFalse(disposable.isDisposed());
-
-                    final java.awt.event.ComponentListener[] componentListenersBeforeDispose = component.getComponentListeners();
-                    test.assertNotNull(componentListenersBeforeDispose);
-                    test.assertEqual(1, componentListenersBeforeDispose.length);
-
-                    test.assertTrue(disposable.dispose().await());
-
-                    final java.awt.event.ComponentListener[] componentListenersAfterDispose = component.getComponentListeners();
-                    test.assertNotNull(componentListenersAfterDispose);
-                    test.assertEqual(0, componentListenersAfterDispose.length);
                 });
             });
         });
