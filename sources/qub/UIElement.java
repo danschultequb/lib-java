@@ -39,7 +39,7 @@ public interface UIElement
      */
     default DynamicDistance getDynamicWidth()
     {
-        return DynamicDistance.create(this::getWidth, this::onSizeChanged);
+        return DynamicDistance.create(this::getWidth, this::onWidthChanged);
     }
 
     /**
@@ -48,6 +48,13 @@ public interface UIElement
      */
     int getWidthInPixels();
 
+    /**
+     * Register the provided callback to be invoked when this UIElement's width changes.
+     * @param callback The callback to be invoked when this UIElement's width changes.
+     * @return A Disposable that can be disposed to unregister the provided callback.
+     */
+    Disposable onWidthChanged(Action0 callback);
+    
     /**
      * Set the height of this UIElement.
      * @param height The height of this UIElement.

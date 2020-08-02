@@ -67,6 +67,12 @@ public class SwingUIText implements UIText, SwingUIElement
     }
 
     @Override
+    public Disposable onWidthChanged(Action0 callback)
+    {
+        return this.uiElementBase.onWidthChanged(callback);
+    }
+
+    @Override
     public SwingUIText setHeight(Distance height)
     {
         this.uiElementBase.setHeight(height);

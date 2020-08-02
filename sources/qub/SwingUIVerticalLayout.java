@@ -79,6 +79,12 @@ public class SwingUIVerticalLayout implements UIVerticalLayout, SwingUIElement
     }
 
     @Override
+    public Disposable onWidthChanged(Action0 callback)
+    {
+        return this.uiElementBase.onWidthChanged(callback);
+    }
+
+    @Override
     public SwingUIVerticalLayout setHeight(Distance height)
     {
         this.uiElementBase.setHeight(height);

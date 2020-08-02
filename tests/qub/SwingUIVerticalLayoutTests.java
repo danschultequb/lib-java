@@ -428,21 +428,26 @@ public interface SwingUIVerticalLayoutTests
 
                         final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await()
                             .setPadding(UIPadding.create(Distance.inches(0.25)))
-                            .setWidth(Distance.inches(4));
+                            .setWidth(Distance.inches(4))
+                            .setHeight(Distance.inches(2))
+                            .setBackgroundColor(Color.create(20, 120, 220));
 
                         verticalLayout.add(uiBuilder.createUIText().await()
                             .setText("2 Inches")
                             .setWidth(Distance.inches(2))
+                            .setHeight(Distance.inches(0.5))
                             .setBackgroundColor(Color.red));
 
                         verticalLayout.add(uiBuilder.createUIText().await()
                             .setText("Dynamic Width")
                             .setDynamicWidth(verticalLayout.getDynamicWidth())
+                            .setHeight(Distance.inches(0.5))
                             .setBackgroundColor(Color.blue));
 
                         verticalLayout.add(uiBuilder.createUIText().await()
                             .setText("Dynamic Content Space Width")
                             .setDynamicWidth(verticalLayout.getDynamicContentSpaceWidth())
+                            .setHeight(Distance.inches(0.5))
                             .setBackgroundColor(Color.green));
 
                         window.setContent(verticalLayout);

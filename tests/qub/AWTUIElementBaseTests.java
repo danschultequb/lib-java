@@ -123,24 +123,36 @@ public interface AWTUIElementBaseTests
                 {
                     final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
 
-                    final IntegerValue counter = IntegerValue.create(0);
-                    uiElementBase.onSizeChanged(counter::increment);
+                    final IntegerValue eventCounter = IntegerValue.create(0);
+                    final List<Integer> sizeChangedEvents = List.create();
+                    final List<Integer> widthChangedEvents = List.create();
+
+                    uiElementBase.onSizeChanged(() -> sizeChangedEvents.add(eventCounter.incrementAndGet()));
+                    uiElementBase.onWidthChanged(() -> widthChangedEvents.add(eventCounter.incrementAndGet()));
 
                     uiElementBase.setWidth(uiElementBase.getWidth());
 
-                    test.assertEqual(0, counter.get());
+                    test.assertEqual(0, eventCounter.get());
+                    test.assertEqual(Iterable.create(), sizeChangedEvents);
+                    test.assertEqual(Iterable.create(), widthChangedEvents);
                 });
 
                 runner.test("with size changed listener and width set to different value", (Test test) ->
                 {
                     final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
 
-                    final IntegerValue counter = IntegerValue.create(0);
-                    uiElementBase.onSizeChanged(counter::increment);
+                    final IntegerValue eventCounter = IntegerValue.create(0);
+                    final List<Integer> sizeChangedEvents = List.create();
+                    final List<Integer> widthChangedEvents = List.create();
+
+                    uiElementBase.onSizeChanged(() -> sizeChangedEvents.add(eventCounter.incrementAndGet()));
+                    uiElementBase.onWidthChanged(() -> widthChangedEvents.add(eventCounter.incrementAndGet()));
 
                     uiElementBase.setWidth(uiElementBase.getWidth().plus(Distance.inches(1)));
 
-                    test.assertEqual(1, counter.get());
+                    test.assertEqual(2, eventCounter.get());
+                    test.assertEqual(Iterable.create(1), sizeChangedEvents);
+                    test.assertEqual(Iterable.create(2), widthChangedEvents);
                 });
             });
 
@@ -177,24 +189,36 @@ public interface AWTUIElementBaseTests
                 {
                     final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
 
-                    final IntegerValue counter = IntegerValue.create(0);
-                    uiElementBase.onSizeChanged(counter::increment);
+                    final IntegerValue eventCounter = IntegerValue.create(0);
+                    final List<Integer> sizeChangedEvents = List.create();
+                    final List<Integer> widthChangedEvents = List.create();
+
+                    uiElementBase.onSizeChanged(() -> sizeChangedEvents.add(eventCounter.incrementAndGet()));
+                    uiElementBase.onWidthChanged(() -> widthChangedEvents.add(eventCounter.incrementAndGet()));
 
                     uiElementBase.setWidthInPixels(uiElementBase.getWidthInPixels());
 
-                    test.assertEqual(0, counter.get());
+                    test.assertEqual(0, eventCounter.get());
+                    test.assertEqual(Iterable.create(), sizeChangedEvents);
+                    test.assertEqual(Iterable.create(), widthChangedEvents);
                 });
 
                 runner.test("with size changed listener and width set to different value", (Test test) ->
                 {
                     final AWTUIElementBase uiElementBase = AWTUIElementBaseTests.createUIElementBase(test);
 
-                    final IntegerValue counter = IntegerValue.create(0);
-                    uiElementBase.onSizeChanged(counter::increment);
+                    final IntegerValue eventCounter = IntegerValue.create(0);
+                    final List<Integer> sizeChangedEvents = List.create();
+                    final List<Integer> widthChangedEvents = List.create();
+
+                    uiElementBase.onSizeChanged(() -> sizeChangedEvents.add(eventCounter.incrementAndGet()));
+                    uiElementBase.onWidthChanged(() -> widthChangedEvents.add(eventCounter.incrementAndGet()));
 
                     uiElementBase.setWidthInPixels(uiElementBase.getWidthInPixels() + 100);
 
-                    test.assertEqual(1, counter.get());
+                    test.assertEqual(2, eventCounter.get());
+                    test.assertEqual(Iterable.create(1), sizeChangedEvents);
+                    test.assertEqual(Iterable.create(2), widthChangedEvents);
                 });
             });
 
@@ -220,33 +244,40 @@ public interface AWTUIElementBaseTests
 
                     final IntegerValue eventCounter = IntegerValue.create(0);
                     final List<Integer> sizeChangedEvents = List.create();
+                    final List<Integer> widthChangedEvents = List.create();
+
                     uiElementBase.onSizeChanged(() -> sizeChangedEvents.add(eventCounter.incrementAndGet()));
+                    uiElementBase.onWidthChanged(() -> widthChangedEvents.add(eventCounter.incrementAndGet()));
 
                     final AWTUIElementBase setDynamicWidthResult = uiElementBase.setDynamicWidth(dynamicDistance);
                     test.assertSame(uiElementBase, setDynamicWidthResult);
 
                     test.assertEqual(Distance.zero, uiElementBase.getWidth());
                     test.assertEqual(Iterable.create(1), sizeChangedEvents);
-                    test.assertEqual(1, eventCounter.get());
+                    test.assertEqual(Iterable.create(2), widthChangedEvents);
+                    test.assertEqual(2, eventCounter.get());
 
                     distance.set(Distance.inches(1));
                     distanceChanged.run();
 
                     test.assertEqual(Distance.inches(1), uiElementBase.getWidth());
-                    test.assertEqual(Iterable.create(1, 2), sizeChangedEvents);
-                    test.assertEqual(2, eventCounter.get());
+                    test.assertEqual(Iterable.create(1, 3), sizeChangedEvents);
+                    test.assertEqual(Iterable.create(2, 4), widthChangedEvents);
+                    test.assertEqual(4, eventCounter.get());
 
                     uiElementBase.setWidth(Distance.inches(2));
                     test.assertEqual(Distance.inches(2), uiElementBase.getWidth());
-                    test.assertEqual(Iterable.create(1, 2, 3), sizeChangedEvents);
-                    test.assertEqual(3, eventCounter.get());
+                    test.assertEqual(Iterable.create(1, 3, 5), sizeChangedEvents);
+                    test.assertEqual(Iterable.create(2, 4, 6), widthChangedEvents);
+                    test.assertEqual(6, eventCounter.get());
 
                     distance.set(Distance.inches(3));
                     distanceChanged.run();
 
                     test.assertEqual(Distance.inches(2), uiElementBase.getWidth());
-                    test.assertEqual(Iterable.create(1, 2, 3), sizeChangedEvents);
-                    test.assertEqual(3, eventCounter.get());
+                    test.assertEqual(Iterable.create(1, 3, 5), sizeChangedEvents);
+                    test.assertEqual(Iterable.create(2, 4, 6), widthChangedEvents);
+                    test.assertEqual(6, eventCounter.get());
                 });
 
                 runner.test("with equal dynamic width", (Test test) ->
@@ -258,13 +289,16 @@ public interface AWTUIElementBaseTests
 
                     final IntegerValue eventCounter = IntegerValue.create(0);
                     final List<Integer> sizeChangedEvents = List.create();
+                    final List<Integer> widthChangedEvents = List.create();
                     uiElementBase.onSizeChanged(() -> sizeChangedEvents.add(eventCounter.incrementAndGet()));
+                    uiElementBase.onWidthChanged(() -> widthChangedEvents.add(eventCounter.incrementAndGet()));
 
                     final AWTUIElementBase setDynamicWidthResult = uiElementBase.setDynamicWidth(dynamicDistance);
                     test.assertSame(uiElementBase, setDynamicWidthResult);
 
                     test.assertEqual(distance.get(), uiElementBase.getWidth());
                     test.assertEqual(Iterable.create(), sizeChangedEvents);
+                    test.assertEqual(Iterable.create(), widthChangedEvents);
                     test.assertEqual(0, eventCounter.get());
 
                     distance.set(Distance.inches(4));
@@ -272,7 +306,8 @@ public interface AWTUIElementBaseTests
 
                     test.assertEqual(Distance.inches(4), uiElementBase.getWidth());
                     test.assertEqual(Iterable.create(1), sizeChangedEvents);
-                    test.assertEqual(1, eventCounter.get());
+                    test.assertEqual(Iterable.create(2), widthChangedEvents);
+                    test.assertEqual(2, eventCounter.get());
                 });
             });
 

@@ -71,6 +71,12 @@ public class SwingUIButton implements UIButton, SwingUIElement
     }
 
     @Override
+    public Disposable onWidthChanged(Action0 callback)
+    {
+        return this.uiElementBase.onWidthChanged(callback);
+    }
+
+    @Override
     public SwingUIButton setHeight(Distance height)
     {
         this.uiElementBase.setHeight(height);

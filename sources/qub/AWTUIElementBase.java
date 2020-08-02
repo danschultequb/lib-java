@@ -5,6 +5,7 @@ public class AWTUIElementBase
     private final AWTUIBase uiBase;
     private final java.awt.Component component;
     private final RunnableEvent0 sizeChanged;
+    private final RunnableEvent0 widthChanged;
     private int componentWidthInPixels;
     private int componentHeightInPixels;
     private DynamicDistance dynamicWidth;
@@ -22,6 +23,7 @@ public class AWTUIElementBase
         this.uiBase = uiBase;
         this.component = component;
         this.sizeChanged = Event0.create();
+        this.widthChanged = Event0.create();
         this.autoWidth = true;
         this.autoHeight = true;
 
@@ -147,6 +149,7 @@ public class AWTUIElementBase
             this.componentWidthInPixels = widthInPixels;
             this.component.setSize(widthInPixels, this.componentHeightInPixels);
             this.sizeChanged.run();
+            this.widthChanged.run();
         }
         return this;
     }
@@ -177,6 +180,13 @@ public class AWTUIElementBase
         PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
 
         return result;
+    }
+
+    public Disposable onWidthChanged(Action0 callback)
+    {
+        PreCondition.assertNotNull(callback, "callback");
+
+        return this.widthChanged.subscribe(callback);
     }
 
     public AWTUIElementBase setHeight(Distance height)
@@ -333,7 +343,13 @@ public class AWTUIElementBase
             this.componentWidthInPixels = widthInPixels;
             this.componentHeightInPixels = heightInPixels;
             this.component.setSize(widthInPixels, heightInPixels);
+
             this.sizeChanged.run();
+
+            if (widthChanged)
+            {
+                this.widthChanged.run();
+            }
         }
         return this;
     }
