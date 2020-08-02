@@ -5,13 +5,14 @@ public class AWTUIElementBase
     private final AWTUIBase uiBase;
     private final java.awt.Component component;
     private final RunnableEvent0 sizeChanged;
-    private int widthInPixels;
-    private int heightInPixels;
+    private int componentWidthInPixels;
+    private int componentHeightInPixels;
     private DynamicDistance dynamicWidth;
+    private Disposable dynamicWidthChangedSubscription;
     private boolean autoWidth;
     private boolean autoHeight;
 
-    public AWTUIElementBase(AWTUIBase uiBase, java.awt.Component component)
+    protected AWTUIElementBase(AWTUIBase uiBase, java.awt.Component component)
     {
         PreCondition.assertNotNull(uiBase, "uiBase");
         PreCondition.assertNotNull(component, "component");
@@ -27,10 +28,9 @@ public class AWTUIElementBase
             @Override
             public void componentResized(java.awt.event.ComponentEvent e)
             {
-                final AWTUIElementBase uiElementBase = AWTUIElementBase.this;
-                uiElementBase.uiBase.scheduleAsyncTask(() ->
+                AWTUIElementBase.this.scheduleAsyncTask(() ->
                 {
-                    uiElementBase.setSizeInPixels(uiElementBase.component.getWidth(), uiElementBase.component.getHeight());
+                    AWTUIElementBase.this.setComponentSizeInPixels(component.getWidth(), component.getHeight());
                 });
             }
 
@@ -51,6 +51,19 @@ public class AWTUIElementBase
         });
 
         this.updateSize();
+        this.componentWidthInPixels = component.getWidth();
+        this.componentHeightInPixels = component.getHeight();
+    }
+
+    /**
+     * Create a new AWTUIElementBase object with the provided uiBase and component.
+     * @param uiBase The AWTUIBase that contains common UI base functionality.
+     * @param component The AWT component that the new AWTUIElementBase will wrap.
+     * @return The new AWTUIElementBase object.
+     */
+    public static AWTUIElementBase create(AWTUIBase uiBase, java.awt.Component component)
+    {
+        return new AWTUIElementBase(uiBase, component);
     }
 
     protected AWTUIBase getUIBase()
@@ -73,35 +86,9 @@ public class AWTUIElementBase
         PreCondition.assertNotNull(width, "width");
         PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
 
-        final int widthInPixels = (int)this.uiBase.convertHorizontalDistanceToPixels(width);
-        return this.setWidthInPixels(widthInPixels);
-    }
-
-    public AWTUIElementBase setDynamicWidth(DynamicDistance dynamicWidth)
-    {
-        PreCondition.assertNotNull(dynamicWidth, "dynamicWidth");
-
-        if (this.dynamicWidth != null)
-        {
-            this.dynamicWidth.dispose().await();
-            this.dynamicWidth = null;
-        }
-
-        this.dynamicWidth = dynamicWidth;
-        dynamicWidth.onChanged(() ->
-        {
-            this.setWidth(this.component, this.dynamicWidth.get());
-        });
-
         this.autoWidth = false;
-        final Distance width = dynamicWidth.get();
-        if (!this.getWidth().equals(width))
-        {
-            this.setWidth(this.component, this.dynamicWidth.get());
-            this.sizeChanged.run();
-        }
-
-        return this;
+        this.clearDynamicWidth();
+        return this.setComponentWidth(width);
     }
 
     public AWTUIElementBase setWidthInPixels(int widthInPixels)
@@ -109,49 +96,57 @@ public class AWTUIElementBase
         PreCondition.assertGreaterThanOrEqualTo(widthInPixels, 0, "widthInPixels");
 
         this.autoWidth = false;
-        if (this.getWidthInPixels() != widthInPixels)
+        this.clearDynamicWidth();
+        return this.setComponentWidthInPixels(widthInPixels);
+    }
+
+    public AWTUIElementBase setDynamicWidth(DynamicDistance dynamicWidth)
+    {
+        PreCondition.assertNotNull(dynamicWidth, "dynamicWidth");
+
+        this.clearDynamicWidth();
+
+        this.autoWidth = false;
+        this.dynamicWidth = dynamicWidth;
+        this.dynamicWidthChangedSubscription = dynamicWidth.onChanged(() ->
         {
-            this.setWidthInPixels(this.component, widthInPixels);
-            this.sizeChanged.run();
-        }
+            this.setComponentWidth(dynamicWidth.get());
+        });
+        this.setComponentWidth(dynamicWidth.get());
+
         return this;
     }
 
-    public void setWidth(java.awt.Component component, Distance width)
+    private void clearDynamicWidth()
     {
-        PreCondition.assertNotNull(component, "component");
-        PreCondition.assertNotNull(width, "width");
-        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
-
-        final int widthInPixels = (int)this.getUIBase().convertHorizontalDistanceToPixels(width);
-        this.setWidthInPixels(component, widthInPixels);
+        if (this.dynamicWidth != null)
+        {
+            this.dynamicWidthChangedSubscription.dispose().await();
+            this.dynamicWidthChangedSubscription = null;
+            this.dynamicWidth.dispose().await();
+            this.dynamicWidth = null;
+        }
     }
 
-    public void setWidthInPixels(java.awt.Component component, int widthInPixels)
+    private AWTUIElementBase setComponentWidth(Distance width)
     {
-        PreCondition.assertNotNull(component, "component");
+        PreCondition.assertNotNull(width, "width");
+
+        final int widthInPixels = (int)this.uiBase.convertHorizontalDistanceToPixels(width);
+        return this.setComponentWidthInPixels(widthInPixels);
+    }
+
+    private AWTUIElementBase setComponentWidthInPixels(int widthInPixels)
+    {
         PreCondition.assertGreaterThanOrEqualTo(widthInPixels, 0, "widthInPixels");
 
-        final int heightInPixels = this.getHeightInPixels(component);
-        this.setSizeInPixels(component, widthInPixels, heightInPixels);
-    }
-
-    /**
-     * Get the width of the provided component.
-     * @param component The component to get the width of.
-     * @return The width of the provided component.
-     */
-    public Distance getWidth(java.awt.Component component)
-    {
-        PreCondition.assertNotNull(component, "component");
-
-        final int widthInPixels = component.getWidth();
-        final Distance result = this.getUIBase().convertHorizontalPixelsToDistance(widthInPixels);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
-
-        return result;
+        if (widthInPixels != this.componentWidthInPixels)
+        {
+            this.componentWidthInPixels = widthInPixels;
+            this.component.setSize(widthInPixels, this.componentHeightInPixels);
+            this.sizeChanged.run();
+        }
+        return this;
     }
 
     /**
@@ -160,21 +155,11 @@ public class AWTUIElementBase
      */
     public Distance getWidth()
     {
-        return this.getWidth(this.component);
-    }
+        final int widthInPixels = this.component.getWidth();
+        final Distance result = this.getUIBase().convertHorizontalPixelsToDistance(widthInPixels);
 
-    /**
-     * Get the width of the provided component in pixels.
-     * @param component The component to get the width of.
-     * @return The width of the provided component in pixels.
-     */
-    public int getWidthInPixels(java.awt.Component component)
-    {
-        PreCondition.assertNotNull(component, "component");
-
-        final int result = component.getWidth();
-
-        PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertGreaterThanOrEqualTo(result, Distance.zero, "result");
 
         return result;
     }
@@ -185,7 +170,11 @@ public class AWTUIElementBase
      */
     public int getWidthInPixels()
     {
-        return this.getWidthInPixels(this.component);
+        final int result = this.component.getWidth();
+
+        PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
+
+        return result;
     }
 
     public AWTUIElementBase setHeight(Distance height)
@@ -194,22 +183,7 @@ public class AWTUIElementBase
         PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
 
         this.autoHeight = false;
-        if (!this.getHeight().equals(height))
-        {
-            this.setHeight(this.component, height);
-            this.sizeChanged.run();
-        }
-        return this;
-    }
-
-    public void setHeight(java.awt.Component component, Distance height)
-    {
-        PreCondition.assertNotNull(component, "component");
-        PreCondition.assertNotNull(height, "height");
-        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
-
-        final int heightInPixels = (int)this.getUIBase().convertVerticalDistanceToPixels(height);
-        this.setHeightInPixels(component, heightInPixels);
+        return this.setComponentHeight(height);
     }
 
     public AWTUIElementBase setHeightInPixels(int heightInPixels)
@@ -217,21 +191,29 @@ public class AWTUIElementBase
         PreCondition.assertGreaterThanOrEqualTo(heightInPixels, 0, "heightInPixels");
 
         this.autoHeight = false;
-        if (this.getHeightInPixels() != heightInPixels)
+        return this.setComponentHeightInPixels(heightInPixels);
+    }
+
+    private AWTUIElementBase setComponentHeight(Distance height)
+    {
+        PreCondition.assertNotNull(height, "height");
+        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "componentHeight");
+
+        final int heightInPixels = (int)this.uiBase.convertVerticalDistanceToPixels(height);
+        return this.setComponentHeightInPixels(heightInPixels);
+    }
+
+    private AWTUIElementBase setComponentHeightInPixels(int heightInPixels)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(heightInPixels, 0, "heightInPixels");
+
+        if (heightInPixels != this.componentHeightInPixels)
         {
-            this.setHeightInPixels(this.component, heightInPixels);
+            this.componentHeightInPixels = heightInPixels;
+            this.component.setSize(this.componentWidthInPixels, heightInPixels);
             this.sizeChanged.run();
         }
         return this;
-    }
-
-    public void setHeightInPixels(java.awt.Component component, int heightInPixels)
-    {
-        PreCondition.assertNotNull(component, "component");
-        PreCondition.assertGreaterThanOrEqualTo(heightInPixels, 0, "heightInPixels");
-
-        final int widthInPixels = this.getWidthInPixels(component);
-        this.setSizeInPixels(component, widthInPixels, heightInPixels);
     }
 
     /**
@@ -302,25 +284,7 @@ public class AWTUIElementBase
 
         this.autoWidth = false;
         this.autoHeight = false;
-        if (!this.getWidth().equals(width) || !this.getHeight().equals(height))
-        {
-            this.setSize(this.component, width, height);
-            this.sizeChanged.run();
-        }
-        return this;
-    }
-
-    public void setSize(java.awt.Component component, Distance width, Distance height)
-    {
-        PreCondition.assertNotNull(component, "component");
-        PreCondition.assertNotNull(width, "width");
-        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
-        PreCondition.assertNotNull(height, "height");
-        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
-
-        final int widthInPixels = (int)this.getUIBase().convertHorizontalDistanceToPixels(width);
-        final int heightInPixels = (int)this.getUIBase().convertVerticalDistanceToPixels(height);
-        this.setSizeInPixels(component, widthInPixels, heightInPixels);
+        return this.setComponentSize(width, height);
     }
 
     public AWTUIElementBase setSizeInPixels(int widthInPixels, int heightInPixels)
@@ -330,27 +294,36 @@ public class AWTUIElementBase
 
         this.autoWidth = false;
         this.autoHeight = false;
-        if (this.getWidthInPixels() != widthInPixels || this.getHeightInPixels() != heightInPixels)
-        {
-            this.setSizeInPixels(this.component, widthInPixels, heightInPixels);
-            this.sizeChanged.run();
-        }
-        return this;
+        return this.setComponentSizeInPixels(widthInPixels, heightInPixels);
     }
 
-    /**
-     * Set the size of the provided component to be the provided pixel distances.
-     * @param component The component to set the size of.
-     * @param widthInPixels The width of the component in pixels.
-     * @param heightInPixels The height of the component in pixels.
-     */
-    public void setSizeInPixels(java.awt.Component component, int widthInPixels, int heightInPixels)
+    private AWTUIElementBase setComponentSize(Distance width, Distance height)
     {
-        PreCondition.assertNotNull(component, "component");
+        PreCondition.assertNotNull(width, "width");
+        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
+        PreCondition.assertNotNull(height, "height");
+        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
+
+        final int widthInPixels = (int)this.uiBase.convertHorizontalDistanceToPixels(width);
+        final int heightInPixels = (int)this.uiBase.convertVerticalDistanceToPixels(height);
+        return this.setComponentSizeInPixels(widthInPixels, heightInPixels);
+    }
+
+    private AWTUIElementBase setComponentSizeInPixels(int widthInPixels, int heightInPixels)
+    {
         PreCondition.assertGreaterThanOrEqualTo(widthInPixels, 0, "widthInPixels");
         PreCondition.assertGreaterThanOrEqualTo(heightInPixels, 0, "heightInPixels");
 
-        component.setSize(widthInPixels, heightInPixels);
+        final boolean widthChanged = widthInPixels != this.componentWidthInPixels;
+        final boolean heightChanged = heightInPixels != this.componentHeightInPixels;
+        if (widthChanged || heightChanged)
+        {
+            this.componentWidthInPixels = widthInPixels;
+            this.componentHeightInPixels = heightInPixels;
+            this.component.setSize(widthInPixels, heightInPixels);
+            this.sizeChanged.run();
+        }
+        return this;
     }
 
     public Size2D getSize(java.awt.Component component)
