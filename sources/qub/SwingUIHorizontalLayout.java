@@ -102,6 +102,12 @@ public class SwingUIHorizontalLayout implements UIHorizontalLayout, SwingUIEleme
     }
 
     @Override
+    public Disposable onHeightChanged(Action0 callback)
+    {
+        return this.uiElementBase.onHeightChanged(callback);
+    }
+
+    @Override
     public SwingUIHorizontalLayout setSize(Size2D size)
     {
         this.uiElementBase.setSize(size);

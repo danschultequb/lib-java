@@ -103,6 +103,12 @@ public class SwingUITextBox implements UITextBox, SwingUIElement
     }
 
     @Override
+    public Disposable onHeightChanged(Action0 callback)
+    {
+        return this.uiElementBase.onHeightChanged(callback);
+    }
+
+    @Override
     public SwingUITextBox setSize(Size2D size)
     {
         this.uiElementBase.setSize(size);

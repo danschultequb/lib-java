@@ -81,7 +81,7 @@ public interface UIElement
      */
     default DynamicDistance getDynamicHeight()
     {
-        return DynamicDistance.create(this::getHeight, this::onSizeChanged);
+        return DynamicDistance.create(this::getHeight, this::onHeightChanged);
     }
 
     /**
@@ -89,6 +89,13 @@ public interface UIElement
      * @return The height of this UIElement in pixels;
      */
     int getHeightInPixels();
+
+    /**
+     * Register the provided callback to be invoked when this UIElement's height changes.
+     * @param callback The callback to be invoked when this UIElement's height changes.
+     * @return A Disposable that can be disposed to unregister the provided callback.
+     */
+    Disposable onHeightChanged(Action0 callback);
 
     /**
      * Set the size of this UIElement.
