@@ -131,7 +131,7 @@ public class RuntimeClassLoader extends java.net.URLClassLoader implements Dispo
     @Override
     public void close()
     {
-        Disposable.close(this);
+        Disposable.super.close();
     }
 
     @Override

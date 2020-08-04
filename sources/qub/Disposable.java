@@ -3,12 +3,12 @@ package qub;
 public interface Disposable extends AutoCloseable
 {
     /**
-     * Create a new Disposable that will do nothing when it is disposed.
-     * @return The new Disposable.
+     * Create a new DisposableList that will wrap around the provided disposables.
+     * @return The new DisposableList.
      */
-    static Disposable create()
+    static DisposableList create(Disposable... disposables)
     {
-        return BasicDisposable.create();
+        return DisposableList.create(disposables);
     }
 
     /**
@@ -24,17 +24,20 @@ public interface Disposable extends AutoCloseable
     @Override
     default void close()
     {
-        Disposable.close(this);
+        this.dispose().await();
     }
 
-    static void close(Disposable disposable)
-    {
-        PreCondition.assertNotNull(disposable, "disposable");
-
-        disposable.dispose().await();
-    }
-    
+    /**
+     * Get whether or not this Disposable has been disposed yet.
+     * @return Whether or not this Disposable has been disposed yet.
+     */
     boolean isDisposed();
 
+    /**
+     * Dispose this disposable. This function returns whether or not this Disposable was disposed.
+     * If false is returned, the most likely scenario is that this Disposable was already disposed
+     * previously.
+     * @return Whether or not this Disposable was disposed.
+     */
     Result<Boolean> dispose();
 }

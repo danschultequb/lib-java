@@ -186,13 +186,7 @@ public interface UIElement
     {
         return DynamicDistance.create(this::getContentSpaceWidth, (Action0 callback) ->
         {
-            final Disposable sizeChangedSubscription = this.onSizeChanged(callback);
-            final Disposable paddingChangedSubscription = this.onPaddingChanged(callback);
-            return Disposable.create(() ->
-            {
-                sizeChangedSubscription.dispose().await();
-                paddingChangedSubscription.dispose().await();
-            });
+            return Disposable.create(this.onSizeChanged(callback), this.onPaddingChanged(callback));
         });
     }
 
