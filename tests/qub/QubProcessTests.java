@@ -8,6 +8,16 @@ public interface QubProcessTests
         {
             ProcessTests.test(runner, creator);
 
+            runner.test("getQubFolder()", (Test test) ->
+            {
+                try (final QubProcess qubProcess = creator.run())
+                {
+                    final QubFolder folder = qubProcess.getQubFolder().await();
+                    test.assertNotNull(folder);
+                    test.assertTrue(folder.exists().await());
+                }
+            });
+
             runner.test("getQubProjectVersionFolder()", (Test test) ->
             {
                 try (final QubProcess qubProcess = creator.run())

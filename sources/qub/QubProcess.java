@@ -119,6 +119,19 @@ public interface QubProcess extends Process
     }
 
     /**
+     * Get the Qub folder that contains the main binaries for this process.
+     * @return The Qub folder that contains the main binaries for this process.
+     */
+    default Result<QubFolder> getQubFolder()
+    {
+        return Result.create(() ->
+        {
+            return this.getQubProjectVersionFolder().await()
+                .getQubFolder().await();
+        });
+    }
+
+    /**
      * Get the name of the current process's publisher.
      * @return The name of the current process's publisher.
      */
@@ -253,7 +266,7 @@ public interface QubProcess extends Process
 
         return Result.create(() ->
         {
-            QubProjectVersionFolder result = null;
+            QubProjectVersionFolder result;
 
             final FileSystem fileSystem = this.getFileSystem();
             final Path typeContainerPath = Types.getTypeContainerPath(type).await();
@@ -265,7 +278,14 @@ public interface QubProcess extends Process
             else
             {
                 final Folder projectVersionFolder = fileSystem.getFolder(typeContainerPath).await();
-                result = QubProjectVersionFolder.get(projectVersionFolder);
+                if (projectVersionFolder.exists().await() || typeContainerPath.endsWith('/') || typeContainerPath.endsWith('\\'))
+                {
+                    result = QubProjectVersionFolder.get(projectVersionFolder);
+                }
+                else
+                {
+                    result = QubProjectVersionFolder.get(projectVersionFile.getParentFolder().await());
+                }
             }
 
             PostCondition.assertNotNull(result, "result");
