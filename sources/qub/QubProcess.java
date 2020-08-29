@@ -265,10 +265,7 @@ public interface QubProcess extends Process
             else
             {
                 final Folder projectVersionFolder = fileSystem.getFolder(typeContainerPath).await();
-                if (projectVersionFolder.exists().await())
-                {
-                    result = QubProjectVersionFolder.get(projectVersionFolder);
-                }
+                result = QubProjectVersionFolder.get(projectVersionFolder);
             }
 
             PostCondition.assertNotNull(result, "result");
