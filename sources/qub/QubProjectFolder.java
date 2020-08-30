@@ -15,6 +15,30 @@ public class QubProjectFolder extends Folder
         return new QubProjectFolder(projectFolder);
     }
 
+    public static Result<QubProjectFolder> getFromType(FileSystem fileSystem, String typeFullName)
+    {
+        PreCondition.assertNotNull(fileSystem, "fileSystem");
+        PreCondition.assertNotNullAndNotEmpty(typeFullName, "typeFullName");
+
+        return Result.create(() ->
+        {
+            final QubProjectVersionFolder projectVersionFolder = QubProjectVersionFolder.getFromType(fileSystem, typeFullName).await();
+            return projectVersionFolder.getProjectFolder().await();
+        });
+    }
+
+    public static Result<QubProjectFolder> getFromType(FileSystem fileSystem, Class<?> type)
+    {
+        PreCondition.assertNotNull(fileSystem, "fileSystem");
+        PreCondition.assertNotNull(type, "type");
+
+        return Result.create(() ->
+        {
+            final QubProjectVersionFolder projectVersionFolder = QubProjectVersionFolder.getFromType(fileSystem, type).await();
+            return projectVersionFolder.getProjectFolder().await();
+        });
+    }
+
     public Result<QubFolder> getQubFolder()
     {
         return this.getPublisherFolder()

@@ -144,28 +144,6 @@ public interface QubProcess extends Process
         });
     }
 
-    default Result<QubPublisherFolder> getQubPublisherFolder(String typeFullName)
-    {
-        PreCondition.assertNotNullAndNotEmpty(typeFullName, "typeFullName");
-
-        return Result.create(() ->
-        {
-            return this.getQubProjectVersionFolder(typeFullName).await()
-                .getPublisherFolder().await();
-        });
-    }
-
-    default Result<QubPublisherFolder> getQubPublisherFolder(Class<?> type)
-    {
-        PreCondition.assertNotNull(type, "type");
-
-        return Result.create(() ->
-        {
-            return this.getQubProjectVersionFolder(type).await()
-                .getPublisherFolder().await();
-        });
-    }
-
     default Result<QubPublisherFolder> getQubPublisherFolder()
     {
         return Result.create(() ->
@@ -188,28 +166,6 @@ public interface QubProcess extends Process
         });
     }
 
-    default Result<QubProjectFolder> getQubProjectFolder(String typeFullName)
-    {
-        PreCondition.assertNotNullAndNotEmpty(typeFullName, "typeFullName");
-
-        return Result.create(() ->
-        {
-            return this.getQubProjectVersionFolder(typeFullName).await()
-                .getProjectFolder().await();
-        });
-    }
-
-    default Result<QubProjectFolder> getQubProjectFolder(Class<?> type)
-    {
-        PreCondition.assertNotNull(type, "type");
-
-        return Result.create(() ->
-        {
-            return this.getQubProjectVersionFolder(type).await()
-                .getProjectFolder().await();
-        });
-    }
-
     default Result<QubProjectFolder> getQubProjectFolder()
     {
         return Result.create(() ->
@@ -228,11 +184,7 @@ public interface QubProcess extends Process
         return Result.create(() ->
         {
             final QubProjectFolder projectFolder = this.getQubProjectFolder().await();
-            final Folder projectDataFolder = projectFolder.getProjectDataFolder().await();
-            projectDataFolder.create()
-                .catchError(FolderAlreadyExistsException.class)
-                .await();
-            return projectDataFolder;
+            return projectFolder.getProjectDataFolder().await();
         });
     }
 
@@ -249,61 +201,12 @@ public interface QubProcess extends Process
         });
     }
 
-    default Result<QubProjectVersionFolder> getQubProjectVersionFolder(String typeFullName)
-    {
-        PreCondition.assertNotNullAndNotEmpty(typeFullName, "typeFullName");
-
-        return Result.create(() ->
-        {
-            final Class<?> type = Types.getClass(typeFullName).await();
-            return this.getQubProjectVersionFolder(type).await();
-        });
-    }
-
-    default Result<QubProjectVersionFolder> getQubProjectVersionFolder(Class<?> type)
-    {
-        PreCondition.assertNotNull(type, "type");
-
-        return Result.create(() ->
-        {
-            QubProjectVersionFolder result;
-
-            final FileSystem fileSystem = this.getFileSystem();
-            final Path typeContainerPath = Types.getTypeContainerPath(type).await();
-            final File projectVersionFile = fileSystem.getFile(typeContainerPath).await();
-            if (projectVersionFile.exists().await())
-            {
-                result = QubProjectVersionFolder.get(projectVersionFile.getParentFolder().await());
-            }
-            else
-            {
-                final Folder projectVersionFolder = fileSystem.getFolder(typeContainerPath).await();
-                if (projectVersionFolder.exists().await() || typeContainerPath.endsWith('/') || typeContainerPath.endsWith('\\'))
-                {
-                    result = QubProjectVersionFolder.get(projectVersionFolder);
-                }
-                else
-                {
-                    result = QubProjectVersionFolder.get(projectVersionFile.getParentFolder().await());
-                }
-            }
-
-            PostCondition.assertNotNull(result, "result");
-
-            return result;
-        });
-    }
-
     /**
      * Get the QubProjectVersionFolder for the current process.
      * @return The QubProjectVersionFolder for the current process.
      */
     default Result<QubProjectVersionFolder> getQubProjectVersionFolder()
     {
-        return Result.create(() ->
-        {
-            final String mainClassFullName = this.getMainClassFullName();
-            return this.getQubProjectVersionFolder(mainClassFullName).await();
-        });
+        return QubProjectVersionFolder.getFromType(this.getFileSystem(), this.getMainClassFullName());
     }
 }
