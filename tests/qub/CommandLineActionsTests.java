@@ -399,6 +399,28 @@ public interface CommandLineActionsTests
                     }
                 });
 
+                runner.test("with two actions, matching action argument, and -?", (Test test) ->
+                {
+                    final CommandLineActions<Process> actions = CommandLineActions.create()
+                        .setApplicationName("hello")
+                        .setApplicationDescription("there");
+                    actions.addAction("update", (Process process) -> {});
+                    actions.addAction("list", (Process process) -> {})
+                        .setDescription("Do the list action.");
+                    try (Process process = Process.create("--action=list", "-?"))
+                    {
+                        final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
+                        process.setOutputWriteStream(output);
+
+                        actions.run(process);
+
+                        test.assertEqual(
+                            Iterable.create(),
+                            Strings.getLines(output.getText().await()));
+                        test.assertEqual(0, process.getExitCode());
+                    }
+                });
+
                 runner.test("with one action and name-matching action argument", (Test test) ->
                 {
                     final IntegerValue value = IntegerValue.create(0);
