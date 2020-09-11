@@ -1,6 +1,6 @@
 package qub;
 
-public class QubProjectVersionFolder extends Folder
+public class QubProjectVersionFolder extends Folder implements Comparable<QubProjectVersionFolder>
 {
     private QubProjectVersionFolder(Folder projectVersionFolder)
     {
@@ -158,5 +158,34 @@ public class QubProjectVersionFolder extends Folder
             return this.getProjectFolder().await()
                 .getProjectDataFolder().await();
         });
+    }
+
+    @Override
+    public Comparison compareTo(QubProjectVersionFolder rhs)
+    {
+        Comparison result;
+
+        if (rhs == null)
+        {
+            result = Comparison.GreaterThan;
+        }
+        else
+        {
+            result = Comparison.from(this.getPublisherName().await().compareTo(rhs.getPublisherName().await()));
+            if (result == Comparison.Equal)
+            {
+                result = Comparison.from(this.getProjectName().await().compareTo(rhs.getProjectName().await()));
+                if (result == Comparison.Equal)
+                {
+                    final VersionNumber lhsVersion = VersionNumber.parse(this.getVersion());
+                    final VersionNumber rhsVersion = VersionNumber.parse(rhs.getVersion());
+                    result = lhsVersion.compareTo(rhsVersion);
+                }
+            }
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 }
