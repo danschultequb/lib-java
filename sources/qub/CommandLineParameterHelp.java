@@ -30,17 +30,29 @@ public class CommandLineParameterHelp extends CommandLineParameterBoolean
             final boolean showHelpLines = this.getValue().await();
             if (showHelpLines)
             {
-                final CharacterWriteStream writeStream = process.getOutputWriteStream();
-                CommandLineParameterHelp.writeApplicationHelpLines(
-                    writeStream,
-                    this.parameters.getApplicationName(),
-                    this.parameters.getApplicationDescription(),
-                    this.parameters.getOrderedParameters()).await();
+                this.writeApplicationHelpLines(process.getOutputWriteStream()).await();
 
                 process.setExitCode(-1);
             }
             return showHelpLines;
         });
+    }
+
+    /**
+     * Write the help lines that explain how to run this application from the command line.
+     * @param writeStream The process that contains a CharacterWriteStream that the help lines will be
+     *                written to.
+     * @return The number of characters that were written.
+     */
+    public Result<Integer> writeApplicationHelpLines(CharacterWriteStream writeStream)
+    {
+        PreCondition.assertNotNull(writeStream, "process");
+
+        return CommandLineParameterHelp.writeApplicationHelpLines(
+            writeStream,
+            this.parameters.getApplicationName(),
+            this.parameters.getApplicationDescription(),
+            this.parameters.getOrderedParameters());
     }
 
     /**

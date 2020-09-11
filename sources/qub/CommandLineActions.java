@@ -164,53 +164,70 @@ public class CommandLineActions<TProcess extends Process>
         final CommandLineParameterHelp helpParameter = parameters.addHelp();
 
         final String actionName = actionParameter.removeValue().await();
-        CommandLineAction<TProcess> actionToRun = Strings.isNullOrEmpty(actionName)
-            ? this.getDefaultAction()
-            : this.getAction(actionName)
-                .catchError(NotFoundException.class)
-                .await();
-        if (actionToRun == null)
+
+        CommandLineAction<TProcess> actionToRun = null;
+        if (Strings.isNullOrEmpty(actionName))
         {
-            process.getCommandLineArguments().addNamedArgument("?");
-
-            if (helpParameter.showApplicationHelpLines(process).await())
+            if (!helpParameter.getValue().await())
             {
-                if (this.actions.any())
-                {
-                    final IndentedCharacterWriteStream output = IndentedCharacterWriteStream.create(process.getOutputWriteStream());
-                    output.writeLine().await();
-                    output.writeLine("Actions:").await();
-                    output.indent(() ->
-                    {
-                        final CharacterTable actionsTable = CharacterTable.create();
-                        final Iterable<CommandLineAction<TProcess>> orderedActions = this.actions
-                            .order((CommandLineAction<TProcess> lhs, CommandLineAction<TProcess> rhs) -> Strings.lessThan(lhs.getName(), rhs.getName()));
-                        for (final CommandLineAction<TProcess> action : orderedActions)
-                        {
-                            String actionNameCellText = action.getName();
-                            if (action.isDefaultAction())
-                            {
-                                actionNameCellText += " (default)";
-                            }
-                            actionNameCellText += ':';
-
-                            String actionDescriptionCellText = action.getDescription();
-                            if (Strings.isNullOrEmpty(actionDescriptionCellText))
-                            {
-                                actionDescriptionCellText = "(No description provided)";
-                            }
-
-                            actionsTable.addRow(actionNameCellText, actionDescriptionCellText);
-                        }
-                        actionsTable.toString(output, CharacterTableFormat.consise).await();
-                    });
-                    output.writeLine().await();
-                }
+                actionToRun = this.getDefaultAction();
             }
         }
         else
         {
+            actionToRun = this.getAction(actionName)
+                .catchError(NotFoundException.class)
+                .await();
+            if (actionToRun == null)
+            {
+                final CharacterWriteStream output = process.getOutputWriteStream();
+                output.writeLine("Unrecognized action: " + Strings.escapeAndQuote(actionName)).await();
+                output.writeLine().await();
+            }
+        }
+
+        if (actionToRun != null)
+        {
             actionToRun.run(process);
+        }
+        else
+        {
+            final IndentedCharacterWriteStream output = IndentedCharacterWriteStream.create(process.getOutputWriteStream());
+
+            helpParameter.writeApplicationHelpLines(output).await();
+
+            if (this.actions.any())
+            {
+                output.writeLine().await();
+                output.writeLine("Actions:").await();
+                output.indent(() ->
+                {
+                    final CharacterTable actionsTable = CharacterTable.create();
+                    final Iterable<CommandLineAction<TProcess>> orderedActions = this.actions
+                        .order((CommandLineAction<TProcess> lhs, CommandLineAction<TProcess> rhs) -> Strings.lessThan(lhs.getName(), rhs.getName()));
+                    for (final CommandLineAction<TProcess> action : orderedActions)
+                    {
+                        String actionNameCellText = action.getName();
+                        if (action.isDefaultAction())
+                        {
+                            actionNameCellText += " (default)";
+                        }
+                        actionNameCellText += ':';
+
+                        String actionDescriptionCellText = action.getDescription();
+                        if (Strings.isNullOrEmpty(actionDescriptionCellText))
+                        {
+                            actionDescriptionCellText = "(No description provided)";
+                        }
+
+                        actionsTable.addRow(actionNameCellText, actionDescriptionCellText);
+                    }
+                    actionsTable.toString(output, CharacterTableFormat.consise).await();
+                });
+                output.writeLine().await();
+            }
+
+            process.setExitCode(-1);
         }
     }
 }

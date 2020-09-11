@@ -277,6 +277,8 @@ public interface CommandLineActionsTests
 
                         test.assertEqual(
                             Iterable.create(
+                                "Unrecognized action: \"stuff\"",
+                                "",
                                 "Usage: hello [--action=]<action-name> [--help]",
                                 "  there",
                                 "  --action(a): The name of the action to invoke.",
@@ -357,6 +359,8 @@ public interface CommandLineActionsTests
 
                         test.assertEqual(
                             Iterable.create(
+                                "Unrecognized action: \"foo\"",
+                                "",
                                 "Usage: hello [--action=]<action-name> [--help]",
                                 "  there",
                                 "  --action(a): The name of the action to invoke.",
@@ -386,6 +390,8 @@ public interface CommandLineActionsTests
 
                         test.assertEqual(
                             Iterable.create(
+                                "Unrecognized action: \"foo\"",
+                                "",
                                 "Usage: hello [--action=]<action-name> [--help]",
                                 "  there",
                                 "  --action(a): The name of the action to invoke.",
