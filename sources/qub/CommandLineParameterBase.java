@@ -315,29 +315,4 @@ public abstract class CommandLineParameterBase<T>
 
         return result;
     }
-
-    /**
-     * Get the line of a help message that describes this parameter.
-     * @return The line of a help message that describes this parameter.
-     */
-    public String getHelpLine()
-    {
-        String result = "--" + getName();
-
-        final Iterable<String> aliases = getAliases();
-        if (!Iterable.isNullOrEmpty(aliases))
-        {
-            result += "(" + Strings.join(',', aliases) + ")";
-        }
-        result += ": ";
-
-        String description = getDescription();
-        result += !Strings.isNullOrEmpty(description)
-            ? description
-            : "(No description provided)";
-
-        PostCondition.assertNotNullAndNotEmpty(result, "result");
-
-        return result;
-    }
 }

@@ -21,6 +21,14 @@ public class CommandLineParameters
     }
 
     /**
+     * Create a new CommandLineParameters object.
+     */
+    public static CommandLineParameters create()
+    {
+        return new CommandLineParameters();
+    }
+
+    /**
      * Set the name of the application that these parameters apply to.
      * @param applicationName The name of the application that these parameters apply to.
      * @return This object for method chaining.
@@ -89,8 +97,8 @@ public class CommandLineParameters
      */
     public Iterable<CommandLineParameterBase<?>> getOrderedParameters()
     {
-        final List<CommandLineParameterBase<?>> result = List.create(getPositionParameters());
-        result.addAll(getNonPositionParameters());
+        final List<CommandLineParameterBase<?>> result = List.create(this.getPositionParameters());
+        result.addAll(this.getNonPositionParameters());
 
         PostCondition.assertNotNull(result, "result");
 
@@ -103,7 +111,7 @@ public class CommandLineParameters
      */
     private Indexable<CommandLineParameterBase<?>> getPositionParameters()
     {
-        final Indexable<CommandLineParameterBase<?>> result = parameters.where(CommandLineParameterBase::hasIndex).toList();
+        final Indexable<CommandLineParameterBase<?>> result = this.parameters.where(CommandLineParameterBase::hasIndex).toList();
 
         PostCondition.assertNotNull(result, "result");
 
@@ -483,70 +491,5 @@ public class CommandLineParameters
     public CommandLineParameterHelp addHelp()
     {
         return add(new CommandLineParameterHelp(this));
-    }
-
-    /**
-     * Get the string that shows how this application can be used.
-     * @param commandName The name of this application.
-     * @return The string that shows how this application can be used.
-     */
-    public String getUsageString(String commandName)
-    {
-        PreCondition.assertNotNullAndNotEmpty(commandName, "commandName");
-
-        String result = commandName;
-        for (final CommandLineParameterBase<?> parameter : getOrderedParameters())
-        {
-            result += " " + parameter.getUsageString();
-        }
-
-        PostCondition.assertNotNullAndNotEmpty(result, "result");
-
-        return result;
-    }
-
-    /**
-     * Get the lines that explain how to run this application from the command line.
-     * @param commandName The name of this application.
-     * @return The lines that explain how to run this application from the command line.
-     */
-    public Iterable<String> getHelpLines(String commandName, String commandDescription)
-    {
-        PreCondition.assertNotNullAndNotEmpty(commandName, "commandName");
-        PreCondition.assertNotNullAndNotEmpty(commandDescription, "commandDescription");
-
-        final List<String> result = List.create();
-        result.add("Usage: " + getUsageString(commandName));
-        result.add("  " + commandDescription);
-        for (final CommandLineParameterBase<?> parameter : getOrderedParameters())
-        {
-            result.add("  " + parameter.getHelpLine());
-        }
-
-        PostCondition.assertNotNullAndNotEmpty(result, "result");
-
-        return result;
-    }
-
-    /**
-     * Write the help lines that explain how to run this application from the command line.
-     * @param process The process that contains a CharacterWriteStream that the help lines will be
-     *                written to.
-     * @return The result of writing the help lines.
-     */
-    public Result<Void> writeHelpLines(Process process, String commandName, String commandDescription)
-    {
-        PreCondition.assertNotNull(process, "process");
-        PreCondition.assertNotNullAndNotEmpty(commandName, "commandName");
-        PreCondition.assertNotNullAndNotEmpty(commandDescription, "commandDescription");
-
-        return Result.create(() ->
-        {
-            final CharacterWriteStream writeStream = process.getOutputWriteStream();
-            for (final String helpLine : getHelpLines(commandName, commandDescription))
-            {
-                writeStream.writeLine(helpLine).await();
-            }
-        });
     }
 }

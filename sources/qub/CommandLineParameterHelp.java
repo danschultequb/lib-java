@@ -15,53 +15,6 @@ public class CommandLineParameterHelp extends CommandLineParameterBoolean
     }
 
     /**
-     * Get the string that shows how this application can be used.
-     * @return The string that shows how this application can be used.
-     */
-    public static String getApplicationUsageString(String applicationName, Iterable<CommandLineParameterBase<?>> parameters)
-    {
-        PreCondition.assertNotNullAndNotEmpty(applicationName, "applicationName");
-        PreCondition.assertNotNull(parameters, "parameters");
-
-        String result = applicationName;
-        for (final CommandLineParameterBase<?> parameter : parameters)
-        {
-            result += " " + parameter.getUsageString();
-        }
-
-        PostCondition.assertNotNullAndNotEmpty(result, "result");
-
-        return result;
-    }
-
-    /**
-     * Get the lines that explain how to run this application from the command line.
-     */
-    public static Iterable<String> getApplicationHelpLines(String applicationName, String applicationDescription, Iterable<CommandLineParameterBase<?>> parameters)
-    {
-        final List<String> result = List.create();
-        if (!Strings.isNullOrEmpty(applicationName))
-        {
-            result.add("Usage: " + CommandLineParameterHelp.getApplicationUsageString(applicationName, parameters));
-        }
-        if (!Strings.isNullOrEmpty(applicationDescription))
-        {
-            result.add("  " + applicationDescription);
-        }
-        if (parameters != null)
-        {
-            for (final CommandLineParameterBase<?> parameter : parameters)
-            {
-                result.add("  " + parameter.getHelpLine());
-            }
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    /**
      * Show the help lines that explain how to run this application from the command line if a help
      * command line argument was provided the Process.
      * @param process The process that contains a CharacterWriteStream that the help lines will be
@@ -78,17 +31,95 @@ public class CommandLineParameterHelp extends CommandLineParameterBoolean
             if (showHelpLines)
             {
                 final CharacterWriteStream writeStream = process.getOutputWriteStream();
-                final Iterable<String> helpLines = CommandLineParameterHelp.getApplicationHelpLines(
+                CommandLineParameterHelp.writeApplicationHelpLines(
+                    writeStream,
                     this.parameters.getApplicationName(),
                     this.parameters.getApplicationDescription(),
-                    this.parameters.getOrderedParameters());
-                for (final String helpLine : helpLines)
-                {
-                    writeStream.writeLine(helpLine).await();
-                }
+                    this.parameters.getOrderedParameters()).await();
+
                 process.setExitCode(-1);
             }
             return showHelpLines;
+        });
+    }
+
+    /**
+     * Get the lines that explain how to run this application from the command line.
+     */
+    public static Result<Integer> writeApplicationHelpLines(CharacterWriteStream writeStream, String applicationName, String applicationDescription, Iterable<CommandLineParameterBase<?>> parameters)
+    {
+        PreCondition.assertNotNull(writeStream, "writeStream");
+
+        return CommandLineParameterHelp.writeApplicationHelpLines(
+            IndentedCharacterWriteStream.create(writeStream),
+            applicationName,
+            applicationDescription,
+            parameters);
+    }
+
+    /**
+     * Get the lines that explain how to run this application from the command line.
+     */
+    public static Result<Integer> writeApplicationHelpLines(IndentedCharacterWriteStream writeStream, String applicationName, String applicationDescription, Iterable<CommandLineParameterBase<?>> parameters)
+    {
+        PreCondition.assertNotNull(writeStream, "writeStream");
+
+        return Result.create(() ->
+        {
+            int result = 0;
+
+            if (!Strings.isNullOrEmpty(applicationName))
+            {
+                result += writeStream.write("Usage: ").await();
+                result += writeStream.write(applicationName).await();
+                for (final CommandLineParameterBase<?> parameter : parameters)
+                {
+                    result += writeStream.write(" " + parameter.getUsageString()).await();
+                }
+                result += writeStream.writeLine().await();
+            }
+
+            writeStream.increaseIndent();
+            try
+            {
+                if (!Strings.isNullOrEmpty(applicationDescription))
+                {
+                    result += writeStream.writeLine(applicationDescription).await();
+                }
+                if (parameters != null)
+                {
+                    final CharacterTable parameterTable = CharacterTable.create();
+                    for (final CommandLineParameterBase<?> parameter : parameters)
+                    {
+                        String parameterNameCellText = "--" + parameter.getName();
+                        final Iterable<String> aliases = parameter.getAliases();
+                        if (!Iterable.isNullOrEmpty(aliases))
+                        {
+                            parameterNameCellText += "(" + Strings.join(',', aliases) + ")";
+                        }
+                        parameterNameCellText += ":";
+
+                        String parameterDescriptionCellText = parameter.getDescription();
+                        if (Strings.isNullOrEmpty(parameterDescriptionCellText))
+                        {
+                            parameterDescriptionCellText = "(No description provided)";
+                        }
+
+                        parameterTable.addRow(parameterNameCellText, parameterDescriptionCellText);
+                    }
+                    result += parameterTable.toString(writeStream, CharacterTableFormat.consise).await();
+                }
+            }
+            finally
+            {
+                writeStream.decreaseIndent();
+            }
+
+            result += writeStream.writeLine().await();
+
+            PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
+
+            return result;
         });
     }
 }

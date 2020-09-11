@@ -10,6 +10,56 @@ public interface CommandLineParametersTests
             {
                 final CommandLineParameters parameters = new CommandLineParameters();
                 test.assertNotNull(parameters);
+                test.assertNull(parameters.getApplicationName());
+                test.assertNull(parameters.getApplicationDescription());
+                test.assertEqual(Iterable.create(), parameters.getOrderedParameters());
+            });
+
+            runner.test("create()", (Test test) ->
+            {
+                final CommandLineParameters parameters = CommandLineParameters.create();
+                test.assertNotNull(parameters);
+                test.assertNull(parameters.getApplicationName());
+                test.assertNull(parameters.getApplicationDescription());
+                test.assertEqual(Iterable.create(), parameters.getOrderedParameters());
+            });
+
+            runner.testGroup("setApplicationName(String)", () ->
+            {
+                final Action1<String> setApplicationNameTest = (String applicationName) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(applicationName), (Test test) ->
+                    {
+                        final CommandLineParameters parameters = CommandLineParameters.create();
+                        final CommandLineParameters setApplicationNameResult = parameters.setApplicationName(applicationName);
+                        test.assertSame(parameters, setApplicationNameResult);
+                        test.assertEqual(applicationName, parameters.getApplicationName());
+                    });
+                };
+
+                setApplicationNameTest.run(null);
+                setApplicationNameTest.run("");
+                setApplicationNameTest.run("a");
+                setApplicationNameTest.run("hello there");
+            });
+
+            runner.testGroup("setApplicationDescription(String)", () ->
+            {
+                final Action1<String> setApplicationDescriptionTest = (String applicationDescription) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(applicationDescription), (Test test) ->
+                    {
+                        final CommandLineParameters parameters = CommandLineParameters.create();
+                        final CommandLineParameters setApplicationDescriptionResult = parameters.setApplicationDescription(applicationDescription);
+                        test.assertSame(parameters, setApplicationDescriptionResult);
+                        test.assertEqual(applicationDescription, parameters.getApplicationDescription());
+                    });
+                };
+
+                setApplicationDescriptionTest.run(null);
+                setApplicationDescriptionTest.run("");
+                setApplicationDescriptionTest.run("a");
+                setApplicationDescriptionTest.run("hello there");
             });
 
             runner.testGroup("setArguments(CommandLineArguments)", () ->

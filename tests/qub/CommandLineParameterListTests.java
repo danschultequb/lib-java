@@ -630,51 +630,6 @@ public interface CommandLineParameterListTests
                     test.assertEqual("--fakeName[=<true|false>]", parameter.getUsageString());
                 });
             });
-
-            runner.testGroup("getHelpLine()", () ->
-            {
-                runner.test("with no description or aliases", (Test test) ->
-                {
-                    final CommandLineParameterList<String> parameter = new CommandLineParameterList<>("fakeName", null, Result::success);
-                    test.assertEqual("--fakeName: (No description provided)", parameter.getHelpLine());
-                });
-
-                runner.test("with empty description", (Test test) ->
-                {
-                    final CommandLineParameterList<String> parameter = new CommandLineParameterList<>("fakeName", null, Result::success)
-                        .setDescription("");
-                    test.assertEqual("--fakeName: (No description provided)", parameter.getHelpLine());
-                });
-
-                runner.test("with non-empty description", (Test test) ->
-                {
-                    final CommandLineParameterList<String> parameter = new CommandLineParameterList<>("fakeName", null, Result::success)
-                        .setDescription("hello");
-                    test.assertEqual("--fakeName: hello", parameter.getHelpLine());
-                });
-
-                runner.test("with empty aliases", (Test test) ->
-                {
-                    final CommandLineParameterList<String> parameter = new CommandLineParameterList<>("fakeName", null, Result::success)
-                        .setAliases(Iterable.create());
-                    test.assertEqual("--fakeName: (No description provided)", parameter.getHelpLine());
-                });
-
-                runner.test("with one alias", (Test test) ->
-                {
-                    final CommandLineParameterList<String> parameter = new CommandLineParameterList<>("fakeName", null, Result::success)
-                        .addAlias("fn");
-                    test.assertEqual("--fakeName(fn): (No description provided)", parameter.getHelpLine());
-                });
-
-                runner.test("with two aliases", (Test test) ->
-                {
-                    final CommandLineParameterList<String> parameter = new CommandLineParameterList<>("fakeName", null, Result::success)
-                        .addAlias("fn")
-                        .addAlias("faken");
-                    test.assertEqual("--fakeName(fn,faken): (No description provided)", parameter.getHelpLine());
-                });
-            });
         });
     }
 }
