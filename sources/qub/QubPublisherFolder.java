@@ -74,6 +74,14 @@ public class QubPublisherFolder extends Folder
             .then((Folder folder) -> QubProjectFolder.get(folder));
     }
 
+    public Result<Folder> getProjectDataFolder(String projectName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
+
+        return this.getProjectFolder(projectName)
+            .then((QubProjectFolder projectFolder) -> projectFolder.getProjectDataFolder().await());
+    }
+
     public Result<Iterable<QubProjectVersionFolder>> getProjectVersionFolders(String projectName)
     {
         PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
