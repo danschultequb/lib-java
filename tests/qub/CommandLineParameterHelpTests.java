@@ -52,13 +52,13 @@ public interface CommandLineParameterHelpTests
                         Iterable.create(
                             "Usage: qub-test [[--folder=]<folder-path-to-test>] [--pattern=<test-name-pattern>] [--coverage] [--verbose] [--help]",
                             "  Used to run tests in source code projects.",
-                            "  --folder(f):   The folder that contains the tests to run.                      ",
-                            "  --pattern(p):  The pattern that test names must match to be run.               ",
-                            "  --coverage(c): Whether or not to collect code coverage information.            ",
-                            "  --verbose(v):  Whether or not to output verbose logs.                          ",
+                            "  --folder(f):   The folder that contains the tests to run.",
+                            "  --pattern(p):  The pattern that test names must match to be run.",
+                            "  --coverage(c): Whether or not to collect code coverage information.",
+                            "  --verbose(v):  Whether or not to output verbose logs.",
                             "  --help(?,h):   Whether or not to display the help message for this application."),
                         Strings.getLines(stream.getText().await()));
-                    test.assertEqual(572, charactersWritten);
+                    test.assertEqual(497, charactersWritten);
                 });
 
                 runner.test("with positional parameter list", (Test test) ->

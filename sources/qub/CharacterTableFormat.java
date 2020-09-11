@@ -24,7 +24,8 @@ public class CharacterTableFormat
      */
     public static final CharacterTableFormat consise = CharacterTableFormat.create()
         .setColumnSeparator(' ')
-        .setNewLine('\n');
+        .setNewLine('\n')
+        .setTrimLastColumnTrailingWhitespace(true);
 
     private String columnSeparator;
     private Iterable<Character> rowSeparator;
@@ -34,6 +35,7 @@ public class CharacterTableFormat
     private Iterable<Character> topBorder;
     private Iterable<Character> bottomBorder;
     private MutableMap<Integer,HorizontalAlignment> columnHorizontalAlignment;
+    private boolean trimLastColumnTrailingWhitespace;
 
     private CharacterTableFormat()
     {
@@ -344,9 +346,36 @@ public class CharacterTableFormat
         });
     }
 
-    public String padCell(int columnIndex, String cellText, int columnWidth)
+    /**
+     * Set whether or not the trailing whitespace of the text in the last column will be trimmed.
+     * If the last column is right-aligned or if the table has a right border, this setting will be
+     * ignored.
+     * @param trimLastColumnTrailingWhitespace  Whether or not the trailing whitespace of the text
+     *                                          in the last column will be ignored.
+     * @return This object for method chaining.
+     */
+    public CharacterTableFormat setTrimLastColumnTrailingWhitespace(boolean trimLastColumnTrailingWhitespace)
+    {
+        this.trimLastColumnTrailingWhitespace = trimLastColumnTrailingWhitespace;
+        return this;
+    }
+
+    /**
+     * Get whether or not the trailing whitespace of the text in the last column will be trimmed.
+     * If the last column is right-aligned or if the table has a right border, this setting will be
+     * ignored.
+     * @return Get whether or not the trailing whitespace of the text in the last column will be
+     * trimmed.
+     */
+    public boolean getTrimLastColumnTrailingWhitespace()
+    {
+        return this.trimLastColumnTrailingWhitespace;
+    }
+
+    public String padCell(int columnIndex, int columnCount, String cellText, int columnWidth)
     {
         PreCondition.assertGreaterThanOrEqualTo(columnIndex, 0, "columnIndex");
+        PreCondition.assertGreaterThan(columnCount, columnIndex, "columnCount");
         PreCondition.assertNotNull(cellText, "cellText");
         PreCondition.assertGreaterThanOrEqualTo(columnWidth, 0, "columnWidth");
 
@@ -354,37 +383,45 @@ public class CharacterTableFormat
             .catchError(NotFoundException.class, () -> HorizontalAlignment.Left)
             .await();
 
-        String result;
+        String result = cellText;
 
-        final int cellTextLength = cellText.length();
-        if (columnWidth <= cellTextLength)
-        {
-            result = cellText;
-        }
-        else
+        final int cellTextLength = result.length();
+        if (cellTextLength < columnWidth)
         {
             switch (columnHorizontalAlignment)
             {
                 case Left:
-                    result = Strings.padRight(cellText, columnWidth, ' ');
+                    if (this.shouldPadRight(columnIndex, columnCount))
+                    {
+                        result = Strings.padRight(result, columnWidth, ' ');
+                    }
                     break;
 
                 case Right:
-                    result = Strings.padLeft(cellText, columnWidth, ' ');
+                    result = Strings.padLeft(result, columnWidth, ' ');
                     break;
 
                 default:
                     final int cellWidthDifference = columnWidth - cellTextLength;
-                    result = Strings.padLeft(cellText, cellTextLength + (cellWidthDifference / 2), ' ');
-                    result = Strings.padRight(result, columnWidth, ' ');
+                    result = Strings.padLeft(result, cellTextLength + (cellWidthDifference / 2), ' ');
+                    if (this.shouldPadRight(columnIndex, columnCount))
+                    {
+                        result = Strings.padRight(result, columnWidth, ' ');
+                    }
                     break;
             }
         }
 
         PostCondition.assertNotNull(result, "result");
-        PostCondition.assertGreaterThanOrEqualTo(result.length(), columnWidth, "result.length()");
 
         return result;
+    }
+
+    private boolean shouldPadRight(int columnIndex, int columnCount)
+    {
+        return !this.getTrimLastColumnTrailingWhitespace() ||
+            columnIndex < columnCount - 1 ||
+            !Strings.isNullOrEmpty(this.getRightBorder());
     }
 
     @Override

@@ -182,7 +182,7 @@ public class CharacterTable
                 }
 
                 final Iterator<String> cellIterator = row.iterate();
-                for (int columnIndex = 0; columnIndex < columnWidths.getCount(); ++columnIndex)
+                for (int columnIndex = 0; columnIndex < columnCount; ++columnIndex)
                 {
                     if (columnIndex > 0 && hasColumnSeparator)
                     {
@@ -194,7 +194,7 @@ public class CharacterTable
                     final String cell = cellIterator.next()
                         ? cellIterator.getCurrent()
                         : "";
-                    final String paddedCell = format.padCell(columnIndex, cell, columnWidth);
+                    final String paddedCell = format.padCell(columnIndex, columnCount, cell, columnWidth);
 
                     result += writeStream.write(paddedCell).await();
                 }

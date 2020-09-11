@@ -248,7 +248,10 @@ public interface CharacterTableTests
                         .addRow("b", "c")
                         .addRow("d", "e", "f"),
                     CharacterTableFormat.consise,
-                    "a    \nb c  \nd e f");
+                    Strings.join('\n', Iterable.create(
+                        "a   ",
+                        "b c ",
+                        "d e f")));
                 toStringTest.run(
                     CharacterTable.create()
                         .addRow("Tests run:", "500")
@@ -256,8 +259,8 @@ public interface CharacterTableTests
                         .addRow("Tests duration:", "5 Seconds"),
                     CharacterTableFormat.consise,
                     Strings.join('\n', Iterable.create(
-                        "Tests run:      500      ",
-                        "Tests failed:   3        ",
+                        "Tests run:      500",
+                        "Tests failed:   3",
                         "Tests duration: 5 Seconds")));
                 toStringTest.run(
                     CharacterTable.create()
@@ -266,8 +269,8 @@ public interface CharacterTableTests
                         .addRow("Tests duration:", "5", "Seconds"),
                     CharacterTableFormat.consise,
                     Strings.join('\n', Iterable.create(
-                        "Tests run:      500        ",
-                        "Tests failed:   3          ",
+                        "Tests run:      500 ",
+                        "Tests failed:   3   ",
                         "Tests duration: 5   Seconds")));
 
                 toStringTest.run(
@@ -937,7 +940,10 @@ public interface CharacterTableTests
                         .addRow("b", "c")
                         .addRow("d", "e", "f"),
                     CharacterTableFormat.consise,
-                    "a    \nb c  \nd e f");
+                    Strings.join('\n', Iterable.create(
+                        "a   ",
+                        "b c ",
+                        "d e f")));
                 toStringTest.run(
                     CharacterTable.create()
                         .addRow("Tests run:", "500")
@@ -945,8 +951,8 @@ public interface CharacterTableTests
                         .addRow("Tests duration:", "5 Seconds"),
                     CharacterTableFormat.consise,
                     Strings.join('\n', Iterable.create(
-                        "Tests run:      500      ",
-                        "Tests failed:   3        ",
+                        "Tests run:      500",
+                        "Tests failed:   3",
                         "Tests duration: 5 Seconds")));
                 toStringTest.run(
                     CharacterTable.create()
@@ -955,8 +961,8 @@ public interface CharacterTableTests
                         .addRow("Tests duration:", "5", "Seconds"),
                     CharacterTableFormat.consise,
                     Strings.join('\n', Iterable.create(
-                        "Tests run:      500        ",
-                        "Tests failed:   3          ",
+                        "Tests run:      500 ",
+                        "Tests failed:   3   ",
                         "Tests duration: 5   Seconds")));
                 toStringTest.run(
                     CharacterTable.create()

@@ -22,7 +22,8 @@ public interface CharacterTableFormatTests
                 test.assertEqual(
                     CharacterTableFormat.create()
                         .setColumnSeparator(' ')
-                        .setNewLine('\n'),
+                        .setNewLine('\n')
+                        .setTrimLastColumnTrailingWhitespace(true),
                     CharacterTableFormat.consise);
             });
 
@@ -37,6 +38,7 @@ public interface CharacterTableFormatTests
                 test.assertEqual(null, format.getBottomBorder());
                 test.assertEqual(null, format.getLeftBorder());
                 test.assertEqual(null, format.getRightBorder());
+                test.assertFalse(format.getTrimLastColumnTrailingWhitespace());
             });
 
             runner.testGroup("setColumnSeparator(char)", () ->
@@ -486,68 +488,86 @@ public interface CharacterTableFormatTests
                 });
             });
 
-            runner.testGroup("padCell(int,String,int)", () ->
+            runner.testGroup("setTrimLastColumnTrailingWhitespace(boolean)", () ->
             {
-                final Action4<Integer,String,Integer,Throwable> padCellErrorTest = (Integer columnIndex, String text, Integer columnWidth, Throwable expected) ->
+                final Action1<Boolean> setTrimLastColumnTrailingWhitespaceTest = (Boolean value) ->
                 {
-                    runner.test("with " + English.andList(columnIndex, text, columnWidth), (Test test) ->
+                    runner.test("with " + value, (Test test) ->
                     {
                         final CharacterTableFormat format = CharacterTableFormat.create();
-                        test.assertThrows(() -> format.padCell(columnIndex, text, columnWidth), expected);
+                        final CharacterTableFormat setTrimLastColumnTrailingWhitespaceResult = format.setTrimLastColumnTrailingWhitespace(value);
+                        test.assertSame(format, setTrimLastColumnTrailingWhitespaceResult);
+                        test.assertEqual(value, format.getTrimLastColumnTrailingWhitespace());
                     });
                 };
 
-                padCellErrorTest.run(-1, "", 5, new PreConditionFailure("columnIndex (-1) must be greater than or equal to 0."));
-                padCellErrorTest.run(0, null, 5, new PreConditionFailure("cellText cannot be null."));
-                padCellErrorTest.run(0, "hello", -1, new PreConditionFailure("columnWidth (-1) must be greater than or equal to 0."));
+                setTrimLastColumnTrailingWhitespaceTest.run(false);
+                setTrimLastColumnTrailingWhitespaceTest.run(true);
+            });
 
-                final Action5<HorizontalAlignment,Integer,String,Integer,String> padCellTest = (HorizontalAlignment columnHorizontalAlignment, Integer columnIndex, String cellText, Integer columnWidth, String expected) ->
+            runner.testGroup("padCell(int,String,int)", () ->
+            {
+                final Action5<Integer,Integer,String,Integer,Throwable> padCellErrorTest = (Integer columnIndex, Integer columnCount, String text, Integer columnWidth, Throwable expected) ->
                 {
-                    runner.test("with " + English.andList(columnHorizontalAlignment, columnIndex, cellText, columnWidth), (Test test) ->
+                    runner.test("with " + English.andList(columnIndex, columnCount, text, columnWidth), (Test test) ->
+                    {
+                        final CharacterTableFormat format = CharacterTableFormat.create();
+                        test.assertThrows(() -> format.padCell(columnIndex, columnCount, text, columnWidth), expected);
+                    });
+                };
+
+                padCellErrorTest.run(-1, 2, "", 5, new PreConditionFailure("columnIndex (-1) must be greater than or equal to 0."));
+                padCellErrorTest.run(5, 4, "", 5, new PreConditionFailure("columnCount (4) must be greater than 5."));
+                padCellErrorTest.run(0, 2, null, 5, new PreConditionFailure("cellText cannot be null."));
+                padCellErrorTest.run(0, 2, "hello", -1, new PreConditionFailure("columnWidth (-1) must be greater than or equal to 0."));
+
+                final Action6<HorizontalAlignment,Integer,Integer,String,Integer,String> padCellTest = (HorizontalAlignment columnHorizontalAlignment, Integer columnIndex, Integer columnCount, String cellText, Integer columnWidth, String expected) ->
+                {
+                    runner.test("with " + English.andList(columnHorizontalAlignment, columnIndex, columnCount, cellText, columnWidth), (Test test) ->
                     {
                         final CharacterTableFormat format = CharacterTableFormat.create();
                         if (columnHorizontalAlignment != null)
                         {
                             format.setColumnHorizontalAlignment(columnIndex, columnHorizontalAlignment);
                         }
-                        test.assertEqual(expected, format.padCell(columnIndex, cellText, columnWidth));
+                        test.assertEqual(expected, format.padCell(columnIndex, columnCount, cellText, columnWidth));
                     });
                 };
 
-                padCellTest.run(null, 0, "", 0, "");
-                padCellTest.run(HorizontalAlignment.Left, 0, "", 0, "");
-                padCellTest.run(HorizontalAlignment.Center, 0, "", 0, "");
-                padCellTest.run(HorizontalAlignment.Right, 0, "", 0, "");
+                padCellTest.run(null, 0, 1, "", 0, "");
+                padCellTest.run(HorizontalAlignment.Left, 0, 1, "", 0, "");
+                padCellTest.run(HorizontalAlignment.Center, 0, 1, "", 0, "");
+                padCellTest.run(HorizontalAlignment.Right, 0, 1, "", 0, "");
 
-                padCellTest.run(null, 1, "abc", 0, "abc");
-                padCellTest.run(HorizontalAlignment.Left, 1, "abc", 0, "abc");
-                padCellTest.run(HorizontalAlignment.Center, 1, "abc", 0, "abc");
-                padCellTest.run(HorizontalAlignment.Right, 1, "abc", 0, "abc");
+                padCellTest.run(null, 1, 2, "abc", 0, "abc");
+                padCellTest.run(HorizontalAlignment.Left, 1, 2, "abc", 0, "abc");
+                padCellTest.run(HorizontalAlignment.Center, 1, 2, "abc", 0, "abc");
+                padCellTest.run(HorizontalAlignment.Right, 1, 2, "abc", 0, "abc");
 
-                padCellTest.run(null, 2, "abc", 3, "abc");
-                padCellTest.run(HorizontalAlignment.Left, 2, "abc", 3, "abc");
-                padCellTest.run(HorizontalAlignment.Center, 2, "abc", 3, "abc");
-                padCellTest.run(HorizontalAlignment.Right, 2, "abc", 3, "abc");
+                padCellTest.run(null, 2, 3, "abc", 3, "abc");
+                padCellTest.run(HorizontalAlignment.Left, 2, 3, "abc", 3, "abc");
+                padCellTest.run(HorizontalAlignment.Center, 2, 3, "abc", 3, "abc");
+                padCellTest.run(HorizontalAlignment.Right, 2, 3, "abc", 3, "abc");
 
-                padCellTest.run(null, 3, "abc", 4, "abc ");
-                padCellTest.run(HorizontalAlignment.Left, 3, "abc", 4, "abc ");
-                padCellTest.run(HorizontalAlignment.Center, 3, "abc", 4, "abc ");
-                padCellTest.run(HorizontalAlignment.Right, 3, "abc", 4, " abc");
+                padCellTest.run(null, 3, 4, "abc", 4, "abc ");
+                padCellTest.run(HorizontalAlignment.Left, 3, 4, "abc", 4, "abc ");
+                padCellTest.run(HorizontalAlignment.Center, 3, 4, "abc", 4, "abc ");
+                padCellTest.run(HorizontalAlignment.Right, 3, 4, "abc", 4, " abc");
 
-                padCellTest.run(null, 4, "abc", 5, "abc  ");
-                padCellTest.run(HorizontalAlignment.Left, 4, "abc", 5, "abc  ");
-                padCellTest.run(HorizontalAlignment.Center, 4, "abc", 5, " abc ");
-                padCellTest.run(HorizontalAlignment.Right, 4, "abc", 5, "  abc");
+                padCellTest.run(null, 4, 5, "abc", 5, "abc  ");
+                padCellTest.run(HorizontalAlignment.Left, 4, 5, "abc", 5, "abc  ");
+                padCellTest.run(HorizontalAlignment.Center, 4, 5, "abc", 5, " abc ");
+                padCellTest.run(HorizontalAlignment.Right, 4, 5, "abc", 5, "  abc");
 
-                padCellTest.run(null, 5, "abc", 6, "abc   ");
-                padCellTest.run(HorizontalAlignment.Left, 5, "abc", 6, "abc   ");
-                padCellTest.run(HorizontalAlignment.Center, 5, "abc", 6, " abc  ");
-                padCellTest.run(HorizontalAlignment.Right, 5, "abc", 6, "   abc");
+                padCellTest.run(null, 5, 6, "abc", 6, "abc   ");
+                padCellTest.run(HorizontalAlignment.Left, 5, 6, "abc", 6, "abc   ");
+                padCellTest.run(HorizontalAlignment.Center, 5, 6, "abc", 6, " abc  ");
+                padCellTest.run(HorizontalAlignment.Right, 5, 6, "abc", 6, "   abc");
 
-                padCellTest.run(null, 6, "abc", 7, "abc    ");
-                padCellTest.run(HorizontalAlignment.Left, 6, "abc", 7, "abc    ");
-                padCellTest.run(HorizontalAlignment.Center, 6, "abc", 7, "  abc  ");
-                padCellTest.run(HorizontalAlignment.Right, 6, "abc", 7, "    abc");
+                padCellTest.run(null, 6, 7, "abc", 7, "abc    ");
+                padCellTest.run(HorizontalAlignment.Left, 6, 7, "abc", 7, "abc    ");
+                padCellTest.run(HorizontalAlignment.Center, 6, 7, "abc", 7, "  abc  ");
+                padCellTest.run(HorizontalAlignment.Right, 6, 7, "abc", 7, "    abc");
             });
 
             runner.testGroup("toString()", () ->

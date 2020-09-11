@@ -233,7 +233,7 @@ public interface CommandLineActionsTests
                             Iterable.create(
                                 "Usage: hello [--action=]<action-name> [--help]",
                                 "  there",
-                                "  --action(a): The name of the action to invoke.          ",
+                                "  --action(a): The name of the action to invoke.",
                                 "  --help(?):   Show the help message for this application."),
                             Strings.getLines(output.getText().await()));
                         test.assertEqual(-1, process.getExitCode());
@@ -256,7 +256,7 @@ public interface CommandLineActionsTests
                             Iterable.create(
                                 "Usage: hello [--action=]<action-name> [--help]",
                                 "  there",
-                                "  --action(a): The name of the action to invoke.          ",
+                                "  --action(a): The name of the action to invoke.",
                                 "  --help(?):   Show the help message for this application."),
                             Strings.getLines(output.getText().await()));
                         test.assertEqual(-1, process.getExitCode());
@@ -279,7 +279,7 @@ public interface CommandLineActionsTests
                             Iterable.create(
                                 "Usage: hello [--action=]<action-name> [--help]",
                                 "  there",
-                                "  --action(a): The name of the action to invoke.          ",
+                                "  --action(a): The name of the action to invoke.",
                                 "  --help(?):   Show the help message for this application."),
                             Strings.getLines(output.getText().await()));
                         test.assertEqual(-1, process.getExitCode());
@@ -304,7 +304,7 @@ public interface CommandLineActionsTests
                             Iterable.create(
                                 "Usage: hello [--action=]<action-name> [--help]",
                                 "  there",
-                                "  --action(a): The name of the action to invoke.          ",
+                                "  --action(a): The name of the action to invoke.",
                                 "  --help(?):   Show the help message for this application.",
                                 "",
                                 "Actions:",
@@ -332,7 +332,7 @@ public interface CommandLineActionsTests
                             Iterable.create(
                                 "Usage: hello [--action=]<action-name> [--help]",
                                 "  there",
-                                "  --action(a): The name of the action to invoke.          ",
+                                "  --action(a): The name of the action to invoke.",
                                 "  --help(?):   Show the help message for this application.",
                                 "",
                                 "Actions:",
@@ -359,7 +359,7 @@ public interface CommandLineActionsTests
                             Iterable.create(
                                 "Usage: hello [--action=]<action-name> [--help]",
                                 "  there",
-                                "  --action(a): The name of the action to invoke.          ",
+                                "  --action(a): The name of the action to invoke.",
                                 "  --help(?):   Show the help message for this application.",
                                 "",
                                 "Actions:",
@@ -388,11 +388,11 @@ public interface CommandLineActionsTests
                             Iterable.create(
                                 "Usage: hello [--action=]<action-name> [--help]",
                                 "  there",
-                                "  --action(a): The name of the action to invoke.          ",
+                                "  --action(a): The name of the action to invoke.",
                                 "  --help(?):   Show the help message for this application.",
                                 "",
                                 "Actions:",
-                                "  list:   Do the list action.      ",
+                                "  list:   Do the list action.",
                                 "  update: (No description provided)"),
                             Strings.getLines(output.getText().await()));
                         test.assertEqual(-1, process.getExitCode());
