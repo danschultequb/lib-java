@@ -44,7 +44,7 @@ public interface NetworkTests
                     final byte[] bytes = new byte[] { 1, 2, 3, 4, 5 };
 
                     final int port = 8088;
-                    final DateTime timeout = test.getClock().getCurrentDateTime().plus(Duration.seconds(5));
+                    final DateTime timeout = test.getClock().getCurrentDateTime().plus(Duration2.seconds(5));
 
                     final Result<Void> serverTask = asyncRunner.schedule(() ->
                     {

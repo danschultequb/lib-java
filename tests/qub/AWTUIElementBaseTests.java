@@ -599,7 +599,7 @@ public interface AWTUIElementBaseTests
 
                     final int componentHeight = component.getHeight();
                     component.setSize(300, componentHeight);
-                    gate.passThrough(Duration.seconds(5), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
+                    gate.passThrough(Duration2.seconds(5), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
 
                     test.assertEqual(1, counter.get());
                     test.assertEqual(300, uiElementBase.getWidthInPixels());
@@ -622,7 +622,7 @@ public interface AWTUIElementBaseTests
 
                     final int componentWidth = component.getWidth();
                     component.setSize(componentWidth, 400);
-                    gate.passThrough(Duration.seconds(5), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
+                    gate.passThrough(Duration2.seconds(5), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
 
                     test.assertEqual(1, counter.get());
                     test.assertEqual(componentWidth, uiElementBase.getWidthInPixels());
@@ -644,7 +644,7 @@ public interface AWTUIElementBaseTests
                     });
 
                     component.setSize(300, 400);
-                    gate.passThrough(Duration.seconds(5), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
+                    gate.passThrough(Duration2.seconds(5), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
 
                     test.assertEqual(1, counter.get());
                     test.assertEqual(300, uiElementBase.getWidthInPixels());

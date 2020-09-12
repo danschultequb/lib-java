@@ -4,7 +4,7 @@ public interface Network
 {
     Result<? extends TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort);
 
-    Result<? extends TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, Duration timeout);
+    Result<? extends TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, Duration2 timeout);
 
     Result<? extends TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, DateTime timeout);
 
@@ -42,10 +42,10 @@ public interface Network
         Network.validatePort(remotePort, "remotePort");
     }
 
-    static void validateTimeout(Duration timeout)
+    static void validateTimeout(Duration2 timeout)
     {
         PreCondition.assertNotNull(timeout, "timeout");
-        PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
+        PreCondition.assertGreaterThan(timeout, Duration2.zero, "timeout");
     }
 
     static void validateTimeout(DateTime timeout)

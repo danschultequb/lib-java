@@ -114,10 +114,10 @@ public class SpinGate implements Gate
      *                to open.
      * @param onWait The action to invoke after each failed attempt to go through the gate.
      */
-    public Result<Void> passThrough(Duration timeout, Action0 onWait)
+    public Result<Void> passThrough(Duration2 timeout, Action0 onWait)
     {
         PreCondition.assertNotNull(timeout, "timeout");
-        PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
+        PreCondition.assertGreaterThan(timeout, Duration2.zero, "timeout");
         PreCondition.assertNotNull(this.getClock(), "this.getClock()");
         PreCondition.assertNotNull(onWait, "onWait");
 

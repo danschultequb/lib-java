@@ -103,7 +103,7 @@ public interface TestRunner
      *                        if it takes longer than this duration.
      * @param testAction The action for the test.
      */
-    void speedTest(String testName, Duration maximumDuration, Action1<Test> testAction);
+    void speedTest(String testName, Duration2 maximumDuration, Action1<Test> testAction);
 
     /**
      * Set an action that will be run before each test class.

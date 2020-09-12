@@ -14,7 +14,7 @@ public class DateTime implements Comparable<DateTime>
         this.offsetDateTime = offsetDateTime;
     }
 
-    private static java.time.ZoneOffset getZoneOffset(Duration timeZoneOffset)
+    private static java.time.ZoneOffset getZoneOffset(Duration2 timeZoneOffset)
     {
         PreCondition.assertNotNull(timeZoneOffset, "timeZoneOffset");
 
@@ -25,27 +25,27 @@ public class DateTime implements Comparable<DateTime>
         return result;
     }
 
-    public static DateTime createFromDurationSinceEpoch(Duration durationSinceEpoch)
+    public static DateTime createFromDurationSinceEpoch(Duration2 durationSinceEpoch)
     {
         PreCondition.assertNotNull(durationSinceEpoch, "durationSinceEpoch");
 
-        return DateTime.createFromDurationSinceEpoch(durationSinceEpoch, Duration.zero);
+        return DateTime.createFromDurationSinceEpoch(durationSinceEpoch, Duration2.zero);
     }
 
-    public static DateTime createFromDurationSinceEpoch(Duration durationSinceEpoch, Duration offset)
+    public static DateTime createFromDurationSinceEpoch(Duration2 durationSinceEpoch, Duration2 offset)
     {
         PreCondition.assertNotNull(durationSinceEpoch, "durationSinceEpoch");
         PreCondition.assertNotNull(offset, "offset");
 
         final long durationSinceEpochSeconds = (long)durationSinceEpoch.toSeconds().getValue();
-        final long durationSinceEpochNanosecondAdjustment = (long)durationSinceEpoch.minus(Duration.seconds(durationSinceEpochSeconds)).toNanoseconds().getValue();
+        final long durationSinceEpochNanosecondAdjustment = (long)durationSinceEpoch.minus(Duration2.seconds(durationSinceEpochSeconds)).toNanoseconds().getValue();
         final java.time.Instant instant = java.time.Instant.ofEpochSecond(durationSinceEpochSeconds, durationSinceEpochNanosecondAdjustment);
         final java.time.ZoneOffset zoneOffset = DateTime.getZoneOffset(offset);
         final java.time.OffsetDateTime offsetDateTime = java.time.OffsetDateTime.ofInstant(instant, zoneOffset);
         final DateTime result = new DateTime(offsetDateTime);
 
         PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(durationSinceEpoch, result.getDurationSinceEpoch(), Duration.nanoseconds(1), "result.getDurationSinceEpoch()");
+        PostCondition.assertEqual(durationSinceEpoch, result.getDurationSinceEpoch(), Duration2.nanoseconds(1), "result.getDurationSinceEpoch()");
         PostCondition.assertEqual(offset, result.getOffset(), "result.getTimeZoneOffset()");
 
         return result;
@@ -53,10 +53,10 @@ public class DateTime implements Comparable<DateTime>
 
     public static DateTime create(int year, int month, int dayOfMonth)
     {
-        return DateTime.create(year, month, dayOfMonth, Duration.zero);
+        return DateTime.create(year, month, dayOfMonth, Duration2.zero);
     }
 
-    public static DateTime create(int year, int month, int dayOfMonth, Duration offset)
+    public static DateTime create(int year, int month, int dayOfMonth, Duration2 offset)
     {
         PreCondition.assertNotNull(offset, "offset");
 
@@ -65,10 +65,10 @@ public class DateTime implements Comparable<DateTime>
 
     public static DateTime create(int year, int month, int dayOfMonth, int hourOfDay, int minute)
     {
-        return DateTime.create(year, month, dayOfMonth, hourOfDay, minute, Duration.zero);
+        return DateTime.create(year, month, dayOfMonth, hourOfDay, minute, Duration2.zero);
     }
 
-    public static DateTime create(int year, int month, int dayOfMonth, int hourOfDay, int minute, Duration offset)
+    public static DateTime create(int year, int month, int dayOfMonth, int hourOfDay, int minute, Duration2 offset)
     {
         PreCondition.assertNotNull(offset, "offset");
 
@@ -77,10 +77,10 @@ public class DateTime implements Comparable<DateTime>
 
     public static DateTime create(int year, int month, int dayOfMonth, int hourOfDay, int minute, int second)
     {
-        return DateTime.create(year, month, dayOfMonth, hourOfDay, minute, second, Duration.zero);
+        return DateTime.create(year, month, dayOfMonth, hourOfDay, minute, second, Duration2.zero);
     }
 
-    public static DateTime create(int year, int month, int dayOfMonth, int hourOfDay, int minute, int second, Duration offset)
+    public static DateTime create(int year, int month, int dayOfMonth, int hourOfDay, int minute, int second, Duration2 offset)
     {
         PreCondition.assertNotNull(offset, "offset");
 
@@ -89,15 +89,15 @@ public class DateTime implements Comparable<DateTime>
 
     public static DateTime create(int year, int month, int dayOfMonth, int hourOfDay, int minute, int second, int millisecond)
     {
-        return DateTime.create(year, month, dayOfMonth, hourOfDay, minute, second, millisecond, Duration.zero);
+        return DateTime.create(year, month, dayOfMonth, hourOfDay, minute, second, millisecond, Duration2.zero);
     }
 
-    public static DateTime create(int year, int month, int dayOfMonth, int hourOfDay, int minute, int second, int millisecond, Duration offset)
+    public static DateTime create(int year, int month, int dayOfMonth, int hourOfDay, int minute, int second, int millisecond, Duration2 offset)
     {
         PreCondition.assertNotNull(offset, "offset");
 
         final java.time.ZoneOffset zoneOffset = DateTime.getZoneOffset(offset);
-        final java.time.LocalDateTime localDateTime = java.time.LocalDateTime.of(year, month, dayOfMonth, hourOfDay, minute, second, (int)Duration.milliseconds(millisecond).toNanoseconds().getValue());
+        final java.time.LocalDateTime localDateTime = java.time.LocalDateTime.of(year, month, dayOfMonth, hourOfDay, minute, second, (int)Duration2.milliseconds(millisecond).toNanoseconds().getValue());
         final java.time.Instant instant = localDateTime.toInstant(zoneOffset);
         final java.time.OffsetDateTime offsetDateTime = java.time.OffsetDateTime.ofInstant(instant, zoneOffset);
         final DateTime result = new DateTime(offsetDateTime);
@@ -165,29 +165,29 @@ public class DateTime implements Comparable<DateTime>
 
     public int getMillisecond()
     {
-        return this.scopeNanosecondAdjustment(Duration.MillisecondsToNanoseconds, Duration.SecondsToMilliseconds);
+        return this.scopeNanosecondAdjustment(BasicDuration.MillisecondsToNanoseconds, BasicDuration.SecondsToMilliseconds);
     }
 
     public int getMicrosecond()
     {
-        return this.scopeNanosecondAdjustment(Duration.MicrosecondsToNanoseconds, Duration.MillisecondsToMicroseconds);
+        return this.scopeNanosecondAdjustment(BasicDuration.MicrosecondsToNanoseconds, BasicDuration.MillisecondsToMicroseconds);
     }
 
     public int getNanosecond()
     {
-        return this.scopeNanosecondAdjustment(1, Duration.MicrosecondsToNanoseconds);
+        return this.scopeNanosecondAdjustment(1, BasicDuration.MicrosecondsToNanoseconds);
     }
 
     /**
      * Get the duration that has passed since the epoch (1970-01-01 UTC).
      * @return The duration that has passed since the epoch (1970-01-01 UTC).
      */
-    public Duration getDurationSinceEpoch()
+    public Duration2 getDurationSinceEpoch()
     {
         final java.time.Instant instant = this.offsetDateTime.toInstant();
         final long secondsSinceEpoch = instant.getEpochSecond();
         final int nanosecondAdjustment = instant.getNano();
-        final Duration result = Duration.seconds(secondsSinceEpoch).plus(Duration.nanoseconds(nanosecondAdjustment));
+        final Duration2 result = Duration2.seconds(secondsSinceEpoch).plus(Duration2.nanoseconds(nanosecondAdjustment));
 
         PostCondition.assertNotNull(result, "result");
 
@@ -198,9 +198,9 @@ public class DateTime implements Comparable<DateTime>
      * Get the offset of this date time.
      * @return The offset of this date time.
      */
-    public Duration getOffset()
+    public Duration2 getOffset()
     {
-        return Duration.seconds(this.offsetDateTime.getOffset().getTotalSeconds());
+        return Duration2.seconds(this.offsetDateTime.getOffset().getTotalSeconds());
     }
 
     /**
@@ -208,7 +208,7 @@ public class DateTime implements Comparable<DateTime>
      * @param offset The offset to convert this DateTime object to.
      * @return The converted DateTime object.
      */
-    public DateTime toOffset(Duration offset)
+    public DateTime toOffset(Duration2 offset)
     {
         PreCondition.assertNotNull(offset, "offset");
 
@@ -230,7 +230,7 @@ public class DateTime implements Comparable<DateTime>
      */
     public DateTime toUTC()
     {
-        return this.toOffset(Duration.zero);
+        return this.toOffset(Duration2.zero);
     }
 
     public Date toDate()
@@ -243,7 +243,7 @@ public class DateTime implements Comparable<DateTime>
      * @param duration The Duration to add to this DateTime.
      * @return The result of adding the provided duration to this DateTime.
      */
-    public DateTime plus(Duration duration)
+    public DateTime plus(Duration2 duration)
     {
         PreCondition.assertNotNull(duration, "duration");
 
@@ -286,7 +286,7 @@ public class DateTime implements Comparable<DateTime>
      * @param duration The Duration to subtract create this DateTime.
      * @return The result of subtracting the provided duration create this DateTime.
      */
-    public DateTime minus(Duration duration)
+    public DateTime minus(Duration2 duration)
     {
         return this.plus(duration.negate());
     }
@@ -316,7 +316,7 @@ public class DateTime implements Comparable<DateTime>
      * @param rhs The other DateTime.
      * @return The duration between this DateTime and the provided DateTime.
      */
-    public Duration minus(DateTime rhs)
+    public Duration2 minus(DateTime rhs)
     {
         return this.getDurationSinceEpoch().minus(rhs.getDurationSinceEpoch());
     }
@@ -344,7 +344,7 @@ public class DateTime implements Comparable<DateTime>
         return Comparable.equals(this, value);
     }
 
-    public boolean equals(DateTime value, Duration marginOfError)
+    public boolean equals(DateTime value, Duration2 marginOfError)
     {
         PreCondition.assertNotNull(marginOfError, "marginOfError");
 

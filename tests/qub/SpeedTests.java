@@ -365,7 +365,7 @@ public interface SpeedTests
 
             runner.testGroup("times(Duration)", () ->
             {
-                final Action3<Speed,Duration,Throwable> timesErrorTest = (Speed lhs, Duration rhs, Throwable expected) ->
+                final Action3<Speed, Duration2,Throwable> timesErrorTest = (Speed lhs, Duration2 rhs, Throwable expected) ->
                 {
                     runner.test("with " + English.andList(lhs, rhs), (Test test) ->
                     {
@@ -375,7 +375,7 @@ public interface SpeedTests
 
                 timesErrorTest.run(Speed.zero, null, new PreConditionFailure("rhs cannot be null."));
 
-                final Action3<Speed,Duration,Double> timesTest = (Speed lhs, Duration rhs, Double expectedValue) ->
+                final Action3<Speed, Duration2,Double> timesTest = (Speed lhs, Duration2 rhs, Double expectedValue) ->
                 {
                     runner.test("with " + English.andList(lhs, rhs), (Test test) ->
                     {
@@ -386,10 +386,10 @@ public interface SpeedTests
                     });
                 };
 
-                timesTest.run(Speed.milesPerHour(60), Duration.zero, 0.0);
-                timesTest.run(Speed.metersPerSecond(60), Duration.seconds(1), 60.0);
-                timesTest.run(Speed.milesPerHour(60), Duration.minutes(120), 120.0);
-                timesTest.run(Speed.feetPerSecond(7), Duration.milliseconds(3), 0.021);
+                timesTest.run(Speed.milesPerHour(60), Duration2.zero, 0.0);
+                timesTest.run(Speed.metersPerSecond(60), Duration2.seconds(1), 60.0);
+                timesTest.run(Speed.milesPerHour(60), Duration2.minutes(120), 120.0);
+                timesTest.run(Speed.feetPerSecond(7), Duration2.milliseconds(3), 0.021);
             });
 
             runner.testGroup("dividedBy(double)", () ->

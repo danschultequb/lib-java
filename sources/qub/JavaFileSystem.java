@@ -273,7 +273,7 @@ public class JavaFileSystem implements FileSystem
                 final java.time.Instant lastModifiedInstant = lastModifiedTime.toInstant();
                 final long secondsSinceEpoch = lastModifiedInstant.getEpochSecond();
                 final int nanosecondAdjustment = lastModifiedInstant.getNano();
-                final Duration durationSinceEpoch = Duration.seconds(secondsSinceEpoch).plus(Duration.nanoseconds(nanosecondAdjustment));
+                final Duration2 durationSinceEpoch = Duration2.seconds(secondsSinceEpoch).plus(Duration2.nanoseconds(nanosecondAdjustment));
                 result = DateTime.createFromDurationSinceEpoch(durationSinceEpoch);
             }
             catch (java.nio.file.NoSuchFileException e)

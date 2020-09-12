@@ -463,7 +463,7 @@ public class JavaProcess implements QubProcess
         {
             if (shouldShowDuration)
             {
-                final Duration compilationDuration = stopwatch.stop().toSeconds();
+                final Duration2 compilationDuration = stopwatch.stop2().toSeconds();
                 final CharacterWriteStream output = this.getOutputWriteStream();
                 output.writeLine("Done (" + compilationDuration.toString("0.0") + ")").await();
             }

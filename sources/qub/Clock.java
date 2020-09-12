@@ -10,7 +10,7 @@ public interface Clock
      * Get the current time zone offset.
      * @return The current time zone offset.
      */
-    default Duration getCurrentOffset()
+    default Duration2 getCurrentOffset()
     {
         return this.getCurrentDateTime().getOffset();
     }
@@ -35,7 +35,7 @@ public interface Clock
      * @param action The action to run after the duration.
      * @return The AsyncAction associated with the scheduled action.
      */
-    default Result<Void> scheduleAfter(Duration duration, Action0 action)
+    default Result<Void> scheduleAfter(Duration2 duration, Action0 action)
     {
         PreCondition.assertNotNull(duration, "duration");
         PreCondition.assertNotNull(action, "action");

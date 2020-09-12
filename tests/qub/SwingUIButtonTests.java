@@ -201,13 +201,13 @@ public interface SwingUIButtonTests
                     test.assertNotNull(subscription);
 
                     button.click();
-                    gate.passThrough(Duration.seconds(1), () -> mainAsyncRunner.schedule(Action0.empty).await());
+                    gate.passThrough(Duration2.seconds(1), () -> mainAsyncRunner.schedule(Action0.empty).await());
                     test.assertEqual(1, value.getAsInt());
 
                     gate.close();
 
                     button.click();
-                    gate.passThrough(Duration.seconds(1), () -> mainAsyncRunner.schedule(Action0.empty).await());
+                    gate.passThrough(Duration2.seconds(1), () -> mainAsyncRunner.schedule(Action0.empty).await());
                     test.assertEqual(2, value.getAsInt());
 
                     test.assertTrue(subscription.dispose().await());
@@ -215,7 +215,7 @@ public interface SwingUIButtonTests
                     gate.close();
 
                     button.click();
-                    gate.passThrough(Duration.seconds(1), () -> mainAsyncRunner.schedule(Action0.empty).await());
+                    gate.passThrough(Duration2.seconds(1), () -> mainAsyncRunner.schedule(Action0.empty).await());
                     test.assertEqual(2, value.getAsInt());
                 });
             });

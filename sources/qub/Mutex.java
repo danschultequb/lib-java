@@ -28,7 +28,7 @@ public interface Mutex
      * Acquire this mutex. If the mutex is already acquired, this thread will block until the owning
      * thread releases this mutex and this thread acquires the mutex.
      */
-    Result<Void> acquire(Duration durationTimeout);
+    Result<Void> acquire(Duration2 durationTimeout);
 
     /**
      * Acquire this mutex. If the mutex is already acquired, this thread will block until the owning
@@ -76,10 +76,10 @@ public interface Mutex
      * Mutex when the action completes.
      * @param action The action to run after acquiring this Mutex.
      */
-    default Result<Void> criticalSection(Duration durationTimeout, Action0 action)
+    default Result<Void> criticalSection(Duration2 durationTimeout, Action0 action)
     {
         PreCondition.assertNotNull(durationTimeout, "durationTimeout");
-        PreCondition.assertGreaterThan(durationTimeout, Duration.zero, "durationTimeout");
+        PreCondition.assertGreaterThan(durationTimeout, Duration2.zero, "durationTimeout");
         PreCondition.assertNotNull(action, "action");
 
         return Result.create(() ->
@@ -144,7 +144,7 @@ public interface Mutex
      * @param durationTimeout The maximum amount of time to wait for this criticalSection.
      * @param function The function to run after acquiring this Mutex.
      */
-    default <T> Result<T> criticalSection(Duration durationTimeout, Function0<T> function)
+    default <T> Result<T> criticalSection(Duration2 durationTimeout, Function0<T> function)
     {
         PreCondition.assertNotNull(function, "function");
 

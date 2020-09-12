@@ -25,7 +25,7 @@ public interface TCPServer extends Disposable
      * @param timeout The timeout for this operation.
      * @return The accepted incoming TCPClient.
      */
-    Result<TCPClient> accept(Duration timeout);
+    Result<TCPClient> accept(Duration2 timeout);
 
     /**
      * Accept a single incoming TCPClient.

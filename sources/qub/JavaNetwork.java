@@ -38,7 +38,7 @@ public class JavaNetwork implements Network
     }
 
     @Override
-    public Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, Duration timeout)
+    public Result<TCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, Duration2 timeout)
     {
         Network.validateRemoteIPAddress(remoteIPAddress);
         Network.validateRemotePort(remotePort);

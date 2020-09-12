@@ -91,7 +91,7 @@ public class ManualClock implements Clock
      * Advance this clock forward by the provided duration.
      * @param duration The duration to advance this Clock forward by.
      */
-    public void advance(Duration duration)
+    public void advance(Duration2 duration)
     {
         PreCondition.assertNotNull(duration, "duration");
 

@@ -24,19 +24,19 @@ public class Date implements Comparable<Date>
 
         if (dateTime.getHourOfDay() != 0)
         {
-            dateTime = dateTime.minus(Duration.hours(dateTime.getHourOfDay()));
+            dateTime = dateTime.minus(Duration2.hours(dateTime.getHourOfDay()));
         }
         if (dateTime.getMinute() != 0)
         {
-            dateTime = dateTime.minus(Duration.minutes(dateTime.getMinute()));
+            dateTime = dateTime.minus(Duration2.minutes(dateTime.getMinute()));
         }
         if (dateTime.getSecond() != 0)
         {
-            dateTime = dateTime.minus(Duration.seconds(dateTime.getSecond()));
+            dateTime = dateTime.minus(Duration2.seconds(dateTime.getSecond()));
         }
         if (dateTime.getNanosecond() != 0)
         {
-            dateTime = dateTime.minus(Duration.nanoseconds(dateTime.getNanosecond()));
+            dateTime = dateTime.minus(Duration2.nanoseconds(dateTime.getNanosecond()));
         }
         final Date result = new Date(dateTime);
 
@@ -48,7 +48,7 @@ public class Date implements Comparable<Date>
         return result;
     }
 
-    public static Date createFromDurationSinceEpoch(Duration durationSinceEpoch)
+    public static Date createFromDurationSinceEpoch(Duration2 durationSinceEpoch)
     {
         PreCondition.assertNotNull(durationSinceEpoch, "durationSinceEpoch");
 
@@ -87,7 +87,7 @@ public class Date implements Comparable<Date>
      * Get the duration that has passed since the epoch (1970-01-01 UTC).
      * @return The duration that has passed since the epoch (1970-01-01 UTC).
      */
-    public Duration getDurationSinceEpoch()
+    public Duration2 getDurationSinceEpoch()
     {
         return this.dateTime.getDurationSinceEpoch();
     }
@@ -137,7 +137,7 @@ public class Date implements Comparable<Date>
      * @param rhs The other Date.
      * @return The duration between this Date and the provided Date.
      */
-    public Duration minus(Date rhs)
+    public Duration2 minus(Date rhs)
     {
         return this.dateTime.minus(rhs.dateTime);
     }
@@ -147,7 +147,7 @@ public class Date implements Comparable<Date>
      * @param rhs The other DateTime.
      * @return The duration between this Date and the provided DateTime.
      */
-    public Duration minus(DateTime rhs)
+    public Duration2 minus(DateTime rhs)
     {
         return this.dateTime.minus(rhs);
     }

@@ -348,7 +348,7 @@ public interface SwingUIWindowTests
                         });
 
                         window.setWidth(Distance.inches(4));
-                        gate.passThrough(Duration.seconds(1), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
+                        gate.passThrough(Duration2.seconds(1), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
                         test.assertEqual(Distance.inches(4), dynamicWidth.get());
                         test.assertEqual(1, counter.get());
                     }
@@ -413,7 +413,7 @@ public interface SwingUIWindowTests
                         });
 
                         window.setHeight(Distance.inches(4));
-                        gate.passThrough(Duration.seconds(1), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
+                        gate.passThrough(Duration2.seconds(1), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
                         test.assertEqual(Distance.inches(4), dynamicHeight.get());
                         test.assertEqual(1, counter.get());
                     }
@@ -546,7 +546,7 @@ public interface SwingUIWindowTests
                         });
 
                         window.setWidth(Distance.inches(4));
-                        gate.passThrough(Duration.seconds(1), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
+                        gate.passThrough(Duration2.seconds(1), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
                         test.assertEqual(window.getContentSpaceWidth(), dynamicContentSpaceWidth.get());
                         test.assertEqual(1, counter.get());
                     }
@@ -571,7 +571,7 @@ public interface SwingUIWindowTests
                         });
 
                         window.setHeight(Distance.inches(4));
-                        gate.passThrough(Duration.seconds(1), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
+                        gate.passThrough(Duration2.seconds(1), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
                         test.assertEqual(window.getContentSpaceHeight(), dynamicContentSpaceHeight.get());
                         test.assertEqual(1, counter.get());
                     }

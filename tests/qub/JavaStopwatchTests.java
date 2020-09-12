@@ -12,7 +12,7 @@ public class JavaStopwatchTests
                 {
                     final JavaStopwatch stopwatch = new JavaStopwatch();
                     stopwatch.start();
-                    final Duration duration = stopwatch.stop();
+                    final Duration2 duration = stopwatch.stop2();
                     test.assertNotNull(duration);
                     test.assertEqual(DurationUnit.Nanoseconds, duration.getUnits());
                     test.assertEqual(0, duration.getValue(), 1000000);

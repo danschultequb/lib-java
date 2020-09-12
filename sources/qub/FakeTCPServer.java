@@ -57,10 +57,10 @@ public class FakeTCPServer implements TCPServer
     }
 
     @Override
-    public Result<TCPClient> accept(Duration timeout)
+    public Result<TCPClient> accept(Duration2 timeout)
     {
         PreCondition.assertNotNull(timeout, "timeout");
-        PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
+        PreCondition.assertGreaterThan(timeout, Duration2.zero, "timeout");
         PreCondition.assertNotDisposed(this, "this");
 
         final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(timeout);

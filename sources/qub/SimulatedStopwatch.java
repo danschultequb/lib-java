@@ -2,23 +2,31 @@ package qub;
 
 public class SimulatedStopwatch implements Stopwatch
 {
-    private Duration elapsedTime;
+    private Duration2 elapsedTime;
 
     @Override
     public void start()
     {
-        elapsedTime = Duration.nanoseconds(0);
+        elapsedTime = Duration2.nanoseconds(0);
     }
 
     @Override
     public Duration stop()
     {
-        final Duration result = elapsedTime;
+        final Duration result = new Duration(elapsedTime.getValue(), elapsedTime.getUnits());
         elapsedTime = null;
         return result;
     }
 
-    public void addDuration(Duration duration)
+    @Override
+    public Duration2 stop2()
+    {
+        final Duration2 result = elapsedTime;
+        elapsedTime = null;
+        return result;
+    }
+
+    public void addDuration(Duration2 duration)
     {
         if (elapsedTime != null)
         {
