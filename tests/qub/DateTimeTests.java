@@ -6,6 +6,22 @@ public interface DateTimeTests
     {
         runner.testGroup(DateTime.class, () ->
         {
+            runner.test("epoch", (Test test) ->
+            {
+                final DateTime epoch = DateTime.epoch;
+                test.assertEqual(1970, epoch.getYear());
+                test.assertEqual(1, epoch.getMonth());
+                test.assertEqual(1, epoch.getDayOfMonth());
+                test.assertEqual(0, epoch.getHourOfDay());
+                test.assertEqual(0, epoch.getMinute());
+                test.assertEqual(0, epoch.getSecond());
+                test.assertEqual(0, epoch.getMillisecond());
+                test.assertEqual(0, epoch.getMicrosecond());
+                test.assertEqual(0, epoch.getNanosecond());
+                test.assertEqual(Duration2.zero, epoch.getOffset());
+                test.assertEqual(Duration2.zero, epoch.getDurationSinceEpoch());
+            });
+
             runner.testGroup("createFromDurationSinceEpoch(Duration)", () ->
             {
                 runner.test("with null", (Test test) ->

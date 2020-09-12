@@ -5,6 +5,8 @@ package qub;
  */
 public class Date implements Comparable<Date>
 {
+    public static final Date epoch = Date.create(DateTime.epoch);
+
     private final DateTime dateTime;
 
     private Date(DateTime dateTime)

@@ -5,6 +5,8 @@ package qub;
  */
 public class DateTime implements Comparable<DateTime>
 {
+    public static final DateTime epoch = DateTime.createFromDurationSinceEpoch(Duration2.zero);
+
     private final java.time.OffsetDateTime offsetDateTime;
 
     private DateTime(java.time.OffsetDateTime offsetDateTime)
