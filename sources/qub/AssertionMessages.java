@@ -132,34 +132,34 @@ public interface AssertionMessages
 
     static String oneOf(char value, char[] values, String expressionName)
     {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(expressionName + " (" + value + ") must be either");
+        final CharacterList list = CharacterList.create();
+        list.addAll(expressionName + " (" + value + ") must be either");
         for (int i = 0; i < values.length - 1; ++i)
         {
-            builder.append(" " + values[i]);
+            list.addAll(" " + values[i]);
             if (values.length > 2)
             {
-                builder.append(",");
+                list.add(',');
             }
         }
-        builder.append(" or " + values[values.length - 1] + ".");
-        return builder.toString();
+        list.addAll(" or " + values[values.length - 1] + ".");
+        return list.toString(true);
     }
 
     static String oneOf(int value, int[] values, String expressionName)
     {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(expressionName + " (" + value + ") must be either");
+        final CharacterList list = CharacterList.create();
+        list.addAll(expressionName + " (" + value + ") must be either");
         for (int i = 0; i < values.length - 1; ++i)
         {
-            builder.append(" " + values[i]);
+            list.addAll(" " + values[i]);
             if (values.length > 2)
             {
-                builder.append(",");
+                list.add(',');
             }
         }
-        builder.append(" or " + values[values.length - 1] + ".");
-        return builder.toString();
+        list.addAll(" or " + values[values.length - 1] + ".");
+        return list.toString(true);
     }
 
     static String oneOf(long value, long[] values, String expressionName)

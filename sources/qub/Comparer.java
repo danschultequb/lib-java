@@ -12,20 +12,36 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
 
     static Comparison compare(int lhs, Integer rhs)
     {
-        return rhs == null ? Comparison.GreaterThan : compare(lhs, rhs.intValue());
+        return rhs == null ? Comparison.GreaterThan : Comparer.compare(lhs, rhs.intValue());
     }
 
     static Comparison compare(Integer lhs, int rhs)
     {
-        return lhs == null ? Comparison.LessThan : compare(lhs.intValue(), rhs);
+        return lhs == null ? Comparison.LessThan : Comparer.compare(lhs.intValue(), rhs);
     }
 
-    static Comparison compare(Integer lhs, Integer rhs)
+    static <U, T extends java.lang.Comparable<U>> Comparison compare(T lhs, U rhs)
     {
-        return lhs == rhs ? Comparison.Equal :
-               lhs == null ? Comparison.LessThan :
-               rhs == null ? Comparison.GreaterThan :
-               compare(lhs.intValue(), rhs.intValue());
+        Comparison result;
+
+        if (lhs == rhs)
+        {
+            result = Comparison.Equal;
+        }
+        else if (lhs == null)
+        {
+            result = Comparison.LessThan;
+        }
+        else if (rhs == null)
+        {
+            result = Comparison.GreaterThan;
+        }
+        else
+        {
+            result = Comparison.from(lhs.compareTo(rhs));
+        }
+
+        return result;
     }
 
     static <T> Comparison compare(Comparable<T> lhs, T rhs)
