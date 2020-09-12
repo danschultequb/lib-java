@@ -233,6 +233,11 @@ public class DateTime implements Comparable<DateTime>
         return this.toOffset(Duration.zero);
     }
 
+    public Date toDate()
+    {
+        return Date.create(this);
+    }
+
     /**
      * Get the result of adding the provided duration to this DateTime.
      * @param duration The Duration to add to this DateTime.
@@ -256,6 +261,26 @@ public class DateTime implements Comparable<DateTime>
         return result;
     }
 
+    public DateTime plusDays(int days)
+    {
+        return new DateTime(this.offsetDateTime.plusDays(days));
+    }
+
+    public DateTime plusWeeks(int weeks)
+    {
+        return new DateTime(this.offsetDateTime.plusWeeks(weeks));
+    }
+
+    public DateTime plusMonths(int months)
+    {
+        return new DateTime(this.offsetDateTime.plusMonths(months));
+    }
+
+    public DateTime plusYears(int years)
+    {
+        return new DateTime(this.offsetDateTime.plusYears(years));
+    }
+
     /**
      * Get the result of subtracting the provided duration create this DateTime.
      * @param duration The Duration to subtract create this DateTime.
@@ -264,6 +289,26 @@ public class DateTime implements Comparable<DateTime>
     public DateTime minus(Duration duration)
     {
         return this.plus(duration.negate());
+    }
+
+    public DateTime minusDays(int days)
+    {
+        return new DateTime(this.offsetDateTime.minusDays(days));
+    }
+
+    public DateTime minusWeeks(int weeks)
+    {
+        return new DateTime(this.offsetDateTime.minusWeeks(weeks));
+    }
+
+    public DateTime minusMonths(int months)
+    {
+        return new DateTime(this.offsetDateTime.minusMonths(months));
+    }
+
+    public DateTime minusYears(int years)
+    {
+        return new DateTime(this.offsetDateTime.minusYears(years));
     }
 
     /**
