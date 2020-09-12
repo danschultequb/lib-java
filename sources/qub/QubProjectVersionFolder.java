@@ -101,9 +101,9 @@ public class QubProjectVersionFolder extends Folder implements Comparable<QubPro
             .then((QubProjectFolder projectFolder) -> projectFolder.getProjectVersionFolders().await());
     }
 
-    public String getVersion()
+    public Result<? extends VersionNumber> getVersion()
     {
-        return this.getName();
+        return VersionNumber.parse(this.getName());
     }
 
     public Result<File> getProjectJSONFile()
@@ -136,8 +136,8 @@ public class QubProjectVersionFolder extends Folder implements Comparable<QubPro
         {
             final String publisher = this.getPublisherName().await();
             final String project = this.getProjectName().await();
-            final String version = this.getVersion();
-            return new ProjectSignature(publisher, project, version);
+            final VersionNumber version = this.getVersion().await();
+            return ProjectSignature.create(publisher, project, version);
         });
     }
 
@@ -171,15 +171,13 @@ public class QubProjectVersionFolder extends Folder implements Comparable<QubPro
         }
         else
         {
-            result = Comparison.from(this.getPublisherName().await().compareTo(rhs.getPublisherName().await()));
+            result = Comparer.compare(this.getPublisherName().await(), rhs.getPublisherName().await());
             if (result == Comparison.Equal)
             {
-                result = Comparison.from(this.getProjectName().await().compareTo(rhs.getProjectName().await()));
+                result = Comparer.compare(this.getProjectName().await(), rhs.getProjectName().await());
                 if (result == Comparison.Equal)
                 {
-                    final VersionNumber lhsVersion = VersionNumber.parse(this.getVersion()).await();
-                    final VersionNumber rhsVersion = VersionNumber.parse(rhs.getVersion()).await();
-                    result = lhsVersion.compareTo(rhsVersion);
+                    result = this.getVersion().await().compareTo(rhs.getVersion().await());
                 }
             }
         }

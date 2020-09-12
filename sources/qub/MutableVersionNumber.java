@@ -207,6 +207,12 @@ public class MutableVersionNumber implements VersionNumber
     }
 
     @Override
+    public String toString()
+    {
+        return VersionNumber.toString(this);
+    }
+
+    @Override
     public boolean equals(Object rhs)
     {
         return VersionNumber.equals(this, rhs);

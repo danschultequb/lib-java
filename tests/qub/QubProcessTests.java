@@ -49,7 +49,7 @@ public interface QubProcessTests
             {
                 try (final QubProcess qubProcess = creator.run())
                 {
-                    test.assertFalse(Strings.isNullOrEmpty(qubProcess.getVersion().await()));
+                    test.assertNotNull(qubProcess.getVersion().await());
                 }
             });
 

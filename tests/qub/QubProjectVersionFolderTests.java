@@ -73,7 +73,7 @@ public interface QubProjectVersionFolderTests
                     final QubProjectVersionFolder projectVersionFolder = QubProjectVersionFolder.get(versionFolder);
                     test.assertNotNull(projectVersionFolder);
                     test.assertEqual(projectVersionFolder.getPath(), projectVersionFolder.getPath());
-                    test.assertEqual("fake-version", projectVersionFolder.getVersion());
+                    test.assertEqual(VersionNumber.create().setSuffix("fake-version"), projectVersionFolder.getVersion().await());
                     test.assertEqual("fake-project", projectVersionFolder.getProjectName().await());
                     test.assertEqual("/fake-publisher/fake-project/", projectVersionFolder.getProjectFolder().await().toString());
                     test.assertEqual("fake-publisher", projectVersionFolder.getPublisherName().await());
@@ -84,7 +84,7 @@ public interface QubProjectVersionFolderTests
                     test.assertEqual("/fake-publisher/fake-project/versions/fake-version/fake-project.sources.jar", projectVersionFolder.getSourcesFile().await().toString());
                     test.assertEqual("/fake-publisher/fake-project/versions/fake-version/fake-project.tests.jar", projectVersionFolder.getCompiledTestsFile().await().toString());
                     test.assertEqual(
-                        new ProjectSignature("fake-publisher", "fake-project", "fake-version"),
+                        ProjectSignature.create("fake-publisher", "fake-project", "fake-version"),
                         projectVersionFolder.getProjectSignature().await());
                 });
             });
@@ -243,7 +243,7 @@ public interface QubProjectVersionFolderTests
                     {
                         final QubProjectVersionFolder projectVersionFolder = QubProjectVersionFolderTests.getQubProjectVersionFolder(test, "/qub/" + publisherName + "/" + projectName + "/versions/" + version + "/");
                         test.assertEqual(
-                            new ProjectSignature(publisherName, projectName, version),
+                            ProjectSignature.create(publisherName, projectName, version),
                             projectVersionFolder.getProjectSignature().await());
                     });
                 };

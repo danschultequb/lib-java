@@ -7,7 +7,7 @@ public class ProjectSignature
 {
     private final String publisher;
     private final String project;
-    private final String version;
+    private final VersionNumber version;
 
     /**
      * Create a new QubProjectSignature object.
@@ -15,15 +15,30 @@ public class ProjectSignature
      * @param project The name of the project.
      * @param version The version of the published project.
      */
-    public ProjectSignature(String publisher, String project, String version)
+    private ProjectSignature(String publisher, String project, VersionNumber version)
+    {
+        PreCondition.assertNotNullAndNotEmpty(publisher, "publisher");
+        PreCondition.assertNotNullAndNotEmpty(project, "project");
+        PreCondition.assertNotNull(version, "version");
+        PreCondition.assertTrue(version.any(), "version.any()");
+
+        this.publisher = publisher;
+        this.project = project;
+        this.version = version;
+    }
+
+    public static ProjectSignature create(String publisher, String project, String version)
     {
         PreCondition.assertNotNullAndNotEmpty(publisher, "publisher");
         PreCondition.assertNotNullAndNotEmpty(project, "project");
         PreCondition.assertNotNullAndNotEmpty(version, "version");
 
-        this.publisher = publisher;
-        this.project = project;
-        this.version = version;
+        return ProjectSignature.create(publisher, project, VersionNumber.parse(version).await());
+    }
+
+    public static ProjectSignature create(String publisher, String project, VersionNumber version)
+    {
+        return new ProjectSignature(publisher, project, version);
     }
 
     /**
@@ -48,7 +63,7 @@ public class ProjectSignature
      * Get the version of the published project.
      * @return The version of the published project.
      */
-    public String getVersion()
+    public VersionNumber getVersion()
     {
         return this.version;
     }
@@ -91,6 +106,20 @@ public class ProjectSignature
      * and version.
      */
     public boolean equals(String publisher, String project, String version)
+    {
+        return this.equals(publisher, project, version == null ? null : VersionNumber.parse(version).await());
+    }
+
+    /**
+     * Get whether or not this project signature is equal to the provided publisher, project, and
+     * version.
+     * @param publisher The publisher to compare.
+     * @param project The project to compare.
+     * @param version The version to compare.
+     * @return Whether or not this project signature is equal to the provided publisher, project,
+     * and version.
+     */
+    public boolean equals(String publisher, String project, VersionNumber version)
     {
         return Comparer.equal(this.publisher, publisher) &&
             Comparer.equal(this.project, project) &&
@@ -158,7 +187,7 @@ public class ProjectSignature
             final String publisher = text.substring(0, slashIndex);
             final String project = text.substring(slashIndex + 1, atIndex);
             final String version = text.substring(atIndex + 1);
-            return new ProjectSignature(publisher, project, version);
+            return ProjectSignature.create(publisher, project, version);
         });
     }
 }

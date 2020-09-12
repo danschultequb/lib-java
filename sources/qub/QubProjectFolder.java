@@ -84,14 +84,7 @@ public class QubProjectFolder extends Folder
 
     public Result<QubProjectVersionFolder> getLatestProjectVersionFolder()
     {
-        return this.getLatestProjectVersionFolder((QubProjectVersionFolder lhs, QubProjectVersionFolder rhs) ->
-        {
-            final String lhsVersionString = lhs.getVersion();
-            final String rhsVersionString = rhs.getVersion();
-            final Integer lhsVersion = Integers.parse(lhsVersionString).catchError().await();
-            final Integer rhsVersion = Integers.parse(rhsVersionString).catchError().await();
-            return Comparer.compare(lhsVersion, rhsVersion);
-        });
+        return this.getLatestProjectVersionFolder(Comparer::compare);
     }
 
     public Result<QubProjectVersionFolder> getLatestProjectVersionFolder(Comparer<QubProjectVersionFolder> comparer)

@@ -192,12 +192,12 @@ public interface QubProcess extends Process
      * Get the version of the current process's project.
      * @return The version of the current process's project.
      */
-    default Result<String> getVersion()
+    default Result<VersionNumber> getVersion()
     {
         return Result.create(() ->
         {
             return this.getQubProjectVersionFolder().await()
-                .getVersion();
+                .getVersion().await();
         });
     }
 

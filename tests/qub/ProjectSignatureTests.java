@@ -8,50 +8,50 @@ public interface ProjectSignatureTests
 
         runner.testGroup(ProjectSignature.class, () ->
         {
-            runner.testGroup("constructor()", () ->
+            runner.testGroup("create(String,String,String)", () ->
             {
                 runner.test("with null publisher", (Test test) ->
                 {
-                    test.assertThrows(() -> new ProjectSignature(null, "b", "c"),
+                    test.assertThrows(() -> ProjectSignature.create(null, "b", "c"),
                         new PreConditionFailure("publisher cannot be null."));
                 });
 
                 runner.test("with empty publisher", (Test test) ->
                 {
-                    test.assertThrows(() -> new ProjectSignature("", "b", "c"),
+                    test.assertThrows(() -> ProjectSignature.create("", "b", "c"),
                         new PreConditionFailure("publisher cannot be empty."));
                 });
 
                 runner.test("with null project", (Test test) ->
                 {
-                    test.assertThrows(() -> new ProjectSignature("a", null, "c"),
+                    test.assertThrows(() -> ProjectSignature.create("a", null, "c"),
                         new PreConditionFailure("project cannot be null."));
                 });
 
                 runner.test("with empty project", (Test test) ->
                 {
-                    test.assertThrows(() -> new ProjectSignature("a", "", "c"),
+                    test.assertThrows(() -> ProjectSignature.create("a", "", "c"),
                         new PreConditionFailure("project cannot be empty."));
                 });
 
                 runner.test("with null version", (Test test) ->
                 {
-                    test.assertThrows(() -> new ProjectSignature("a", "b", null),
+                    test.assertThrows(() -> ProjectSignature.create("a", "b", (String)null),
                         new PreConditionFailure("version cannot be null."));
                 });
 
                 runner.test("with empty version", (Test test) ->
                 {
-                    test.assertThrows(() -> new ProjectSignature("a", "b", ""),
+                    test.assertThrows(() -> ProjectSignature.create("a", "b", ""),
                         new PreConditionFailure("version cannot be empty."));
                 });
 
                 runner.test("with all non-empty values", (Test test) ->
                 {
-                    final ProjectSignature signature = new ProjectSignature("a", "b", "c");
+                    final ProjectSignature signature = ProjectSignature.create("a", "b", "c");
                     test.assertEqual("a", signature.getPublisher());
                     test.assertEqual("b", signature.getProject());
-                    test.assertEqual("c", signature.getVersion());
+                    test.assertEqual(VersionNumber.create().setSuffix("c"), signature.getVersion());
                     test.assertEqual("a/b@c", signature.toString());
                 });
             });
@@ -66,13 +66,13 @@ public interface ProjectSignatureTests
                     });
                 };
 
-                equalsTest.run(new ProjectSignature("a", "b", "c"), null, false);
-                equalsTest.run(new ProjectSignature("a", "b", "c"), "hello", false);
-                equalsTest.run(new ProjectSignature("a", "b", "c"), new ProjectSignature("z", "b", "c"), false);
-                equalsTest.run(new ProjectSignature("a", "b", "c"), new ProjectSignature("a", "y", "c"), false);
-                equalsTest.run(new ProjectSignature("a", "b", "c"), new ProjectSignature("a", "b", "x"), false);
-                equalsTest.run(new ProjectSignature("a", "b", "c"), new ProjectSignature("A", "B", "C"), false);
-                equalsTest.run(new ProjectSignature("a", "b", "c"), new ProjectSignature("a", "b", "c"), true);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), null, false);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), "hello", false);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), ProjectSignature.create("z", "b", "c"), false);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), ProjectSignature.create("a", "y", "c"), false);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), ProjectSignature.create("a", "b", "x"), false);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), ProjectSignature.create("A", "B", "C"), false);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), ProjectSignature.create("a", "b", "c"), true);
             });
 
             runner.testGroup("equals(QubProjectSignature)", () ->
@@ -85,12 +85,12 @@ public interface ProjectSignatureTests
                     });
                 };
 
-                equalsTest.run(new ProjectSignature("a", "b", "c"), null, false);
-                equalsTest.run(new ProjectSignature("a", "b", "c"), new ProjectSignature("z", "b", "c"), false);
-                equalsTest.run(new ProjectSignature("a", "b", "c"), new ProjectSignature("a", "y", "c"), false);
-                equalsTest.run(new ProjectSignature("a", "b", "c"), new ProjectSignature("a", "b", "x"), false);
-                equalsTest.run(new ProjectSignature("a", "b", "c"), new ProjectSignature("A", "B", "C"), false);
-                equalsTest.run(new ProjectSignature("a", "b", "c"), new ProjectSignature("a", "b", "c"), true);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), null, false);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), ProjectSignature.create("z", "b", "c"), false);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), ProjectSignature.create("a", "y", "c"), false);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), ProjectSignature.create("a", "b", "x"), false);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), ProjectSignature.create("A", "B", "C"), false);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), ProjectSignature.create("a", "b", "c"), true);
             });
 
             runner.testGroup("equalsIgnoreVersion(QubProjectSignature)", () ->
@@ -103,12 +103,12 @@ public interface ProjectSignatureTests
                     });
                 };
 
-                equalsTest.run(new ProjectSignature("a", "b", "c"), null, false);
-                equalsTest.run(new ProjectSignature("a", "b", "c"), new ProjectSignature("z", "b", "c"), false);
-                equalsTest.run(new ProjectSignature("a", "b", "c"), new ProjectSignature("a", "y", "c"), false);
-                equalsTest.run(new ProjectSignature("a", "b", "c"), new ProjectSignature("a", "b", "x"), true);
-                equalsTest.run(new ProjectSignature("a", "b", "c"), new ProjectSignature("A", "B", "C"), false);
-                equalsTest.run(new ProjectSignature("a", "b", "c"), new ProjectSignature("a", "b", "c"), true);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), null, false);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), ProjectSignature.create("z", "b", "c"), false);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), ProjectSignature.create("a", "y", "c"), false);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), ProjectSignature.create("a", "b", "x"), true);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), ProjectSignature.create("A", "B", "C"), false);
+                equalsTest.run(ProjectSignature.create("a", "b", "c"), ProjectSignature.create("a", "b", "c"), true);
             });
 
             runner.testGroup("parse(String)", () ->
@@ -139,8 +139,8 @@ public interface ProjectSignatureTests
                     });
                 };
 
-                parseTest.run("a/b@c", new ProjectSignature("a", "b", "c"));
-                parseTest.run("qub/qub-java@123", new ProjectSignature("qub", "qub-java", "123"));
+                parseTest.run("a/b@c", ProjectSignature.create("a", "b", "c"));
+                parseTest.run("qub/qub-java@123", ProjectSignature.create("qub", "qub-java", "123"));
             });
         });
     }

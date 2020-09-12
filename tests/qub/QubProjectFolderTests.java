@@ -203,7 +203,7 @@ public interface QubProjectFolderTests
                     projectFolder.getProjectVersionFolder("2").await().create().await();
                     projectFolder.getProjectVersionFolder("3.0.3").await().create().await();
                     projectFolder.getProjectVersionFolder("1.3").await().create().await();
-                    test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/2/", projectFolder.getLatestProjectVersionFolder().await().toString());
+                    test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/3.0.3/", projectFolder.getLatestProjectVersionFolder().await().toString());
                 });
             });
 
