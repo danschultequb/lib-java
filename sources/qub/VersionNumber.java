@@ -1,191 +1,177 @@
 package qub;
 
-public class VersionNumber implements Comparable<VersionNumber>
+public interface VersionNumber extends Comparable<VersionNumber>
 {
-    private final String text;
-    private final Integer major;
-    private final Integer minor;
-    private final Integer patch;
-    private final String suffix;
+    int majorPartIndex = 0;
+    int minorPartIndex = 1;
+    int patchPartIndex = 2;
 
-    public VersionNumber(int major)
+    static MutableVersionNumber create()
     {
-        this(major, null);
+        return MutableVersionNumber.create();
     }
 
-    public VersionNumber(int major, String suffix)
+    static Result<? extends VersionNumber> parse(String text)
     {
-        this(Strings.concatenate("" + major, suffix), major, null, null, suffix);
+        return MutableVersionNumber.parse(text);
     }
 
-    public VersionNumber(int major, int minor)
+    default boolean any()
     {
-        this(major, minor, null);
+        return this.hasMajor() || this.hasSuffix();
     }
 
-    public VersionNumber(int major, int minor, String suffix)
+    default int getPartCount()
     {
-        this(Strings.concatenate(major + "." + minor, suffix), major, minor, null, suffix);
+        return this.getParts().getCount();
     }
 
-    public VersionNumber(int major, int minor, int patch)
+    Indexable<Integer> getParts();
+
+    default boolean hasPart(int partIndex)
     {
-        this(major, minor, patch, null);
+        PreCondition.assertGreaterThanOrEqualTo(partIndex, 0, "partIndex");
+
+        return partIndex < this.getPartCount();
     }
 
-    public VersionNumber(int major, int minor, int patch, String suffix)
+    default int getPart(int partIndex)
     {
-        this(Strings.concatenate(major + "." + minor + "." + patch, suffix), major, minor, patch, suffix);
+        PreCondition.assertTrue(this.hasPart(partIndex), "this.hasPart(partIndex)");
+
+        return this.getParts().get(partIndex);
     }
 
-    VersionNumber(String text, Integer major, Integer minor, Integer patch, String suffix)
+    default boolean hasMajor()
     {
-        this.text = text;
-        this.major = major;
-        this.minor = minor;
-        this.patch = patch;
-        this.suffix = suffix;
+        return this.hasPart(VersionNumber.majorPartIndex);
     }
 
-    public Integer getMajor()
+    default int getMajor()
     {
-        return major;
+        PreCondition.assertTrue(this.hasMajor(), "this.hasMajor()");
+
+        return this.getPart(VersionNumber.majorPartIndex);
     }
 
-    public Integer getMinor()
+    default boolean hasMinor()
     {
-        return minor;
+        return this.hasPart(VersionNumber.minorPartIndex);
     }
 
-    public Integer getPatch()
+    default int getMinor()
     {
-        return patch;
+        PreCondition.assertTrue(this.hasMinor(), "this.hasMinor()");
+
+        return this.getPart(VersionNumber.minorPartIndex);
     }
 
-    public String getSuffix()
+    default boolean hasPatch()
     {
-        return suffix;
+        return this.hasPart(VersionNumber.patchPartIndex);
     }
 
-    @Override
-    public String toString()
+    default int getPatch()
     {
-        final String result = text;
+        PreCondition.assertTrue(this.hasPatch(), "this.hasPatch()");
+
+        return this.getPart(VersionNumber.patchPartIndex);
+    }
+
+    default boolean hasSuffix()
+    {
+        return !Strings.isNullOrEmpty(this.getSuffix());
+    }
+
+    String getSuffix();
+
+    VersionNumber clone();
+
+    static String toString(VersionNumber version)
+    {
+        PreCondition.assertNotNull(version, "version");
+
+        final CharacterList list = CharacterList.create();
+
+        list.addAll(Strings.join('.', version.getParts().map(Integers::toString)));
+        if (version.hasSuffix())
+        {
+            list.addAll(version.getSuffix());
+        }
+
+        final String result = list.toString(true);
 
         PostCondition.assertNotNull(result, "result");
 
         return result;
     }
 
-    @Override
-    public boolean equals(Object rhs)
+    static boolean equals(VersionNumber lhs, Object rhs)
     {
-        return rhs instanceof VersionNumber && equals((VersionNumber)rhs);
+        return lhs == rhs || (lhs != null && rhs instanceof VersionNumber && lhs.equals((VersionNumber)rhs));
     }
 
-    public boolean equals(VersionNumber rhs)
+    default boolean equals(VersionNumber rhs)
     {
-        return rhs != null && Strings.equal(text, rhs.text);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return text.hashCode();
-    }
-
-    public static VersionNumber parse(String versionNumberString)
-    {
-        return parse(versionNumberString, null);
-    }
-
-    public static VersionNumber parse(String versionNumberString, Action1<Issue> onIssue)
-    {
-        PreCondition.assertNotNull(versionNumberString, "versionNumberString");
-
-        final Lexer lexer = new Lexer(versionNumberString);
-        Integer major = null;
-        Integer minor = null;
-        Integer patch = null;
-        String suffix = null;
-
-        if (!lexer.next())
-        {
-            Issue.onIssue(onIssue, Issue.error("Missing major version digits", new Span(0, 0)));
-        }
-        else
-        {
-            final Lex majorLex = lexer.getCurrent();
-            if (majorLex.getType() != LexType.Digits)
-            {
-                Issue.onIssue(onIssue, Issue.error("Expected major version digits.", majorLex.getSpan()));
-            }
-            else
-            {
-                major = Integer.parseInt(majorLex.toString());
-                if (lexer.next() && lexer.getCurrent().getType() == LexType.Period && lexer.next())
-                {
-                    final Lex minorLex = lexer.getCurrent();
-                    if (minorLex.getType() == LexType.Digits)
-                    {
-                        minor = Integer.parseInt(minorLex.toString());
-                        if (lexer.next() && lexer.getCurrent().getType() == LexType.Period && lexer.next())
-                        {
-                            final Lex patchLex = lexer.getCurrent();
-                            if (patchLex.getType() == LexType.Digits)
-                            {
-                                patch = Integer.parseInt(patchLex.toString());
-                                lexer.next();
-                            }
-                        }
-                    }
-                }
-            }
-
-            final StringBuilder suffixBuilder = new StringBuilder();
-            while (lexer.hasCurrent())
-            {
-                suffixBuilder.append(lexer.takeCurrent().toString());
-            }
-            if (suffixBuilder.length() > 0)
-            {
-                suffix = suffixBuilder.toString();
-            }
-        }
-
-        final VersionNumber result = new VersionNumber(versionNumberString, major, minor, patch, suffix);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return rhs != null &&
+            this.getParts().equals(rhs.getParts()) &&
+            this.getSuffix().equals(rhs.getSuffix());
     }
 
     @Override
-    public Comparison compareTo(VersionNumber rhs)
+    default Comparison compareTo(VersionNumber rhs)
     {
         Comparison result;
+
         if (rhs == null)
         {
             result = Comparison.GreaterThan;
         }
         else
         {
-            result = Integers.compare(this.getMajor(), rhs.getMajor());
+            result = Comparison.Equal;
+
+            final int partCount = Math.maximum(this.getPartCount(), rhs.getPartCount());
+            for (int i = 0; i < partCount; ++i)
+            {
+                if (!this.hasPart(i))
+                {
+                    result = Comparison.LessThan;
+                }
+                else if (!rhs.hasPart(i))
+                {
+                    result = Comparison.GreaterThan;
+                }
+                else
+                {
+                    result = Comparer.compare(this.getPart(i), rhs.getPart(i));
+                }
+
+                if (result != Comparison.Equal)
+                {
+                    break;
+                }
+            }
+
             if (result == Comparison.Equal)
             {
-                result = Integers.compare(this.getMinor(), rhs.getMinor());
-                if (result == Comparison.Equal)
+                if (!this.hasSuffix())
                 {
-                    result = Integers.compare(this.getPatch(), rhs.getPatch());
-                    if (result == Comparison.Equal)
+                    if (rhs.hasSuffix())
                     {
-                        result = Strings.compare(this.getSuffix(), rhs.getSuffix());
+                        result = Comparison.LessThan;
                     }
+                }
+                else if (!rhs.hasSuffix())
+                {
+                    result = Comparison.GreaterThan;
+                }
+                else
+                {
+                    result = Comparer.compare(this.getSuffix(), rhs.getSuffix());
                 }
             }
         }
-
-        PostCondition.assertNotNull(result, "result");
 
         return result;
     }

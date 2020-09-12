@@ -177,8 +177,8 @@ public class QubProjectVersionFolder extends Folder implements Comparable<QubPro
                 result = Comparison.from(this.getProjectName().await().compareTo(rhs.getProjectName().await()));
                 if (result == Comparison.Equal)
                 {
-                    final VersionNumber lhsVersion = VersionNumber.parse(this.getVersion());
-                    final VersionNumber rhsVersion = VersionNumber.parse(rhs.getVersion());
+                    final VersionNumber lhsVersion = VersionNumber.parse(this.getVersion()).await();
+                    final VersionNumber rhsVersion = VersionNumber.parse(rhs.getVersion()).await();
                     result = lhsVersion.compareTo(rhsVersion);
                 }
             }
