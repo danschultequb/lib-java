@@ -120,8 +120,22 @@ public class PreCondition
      */
     public static void assertNotNullAndNotEmpty(String value, String variableName)
     {
-        assertNotNull(value, variableName);
+        PreCondition.assertNotNull(value, variableName);
         if (value.length() == 0)
+        {
+            throw new PreConditionFailure(AssertionMessages.notEmpty(variableName));
+        }
+    }
+
+    /**
+     * Assert that the provided value is not null and not empty.
+     * @param value The value to check.
+     * @param variableName The name of the variable that contains value.
+     */
+    public static void assertNotNullAndNotEmpty(VersionNumber value, String variableName)
+    {
+        PreCondition.assertNotNull(value, variableName);
+        if (!value.any())
         {
             throw new PreConditionFailure(AssertionMessages.notEmpty(variableName));
         }
