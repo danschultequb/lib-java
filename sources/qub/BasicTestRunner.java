@@ -304,38 +304,6 @@ public final class BasicTestRunner implements TestRunner
     }
 
     @Override
-    public void speedTest(String testName, Duration2 maximumDuration, Action1<Test> testAction)
-    {
-        test(testName, (Test test) ->
-        {
-            final Clock clock = process.getClock();
-            final List<Duration2> failedDurations = List.create();
-            final int maximumAttempts = 3;
-            for (int i = 0; i < maximumAttempts; ++i)
-            {
-                final DateTime startTime = clock.getCurrentDateTime();
-
-                testAction.run(test);
-
-                final DateTime endTime = clock.getCurrentDateTime();
-                final Duration2 duration = endTime.minus2(startTime);
-                if (duration.lessThanOrEqualTo(maximumDuration))
-                {
-                    break;
-                }
-                else
-                {
-                    failedDurations.add(duration);
-                }
-            }
-            if (failedDurations.getCount() == maximumAttempts)
-            {
-                test.fail("Expected test to complete in less than " + maximumDuration + ", but ran in " + failedDurations.toString() + ".");
-            }
-        });
-    }
-
-    @Override
     public void beforeTestClass(Action1<TestClass> beforeTestClassAction)
     {
         PreCondition.assertNotNull(beforeTestClassAction, "beforeTestClassAction");

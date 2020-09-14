@@ -432,45 +432,6 @@ public class JavaProcess implements QubProcess
     }
 
     /**
-     * Run the provided action and then write to output how long the action took.
-     * @param action The action to run.
-     */
-    public void showDuration(Action0 action)
-    {
-        this.showDuration(true, action);
-    }
-
-    /**
-     * Run the provided action and then write to output how long the action took.
-     * @param shouldShowDuration Whether or not the duration will be written.
-     * @param action The action to run.
-     */
-    public void showDuration(boolean shouldShowDuration, Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        Stopwatch stopwatch = null;
-        if (shouldShowDuration)
-        {
-            stopwatch = this.getStopwatch();
-            stopwatch.start();
-        }
-        try
-        {
-            action.run();
-        }
-        finally
-        {
-            if (shouldShowDuration)
-            {
-                final Duration2 compilationDuration = stopwatch.stop2().toSeconds();
-                final CharacterWriteStream output = this.getOutputWriteStream();
-                output.writeLine("Done (" + compilationDuration.toString("0.0") + ")").await();
-            }
-        }
-    }
-
-    /**
      * Set the Clock object that this JavaProcess will use.
      * @param clock The Clock object that this JavaProcess will use.
      */

@@ -24,16 +24,4 @@ public class JavaStopwatch implements Stopwatch
         }
         return result;
     }
-
-    @Override
-    public Duration2 stop2()
-    {
-        Duration2 result = null;
-        if (startTime != null)
-        {
-            result = Duration2.nanoseconds(System.nanoTime() - startTime);
-            startTime = null;
-        }
-        return result;
-    }
 }

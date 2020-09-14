@@ -15,10 +15,4 @@ public interface Stopwatch
      * @return The Duration since the start() method was called.
      */
     Duration stop();
-
-    /**
-     * Stop the stopwatch and return the Duration since the start() method was called.
-     * @return The Duration since the start() method was called.
-     */
-    Duration2 stop2();
 }

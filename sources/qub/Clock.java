@@ -10,18 +10,9 @@ public interface Clock
      * Get the current time zone offset.
      * @return The current time zone offset.
      */
-    default Duration2 getCurrentOffset()
+    default Duration getCurrentOffset()
     {
         return this.getCurrentDateTime().getOffset();
-    }
-
-    /**
-     * Get the current time zone offset.
-     * @return The current time zone offset.
-     */
-    default Duration getCurrentOffset2()
-    {
-        return this.getCurrentDateTime().getOffset2();
     }
 
     /**
@@ -45,20 +36,6 @@ public interface Clock
      * @return The AsyncAction associated with the scheduled action.
      */
     default Result<Void> scheduleAfter(Duration duration, Action0 action)
-    {
-        PreCondition.assertNotNull(duration, "duration");
-        PreCondition.assertNotNull(action, "action");
-
-        return this.scheduleAt(this.getCurrentDateTime().plus(duration), action);
-    }
-
-    /**
-     * Run the provided action on the main AsyncRunner after the provided duration of time.
-     * @param duration The duration to wait before scheduling the provided action.
-     * @param action The action to run after the duration.
-     * @return The AsyncAction associated with the scheduled action.
-     */
-    default Result<Void> scheduleAfter(Duration2 duration, Action0 action)
     {
         PreCondition.assertNotNull(duration, "duration");
         PreCondition.assertNotNull(action, "action");

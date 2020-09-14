@@ -541,7 +541,7 @@ public interface Process extends Disposable
         {
             if (shouldShowDuration)
             {
-                final Duration2 compilationDuration = stopwatch.stop2().toSeconds();
+                final Duration compilationDuration = stopwatch.stop().toSeconds();
                 final CharacterWriteStream output = this.getOutputWriteStream();
                 output.writeLine("Done (" + compilationDuration.toString("0.0") + ")").await();
             }

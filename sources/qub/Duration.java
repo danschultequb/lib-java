@@ -220,10 +220,7 @@ public interface Duration extends ComparableWithError<Duration>
 
     static boolean equals(Duration lhs, Object rhs)
     {
-        return lhs == rhs ||
-            (lhs != null &&
-                (rhs instanceof Duration && lhs.equals((Duration)rhs)) ||
-                (rhs instanceof Duration2 && lhs.equals((Duration2)rhs)));
+        return lhs == rhs || (lhs != null && (rhs instanceof Duration && lhs.equals((Duration)rhs)));
     }
 
     default boolean equals(Duration rhs)
@@ -236,37 +233,8 @@ public interface Duration extends ComparableWithError<Duration>
         return this.compareTo(rhs, Duration.zero);
     }
 
-    default boolean equals(Duration2 rhs)
-    {
-        return this.compareTo(rhs, Duration.zero) == Comparison.Equal;
-    }
-
-    default Comparison compareTo(Duration2 rhs)
-    {
-        return this.compareTo(rhs, Duration.zero);
-    }
-
     @Override
     default Comparison compareTo(Duration rhs, Duration marginOfError)
-    {
-        PreCondition.assertNotNull(marginOfError, "marginOfError");
-        PreCondition.assertGreaterThanOrEqualTo(marginOfError, Duration.zero, "marginOfError");
-
-        Comparison result = Comparison.GreaterThan;
-        if (rhs != null)
-        {
-            final double thisValue = this.getValue();
-            final double convertedRhsValue = rhs.convertTo(this.getUnits()).getValue();
-            final double convertedMarginOfErrorValue = marginOfError.convertTo(this.getUnits()).getValue();
-            result = Comparison.from(thisValue - convertedRhsValue, convertedMarginOfErrorValue);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    default Comparison compareTo(Duration2 rhs, Duration marginOfError)
     {
         PreCondition.assertNotNull(marginOfError, "marginOfError");
         PreCondition.assertGreaterThanOrEqualTo(marginOfError, Duration.zero, "marginOfError");

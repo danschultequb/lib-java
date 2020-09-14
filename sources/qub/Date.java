@@ -50,13 +50,6 @@ public class Date implements Comparable<Date>
         return result;
     }
 
-    public static Date createFromDurationSinceEpoch(Duration2 durationSinceEpoch)
-    {
-        PreCondition.assertNotNull(durationSinceEpoch, "durationSinceEpoch");
-
-        return Date.create(DateTime.createFromDurationSinceEpoch(durationSinceEpoch));
-    }
-
     public static Date create(int year, int month, int dayOfMonth)
     {
         return Date.create(DateTime.create(year, month, dayOfMonth));

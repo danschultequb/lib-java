@@ -17,9 +17,9 @@ public class JavaClock implements Clock
     {
         final java.time.OffsetDateTime now = java.time.OffsetDateTime.now();
         final long millisecondsSinceEpoch = now.toInstant().toEpochMilli();
-        final Duration2 durationSinceEpoch = Duration2.milliseconds(millisecondsSinceEpoch);
+        final Duration durationSinceEpoch = Duration.milliseconds(millisecondsSinceEpoch);
 
-        final Duration2 zoneOffset = Duration2.seconds(now.getOffset().getTotalSeconds());
+        final Duration zoneOffset = Duration.seconds(now.getOffset().getTotalSeconds());
 
         final DateTime result = DateTime.createFromDurationSinceEpoch(durationSinceEpoch, zoneOffset);
 
