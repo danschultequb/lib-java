@@ -107,7 +107,7 @@ public class BufferedByteWriteStream implements ByteWriteStream
         }
         else
         {
-            result = this.flush();
+            result = this.flushOnce();
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -120,28 +120,49 @@ public class BufferedByteWriteStream implements ByteWriteStream
      * It's possible that not all of the bytes in the buffer will be written to the inner stream.
      * @return The number of bytes that were written to the inner stream.
      */
+    private Result<Integer> flushOnce()
+    {
+        PreCondition.assertNotDisposed(this, "this");
+
+        return Result.create(() ->
+        {
+            final int bytesWritten = this.byteWriteStream.write(this.buffer, 0, this.currentBufferIndex).await();
+            if (bytesWritten == buffer.length)
+            {
+                final int newBufferLength = Math.minimum(maximumBufferSize, buffer.length * 2);
+                if (newBufferLength != buffer.length)
+                {
+                    buffer = new byte[newBufferLength];
+                }
+                currentBufferIndex = 0;
+            }
+            else
+            {
+                Array.copy(buffer, bytesWritten, buffer, 0, buffer.length - bytesWritten);
+                currentBufferIndex -= bytesWritten;
+            }
+            return bytesWritten;
+        });
+    }
+
+    /**
+     * Flush all of the bytes in the buffer and return how many bytes were written to the inner
+     * stream.
+     * @return The number of bytes that were written to the inner stream.
+     */
     public Result<Integer> flush()
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        return byteWriteStream.write(buffer, 0, currentBufferIndex)
-            .onValue((Integer bytesWritten) ->
+        return Result.create(() ->
+        {
+            int bytesWritten = this.flushOnce().await();
+            while (this.currentBufferIndex > 0)
             {
-                if (bytesWritten == buffer.length)
-                {
-                    final int newBufferLength = Math.minimum(maximumBufferSize, buffer.length * 2);
-                    if (newBufferLength != buffer.length)
-                    {
-                        buffer = new byte[newBufferLength];
-                    }
-                    currentBufferIndex = 0;
-                }
-                else
-                {
-                    Array.copy(buffer, bytesWritten, buffer, 0, buffer.length - bytesWritten);
-                    currentBufferIndex -= bytesWritten;
-                }
-            });
+                bytesWritten += this.flushOnce().await();
+            }
+            return bytesWritten;
+        });
     }
 
     @Override

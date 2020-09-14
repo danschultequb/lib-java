@@ -47,24 +47,40 @@ public class InMemoryFile
      * Get a ByteReadStream that reads create the contents of this InMemoryFile.
      * @return A ByteReadStream that reads create the contents of this InMemoryFile.
      */
-    public CharacterToByteReadStream getContentReadStream()
+    public CharacterToByteReadStream getContentsReadStream()
     {
         return CharacterToByteReadStream.create(ByteReadStream.create(this.contents));
     }
 
-    public ByteWriteStream getContentByteWriteStream()
+    public BufferedByteWriteStream getContentsByteWriteStream()
     {
+        return this.getContentByteWriteStream(OpenWriteType.CreateOrOverwrite);
+    }
+
+    public BufferedByteWriteStream getContentByteWriteStream(OpenWriteType openWriteType)
+    {
+        PreCondition.assertNotNull(openWriteType, "openWriteType");
+
         final InMemoryByteStream result = InMemoryByteStream.create();
         result.onDisposed(() ->
         {
             final byte[] writtenBytes = result.getBytes();
-            this.contents = writtenBytes == null ? new byte[0] : writtenBytes;
+            switch (openWriteType)
+            {
+                case CreateOrOverwrite:
+                    this.contents =  writtenBytes == null ? new byte[0] : writtenBytes;
+                    break;
+
+                case CreateOrAppend:
+                    this.contents = Array.mergeBytes(Iterable.create(this.contents, writtenBytes));
+                    break;
+            }
             this.lastModified = clock.getCurrentDateTime();
         });
 
         PostCondition.assertNotNull(result, "result");
 
-        return result;
+        return ByteWriteStream.buffer(result);
     }
 
     public DateTime getLastModified()
@@ -76,7 +92,7 @@ public class InMemoryFile
      * Get the amount of data contained by this file.
      * @return The amount of data contained by this file.
      */
-    public DataSize getContentDataSize()
+    public DataSize getContentsDataSize()
     {
         return DataSize.bytes(this.contents.length);
     }

@@ -339,21 +339,29 @@ public class JavaFileSystem implements FileSystem
     }
 
     @Override
-    public Result<ByteWriteStream> getFileContentByteWriteStream(Path rootedFilePath)
+    public Result<BufferedByteWriteStream> getFileContentsByteWriteStream(Path rootedFilePath, OpenWriteType openWriteType)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
+        PreCondition.assertNotNull(openWriteType, "openWriteType");
 
         return Result.create(() ->
         {
-            ByteWriteStream result;
+            BufferedByteWriteStream result;
+            final java.nio.file.StandardOpenOption openWriteOption = (openWriteType == OpenWriteType.CreateOrOverwrite
+                ? java.nio.file.StandardOpenOption.TRUNCATE_EXISTING
+                : java.nio.file.StandardOpenOption.APPEND);
+            final java.nio.file.StandardOpenOption[] openWriteOptions = new java.nio.file.StandardOpenOption[]
+            {
+                java.nio.file.StandardOpenOption.CREATE,
+                openWriteOption
+            };
             try
             {
                 result = ByteWriteStream.buffer(
                             new OutputStreamToByteWriteStream(
                                 java.nio.file.Files.newOutputStream(
                                     java.nio.file.Paths.get(rootedFilePath.toString()),
-                                    java.nio.file.StandardOpenOption.CREATE,
-                                    java.nio.file.StandardOpenOption.TRUNCATE_EXISTING)));
+                                    openWriteOptions)));
             }
             catch (java.nio.file.NoSuchFileException e1)
             {
@@ -364,8 +372,7 @@ public class JavaFileSystem implements FileSystem
                                 new OutputStreamToByteWriteStream(
                                     java.nio.file.Files.newOutputStream(
                                         java.nio.file.Paths.get(rootedFilePath.toString()),
-                                        java.nio.file.StandardOpenOption.CREATE,
-                                        java.nio.file.StandardOpenOption.TRUNCATE_EXISTING)));
+                                        openWriteOptions)));
                 }
                 catch (java.io.IOException e2)
                 {

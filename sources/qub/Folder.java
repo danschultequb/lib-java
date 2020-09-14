@@ -179,7 +179,7 @@ public class Folder extends FileSystemEntry
 
         final Path childFilePath = getChildPath(relativeFilePath);
         final FileSystem fileSystem = getFileSystem();
-        return fileSystem.getFileContentAsString(childFilePath);
+        return fileSystem.getFileContentsAsString(childFilePath);
     }
 
     /**

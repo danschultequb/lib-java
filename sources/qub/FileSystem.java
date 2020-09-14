@@ -562,11 +562,11 @@ public interface FileSystem
      * @param rootedFilePath The rooted file path to the file.
      * @return The String contents of the file at the provided rootedFilePath.
      */
-    default Result<String> getFileContentAsString(String rootedFilePath)
+    default Result<String> getFileContentsAsString(String rootedFilePath)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return this.getFileContentAsString(Path.parse(rootedFilePath));
+        return this.getFileContentsAsString(Path.parse(rootedFilePath));
     }
 
     /**
@@ -574,7 +574,7 @@ public interface FileSystem
      * @param rootedFilePath The rooted file path to the file.
      * @return The String contents of the file at the provided rootedFilePath.
      */
-    default Result<String> getFileContentAsString(Path rootedFilePath)
+    default Result<String> getFileContentsAsString(Path rootedFilePath)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
@@ -592,11 +592,11 @@ public interface FileSystem
      * @param rootedFilePath The rooted file path to the file.
      * @return A ByteWriteStream to the contents of the file.
      */
-    default Result<ByteWriteStream> getFileContentByteWriteStream(String rootedFilePath)
+    default Result<BufferedByteWriteStream> getFileContentsByteWriteStream(String rootedFilePath)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getFileContentByteWriteStream(Path.parse(rootedFilePath));
+        return getFileContentsByteWriteStream(Path.parse(rootedFilePath));
     }
 
     /**
@@ -604,18 +604,43 @@ public interface FileSystem
      * @param rootedFilePath The rooted file path to the file.
      * @return A ByteReadStream to the contents of the file.
      */
-    Result<ByteWriteStream> getFileContentByteWriteStream(Path rootedFilePath);
+    default Result<BufferedByteWriteStream> getFileContentsByteWriteStream(Path rootedFilePath)
+    {
+        return this.getFileContentsByteWriteStream(rootedFilePath, OpenWriteType.CreateOrOverwrite);
+    }
+
+    /**
+     * Get a ByteReadStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @param openWriteType The manner in which the file will be opened for writing.
+     * @return A ByteReadStream to the contents of the file.
+     */
+    default Result<BufferedByteWriteStream> getFileContentsByteWriteStream(String rootedFilePath, OpenWriteType openWriteType)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+        PreCondition.assertNotNull(openWriteType, "openWriteType");
+
+        return this.getFileContentsByteWriteStream(Path.parse(rootedFilePath), openWriteType);
+    }
+
+    /**
+     * Get a ByteReadStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @param openWriteType The manner in which the file will be opened for writing.
+     * @return A ByteReadStream to the contents of the file.
+     */
+    Result<BufferedByteWriteStream> getFileContentsByteWriteStream(Path rootedFilePath, OpenWriteType openWriteType);
 
     /**
      * Get a CharacterWriteStream to the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted file path to the file.
      * @return A CharacterWriteStream to the contents of the file.
      */
-    default Result<CharacterToByteWriteStream> getFileContentCharacterWriteStream(String rootedFilePath)
+    default Result<CharacterToByteWriteStream> getFileContentsCharacterWriteStream(String rootedFilePath)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return this.getFileContentCharacterWriteStream(Path.parse(rootedFilePath));
+        return this.getFileContentsCharacterWriteStream(Path.parse(rootedFilePath));
     }
 
     /**
@@ -623,12 +648,41 @@ public interface FileSystem
      * @param rootedFilePath The rooted file path to the file.
      * @return A CharacterWriteStream to the contents of the file.
      */
-    default Result<CharacterToByteWriteStream> getFileContentCharacterWriteStream(Path rootedFilePath)
+    default Result<CharacterToByteWriteStream> getFileContentsCharacterWriteStream(Path rootedFilePath)
     {
         PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
 
-        return this.getFileContentByteWriteStream(rootedFilePath)
-            .then(CharacterWriteStream::create);
+        return this.getFileContentsCharacterWriteStream(rootedFilePath, OpenWriteType.CreateOrOverwrite);
+    }
+
+    /**
+     * Get a CharacterWriteStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A CharacterWriteStream to the contents of the file.
+     */
+    default Result<CharacterToByteWriteStream> getFileContentsCharacterWriteStream(String rootedFilePath, OpenWriteType openWriteType)
+    {
+        FileSystem.validateRootedFilePath(rootedFilePath);
+        PreCondition.assertNotNull(openWriteType, "openWriteType");
+
+        return this.getFileContentsCharacterWriteStream(Path.parse(rootedFilePath), openWriteType);
+    }
+
+    /**
+     * Get a CharacterWriteStream to the file at the provided rootedFilePath.
+     * @param rootedFilePath The rooted file path to the file.
+     * @return A CharacterWriteStream to the contents of the file.
+     */
+    default Result<CharacterToByteWriteStream> getFileContentsCharacterWriteStream(Path rootedFilePath, OpenWriteType openWriteType)
+    {
+        PreCondition.assertNotNull(rootedFilePath, "rootedFilePath");
+        PreCondition.assertNotNull(openWriteType, "openWriteType");
+
+        return Result.create(() ->
+        {
+            final ByteWriteStream byteWriteStream = this.getFileContentsByteWriteStream(rootedFilePath, openWriteType).await();
+            return CharacterWriteStream.create(byteWriteStream);
+        });
     }
 
     /**
@@ -637,12 +691,12 @@ public interface FileSystem
      * @param content The byte[] contents to set.
      * @return Whether or not the file's contents were set.
      */
-    default Result<Void> setFileContent(String rootedFilePath, byte[] content)
+    default Result<Void> setFileContents(String rootedFilePath, byte[] content)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(content, "content");
 
-        return this.setFileContent(Path.parse(rootedFilePath), content);
+        return this.setFileContents(Path.parse(rootedFilePath), content);
     }
 
     /**
@@ -651,13 +705,13 @@ public interface FileSystem
      * @param content The byte[] contents to set.
      * @return Whether or not the file's contents were set.
      */
-    default Result<Void> setFileContent(Path rootedFilePath, byte[] content)
+    default Result<Void> setFileContents(Path rootedFilePath, byte[] content)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
         PreCondition.assertNotNull(content, "content");
 
         return Result.createUsing(
-            () -> { return this.getFileContentByteWriteStream(rootedFilePath).await(); },
+            () -> { return this.getFileContentsByteWriteStream(rootedFilePath).await(); },
             (ByteWriteStream byteWriteStream) ->
             {
                 if (content.length > 0)
@@ -696,7 +750,7 @@ public interface FileSystem
             final byte[] encodedBytes = Strings.isNullOrEmpty(content)
                 ? new byte[0]
                 : CharacterEncoding.UTF_8.encodeCharacters(content).await();
-            this.setFileContent(rootedFilePath, encodedBytes).await();
+            this.setFileContents(rootedFilePath, encodedBytes).await();
         });
     }
 
@@ -755,7 +809,7 @@ public interface FileSystem
 
         return Result.createUsing(
             () -> this.getFileContentReadStream(sourceFilePath).await(),
-            () -> this.getFileContentByteWriteStream(destinationFilePath).await(),
+            () -> this.getFileContentsByteWriteStream(destinationFilePath).await(),
             (ByteReadStream sourceStream, ByteWriteStream destinationStream) ->
             {
                 destinationStream.writeAll(sourceStream).await();

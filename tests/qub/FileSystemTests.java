@@ -1923,7 +1923,7 @@ public interface FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test);
                     final String filePath = "/i/dont/exist.txt";
-                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentByteWriteStream(filePath).await())
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath).await())
                     {
                         test.assertTrue(byteWriteStream.dispose().await());
                         test.assertTrue(fileSystem.fileExists(filePath).await());
@@ -1932,17 +1932,318 @@ public interface FileSystemTests
                 });
             });
 
-            runner.testGroup("getFileContentByteWriteStream(Path)", () ->
+            runner.testGroup("getFileContentsByteWriteStream(String,OpenWriteType)", () ->
             {
-                runner.test("with non-existing file", (Test test) ->
+                runner.test("with null OpenWriteType", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
                     final String filePath = "/i/dont/exist.txt";
-                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentByteWriteStream(Path.parse(filePath)).await())
+                    test.assertThrows(() -> fileSystem.getFileContentsByteWriteStream(filePath, null),
+                        new PreConditionFailure("openWriteType cannot be null."));
+                    test.assertFalse(fileSystem.fileExists(filePath).await());
+                });
+
+                runner.test("with non-existing file and CreateOrOverwrite", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final String filePath = "/i/dont/exist.txt";
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath, OpenWriteType.CreateOrOverwrite).await())
                     {
                         test.assertTrue(byteWriteStream.dispose().await());
                         test.assertTrue(fileSystem.fileExists(filePath).await());
                         test.assertEqual(new byte[0], fileSystem.getFileContent(filePath).await());
+                    }
+                });
+
+                runner.test("with writing to non-existing file and CreateOrOverwrite", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final String filePath = "/i/dont/exist.txt";
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath, OpenWriteType.CreateOrOverwrite).await())
+                    {
+                        byteWriteStream.writeAll(new byte[] { 0, 1, 2 }).await();
+
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent(filePath).await());
+                    }
+                });
+
+                runner.test("with non-existing file and CreateOrAppend", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final String filePath = "/i/dont/exist.txt";
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath, OpenWriteType.CreateOrAppend).await())
+                    {
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[0], fileSystem.getFileContent(filePath).await());
+                    }
+                });
+
+                runner.test("with writing to non-existing file and CreateOrAppend", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final String filePath = "/i/dont/exist.txt";
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath, OpenWriteType.CreateOrAppend).await())
+                    {
+                        byteWriteStream.writeAll(new byte[] { 0, 1, 2 }).await();
+
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent(filePath).await());
+                    }
+                });
+
+                runner.test("with existing file and CreateOrOverwrite", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final String filePath = "/i/exist.txt";
+                    fileSystem.setFileContents(filePath, new byte[] { 0, 1, 2 }).await();
+
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath, OpenWriteType.CreateOrOverwrite).await())
+                    {
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[0], fileSystem.getFileContent(filePath).await());
+                    }
+                });
+
+                runner.test("with writing to existing file and CreateOrOverwrite", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final String filePath = "/i/exist.txt";
+                    fileSystem.setFileContents(filePath, new byte[] { 0, 1, 2 }).await();
+
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath, OpenWriteType.CreateOrOverwrite).await())
+                    {
+                        byteWriteStream.writeAll(new byte[] { 3, 4 }).await();
+
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[] { 3, 4 }, fileSystem.getFileContent(filePath).await());
+                    }
+                });
+
+                runner.test("with existing file and CreateOrAppend", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final String filePath = "/i/exist.txt";
+                    fileSystem.setFileContents(filePath, new byte[] { 0, 1, 2 }).await();
+
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath, OpenWriteType.CreateOrAppend).await())
+                    {
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent(filePath).await());
+                    }
+                });
+
+                runner.test("with writing to existing file and CreateOrAppend", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final String filePath = "/i/exist.txt";
+                    fileSystem.setFileContents(filePath, new byte[] { 0, 1, 2 }).await();
+
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath, OpenWriteType.CreateOrAppend).await())
+                    {
+                        byteWriteStream.writeAll(new byte[] { 3, 4 }).await();
+
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, fileSystem.getFileContent(filePath).await());
+                    }
+                });
+            });
+
+            runner.testGroup("getFileContentsByteWriteStream(Path)", () ->
+            {
+                runner.test("with null OpenWriteType", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final String filePath = "/i/dont/exist.txt";
+                    test.assertThrows(() -> fileSystem.getFileContentsByteWriteStream(filePath, null),
+                        new PreConditionFailure("openWriteType cannot be null."));
+                    test.assertFalse(fileSystem.fileExists(filePath).await());
+                });
+
+                runner.test("with non-existing file", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final String filePath = "/i/dont/exist.txt";
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath).await())
+                    {
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[0], fileSystem.getFileContent(filePath).await());
+                    }
+                });
+
+                runner.test("with writing to non-existing file", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final String filePath = "/i/dont/exist.txt";
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath).await())
+                    {
+                        byteWriteStream.writeAll(new byte[] { 0, 1, 2 }).await();
+
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent(filePath).await());
+                    }
+                });
+
+                runner.test("with existing file", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final String filePath = "/i/exist.txt";
+                    fileSystem.setFileContents(filePath, new byte[] { 0, 1, 2 }).await();
+
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath).await())
+                    {
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[0], fileSystem.getFileContent(filePath).await());
+                    }
+                });
+
+                runner.test("with writing to existing file", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final String filePath = "/i/exist.txt";
+                    fileSystem.setFileContents(filePath, new byte[] { 0, 1, 2 }).await();
+
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath).await())
+                    {
+                        byteWriteStream.writeAll(new byte[] { 3, 4 }).await();
+
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[] { 3, 4 }, fileSystem.getFileContent(filePath).await());
+                    }
+                });
+            });
+
+            runner.testGroup("getFileContentsByteWriteStream(Path,OpenWriteType)", () ->
+            {
+                runner.test("with null OpenWriteType", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final String filePath = "/i/dont/exist.txt";
+                    test.assertThrows(() -> fileSystem.getFileContentsByteWriteStream(filePath, null),
+                        new PreConditionFailure("openWriteType cannot be null."));
+                    test.assertFalse(fileSystem.fileExists(filePath).await());
+                });
+
+                runner.test("with non-existing file and CreateOrOverwrite", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final String filePath = "/i/dont/exist.txt";
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath, OpenWriteType.CreateOrOverwrite).await())
+                    {
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[0], fileSystem.getFileContent(filePath).await());
+                    }
+                });
+
+                runner.test("with writing to non-existing file and CreateOrOverwrite", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final String filePath = "/i/dont/exist.txt";
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath, OpenWriteType.CreateOrOverwrite).await())
+                    {
+                        byteWriteStream.writeAll(new byte[] { 0, 1, 2 }).await();
+
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent(filePath).await());
+                    }
+                });
+
+                runner.test("with non-existing file and CreateOrAppend", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final String filePath = "/i/dont/exist.txt";
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath, OpenWriteType.CreateOrAppend).await())
+                    {
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[0], fileSystem.getFileContent(filePath).await());
+                    }
+                });
+
+                runner.test("with writing to non-existing file and CreateOrAppend", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final Path filePath = Path.parse("/i/dont/exist.txt");
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath, OpenWriteType.CreateOrAppend).await())
+                    {
+                        byteWriteStream.writeAll(new byte[] { 0, 1, 2 }).await();
+
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent(filePath).await());
+                    }
+                });
+
+                runner.test("with existing file and CreateOrOverwrite", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final Path filePath = Path.parse("/i/dont/exist.txt");
+                    fileSystem.setFileContents(filePath, new byte[] { 0, 1, 2 }).await();
+
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath, OpenWriteType.CreateOrOverwrite).await())
+                    {
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[0], fileSystem.getFileContent(filePath).await());
+                    }
+                });
+
+                runner.test("with writing to existing file and CreateOrOverwrite", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final Path filePath = Path.parse("/i/dont/exist.txt");
+                    fileSystem.setFileContents(filePath, new byte[] { 0, 1, 2 }).await();
+
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath, OpenWriteType.CreateOrOverwrite).await())
+                    {
+                        byteWriteStream.writeAll(new byte[] { 3, 4 }).await();
+
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[] { 3, 4 }, fileSystem.getFileContent(filePath).await());
+                    }
+                });
+
+                runner.test("with existing file and CreateOrAppend", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final Path filePath = Path.parse("/i/dont/exist.txt");
+                    fileSystem.setFileContents(filePath, new byte[] { 0, 1, 2 }).await();
+
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath, OpenWriteType.CreateOrAppend).await())
+                    {
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent(filePath).await());
+                    }
+                });
+
+                runner.test("with writing to existing file and CreateOrAppend", (Test test) ->
+                {
+                    final FileSystem fileSystem = creator.run(test);
+                    final Path filePath = Path.parse("/i/dont/exist.txt");
+                    fileSystem.setFileContents(filePath, new byte[] { 0, 1, 2 }).await();
+
+                    try (final ByteWriteStream byteWriteStream = fileSystem.getFileContentsByteWriteStream(filePath, OpenWriteType.CreateOrAppend).await())
+                    {
+                        byteWriteStream.writeAll(new byte[] { 3, 4 }).await();
+
+                        test.assertTrue(byteWriteStream.dispose().await());
+                        test.assertTrue(fileSystem.fileExists(filePath).await());
+                        test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, fileSystem.getFileContent(filePath).await());
                     }
                 });
             });
@@ -1953,7 +2254,7 @@ public interface FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test);
                     final String filePath = "/i/dont/exist.txt";
-                    try (final CharacterWriteStream characterWriteStream = fileSystem.getFileContentCharacterWriteStream(filePath).await())
+                    try (final CharacterWriteStream characterWriteStream = fileSystem.getFileContentsCharacterWriteStream(filePath).await())
                     {
                         test.assertTrue(characterWriteStream.dispose().await());
                         test.assertTrue(fileSystem.fileExists(filePath).await());
@@ -1968,7 +2269,7 @@ public interface FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test);
                     final String filePath = "/i/dont/exist.txt";
-                    try (final CharacterWriteStream characterWriteStream = fileSystem.getFileContentCharacterWriteStream(Path.parse(filePath)).await())
+                    try (final CharacterWriteStream characterWriteStream = fileSystem.getFileContentsCharacterWriteStream(Path.parse(filePath)).await())
                     {
                         test.assertTrue(characterWriteStream.dispose().await());
                         test.assertTrue(fileSystem.fileExists(filePath).await());
@@ -1982,20 +2283,20 @@ public interface FileSystemTests
                 runner.test("with null path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    test.assertThrows(() -> fileSystem.setFileContent((String)null, new byte[] { 0, 1, 2 }), new PreConditionFailure("rootedFilePath cannot be null."));
+                    test.assertThrows(() -> fileSystem.setFileContents((String)null, new byte[] { 0, 1, 2 }), new PreConditionFailure("rootedFilePath cannot be null."));
                 });
 
                 runner.test("with empty path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    test.assertThrows(() -> fileSystem.setFileContent("", new byte[] { 0, 1, 2 }),
+                    test.assertThrows(() -> fileSystem.setFileContents("", new byte[] { 0, 1, 2 }),
                         new PreConditionFailure("rootedFilePath cannot be empty."));
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    test.assertThrows(() -> fileSystem.setFileContent("relative.file", new byte[] { 0, 1, 2 }),
+                    test.assertThrows(() -> fileSystem.setFileContents("relative.file", new byte[] { 0, 1, 2 }),
                         new PreConditionFailure("rootedFilePath.isRooted() cannot be false."));
                 });
 
@@ -2003,7 +2304,7 @@ public interface FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test);
 
-                    test.assertThrows(() -> fileSystem.setFileContent("/A.txt", null).await(),
+                    test.assertThrows(() -> fileSystem.setFileContents("/A.txt", null).await(),
                         new PreConditionFailure("content cannot be null."));
                     
                     test.assertFalse(fileSystem.fileExists("/A.txt").await());
@@ -2012,9 +2313,9 @@ public interface FileSystemTests
                 runner.test("with existing rooted path and null contents", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    fileSystem.setFileContent("/A.txt", new byte[] { 0, 1 }).await();
+                    fileSystem.setFileContents("/A.txt", new byte[] { 0, 1 }).await();
                     
-                    test.assertThrows(() -> fileSystem.setFileContent("/A.txt", null).await(),
+                    test.assertThrows(() -> fileSystem.setFileContents("/A.txt", null).await(),
                         new PreConditionFailure("content cannot be null."));
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
@@ -2025,7 +2326,7 @@ public interface FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test);
                     
-                    fileSystem.setFileContent("/A.txt", new byte[0]).await();
+                    fileSystem.setFileContents("/A.txt", new byte[0]).await();
                     
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
                     test.assertEqual(new byte[0], fileSystem.getFileContent("/A.txt").await());
@@ -2034,9 +2335,9 @@ public interface FileSystemTests
                 runner.test("with existing rooted path and empty contents", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    fileSystem.setFileContent("/A.txt", new byte[] { 0, 1 }).await();
+                    fileSystem.setFileContents("/A.txt", new byte[] { 0, 1 }).await();
 
-                    fileSystem.setFileContent("/A.txt", new byte[0]).await();
+                    fileSystem.setFileContents("/A.txt", new byte[0]).await();
                     
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
                     test.assertEqual(new byte[0], fileSystem.getFileContent("/A.txt").await());
@@ -2046,7 +2347,7 @@ public interface FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test);
 
-                    fileSystem.setFileContent("/A.txt", new byte[] { 0, 1, 2 }).await();
+                    fileSystem.setFileContents("/A.txt", new byte[] { 0, 1, 2 }).await();
                     
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
                     test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/A.txt").await());
@@ -2056,7 +2357,7 @@ public interface FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test);
                     
-                    fileSystem.setFileContent("/folder/A.txt", new byte[] { 0, 1, 2 }).await();
+                    fileSystem.setFileContents("/folder/A.txt", new byte[] { 0, 1, 2 }).await();
                     
                     test.assertTrue(fileSystem.folderExists("/folder").await());
                     test.assertTrue(fileSystem.fileExists("/folder/A.txt").await());
@@ -2068,7 +2369,7 @@ public interface FileSystemTests
                     final FileSystem fileSystem = creator.run(test);
                     fileSystem.createFile("/A.txt");
 
-                    fileSystem.setFileContent("/A.txt", new byte[] { 0, 1, 2 }).await();
+                    fileSystem.setFileContents("/A.txt", new byte[] { 0, 1, 2 }).await();
                     
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
                     test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/A.txt").await());
@@ -2077,14 +2378,14 @@ public interface FileSystemTests
                 runner.test("with rooted path resolved outside the root", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(test);
-                    test.assertThrows(() -> fileSystem.setFileContent("/../thing.txt", new byte[] { 0, 1, 2 }).await(),
+                    test.assertThrows(() -> fileSystem.setFileContents("/../thing.txt", new byte[] { 0, 1, 2 }).await(),
                         new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 });
 
                 runner.test("with rooted path resolved inside the root", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(test);
-                    fileSystem.setFileContent("/a/../thing.txt", new byte[] { 0, 1, 2 }).await();
+                    fileSystem.setFileContents("/a/../thing.txt", new byte[] { 0, 1, 2 }).await();
                     test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/thing.txt").await());
                 });
             });
@@ -2094,13 +2395,13 @@ public interface FileSystemTests
                 runner.test("with null path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    test.assertThrows(() -> fileSystem.setFileContent((Path)null, new byte[] { 0, 1, 2 }), new PreConditionFailure("rootedFilePath cannot be null."));
+                    test.assertThrows(() -> fileSystem.setFileContents((Path)null, new byte[] { 0, 1, 2 }), new PreConditionFailure("rootedFilePath cannot be null."));
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    test.assertThrows(() -> fileSystem.setFileContent(Path.parse("relative.file"), new byte[] { 0, 1, 2 }),
+                    test.assertThrows(() -> fileSystem.setFileContents(Path.parse("relative.file"), new byte[] { 0, 1, 2 }),
                         new PreConditionFailure("rootedFilePath.isRooted() cannot be false."));
                 });
 
@@ -2108,7 +2409,7 @@ public interface FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test);
                     
-                    test.assertThrows(() -> fileSystem.setFileContent(Path.parse("/A.txt"), null).await(),
+                    test.assertThrows(() -> fileSystem.setFileContents(Path.parse("/A.txt"), null).await(),
                         new PreConditionFailure("content cannot be null."));
                     
                     test.assertFalse(fileSystem.fileExists("/A.txt").await());
@@ -2117,9 +2418,9 @@ public interface FileSystemTests
                 runner.test("with existing rooted path and null contents", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    fileSystem.setFileContent("/A.txt", new byte[] { 0, 1 }).await();
+                    fileSystem.setFileContents("/A.txt", new byte[] { 0, 1 }).await();
 
-                    test.assertThrows(() -> fileSystem.setFileContent(Path.parse("/A.txt"), (byte[])null).await(),
+                    test.assertThrows(() -> fileSystem.setFileContents(Path.parse("/A.txt"), (byte[])null).await(),
                         new PreConditionFailure("content cannot be null."));
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
@@ -2130,7 +2431,7 @@ public interface FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test);
 
-                    fileSystem.setFileContent(Path.parse("/A.txt"), new byte[0]).await();
+                    fileSystem.setFileContents(Path.parse("/A.txt"), new byte[0]).await();
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
                     test.assertEqual(new byte[0], fileSystem.getFileContent("/A.txt").await());
@@ -2139,9 +2440,9 @@ public interface FileSystemTests
                 runner.test("with existing rooted path and empty contents", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    fileSystem.setFileContent("/A.txt", new byte[] { 0, 1 }).await();
+                    fileSystem.setFileContents("/A.txt", new byte[] { 0, 1 }).await();
 
-                    fileSystem.setFileContent(Path.parse("/A.txt"), new byte[0]).await();
+                    fileSystem.setFileContents(Path.parse("/A.txt"), new byte[0]).await();
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
                     test.assertEqual(new byte[0], fileSystem.getFileContent("/A.txt").await());
@@ -2151,7 +2452,7 @@ public interface FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test);
 
-                    fileSystem.setFileContent(Path.parse("/A.txt"), new byte[] { 0, 1, 2 }).await();
+                    fileSystem.setFileContents(Path.parse("/A.txt"), new byte[] { 0, 1, 2 }).await();
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
                     test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/A.txt").await());
@@ -2162,7 +2463,7 @@ public interface FileSystemTests
                     final FileSystem fileSystem = creator.run(test);
                     fileSystem.createFile("/A.txt").await();
 
-                    fileSystem.setFileContent(Path.parse("/A.txt"), new byte[] { 0, 1, 2 }).await();
+                    fileSystem.setFileContents(Path.parse("/A.txt"), new byte[] { 0, 1, 2 }).await();
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
                     test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/A.txt").await());
@@ -2171,14 +2472,14 @@ public interface FileSystemTests
                 runner.test("with rooted path resolved outside the root", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(test);
-                    test.assertThrows(() -> fileSystem.setFileContent(Path.parse("/../thing.txt"), new byte[] { 0, 1, 2 }).await(),
+                    test.assertThrows(() -> fileSystem.setFileContents(Path.parse("/../thing.txt"), new byte[] { 0, 1, 2 }).await(),
                         new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 });
 
                 runner.test("with rooted path resolved inside the root", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(test);
-                    fileSystem.setFileContent(Path.parse("/a/../thing.txt"), new byte[] { 0, 1, 2 }).await();
+                    fileSystem.setFileContents(Path.parse("/a/../thing.txt"), new byte[] { 0, 1, 2 }).await();
                     test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/thing.txt").await());
                 });
             });
@@ -2225,7 +2526,7 @@ public interface FileSystemTests
                         new PreConditionFailure("content cannot be null."));
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
-                    test.assertEqual("fake-content", fileSystem.getFileContentAsString("/A.txt").await());
+                    test.assertEqual("fake-content", fileSystem.getFileContentsAsString("/A.txt").await());
                 });
 
                 runner.test("with non-existing rooted path and empty contents", (Test test) ->
@@ -2235,7 +2536,7 @@ public interface FileSystemTests
                     fileSystem.setFileContentAsString("/A.txt", "").await();
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
-                    test.assertEqual("", fileSystem.getFileContentAsString("/A.txt").await());
+                    test.assertEqual("", fileSystem.getFileContentsAsString("/A.txt").await());
                 });
 
                 runner.test("with existing rooted path and empty contents", (Test test) ->
@@ -2246,7 +2547,7 @@ public interface FileSystemTests
                     fileSystem.setFileContentAsString("/A.txt", "").await();
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
-                    test.assertEqual("", fileSystem.getFileContentAsString("/A.txt").await());
+                    test.assertEqual("", fileSystem.getFileContentsAsString("/A.txt").await());
                 });
 
                 runner.test("with non-existing rooted path and non-empty contents", (Test test) ->
@@ -2256,7 +2557,7 @@ public interface FileSystemTests
                     fileSystem.setFileContentAsString("/A.txt", "fake-content").await();
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
-                    test.assertEqual("fake-content", fileSystem.getFileContentAsString("/A.txt").await());
+                    test.assertEqual("fake-content", fileSystem.getFileContentsAsString("/A.txt").await());
                 });
 
                 runner.test("with non-existing rooted path with non-existing parent folder and non-empty contents", (Test test) ->
@@ -2267,7 +2568,7 @@ public interface FileSystemTests
 
                     test.assertTrue(fileSystem.folderExists("/folder").await());
                     test.assertTrue(fileSystem.fileExists("/folder/A.txt").await());
-                    test.assertEqual("fake-content", fileSystem.getFileContentAsString("/folder/A.txt").await());
+                    test.assertEqual("fake-content", fileSystem.getFileContentsAsString("/folder/A.txt").await());
                 });
 
                 runner.test("with existing rooted path and non-empty contents", (Test test) ->
@@ -2278,7 +2579,7 @@ public interface FileSystemTests
                     fileSystem.setFileContentAsString("/A.txt", "fake-content").await();
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
-                    test.assertEqual("fake-content", fileSystem.getFileContentAsString("/A.txt").await());
+                    test.assertEqual("fake-content", fileSystem.getFileContentsAsString("/A.txt").await());
                 });
 
                 runner.test("with rooted path resolved outside the root", (Test test) ->
@@ -2292,7 +2593,7 @@ public interface FileSystemTests
                 {
                     FileSystem fileSystem = creator.run(test);
                     fileSystem.setFileContentAsString("/a/../thing.txt", "fake-content").await();
-                    test.assertEqual("fake-content", fileSystem.getFileContentAsString("/thing.txt").await());
+                    test.assertEqual("fake-content", fileSystem.getFileContentsAsString("/thing.txt").await());
                 });
             });
 
@@ -2331,7 +2632,7 @@ public interface FileSystemTests
                         new PreConditionFailure("content cannot be null."));
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
-                    test.assertEqual("fake-content", fileSystem.getFileContentAsString("/A.txt").await());
+                    test.assertEqual("fake-content", fileSystem.getFileContentsAsString("/A.txt").await());
                 });
 
                 runner.test("with non-existing rooted path and empty contents", (Test test) ->
@@ -2341,7 +2642,7 @@ public interface FileSystemTests
                     fileSystem.setFileContentAsString(Path.parse("/A.txt"), "").await();
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
-                    test.assertEqual("", fileSystem.getFileContentAsString("/A.txt").await());
+                    test.assertEqual("", fileSystem.getFileContentsAsString("/A.txt").await());
                 });
 
                 runner.test("with existing rooted path and empty contents", (Test test) ->
@@ -2352,7 +2653,7 @@ public interface FileSystemTests
                     fileSystem.setFileContentAsString(Path.parse("/A.txt"), "").await();
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
-                    test.assertEqual("", fileSystem.getFileContentAsString("/A.txt").await());
+                    test.assertEqual("", fileSystem.getFileContentsAsString("/A.txt").await());
                 });
 
                 runner.test("with non-existing rooted path and non-empty contents", (Test test) ->
@@ -2362,7 +2663,7 @@ public interface FileSystemTests
                     fileSystem.setFileContentAsString(Path.parse("/A.txt"), "fake-content").await();
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
-                    test.assertEqual("fake-content", fileSystem.getFileContentAsString("/A.txt").await());
+                    test.assertEqual("fake-content", fileSystem.getFileContentsAsString("/A.txt").await());
                 });
 
                 runner.test("with existing rooted path and non-empty contents", (Test test) ->
@@ -2373,7 +2674,7 @@ public interface FileSystemTests
                     fileSystem.setFileContentAsString(Path.parse("/A.txt"), "fake-content").await();
 
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
-                    test.assertEqual("fake-content", fileSystem.getFileContentAsString("/A.txt").await());
+                    test.assertEqual("fake-content", fileSystem.getFileContentsAsString("/A.txt").await());
                 });
 
                 runner.test("with rooted path resolved outside the root", (Test test) ->
@@ -2387,7 +2688,7 @@ public interface FileSystemTests
                 {
                     FileSystem fileSystem = creator.run(test);
                     fileSystem.setFileContentAsString(Path.parse("/a/../thing.txt"), "fake-content").await();
-                    test.assertEqual("fake-content", fileSystem.getFileContentAsString("/thing.txt").await());
+                    test.assertEqual("fake-content", fileSystem.getFileContentsAsString("/thing.txt").await());
                 });
             });
 
@@ -2533,7 +2834,7 @@ public interface FileSystemTests
                 runner.test("when source file is not empty and destination file doesn't exist", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    fileSystem.setFileContent("/source.txt", new byte[] { 0, 1, 2, 3 }).await();
+                    fileSystem.setFileContents("/source.txt", new byte[] { 0, 1, 2, 3 }).await();
                     fileSystem.copyFileTo(fileSystem.getFile("/source.txt").await(), fileSystem.getFile("/dest.txt").await()).await();
                     test.assertTrue(fileSystem.fileExists("/source.txt").await());
                     test.assertEqual(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContent("/source.txt").await());
@@ -2545,7 +2846,7 @@ public interface FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test);
                     fileSystem.createFile("/source.txt").await();
-                    fileSystem.setFileContent("/dest.txt", new byte[] { 10, 11 }).await();
+                    fileSystem.setFileContents("/dest.txt", new byte[] { 10, 11 }).await();
                     test.assertNull(fileSystem.copyFileTo(fileSystem.getFile("/source.txt").await(), fileSystem.getFile("/dest.txt").await()).await());
                     test.assertTrue(fileSystem.fileExists("/source.txt").await());
                     test.assertEqual(new byte[0], fileSystem.getFileContent("/source.txt").await());
@@ -2556,8 +2857,8 @@ public interface FileSystemTests
                 runner.test("when source file is not empty and destination file already exists", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    fileSystem.setFileContent("/source.txt", new byte[] { 0, 1, 2, 3 }).await();
-                    fileSystem.setFileContent("/dest.txt", new byte[] { 10, 11 }).await();
+                    fileSystem.setFileContents("/source.txt", new byte[] { 0, 1, 2, 3 }).await();
+                    fileSystem.setFileContents("/dest.txt", new byte[] { 10, 11 }).await();
                     fileSystem.copyFileTo(fileSystem.getFile("/source.txt").await(), fileSystem.getFile("/dest.txt").await()).await();
                     test.assertTrue(fileSystem.fileExists("/source.txt").await());
                     test.assertEqual(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContent("/source.txt").await());
@@ -2607,7 +2908,7 @@ public interface FileSystemTests
                 runner.test("when source file is not empty and destination file doesn't exist", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    fileSystem.setFileContent("/source.txt", new byte[] { 0, 1, 2, 3 }).await();
+                    fileSystem.setFileContents("/source.txt", new byte[] { 0, 1, 2, 3 }).await();
                     fileSystem.copyFileTo(fileSystem.getFile("/source.txt").await(), Path.parse("/dest.txt")).await();
                     test.assertTrue(fileSystem.fileExists("/source.txt").await());
                     test.assertEqual(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContent("/source.txt").await());
@@ -2619,7 +2920,7 @@ public interface FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test);
                     fileSystem.createFile("/source.txt").await();
-                    fileSystem.setFileContent("/dest.txt", new byte[] { 10, 11 }).await();
+                    fileSystem.setFileContents("/dest.txt", new byte[] { 10, 11 }).await();
                     test.assertNull(fileSystem.copyFileTo(fileSystem.getFile("/source.txt").await(), Path.parse("/dest.txt")).await());
                     test.assertTrue(fileSystem.fileExists("/source.txt").await());
                     test.assertEqual(new byte[0], fileSystem.getFileContent("/source.txt").await());
@@ -2630,8 +2931,8 @@ public interface FileSystemTests
                 runner.test("when source file is not empty and destination file already exists", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    fileSystem.setFileContent("/source.txt", new byte[] { 0, 1, 2, 3 }).await();
-                    fileSystem.setFileContent("/dest.txt", new byte[] { 10, 11 }).await();
+                    fileSystem.setFileContents("/source.txt", new byte[] { 0, 1, 2, 3 }).await();
+                    fileSystem.setFileContents("/dest.txt", new byte[] { 10, 11 }).await();
                     fileSystem.copyFileTo(fileSystem.getFile("/source.txt").await(), Path.parse("/dest.txt")).await();
                     test.assertTrue(fileSystem.fileExists("/source.txt").await());
                     test.assertEqual(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContent("/source.txt").await());
@@ -2681,7 +2982,7 @@ public interface FileSystemTests
                 runner.test("when source file is not empty and destination file doesn't exist", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    fileSystem.setFileContent("/source.txt", new byte[] { 0, 1, 2, 3 }).await();
+                    fileSystem.setFileContents("/source.txt", new byte[] { 0, 1, 2, 3 }).await();
                     fileSystem.copyFileTo(Path.parse("/source.txt"), fileSystem.getFile("/dest.txt").await()).await();
                     test.assertTrue(fileSystem.fileExists("/source.txt").await());
                     test.assertEqual(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContent("/source.txt").await());
@@ -2693,7 +2994,7 @@ public interface FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test);
                     fileSystem.createFile("/source.txt").await();
-                    fileSystem.setFileContent("/dest.txt", new byte[] { 10, 11 }).await();
+                    fileSystem.setFileContents("/dest.txt", new byte[] { 10, 11 }).await();
                     test.assertNull(fileSystem.copyFileTo(Path.parse("/source.txt"), fileSystem.getFile("/dest.txt").await()).await());
                     test.assertTrue(fileSystem.fileExists("/source.txt").await());
                     test.assertEqual(new byte[0], fileSystem.getFileContent("/source.txt").await());
@@ -2704,8 +3005,8 @@ public interface FileSystemTests
                 runner.test("when source file is not empty and destination file already exists", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    fileSystem.setFileContent("/source.txt", new byte[] { 0, 1, 2, 3 }).await();
-                    fileSystem.setFileContent("/dest.txt", new byte[] { 10, 11 }).await();
+                    fileSystem.setFileContents("/source.txt", new byte[] { 0, 1, 2, 3 }).await();
+                    fileSystem.setFileContents("/dest.txt", new byte[] { 10, 11 }).await();
                     fileSystem.copyFileTo(Path.parse("/source.txt"), fileSystem.getFile("/dest.txt").await()).await();
                     test.assertTrue(fileSystem.fileExists("/source.txt").await());
                     test.assertEqual(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContent("/source.txt").await());
@@ -2753,7 +3054,7 @@ public interface FileSystemTests
                 runner.test("when source file is not empty and destination file doesn't exist", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    fileSystem.setFileContent("/source.txt", new byte[] { 0, 1, 2, 3 }).await();
+                    fileSystem.setFileContents("/source.txt", new byte[] { 0, 1, 2, 3 }).await();
                     fileSystem.copyFileTo(Path.parse("/source.txt"), Path.parse("/dest.txt")).await();
                     test.assertTrue(fileSystem.fileExists("/source.txt").await());
                     test.assertEqual(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContent("/source.txt").await());
@@ -2765,7 +3066,7 @@ public interface FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(test);
                     fileSystem.createFile("/source.txt").await();
-                    fileSystem.setFileContent("/dest.txt", new byte[] { 10, 11 }).await();
+                    fileSystem.setFileContents("/dest.txt", new byte[] { 10, 11 }).await();
                     test.assertNull(fileSystem.copyFileTo(Path.parse("/source.txt"), Path.parse("/dest.txt")).await());
                     test.assertTrue(fileSystem.fileExists("/source.txt").await());
                     test.assertEqual(new byte[0], fileSystem.getFileContent("/source.txt").await());
@@ -2776,8 +3077,8 @@ public interface FileSystemTests
                 runner.test("when source file is not empty and destination file already exists", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(test);
-                    fileSystem.setFileContent("/source.txt", new byte[] { 0, 1, 2, 3 }).await();
-                    fileSystem.setFileContent("/dest.txt", new byte[] { 10, 11 }).await();
+                    fileSystem.setFileContents("/source.txt", new byte[] { 0, 1, 2, 3 }).await();
+                    fileSystem.setFileContents("/dest.txt", new byte[] { 10, 11 }).await();
                     fileSystem.copyFileTo(Path.parse("/source.txt"), Path.parse("/dest.txt")).await();
                     test.assertTrue(fileSystem.fileExists("/source.txt").await());
                     test.assertEqual(new byte[] { 0, 1, 2, 3 }, fileSystem.getFileContent("/source.txt").await());
@@ -2820,7 +3121,7 @@ public interface FileSystemTests
                     fileSystem.copyFileToFolder(fileSystem.getFile("/source.txt").await(), fileSystem.getFolder("/destination/").await()).await();
                     test.assertTrue(fileSystem.folderExists("/destination/").await());
                     test.assertTrue(fileSystem.fileExists("/destination/source.txt").await());
-                    test.assertEqual("hello", fileSystem.getFileContentAsString("/destination/source.txt").await());
+                    test.assertEqual("hello", fileSystem.getFileContentsAsString("/destination/source.txt").await());
                 });
 
                 runner.test("with existing destinationFolder", (Test test) ->
@@ -2831,7 +3132,7 @@ public interface FileSystemTests
                     fileSystem.copyFileToFolder(fileSystem.getFile("/source.txt").await(), fileSystem.getFolder("/destination/").await()).await();
                     test.assertTrue(fileSystem.folderExists("/destination/").await());
                     test.assertTrue(fileSystem.fileExists("/destination/source.txt").await());
-                    test.assertEqual("hello", fileSystem.getFileContentAsString("/destination/source.txt").await());
+                    test.assertEqual("hello", fileSystem.getFileContentsAsString("/destination/source.txt").await());
                 });
 
                 runner.test("with existing file at destinationFolder", (Test test) ->
@@ -2842,7 +3143,7 @@ public interface FileSystemTests
                     fileSystem.copyFileToFolder(fileSystem.getFile("/source.txt").await(), fileSystem.getFolder("/destination/").await()).await();
                     test.assertTrue(fileSystem.folderExists("/destination/").await());
                     test.assertTrue(fileSystem.fileExists("/destination/source.txt").await());
-                    test.assertEqual("hello", fileSystem.getFileContentAsString("/destination/source.txt").await());
+                    test.assertEqual("hello", fileSystem.getFileContentsAsString("/destination/source.txt").await());
                 });
             });
 
@@ -2888,7 +3189,7 @@ public interface FileSystemTests
                     fileSystem.copyFileToFolder(Path.parse("/source.txt"), fileSystem.getFolder("/destination/").await()).await();
                     test.assertTrue(fileSystem.folderExists("/destination/").await());
                     test.assertTrue(fileSystem.fileExists("/destination/source.txt").await());
-                    test.assertEqual("hello", fileSystem.getFileContentAsString("/destination/source.txt").await());
+                    test.assertEqual("hello", fileSystem.getFileContentsAsString("/destination/source.txt").await());
                 });
 
                 runner.test("with existing destinationFolder", (Test test) ->
@@ -2899,7 +3200,7 @@ public interface FileSystemTests
                     fileSystem.copyFileToFolder(Path.parse("/source.txt"), fileSystem.getFolder("/destination/").await()).await();
                     test.assertTrue(fileSystem.folderExists("/destination/").await());
                     test.assertTrue(fileSystem.fileExists("/destination/source.txt").await());
-                    test.assertEqual("hello", fileSystem.getFileContentAsString("/destination/source.txt").await());
+                    test.assertEqual("hello", fileSystem.getFileContentsAsString("/destination/source.txt").await());
                 });
 
                 runner.test("with existing file at destinationFolder", (Test test) ->
@@ -2910,7 +3211,7 @@ public interface FileSystemTests
                     fileSystem.copyFileToFolder(Path.parse("/source.txt"), fileSystem.getFolder("/destination/").await()).await();
                     test.assertTrue(fileSystem.folderExists("/destination/").await());
                     test.assertTrue(fileSystem.fileExists("/destination/source.txt").await());
-                    test.assertEqual("hello", fileSystem.getFileContentAsString("/destination/source.txt").await());
+                    test.assertEqual("hello", fileSystem.getFileContentsAsString("/destination/source.txt").await());
                 });
             });
 
@@ -2948,7 +3249,7 @@ public interface FileSystemTests
                     fileSystem.copyFileToFolder(fileSystem.getFile("/source.txt").await(), Path.parse("/destination/")).await();
                     test.assertTrue(fileSystem.folderExists("/destination/").await());
                     test.assertTrue(fileSystem.fileExists("/destination/source.txt").await());
-                    test.assertEqual("hello", fileSystem.getFileContentAsString("/destination/source.txt").await());
+                    test.assertEqual("hello", fileSystem.getFileContentsAsString("/destination/source.txt").await());
                 });
 
                 runner.test("with existing destinationFolderPath", (Test test) ->
@@ -2959,7 +3260,7 @@ public interface FileSystemTests
                     fileSystem.copyFileToFolder(fileSystem.getFile("/source.txt").await(), Path.parse("/destination/")).await();
                     test.assertTrue(fileSystem.folderExists("/destination/").await());
                     test.assertTrue(fileSystem.fileExists("/destination/source.txt").await());
-                    test.assertEqual("hello", fileSystem.getFileContentAsString("/destination/source.txt").await());
+                    test.assertEqual("hello", fileSystem.getFileContentsAsString("/destination/source.txt").await());
                 });
 
                 runner.test("with existing file at destinationFolderPath", (Test test) ->
@@ -2970,7 +3271,7 @@ public interface FileSystemTests
                     fileSystem.copyFileToFolder(fileSystem.getFile("/source.txt").await(), Path.parse("/destination/")).await();
                     test.assertTrue(fileSystem.folderExists("/destination/").await());
                     test.assertTrue(fileSystem.fileExists("/destination/source.txt").await());
-                    test.assertEqual("hello", fileSystem.getFileContentAsString("/destination/source.txt").await());
+                    test.assertEqual("hello", fileSystem.getFileContentsAsString("/destination/source.txt").await());
                 });
             });
 
@@ -3016,7 +3317,7 @@ public interface FileSystemTests
                     fileSystem.copyFileToFolder(Path.parse("/source.txt"), Path.parse("/destination/")).await();
                     test.assertTrue(fileSystem.folderExists("/destination/").await());
                     test.assertTrue(fileSystem.fileExists("/destination/source.txt").await());
-                    test.assertEqual("hello", fileSystem.getFileContentAsString("/destination/source.txt").await());
+                    test.assertEqual("hello", fileSystem.getFileContentsAsString("/destination/source.txt").await());
                 });
 
                 runner.test("with existing destinationFolderPath", (Test test) ->
@@ -3027,7 +3328,7 @@ public interface FileSystemTests
                     fileSystem.copyFileToFolder(Path.parse("/source.txt"), Path.parse("/destination/")).await();
                     test.assertTrue(fileSystem.folderExists("/destination/").await());
                     test.assertTrue(fileSystem.fileExists("/destination/source.txt").await());
-                    test.assertEqual("hello", fileSystem.getFileContentAsString("/destination/source.txt").await());
+                    test.assertEqual("hello", fileSystem.getFileContentsAsString("/destination/source.txt").await());
                 });
 
                 runner.test("with existing file at destinationFolderPath", (Test test) ->
@@ -3038,7 +3339,7 @@ public interface FileSystemTests
                     fileSystem.copyFileToFolder(Path.parse("/source.txt"), Path.parse("/destination/")).await();
                     test.assertTrue(fileSystem.folderExists("/destination/").await());
                     test.assertTrue(fileSystem.fileExists("/destination/source.txt").await());
-                    test.assertEqual("hello", fileSystem.getFileContentAsString("/destination/source.txt").await());
+                    test.assertEqual("hello", fileSystem.getFileContentsAsString("/destination/source.txt").await());
                 });
             });
 

@@ -221,7 +221,7 @@ public interface FileTests
                     final Path destinationFilePath = Path.parse("/B");
                     sourceFile.copyTo(destinationFilePath).await();
                     test.assertTrue(fileSystem.fileExists(destinationFilePath).await());
-                    test.assertEqual(fileSystem.getFileContentAsString(destinationFilePath).await(), "hello");
+                    test.assertEqual(fileSystem.getFileContentsAsString(destinationFilePath).await(), "hello");
                 });
 
                 runner.test("with existing destination file", (Test test) ->
@@ -233,7 +233,7 @@ public interface FileTests
                     fileSystem.setFileContentAsString(destinationFilePath, "there").await();
                     sourceFile.copyTo(destinationFilePath).await();
                     test.assertTrue(fileSystem.fileExists(destinationFilePath).await());
-                    test.assertEqual(fileSystem.getFileContentAsString(destinationFilePath).await(), "hello");
+                    test.assertEqual(fileSystem.getFileContentsAsString(destinationFilePath).await(), "hello");
                 });
             });
 
@@ -305,7 +305,7 @@ public interface FileTests
                     final Path destinationFolderPath = Path.parse("/B/");
                     sourceFile.copyToFolder(destinationFolderPath).await();
                     test.assertTrue(fileSystem.fileExists("/B/A").await());
-                    test.assertEqual(fileSystem.getFileContentAsString("/B/A").await(), "hello");
+                    test.assertEqual(fileSystem.getFileContentsAsString("/B/A").await(), "hello");
                 });
 
                 runner.test("with non-existing destination file", (Test test) ->
@@ -317,7 +317,7 @@ public interface FileTests
                     fileSystem.createFolder(destinationFolderPath).await();
                     sourceFile.copyToFolder(destinationFolderPath).await();
                     test.assertTrue(fileSystem.fileExists("/B/A").await());
-                    test.assertEqual(fileSystem.getFileContentAsString("/B/A").await(), "hello");
+                    test.assertEqual(fileSystem.getFileContentsAsString("/B/A").await(), "hello");
                 });
 
                 runner.test("with existing destination file", (Test test) ->
@@ -328,7 +328,7 @@ public interface FileTests
                     fileSystem.setFileContentAsString("/B", "there").await();
                     sourceFile.copyToFolder(Path.parse("/B")).await();
                     test.assertTrue(fileSystem.fileExists("/B/A").await());
-                    test.assertEqual(fileSystem.getFileContentAsString("/B/A").await(), "hello");
+                    test.assertEqual(fileSystem.getFileContentsAsString("/B/A").await(), "hello");
                 });
             });
 

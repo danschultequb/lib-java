@@ -1,5 +1,7 @@
 package qub;
 
+import java.nio.Buffer;
+
 public class File extends FileSystemEntry
 {
     File(FileSystem fileSystem, String path)
@@ -104,9 +106,9 @@ public class File extends FileSystemEntry
      * Get a ByteWriteStream to this file's contents.
      * @return A ByteWriteStream to this file's contents.
      */
-    public Result<ByteWriteStream> getContentByteWriteStream()
+    public Result<BufferedByteWriteStream> getContentByteWriteStream()
     {
-        return getFileSystem().getFileContentByteWriteStream(getPath());
+        return this.getFileSystem().getFileContentsByteWriteStream(getPath());
     }
 
     /**
@@ -115,7 +117,7 @@ public class File extends FileSystemEntry
      */
     public Result<CharacterToByteWriteStream> getContentCharacterWriteStream()
     {
-        return this.getFileSystem().getFileContentCharacterWriteStream(getPath());
+        return this.getFileSystem().getFileContentsCharacterWriteStream(getPath());
     }
 
     public Result<byte[]> getContents()
@@ -125,12 +127,12 @@ public class File extends FileSystemEntry
 
     public Result<String> getContentsAsString()
     {
-        return getFileSystem().getFileContentAsString(getPath());
+        return getFileSystem().getFileContentsAsString(getPath());
     }
 
     public Result<Void> setContents(byte[] content)
     {
-        return getFileSystem().setFileContent(getPath(), content);
+        return getFileSystem().setFileContents(getPath(), content);
     }
 
     public Result<Void> setContentsAsString(String content)

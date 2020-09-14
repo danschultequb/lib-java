@@ -316,7 +316,7 @@ public class InMemoryFileSystem implements FileSystem
             .then((Path resolvedRootedFilePath) ->
             {
                 return this.getInMemoryFile(resolvedRootedFilePath)
-                    .then(InMemoryFile::getContentDataSize)
+                    .then(InMemoryFile::getContentsDataSize)
                     .await();
             });
     }
@@ -327,33 +327,30 @@ public class InMemoryFileSystem implements FileSystem
         FileSystem.validateRootedFilePath(rootedFilePath);
 
         return this.getInMemoryFile(rootedFilePath)
-            .then(InMemoryFile::getContentReadStream);
+            .then(InMemoryFile::getContentsReadStream);
     }
 
     @Override
-    public Result<ByteWriteStream> getFileContentByteWriteStream(Path rootedFilePath)
+    public Result<BufferedByteWriteStream> getFileContentsByteWriteStream(Path rootedFilePath, OpenWriteType openWriteType)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
+        PreCondition.assertNotNull(openWriteType, "openWriteType");
 
-        return rootedFilePath.resolve()
-            .then((Path resolvedRootedFilePath) ->
-            {
-                return this.getInMemoryFile(resolvedRootedFilePath)
+        return Result.create(() ->
+        {
+            final Path resolvedRootedFilePath = rootedFilePath.resolve().await();
+            final InMemoryFile inMemoryFile = this.getInMemoryFile(resolvedRootedFilePath)
                     .catchError(FileNotFoundException.class, () ->
                     {
                         final Path parentFolderPath = rootedFilePath.getParent().await();
-                        return this.createInMemoryFolder(parentFolderPath)
-                            .then(() -> this.getInMemoryFolder(parentFolderPath).await())
-                            .then((InMemoryFolder parentFolder) ->
-                            {
-                                parentFolder.createFile(resolvedRootedFilePath.getSegments().last());
-                                return this.getInMemoryFile(resolvedRootedFilePath).await();
-                            })
-                            .await();
+                        this.createInMemoryFolder(parentFolderPath).await();
+                        final InMemoryFolder parentFolder = this.getInMemoryFolder(parentFolderPath).await();
+                        parentFolder.createFile(resolvedRootedFilePath.getSegments().last());
+                        return this.getInMemoryFile(resolvedRootedFilePath).await();
                     })
-                    .then(InMemoryFile::getContentByteWriteStream)
                     .await();
-            });
+            return inMemoryFile.getContentByteWriteStream(openWriteType);
+        });
     }
 
     /**

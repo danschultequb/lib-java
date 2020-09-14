@@ -292,24 +292,28 @@ public class FolderFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return this.getInnerPath(rootedFilePath)
-            .then((Path innerFilePath) ->
-            {
-                return innerFileSystem.getFileContentReadStream(innerFilePath)
-                    .convertError(FileNotFoundException.class, (FileNotFoundException error) ->
-                    {
-                        return new FileNotFoundException(getOuterPath(error.getFilePath()));
-                    })
-                    .await();
-            });
+        return Result.create(() ->
+        {
+            final Path innerPath = this.getInnerPath(rootedFilePath).await();
+            return this.innerFileSystem.getFileContentReadStream(innerPath)
+                .convertError(FileNotFoundException.class, (FileNotFoundException error) ->
+                {
+                    return new FileNotFoundException(getOuterPath(error.getFilePath()));
+                })
+                .await();
+        });
     }
 
     @Override
-    public Result<ByteWriteStream> getFileContentByteWriteStream(Path rootedFilePath)
+    public Result<BufferedByteWriteStream> getFileContentsByteWriteStream(Path rootedFilePath, OpenWriteType openWriteType)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
+        PreCondition.assertNotNull(openWriteType, "openWriteType");
 
-        return this.getInnerPath(rootedFilePath)
-            .then((Path innerPath) -> innerFileSystem.getFileContentByteWriteStream(innerPath).await());
+        return Result.create(() ->
+        {
+            final Path innerPath = this.getInnerPath(rootedFilePath).await();
+            return this.innerFileSystem.getFileContentsByteWriteStream(innerPath, openWriteType).await();
+        });
     }
 }

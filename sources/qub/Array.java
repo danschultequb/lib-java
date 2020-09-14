@@ -477,7 +477,7 @@ public interface Array<T> extends MutableIndexable<T>
         int resultIndex = 0;
         for (final byte[] byteArray : byteArrays)
         {
-            if (byteArray != null)
+            if (byteArray != null && byteArray.length > 0)
             {
                 Array.copy(byteArray, 0, result, resultIndex, byteArray.length);
                 resultIndex += byteArray.length;
