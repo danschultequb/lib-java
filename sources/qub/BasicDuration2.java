@@ -3,7 +3,8 @@ package qub;
 /**
  * A period of time.
  */
-public class BasicDuration implements Duration
+@Deprecated
+public class BasicDuration2 implements Duration2
 {
     public static final int WeeksToDays = 7;
     public static final int DaysToHours = 24;
@@ -73,7 +74,7 @@ public class BasicDuration implements Duration
     private final double value;
     private final DurationUnit units;
 
-    private BasicDuration(double value, DurationUnit units)
+    private BasicDuration2(double value, DurationUnit units)
     {
         PreCondition.assertNotNull(units, "units");
 
@@ -81,9 +82,9 @@ public class BasicDuration implements Duration
         this.units = units;
     }
 
-    public static BasicDuration create(double value, DurationUnit units)
+    public static BasicDuration2 create(double value, DurationUnit units)
     {
-        return new BasicDuration(value, units);
+        return new BasicDuration2(value, units);
     }
 
     @Override
@@ -99,40 +100,40 @@ public class BasicDuration implements Duration
     }
 
     @Override
-    public BasicDuration convertTo(DurationUnit destinationUnits)
+    public BasicDuration2 convertTo(DurationUnit destinationUnits)
     {
-        BasicDuration result = this;
+        BasicDuration2 result = this;
         switch (units)
         {
             case Nanoseconds:
                 switch (destinationUnits)
                 {
                     case Microseconds:
-                        result = new BasicDuration(value * NanosecondsToMicroseconds, destinationUnits);
+                        result = new BasicDuration2(value * NanosecondsToMicroseconds, destinationUnits);
                         break;
 
                     case Milliseconds:
-                        result = new BasicDuration(value * NanosecondsToMilliseconds, destinationUnits);
+                        result = new BasicDuration2(value * NanosecondsToMilliseconds, destinationUnits);
                         break;
 
                     case Seconds:
-                        result = new BasicDuration(value * NanosecondsToSeconds, destinationUnits);
+                        result = new BasicDuration2(value * NanosecondsToSeconds, destinationUnits);
                         break;
 
                     case Minutes:
-                        result = new BasicDuration(value * NanosecondsToMinutes, destinationUnits);
+                        result = new BasicDuration2(value * NanosecondsToMinutes, destinationUnits);
                         break;
 
                     case Hours:
-                        result = new BasicDuration(value * NanosecondsToHours, destinationUnits);
+                        result = new BasicDuration2(value * NanosecondsToHours, destinationUnits);
                         break;
 
                     case Days:
-                        result = new BasicDuration(value * NanosecondsToDays, destinationUnits);
+                        result = new BasicDuration2(value * NanosecondsToDays, destinationUnits);
                         break;
 
                     case Weeks:
-                        result = new BasicDuration(value * NanosecondsToWeeks, destinationUnits);
+                        result = new BasicDuration2(value * NanosecondsToWeeks, destinationUnits);
                         break;
                 }
                 break;
@@ -141,31 +142,31 @@ public class BasicDuration implements Duration
                 switch (destinationUnits)
                 {
                     case Nanoseconds:
-                        result = new BasicDuration(value * MicrosecondsToNanoseconds, destinationUnits);
+                        result = new BasicDuration2(value * MicrosecondsToNanoseconds, destinationUnits);
                         break;
 
                     case Milliseconds:
-                        result = new BasicDuration(value * MicrosecondsToMilliseconds, destinationUnits);
+                        result = new BasicDuration2(value * MicrosecondsToMilliseconds, destinationUnits);
                         break;
 
                     case Seconds:
-                        result = new BasicDuration(value * MicrosecondsToSeconds, destinationUnits);
+                        result = new BasicDuration2(value * MicrosecondsToSeconds, destinationUnits);
                         break;
 
                     case Minutes:
-                        result = new BasicDuration(value * MicrosecondsToMinutes, destinationUnits);
+                        result = new BasicDuration2(value * MicrosecondsToMinutes, destinationUnits);
                         break;
 
                     case Hours:
-                        result = new BasicDuration(value * MicrosecondsToHours, destinationUnits);
+                        result = new BasicDuration2(value * MicrosecondsToHours, destinationUnits);
                         break;
 
                     case Days:
-                        result = new BasicDuration(value * MicrosecondsToDays, destinationUnits);
+                        result = new BasicDuration2(value * MicrosecondsToDays, destinationUnits);
                         break;
 
                     case Weeks:
-                        result = new BasicDuration(value * MicrosecondsToWeeks, destinationUnits);
+                        result = new BasicDuration2(value * MicrosecondsToWeeks, destinationUnits);
                         break;
                 }
                 break;
@@ -174,31 +175,31 @@ public class BasicDuration implements Duration
                 switch (destinationUnits)
                 {
                     case Nanoseconds:
-                        result = new BasicDuration(value * MillisecondsToNanoseconds, destinationUnits);
+                        result = new BasicDuration2(value * MillisecondsToNanoseconds, destinationUnits);
                         break;
 
                     case Microseconds:
-                        result = new BasicDuration(value * MillisecondsToMicroseconds, destinationUnits);
+                        result = new BasicDuration2(value * MillisecondsToMicroseconds, destinationUnits);
                         break;
 
                     case Seconds:
-                        result = new BasicDuration(value * MillisecondsToSeconds, destinationUnits);
+                        result = new BasicDuration2(value * MillisecondsToSeconds, destinationUnits);
                         break;
 
                     case Minutes:
-                        result = new BasicDuration(value * MillisecondsToMinutes, destinationUnits);
+                        result = new BasicDuration2(value * MillisecondsToMinutes, destinationUnits);
                         break;
 
                     case Hours:
-                        result = new BasicDuration(value * MillisecondsToHours, destinationUnits);
+                        result = new BasicDuration2(value * MillisecondsToHours, destinationUnits);
                         break;
 
                     case Days:
-                        result = new BasicDuration(value * MillisecondsToDays, destinationUnits);
+                        result = new BasicDuration2(value * MillisecondsToDays, destinationUnits);
                         break;
 
                     case Weeks:
-                        result = new BasicDuration(value * MillisecondsToWeeks, destinationUnits);
+                        result = new BasicDuration2(value * MillisecondsToWeeks, destinationUnits);
                         break;
                 }
                 break;
@@ -207,31 +208,31 @@ public class BasicDuration implements Duration
                 switch (destinationUnits)
                 {
                     case Nanoseconds:
-                        result = new BasicDuration(value * SecondsToNanoseconds, destinationUnits);
+                        result = new BasicDuration2(value * SecondsToNanoseconds, destinationUnits);
                         break;
 
                     case Microseconds:
-                        result = new BasicDuration(value * SecondsToMicroseconds, destinationUnits);
+                        result = new BasicDuration2(value * SecondsToMicroseconds, destinationUnits);
                         break;
 
                     case Milliseconds:
-                        result = new BasicDuration(value * SecondsToMilliseconds, destinationUnits);
+                        result = new BasicDuration2(value * SecondsToMilliseconds, destinationUnits);
                         break;
 
                     case Minutes:
-                        result = new BasicDuration(value * SecondsToMinutes, destinationUnits);
+                        result = new BasicDuration2(value * SecondsToMinutes, destinationUnits);
                         break;
 
                     case Hours:
-                        result = new BasicDuration(value * SecondsToHours, destinationUnits);
+                        result = new BasicDuration2(value * SecondsToHours, destinationUnits);
                         break;
 
                     case Days:
-                        result = new BasicDuration(value * SecondsToDays, destinationUnits);
+                        result = new BasicDuration2(value * SecondsToDays, destinationUnits);
                         break;
 
                     case Weeks:
-                        result = new BasicDuration(value * SecondsToWeeks, destinationUnits);
+                        result = new BasicDuration2(value * SecondsToWeeks, destinationUnits);
                         break;
                 }
                 break;
@@ -240,31 +241,31 @@ public class BasicDuration implements Duration
                 switch (destinationUnits)
                 {
                     case Nanoseconds:
-                        result = new BasicDuration(value * MinutesToNanoseconds, destinationUnits);
+                        result = new BasicDuration2(value * MinutesToNanoseconds, destinationUnits);
                         break;
 
                     case Microseconds:
-                        result = new BasicDuration(value * MinutesToMicroseconds, destinationUnits);
+                        result = new BasicDuration2(value * MinutesToMicroseconds, destinationUnits);
                         break;
 
                     case Milliseconds:
-                        result = new BasicDuration(value * MinutesToMilliseconds, destinationUnits);
+                        result = new BasicDuration2(value * MinutesToMilliseconds, destinationUnits);
                         break;
 
                     case Seconds:
-                        result = new BasicDuration(value * MinutesToSeconds, destinationUnits);
+                        result = new BasicDuration2(value * MinutesToSeconds, destinationUnits);
                         break;
 
                     case Hours:
-                        result = new BasicDuration(value * MinutesToHours, destinationUnits);
+                        result = new BasicDuration2(value * MinutesToHours, destinationUnits);
                         break;
 
                     case Days:
-                        result = new BasicDuration(value * MinutesToDays, destinationUnits);
+                        result = new BasicDuration2(value * MinutesToDays, destinationUnits);
                         break;
 
                     case Weeks:
-                        result = new BasicDuration(value * MinutesToWeeks, destinationUnits);
+                        result = new BasicDuration2(value * MinutesToWeeks, destinationUnits);
                         break;
                 }
                 break;
@@ -273,31 +274,31 @@ public class BasicDuration implements Duration
                 switch (destinationUnits)
                 {
                     case Nanoseconds:
-                        result = new BasicDuration(value * HoursToNanoseconds, destinationUnits);
+                        result = new BasicDuration2(value * HoursToNanoseconds, destinationUnits);
                         break;
 
                     case Microseconds:
-                        result = new BasicDuration(value * HoursToMicroseconds, destinationUnits);
+                        result = new BasicDuration2(value * HoursToMicroseconds, destinationUnits);
                         break;
 
                     case Milliseconds:
-                        result = new BasicDuration(value * HoursToMilliseconds, destinationUnits);
+                        result = new BasicDuration2(value * HoursToMilliseconds, destinationUnits);
                         break;
 
                     case Seconds:
-                        result = new BasicDuration(value * HoursToSeconds, destinationUnits);
+                        result = new BasicDuration2(value * HoursToSeconds, destinationUnits);
                         break;
 
                     case Minutes:
-                        result = new BasicDuration(value * HoursToMinutes, destinationUnits);
+                        result = new BasicDuration2(value * HoursToMinutes, destinationUnits);
                         break;
 
                     case Days:
-                        result = new BasicDuration(value * HoursToDays, destinationUnits);
+                        result = new BasicDuration2(value * HoursToDays, destinationUnits);
                         break;
 
                     case Weeks:
-                        result = new BasicDuration(value * HoursToWeeks, destinationUnits);
+                        result = new BasicDuration2(value * HoursToWeeks, destinationUnits);
                         break;
                 }
                 break;
@@ -306,31 +307,31 @@ public class BasicDuration implements Duration
                 switch (destinationUnits)
                 {
                     case Nanoseconds:
-                        result = new BasicDuration(value * DaysToNanoseconds, destinationUnits);
+                        result = new BasicDuration2(value * DaysToNanoseconds, destinationUnits);
                         break;
 
                     case Microseconds:
-                        result = new BasicDuration(value * DaysToMicroseconds, destinationUnits);
+                        result = new BasicDuration2(value * DaysToMicroseconds, destinationUnits);
                         break;
 
                     case Milliseconds:
-                        result = new BasicDuration(value * DaysToMilliseconds, destinationUnits);
+                        result = new BasicDuration2(value * DaysToMilliseconds, destinationUnits);
                         break;
 
                     case Seconds:
-                        result = new BasicDuration(value * DaysToSeconds, destinationUnits);
+                        result = new BasicDuration2(value * DaysToSeconds, destinationUnits);
                         break;
 
                     case Minutes:
-                        result = new BasicDuration(value * DaysToMinutes, destinationUnits);
+                        result = new BasicDuration2(value * DaysToMinutes, destinationUnits);
                         break;
 
                     case Hours:
-                        result = new BasicDuration(value * DaysToHours, destinationUnits);
+                        result = new BasicDuration2(value * DaysToHours, destinationUnits);
                         break;
 
                     case Weeks:
-                        result = new BasicDuration(value * DaysToWeeks, destinationUnits);
+                        result = new BasicDuration2(value * DaysToWeeks, destinationUnits);
                         break;
                 }
                 break;
@@ -339,31 +340,31 @@ public class BasicDuration implements Duration
                 switch (destinationUnits)
                 {
                     case Nanoseconds:
-                        result = new BasicDuration(value * WeeksToNanoseconds, destinationUnits);
+                        result = new BasicDuration2(value * WeeksToNanoseconds, destinationUnits);
                         break;
 
                     case Microseconds:
-                        result = new BasicDuration(value * WeeksToMicroseconds, destinationUnits);
+                        result = new BasicDuration2(value * WeeksToMicroseconds, destinationUnits);
                         break;
 
                     case Milliseconds:
-                        result = new BasicDuration(value * WeeksToMilliseconds, destinationUnits);
+                        result = new BasicDuration2(value * WeeksToMilliseconds, destinationUnits);
                         break;
 
                     case Seconds:
-                        result = new BasicDuration(value * WeeksToSeconds, destinationUnits);
+                        result = new BasicDuration2(value * WeeksToSeconds, destinationUnits);
                         break;
 
                     case Minutes:
-                        result = new BasicDuration(value * WeeksToMinutes, destinationUnits);
+                        result = new BasicDuration2(value * WeeksToMinutes, destinationUnits);
                         break;
 
                     case Hours:
-                        result = new BasicDuration(value * WeeksToHours, destinationUnits);
+                        result = new BasicDuration2(value * WeeksToHours, destinationUnits);
                         break;
 
                     case Days:
-                        result = new BasicDuration(value * WeeksToDays, destinationUnits);
+                        result = new BasicDuration2(value * WeeksToDays, destinationUnits);
                         break;
                 }
                 break;
@@ -374,12 +375,12 @@ public class BasicDuration implements Duration
     @Override
     public String toString()
     {
-        return Duration.toString(this);
+        return Duration2.toString(this);
     }
 
     @Override
     public boolean equals(Object rhs)
     {
-        return Duration.equals(this, rhs);
+        return Duration2.equals(this, rhs);
     }
 }

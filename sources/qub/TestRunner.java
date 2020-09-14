@@ -103,6 +103,15 @@ public interface TestRunner
      *                        if it takes longer than this duration.
      * @param testAction The action for the test.
      */
+    void speedTest(String testName, Duration maximumDuration, Action1<Test> testAction);
+
+    /**
+     * Run the provided test and assert that it runs within the provided maximum duration.
+     * @param testName The name of the test.
+     * @param maximumDuration The maximum amount of time that the test can take. The test will fail
+     *                        if it takes longer than this duration.
+     * @param testAction The action for the test.
+     */
     void speedTest(String testName, Duration2 maximumDuration, Action1<Test> testAction);
 
     /**

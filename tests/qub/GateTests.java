@@ -88,37 +88,37 @@ public interface GateTests
                 runner.test("with null Duration", (Test test) ->
                 {
                     final Gate gate = create(creator, true, test);
-                    test.assertThrows(() -> gate.passThrough((Duration2)null), new PreConditionFailure("timeout cannot be null."));
+                    test.assertThrows(() -> gate.passThrough((Duration)null), new PreConditionFailure("timeout cannot be null."));
                 });
 
                 runner.test("with negative Duration", (Test test) ->
                 {
                     final Gate gate = create(creator, true, test);
-                    test.assertThrows(() -> gate.passThrough(Duration2.seconds(-1)), new PreConditionFailure("timeout (-1.0 Seconds) must be greater than 0.0 Seconds."));
+                    test.assertThrows(() -> gate.passThrough(Duration.seconds(-1)), new PreConditionFailure("timeout (-1.0 Seconds) must be greater than 0.0 Seconds."));
                 });
 
                 runner.test("with zero Duration", (Test test) ->
                 {
                     final Gate gate = create(creator, true, test);
-                    test.assertThrows(() -> gate.passThrough(Duration2.zero), new PreConditionFailure("timeout (0.0 Seconds) must be greater than 0.0 Seconds."));
+                    test.assertThrows(() -> gate.passThrough(Duration.zero), new PreConditionFailure("timeout (0.0 Seconds) must be greater than 0.0 Seconds."));
                 });
 
                 runner.test("with positive Duration with no clock", (Test test) ->
                 {
                     final Gate gate = create(creator, true);
-                    test.assertThrows(() -> gate.passThrough(Duration2.zero), new PreConditionFailure("timeout (0.0 Seconds) must be greater than 0.0 Seconds."));
+                    test.assertThrows(() -> gate.passThrough(Duration.zero), new PreConditionFailure("timeout (0.0 Seconds) must be greater than 0.0 Seconds."));
                 });
 
                 runner.test("with positive Duration when open", (Test test) ->
                 {
                     final Gate gate = create(creator, true, test);
-                    test.assertNull(gate.passThrough(Duration2.seconds(1)).await());
+                    test.assertNull(gate.passThrough(Duration.seconds(1)).await());
                 });
 
                 runner.test("with positive Duration when closed", (Test test) ->
                 {
                     final Gate gate = create(creator, false, test);
-                    test.assertThrows(() -> gate.passThrough(Duration2.seconds(0.1)).await(),
+                    test.assertThrows(() -> gate.passThrough(Duration.seconds(0.1)).await(),
                         new TimeoutException());
                 });
             });
@@ -128,7 +128,7 @@ public interface GateTests
                 runner.test("with null DateTime", (Test test) ->
                 {
                     final Gate gate = create(creator, true, test);
-                    test.assertThrows(() -> gate.passThrough((Duration2)null), new PreConditionFailure("timeout cannot be null."));
+                    test.assertThrows(() -> gate.passThrough((Duration)null), new PreConditionFailure("timeout cannot be null."));
                 });
 
                 runner.test("with non-null DateTime and no clock", (Test test) ->
@@ -141,7 +141,7 @@ public interface GateTests
                 runner.test("with DateTime before now", (Test test) ->
                 {
                     final Gate gate = create(creator, true, test);
-                    final DateTime timeout = test.getClock().getCurrentDateTime().minus(Duration2.seconds(1));
+                    final DateTime timeout = test.getClock().getCurrentDateTime().minus(Duration.seconds(1));
                     test.assertThrows(() -> gate.passThrough(timeout).await(),
                         new TimeoutException());
                 });
@@ -157,14 +157,14 @@ public interface GateTests
                 runner.test("with future Duration when open", (Test test) ->
                 {
                     final Gate gate = create(creator, true, test);
-                    final DateTime timeout = test.getClock().getCurrentDateTime().plus(Duration2.seconds(1));
+                    final DateTime timeout = test.getClock().getCurrentDateTime().plus(Duration.seconds(1));
                     test.assertNull(gate.passThrough(timeout).await());
                 });
 
                 runner.test("with positive Duration when not open", (Test test) ->
                 {
                     final Gate gate = create(creator, false, test);
-                    final DateTime timeout = test.getClock().getCurrentDateTime().plus(Duration2.seconds(0.1));
+                    final DateTime timeout = test.getClock().getCurrentDateTime().plus(Duration.seconds(0.1));
                     test.assertThrows(() -> gate.passThrough(timeout).await(), new TimeoutException());
                 });
             });

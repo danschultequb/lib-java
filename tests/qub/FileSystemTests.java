@@ -1617,7 +1617,7 @@ public interface FileSystemTests
                     final DateTime result = fileSystem.getFileLastModified("/thing.txt").await().toUTC();
                     test.assertNotNull(result);
                     test.assertGreaterThanOrEqualTo(result, beforeFileCreated);
-                    test.assertEqual(afterFileCreated.getDurationSinceEpoch(), result.getDurationSinceEpoch(), Duration2.milliseconds(5));
+                    test.assertEqual(afterFileCreated.getDurationSinceEpoch(), result.getDurationSinceEpoch(), Duration.milliseconds(5));
                     test.assertEqual(fileSystem.getFileLastModified("/thing.txt").await().toUTC(), result);
                 });
             });

@@ -53,10 +53,10 @@ public class JavaMutexCondition implements MutexCondition
     }
 
     @Override
-    public Result<Void> watch(Duration2 timeout)
+    public Result<Void> watch(Duration timeout)
     {
         PreCondition.assertNotNull(timeout, "timeout");
-        PreCondition.assertGreaterThan(timeout, Duration2.zero, "timeout");
+        PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
         PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
         PreCondition.assertNotNull(clock, "clock");
 

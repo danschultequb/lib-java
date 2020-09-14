@@ -81,7 +81,7 @@ public class Speed implements Comparable<Speed>
         }
         if (this.durationUnits != durationUnits)
         {
-            value = Duration2.create(value, durationUnits).convertTo(this.durationUnits).getValue();
+            value = Duration.create(value, durationUnits).convertTo(this.durationUnits).getValue();
         }
 
         final Speed result = this.value == value && this.distanceUnits == distanceUnits && this.durationUnits == durationUnits
@@ -177,7 +177,7 @@ public class Speed implements Comparable<Speed>
         return result;
     }
 
-    public Distance times(Duration2 rhs)
+    public Distance times(Duration rhs)
     {
         PreCondition.assertNotNull(rhs, "rhs");
 

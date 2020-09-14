@@ -12,7 +12,7 @@ public interface DateTests
                 test.assertEqual(1970, epoch.getYear());
                 test.assertEqual(1, epoch.getMonth());
                 test.assertEqual(1, epoch.getDayOfMonth());
-                test.assertEqual(Duration2.zero, epoch.getDurationSinceEpoch());
+                test.assertEqual(Duration.zero, epoch.getDurationSinceEpoch());
             });
         });
     }

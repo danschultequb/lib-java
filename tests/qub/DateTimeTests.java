@@ -18,21 +18,21 @@ public interface DateTimeTests
                 test.assertEqual(0, epoch.getMillisecond());
                 test.assertEqual(0, epoch.getMicrosecond());
                 test.assertEqual(0, epoch.getNanosecond());
-                test.assertEqual(Duration2.zero, epoch.getOffset());
-                test.assertEqual(Duration2.zero, epoch.getDurationSinceEpoch());
+                test.assertEqual(Duration.zero, epoch.getOffset());
+                test.assertEqual(Duration.zero, epoch.getDurationSinceEpoch());
             });
 
             runner.testGroup("createFromDurationSinceEpoch(Duration)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> DateTime.createFromDurationSinceEpoch(null),
+                    test.assertThrows(() -> DateTime.createFromDurationSinceEpoch((Duration)null),
                         new PreConditionFailure("durationSinceEpoch cannot be null."));
                 });
 
-                runner.test("with " + Duration2.zero, (Test test) ->
+                runner.test("with " + Duration.zero, (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.zero);
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.zero);
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(1, dateTime.getDayOfMonth());
@@ -42,13 +42,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(Duration2.zero, dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.zero, dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.nanoseconds(1), (Test test) ->
+                runner.test("with " + Duration.nanoseconds(1), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.nanoseconds(1));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(1, dateTime.getDayOfMonth());
@@ -58,13 +58,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(1, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(Duration2.nanoseconds(1), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.nanoseconds(1), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.nanoseconds(-1), (Test test) ->
+                runner.test("with " + Duration.nanoseconds(-1), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.nanoseconds(-1));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(-1));
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
                     test.assertEqual(31, dateTime.getDayOfMonth());
@@ -74,13 +74,13 @@ public interface DateTimeTests
                     test.assertEqual(999, dateTime.getMillisecond());
                     test.assertEqual(999, dateTime.getMicrosecond());
                     test.assertEqual(999, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(Duration2.nanoseconds(-1), dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.nanoseconds(-1), dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.microseconds(1), (Test test) ->
+                runner.test("with " + Duration.microseconds(1), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.microseconds(1));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.microseconds(1));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(1, dateTime.getDayOfMonth());
@@ -90,13 +90,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(1, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(Duration2.microseconds(1), dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.microseconds(1), dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.microseconds(-1), (Test test) ->
+                runner.test("with " + Duration.microseconds(-1), (Test test) ->
                 {
-                    final Duration2 durationSinceEpoch = Duration2.microseconds(-1);
+                    final Duration durationSinceEpoch = Duration.microseconds(-1);
                     final DateTime dateTime = DateTime.createFromDurationSinceEpoch(durationSinceEpoch);
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
@@ -107,13 +107,13 @@ public interface DateTimeTests
                     test.assertEqual(999, dateTime.getMillisecond());
                     test.assertEqual(999, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(durationSinceEpoch, dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(durationSinceEpoch, dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.milliseconds(0.1), (Test test) ->
+                runner.test("with " + Duration.milliseconds(0.1), (Test test) ->
                 {
-                    final Duration2 durationSinceEpoch = Duration2.milliseconds(0.1);
+                    final Duration durationSinceEpoch = Duration.milliseconds(0.1);
                     final DateTime dateTime = DateTime.createFromDurationSinceEpoch(durationSinceEpoch);
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
@@ -124,13 +124,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(100, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
                     test.assertEqual(durationSinceEpoch, dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.milliseconds(-0.1), (Test test) ->
+                runner.test("with " + Duration.milliseconds(-0.1), (Test test) ->
                 {
-                    final Duration2 durationSinceEpoch = Duration2.milliseconds(-0.1);
+                    final Duration durationSinceEpoch = Duration.milliseconds(-0.1);
                     final DateTime dateTime = DateTime.createFromDurationSinceEpoch(durationSinceEpoch);
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
@@ -141,13 +141,13 @@ public interface DateTimeTests
                     test.assertEqual(999, dateTime.getMillisecond());
                     test.assertEqual(900, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(durationSinceEpoch, dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(durationSinceEpoch, dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.milliseconds(0.99999999), (Test test) ->
+                runner.test("with " + Duration.milliseconds(0.99999999), (Test test) ->
                 {
-                    final Duration2 durationSinceEpoch = Duration2.milliseconds(0.99999999);
+                    final Duration durationSinceEpoch = Duration.milliseconds(0.99999999);
                     final DateTime dateTime = DateTime.createFromDurationSinceEpoch(durationSinceEpoch);
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
@@ -158,13 +158,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(999, dateTime.getMicrosecond());
                     test.assertEqual(999, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(durationSinceEpoch, dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(durationSinceEpoch, dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.milliseconds(-0.99999999), (Test test) ->
+                runner.test("with " + Duration.milliseconds(-0.99999999), (Test test) ->
                 {
-                    final Duration2 durationSinceEpoch = Duration2.milliseconds(-0.99999999);
+                    final Duration durationSinceEpoch = Duration.milliseconds(-0.99999999);
                     final DateTime dateTime = DateTime.createFromDurationSinceEpoch(durationSinceEpoch);
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
@@ -175,13 +175,13 @@ public interface DateTimeTests
                     test.assertEqual(999, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(1, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(durationSinceEpoch, dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(durationSinceEpoch, dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.milliseconds(1), (Test test) ->
+                runner.test("with " + Duration.milliseconds(1), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(1));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(1));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(1, dateTime.getDayOfMonth());
@@ -191,13 +191,13 @@ public interface DateTimeTests
                     test.assertEqual(1, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(Duration2.milliseconds(1), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.milliseconds(1), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.milliseconds(-1), (Test test) ->
+                runner.test("with " + Duration.milliseconds(-1), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(-1));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(-1));
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
                     test.assertEqual(31, dateTime.getDayOfMonth());
@@ -207,13 +207,13 @@ public interface DateTimeTests
                     test.assertEqual(999, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(Duration2.milliseconds(-1), dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.milliseconds(-1), dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.seconds(1), (Test test) ->
+                runner.test("with " + Duration.seconds(1), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.seconds(1));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.seconds(1));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(1, dateTime.getDayOfMonth());
@@ -223,13 +223,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(Duration2.seconds(1), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.seconds(1), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.seconds(-1), (Test test) ->
+                runner.test("with " + Duration.seconds(-1), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.seconds(-1));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.seconds(-1));
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
                     test.assertEqual(31, dateTime.getDayOfMonth());
@@ -239,13 +239,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(Duration2.seconds(-1), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.seconds(-1), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.minutes(1), (Test test) ->
+                runner.test("with " + Duration.minutes(1), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.minutes(1));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.minutes(1));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(1, dateTime.getDayOfMonth());
@@ -255,13 +255,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(Duration2.minutes(1), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.minutes(1), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.minutes(-1), (Test test) ->
+                runner.test("with " + Duration.minutes(-1), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.minutes(-1));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.minutes(-1));
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
                     test.assertEqual(31, dateTime.getDayOfMonth());
@@ -271,13 +271,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(Duration2.minutes(-1), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.minutes(-1), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.hours(1), (Test test) ->
+                runner.test("with " + Duration.hours(1), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.hours(1));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.hours(1));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(1, dateTime.getDayOfMonth());
@@ -287,13 +287,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(Duration2.hours(1), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.hours(1), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.hours(-1), (Test test) ->
+                runner.test("with " + Duration.hours(-1), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.hours(-1));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.hours(-1));
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
                     test.assertEqual(31, dateTime.getDayOfMonth());
@@ -303,13 +303,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(Duration2.hours(-1), dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.hours(-1), dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.days(1), (Test test) ->
+                runner.test("with " + Duration.days(1), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.days(1));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.days(1));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(2, dateTime.getDayOfMonth());
@@ -319,13 +319,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(Duration2.days(1), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.days(1), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.days(-1), (Test test) ->
+                runner.test("with " + Duration.days(-1), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.days(-1));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.days(-1));
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
                     test.assertEqual(31, dateTime.getDayOfMonth());
@@ -335,13 +335,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(Duration2.days(-1), dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.days(-1), dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.weeks(1), (Test test) ->
+                runner.test("with " + Duration.weeks(1), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.weeks(1));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.weeks(1));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(8, dateTime.getDayOfMonth());
@@ -351,13 +351,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(Duration2.weeks(1), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.weeks(1), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.weeks(-1), (Test test) ->
+                runner.test("with " + Duration.weeks(-1), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.weeks(-1));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.weeks(-1));
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
                     test.assertEqual(25, dateTime.getDayOfMonth());
@@ -367,13 +367,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(Duration2.weeks(-1), dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.weeks(-1), dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.milliseconds(1234567890123L), (Test test) ->
+                runner.test("with " + Duration.milliseconds(1234567890123L), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(1234567890123L));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(1234567890123L));
                     test.assertEqual(2009, dateTime.getYear());
                     test.assertEqual(2, dateTime.getMonth());
                     test.assertEqual(13, dateTime.getDayOfMonth());
@@ -383,13 +383,13 @@ public interface DateTimeTests
                     test.assertEqual(123, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(Duration2.milliseconds(1234567890123L), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.milliseconds(1234567890123L), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.milliseconds(-1234567890123L), (Test test) ->
+                runner.test("with " + Duration.milliseconds(-1234567890123L), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(-1234567890123L));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(-1234567890123L));
                     test.assertEqual(1930, dateTime.getYear());
                     test.assertEqual(11, dateTime.getMonth());
                     test.assertEqual(18, dateTime.getDayOfMonth());
@@ -399,8 +399,8 @@ public interface DateTimeTests
                     test.assertEqual(877, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
-                    test.assertEqual(Duration2.milliseconds(-1234567890123L), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.milliseconds(-1234567890123L), dateTime.getDurationSinceEpoch());
                 });
             });
 
@@ -408,19 +408,19 @@ public interface DateTimeTests
             {
                 runner.test("with null duration", (Test test) ->
                 {
-                    test.assertThrows(() -> DateTime.createFromDurationSinceEpoch(null, Duration2.zero),
+                    test.assertThrows(() -> DateTime.createFromDurationSinceEpoch(null, Duration.zero),
                         new PreConditionFailure("durationSinceEpoch cannot be null."));
                 });
 
                 runner.test("with null offset", (Test test) ->
                 {
-                    test.assertThrows(() -> DateTime.createFromDurationSinceEpoch(Duration2.days(5), null),
+                    test.assertThrows(() -> DateTime.createFromDurationSinceEpoch(Duration.days(5), null),
                         new PreConditionFailure("offset cannot be null."));
                 });
 
-                runner.test("with " + Duration2.zero + " and " + Duration2.seconds(1), (Test test) ->
+                runner.test("with " + Duration.zero + " and " + Duration.seconds(1), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.zero, Duration2.seconds(1));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.zero, Duration.seconds(1));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(1, dateTime.getDayOfMonth());
@@ -430,13 +430,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.seconds(1), dateTime.getOffset());
-                    test.assertEqual(Duration2.zero, dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.seconds(1), dateTime.getOffset());
+                    test.assertEqual(Duration.zero, dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.nanoseconds(1) + " and " + Duration2.minutes(-2), (Test test) ->
+                runner.test("with " + Duration.nanoseconds(1) + " and " + Duration.minutes(-2), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.nanoseconds(1), Duration2.minutes(-2));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1), Duration.minutes(-2));
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
                     test.assertEqual(31, dateTime.getDayOfMonth());
@@ -446,13 +446,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(1, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.minutes(-2), dateTime.getOffset());
-                    test.assertEqual(Duration2.nanoseconds(1), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.minutes(-2), dateTime.getOffset());
+                    test.assertEqual(Duration.nanoseconds(1), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.nanoseconds(-1) + " and " + Duration2.hours(3), (Test test) ->
+                runner.test("with " + Duration.nanoseconds(-1) + " and " + Duration.hours(3), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.nanoseconds(-1), Duration2.hours(3));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(-1), Duration.hours(3));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(1, dateTime.getDayOfMonth());
@@ -462,13 +462,13 @@ public interface DateTimeTests
                     test.assertEqual(999, dateTime.getMillisecond());
                     test.assertEqual(999, dateTime.getMicrosecond());
                     test.assertEqual(999, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.hours(3), dateTime.getOffset());
-                    test.assertEqual(Duration2.nanoseconds(-1), dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.hours(3), dateTime.getOffset());
+                    test.assertEqual(Duration.nanoseconds(-1), dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.microseconds(1) + " and " + Duration2.seconds(-4), (Test test) ->
+                runner.test("with " + Duration.microseconds(1) + " and " + Duration.seconds(-4), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.microseconds(1), Duration2.seconds(-4));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.microseconds(1), Duration.seconds(-4));
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
                     test.assertEqual(31, dateTime.getDayOfMonth());
@@ -478,14 +478,14 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(1, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.seconds(-4), dateTime.getOffset());
-                    test.assertEqual(Duration2.microseconds(1), dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.seconds(-4), dateTime.getOffset());
+                    test.assertEqual(Duration.microseconds(1), dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.microseconds(-1) + " and " + Duration2.minutes(5), (Test test) ->
+                runner.test("with " + Duration.microseconds(-1) + " and " + Duration.minutes(5), (Test test) ->
                 {
-                    final Duration2 durationSinceEpoch = Duration2.microseconds(-1);
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(durationSinceEpoch, Duration2.minutes(5));
+                    final Duration durationSinceEpoch = Duration.microseconds(-1);
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(durationSinceEpoch, Duration.minutes(5));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(1, dateTime.getDayOfMonth());
@@ -495,14 +495,14 @@ public interface DateTimeTests
                     test.assertEqual(999, dateTime.getMillisecond());
                     test.assertEqual(999, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.minutes(5), dateTime.getOffset());
-                    test.assertEqual(durationSinceEpoch, dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.minutes(5), dateTime.getOffset());
+                    test.assertEqual(durationSinceEpoch, dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.milliseconds(0.1) + " and " + Duration2.hours(-6), (Test test) ->
+                runner.test("with " + Duration.milliseconds(0.1) + " and " + Duration.hours(-6), (Test test) ->
                 {
-                    final Duration2 durationSinceEpoch = Duration2.milliseconds(0.1);
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(durationSinceEpoch, Duration2.hours(-6));
+                    final Duration durationSinceEpoch = Duration.milliseconds(0.1);
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(durationSinceEpoch, Duration.hours(-6));
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
                     test.assertEqual(31, dateTime.getDayOfMonth());
@@ -512,14 +512,14 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(100, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.hours(-6), dateTime.getOffset());
+                    test.assertEqual(Duration.hours(-6), dateTime.getOffset());
                     test.assertEqual(durationSinceEpoch, dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.milliseconds(-0.1) + " and " + Duration2.seconds(7), (Test test) ->
+                runner.test("with " + Duration.milliseconds(-0.1) + " and " + Duration.seconds(7), (Test test) ->
                 {
-                    final Duration2 durationSinceEpoch = Duration2.milliseconds(-0.1);
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(durationSinceEpoch, Duration2.seconds(7));
+                    final Duration durationSinceEpoch = Duration.milliseconds(-0.1);
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(durationSinceEpoch, Duration.seconds(7));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(1, dateTime.getDayOfMonth());
@@ -529,14 +529,14 @@ public interface DateTimeTests
                     test.assertEqual(999, dateTime.getMillisecond());
                     test.assertEqual(900, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.seconds(7), dateTime.getOffset());
-                    test.assertEqual(durationSinceEpoch, dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.seconds(7), dateTime.getOffset());
+                    test.assertEqual(durationSinceEpoch, dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.milliseconds(0.99999999) + " and " + Duration2.minutes(-8), (Test test) ->
+                runner.test("with " + Duration.milliseconds(0.99999999) + " and " + Duration.minutes(-8), (Test test) ->
                 {
-                    final Duration2 durationSinceEpoch = Duration2.milliseconds(0.99999999);
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(durationSinceEpoch, Duration2.minutes(-8));
+                    final Duration durationSinceEpoch = Duration.milliseconds(0.99999999);
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(durationSinceEpoch, Duration.minutes(-8));
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
                     test.assertEqual(31, dateTime.getDayOfMonth());
@@ -546,14 +546,14 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(999, dateTime.getMicrosecond());
                     test.assertEqual(999, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.minutes(-8), dateTime.getOffset());
-                    test.assertEqual(durationSinceEpoch, dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.minutes(-8), dateTime.getOffset());
+                    test.assertEqual(durationSinceEpoch, dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.milliseconds(-0.99999999) + " and " + Duration2.hours(9), (Test test) ->
+                runner.test("with " + Duration.milliseconds(-0.99999999) + " and " + Duration.hours(9), (Test test) ->
                 {
-                    final Duration2 durationSinceEpoch = Duration2.milliseconds(-0.99999999);
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(durationSinceEpoch, Duration2.hours(9));
+                    final Duration durationSinceEpoch = Duration.milliseconds(-0.99999999);
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(durationSinceEpoch, Duration.hours(9));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(1, dateTime.getDayOfMonth());
@@ -563,13 +563,13 @@ public interface DateTimeTests
                     test.assertEqual(999, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(1, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.hours(9), dateTime.getOffset());
-                    test.assertEqual(durationSinceEpoch, dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.hours(9), dateTime.getOffset());
+                    test.assertEqual(durationSinceEpoch, dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.milliseconds(1) + " and " + Duration2.seconds(-10), (Test test) ->
+                runner.test("with " + Duration.milliseconds(1) + " and " + Duration.seconds(-10), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(1), Duration2.seconds(-10));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(1), Duration.seconds(-10));
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
                     test.assertEqual(31, dateTime.getDayOfMonth());
@@ -579,13 +579,13 @@ public interface DateTimeTests
                     test.assertEqual(1, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.seconds(-10), dateTime.getOffset());
-                    test.assertEqual(Duration2.milliseconds(1), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.seconds(-10), dateTime.getOffset());
+                    test.assertEqual(Duration.milliseconds(1), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.milliseconds(-1) + " and " + Duration2.minutes(11), (Test test) ->
+                runner.test("with " + Duration.milliseconds(-1) + " and " + Duration.minutes(11), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(-1), Duration2.minutes(11));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(-1), Duration.minutes(11));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(1, dateTime.getDayOfMonth());
@@ -595,13 +595,13 @@ public interface DateTimeTests
                     test.assertEqual(999, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.minutes(11), dateTime.getOffset());
-                    test.assertEqual(Duration2.milliseconds(-1), dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.minutes(11), dateTime.getOffset());
+                    test.assertEqual(Duration.milliseconds(-1), dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.seconds(1) + " and " + Duration2.hours(-12), (Test test) ->
+                runner.test("with " + Duration.seconds(1) + " and " + Duration.hours(-12), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.seconds(1), Duration2.hours(-12));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.seconds(1), Duration.hours(-12));
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
                     test.assertEqual(31, dateTime.getDayOfMonth());
@@ -611,13 +611,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.hours(-12), dateTime.getOffset());
-                    test.assertEqual(Duration2.seconds(1), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.hours(-12), dateTime.getOffset());
+                    test.assertEqual(Duration.seconds(1), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.seconds(-1) + " and " + Duration2.seconds(13), (Test test) ->
+                runner.test("with " + Duration.seconds(-1) + " and " + Duration.seconds(13), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.seconds(-1), Duration2.seconds(13));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.seconds(-1), Duration.seconds(13));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(1, dateTime.getDayOfMonth());
@@ -627,13 +627,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.seconds(13), dateTime.getOffset());
-                    test.assertEqual(Duration2.seconds(-1), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.seconds(13), dateTime.getOffset());
+                    test.assertEqual(Duration.seconds(-1), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.minutes(1) + " and " + Duration2.minutes(-14), (Test test) ->
+                runner.test("with " + Duration.minutes(1) + " and " + Duration.minutes(-14), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.minutes(1), Duration2.minutes(-14));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.minutes(1), Duration.minutes(-14));
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
                     test.assertEqual(31, dateTime.getDayOfMonth());
@@ -643,13 +643,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.minutes(-14), dateTime.getOffset());
-                    test.assertEqual(Duration2.minutes(1), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.minutes(-14), dateTime.getOffset());
+                    test.assertEqual(Duration.minutes(1), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.minutes(-1) + " and " + Duration2.hours(15), (Test test) ->
+                runner.test("with " + Duration.minutes(-1) + " and " + Duration.hours(15), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.minutes(-1), Duration2.hours(15));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.minutes(-1), Duration.hours(15));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(1, dateTime.getDayOfMonth());
@@ -659,13 +659,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.hours(15), dateTime.getOffset());
-                    test.assertEqual(Duration2.minutes(-1), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.hours(15), dateTime.getOffset());
+                    test.assertEqual(Duration.minutes(-1), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.hours(1) + " and " + Duration2.seconds(-16), (Test test) ->
+                runner.test("with " + Duration.hours(1) + " and " + Duration.seconds(-16), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.hours(1), Duration2.seconds(-16));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.hours(1), Duration.seconds(-16));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(1, dateTime.getDayOfMonth());
@@ -675,13 +675,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.seconds(-16), dateTime.getOffset());
-                    test.assertEqual(Duration2.hours(1), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.seconds(-16), dateTime.getOffset());
+                    test.assertEqual(Duration.hours(1), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.hours(-1) + " and " + Duration2.minutes(17), (Test test) ->
+                runner.test("with " + Duration.hours(-1) + " and " + Duration.minutes(17), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.hours(-1), Duration2.minutes(17));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.hours(-1), Duration.minutes(17));
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
                     test.assertEqual(31, dateTime.getDayOfMonth());
@@ -691,13 +691,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.minutes(17), dateTime.getOffset());
-                    test.assertEqual(Duration2.hours(-1), dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.minutes(17), dateTime.getOffset());
+                    test.assertEqual(Duration.hours(-1), dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.days(1) + " and " + Duration2.hours(-18), (Test test) ->
+                runner.test("with " + Duration.days(1) + " and " + Duration.hours(-18), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.days(1), Duration2.hours(-18));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.days(1), Duration.hours(-18));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(1, dateTime.getDayOfMonth());
@@ -707,13 +707,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.hours(-18), dateTime.getOffset());
-                    test.assertEqual(Duration2.days(1), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.hours(-18), dateTime.getOffset());
+                    test.assertEqual(Duration.days(1), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.days(-1) + " and " + Duration2.seconds(19), (Test test) ->
+                runner.test("with " + Duration.days(-1) + " and " + Duration.seconds(19), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.days(-1), Duration2.seconds(19));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.days(-1), Duration.seconds(19));
                     test.assertEqual(1969, dateTime.getYear());
                     test.assertEqual(12, dateTime.getMonth());
                     test.assertEqual(31, dateTime.getDayOfMonth());
@@ -723,13 +723,13 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.seconds(19), dateTime.getOffset());
-                    test.assertEqual(Duration2.days(-1), dateTime.getDurationSinceEpoch(), Duration2.nanoseconds(1));
+                    test.assertEqual(Duration.seconds(19), dateTime.getOffset());
+                    test.assertEqual(Duration.days(-1), dateTime.getDurationSinceEpoch(), Duration.nanoseconds(1));
                 });
 
-                runner.test("with " + Duration2.weeks(1) + " and " + Duration2.minutes(-20), (Test test) ->
+                runner.test("with " + Duration.weeks(1) + " and " + Duration.minutes(-20), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.weeks(1), Duration2.minutes(-20));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.weeks(1), Duration.minutes(-20));
                     test.assertEqual(1970, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(7, dateTime.getDayOfMonth());
@@ -739,19 +739,19 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.minutes(-20), dateTime.getOffset());
-                    test.assertEqual(Duration2.weeks(1), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.minutes(-20), dateTime.getOffset());
+                    test.assertEqual(Duration.weeks(1), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.weeks(-1) + " and " + Duration2.hours(21), (Test test) ->
+                runner.test("with " + Duration.weeks(-1) + " and " + Duration.hours(21), (Test test) ->
                 {
-                    test.assertThrows(() -> DateTime.createFromDurationSinceEpoch(Duration2.weeks(-1), Duration2.hours(21)),
+                    test.assertThrows(() -> DateTime.createFromDurationSinceEpoch(Duration.weeks(-1), Duration.hours(21)),
                         new java.time.DateTimeException("Zone offset not in valid range: -18:00 to +18:00"));
                 });
 
-                runner.test("with " + Duration2.milliseconds(1234567890123L) + " and " + Duration2.seconds(-22), (Test test) ->
+                runner.test("with " + Duration.milliseconds(1234567890123L) + " and " + Duration.seconds(-22), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(1234567890123L), Duration2.seconds(-22));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(1234567890123L), Duration.seconds(-22));
                     test.assertEqual(2009, dateTime.getYear());
                     test.assertEqual(2, dateTime.getMonth());
                     test.assertEqual(13, dateTime.getDayOfMonth());
@@ -761,13 +761,13 @@ public interface DateTimeTests
                     test.assertEqual(123, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.seconds(-22), dateTime.getOffset());
-                    test.assertEqual(Duration2.milliseconds(1234567890123L), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.seconds(-22), dateTime.getOffset());
+                    test.assertEqual(Duration.milliseconds(1234567890123L), dateTime.getDurationSinceEpoch());
                 });
 
-                runner.test("with " + Duration2.milliseconds(-1234567890123L) + " and " + Duration2.minutes(23), (Test test) ->
+                runner.test("with " + Duration.milliseconds(-1234567890123L) + " and " + Duration.minutes(23), (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(-1234567890123L), Duration2.minutes(23));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(-1234567890123L), Duration.minutes(23));
                     test.assertEqual(1930, dateTime.getYear());
                     test.assertEqual(11, dateTime.getMonth());
                     test.assertEqual(18, dateTime.getDayOfMonth());
@@ -777,8 +777,8 @@ public interface DateTimeTests
                     test.assertEqual(877, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.minutes(23), dateTime.getOffset());
-                    test.assertEqual(Duration2.milliseconds(-1234567890123L), dateTime.getDurationSinceEpoch());
+                    test.assertEqual(Duration.minutes(23), dateTime.getOffset());
+                    test.assertEqual(Duration.milliseconds(-1234567890123L), dateTime.getDurationSinceEpoch());
                 });
             });
 
@@ -796,7 +796,7 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
                     test.assertSame(dateTime, dateTime.toUTC());
                 });
 
@@ -812,7 +812,7 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
                     test.assertSame(dateTime, dateTime.toUTC());
                 });
 
@@ -828,7 +828,7 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
                     test.assertSame(dateTime, dateTime.toUTC());
                 });
 
@@ -891,13 +891,13 @@ public interface DateTimeTests
             {
                 runner.test("with 1, 2, 3, and null offset", (Test test) ->
                 {
-                    test.assertThrows(() -> DateTime.create(1, 2, 3, null),
+                    test.assertThrows(() -> DateTime.create(1, 2, 3, (Duration)null),
                         new PreConditionFailure("offset cannot be null."));
                 });
 
                 runner.test("with 1, 1, 1, and non-null offset", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.create(1, 1, 1, Duration2.hours(2));
+                    final DateTime dateTime = DateTime.create(1, 1, 1, Duration.hours(2));
                     test.assertEqual(1, dateTime.getYear());
                     test.assertEqual(1, dateTime.getMonth());
                     test.assertEqual(1, dateTime.getDayOfMonth());
@@ -907,7 +907,7 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.hours(2), dateTime.getOffset());
+                    test.assertEqual(Duration.hours(2), dateTime.getOffset());
                     test.assertEqual(DateTime.create(0, 12, 31, 22, 0), dateTime.toUTC());
                 });
 
@@ -923,7 +923,7 @@ public interface DateTimeTests
                     test.assertEqual(0, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
                     test.assertSame(dateTime, dateTime.toUTC());
                 });
 
@@ -996,7 +996,7 @@ public interface DateTimeTests
                     test.assertEqual(6, dateTime.getMillisecond());
                     test.assertEqual(0, dateTime.getMicrosecond());
                     test.assertEqual(0, dateTime.getNanosecond());
-                    test.assertEqual(Duration2.zero, dateTime.getOffset());
+                    test.assertEqual(Duration.zero, dateTime.getOffset());
                     test.assertSame(dateTime, dateTime.toUTC());
                 });
             });
@@ -1006,7 +1006,7 @@ public interface DateTimeTests
                 runner.test("with null", (Test test) ->
                 {
                     final DateTime dateTime = DateTime.create(1, 2, 3, 4, 5);
-                    test.assertThrows(() -> dateTime.toOffset(null),
+                    test.assertThrows(() -> dateTime.toOffset((Duration)null),
                         new PreConditionFailure("offset cannot be null."));
                 });
 
@@ -1019,49 +1019,49 @@ public interface DateTimeTests
                 runner.test("from +00:00 to +03:00", (Test test) ->
                 {
                     final DateTime dateTime = DateTime.create(1, 2, 3, 4, 5);
-                    final DateTime convertedDateTime = dateTime.toOffset(Duration2.hours(3));
+                    final DateTime convertedDateTime = dateTime.toOffset(Duration.hours(3));
                     test.assertEqual(1, convertedDateTime.getYear());
                     test.assertEqual(2, convertedDateTime.getMonth());
                     test.assertEqual(3, convertedDateTime.getDayOfMonth());
                     test.assertEqual(7, convertedDateTime.getHourOfDay());
                     test.assertEqual(5, convertedDateTime.getMinute());
-                    test.assertEqual(Duration2.hours(3), convertedDateTime.getOffset());
+                    test.assertEqual(Duration.hours(3), convertedDateTime.getOffset());
                 });
 
                 runner.test("from +00:00 to +15:01", (Test test) ->
                 {
                     final DateTime dateTime = DateTime.create(1, 2, 3, 4, 5);
-                    final DateTime convertedDateTime = dateTime.toOffset(Duration2.hours(15).plus(Duration2.minutes(1)));
+                    final DateTime convertedDateTime = dateTime.toOffset(Duration.hours(15).plus(Duration.minutes(1)));
                     test.assertEqual(1, convertedDateTime.getYear());
                     test.assertEqual(2, convertedDateTime.getMonth());
                     test.assertEqual(3, convertedDateTime.getDayOfMonth());
                     test.assertEqual(19, convertedDateTime.getHourOfDay());
                     test.assertEqual(6, convertedDateTime.getMinute());
-                    test.assertEqual(Duration2.hours(15).plus(Duration2.minutes(1)), convertedDateTime.getOffset());
+                    test.assertEqual(Duration.hours(15).plus(Duration.minutes(1)), convertedDateTime.getOffset());
                 });
 
                 runner.test("from +00:00 to -09:30", (Test test) ->
                 {
                     final DateTime dateTime = DateTime.create(1, 2, 3, 4, 5);
-                    final DateTime convertedDateTime = dateTime.toOffset(Duration2.hours(-9).plus(Duration2.minutes(-30)));
+                    final DateTime convertedDateTime = dateTime.toOffset(Duration.hours(-9).plus(Duration.minutes(-30)));
                     test.assertEqual(1, convertedDateTime.getYear());
                     test.assertEqual(2, convertedDateTime.getMonth());
                     test.assertEqual(2, convertedDateTime.getDayOfMonth());
                     test.assertEqual(18, convertedDateTime.getHourOfDay());
                     test.assertEqual(35, convertedDateTime.getMinute());
-                    test.assertEqual(Duration2.hours(-9).plus(Duration2.minutes(-30)), convertedDateTime.getOffset());
+                    test.assertEqual(Duration.hours(-9).plus(Duration.minutes(-30)), convertedDateTime.getOffset());
                 });
 
                 runner.test("from -08:00 to +00:00", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.create(1, 2, 3, 4, 5, Duration2.hours(-8));
-                    final DateTime convertedDateTime = dateTime.toOffset(Duration2.zero);
+                    final DateTime dateTime = DateTime.create(1, 2, 3, 4, 5, Duration.hours(-8));
+                    final DateTime convertedDateTime = dateTime.toOffset(Duration.zero);
                     test.assertEqual(1, convertedDateTime.getYear());
                     test.assertEqual(2, convertedDateTime.getMonth());
                     test.assertEqual(3, convertedDateTime.getDayOfMonth());
                     test.assertEqual(12, convertedDateTime.getHourOfDay());
                     test.assertEqual(5, convertedDateTime.getMinute());
-                    test.assertEqual(Duration2.zero, convertedDateTime.getOffset());
+                    test.assertEqual(Duration.zero, convertedDateTime.getOffset());
                 });
             });
 
@@ -1069,32 +1069,32 @@ public interface DateTimeTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
                     test.assertFalse(dateTime.lessThan(null));
                 });
 
                 runner.test("with lesser", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertFalse(dateTime.lessThan(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(9))));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertFalse(dateTime.lessThan(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(9))));
                 });
 
                 runner.test("with same", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
                     test.assertFalse(dateTime.lessThan(dateTime));
                 });
 
                 runner.test("with equal", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertFalse(dateTime.lessThan(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10))));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertFalse(dateTime.lessThan(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10))));
                 });
 
                 runner.test("with greater", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertTrue(dateTime.lessThan(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(11))));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertTrue(dateTime.lessThan(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(11))));
                 });
             });
 
@@ -1102,32 +1102,32 @@ public interface DateTimeTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
                     test.assertFalse(dateTime.lessThanOrEqualTo(null));
                 });
 
                 runner.test("with lesser", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertFalse(dateTime.lessThanOrEqualTo(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(9))));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertFalse(dateTime.lessThanOrEqualTo(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(9))));
                 });
 
                 runner.test("with same", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
                     test.assertTrue(dateTime.lessThanOrEqualTo(dateTime));
                 });
 
                 runner.test("with equal", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertTrue(dateTime.lessThanOrEqualTo(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10))));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertTrue(dateTime.lessThanOrEqualTo(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10))));
                 });
 
                 runner.test("with greater", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertTrue(dateTime.lessThanOrEqualTo(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(11))));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertTrue(dateTime.lessThanOrEqualTo(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(11))));
                 });
             });
 
@@ -1135,32 +1135,32 @@ public interface DateTimeTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
                     test.assertFalse(dateTime.equals((Object)null));
                 });
 
                 runner.test("with lesser", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertFalse(dateTime.equals((Object)DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(9))));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertFalse(dateTime.equals((Object)DateTime.createFromDurationSinceEpoch(Duration.milliseconds(9))));
                 });
 
                 runner.test("with same", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
                     test.assertTrue(dateTime.equals((Object)dateTime));
                 });
 
                 runner.test("with equal", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertTrue(dateTime.equals((Object)DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10))));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertTrue(dateTime.equals((Object)DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10))));
                 });
 
                 runner.test("with greater", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertFalse(dateTime.equals((Object)DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(11))));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertFalse(dateTime.equals((Object)DateTime.createFromDurationSinceEpoch(Duration.milliseconds(11))));
                 });
             });
 
@@ -1175,28 +1175,28 @@ public interface DateTimeTests
                 };
 
                 equalsTest.run(
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
                     null,
                     false);
                 equalsTest.run(
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10)),
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(9)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(9)),
                     false);
                 equalsTest.run(
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10)),
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
                     true);
                 equalsTest.run(
-                    DateTime.createFromDurationSinceEpoch(Duration2.nanoseconds(1.57379537769488179E18)),
-                    DateTime.createFromDurationSinceEpoch(Duration2.nanoseconds(1.57379537769488179E18)),
+                    DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1.57379537769488179E18)),
+                    DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1.57379537769488179E18)),
                     true);
                 equalsTest.run(
-                    DateTime.createFromDurationSinceEpoch(Duration2.nanoseconds(1574907047894711040.0)),
-                    DateTime.createFromDurationSinceEpoch(Duration2.nanoseconds(1574907047894711040.0)),
+                    DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1574907047894711040.0)),
+                    DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1574907047894711040.0)),
                     true);
                 equalsTest.run(
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10)),
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(11)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(11)),
                     false);
             });
 
@@ -1204,11 +1204,11 @@ public interface DateTimeTests
             {
                 runner.test("with null marginOfError", (Test test) ->
                 {
-                    test.assertThrows(() -> DateTime.create(1, 2, 3).equals(null, null),
+                    test.assertThrows(() -> DateTime.create(1, 2, 3).equals((DateTime)null, (Duration)null),
                         new PreConditionFailure("marginOfError cannot be null."));
                 });
 
-                final Action4<DateTime,DateTime, Duration2,Boolean> equalsTest = (DateTime lhs, DateTime rhs, Duration2 marginOfError, Boolean expected) ->
+                final Action4<DateTime,DateTime, Duration,Boolean> equalsTest = (DateTime lhs, DateTime rhs, Duration marginOfError, Boolean expected) ->
                 {
                     runner.test("with " + lhs + ", " + rhs + ", and " + marginOfError, (Test test) ->
                     {
@@ -1217,59 +1217,59 @@ public interface DateTimeTests
                 };
 
                 equalsTest.run(
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
                     null,
-                    Duration2.zero,
+                    Duration.zero,
                     false);
                 equalsTest.run(
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
                     null,
-                    Duration2.minutes(5),
+                    Duration.minutes(5),
                     false);
                 equalsTest.run(
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10)),
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(9)),
-                    Duration2.zero,
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(9)),
+                    Duration.zero,
                     false);
                 equalsTest.run(
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10)),
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(9)),
-                    Duration2.milliseconds(0.001),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(9)),
+                    Duration.milliseconds(0.001),
                     false);
                 equalsTest.run(
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10)),
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(9)),
-                    Duration2.milliseconds(1),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(9)),
+                    Duration.milliseconds(1),
                     true);
                 equalsTest.run(
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10)),
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10)),
-                    Duration2.zero,
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    Duration.zero,
                     true);
                 equalsTest.run(
-                    DateTime.createFromDurationSinceEpoch(Duration2.nanoseconds(1.57379537769488179E18)),
-                    DateTime.createFromDurationSinceEpoch(Duration2.nanoseconds(1.57379537769488179E18)),
-                    Duration2.zero,
+                    DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1.57379537769488179E18)),
+                    DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1.57379537769488179E18)),
+                    Duration.zero,
                     true);
                 equalsTest.run(
-                    DateTime.createFromDurationSinceEpoch(Duration2.nanoseconds(1574907047894711040.0)),
-                    DateTime.createFromDurationSinceEpoch(Duration2.nanoseconds(1574907047894711040.0)),
-                    Duration2.zero,
+                    DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1574907047894711040.0)),
+                    DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1574907047894711040.0)),
+                    Duration.zero,
                     true);
                 equalsTest.run(
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10)),
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(11)),
-                    Duration2.zero,
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(11)),
+                    Duration.zero,
                     false);
                 equalsTest.run(
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10)),
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(11)),
-                    Duration2.milliseconds(0.9999),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(11)),
+                    Duration.milliseconds(0.9999),
                     false);
                 equalsTest.run(
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10)),
-                    DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(11)),
-                    Duration2.milliseconds(1.00001),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)),
+                    DateTime.createFromDurationSinceEpoch(Duration.milliseconds(11)),
+                    Duration.milliseconds(1.00001),
                     true);
             });
 
@@ -1277,32 +1277,32 @@ public interface DateTimeTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
                     test.assertTrue(dateTime.greaterThanOrEqualTo(null));
                 });
 
                 runner.test("with lesser", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertTrue(dateTime.greaterThanOrEqualTo(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(9))));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertTrue(dateTime.greaterThanOrEqualTo(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(9))));
                 });
 
                 runner.test("with same", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
                     test.assertTrue(dateTime.greaterThanOrEqualTo(dateTime));
                 });
 
                 runner.test("with equal", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertTrue(dateTime.greaterThanOrEqualTo(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10))));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertTrue(dateTime.greaterThanOrEqualTo(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10))));
                 });
 
                 runner.test("with greater", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertFalse(dateTime.greaterThanOrEqualTo(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(11))));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertFalse(dateTime.greaterThanOrEqualTo(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(11))));
                 });
             });
 
@@ -1310,32 +1310,32 @@ public interface DateTimeTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
                     test.assertTrue(dateTime.greaterThan(null));
                 });
 
                 runner.test("with lesser", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertTrue(dateTime.greaterThan(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(9))));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertTrue(dateTime.greaterThan(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(9))));
                 });
 
                 runner.test("with same", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
                     test.assertFalse(dateTime.greaterThan(dateTime));
                 });
 
                 runner.test("with equal", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertFalse(dateTime.greaterThan(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10))));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertFalse(dateTime.greaterThan(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10))));
                 });
 
                 runner.test("with greater", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertFalse(dateTime.greaterThan(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(11))));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertFalse(dateTime.greaterThan(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(11))));
                 });
             });
 
@@ -1343,21 +1343,21 @@ public interface DateTimeTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertThrows(() -> dateTime.plus(null),
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertThrows(() -> dateTime.plus((Duration)null),
                         new PreConditionFailure("duration cannot be null."));
                 });
 
                 runner.test("with 0 seconds", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertSame(dateTime, dateTime.plus(Duration2.seconds(0)));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertSame(dateTime, dateTime.plus(Duration.seconds(0)));
                 });
 
                 runner.test("with 100 milliseconds", (Test test) ->
                 {
                     final DateTime dateTime = DateTime.create(2018, 11, 3, 16, 8, 59, 437);
-                    final Duration2 duration = Duration2.milliseconds(100);
+                    final Duration duration = Duration.milliseconds(100);
                     final DateTime actual = dateTime.plus(duration);
                     final DateTime expected = DateTime.create(2018, 11, 3, 16, 8, 59, 537);
                     test.assertEqual(expected, actual);
@@ -1366,7 +1366,7 @@ public interface DateTimeTests
                 runner.test("with 0.1 seconds", (Test test) ->
                 {
                     final DateTime dateTime = DateTime.create(2018, 11, 3, 16, 8, 59, 437);
-                    final Duration2 duration = Duration2.seconds(0.1);
+                    final Duration duration = Duration.seconds(0.1);
                     final DateTime actual = dateTime.plus(duration);
                     final DateTime expected = DateTime.create(2018, 11, 3, 16, 8, 59, 537);
                     test.assertEqual(expected, actual);
@@ -1374,14 +1374,14 @@ public interface DateTimeTests
 
                 runner.test("with 10 seconds", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10010)), dateTime.plus(Duration2.seconds(10)));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10010)), dateTime.plus(Duration.seconds(10)));
                 });
 
                 runner.test("with -2 milliseconds", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(8)), dateTime.plus(Duration2.milliseconds(-2)));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(8)), dateTime.plus(Duration.milliseconds(-2)));
                 });
             });
 
@@ -1389,28 +1389,28 @@ public interface DateTimeTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
                     test.assertThrows(
-                        () -> dateTime.minus((Duration2)null),
+                        () -> dateTime.minus((Duration)null),
                         new NullPointerException());
                 });
 
                 runner.test("with 0 seconds", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertSame(dateTime, dateTime.minus(Duration2.seconds(0)));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertSame(dateTime, dateTime.minus(Duration.seconds(0)));
                 });
 
                 runner.test("with 10 seconds", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10010));
-                    test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10)), dateTime.minus(Duration2.seconds(10)));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10010));
+                    test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10)), dateTime.minus(Duration.seconds(10)));
                 });
 
                 runner.test("with -2 milliseconds", (Test test) ->
                 {
-                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(10));
-                    test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(12)), dateTime.minus(Duration2.milliseconds(-2)));
+                    final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
+                    test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(12)), dateTime.minus(Duration.milliseconds(-2)));
                 });
             });
 
@@ -1418,27 +1418,27 @@ public interface DateTimeTests
             {
                 runner.test("with UTC time", (Test test) ->
                 {
-                    test.assertEqual("2009-02-13T23:31:30.123Z", DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(1234567890123L)).toString());
+                    test.assertEqual("2009-02-13T23:31:30.123Z", DateTime.createFromDurationSinceEpoch(Duration.milliseconds(1234567890123L)).toString());
                 });
 
                 runner.test("with negative offset", (Test test) ->
                 {
-                    test.assertEqual("2009-02-13T16:31:30.123-07:00", DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(1234567890123L), Duration2.hours(-7)).toString());
+                    test.assertEqual("2009-02-13T16:31:30.123-07:00", DateTime.createFromDurationSinceEpoch(Duration.milliseconds(1234567890123L), Duration.hours(-7)).toString());
                 });
 
                 runner.test("with milliseconds and positive offset", (Test test) ->
                 {
-                    test.assertEqual("2009-02-14T10:01:30.123+10:30", DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(1234567890123L), Duration2.hours(10.5)).toString());
+                    test.assertEqual("2009-02-14T10:01:30.123+10:30", DateTime.createFromDurationSinceEpoch(Duration.milliseconds(1234567890123L), Duration.hours(10.5)).toString());
                 });
 
                 runner.test("with microseconds and positive offset", (Test test) ->
                 {
-                    test.assertEqual("1970-01-15T17:26:07.890123+10:30", DateTime.createFromDurationSinceEpoch(Duration2.microseconds(1234567890123L), Duration2.hours(10.5)).toString());
+                    test.assertEqual("1970-01-15T17:26:07.890123+10:30", DateTime.createFromDurationSinceEpoch(Duration.microseconds(1234567890123L), Duration.hours(10.5)).toString());
                 });
 
                 runner.test("with nanoseconds and positive offset", (Test test) ->
                 {
-                    test.assertEqual("1970-01-01T10:50:34.567890123+10:30", DateTime.createFromDurationSinceEpoch(Duration2.nanoseconds(1234567890123L), Duration2.hours(10.5)).toString());
+                    test.assertEqual("1970-01-01T10:50:34.567890123+10:30", DateTime.createFromDurationSinceEpoch(Duration.nanoseconds(1234567890123L), Duration.hours(10.5)).toString());
                 });
             });
 
@@ -1467,7 +1467,7 @@ public interface DateTimeTests
 
                 parseTest.run("2009-02-13T23:31:30Z", DateTime.create(2009, 2, 13, 23, 31, 30));
                 parseTest.run("2009-02-13T23:31:30.123Z", DateTime.create(2009, 2, 13, 23, 31, 30, 123));
-                parseTest.run("2009-02-13T16:31:30.123-07:00", DateTime.create(2009, 2, 13, 16, 31, 30, 123, Duration2.hours(-7)));
+                parseTest.run("2009-02-13T16:31:30.123-07:00", DateTime.create(2009, 2, 13, 16, 31, 30, 123, Duration.hours(-7)));
                 parseTest.run("2019-11-17T00:53:34.400000Z", DateTime.create(2019, 11, 17, 0, 53, 34, 400));
             });
         });

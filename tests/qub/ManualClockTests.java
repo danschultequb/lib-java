@@ -2,7 +2,7 @@ package qub;
 
 public interface ManualClockTests
 {
-    DateTime currentDateTime = DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(0));
+    DateTime currentDateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(0));
 
     static void test(TestRunner runner)
     {
@@ -29,14 +29,14 @@ public interface ManualClockTests
                 });
             });
 
-            runner.testGroup("advance()", () ->
+            runner.testGroup("advance(Duration)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
                     CurrentThread.withManualAsyncScheduler((ManualAsyncRunner asyncRunner) ->
                     {
                         final ManualClock clock = createClock(asyncRunner);
-                        test.assertThrows(() -> clock.advance(null), new PreConditionFailure("duration cannot be null."));
+                        test.assertThrows(() -> clock.advance((Duration)null), new PreConditionFailure("duration cannot be null."));
                     });
                 });
 
@@ -45,7 +45,7 @@ public interface ManualClockTests
                     CurrentThread.withManualAsyncScheduler((ManualAsyncRunner asyncRunner) ->
                     {
                         final ManualClock clock = createClock(asyncRunner);
-                        clock.advance(Duration2.seconds(0));
+                        clock.advance(Duration.seconds(0));
                         test.assertEqual(currentDateTime, clock.getCurrentDateTime());
                     });
                     
@@ -56,8 +56,8 @@ public interface ManualClockTests
                     CurrentThread.withManualAsyncScheduler((ManualAsyncRunner asyncRunner) ->
                     {
                         final ManualClock clock = createClock(asyncRunner);
-                        clock.advance(Duration2.minutes(5));
-                        test.assertEqual(currentDateTime.plus(Duration2.minutes(5)), clock.getCurrentDateTime());
+                        clock.advance(Duration.minutes(5));
+                        test.assertEqual(currentDateTime.plus(Duration.minutes(5)), clock.getCurrentDateTime());
                     });
                 });
             });
@@ -70,7 +70,7 @@ public interface ManualClockTests
                     {
                         final ManualClock clock = createClock(asyncRunner);
                         final Value<Boolean> value = BooleanValue.create();
-                        test.assertThrows(() -> clock.scheduleAfter(null, () -> value.set(true)),
+                        test.assertThrows(() -> clock.scheduleAfter((Duration)null, () -> value.set(true)),
                             new PreConditionFailure("duration cannot be null."));
                     });
                 });
@@ -81,7 +81,7 @@ public interface ManualClockTests
                     {
                         final ManualClock clock = createClock(asyncRunner);
                         final Value<Boolean> value = BooleanValue.create();
-                        clock.scheduleAfter(Duration2.seconds(-5), () -> value.set(true)).await();
+                        clock.scheduleAfter(Duration.seconds(-5), () -> value.set(true)).await();
                         test.assertTrue(value.hasValue());
                         test.assertTrue(value.get());
                     });
@@ -93,7 +93,7 @@ public interface ManualClockTests
                     {
                         final ManualClock clock = createClock(asyncRunner);
                         final Value<Boolean> value = BooleanValue.create();
-                        clock.scheduleAfter(Duration2.seconds(0), () -> value.set(true)).await();
+                        clock.scheduleAfter(Duration.seconds(0), () -> value.set(true)).await();
                         test.assertTrue(value.hasValue());
                         test.assertTrue(value.get());
                     });
@@ -106,21 +106,21 @@ public interface ManualClockTests
                         final ManualClock clock = createClock(asyncRunner);
                         final Value<Boolean> value = BooleanValue.create();
 
-                        final Result<Void> asyncAction = clock.scheduleAfter(Duration2.milliseconds(50), () -> value.set(true));
+                        final Result<Void> asyncAction = clock.scheduleAfter(Duration.milliseconds(50), () -> value.set(true));
                         test.assertFalse(value.hasValue());
-                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(0)), clock.getCurrentDateTime());
+                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(0)), clock.getCurrentDateTime());
 
-                        clock.advance(Duration2.milliseconds(49));
+                        clock.advance(Duration.milliseconds(49));
                         test.assertFalse(value.hasValue());
-                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(49)), clock.getCurrentDateTime());
+                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(49)), clock.getCurrentDateTime());
 
                         test.assertEqual(0, asyncRunner.getScheduledTaskCount());
-                        clock.advance(Duration2.milliseconds(1));
+                        clock.advance(Duration.milliseconds(1));
                         test.assertEqual(1, asyncRunner.getScheduledTaskCount());
                         asyncAction.await();
                         test.assertTrue(value.hasValue());
                         test.assertTrue(value.get());
-                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(50)), clock.getCurrentDateTime());
+                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(50)), clock.getCurrentDateTime());
                         test.assertTrue(asyncAction.isCompleted());
                     });
                 });
@@ -132,15 +132,15 @@ public interface ManualClockTests
                         final ManualClock clock = createClock(asyncRunner);
                         final IntegerValue value = Value.create(0);
 
-                        final Result<Void> asyncTask1 = clock.scheduleAfter(Duration2.milliseconds(50), () -> value.set(1));
-                        final Result<Void> asyncTask2 = clock.scheduleAfter(Duration2.milliseconds(50), () -> value.set(2));
+                        final Result<Void> asyncTask1 = clock.scheduleAfter(Duration.milliseconds(50), () -> value.set(1));
+                        final Result<Void> asyncTask2 = clock.scheduleAfter(Duration.milliseconds(50), () -> value.set(2));
                         test.assertEqual(0, value.get());
-                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(0)), clock.getCurrentDateTime());
+                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(0)), clock.getCurrentDateTime());
                         test.assertEqual(2, clock.getPausedTaskCount());
 
                         test.assertEqual(0, asyncRunner.getScheduledTaskCount());
-                        clock.advance(Duration2.milliseconds(50));
-                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(50)), clock.getCurrentDateTime());
+                        clock.advance(Duration.milliseconds(50));
+                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(50)), clock.getCurrentDateTime());
                         test.assertEqual(2, asyncRunner.getScheduledTaskCount());
 
                         asyncTask1.await();
@@ -162,31 +162,31 @@ public interface ManualClockTests
                         final ManualClock clock = createClock(asyncRunner);
                         final Value<DateTime> value = Value.create();
 
-                        final Result<Void> asyncAction1 = clock.scheduleAfter(Duration2.milliseconds(50), () -> value.set(clock.getCurrentDateTime()));
-                        final Result<Void> asyncAction2 = clock.scheduleAfter(Duration2.milliseconds(25), () -> value.set(clock.getCurrentDateTime()));
+                        final Result<Void> asyncAction1 = clock.scheduleAfter(Duration.milliseconds(50), () -> value.set(clock.getCurrentDateTime()));
+                        final Result<Void> asyncAction2 = clock.scheduleAfter(Duration.milliseconds(25), () -> value.set(clock.getCurrentDateTime()));
                         test.assertFalse(value.hasValue());
-                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(0)), clock.getCurrentDateTime());
+                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(0)), clock.getCurrentDateTime());
                         test.assertEqual(2, clock.getPausedTaskCount());
 
                         test.assertEqual(0, asyncRunner.getScheduledTaskCount());
-                        clock.advance(Duration2.milliseconds(49));
-                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(49)), clock.getCurrentDateTime());
+                        clock.advance(Duration.milliseconds(49));
+                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(49)), clock.getCurrentDateTime());
                         test.assertEqual(1, asyncRunner.getScheduledTaskCount());
 
                         asyncAction2.await();
                         test.assertTrue(value.hasValue());
-                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(49)), value.get());
+                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(49)), value.get());
                         test.assertFalse(asyncAction1.isCompleted());
                         test.assertTrue(asyncAction2.isCompleted());
 
                         test.assertEqual(0, asyncRunner.getScheduledTaskCount());
-                        clock.advance(Duration2.milliseconds(5));
-                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(54)), clock.getCurrentDateTime());
+                        clock.advance(Duration.milliseconds(5));
+                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(54)), clock.getCurrentDateTime());
                         test.assertEqual(1, asyncRunner.getScheduledTaskCount());
 
                         asyncAction1.await();
                         test.assertTrue(value.hasValue());
-                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(54)), value.get());
+                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(54)), value.get());
                         test.assertTrue(asyncAction1.isCompleted());
                         test.assertTrue(asyncAction2.isCompleted());
                     });
@@ -212,13 +212,13 @@ public interface ManualClockTests
                         final Value<Boolean> value = BooleanValue.create();
                         final DateTime startTime = clock.getCurrentDateTime();
                         clock.scheduleAt(
-                            startTime.minus(Duration2.seconds(1)),
+                            startTime.minus(Duration.seconds(1)),
                             () -> value.set(true)).await();
                         final DateTime endTime = clock.getCurrentDateTime();
-                        final Duration2 duration = endTime.minus(startTime);
+                        final Duration duration = endTime.minus(startTime);
                         test.assertTrue(value.hasValue());
                         test.assertTrue(value.get());
-                        test.assertLessThanOrEqualTo(duration, Duration2.milliseconds(20));
+                        test.assertLessThanOrEqualTo(duration, Duration.milliseconds(20));
                     });
                 });
 
@@ -233,10 +233,10 @@ public interface ManualClockTests
                             startTime,
                             () -> value.set(true)).await();
                         final DateTime endTime = clock.getCurrentDateTime();
-                        final Duration2 duration = endTime.minus(startTime);
+                        final Duration duration = endTime.minus(startTime);
                         test.assertTrue(value.hasValue());
                         test.assertTrue(value.get());
-                        test.assertLessThanOrEqualTo(duration, Duration2.milliseconds(20));
+                        test.assertLessThanOrEqualTo(duration, Duration.milliseconds(20));
                     });
                 });
 
@@ -248,22 +248,22 @@ public interface ManualClockTests
                         final Value<Boolean> value = BooleanValue.create();
 
                         final Result<Void> asyncAction = clock.scheduleAt(
-                            currentDateTime.plus(Duration2.milliseconds(50)),
+                            currentDateTime.plus(Duration.milliseconds(50)),
                             () -> value.set(true));
                         test.assertFalse(value.hasValue());
-                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(0)), clock.getCurrentDateTime());
+                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(0)), clock.getCurrentDateTime());
 
-                        clock.advance(Duration2.milliseconds(49));
+                        clock.advance(Duration.milliseconds(49));
                         test.assertFalse(value.hasValue());
-                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(49)), clock.getCurrentDateTime());
+                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(49)), clock.getCurrentDateTime());
 
                         test.assertEqual(0, asyncRunner.getScheduledTaskCount());
-                        clock.advance(Duration2.milliseconds(1));
+                        clock.advance(Duration.milliseconds(1));
                         test.assertEqual(1, asyncRunner.getScheduledTaskCount());
                         asyncAction.await();
                         test.assertTrue(value.hasValue());
                         test.assertTrue(value.get());
-                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration2.milliseconds(50)), clock.getCurrentDateTime());
+                        test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(50)), clock.getCurrentDateTime());
                         test.assertTrue(asyncAction.isCompleted());
                     });
                 });

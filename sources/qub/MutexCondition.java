@@ -13,7 +13,7 @@ public interface MutexCondition
      * @param timeout The maximum amount of time to wait for the condition to be signaled.
      * @return The result of awaiting for this condition.
      */
-    Result<Void> watch(Duration2 timeout);
+    Result<Void> watch(Duration timeout);
 
     /**
      * Release this condition's mutex and wait to be signaled that this condition is satisfied.

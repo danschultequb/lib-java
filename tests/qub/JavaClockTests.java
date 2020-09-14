@@ -18,14 +18,14 @@ public interface JavaClockTests
                 runner.test("with null Duration", (Test test) ->
                 {
                     final JavaClock clock = createClock(test);
-                    test.assertThrows(() -> clock.scheduleAfter(null, () -> {}), new PreConditionFailure("duration cannot be null."));
+                    test.assertThrows(() -> clock.scheduleAfter((Duration)null, () -> {}), new PreConditionFailure("duration cannot be null."));
                 });
 
                 runner.test("with negative Duration", (Test test) ->
                 {
                     final JavaClock clock = createClock(test);
                     final Value<Boolean> value = Value.create();
-                    clock.scheduleAfter(Duration2.seconds(-5), () -> value.set(true)).await();
+                    clock.scheduleAfter(Duration.seconds(-5), () -> value.set(true)).await();
                     test.assertTrue(value.hasValue());
                     test.assertTrue(value.get());
                 });
@@ -35,7 +35,7 @@ public interface JavaClockTests
                 {
                     final JavaClock clock = createClock(test);
                     final Value<Boolean> value = Value.create();
-                    clock.scheduleAfter(Duration2.seconds(0), () -> value.set(true)).await();
+                    clock.scheduleAfter(Duration.seconds(0), () -> value.set(true)).await();
                     test.assertTrue(value.hasValue());
                     test.assertTrue(value.get());
                 });
@@ -45,13 +45,13 @@ public interface JavaClockTests
                     final JavaClock clock = createClock(test);
                     final Value<Boolean> value = Value.create();
                     final DateTime startTime = clock.getCurrentDateTime();
-                    final Duration2 delay = Duration2.milliseconds(50);
+                    final Duration delay = Duration.milliseconds(50);
                     clock.scheduleAfter(delay, () -> value.set(true)).await();
                     final DateTime endTime = clock.getCurrentDateTime();
-                    final Duration2 duration = endTime.minus(startTime);
+                    final Duration duration = endTime.minus(startTime);
                     test.assertTrue(value.hasValue());
                     test.assertTrue(value.get());
-                    test.assertGreaterThanOrEqualTo(duration, delay, Duration2.microseconds(1));
+                    test.assertGreaterThanOrEqualTo(duration, delay, Duration.microseconds(1));
                 });
             });
 
@@ -77,13 +77,13 @@ public interface JavaClockTests
                     final Value<Boolean> value = Value.create();
                     final DateTime startTime = clock.getCurrentDateTime();
                     clock.scheduleAt(
-                        startTime.minus(Duration2.seconds(1)),
+                        startTime.minus(Duration.seconds(1)),
                         () -> value.set(true)).await();
                     final DateTime endTime = clock.getCurrentDateTime();
-                    final Duration2 duration = endTime.minus(startTime);
+                    final Duration duration = endTime.minus(startTime);
                     test.assertTrue(value.hasValue());
                     test.assertTrue(value.get());
-                    test.assertLessThanOrEqualTo(duration, Duration2.milliseconds(50));
+                    test.assertLessThanOrEqualTo(duration, Duration.milliseconds(50));
                 });
 
                 runner.test("with DateTime \"at\" now", (Test test) ->
@@ -95,10 +95,10 @@ public interface JavaClockTests
                         startTime,
                         () -> value.set(true)).await();
                     final DateTime endTime = clock.getCurrentDateTime();
-                    final Duration2 duration = endTime.minus(startTime);
+                    final Duration duration = endTime.minus(startTime);
                     test.assertTrue(value.hasValue());
                     test.assertTrue(value.get());
-                    test.assertLessThanOrEqualTo(duration, Duration2.milliseconds(30));
+                    test.assertLessThanOrEqualTo(duration, Duration.milliseconds(30));
                 });
 
                 runner.test("with Datetime after now", (Test test) ->
@@ -106,15 +106,15 @@ public interface JavaClockTests
                     final JavaClock clock = createClock(test);
                     final Value<Boolean> value = Value.create();
                     final DateTime startTime = clock.getCurrentDateTime();
-                    final Duration2 delay = Duration2.milliseconds(50);
+                    final Duration delay = Duration.milliseconds(50);
                     clock.scheduleAt(
                         startTime.plus(delay),
                         () -> value.set(true)).await();
                     final DateTime endTime = clock.getCurrentDateTime();
-                    final Duration2 duration = endTime.minus(startTime);
+                    final Duration duration = endTime.minus(startTime);
                     test.assertTrue(value.hasValue());
                     test.assertTrue(value.get());
-                    test.assertGreaterThanOrEqualTo(duration, delay, Duration2.microseconds(1));
+                    test.assertGreaterThanOrEqualTo(duration, delay, Duration.microseconds(1));
                 });
             });
         });

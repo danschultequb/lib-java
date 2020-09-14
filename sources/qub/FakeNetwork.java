@@ -31,7 +31,7 @@ public class FakeNetwork implements Network
     }
 
     @Override
-    public Result<FakeTCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, Duration2 timeout)
+    public Result<FakeTCPClient> createTCPClient(IPv4Address remoteIPAddress, int remotePort, Duration timeout)
     {
         Network.validateRemoteIPAddress(remoteIPAddress);
         Network.validateRemotePort(remotePort);

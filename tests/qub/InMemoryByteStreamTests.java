@@ -367,7 +367,7 @@ public interface InMemoryByteStreamTests
                 });
 
                 final int byteCount = 500000;
-                runner.speedTest("with " + byteCount + " bytes", Duration2.milliseconds(100), (Test test) ->
+                runner.speedTest("with " + byteCount + " bytes", Duration.milliseconds(100), (Test test) ->
                 {
                     final InMemoryByteStream innerStream = InMemoryByteStream.create();
                     final BufferedByteWriteStream writeStream = ByteWriteStream.buffer(innerStream);

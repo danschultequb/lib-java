@@ -509,7 +509,7 @@ public class Distance implements ComparableWithError<Distance>
         return result;
     }
 
-    public Speed dividedBy(Duration2 rhs)
+    public Speed dividedBy(Duration rhs)
     {
         PreCondition.assertNotNull(rhs, "rhs");
         PreCondition.assertNotEqual(0, rhs.getValue(), "rhs.getValue()");

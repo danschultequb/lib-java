@@ -3,13 +3,14 @@ package qub;
 /**
  * A period of time.
  */
+@Deprecated
 public interface Duration2 extends ComparableWithError<Duration2>
 {
     Duration2 zero = Duration2.seconds(0);
     
     static Duration2 create(double value, DurationUnit units)
     {
-        return BasicDuration.create(value, units);
+        return BasicDuration2.create(value, units);
     }
 
     static Duration2 nanoseconds(double value)

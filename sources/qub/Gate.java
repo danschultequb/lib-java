@@ -45,10 +45,10 @@ public interface Gate
      *                to open.
      * @return Whether or not this thread successfully passed through this Gate.
      */
-    default Result<Void> passThrough(Duration2 timeout)
+    default Result<Void> passThrough(Duration timeout)
     {
         PreCondition.assertNotNull(timeout, "timeout");
-        PreCondition.assertGreaterThan(timeout, Duration2.zero, "timeout");
+        PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
         PreCondition.assertNotNull(getClock(), "getClock()");
 
         final DateTime dateTimeTimeout = getClock().getCurrentDateTime().plus(timeout);

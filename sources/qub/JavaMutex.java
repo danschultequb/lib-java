@@ -36,10 +36,10 @@ public class JavaMutex implements Mutex
     }
 
     @Override
-    public Result<Void> acquire(Duration2 durationTimeout)
+    public Result<Void> acquire(Duration durationTimeout)
     {
         PreCondition.assertNotNull(durationTimeout, "durationTimeout");
-        PreCondition.assertGreaterThan(durationTimeout, Duration2.zero, "durationTimeout");
+        PreCondition.assertGreaterThan(durationTimeout, Duration.zero, "durationTimeout");
         PreCondition.assertNotNull(this.clock, "this.clock");
 
         return this.acquire(this.clock.getCurrentDateTime().plus(durationTimeout));
