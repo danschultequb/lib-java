@@ -86,7 +86,7 @@ public class File extends FileSystemEntry
      * Get the content data size of this file.
      * @return The content data size of this file.
      */
-    public Result<DataSize> getContentDataSize()
+    public Result<DataSize> getContentsDataSize()
     {
         return this.getFileSystem().getFileContentDataSize(this.getPath());
     }
@@ -95,10 +95,10 @@ public class File extends FileSystemEntry
      * Get a ByteReadStream to this file's contents.
      * @return A ByteReadStream to this file's contents.
      */
-    public Result<CharacterToByteReadStream> getContentReadStream()
+    public Result<CharacterToByteReadStream> getContentsReadStream()
     {
-        final FileSystem fileSystem = getFileSystem();
-        final Path path = getPath();
+        final FileSystem fileSystem = this.getFileSystem();
+        final Path path = this.getPath();
         return fileSystem.getFileContentReadStream(path);
     }
 
@@ -106,18 +106,36 @@ public class File extends FileSystemEntry
      * Get a ByteWriteStream to this file's contents.
      * @return A ByteWriteStream to this file's contents.
      */
-    public Result<BufferedByteWriteStream> getContentByteWriteStream()
+    public Result<BufferedByteWriteStream> getContentsByteWriteStream()
     {
-        return this.getFileSystem().getFileContentsByteWriteStream(getPath());
+        return this.getFileSystem().getFileContentsByteWriteStream(this.getPath());
+    }
+
+    /**
+     * Get a ByteWriteStream to this file's contents.
+     * @return A ByteWriteStream to this file's contents.
+     */
+    public Result<BufferedByteWriteStream> getContentsByteWriteStream(OpenWriteType openWriteType)
+    {
+        return this.getFileSystem().getFileContentsByteWriteStream(this.getPath(), openWriteType);
     }
 
     /**
      * Get a CharacterWriteStream to this file's contents.
      * @return A CharacterWriteStream to this file's contents.
      */
-    public Result<CharacterToByteWriteStream> getContentCharacterWriteStream()
+    public Result<CharacterToByteWriteStream> getContentsCharacterWriteStream()
     {
-        return this.getFileSystem().getFileContentsCharacterWriteStream(getPath());
+        return this.getFileSystem().getFileContentsCharacterWriteStream(this.getPath());
+    }
+
+    /**
+     * Get a CharacterWriteStream to this file's contents.
+     * @return A CharacterWriteStream to this file's contents.
+     */
+    public Result<CharacterToByteWriteStream> getContentsCharacterWriteStream(OpenWriteType openWriteType)
+    {
+        return this.getFileSystem().getFileContentsCharacterWriteStream(this.getPath(), openWriteType);
     }
 
     public Result<byte[]> getContents()

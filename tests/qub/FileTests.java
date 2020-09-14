@@ -150,7 +150,7 @@ public interface FileTests
                 runner.test("when file doesn't exist", (Test test) ->
                 {
                     final File file = FileTests.getFile(test);
-                    test.assertThrows(() -> file.getContentDataSize().await(),
+                    test.assertThrows(() -> file.getContentsDataSize().await(),
                         new FileNotFoundException(file.getPath()));
                 });
 
@@ -158,14 +158,14 @@ public interface FileTests
                 {
                     final File file = FileTests.getFile(test);
                     file.setContentsAsString("").await();
-                    test.assertEqual(DataSize.zero, file.getContentDataSize().await());
+                    test.assertEqual(DataSize.zero, file.getContentsDataSize().await());
                 });
 
                 runner.test("when file is not empty", (Test test) ->
                 {
                     final File file = FileTests.getFile(test);
                     file.setContentsAsString("hello there").await();
-                    test.assertEqual(DataSize.bytes(11), file.getContentDataSize().await());
+                    test.assertEqual(DataSize.bytes(11), file.getContentsDataSize().await());
                 });
             });
 
@@ -190,7 +190,7 @@ public interface FileTests
                 runner.test("with non-existing file", (Test test) ->
                 {
                     final File file = getFile(test);
-                    test.assertThrows(() -> file.getContentReadStream().await(),
+                    test.assertThrows(() -> file.getContentsReadStream().await(),
                         new FileNotFoundException("/A"));
                 });
             });
