@@ -33,7 +33,18 @@ public interface Math {
      */
     static long minimum(long lhs, long rhs)
     {
-        return java.lang.Math.max(lhs, rhs);
+        return java.lang.Math.min(lhs, rhs);
+    }
+
+    /**
+     * Get the minimum value between the two provided doubles.
+     * @param lhs The first value.
+     * @param rhs The second value.
+     * @return The minimum value between the two provided doubles.
+     */
+    static double minimum(double lhs, double rhs)
+    {
+        return java.lang.Math.min(lhs, rhs);
     }
 
     /**
@@ -43,6 +54,17 @@ public interface Math {
      * @return The minimum value between the two provided integers.
      */
     static int maximum(int lhs, int rhs)
+    {
+        return java.lang.Math.max(lhs, rhs);
+    }
+
+    /**
+     * Get the maximum value between the two provided longs.
+     * @param lhs The first value.
+     * @param rhs The second value.
+     * @return The minimum value between the two provided longs.
+     */
+    static long maximum(long lhs, long rhs)
     {
         return java.lang.Math.max(lhs, rhs);
     }

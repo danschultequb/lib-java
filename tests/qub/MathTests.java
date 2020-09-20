@@ -6,26 +6,112 @@ public interface MathTests
     {
         runner.testGroup(Math.class, () ->
         {
-            runner.test("minimum()", (Test test) ->
+            runner.testGroup("minimum(int,int)", () ->
             {
-                test.assertEqual(-10, Math.minimum(-10, -5));
-                test.assertEqual(-10, Math.minimum(-5, -10));
+                final Action3<Integer,Integer,Integer> minimumTest = (Integer lhs, Integer rhs, Integer expected) ->
+                {
+                    runner.test("with " + English.andList(lhs, rhs), (Test test) ->
+                    {
+                        test.assertEqual(expected, Math.minimum(lhs, rhs));
+                    });
+                };
 
-                test.assertEqual(-3, Math.minimum(-3, -3));
-
-                test.assertEqual(-1, Math.minimum(-1, 0));
-                test.assertEqual(-1, Math.minimum(0, -1));
+                minimumTest.run(-10, -5, -10);
+                minimumTest.run(-5, -10, -10);
+                minimumTest.run(-3, -3, -3);
+                minimumTest.run(-1, 0, -1);
+                minimumTest.run(0, -1, -1);
+                minimumTest.run(50, 100, 50);
             });
-            
-            runner.test("maximum()", (Test test) ->
+
+            runner.testGroup("minimum(long,long)", () ->
             {
-                test.assertEqual(-5, Math.maximum(-10, -5));
-                test.assertEqual(-5, Math.maximum(-5, -10));
+                final Action3<Long,Long,Long> minimumTest = (Long lhs, Long rhs, Long expected) ->
+                {
+                    runner.test("with " + English.andList(lhs, rhs), (Test test) ->
+                    {
+                        test.assertEqual(expected, Math.minimum(lhs, rhs));
+                    });
+                };
 
-                test.assertEqual(-3, Math.maximum(-3, -3));
+                minimumTest.run(-10L, -5L, -10L);
+                minimumTest.run(-5L, -10L, -10L);
+                minimumTest.run(-3L, -3L, -3L);
+                minimumTest.run(-1L, 0L, -1L);
+                minimumTest.run(0L, -1L, -1L);
+                minimumTest.run(50L, 100L, 50L);
+            });
 
-                test.assertEqual(0, Math.maximum(-1, 0));
-                test.assertEqual(0, Math.maximum(0, -1));
+            runner.testGroup("minimum(double,double)", () ->
+            {
+                final Action3<Double,Double,Double> minimumTest = (Double lhs, Double rhs, Double expected) ->
+                {
+                    runner.test("with " + English.andList(lhs, rhs), (Test test) ->
+                    {
+                        test.assertEqual(expected, Math.minimum(lhs, rhs));
+                    });
+                };
+
+                minimumTest.run(-10.0, -5.0, -10.0);
+                minimumTest.run(-5.0, -10.0, -10.0);
+                minimumTest.run(-3.0, -3.0, -3.0);
+                minimumTest.run(-1.0, 0.0, -1.0);
+                minimumTest.run(0.0, -1.0, -1.0);
+                minimumTest.run(50.0, 100.0, 50.0);
+            });
+
+            runner.testGroup("maximum(int,int)", () ->
+            {
+                final Action3<Integer,Integer,Integer> maximumTest = (Integer lhs, Integer rhs, Integer expected) ->
+                {
+                    runner.test("with " + English.andList(lhs, rhs), (Test test) ->
+                    {
+                        test.assertEqual(expected, Math.maximum(lhs, rhs));
+                    });
+                };
+
+                maximumTest.run(-10, -5, -5);
+                maximumTest.run(-5, -10, -5);
+                maximumTest.run(-3, -3, -3);
+                maximumTest.run(-1, 0, 0);
+                maximumTest.run(0, -1, 0);
+                maximumTest.run(50, 100, 100);
+            });
+
+            runner.testGroup("maximum(long,long)", () ->
+            {
+                final Action3<Long,Long,Long> maximumTest = (Long lhs, Long rhs, Long expected) ->
+                {
+                    runner.test("with " + English.andList(lhs, rhs), (Test test) ->
+                    {
+                        test.assertEqual(expected, Math.maximum(lhs, rhs));
+                    });
+                };
+
+                maximumTest.run(-10L, -5L, -5L);
+                maximumTest.run(-5L, -10L, -5L);
+                maximumTest.run(-3L, -3L, -3L);
+                maximumTest.run(-1L, 0L, 0L);
+                maximumTest.run(0L, -1L, 0L);
+                maximumTest.run(50L, 100L, 100L);
+            });
+
+            runner.testGroup("maximum(double,double)", () ->
+            {
+                final Action3<Double,Double,Double> maximumTest = (Double lhs, Double rhs, Double expected) ->
+                {
+                    runner.test("with " + English.andList(lhs, rhs), (Test test) ->
+                    {
+                        test.assertEqual(expected, Math.maximum(lhs, rhs));
+                    });
+                };
+
+                maximumTest.run(-10.0, -5.0, -5.0);
+                maximumTest.run(-5.0, -10.0, -5.0);
+                maximumTest.run(-3.0, -3.0, -3.0);
+                maximumTest.run(-1.0, 0.0, 0.0);
+                maximumTest.run(0.0, -1.0, 0.0);
+                maximumTest.run(50.0, 100.0, 100.0);
             });
 
             runner.testGroup("clip(int,int,int)", () ->
