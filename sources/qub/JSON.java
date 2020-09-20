@@ -466,6 +466,44 @@ public interface JSON
     }
 
     /**
+     * Parse a JSONArray from the provided File's content.
+     * @param file The file to parse.
+     * @return The JSONArray parsed from the provided File's content.
+     */
+    static Result<JSONArray> parseArray(File file)
+    {
+        PreCondition.assertNotNull(file, "file");
+
+        return Result.createUsing(
+            () -> ByteReadStream.buffer(file.getContentsReadStream().await()),
+            (ByteReadStream byteReadStream) -> JSON.parseArray(byteReadStream).await());
+    }
+
+    /**
+     * Parse a JSONArray from the provided bytes.
+     * @param bytes The bytes to parse into a JSONArray.
+     * @return The parsed JSONArray.
+     */
+    static Result<JSONArray> parseArray(ByteReadStream bytes)
+    {
+        PreCondition.assertNotNull(bytes, "bytes");
+
+        return JSON.parseArray(CharacterReadStream.create(bytes));
+    }
+
+    /**
+     * Parse a JSONArray from the provided characters.
+     * @param characters The characters to parse into a JSONArray.
+     * @return The parsed JSONArray.
+     */
+    static Result<JSONArray> parseArray(CharacterReadStream characters)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+
+        return JSON.parseArray(CharacterReadStreamIterator.create(characters));
+    }
+
+    /**
      * Parse a JSONArray from the provided text.
      * @param text The text to parse into a JSONArray.
      * @return The parsed JSONArray.
