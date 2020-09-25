@@ -1,6 +1,6 @@
 package qub;
 
-public interface Disposable extends AutoCloseable
+public interface Disposable extends java.lang.AutoCloseable
 {
     /**
      * Create a new DisposableList that will wrap around the provided disposables.
@@ -13,12 +13,12 @@ public interface Disposable extends AutoCloseable
 
     /**
      * Create a new Disposable that will invoke the provided action when it is disposed.
-     * @param onDisposed The action to invoke when the returned Disposable is disposed.
+     * @param onDispose The action to invoke when the returned Disposable is disposed.
      * @return The new Disposable.
      */
-    static Disposable create(Action0 onDisposed)
+    static Disposable create(Action0 onDispose)
     {
-        return BasicDisposable.create(onDisposed);
+        return BasicDisposable.create(onDispose);
     }
 
     @Override

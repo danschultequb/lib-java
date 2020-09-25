@@ -52,4 +52,33 @@ public class ObjectValue<T> implements Value<T>
         this.hasValue = false;
         return this;
     }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean equals(Object rhs)
+    {
+        final boolean result;
+        if (rhs instanceof Value)
+        {
+            result = this.equals((Value<T>)rhs);
+        }
+        else
+        {
+            result = this.hasValue() && Comparer.equal(this.get(), rhs);
+        }
+        return result;
+    }
+
+    public boolean equals(Value<T> rhs)
+    {
+        return rhs != null &&
+            this.hasValue() == rhs.hasValue() &&
+            (!hasValue() || Comparer.equal(this.get(), rhs.get()));
+    }
+
+    @Override
+    public String toString()
+    {
+        return !this.hasValue() ? "no value" : Objects.toString(this.get());
+    }
 }

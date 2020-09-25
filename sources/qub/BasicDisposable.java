@@ -6,17 +6,17 @@ package qub;
 public class BasicDisposable implements Disposable
 {
     private boolean disposed;
-    private final Action0 onDisposed;
+    private final Action0 onDispose;
 
     /**
      * Create a new BasicDisposable that will run the provided action when it is disposed.
-     * @param onDisposed The action to run when the BasicDisposable is disposed.
+     * @param onDispose The action to run when the BasicDisposable is disposed.
      */
-    private BasicDisposable(Action0 onDisposed)
+    private BasicDisposable(Action0 onDispose)
     {
-        PreCondition.assertNotNull(onDisposed, "onDisposed");
+        PreCondition.assertNotNull(onDispose, "onDispose");
 
-        this.onDisposed = onDisposed;
+        this.onDispose = onDispose;
     }
 
     /**
@@ -29,11 +29,11 @@ public class BasicDisposable implements Disposable
 
     /**
      * Create a new BasicDisposable that will run the provided action when it is disposed.
-     * @param onDisposed The action to run when the BasicDisposable is disposed.
+     * @param onDispose The action to run when the BasicDisposable is disposed.
      */
-    public static BasicDisposable create(Action0 onDisposed)
+    public static BasicDisposable create(Action0 onDispose)
     {
-        return new BasicDisposable(onDisposed);
+        return new BasicDisposable(onDispose);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class BasicDisposable implements Disposable
             if (result)
             {
                 this.disposed = true;
-                this.onDisposed.run();
+                this.onDispose.run();
             }
             return result;
         });
