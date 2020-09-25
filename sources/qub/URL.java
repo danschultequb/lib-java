@@ -12,8 +12,13 @@ public class URL
     private final MutableMap<String,String> query = Map.create();
     private String fragment;
 
-    URL()
+    private URL()
     {
+    }
+
+    public static URL create()
+    {
+        return new URL();
     }
 
     /**
@@ -45,9 +50,10 @@ public class URL
      * Set the scheme (or protocol) of this URL.
      * @param scheme The scheme (or protocol) of this URL.
      */
-    public void setScheme(String scheme)
+    public URL setScheme(String scheme)
     {
         this.scheme = Strings.isNullOrEmpty(scheme) ? null : scheme;
+        return this;
     }
 
     /**
@@ -63,9 +69,10 @@ public class URL
      * Set the host of this URL.
      * @param host The host of this URL.
      */
-    public void setHost(String host)
+    public URL setHost(String host)
     {
         this.host = Strings.isNullOrEmpty(host) ? null : host;
+        return this;
     }
 
     /**
@@ -81,9 +88,10 @@ public class URL
      * Set the port of this URL.
      * @param port The port of this URL.
      */
-    public void setPort(Integer port)
+    public URL setPort(Integer port)
     {
         this.port = port;
+        return this;
     }
 
     /**
@@ -99,9 +107,10 @@ public class URL
      * Set the path of this URL.
      * @param path The path of this URL.
      */
-    public void setPath(String path)
+    public URL setPath(String path)
     {
         this.path = Strings.isNullOrEmpty(path) ? null : path;
+        return this;
     }
 
     /**
@@ -147,7 +156,7 @@ public class URL
      * Set the query string of this URL.
      * @param queryString The query string of this URL.
      */
-    public void setQuery(String queryString)
+    public URL setQuery(String queryString)
     {
         this.query.clear();
         if (!Strings.isNullOrEmpty(queryString))
@@ -213,6 +222,7 @@ public class URL
                 }
             }
         }
+        return this;
     }
 
     /**
@@ -232,11 +242,13 @@ public class URL
      * @param queryParameterName The name of the query parameter.
      * @param queryParameterValue The value of the query parameter.
      */
-    public void setQueryParameter(String queryParameterName, String queryParameterValue)
+    public URL setQueryParameter(String queryParameterName, String queryParameterValue)
     {
         PreCondition.assertNotNullAndNotEmpty(queryParameterName, "queryParameterName");
 
         query.set(queryParameterName, queryParameterValue);
+
+        return this;
     }
 
     /**
@@ -252,9 +264,10 @@ public class URL
      * Set the fragment of this URL.
      * @param fragment The fragment of this URL.
      */
-    public void setFragment(String fragment)
+    public URL setFragment(String fragment)
     {
         this.fragment = Strings.isNullOrEmpty(fragment) ? null : fragment;
+        return this;
     }
 
     @Override
