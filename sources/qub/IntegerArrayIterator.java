@@ -39,7 +39,7 @@ public class IntegerArrayIterator implements Iterator<Integer>
     @Override
     public Integer getCurrent()
     {
-        PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
+        PreCondition.assertTrue(this.hasCurrent(), "this.hasCurrent()");
 
         return values[currentIndex];
     }

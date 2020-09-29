@@ -305,12 +305,12 @@ public interface IterableTests
                         test.assertNotNull(iterator);
                         test.assertFalse(iterator.hasStarted());
                         test.assertFalse(iterator.hasCurrent());
-                        test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
+                        test.assertThrows(iterator::getCurrent, new PreConditionFailure("this.hasCurrent() cannot be false."));
 
                         test.assertFalse(iterator.next());
                         test.assertTrue(iterator.hasStarted());
                         test.assertFalse(iterator.hasCurrent());
-                        test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
+                        test.assertThrows(iterator::getCurrent, new PreConditionFailure("this.hasCurrent() cannot be false."));
                     }
                 });
                 
@@ -321,7 +321,7 @@ public interface IterableTests
                     test.assertNotNull(iterator);
                     test.assertFalse(iterator.hasStarted());
                     test.assertFalse(iterator.hasCurrent());
-                    test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
+                    test.assertThrows(iterator::getCurrent, new PreConditionFailure("this.hasCurrent() cannot be false."));
 
                     for (int i = 0; i < iterable.getCount(); ++i) {
                         test.assertTrue(iterator.next());
@@ -333,7 +333,7 @@ public interface IterableTests
                     test.assertFalse(iterator.next());
                     test.assertTrue(iterator.hasStarted());
                     test.assertFalse(iterator.hasCurrent());
-                    test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
+                    test.assertThrows(iterator::getCurrent, new PreConditionFailure("this.hasCurrent() cannot be false."));
                 });
             });
             

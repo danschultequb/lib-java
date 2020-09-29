@@ -38,7 +38,7 @@ public class CharacterArrayIterator implements Iterator<Character>
     @Override
     public Character getCurrent()
     {
-        PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
+        PreCondition.assertTrue(this.hasCurrent(), "this.hasCurrent()");
 
         return characters[currentIndex];
     }

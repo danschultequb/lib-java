@@ -38,9 +38,9 @@ public class ByteArrayIterator implements Iterator<Byte>
     @Override
     public Byte getCurrent()
     {
-        PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
+        PreCondition.assertTrue(this.hasCurrent(), "this.hasCurrent()");
 
-        return bytes[currentIndex];
+        return this.bytes[this.currentIndex];
     }
 
     @Override

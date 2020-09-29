@@ -50,8 +50,6 @@ class InstanceOfIterator<TInner,TOuter> implements Iterator<TOuter>
     @SuppressWarnings("unchecked")
     public TOuter getCurrent()
     {
-        PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
-
         return (TOuter)innerIterator.getCurrent();
     }
 

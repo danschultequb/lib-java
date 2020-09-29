@@ -2,7 +2,7 @@ package qub;
 
 public interface IteratorTests
 {
-    static void test(final TestRunner runner, final Function2<Integer,Boolean,Iterator<Integer>> createIterator)
+    static void test(TestRunner runner, Function2<Integer,Boolean,Iterator<Integer>> createIterator)
     {
         runner.testGroup(Iterator.class, () ->
         {
@@ -42,7 +42,7 @@ public interface IteratorTests
                 runner.test("with empty non-started Iterator", (Test test) ->
                 {
                     final Iterator<Integer> iterator = createIterator.run(0, false);
-                    test.assertThrows(iterator::takeCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
+                    test.assertThrows(iterator::takeCurrent, new PreConditionFailure("this.hasCurrent() cannot be false."));
                     assertIterator(test, iterator, false, null);
                 });
             });
@@ -1402,7 +1402,7 @@ public interface IteratorTests
         test.assertEqual(expectedCurrent != null, iterator.hasCurrent(), "Wrong hasCurrent()");
         if (expectedCurrent == null)
         {
-            test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
+            test.assertThrows(iterator::getCurrent, new PreConditionFailure("this.hasCurrent() cannot be false."));
         }
         else
         {

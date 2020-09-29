@@ -39,7 +39,7 @@ public class ObjectArrayIterator<T> implements Iterator<T>
     @Override
     public T getCurrent()
     {
-        PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
+        PreCondition.assertTrue(this.hasCurrent(), "this.hasCurrent()");
 
         return values[currentIndex];
     }

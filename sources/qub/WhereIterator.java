@@ -35,14 +35,14 @@ class WhereIterator<T> implements Iterator<T>
     @Override
     public boolean hasCurrent()
     {
-        skipToMatch();
+        this.skipToMatch();
         return innerIterator.hasCurrent();
     }
 
     @Override
     public T getCurrent()
     {
-        skipToMatch();
+        this.skipToMatch();
         return innerIterator.getCurrent();
     }
 

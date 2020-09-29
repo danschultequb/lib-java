@@ -26,7 +26,7 @@ public class SingleLinkNodeIterator<T> implements Iterator<T>
     @Override
     public T getCurrent()
     {
-        PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
+        PreCondition.assertTrue(this.hasCurrent(), "this.hasCurrent()");
 
         return currentNode.getValue();
     }

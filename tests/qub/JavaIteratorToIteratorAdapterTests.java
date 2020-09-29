@@ -70,7 +70,7 @@ public interface JavaIteratorToIteratorAdapterTests
         if (expectedCurrentValue == null)
         {
             test.assertThrows(iterator::getCurrent,
-                new PreConditionFailure("hasCurrent() cannot be false."));
+                new PreConditionFailure("this.hasCurrent() cannot be false."));
         }
         else
         {

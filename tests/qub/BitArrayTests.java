@@ -916,7 +916,7 @@ public interface BitArrayTests
                         test.assertNotNull(iterator);
                         test.assertFalse(iterator.hasStarted());
                         test.assertFalse(iterator.hasCurrent());
-                        test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
+                        test.assertThrows(iterator::getCurrent, new PreConditionFailure("this.hasCurrent() cannot be false."));
 
                         for (int expectedBit : expectedBits)
                         {
@@ -931,7 +931,7 @@ public interface BitArrayTests
                             test.assertFalse(iterator.next());
                             test.assertTrue(iterator.hasStarted());
                             test.assertFalse(iterator.hasCurrent());
-                            test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
+                            test.assertThrows(iterator::getCurrent, new PreConditionFailure("this.hasCurrent() cannot be false."));
                         }
                     });
                 };
@@ -992,7 +992,7 @@ public interface BitArrayTests
                         test.assertNotNull(integers);
                         test.assertFalse(integers.hasStarted());
                         test.assertFalse(integers.hasCurrent());
-                        test.assertThrows(integers::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
+                        test.assertThrows(integers::getCurrent, new PreConditionFailure("this.hasCurrent() cannot be false."));
 
                         for (final int expectedInteger : expectedIntegers)
                         {
@@ -1008,7 +1008,7 @@ public interface BitArrayTests
                             test.assertFalse(integers.next());
                             test.assertTrue(integers.hasStarted());
                             test.assertFalse(integers.hasCurrent());
-                            test.assertThrows(integers::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
+                            test.assertThrows(integers::getCurrent, new PreConditionFailure("this.hasCurrent() cannot be false."));
                         }
                     });
                 };

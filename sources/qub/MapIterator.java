@@ -35,8 +35,6 @@ class MapIterator<TInner,TOuter> implements Iterator<TOuter>
     @Override
     public TOuter getCurrent()
     {
-        PreCondition.assertTrue(hasCurrent(), "hasCurrent()");
-
         return conversion.run(innerIterator.getCurrent());
     }
 

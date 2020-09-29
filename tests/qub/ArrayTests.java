@@ -215,12 +215,12 @@ public interface ArrayTests
                     final Iterator<Integer> iterator = array.iterateReverse();
                     test.assertFalse(iterator.hasStarted());
                     test.assertFalse(iterator.hasCurrent());
-                    test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
+                    test.assertThrows(iterator::getCurrent, new PreConditionFailure("this.hasCurrent() cannot be false."));
 
                     test.assertFalse(iterator.next());
                     test.assertTrue(iterator.hasStarted());
                     test.assertFalse(iterator.hasCurrent());
-                    test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
+                    test.assertThrows(iterator::getCurrent, new PreConditionFailure("this.hasCurrent() cannot be false."));
                 });
 
                 runner.test("with non-empty Array", (Test test) ->
@@ -233,7 +233,7 @@ public interface ArrayTests
                     final Iterator<Integer> iterator = array.iterateReverse();
                     test.assertFalse(iterator.hasStarted());
                     test.assertFalse(iterator.hasCurrent());
-                    test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
+                    test.assertThrows(iterator::getCurrent, new PreConditionFailure("this.hasCurrent() cannot be false."));
 
                     for (int i = 9; i >= 0; --i)
                     {
@@ -246,7 +246,7 @@ public interface ArrayTests
                     test.assertFalse(iterator.next());
                     test.assertTrue(iterator.hasStarted());
                     test.assertFalse(iterator.hasCurrent());
-                    test.assertThrows(iterator::getCurrent, new PreConditionFailure("hasCurrent() cannot be false."));
+                    test.assertThrows(iterator::getCurrent, new PreConditionFailure("this.hasCurrent() cannot be false."));
                 });
             });
 
