@@ -98,4 +98,37 @@ public interface English
     {
         return English.andList(Iterable.create(values));
     }
+
+    /**
+     * Get the String representation of the provided value with its ordinal indicator (-st, -nd, -rd, or -th) added to
+     * the end.
+     * @param value The value to get the String representation of.
+     * @return The String reprensentation of the provided value with its ordinal indocator added to the end.
+     */
+    static String addOrdinalIndicator(int value)
+    {
+        String result = Integers.toString(value);
+        switch (Math.absoluteValue(value))
+        {
+            case 1:
+                result += "st";
+                break;
+
+            case 2:
+                result += "nd";
+                break;
+
+            case 3:
+                result += "rd";
+                break;
+
+            default:
+                result += "th";
+                break;
+        }
+
+        PostCondition.assertNotNullAndNotEmpty(result, "result");
+
+        return result;
+    }
 }

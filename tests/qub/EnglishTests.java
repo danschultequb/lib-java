@@ -135,6 +135,31 @@ public interface EnglishTests
                     test.assertEqual("a, b, or 5", English.orList("a", "b", 5));
                 });
             });
+
+            runner.testGroup("addOrdinalIndicator(int)", () ->
+            {
+                final Action2<Integer,String> addOrdinalIndicatorTest = (Integer value, String expected) ->
+                {
+                    runner.test("with " + value, (Test test) ->
+                    {
+                        test.assertEqual(expected, English.addOrdinalIndicator(value));
+                    });
+                };
+
+                addOrdinalIndicatorTest.run(0, "0th");
+                addOrdinalIndicatorTest.run(1, "1st");
+                addOrdinalIndicatorTest.run(2, "2nd");
+                addOrdinalIndicatorTest.run(3, "3rd");
+                addOrdinalIndicatorTest.run(4, "4th");
+                addOrdinalIndicatorTest.run(5, "5th");
+
+                addOrdinalIndicatorTest.run(-0, "0th");
+                addOrdinalIndicatorTest.run(-1, "-1st");
+                addOrdinalIndicatorTest.run(-2, "-2nd");
+                addOrdinalIndicatorTest.run(-3, "-3rd");
+                addOrdinalIndicatorTest.run(-4, "-4th");
+                addOrdinalIndicatorTest.run(-5, "-5th");
+            });
         });
     }
 }

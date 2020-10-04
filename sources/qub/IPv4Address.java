@@ -95,7 +95,7 @@ public class IPv4Address
 
             if (characters.hasCurrent())
             {
-                throw new ParseException("Expected an IPv4 address to end after the fourth value, but found " + Strings.escapeAndQuote(Characters.join(characters.toList())) + " instead.");
+                throw new ParseException("Expected an IPv4 address to end after the 4th value, but found " + Strings.escapeAndQuote(Characters.join(characters.toList())) + " instead.");
             }
 
             return IPv4Address.create(value1, value2, value3, value4);
@@ -112,7 +112,7 @@ public class IPv4Address
         {
             if (!characters.hasCurrent())
             {
-                throw new ParseException("Missing " + valueNumber + " value.");
+                throw new ParseException("Missing " + English.addOrdinalIndicator(valueNumber) + " value.");
             }
             else if (!Characters.isDigit(characters.getCurrent()))
             {
@@ -131,7 +131,7 @@ public class IPv4Address
 
             if (result < 0 || 255 < result)
             {
-                throw new ParseException("Expected " + valueNumber + " value to be between 0 and 255, but found " + valueText.toString() + " instead.");
+                throw new ParseException("Expected " + English.addOrdinalIndicator(valueNumber) + " value to be between 0 and 255, but found " + valueText.toString() + " instead.");
             }
 
             PostCondition.assertBetween(0, result, 255, "result");
@@ -150,7 +150,7 @@ public class IPv4Address
         {
             if (!characters.hasCurrent())
             {
-                throw new ParseException("Missing " + periodNumber + " period ('.').");
+                throw new ParseException("Missing " + English.addOrdinalIndicator(periodNumber) + " period ('.').");
             }
             else if (characters.getCurrent() != '.')
             {

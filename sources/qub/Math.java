@@ -3,7 +3,38 @@ package qub;
 /**
  * A collection of math related functions and function objects.
  */
-public interface Math {
+public interface Math
+{
+    /**
+     * Get the absolute (positive) value of the provided value.
+     * @param value The value to get the absolute (positive) value for.
+     * @return The absolute (positive) value of the provided value.
+     */
+    static int absoluteValue(int value)
+    {
+        return java.lang.Math.abs(value);
+    }
+
+    /**
+     * Get the absolute (positive) value of the provided value.
+     * @param value The value to get the absolute (positive) value for.
+     * @return The absolute (positive) value of the provided value.
+     */
+    static long absoluteValue(long value)
+    {
+        return java.lang.Math.abs(value);
+    }
+
+    /**
+     * Get the absolute (positive) value of the provided value.
+     * @param value The value to get the absolute (positive) value for.
+     * @return The absolute (positive) value of the provided value.
+     */
+    static float absoluteValue(float value)
+    {
+        return java.lang.Math.abs(value);
+    }
+
     /**
      * Get the absolute (positive) value of the provided value.
      * @param value The value to get the absolute (positive) value for.

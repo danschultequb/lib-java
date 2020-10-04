@@ -88,21 +88,21 @@ public interface IPv4AddressTests
                 };
 
                 parseErrorTest.run(null, new PreConditionFailure("text cannot be null."));
-                parseErrorTest.run("", new ParseException("Missing 1 value."));
+                parseErrorTest.run("", new ParseException("Missing 1st value."));
                 parseErrorTest.run("abc", new ParseException("Expected digit (0 - 9), but found \"a\" instead."));
-                parseErrorTest.run("1", new ParseException("Missing 1 period ('.')."));
-                parseErrorTest.run("1.", new ParseException("Missing 2 value."));
-                parseErrorTest.run("1.2", new ParseException("Missing 2 period ('.')."));
-                parseErrorTest.run("1.2.", new ParseException("Missing 3 value."));
-                parseErrorTest.run("1.2.3", new ParseException("Missing 3 period ('.')."));
-                parseErrorTest.run("1.2.3.", new ParseException("Missing 4 value."));
-                parseErrorTest.run("1.2.3.4.", new ParseException("Expected an IPv4 address to end after the fourth value, but found \".\" instead."));
-                parseErrorTest.run("1.2.3.4.5", new ParseException("Expected an IPv4 address to end after the fourth value, but found \".5\" instead."));
+                parseErrorTest.run("1", new ParseException("Missing 1st period ('.')."));
+                parseErrorTest.run("1.", new ParseException("Missing 2nd value."));
+                parseErrorTest.run("1.2", new ParseException("Missing 2nd period ('.')."));
+                parseErrorTest.run("1.2.", new ParseException("Missing 3rd value."));
+                parseErrorTest.run("1.2.3", new ParseException("Missing 3rd period ('.')."));
+                parseErrorTest.run("1.2.3.", new ParseException("Missing 4th value."));
+                parseErrorTest.run("1.2.3.4.", new ParseException("Expected an IPv4 address to end after the 4th value, but found \".\" instead."));
+                parseErrorTest.run("1.2.3.4.5", new ParseException("Expected an IPv4 address to end after the 4th value, but found \".5\" instead."));
                 parseErrorTest.run("-1.2.3.4", new ParseException("Expected digit (0 - 9), but found \"-\" instead."));
-                parseErrorTest.run("256.2.3.4", new ParseException("Expected 1 value to be between 0 and 255, but found 256 instead."));
+                parseErrorTest.run("256.2.3.4", new ParseException("Expected 1st value to be between 0 and 255, but found 256 instead."));
                 parseErrorTest.run("a.2.3.4", new ParseException("Expected digit (0 - 9), but found \"a\" instead."));
                 parseErrorTest.run("1a2b3c4d", new ParseException("Expected period ('.') but found \"a\" instead."));
-                parseErrorTest.run("10325987123095816320958712098374109287349871234.2.3.4", new ParseException("Expected 1 value to be between 0 and 255, but found 10325987123095816320958712098374109287349871234 instead."));
+                parseErrorTest.run("10325987123095816320958712098374109287349871234.2.3.4", new ParseException("Expected 1st value to be between 0 and 255, but found 10325987123095816320958712098374109287349871234 instead."));
 
                 final Action2<String,IPv4Address> parseTest = (String text, IPv4Address expected) ->
                 {
