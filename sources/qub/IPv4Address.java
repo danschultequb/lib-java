@@ -2,19 +2,32 @@ package qub;
 
 public class IPv4Address
 {
-    public static final IPv4Address localhost = new IPv4Address((byte)127, (byte)0, (byte)0, (byte)1);
+    public static final IPv4Address localhost = IPv4Address.create(127, 0, 0, 1);
 
-    private byte[] bytes;
+    private final byte[] bytes;
 
-    public IPv4Address(byte b1, byte b2, byte b3, byte b4)
+    private IPv4Address(byte[] bytes)
     {
-        this.bytes = new byte[] { b1, b2, b3, b4 };
+        PreCondition.assertNotNull(bytes, "bytes");
+        PreCondition.assertEqual(4, bytes.length, "bytes.length");
+
+        this.bytes = bytes;
+    }
+
+    public static IPv4Address create(int value1, int value2, int value3, int value4)
+    {
+        PreCondition.assertBetween(0, value1, 255, "value1");
+        PreCondition.assertBetween(0, value2, 255, "value2");
+        PreCondition.assertBetween(0, value3, 255, "value3");
+        PreCondition.assertBetween(0, value4, 255, "value4");
+
+        return new IPv4Address(new byte[] { (byte)value1, (byte)value2, (byte)value3, (byte)value4 });
     }
 
     @Override
     public boolean equals(Object rhs)
     {
-        return rhs instanceof IPv4Address && equals((IPv4Address)rhs);
+        return rhs instanceof IPv4Address && this.equals((IPv4Address)rhs);
     }
 
     public boolean equals(IPv4Address rhs)
@@ -61,60 +74,89 @@ public class IPv4Address
         Array.copy(this.bytes, 0, bytes, 0, 4);
     }
 
-    public static IPv4Address parse(String text)
+    public static Result<IPv4Address> parse(String text)
     {
-        IPv4Address result = null;
+        PreCondition.assertNotNull(text, "text");
 
-        final Lexer lexer = new Lexer(text);
-        final Byte b1 = parseByte(lexer);
-        if (b1 != null && parsePeriod(lexer))
+        return Result.create(() ->
         {
-            final Byte b2 = parseByte(lexer);
-            if (b2 != null && parsePeriod(lexer))
-            {
-                final Byte b3 = parseByte(lexer);
-                if (b3 != null && parsePeriod(lexer))
-                {
-                    final Byte b4 = parseByte(lexer);
-                    if (b4 != null && !lexer.next())
-                    {
-                        result = new IPv4Address(b1, b2, b3, b4);
-                    }
-                }
-            }
-        }
+            final Iterator<Character> characters = Strings.iterate(text).start();
 
-        return result;
+            final int value1 = IPv4Address.parseInteger(characters, 1).await();
+            IPv4Address.parsePeriod(characters, 1).await();
+
+            final int value2 = IPv4Address.parseInteger(characters, 2).await();
+            IPv4Address.parsePeriod(characters, 2).await();
+
+            final int value3 = IPv4Address.parseInteger(characters, 3).await();
+            IPv4Address.parsePeriod(characters, 3).await();
+
+            final int value4 = IPv4Address.parseInteger(characters, 4).await();
+
+            if (characters.hasCurrent())
+            {
+                throw new ParseException("Expected an IPv4 address to end after the fourth value, but found " + Strings.escapeAndQuote(Characters.join(characters.toList())) + " instead.");
+            }
+
+            return IPv4Address.create(value1, value2, value3, value4);
+        });
     }
 
-    private static Byte parseByte(Lexer lexer)
+    private static Result<Integer> parseInteger(Iterator<Character> characters, int valueNumber)
     {
-        Byte result = null;
+        PreCondition.assertNotNull(characters, "characters");
+        PreCondition.assertTrue(characters.hasStarted(), "characters.hasStarted()");
+        PreCondition.assertBetween(1, valueNumber, 4, "valueNumber");
 
-        if (lexer.next())
+        return Result.create(() ->
         {
-            final Lex lex = lexer.getCurrent();
-            if (lex.getType() == LexType.Digits)
+            if (!characters.hasCurrent())
             {
-                try
-                {
-                    final int integer = Integer.parseInt(lex.toString());
-                    if (Comparer.between(0, integer, 255))
-                    {
-                        result = (byte)integer;
-                    }
-                }
-                catch (NumberFormatException ignored)
-                {
-                }
+                throw new ParseException("Missing " + valueNumber + " value.");
             }
-        }
+            else if (!Characters.isDigit(characters.getCurrent()))
+            {
+                throw new ParseException("Expected digit (0 - 9), but found " + Characters.escapeAndQuote(characters.getCurrent()) + " instead.");
+            }
 
-        return result;
+            final CharacterList valueText = CharacterList.create();
+            int result = 0;
+            do
+            {
+                valueText.add(characters.getCurrent());
+                result = (result * 10) + (characters.getCurrent() - '0');
+                characters.next();
+            }
+            while (characters.hasCurrent() && Characters.isDigit(characters.getCurrent()));
+
+            if (result < 0 || 255 < result)
+            {
+                throw new ParseException("Expected " + valueNumber + " value to be between 0 and 255, but found " + valueText.toString() + " instead.");
+            }
+
+            PostCondition.assertBetween(0, result, 255, "result");
+
+            return result;
+        });
     }
 
-    private static boolean parsePeriod(Lexer lexer)
+    private static Result<Void> parsePeriod(Iterator<Character> characters, int periodNumber)
     {
-        return lexer.next() && lexer.getCurrent().getType() == LexType.Period;
+        PreCondition.assertNotNull(characters, "characters");
+        PreCondition.assertTrue(characters.hasStarted(), "characters.hasStarted()");
+        PreCondition.assertBetween(1, periodNumber, 3, "periodNumber");
+
+        return Result.create(() ->
+        {
+            if (!characters.hasCurrent())
+            {
+                throw new ParseException("Missing " + periodNumber + " period ('.').");
+            }
+            else if (characters.getCurrent() != '.')
+            {
+                throw new ParseException("Expected period ('.') but found " + Characters.escapeAndQuote(characters.getCurrent()) + " instead.");
+            }
+            characters.next();
+        });
     }
 }

@@ -68,7 +68,7 @@ class JavaTCPClient implements TCPClient
         if (localInetAddressString.startsWith("/")) {
             localInetAddressString = localInetAddressString.substring(1);
         }
-        return IPv4Address.parse(localInetAddressString);
+        return IPv4Address.parse(localInetAddressString).await();
     }
 
     @Override
@@ -85,7 +85,7 @@ class JavaTCPClient implements TCPClient
         if (remoteInetAddressString.startsWith("/")) {
             remoteInetAddressString = remoteInetAddressString.substring(1);
         }
-        return IPv4Address.parse(remoteInetAddressString);
+        return IPv4Address.parse(remoteInetAddressString).await();
     }
 
     @Override

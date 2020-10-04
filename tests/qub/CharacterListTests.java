@@ -511,20 +511,36 @@ public interface CharacterListTests
 
             runner.testGroup("toString()", () ->
             {
-                runner.test("with empty", (Test test) ->
+                final Action2<CharacterList,String> toStringTest = (CharacterList list, String expected) ->
                 {
-                    test.assertEqual("[]", CharacterList.create().toString());
-                });
+                    runner.test("with " + list.toString(), (Test test) ->
+                    {
+                        test.assertEqual(expected, list.toString());
+                    });
+                };
 
-                runner.test("with one value", (Test test) ->
-                {
-                    test.assertEqual("[a]", CharacterList.create('a').toString());
-                });
+                toStringTest.run(CharacterList.create(), "");
+                toStringTest.run(CharacterList.create('a'), "a");
+                toStringTest.run(CharacterList.create('x', 'y'), "xy");
+            });
 
-                runner.test("with two values", (Test test) ->
+            runner.testGroup("toString(boolean)", () ->
+            {
+                final Action3<CharacterList,Boolean,String> toStringTest = (CharacterList list, Boolean asString, String expected) ->
                 {
-                    test.assertEqual("[x,y]", CharacterList.create('x', 'y').toString());
-                });
+                    runner.test("with " + list.toString(), (Test test) ->
+                    {
+                        test.assertEqual(expected, list.toString(asString));
+                    });
+                };
+
+                toStringTest.run(CharacterList.create(), true, "");
+                toStringTest.run(CharacterList.create('a'), true, "a");
+                toStringTest.run(CharacterList.create('x', 'y'), true, "xy");
+
+                toStringTest.run(CharacterList.create(), false, "[]");
+                toStringTest.run(CharacterList.create('a'), false, "[a]");
+                toStringTest.run(CharacterList.create('x', 'y'), false, "[x,y]");
             });
         });
     }

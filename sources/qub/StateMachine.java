@@ -175,7 +175,7 @@ public class StateMachine
         PreCondition.assertNotNull(values, "values");
         PreCondition.assertNotNullAndNotEmpty(getStartStates(), "getStartStates()");
 
-        values.ensureHasStarted();
+        values.start();
 
         Iterable<PossibleMatch> currentMatches = resolveInstantTransitions(getStartStateMatches(0));
 
@@ -233,7 +233,7 @@ public class StateMachine
         PreCondition.assertNotNull(values, "values");
         PreCondition.assertNotNullAndNotEmpty(getStartStates(), "getStartStates()");
 
-        values.ensureHasStarted();
+        values.start();
 
         int currentIndex = 0;
         Iterable<PossibleMatch> currentMatches = getStartStateMatches(currentIndex);

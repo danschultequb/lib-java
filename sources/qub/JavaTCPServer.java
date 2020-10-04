@@ -62,7 +62,7 @@ class JavaTCPServer implements TCPServer
         if (inetAddressString.startsWith("/")) {
             inetAddressString = inetAddressString.substring(1);
         }
-        return IPv4Address.parse(inetAddressString);
+        return IPv4Address.parse(inetAddressString).await();
     }
 
     @Override

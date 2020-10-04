@@ -52,35 +52,30 @@ public interface JavaTCPServerTests
                 });
             });
 
-            runner.testGroup("create(IPv4Address,int,Clock,AsyncRunner)", () ->
+            runner.testGroup("create(IPv4Address,int,Clock)", () ->
             {
-                runner.test("with null and " + port.incrementAndGet() + " port", (Test test) ->
+                final Action3<IPv4Address,Integer,Throwable> createErrorTest = (IPv4Address localIPAddress, Integer localPort, Throwable expected) ->
                 {
-                    test.assertThrows(() -> JavaTCPServer.create(null, port.get(), test.getClock()),
-                        new PreConditionFailure("localIPAddress cannot be null."));
-                });
+                    runner.test("with " + English.andList(localIPAddress, localPort), (Test test) ->
+                    {
+                        test.assertThrows(() -> JavaTCPServer.create(localIPAddress, localPort, test.getClock()).await(),
+                            expected);
+                    });
+                };
 
-                runner.test("with 127.0.0.1 and -1 port", (Test test) ->
-                {
-                    test.assertThrows(() -> JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), -1, test.getClock()),
-                        new PreConditionFailure("localPort (-1) must be between 1 and 65535."));
-                });
+                createErrorTest.run(null, port.incrementAndGet(), new PreConditionFailure("localIPAddress cannot be null."));
+                createErrorTest.run(IPv4Address.localhost, -1, new PreConditionFailure("localPort (-1) must be between 1 and 65535."));
+                createErrorTest.run(IPv4Address.localhost, 0, new PreConditionFailure("localPort (0) must be between 1 and 65535."));
 
-                runner.test("with 127.0.0.1 and 0 port", (Test test) ->
+                runner.test("with " + English.andList(IPv4Address.localhost, port.incrementAndGet(), "null clock"), (Test test) ->
                 {
-                    test.assertThrows(() -> JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), 0, test.getClock()),
-                        new PreConditionFailure("localPort (0) must be between 1 and 65535."));
-                });
-
-                runner.test("with 127.0.0.1, " + port.incrementAndGet() + " port, and null clock", (Test test) ->
-                {
-                    test.assertThrows(() -> JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), port.get(), null),
+                    test.assertThrows(() -> JavaTCPServer.create(IPv4Address.localhost, port.get(), null),
                         new PreConditionFailure("clock cannot be null."));
                 });
 
-                runner.test("with 127.0.0.1 and " + port.incrementAndGet() + " port", (Test test) ->
+                runner.test("with " + English.andList(IPv4Address.localhost, port.incrementAndGet(), "non-null clock"), (Test test) ->
                 {
-                    final TCPServer tcpServer = JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), port.get(), test.getClock()).await();
+                    final TCPServer tcpServer = JavaTCPServer.create(IPv4Address.localhost, port.get(), test.getClock()).await();
                     try
                     {
                         test.assertNotNull(tcpServer);
@@ -93,11 +88,11 @@ public interface JavaTCPServerTests
 
                 runner.test("with 127.0.0.1 and " + port.incrementAndGet() + " port when a different TCPServer is already bound to 127.0.0.1 and " + port, (Test test) ->
                 {
-                    final TCPServer tcpServer1 = JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), port.get(), test.getClock()).await();
+                    final TCPServer tcpServer1 = JavaTCPServer.create(IPv4Address.localhost, port.get(), test.getClock()).await();
                     test.assertNotNull(tcpServer1);
                     try
                     {
-                        test.assertThrows(() -> JavaTCPServer.create(IPv4Address.parse("127.0.0.1"), port.get(), test.getClock()).await(),
+                        test.assertThrows(() -> JavaTCPServer.create(IPv4Address.localhost, port.get(), test.getClock()).await(),
                             new java.net.BindException("Address already in use: bind"));
                     }
                     finally
@@ -111,7 +106,7 @@ public interface JavaTCPServerTests
             {
                 runner.test("with connection while accepting on port " + port.incrementAndGet(), (Test test) ->
                 {
-                    final IPv4Address ipAddress = IPv4Address.parse("127.0.0.1");
+                    final IPv4Address ipAddress = IPv4Address.localhost;
                     final byte[] bytes = new byte[] { 1, 2, 3, 4, 5, 6 };
 
                     final Network network = JavaNetwork.create(test.getClock());
@@ -156,7 +151,7 @@ public interface JavaTCPServerTests
 
                 runner.test("on ParallelAsyncRunner, with connection while accepting on port " + port.incrementAndGet(), (Test test) ->
                 {
-                    final IPv4Address ipAddress = IPv4Address.parse("127.0.0.1");
+                    final IPv4Address ipAddress = IPv4Address.localhost;
                     final byte[] bytes = new byte[] { 1, 2, 3, 4, 5, 6 };
                     final Network network = JavaNetwork.create(test.getClock());
                     final Value<byte[]> clientReadBytes = Value.create();

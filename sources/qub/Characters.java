@@ -240,7 +240,7 @@ public interface Characters
 
         final CharacterList builder = CharacterList.create();
 
-        values.ensureHasStarted();
+        values.start();
         if (values.hasCurrent())
         {
             builder.add(values.takeCurrent());
@@ -286,7 +286,7 @@ public interface Characters
 
         final CharacterList builder = CharacterList.create();
 
-        values.ensureHasStarted();
+        values.start();
         if (values.hasCurrent())
         {
             builder.add(values.takeCurrent());

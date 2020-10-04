@@ -18,21 +18,21 @@ public interface NetworkTests
                 runner.test("with -1 remotePort", (Test test) ->
                 {
                     final Network network = creator.run(test);
-                    test.assertThrows(() -> network.createTCPClient(IPv4Address.parse("127.0.0.1"), -1),
+                    test.assertThrows(() -> network.createTCPClient(IPv4Address.localhost, -1),
                         new PreConditionFailure("remotePort (-1) must be between 1 and 65535."));
                 });
 
                 runner.test("with 0 remotePort", (Test test) ->
                 {
                     final Network network = creator.run(test);
-                    test.assertThrows(() -> network.createTCPClient(IPv4Address.parse("127.0.0.1"), 0),
+                    test.assertThrows(() -> network.createTCPClient(IPv4Address.localhost, 0),
                         new PreConditionFailure("remotePort (0) must be between 1 and 65535."));
                 });
 
                 runner.test("with valid arguments but no server listening", (Test test) ->
                 {
                     final Network network = creator.run(test);
-                    test.assertThrows(() -> network.createTCPClient(IPv4Address.parse("127.0.0.1"), 38827).await(),
+                    test.assertThrows(() -> network.createTCPClient(IPv4Address.localhost, 38827).await(),
                         new java.net.ConnectException("Connection refused: connect"));
                 });
 

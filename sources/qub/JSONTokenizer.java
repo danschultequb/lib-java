@@ -82,7 +82,7 @@ public class JSONTokenizer implements Iterator<JSONToken>
     @Override
     public boolean next()
     {
-        this.characters.ensureHasStarted();
+        this.characters.start();
         this.hasStarted = true;
 
         if (!this.characters.hasCurrent())

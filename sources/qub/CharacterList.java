@@ -282,7 +282,7 @@ public class CharacterList implements List<Character>
     @Override
     public String toString()
     {
-        return toString(false);
+        return this.toString(true);
     }
 
     /**

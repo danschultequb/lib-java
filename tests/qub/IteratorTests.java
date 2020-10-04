@@ -6,33 +6,33 @@ public interface IteratorTests
     {
         runner.testGroup(Iterator.class, () ->
         {
-            runner.testGroup("ensureStarted()", () ->
+            runner.testGroup("start()", () ->
             {
                 runner.test("with empty non-started Iterator", (Test test) ->
                 {
                     final Iterator<Integer> iterator = createIterator.run(0, false);
-                    iterator.ensureHasStarted();
+                    iterator.start();
                     assertIterator(test, iterator, true, null);
                 });
 
                 runner.test("with empty started Iterator", (Test test) ->
                 {
                     final Iterator<Integer> iterator = createIterator.run(0, true);
-                    iterator.ensureHasStarted();
+                    iterator.start();
                     assertIterator(test, iterator, true, null);
                 });
                 
                 runner.test("with non-empty non-started Iterator", (Test test) ->
                 {
                     final Iterator<Integer> iterator = createIterator.run(5, false);
-                    iterator.ensureHasStarted();
+                    iterator.start();
                     assertIterator(test, iterator, true, 0);
                 });
 
                 runner.test("with non-empty started Iterator", (Test test) ->
                 {
                     final Iterator<Integer> iterator = createIterator.run(5, true);
-                    iterator.ensureHasStarted();
+                    iterator.start();
                     assertIterator(test, iterator, true, 0);
                 });
             });

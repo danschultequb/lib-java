@@ -7,15 +7,16 @@ package qub;
 public interface Iterator<T> extends java.lang.Iterable<T>
 {
     /**
-     * Ensure that this Iterator has started. If it hasn't started, then it will be moved to the
-     * next value.
+     * Advance to this Iterator's first value if the Iterator hasn't started yet. If it has already started, then do
+     * nothing.
      */
-    default void ensureHasStarted()
+    default Iterator<T> start()
     {
-        if (!hasStarted())
+        if (!this.hasStarted())
         {
-            next();
+            this.next();
         }
+        return this;
     }
 
     /**
@@ -61,7 +62,7 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      */
     default boolean any()
     {
-        return hasCurrent() || next();
+        return this.start().hasCurrent();
     }
 
     /**
@@ -72,8 +73,8 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      */
     default int getCount()
     {
-        int result = hasCurrent() ? 1 : 0;
-        while (next()) {
+        int result = this.hasCurrent() ? 1 : 0;
+        while (this.next()) {
             ++result;
         }
         return result;
@@ -85,8 +86,8 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      */
     default T first()
     {
-        ensureHasStarted();
-        return hasCurrent() ? getCurrent() : null;
+        this.start();
+        return this.hasCurrent() ? this.getCurrent() : null;
     }
 
     /**
@@ -103,9 +104,9 @@ public interface Iterator<T> extends java.lang.Iterable<T>
         boolean foundResult = false;
 
         T current;
-        if (hasCurrent())
+        if (this.hasCurrent())
         {
-            current = getCurrent();
+            current = this.getCurrent();
             if (condition.run(current))
             {
                 result = current;
@@ -115,9 +116,9 @@ public interface Iterator<T> extends java.lang.Iterable<T>
 
         if (!foundResult)
         {
-            while (next())
+            while (this.next())
             {
-                current = getCurrent();
+                current = this.getCurrent();
                 if (condition.run(current))
                 {
                     result = current;
@@ -138,7 +139,7 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     {
         T result = null;
 
-        if (hasCurrent())
+        if (this.hasCurrent())
         {
             result = getCurrent();
         }

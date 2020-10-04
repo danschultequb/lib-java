@@ -119,8 +119,7 @@ public class PathPattern
         final StateMachine stateMachine = new StateMachine();
         State currentState = stateMachine.createState().setStartState(true);
 
-        final Iterator<Character> characters = Strings.iterate(text);
-        characters.ensureHasStarted();
+        final Iterator<Character> characters = Strings.iterate(text).start();
         while (characters.hasCurrent())
         {
             final State nextState = stateMachine.createState();
