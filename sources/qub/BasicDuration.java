@@ -15,36 +15,36 @@ public class BasicDuration implements Duration
 
     public static final int WeeksToHours = WeeksToDays * DaysToHours;
     private static final int WeeksToMinutes = WeeksToHours * HoursToMinutes;
-    private static final int WeeksToSeconds = WeeksToMinutes * MinutesToSeconds;
+    public static final int WeeksToSeconds = WeeksToMinutes * MinutesToSeconds;
     private static final long WeeksToMilliseconds = WeeksToSeconds * SecondsToMilliseconds;
     private static final long WeeksToMicroseconds = WeeksToMilliseconds * MillisecondsToMicroseconds;
-    private static final long WeeksToNanoseconds = WeeksToMicroseconds * MicrosecondsToNanoseconds;
+    public static final long WeeksToNanoseconds = WeeksToMicroseconds * MicrosecondsToNanoseconds;
 
     private static final double DaysToWeeks = 1.0 / WeeksToDays;
     private static final int DaysToMinutes = DaysToHours * HoursToMinutes;
-    private static final int DaysToSeconds = DaysToMinutes * MinutesToSeconds;
+    public static final int DaysToSeconds = DaysToMinutes * MinutesToSeconds;
     private static final long DaysToMilliseconds = DaysToSeconds * SecondsToMilliseconds;
     private static final long DaysToMicroseconds = DaysToMilliseconds * MillisecondsToMicroseconds;
-    private static final long DaysToNanoseconds = DaysToMicroseconds * MicrosecondsToNanoseconds;
+    public static final long DaysToNanoseconds = DaysToMicroseconds * MicrosecondsToNanoseconds;
 
     private static final double HoursToWeeks = 1.0 / WeeksToHours;
     private static final double HoursToDays = 1.0 / DaysToHours;
-    private static final int HoursToSeconds = HoursToMinutes * MinutesToSeconds;
+    public static final int HoursToSeconds = HoursToMinutes * MinutesToSeconds;
     private static final long HoursToMilliseconds = HoursToSeconds * SecondsToMilliseconds;
     private static final long HoursToMicroseconds = HoursToMilliseconds * MillisecondsToMicroseconds;
-    private static final long HoursToNanoseconds = HoursToMicroseconds * MicrosecondsToNanoseconds;
+    public static final long HoursToNanoseconds = HoursToMicroseconds * MicrosecondsToNanoseconds;
 
     private static final double MinutesToWeeks = 1.0 / WeeksToMinutes;
     private static final double MinutesToDays = 1.0 / DaysToMinutes;
     private static final double MinutesToHours = 1.0 / HoursToMinutes;
     private static final int MinutesToMilliseconds = MinutesToSeconds * SecondsToMilliseconds;
     private static final long MinutesToMicroseconds = MinutesToMilliseconds * MillisecondsToMicroseconds;
-    private static final long MinutesToNanoseconds = MinutesToMicroseconds * MicrosecondsToNanoseconds;
+    public static final long MinutesToNanoseconds = MinutesToMicroseconds * MicrosecondsToNanoseconds;
 
-    private static final double SecondsToWeeks = 1.0 / WeeksToSeconds;
-    private static final double SecondsToDays = 1.0 / DaysToSeconds;
-    private static final double SecondsToHours = 1.0 / HoursToSeconds;
-    private static final double SecondsToMinutes = 1.0 / MinutesToSeconds;
+    public static final double SecondsToWeeks = 1.0 / WeeksToSeconds;
+    public static final double SecondsToDays = 1.0 / DaysToSeconds;
+    public static final double SecondsToHours = 1.0 / HoursToSeconds;
+    public static final double SecondsToMinutes = 1.0 / MinutesToSeconds;
     public static final int SecondsToMicroseconds = SecondsToMilliseconds * MillisecondsToMicroseconds;
     public static final int SecondsToNanoseconds = SecondsToMicroseconds * MicrosecondsToNanoseconds;
 
@@ -52,23 +52,23 @@ public class BasicDuration implements Duration
     private static final double MillisecondsToDays = 1.0 / DaysToMilliseconds;
     private static final double MillisecondsToHours = 1.0 / HoursToMilliseconds;
     private static final double MillisecondsToMinutes = 1.0 / MinutesToMilliseconds;
-    private static final double MillisecondsToSeconds = 1.0 / SecondsToMilliseconds;
+    public static final double MillisecondsToSeconds = 1.0 / SecondsToMilliseconds;
     public static final int MillisecondsToNanoseconds = MillisecondsToMicroseconds * MicrosecondsToNanoseconds;
 
     private static final double MicrosecondsToWeeks = 1.0 / WeeksToMicroseconds;
     private static final double MicrosecondsToDays = 1.0 / DaysToMicroseconds;
     private static final double MicrosecondsToHours = 1.0 / HoursToMicroseconds;
     private static final double MicrosecondsToMinutes = 1.0 / MinutesToMicroseconds;
-    private static final double MicrosecondsToSeconds = 1.0 / SecondsToMicroseconds;
+    public static final double MicrosecondsToSeconds = 1.0 / SecondsToMicroseconds;
     private static final double MicrosecondsToMilliseconds = 1.0 / MillisecondsToMicroseconds;
 
-    private static final double NanosecondsToWeeks = 1.0 / WeeksToNanoseconds;
-    private static final double NanosecondsToDays = 1.0 / DaysToNanoseconds;
-    private static final double NanosecondsToHours = 1.0 / HoursToNanoseconds;
-    private static final double NanosecondsToMinutes = 1.0 / MinutesToNanoseconds;
-    private static final double NanosecondsToSeconds = 1.0 / SecondsToNanoseconds;
-    private static final double NanosecondsToMilliseconds = 1.0 / MillisecondsToNanoseconds;
-    private static final double NanosecondsToMicroseconds = 1.0 / MicrosecondsToNanoseconds;
+    public static final double NanosecondsToWeeks = 1.0 / WeeksToNanoseconds;
+    public static final double NanosecondsToDays = 1.0 / DaysToNanoseconds;
+    public static final double NanosecondsToHours = 1.0 / HoursToNanoseconds;
+    public static final double NanosecondsToMinutes = 1.0 / MinutesToNanoseconds;
+    public static final double NanosecondsToSeconds = 1.0 / SecondsToNanoseconds;
+    public static final double NanosecondsToMilliseconds = 1.0 / MillisecondsToNanoseconds;
+    public static final double NanosecondsToMicroseconds = 1.0 / MicrosecondsToNanoseconds;
 
     private final double value;
     private final DurationUnit units;

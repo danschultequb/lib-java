@@ -2,13 +2,13 @@ package qub;
 
 public interface DurationTests
 {
-    static void test(final TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(Duration.class, () ->
         {
             runner.test("create(double,DurationUnit)", (Test test) ->
             {
-                assertDuration(test,
+                DurationTests.assertDuration(test,
                     Duration.create(1234, DurationUnit.Hours),
                     1234,
                     DurationUnit.Hours);
@@ -16,7 +16,7 @@ public interface DurationTests
 
             runner.test("nanoseconds()", (Test test) ->
             {
-                assertDuration(test,
+                DurationTests.assertDuration(test,
                     Duration.nanoseconds(0.57),
                     0.57,
                     DurationUnit.Nanoseconds);
@@ -24,7 +24,7 @@ public interface DurationTests
 
             runner.test("microseconds()", (Test test) ->
             {
-                assertDuration(test,
+                DurationTests.assertDuration(test,
                     Duration.microseconds(0.1),
                     0.1,
                     DurationUnit.Microseconds);
@@ -32,7 +32,7 @@ public interface DurationTests
 
             runner.test("milliseconds()", (Test test) ->
             {
-                assertDuration(test,
+                DurationTests.assertDuration(test,
                     Duration.milliseconds(0.2),
                     0.2,
                     DurationUnit.Milliseconds);
@@ -40,7 +40,7 @@ public interface DurationTests
 
             runner.test("seconds()", (Test test) ->
             {
-                assertDuration(test,
+                DurationTests.assertDuration(test,
                     Duration.seconds(0.3),
                     0.3,
                     DurationUnit.Seconds);
@@ -48,7 +48,7 @@ public interface DurationTests
 
             runner.test("minutes()", (Test test) ->
             {
-                assertDuration(test,
+                DurationTests.assertDuration(test,
                     Duration.minutes(0.3),
                     0.3,
                     DurationUnit.Minutes);
@@ -56,7 +56,7 @@ public interface DurationTests
 
             runner.test("hours()", (Test test) ->
             {
-                assertDuration(test,
+                DurationTests.assertDuration(test,
                     Duration.hours(0.4),
                     0.4,
                     DurationUnit.Hours);
@@ -64,7 +64,7 @@ public interface DurationTests
 
             runner.test("days()", (Test test) ->
             {
-                assertDuration(test,
+                DurationTests.assertDuration(test,
                     Duration.days(0.5),
                     0.5,
                     DurationUnit.Days);
@@ -72,25 +72,31 @@ public interface DurationTests
 
             runner.test("weeks()", (Test test) ->
             {
-                assertDuration(test,
+                DurationTests.assertDuration(test,
                     Duration.weeks(0.6),
                     0.6,
                     DurationUnit.Weeks);
             });
+        });
+    }
 
+    static void test(TestRunner runner, Function2<Double,DurationUnit,? extends Duration> creator)
+    {
+        runner.testGroup(Duration.class, () ->
+        {
             runner.testGroup("convertTo()", () ->
             {
                 final Action4<Double,DurationUnit,DurationUnit,Double> convertToWithValueTest = (Double startValue, DurationUnit startUnits, DurationUnit targetUnits, Double expectedValue) ->
                 {
-                    runner.test("create " + startValue + " " + startUnits + " to " + targetUnits, (Test test) ->
+                    runner.test("change " + startValue + " " + startUnits + " to " + targetUnits, (Test test) ->
                     {
-                        final Duration startDuration = Duration.create(startValue, startUnits);
+                        final Duration startDuration = creator.run(startValue, startUnits);
 
                         final Duration convertedDuration = startDuration.convertTo(targetUnits);
-                        assertDuration(test, convertedDuration, expectedValue, targetUnits);
+                        DurationTests.assertDuration(test, convertedDuration, expectedValue, targetUnits, 0.00000000000001);
 
                         final Duration convertedBackDuration = convertedDuration.convertTo(startUnits);
-                        assertDuration(test, convertedBackDuration, startValue, startUnits, 0.000000000000001);
+                        DurationTests.assertDuration(test, convertedBackDuration, startValue, startUnits, 0.000000000000001);
                     });
                 };
 
@@ -178,101 +184,97 @@ public interface DurationTests
             {
                 runner.test("with 0 value", (Test test) ->
                 {
-                    final Duration duration = Duration.seconds(0);
-                    test.assertSame(duration, duration.negate());
+                    final Duration duration = creator.run(0.0, DurationUnit.Seconds);
+                    DurationTests.assertDuration(test, duration.negate(), duration);
                 });
 
                 runner.test("with non-0 value", (Test test) ->
                 {
-                    final Duration duration = Duration.hours(10);
-                    test.assertEqual(Duration.hours(-10), duration.negate());
+                    final Duration duration = creator.run(10.0, DurationUnit.Hours);
+                    DurationTests.assertDuration(test, duration.negate(), -10.0, DurationUnit.Hours);
                 });
             });
 
             runner.testGroup("plus()", () ->
             {
-                runner.test("with null", (Test test) ->
+                final Action3<Duration,Duration,Throwable> plusErrorTest = (Duration lhs, Duration rhs, Throwable expected) ->
                 {
-                    final Duration duration = Duration.seconds(1);
-                    test.assertEqual(duration, duration.plus(null));
-                });
+                    runner.test("with " + English.andList(lhs, rhs), (Test test) ->
+                    {
+                        test.assertThrows(() -> lhs.plus(rhs), expected);
+                    });
+                };
 
-                runner.test("with negative duration", (Test test) ->
-                {
-                    final Duration duration = Duration.seconds(1);
-                    test.assertEqual(Duration.seconds(0.5), duration.plus(Duration.seconds(-0.5)));
-                });
+                plusErrorTest.run(creator.run(1.0, DurationUnit.Seconds), null, new PreConditionFailure("rhs cannot be null."));
 
-                runner.test("with zero duration", (Test test) ->
+                final Action3<Duration,Duration,Duration> plusTest = (Duration lhs, Duration rhs, Duration expected) ->
                 {
-                    final Duration duration = Duration.seconds(1);
-                    test.assertEqual(duration, duration.plus(Duration.seconds(0)));
-                });
+                    runner.test("with " + English.andList(lhs, rhs), (Test test) ->
+                    {
+                        DurationTests.assertDuration(test, lhs.plus(rhs), expected);
+                    });
+                };
 
-                runner.test("with positive duration", (Test test) ->
-                {
-                    final Duration duration = Duration.seconds(1);
-                    test.assertEqual(Duration.seconds(1.6), duration.plus(Duration.milliseconds(600)));
-                });
+                plusTest.run(creator.run(1.0, DurationUnit.Seconds), creator.run(-0.5, DurationUnit.Seconds), creator.run(0.5, DurationUnit.Seconds));
+                plusTest.run(creator.run(1.0, DurationUnit.Seconds), creator.run(0.0, DurationUnit.Seconds), creator.run(1.0, DurationUnit.Seconds));
+                plusTest.run(creator.run(1.0, DurationUnit.Seconds), creator.run(600.0, DurationUnit.Milliseconds), creator.run(1.6, DurationUnit.Seconds));
             });
 
             runner.testGroup("times()", () ->
             {
-                runner.test("by negative value", (Test test) ->
+                final Action3<Duration,Double,Duration> timesTest = (Duration lhs, Double rhs, Duration expected) ->
                 {
-                    test.assertEqual(Duration.seconds(-0.5), Duration.milliseconds(100).times(-5));
-                });
+                    runner.test("with " + English.andList(lhs, rhs), (Test test) ->
+                    {
+                        DurationTests.assertDuration(test, lhs.times(rhs), expected);
+                    });
+                };
 
-                runner.test("by zero", (Test test) ->
-                {
-                    test.assertEqual(Duration.seconds(0), Duration.microseconds(1).times(0));
-                });
-
-                runner.test("by one", (Test test) ->
-                {
-                    test.assertEqual(Duration.minutes(2), Duration.minutes(2).times(1));
-                });
-
-                runner.test("by positive value", (Test test) ->
-                {
-                    test.assertEqual(Duration.hours(10), Duration.hours(1).times(10));
-                });
+                timesTest.run(creator.run(100.0, DurationUnit.Milliseconds), -5.0, creator.run(-500.0, DurationUnit.Milliseconds));
+                timesTest.run(creator.run(1.0, DurationUnit.Milliseconds), 0.0, creator.run(0.0, DurationUnit.Milliseconds));
+                timesTest.run(creator.run(2.0, DurationUnit.Minutes), 1.0, creator.run(2.0, DurationUnit.Minutes));
+                timesTest.run(creator.run(1.0, DurationUnit.Hours), 10.0, creator.run(10.0, DurationUnit.Hours));
             });
 
             runner.testGroup("dividedBy(double)", () ->
             {
-                runner.test("by zero", (Test test) ->
-                {
-                    test.assertThrows(() -> Duration.nanoseconds(50).dividedBy(0),
-                        new PreConditionFailure("rhs (0.0) must not be 0.0."));
-                });
-
-                final Action3<Duration,Double, Duration> dividedByTest = (Duration dividend, Double divisor, Duration expectedQuotient) ->
+                final Action3<Duration,Double,Throwable> dividedByErrorTest = (Duration dividend, Double divisor, Throwable expected) ->
                 {
                     runner.test(dividend + " divided by " + divisor, (Test test) ->
                     {
-                        test.assertEqual(expectedQuotient, dividend.dividedBy(divisor));
+                        test.assertThrows(() -> dividend.dividedBy(divisor),
+                            expected);
+                    });
+                };
+                
+                dividedByErrorTest.run(creator.run(50.0, DurationUnit.Nanoseconds), 0.0, new PreConditionFailure("rhs (0.0) must not be 0.0."));
+
+                final Action3<Duration,Double,Duration> dividedByTest = (Duration dividend, Double divisor, Duration expectedQuotient) ->
+                {
+                    runner.test(dividend + " divided by " + divisor, (Test test) ->
+                    {
+                        DurationTests.assertDuration(test, dividend.dividedBy(divisor), expectedQuotient);
                     });
                 };
 
-                dividedByTest.run(Duration.nanoseconds(20), -5.0, Duration.nanoseconds(-4));
-                dividedByTest.run(Duration.days(5), 1.0, Duration.days(5));
-                dividedByTest.run(Duration.weeks(100), 10.0, Duration.weeks(10));
+                dividedByTest.run(creator.run(20.0, DurationUnit.Nanoseconds), -5.0, creator.run(-4.0, DurationUnit.Nanoseconds));
+                dividedByTest.run(creator.run(5.0, DurationUnit.Days), 1.0, creator.run(5.0, DurationUnit.Days));
+                dividedByTest.run(creator.run(100.0, DurationUnit.Weeks), 10.0, creator.run(10.0, DurationUnit.Weeks));
             });
 
             runner.testGroup("dividedBy(Duration)", () ->
             {
-                runner.test("with null", (Test test) ->
+                final Action3<Duration,Duration,Throwable> dividedByErrorTest = (Duration dividend, Duration divisor, Throwable expected) ->
                 {
-                    test.assertThrows(() -> Duration.seconds(10).dividedBy(null),
-                        new PreConditionFailure("rhs cannot be null."));
-                });
-
-                runner.test("with zero", (Test test) ->
-                {
-                    test.assertThrows(() -> Duration.seconds(10).dividedBy(Duration.seconds(0)),
-                        new PreConditionFailure("rhs.getValue() (0.0) must not be 0.0."));
-                });
+                    runner.test(dividend + " divided by " + divisor, (Test test) ->
+                    {
+                        test.assertThrows(() -> dividend.dividedBy(divisor),
+                            expected);
+                    });
+                };
+                
+                dividedByErrorTest.run(creator.run(10.0, DurationUnit.Seconds), null, new PreConditionFailure("rhs cannot be null."));
+                dividedByErrorTest.run(creator.run(10.0, DurationUnit.Seconds), creator.run(0.0, DurationUnit.Seconds), new PreConditionFailure("rhs.getValue() (0.0) must not be 0.0."));
 
                 final Action3<Duration, Duration,Double> dividedByTest = (Duration dividend, Duration divisor, Double expectedQuotient) ->
                 {
@@ -282,9 +284,9 @@ public interface DurationTests
                     });
                 };
 
-                dividedByTest.run(Duration.seconds(10), Duration.seconds(-2), -5.0);
-                dividedByTest.run(Duration.seconds(10), Duration.seconds(1), 10.0);
-                dividedByTest.run(Duration.seconds(100), Duration.seconds(50), 2.0);
+                dividedByTest.run(creator.run(10.0, DurationUnit.Seconds), creator.run(-2.0, DurationUnit.Seconds), -5.0);
+                dividedByTest.run(creator.run(10.0, DurationUnit.Seconds), creator.run(1.0, DurationUnit.Seconds), 10.0);
+                dividedByTest.run(creator.run(100.0, DurationUnit.Seconds), creator.run(50.0, DurationUnit.Seconds), 2.0);
             });
 
             runner.testGroup("round()", () ->
@@ -297,32 +299,36 @@ public interface DurationTests
                     });
                 };
 
-                roundTest.run(Duration.nanoseconds(20), Duration.nanoseconds(20));
-                roundTest.run(Duration.seconds(10.1), Duration.seconds(10));
-                roundTest.run(Duration.days(0.9), Duration.days(1));
+                roundTest.run(creator.run(20.0, DurationUnit.Nanoseconds), creator.run(20.0, DurationUnit.Nanoseconds));
+                roundTest.run(creator.run(10.1, DurationUnit.Seconds), creator.run(10.0, DurationUnit.Seconds));
+                roundTest.run(creator.run(0.9, DurationUnit.Days), creator.run(1.0, DurationUnit.Days));
             });
 
             runner.testGroup("round(Duration)", () ->
             {
-                runner.test("with null scale", (Test test) ->
-                {
-                    test.assertThrows(() -> Duration.seconds(10).round(null),
-                        new PreConditionFailure("scale cannot be null."));
-                });
-
-                final Action3<Duration, Duration, Duration> roundTest = (Duration value, Duration scale, Duration expectedRoundedValue) ->
+                final Action3<Duration,Duration,Throwable> roundErrorTest = (Duration value, Duration scale, Throwable expected) ->
                 {
                     runner.test("with " + value + " rounded to nearest " + scale, (Test test) ->
                     {
-                        test.assertEqual(expectedRoundedValue, value.round(scale));
+                        test.assertThrows(() -> value.round(scale), expected);
                     });
                 };
 
-                roundTest.run(Duration.seconds(0), Duration.minutes(0), Duration.minutes(0));
-                roundTest.run(Duration.minutes(1.5), Duration.hours(0), Duration.hours(0));
-                roundTest.run(Duration.seconds(1), Duration.seconds(1), Duration.seconds(1));
-                roundTest.run(Duration.seconds(9), Duration.seconds(5), Duration.seconds(10));
-                roundTest.run(Duration.seconds(1.555), Duration.milliseconds(100), Duration.seconds(1.6));
+                roundErrorTest.run(creator.run(10.0, DurationUnit.Seconds), null, new PreConditionFailure("scale cannot be null."));
+
+                final Action3<Duration,Duration,Duration> roundTest = (Duration value, Duration scale, Duration expectedRoundedValue) ->
+                {
+                    runner.test("with " + value + " rounded to nearest " + scale, (Test test) ->
+                    {
+                        DurationTests.assertDuration(test, value.round(scale), expectedRoundedValue);
+                    });
+                };
+
+                roundTest.run(creator.run(0.0, DurationUnit.Seconds), creator.run(0.0, DurationUnit.Minutes), creator.run(0.0, DurationUnit.Minutes));
+                roundTest.run(creator.run(1.5, DurationUnit.Minutes), creator.run(0.0, DurationUnit.Hours), creator.run(0.0, DurationUnit.Hours));
+                roundTest.run(creator.run(1.0, DurationUnit.Seconds), creator.run(1.0, DurationUnit.Seconds), creator.run(1.0, DurationUnit.Seconds));
+                roundTest.run(creator.run(9.0, DurationUnit.Seconds), creator.run(5.0, DurationUnit.Seconds), creator.run(10.0, DurationUnit.Seconds));
+                roundTest.run(creator.run(1.555, DurationUnit.Seconds), creator.run(100.0, DurationUnit.Milliseconds), creator.run(1600.0, DurationUnit.Milliseconds));
             });
 
             runner.testGroup("round(double)", () ->
@@ -335,91 +341,114 @@ public interface DurationTests
                     });
                 };
 
-                roundTest.run(Duration.seconds(0), 0.0, Duration.seconds(0));
-                roundTest.run(Duration.seconds(1), 0.0, Duration.seconds(0));
-                roundTest.run(Duration.seconds(1), 1.0, Duration.seconds(1));
-                roundTest.run(Duration.seconds(9), 5.0, Duration.seconds(10));
-                roundTest.run(Duration.seconds(1.555), 0.1, Duration.seconds(1.6));
+                roundTest.run(creator.run(0.0, DurationUnit.Seconds), 0.0, creator.run(0.0, DurationUnit.Seconds));
+                roundTest.run(creator.run(1.0, DurationUnit.Seconds), 0.0, creator.run(0.0, DurationUnit.Seconds));
+                roundTest.run(creator.run(1.0, DurationUnit.Seconds), 1.0, creator.run(1.0, DurationUnit.Seconds));
+                roundTest.run(creator.run(9.0, DurationUnit.Seconds), 5.0, creator.run(10.0, DurationUnit.Seconds));
+                roundTest.run(creator.run(1.555, DurationUnit.Seconds), 0.1, creator.run(1.6, DurationUnit.Seconds));
             });
 
             runner.test("toNanoseconds()", (Test test) ->
             {
-                final Duration duration = Duration.seconds(1);
-                test.assertEqual(Duration.nanoseconds(1000000000), duration.toNanoseconds());
+                final Duration duration = creator.run(1.0, DurationUnit.Seconds);
+                DurationTests.assertDuration(test, duration.toNanoseconds(), creator.run(1000000000.0, DurationUnit.Nanoseconds));
             });
 
             runner.test("toMicroseconds()", (Test test) ->
             {
-                final Duration duration = Duration.seconds(1);
-                test.assertEqual(Duration.microseconds(1000000), duration.toMicroseconds());
+                final Duration duration = creator.run(1.0, DurationUnit.Seconds);
+                DurationTests.assertDuration(test, duration.toMicroseconds(), creator.run(1000000.0, DurationUnit.Microseconds));
             });
 
             runner.test("toMilliseconds()", (Test test) ->
             {
-                final Duration duration = Duration.seconds(1);
-                test.assertEqual(Duration.milliseconds(1000), duration.toMilliseconds());
+                final Duration duration = creator.run(1.0, DurationUnit.Seconds);
+                DurationTests.assertDuration(test, duration.toMilliseconds(), creator.run(1000.0, DurationUnit.Milliseconds));
             });
 
             runner.test("toSeconds()", (Test test) ->
             {
-                final Duration duration = Duration.minutes(1);
-                test.assertEqual(Duration.seconds(60), duration.toSeconds());
+                final Duration duration = creator.run(1.0, DurationUnit.Minutes);
+                DurationTests.assertDuration(test, duration.toSeconds(), creator.run(60.0, DurationUnit.Seconds));
             });
 
             runner.test("toMinutes()", (Test test) ->
             {
-                final Duration duration = Duration.hours(2);
-                test.assertEqual(Duration.minutes(120), duration.toMinutes());
+                final Duration duration = creator.run(2.0, DurationUnit.Hours);
+                DurationTests.assertDuration(test, duration.toMinutes(), 120, DurationUnit.Minutes);
             });
 
             runner.test("toHours()", (Test test) ->
             {
                 final Duration duration = Duration.minutes(150);
-                test.assertEqual(Duration.hours(2.5), duration.toHours());
+                DurationTests.assertDuration(test, duration.toHours(), 2.5, DurationUnit.Hours);
             });
 
             runner.test("toDays()", (Test test) ->
             {
                 final Duration duration = Duration.weeks(1);
-                test.assertEqual(Duration.days(7), duration.toDays());
+                DurationTests.assertDuration(test, duration.toDays(), 7, DurationUnit.Days);
             });
 
             runner.test("toWeeks()", (Test test) ->
             {
                 final Duration duration = Duration.days(21);
-                test.assertEqual(Duration.weeks(3), duration.toWeeks());
+                DurationTests.assertDuration(test, duration.toWeeks(), 3, DurationUnit.Weeks);
             });
 
             runner.testGroup("absoluteValue()", () ->
             {
-                runner.test("with -3 seconds", (Test test) ->
+                final Action2<Duration,Duration> absoluteValueTest = (Duration duration, Duration expected) ->
                 {
-                    test.assertEqual(Duration.seconds(3), Duration.seconds(-3).absoluteValue());
-                });
+                    runner.test("with " + duration, (Test test) ->
+                    {
+                        DurationTests.assertDuration(test, duration.absoluteValue(), expected);
+                    });
+                };
 
-                runner.test("with 0 days", (Test test) ->
-                {
-                    test.assertEqual(Duration.days(0), Duration.days(0).absoluteValue());
-                });
-
-                runner.test("with 1 millisecond", (Test test) ->
-                {
-                    test.assertEqual(Duration.milliseconds(1), Duration.milliseconds(1).absoluteValue());
-                });
+                absoluteValueTest.run(creator.run(-3.0, DurationUnit.Seconds), creator.run(3.0, DurationUnit.Seconds));
+                absoluteValueTest.run(creator.run(0.0, DurationUnit.Days), creator.run(0.0, DurationUnit.Days));
+                absoluteValueTest.run(creator.run(1.0, DurationUnit.Milliseconds), creator.run(1.0, DurationUnit.Milliseconds));
             });
 
-            runner.test("toString()", (Test test) ->
+            runner.testGroup("toString()", () ->
             {
-                test.assertEqual("1.0 Nanoseconds", Duration.nanoseconds(1).toString());
-                test.assertEqual("30.0 Days", Duration.days(30).toString());
+                final Action2<Duration,String> toStringTest = (Duration duration, String expected) ->
+                {
+                    runner.test("with " + duration, (Test test) ->
+                    {
+                        test.assertEqual(expected, duration.toString());
+                    });
+                };
+
+                toStringTest.run(creator.run(1.0, DurationUnit.Nanoseconds), "1.0 Nanoseconds");
+                toStringTest.run(creator.run(30.0, DurationUnit.Days), "30.0 Days");
             });
 
-            runner.test("toString(String)", (Test test) ->
+            runner.testGroup("toString(String)", () ->
             {
-                test.assertEqual("123.5 Microseconds", Duration.microseconds(123.456).toString("#.#"));
-                test.assertEqual("123 Microseconds", Duration.microseconds(123.456).toString("#"));
-                test.assertEqual("123.46 Microseconds", Duration.microseconds(123.456).toString("#0.0#"));
-                test.assertEqual("123.0 Microseconds", Duration.microseconds(123).toString("#0.0#"));
+                final Action3<Duration,String,Throwable> toStringErrorTest = (Duration duration, String format, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(duration, Strings.escapeAndQuote(format)), (Test test) ->
+                    {
+                        test.assertThrows(() -> duration.toString(format), expected);
+                    });
+                };
+
+                toStringErrorTest.run(creator.run(1.23, DurationUnit.Seconds), null, new PreConditionFailure("format cannot be null."));
+
+                final Action3<Duration,String,String> toStringTest = (Duration duration, String format, String expected) ->
+                {
+                    runner.test("with " + English.andList(duration, Strings.escapeAndQuote(format)), (Test test) ->
+                    {
+                        test.assertEqual(expected, duration.toString(format));
+                    });
+                };
+
+                toStringTest.run(creator.run(123.456, DurationUnit.Microseconds), "#.#", "123.5 Microseconds");
+                toStringTest.run(creator.run(123.456, DurationUnit.Microseconds), "#", "123 Microseconds");
+                toStringTest.run(creator.run(123.456, DurationUnit.Microseconds), "#0.0#", "123.46 Microseconds");
+                toStringTest.run(creator.run(123.0, DurationUnit.Microseconds), "#0.0#", "123.0 Microseconds");
             });
 
             runner.testGroup("equals(Object)", () ->
@@ -432,16 +461,16 @@ public interface DurationTests
                     });
                 };
 
-                equalsTest.run(Duration.milliseconds(1), null, false);
-                equalsTest.run(Duration.milliseconds(1), "1", false);
-                equalsTest.run(Duration.milliseconds(1000), Duration.milliseconds(10), false);
-                equalsTest.run(Duration.milliseconds(1), Duration.seconds(1), false);
-                equalsTest.run(Duration.milliseconds(1000), Duration.seconds(1), true);
-                equalsTest.run(Duration.milliseconds(1), Duration.seconds(0.001), true);
-                equalsTest.run(Duration.seconds(1), Duration.milliseconds(1000), true);
-                equalsTest.run(Duration.seconds(0.001), Duration.milliseconds(1), true);
-                equalsTest.run(Duration.milliseconds(60000), Duration.minutes(1), true);
-                equalsTest.run(Duration.minutes(1), Duration.milliseconds(60000), true);
+                equalsTest.run(creator.run(1.0, DurationUnit.Milliseconds), null, false);
+                equalsTest.run(creator.run(1.0, DurationUnit.Milliseconds), "1", false);
+                equalsTest.run(creator.run(1000.0, DurationUnit.Milliseconds), creator.run(10.0, DurationUnit.Milliseconds), false);
+                equalsTest.run(creator.run(1.0, DurationUnit.Milliseconds), creator.run(1.0, DurationUnit.Seconds), false);
+                equalsTest.run(creator.run(1000.0, DurationUnit.Milliseconds), creator.run(1.0, DurationUnit.Seconds), true);
+                equalsTest.run(creator.run(1.0, DurationUnit.Milliseconds), creator.run(0.001, DurationUnit.Seconds), true);
+                equalsTest.run(creator.run(1.0, DurationUnit.Seconds), creator.run(1000.0, DurationUnit.Milliseconds), true);
+                equalsTest.run(creator.run(0.001, DurationUnit.Seconds), creator.run(1.0, DurationUnit.Milliseconds), true);
+                equalsTest.run(creator.run(60000.0, DurationUnit.Milliseconds), creator.run(1.0, DurationUnit.Minutes), true);
+                equalsTest.run(creator.run(1.0, DurationUnit.Minutes), creator.run(60000.0, DurationUnit.Milliseconds), true);
             });
 
             runner.testGroup("equals(Duration)", () ->
@@ -454,15 +483,15 @@ public interface DurationTests
                     });
                 };
 
-                equalsTest.run(Duration.milliseconds(1), null, false);
-                equalsTest.run(Duration.milliseconds(1000), Duration.milliseconds(10), false);
-                equalsTest.run(Duration.milliseconds(1), Duration.seconds(1), false);
-                equalsTest.run(Duration.milliseconds(1000), Duration.seconds(1), true);
-                equalsTest.run(Duration.milliseconds(1), Duration.seconds(0.001), true);
-                equalsTest.run(Duration.seconds(1), Duration.milliseconds(1000), true);
-                equalsTest.run(Duration.seconds(0.001), Duration.milliseconds(1), true);
-                equalsTest.run(Duration.milliseconds(60000), Duration.minutes(1), true);
-                equalsTest.run(Duration.minutes(1), Duration.milliseconds(60000), true);
+                equalsTest.run(creator.run(1.0, DurationUnit.Milliseconds), null, false);
+                equalsTest.run(creator.run(1000.0, DurationUnit.Milliseconds), creator.run(10.0, DurationUnit.Milliseconds), false);
+                equalsTest.run(creator.run(1.0, DurationUnit.Milliseconds), creator.run(1.0, DurationUnit.Seconds), false);
+                equalsTest.run(creator.run(1000.0, DurationUnit.Milliseconds), creator.run(1.0, DurationUnit.Seconds), true);
+                equalsTest.run(creator.run(1.0, DurationUnit.Milliseconds), creator.run(0.001, DurationUnit.Seconds), true);
+                equalsTest.run(creator.run(1.0, DurationUnit.Seconds), creator.run(1000.0, DurationUnit.Milliseconds), true);
+                equalsTest.run(creator.run(0.001, DurationUnit.Seconds), creator.run(1.0, DurationUnit.Milliseconds), true);
+                equalsTest.run(creator.run(60000.0, DurationUnit.Milliseconds), creator.run(1.0, DurationUnit.Minutes), true);
+                equalsTest.run(creator.run(1.0, DurationUnit.Minutes), creator.run(60000.0, DurationUnit.Milliseconds), true);
             });
 
             runner.testGroup("compareTo(Duration)", () ->
@@ -475,28 +504,28 @@ public interface DurationTests
                     });
                 };
 
-                compareToTest.run(Duration.milliseconds(1), null, Comparison.GreaterThan);
-                compareToTest.run(Duration.milliseconds(1000), Duration.milliseconds(10), Comparison.GreaterThan);
-                compareToTest.run(Duration.milliseconds(1), Duration.seconds(1), Comparison.LessThan);
-                compareToTest.run(Duration.milliseconds(1000), Duration.seconds(1), Comparison.Equal);
-                compareToTest.run(Duration.milliseconds(1), Duration.seconds(0.001), Comparison.Equal);
-                compareToTest.run(Duration.seconds(1), Duration.milliseconds(1000), Comparison.Equal);
-                compareToTest.run(Duration.seconds(0.001), Duration.milliseconds(1), Comparison.Equal);
-                compareToTest.run(Duration.milliseconds(60000), Duration.minutes(1), Comparison.Equal);
-                compareToTest.run(Duration.minutes(1), Duration.milliseconds(60000), Comparison.Equal);
+                compareToTest.run(creator.run(1.0, DurationUnit.Milliseconds), null, Comparison.GreaterThan);
+                compareToTest.run(creator.run(1000.0, DurationUnit.Milliseconds), creator.run(10.0, DurationUnit.Milliseconds), Comparison.GreaterThan);
+                compareToTest.run(creator.run(1.0, DurationUnit.Milliseconds), creator.run(1.0, DurationUnit.Seconds), Comparison.LessThan);
+                compareToTest.run(creator.run(1000.0, DurationUnit.Milliseconds), creator.run(1.0, DurationUnit.Seconds), Comparison.Equal);
+                compareToTest.run(creator.run(1.0, DurationUnit.Milliseconds), creator.run(0.001, DurationUnit.Seconds), Comparison.Equal);
+                compareToTest.run(creator.run(1.0, DurationUnit.Seconds), creator.run(1000.0, DurationUnit.Milliseconds), Comparison.Equal);
+                compareToTest.run(creator.run(0.001, DurationUnit.Seconds), creator.run(1.0, DurationUnit.Milliseconds), Comparison.Equal);
+                compareToTest.run(creator.run(60000.0, DurationUnit.Milliseconds), creator.run(1.0, DurationUnit.Minutes), Comparison.Equal);
+                compareToTest.run(creator.run(1.0, DurationUnit.Minutes), creator.run(60000.0, DurationUnit.Milliseconds), Comparison.Equal);
             });
 
             runner.testGroup("compareTo(Duration,Duration)", () ->
             {
                 runner.test("with null marginOfError", (Test test) ->
                 {
-                    test.assertThrows(() -> Duration.seconds(1).compareTo(Duration.seconds(2), null),
+                    test.assertThrows(() -> creator.run(1.0, DurationUnit.Seconds).compareTo(creator.run(2.0, DurationUnit.Seconds), null),
                         new PreConditionFailure("marginOfError cannot be null."));
                 });
 
                 runner.test("with negative marginOfError", (Test test) ->
                 {
-                    test.assertThrows(() -> Duration.seconds(1).compareTo(Duration.seconds(2), Duration.nanoseconds(-1)),
+                    test.assertThrows(() -> creator.run(1.0, DurationUnit.Seconds).compareTo(creator.run(2.0, DurationUnit.Seconds), creator.run(-1.0, DurationUnit.Nanoseconds)),
                         new PreConditionFailure("marginOfError (-1.0 Nanoseconds) must be greater than or equal to 0.0 Seconds."));
                 });
 
@@ -508,22 +537,32 @@ public interface DurationTests
                     });
                 };
 
-                compareToTest.run(Duration.milliseconds(1), null, Duration.nanoseconds(1), Comparison.GreaterThan);
-                compareToTest.run(Duration.milliseconds(1000), Duration.milliseconds(10), Duration.nanoseconds(1), Comparison.GreaterThan);
-                compareToTest.run(Duration.milliseconds(1), Duration.seconds(1), Duration.nanoseconds(1), Comparison.LessThan);
-                compareToTest.run(Duration.milliseconds(1000), Duration.seconds(1), Duration.nanoseconds(1), Comparison.Equal);
-                compareToTest.run(Duration.milliseconds(1), Duration.seconds(0.001), Duration.nanoseconds(1), Comparison.Equal);
-                compareToTest.run(Duration.seconds(1), Duration.milliseconds(1000), Duration.nanoseconds(1), Comparison.Equal);
-                compareToTest.run(Duration.seconds(0.001), Duration.milliseconds(1), Duration.nanoseconds(1), Comparison.Equal);
-                compareToTest.run(Duration.milliseconds(60000), Duration.minutes(1), Duration.nanoseconds(1), Comparison.Equal);
-                compareToTest.run(Duration.minutes(1), Duration.milliseconds(60000), Duration.nanoseconds(1), Comparison.Equal);
+                compareToTest.run(creator.run(1.0, DurationUnit.Milliseconds), null, creator.run(1.0, DurationUnit.Nanoseconds), Comparison.GreaterThan);
+                compareToTest.run(creator.run(1000.0, DurationUnit.Milliseconds), creator.run(10.0, DurationUnit.Milliseconds), creator.run(1.0, DurationUnit.Nanoseconds), Comparison.GreaterThan);
+                compareToTest.run(creator.run(1.0, DurationUnit.Milliseconds), creator.run(1.0, DurationUnit.Seconds), creator.run(1.0, DurationUnit.Nanoseconds), Comparison.LessThan);
+                compareToTest.run(creator.run(1000.0, DurationUnit.Milliseconds), creator.run(1.0, DurationUnit.Seconds), creator.run(1.0, DurationUnit.Nanoseconds), Comparison.Equal);
+                compareToTest.run(creator.run(1.0, DurationUnit.Milliseconds), creator.run(0.001, DurationUnit.Seconds), creator.run(1.0, DurationUnit.Nanoseconds), Comparison.Equal);
+                compareToTest.run(creator.run(1.0, DurationUnit.Seconds), creator.run(1000.0, DurationUnit.Milliseconds), creator.run(1.0, DurationUnit.Nanoseconds), Comparison.Equal);
+                compareToTest.run(creator.run(0.001, DurationUnit.Seconds), creator.run(1.0, DurationUnit.Milliseconds), creator.run(1.0, DurationUnit.Nanoseconds), Comparison.Equal);
+                compareToTest.run(creator.run(60000.0, DurationUnit.Milliseconds), creator.run(1.0, DurationUnit.Minutes), creator.run(1.0, DurationUnit.Nanoseconds), Comparison.Equal);
+                compareToTest.run(creator.run(1.0, DurationUnit.Minutes), creator.run(60000.0, DurationUnit.Milliseconds), creator.run(1.0, DurationUnit.Nanoseconds), Comparison.Equal);
 
-                compareToTest.run(Duration.seconds(1), Duration.seconds(1.1), Duration.seconds(0.05), Comparison.LessThan);
-                compareToTest.run(Duration.seconds(1), Duration.seconds(1.1), Duration.seconds(0.5), Comparison.Equal);
-                compareToTest.run(Duration.seconds(1.1), Duration.seconds(1), Duration.seconds(0.099), Comparison.GreaterThan);
-                compareToTest.run(Duration.seconds(0.04999995231628418), Duration.milliseconds(50), Duration.microseconds(1), Comparison.Equal);
+                compareToTest.run(creator.run(1.0, DurationUnit.Seconds), creator.run(1.1, DurationUnit.Seconds), creator.run(0.05, DurationUnit.Seconds), Comparison.LessThan);
+                compareToTest.run(creator.run(1.0, DurationUnit.Seconds), creator.run(1.1, DurationUnit.Seconds), creator.run(0.5, DurationUnit.Seconds), Comparison.Equal);
+                compareToTest.run(creator.run(1.1, DurationUnit.Seconds), creator.run(1.0, DurationUnit.Seconds), creator.run(0.099, DurationUnit.Seconds), Comparison.GreaterThan);
+                compareToTest.run(creator.run(0.04999995231628418, DurationUnit.Seconds), creator.run(50.0, DurationUnit.Milliseconds), creator.run(1.0, DurationUnit.Microseconds), Comparison.Equal);
             });
         });
+    }
+
+    static void assertDuration(Test test, Duration duration, Duration expected)
+    {
+        DurationTests.assertDuration(test, duration, expected.getValue(), expected.getUnits());
+    }
+
+    static void assertDuration(Test test, Duration duration, Duration expected, double marginOfError)
+    {
+        DurationTests.assertDuration(test, duration, expected.getValue(), expected.getUnits(), marginOfError);
     }
 
     static void assertDuration(Test test, Duration duration, double expectedValue, DurationUnit expectedUnits)

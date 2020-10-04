@@ -114,8 +114,10 @@ public interface Duration extends ComparableWithError<Duration>
 
     default Duration plus(Duration rhs)
     {
+        PreCondition.assertNotNull(rhs, "rhs");
+
         Duration result = this;
-        if (rhs != null && rhs.getValue() != 0)
+        if (rhs.getValue() != 0)
         {
             final Duration convertedRhs = rhs.convertTo(this.getUnits());
             result = Duration.create(this.getValue() + convertedRhs.getValue(), this.getUnits());
@@ -168,7 +170,7 @@ public interface Duration extends ComparableWithError<Duration>
         Duration result;
         if (scale.getValue() == 0)
         {
-            result = (this.getValue() == 0 ? this : Duration.create(0, this.getUnits()));
+            result = scale;
         }
         else
         {
