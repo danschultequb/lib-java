@@ -19,7 +19,17 @@ public class VisualVMProcessBuilder extends ProcessBuilderDecorator<VisualVMProc
     {
         PreCondition.assertNotNull(process, "process");
 
-        return VisualVMProcessBuilder.get(process.getProcessFactory());
+        return Result.create(() ->
+        {
+            final EnvironmentVariables environmentVariables = process.getEnvironmentVariables();
+            final String qubHome = environmentVariables.get("QUB_HOME").await();
+            final FileSystem fileSystem = process.getFileSystem();
+            final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder(qubHome).await());
+            final QubProjectFolder visualVmFolder = qubFolder.getProjectFolder("oracle", "visualvm").await();
+            final QubProjectVersionFolder visualVmVersionFolder = visualVmFolder.getLatestProjectVersionFolder().await();
+            final File visualVmExeFile = visualVmVersionFolder.getFile("bin/visualvm.exe").await();
+            return VisualVMProcessBuilder.get(process.getProcessFactory(), visualVmExeFile.getPath()).await();
+        });
     }
 
     /**
@@ -27,13 +37,15 @@ public class VisualVMProcessBuilder extends ProcessBuilderDecorator<VisualVMProc
      * @param processFactory The ProcessFactory to get the VisualVMProcessBuilder from.
      * @return The VisualVMProcessBuilder.
      */
-    public static Result<VisualVMProcessBuilder> get(ProcessFactory processFactory)
+    public static Result<VisualVMProcessBuilder> get(ProcessFactory processFactory, Path visualVmExePath)
     {
         PreCondition.assertNotNull(processFactory, "processFactory");
+        PreCondition.assertNotNull(visualVmExePath, "visualVmExePath");
+        PreCondition.assertTrue(visualVmExePath.isRooted(), "visualVmExePath.isRooted()");
 
         return Result.create(() ->
         {
-            return new VisualVMProcessBuilder(processFactory.getProcessBuilder(VisualVMProcessBuilder.executablePath).await());
+            return new VisualVMProcessBuilder(processFactory.getProcessBuilder(visualVmExePath).await());
         });
     }
 }
