@@ -118,7 +118,7 @@ public interface Characters
                 default:
                     if (0xD800 <= character && character <= 0xDFFF)
                     {
-                        result = "\\u+" + Integers.toHexString(character);
+                        result = "\\u+" + Integers.toHexString(character, true);
                     }
                     else
                     {
@@ -134,13 +134,111 @@ public interface Characters
     }
 
     /**
+     * Get the next unescaped character from the provided characters.
+     * @param characters The characters to get the next unescaped character from.
+     * @return The next unescaped character.
+     */
+    static char unescapeNextCharacter(SaveableIterator<Character> characters)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+        PreCondition.assertTrue(characters.hasCurrent(), "characters.hasCurrent()");
+
+        char result;
+        if (characters.getCurrent() != '\\')
+        {
+            result = characters.takeCurrent();
+        }
+        else if (!characters.next())
+        {
+            result = '\\';
+        }
+        else
+        {
+            switch (characters.getCurrent())
+            {
+                case 'b':
+                    result = '\b';
+                    characters.next();
+                    break;
+
+                case 'f':
+                    result = '\f';
+                    characters.next();
+                    break;
+
+                case 'n':
+                    result = '\n';
+                    characters.next();
+                    break;
+
+                case 'r':
+                    result = '\r';
+                    characters.next();
+                    break;
+
+                case 't':
+                    result = '\t';
+                    characters.next();
+                    break;
+
+                case 'u':
+                    try (final Save save = characters.save())
+                    {
+                        if (!characters.next() || characters.getCurrent() != '+')
+                        {
+                            result = '\\';
+                            save.restore().await();
+                        }
+                        else
+                        {
+                            characters.next();
+                            final String hexString = Characters.join(characters.take(4));
+                            if (Strings.getLength(hexString) != 4)
+                            {
+                                result = '\\';
+                                save.restore().await();
+                            }
+                            else
+                            {
+                                result = (char)Integers.fromHexString(hexString);
+                                characters.next();
+                            }
+                        }
+                    }
+                    break;
+
+                case '\'':
+                    result = '\'';
+                    characters.next();
+                    break;
+
+                case '\"':
+                    result = '\"';
+                    characters.next();
+                    break;
+
+                case '\\':
+                    result = '\\';
+                    characters.next();
+                    break;
+
+                default:
+                    result = '\\';
+                    break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
      * Surround the provided character with single quotes.
      * @param character The character to quote.
      * @return The quoted text.
      */
     static String quote(char character)
     {
-        return Strings.quote(java.lang.Character.toString(character));
+        return Strings.quote(Characters.toString(character));
     }
 
     /**
@@ -150,7 +248,7 @@ public interface Characters
      */
     static char toLowerCase(char value)
     {
-        return Character.toLowerCase(value);
+        return java.lang.Character.toLowerCase(value);
     }
 
     /**

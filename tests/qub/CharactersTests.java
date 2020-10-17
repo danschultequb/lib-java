@@ -6,6 +6,174 @@ public interface CharactersTests
     {
         runner.testGroup(Characters.class, () ->
         {
+            runner.testGroup("toString(char)", () ->
+            {
+                final Action2<Character,String> toStringTest = (Character character, String expected) ->
+                {
+                    runner.test("with " + Characters.escapeAndQuote(character), (Test test) ->
+                    {
+                        test.assertEqual(expected, Characters.toString(character));
+                    });
+                };
+
+                toStringTest.run('a', "a");
+                toStringTest.run('A', "A");
+            });
+
+            runner.testGroup("isQuote(char)", () ->
+            {
+                final Action2<Character,Boolean> isQuoteTest = (Character character, Boolean expected) ->
+                {
+                    runner.test("with " + Characters.escapeAndQuote(character), (Test test) ->
+                    {
+                        test.assertEqual(expected, Characters.isQuote(character));
+                    });
+                };
+
+                isQuoteTest.run('a', false);
+                isQuoteTest.run('A', false);
+                isQuoteTest.run('"', true);
+                isQuoteTest.run('\'', true);
+                isQuoteTest.run('`', false);
+                isQuoteTest.run('0', false);
+            });
+
+            runner.testGroup("isWhitespace(char)", () ->
+            {
+                final Action2<Character,Boolean> isWhitespaceTest = (Character character, Boolean expected) ->
+                {
+                    runner.test("with " + Characters.escapeAndQuote(character), (Test test) ->
+                    {
+                        test.assertEqual(expected, Characters.isWhitespace(character));
+                    });
+                };
+
+                isWhitespaceTest.run('a', false);
+                isWhitespaceTest.run('A', false);
+                isWhitespaceTest.run('"', false);
+                isWhitespaceTest.run('\'', false);
+                isWhitespaceTest.run('`', false);
+                isWhitespaceTest.run('0', false);
+                isWhitespaceTest.run(' ', true);
+                isWhitespaceTest.run('\n', true);
+                isWhitespaceTest.run('\r', true);
+                isWhitespaceTest.run('\t', true);
+                isWhitespaceTest.run('\f', false);
+                isWhitespaceTest.run('\b', false);
+                isWhitespaceTest.run('\0', false);
+            });
+
+            runner.testGroup("escapeAndQuote(char)", () ->
+            {
+                final Action2<Character,String> escapeAndQuoteTest = (Character character, String expected) ->
+                {
+                    runner.test("with " + Characters.escapeAndQuote(character), (Test test) ->
+                    {
+                        test.assertEqual(expected, Characters.escapeAndQuote(character));
+                    });
+                };
+
+                escapeAndQuoteTest.run('a', "\"a\"");
+                escapeAndQuoteTest.run('A', "\"A\"");
+                escapeAndQuoteTest.run(' ', "\" \"");
+                escapeAndQuoteTest.run('\b', "\"\\b\"");
+                escapeAndQuoteTest.run('\f', "\"\\f\"");
+                escapeAndQuoteTest.run('\n', "\"\\n\"");
+                escapeAndQuoteTest.run('\r', "\"\\r\"");
+                escapeAndQuoteTest.run('\t', "\"\\t\"");
+                escapeAndQuoteTest.run('\'', "\"'\"");
+                escapeAndQuoteTest.run('\"', "\"\\\"\"");
+                escapeAndQuoteTest.run((char)0xD800, "\"\\u+D800\"");
+                escapeAndQuoteTest.run((char)0xD801, "\"\\u+D801\"");
+                escapeAndQuoteTest.run((char)0xDFFE, "\"\\u+DFFE\"");
+                escapeAndQuoteTest.run((char)0xDFFF, "\"\\u+DFFF\"");
+            });
+
+            runner.testGroup("escape(char)", () ->
+            {
+                final Action2<Character,String> escapeAndQuoteTest = (Character character, String expected) ->
+                {
+                    runner.test("with " + Characters.escapeAndQuote(character), (Test test) ->
+                    {
+                        test.assertEqual(expected, Characters.escape(character));
+                    });
+                };
+
+                escapeAndQuoteTest.run('a', "a");
+                escapeAndQuoteTest.run('A', "A");
+                escapeAndQuoteTest.run(' ', " ");
+                escapeAndQuoteTest.run('\b', "\\b");
+                escapeAndQuoteTest.run('\f', "\\f");
+                escapeAndQuoteTest.run('\n', "\\n");
+                escapeAndQuoteTest.run('\r', "\\r");
+                escapeAndQuoteTest.run('\t', "\\t");
+                escapeAndQuoteTest.run('\'', "'");
+                escapeAndQuoteTest.run('\"', "\\\"");
+                escapeAndQuoteTest.run((char)0xD800, "\\u+D800");
+                escapeAndQuoteTest.run((char)0xD801, "\\u+D801");
+                escapeAndQuoteTest.run((char)0xDFFE, "\\u+DFFE");
+                escapeAndQuoteTest.run((char)0xDFFF, "\\u+DFFF");
+            });
+
+            runner.testGroup("unescapeNextCharacter(SaveableIterator<Character>)", () ->
+            {
+                final Action3<String,Throwable,String> unescapeNextCharacterErrorTest = (String characters, Throwable expected, String expectedRemainder) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(characters), (Test test) ->
+                    {
+                        final SaveableIterator<Character> characterIterator = characters == null ? null : SaveableIterator.create(Strings.iterate(characters).start());
+                        test.assertThrows(() -> Characters.unescapeNextCharacter(characterIterator),
+                            expected);
+                        if (characterIterator != null)
+                        {
+                            test.assertEqual(expectedRemainder, Characters.join(characterIterator));
+                        }
+                    });
+                };
+
+                unescapeNextCharacterErrorTest.run(null, new PreConditionFailure("characters cannot be null."), "");
+                unescapeNextCharacterErrorTest.run("", new PreConditionFailure("characters.hasCurrent() cannot be false."), "");
+
+                final Action3<String,Character,String> unescapeNextCharacterTest = (String characters, Character expected, String expectedRemainder) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(characters), (Test test) ->
+                    {
+                        final SaveableIterator<Character> characterIterator = SaveableIterator.create(Strings.iterate(characters).start());
+                        test.assertEqual(expected, Characters.unescapeNextCharacter(characterIterator));
+                        test.assertEqual(expectedRemainder, Characters.join(characterIterator));
+                    });
+                };
+
+                unescapeNextCharacterTest.run("a", 'a', "");
+                unescapeNextCharacterTest.run("b\\n", 'b', "\\n");
+                unescapeNextCharacterTest.run("\\b", '\b', "");
+                unescapeNextCharacterTest.run("\b", '\b', "");
+                unescapeNextCharacterTest.run("\\f", '\f', "");
+                unescapeNextCharacterTest.run("\f", '\f', "");
+                unescapeNextCharacterTest.run("\\n", '\n', "");
+                unescapeNextCharacterTest.run("\n", '\n', "");
+                unescapeNextCharacterTest.run("\\r", '\r', "");
+                unescapeNextCharacterTest.run("\r", '\r', "");
+                unescapeNextCharacterTest.run("\\t", '\t', "");
+                unescapeNextCharacterTest.run("\t", '\t', "");
+                unescapeNextCharacterTest.run("\\u", '\\', "u");
+                unescapeNextCharacterTest.run("\\u-", '\\', "u-");
+                unescapeNextCharacterTest.run("\\u+", '\\', "u+");
+                unescapeNextCharacterTest.run("\\u+D", '\\', "u+D");
+                unescapeNextCharacterTest.run("\\u+D800", (char)0xD800, "");
+                unescapeNextCharacterTest.run((char)0xD800 + "", (char)0xD800, "");
+                unescapeNextCharacterTest.run("\\u+DF23", (char)0xDF23, "");
+                unescapeNextCharacterTest.run((char)0xDF23 + "", (char)0xDF23, "");
+                unescapeNextCharacterTest.run("\\u+DF235", (char)0xDF23, "5");
+                unescapeNextCharacterTest.run("\\'", '\'', "");
+                unescapeNextCharacterTest.run("'", '\'', "");
+                unescapeNextCharacterTest.run("\\\"", '\"', "");
+                unescapeNextCharacterTest.run("\"", '\"', "");
+                unescapeNextCharacterTest.run("\\\\", '\\', "");
+                unescapeNextCharacterTest.run("\\", '\\', "");
+                unescapeNextCharacterTest.run("\\h", '\\', "h");
+            });
+
             runner.testGroup("join(Iterable<Character>)", () ->
             {
                 runner.test("with null", (Test test) ->

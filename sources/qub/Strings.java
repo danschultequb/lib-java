@@ -186,6 +186,31 @@ public interface Strings
     }
 
     /**
+     * Unescape any escaped characters (such as '\n' or '\t') in the provided text.
+     * @param text The text to unescape.
+     * @return The unescaped text.
+     */
+    static String unescape(String text)
+    {
+        String result;
+        if (text == null || text.isEmpty())
+        {
+            result = text;
+        }
+        else
+        {
+            final SaveableIterator<Character> characters = SaveableIterator.create(Strings.iterate(text).start());
+            final CharacterList builder = CharacterList.create();
+            while (characters.hasCurrent())
+            {
+                builder.add(Characters.unescapeNextCharacter(characters));
+            }
+            result = builder.toString();
+        }
+        return result;
+    }
+
+    /**
      * Get whether or not the provided text is surrounded by quotes.
      * @param text The text to check.
      * @return Whether or not the provided text is surrounded by quotes.
@@ -261,6 +286,11 @@ public interface Strings
     static String escapeAndQuote(String text)
     {
         return Strings.quote(Strings.escape(text));
+    }
+
+    static String unescapeAndUnquote(String text)
+    {
+        return Strings.unquote(Strings.unescape(text));
     }
 
     /**

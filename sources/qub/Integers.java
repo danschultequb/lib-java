@@ -215,7 +215,7 @@ public interface Integers
 
     static String toHexString(int value)
     {
-        return toHexString(value, false);
+        return Integers.toHexString(value, false);
     }
 
     static String toHexString(int value, boolean trimLeadingZeros)

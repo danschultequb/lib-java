@@ -183,6 +183,23 @@ public interface StringsTests
                 escapeTest.run("\b\f\n\r\t'\"", "\\b\\f\\n\\r\\t'\\\"");
             });
 
+            runner.testGroup("unescape(String)", () ->
+            {
+                final Action2<String,String> unescapeTest = (String text, String expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.unescape(text));
+                    });
+                };
+
+                unescapeTest.run(null, null);
+                unescapeTest.run("", "");
+                unescapeTest.run("abc", "abc");
+                unescapeTest.run("\b\f\n\r\t'\"", "\b\f\n\r\t'\"");
+                unescapeTest.run("\\b\\f\\n\\r\\t'\\\"", "\b\f\n\r\t'\"");
+            });
+
             runner.testGroup("isQuoted(String)", () ->
             {
                 final Action2<String,Boolean> isQuotedTest = (String text, Boolean expected) ->
@@ -272,6 +289,27 @@ public interface StringsTests
                 escapeAndQuoteTest.run("abc", "\"abc\"");
                 escapeAndQuoteTest.run("\b\f\n\r\t", "\"\\b\\f\\n\\r\\t\"");
                 escapeAndQuoteTest.run("\"", "\"\\\"\"");
+            });
+
+            runner.testGroup("unescapeAndUnquote(String)", () ->
+            {
+                final Action2<String,String> unescapeAndUnquoteTest = (String text, String expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.unescapeAndUnquote(text));
+                    });
+                };
+
+                unescapeAndUnquoteTest.run(null, null);
+                unescapeAndUnquoteTest.run("", "");
+                unescapeAndUnquoteTest.run("\"\"", "");
+                unescapeAndUnquoteTest.run("abc", "abc");
+                unescapeAndUnquoteTest.run("\"abc\"", "abc");
+                unescapeAndUnquoteTest.run("\b\f\n\r\t", "\b\f\n\r\t");
+                unescapeAndUnquoteTest.run("\"\\b\\f\\n\\r\\t\"", "\b\f\n\r\t");
+                unescapeAndUnquoteTest.run("\"", "\"");
+                unescapeAndUnquoteTest.run("\"\\\"\"", "\"");
             });
 
             runner.testGroup("repeat(String,int)", () ->
