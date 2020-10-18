@@ -125,6 +125,13 @@ public class QubFolder extends Folder
         return this.getProjectVersionFolder(publisherName, projectName, version.toString());
     }
 
+    public Result<QubProjectVersionFolder> getProjectVersionFolder(ProjectSignature projectSignature)
+    {
+        PreCondition.assertNotNull(projectSignature, "projectSignature");
+
+        return this.getProjectVersionFolder(projectSignature.getPublisher(), projectSignature.getProject(), projectSignature.getVersion());
+    }
+
     public Result<File> getProjectJSONFile(String publisherName, String projectName, String version)
     {
         PreCondition.assertNotNullAndNotEmpty(publisherName, "publisherName");
