@@ -424,6 +424,196 @@ public interface QubFolderTests
                 });
             });
 
+            runner.testGroup("getProjectJSONFile(String,String,VersionNumber)", () ->
+            {
+                final Action4<String,String,VersionNumber,Throwable> getProjectJSONFileErrorTest = (String publisherName, String projectName, VersionNumber version, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        final QubFolder qubFolder = QubFolderTests.getQubFolder(test, "/qub/");
+                        test.assertThrows(() -> qubFolder.getProjectJSONFile(publisherName, projectName, version), expected);
+                    });
+                };
+
+                getProjectJSONFileErrorTest.run(null, null, null, new PreConditionFailure("publisherName cannot be null."));
+                getProjectJSONFileErrorTest.run("", null, null, new PreConditionFailure("publisherName cannot be empty."));
+                getProjectJSONFileErrorTest.run("a", null, null, new PreConditionFailure("projectName cannot be null."));
+                getProjectJSONFileErrorTest.run("a", "", null, new PreConditionFailure("projectName cannot be empty."));
+                getProjectJSONFileErrorTest.run("a", "b", null, new PreConditionFailure("version cannot be null."));
+
+                runner.test("with non-existing Qub folder", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder(test, "/qub/");
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final VersionNumber version = VersionNumber.create().setMajor(1);
+                    test.assertEqual(
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/project.json").await(),
+                        qubFolder.getProjectJSONFile(publisherName, projectName, version).await());
+                });
+
+                runner.test("with non-existing publisher folder", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder(test, "/qub/");
+                    qubFolder.create().await();
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final VersionNumber version = VersionNumber.create().setMajor(1);
+                    test.assertEqual(
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/project.json").await(),
+                        qubFolder.getProjectJSONFile(publisherName, projectName, version).await());
+                });
+
+                runner.test("with non-existing project folder", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder(test, "/qub/");
+                    final String publisherName = "a";
+                    qubFolder.getPublisherFolder(publisherName).await().create().await();
+                    final String projectName = "b";
+                    final VersionNumber version = VersionNumber.create().setMajor(1);
+                    test.assertEqual(
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/project.json").await(),
+                        qubFolder.getProjectJSONFile(publisherName, projectName, version).await());
+                });
+
+                runner.test("with non-existing versions folder", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder(test, "/qub/");
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    qubFolder.getProjectFolder(publisherName, projectName).await().create().await();
+                    final VersionNumber version = VersionNumber.create().setMajor(1);
+                    test.assertEqual(
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/project.json").await(),
+                        qubFolder.getProjectJSONFile(publisherName, projectName, version).await());
+                });
+
+                runner.test("with empty versions folder", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder(test, "/qub/");
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubProjectFolder projectFolder = qubFolder.getProjectFolder(publisherName, projectName).await();
+                    projectFolder.createFolder("versions").await();
+                    final VersionNumber version = VersionNumber.create().setMajor(1);
+                    test.assertEqual(
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/project.json").await(),
+                        qubFolder.getProjectJSONFile(publisherName, projectName, version).await());
+                });
+
+                runner.test("with non-existing project.json file", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder(test, "/qub/");
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final VersionNumber version = VersionNumber.create().setMajor(1);
+                    final QubProjectVersionFolder projectVersionFolder = qubFolder.getProjectVersionFolder(publisherName, projectName, version).await();
+                    projectVersionFolder.create().await();
+                    test.assertEqual(
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/project.json").await(),
+                        qubFolder.getProjectJSONFile(publisherName, projectName, version).await());
+                });
+
+                runner.test("with existing project.json file", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder(test, "/qub/");
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final VersionNumber version = VersionNumber.create().setMajor(1);
+                    final QubProjectVersionFolder projectVersionFolder = qubFolder.getProjectVersionFolder(publisherName, projectName, version).await();
+                    projectVersionFolder.createFile("project.json").await();
+                    test.assertEqual(
+                        qubFolder.getFile(publisherName + "/" + projectName + "/versions/" + version + "/project.json").await(),
+                        qubFolder.getProjectJSONFile(publisherName, projectName, version).await());
+                });
+            });
+
+            runner.testGroup("getProjectJSONFile(ProjectSignature)", () ->
+            {
+                final Action2<ProjectSignature,Throwable> getProjectJSONFileErrorTest = (ProjectSignature projectSignature, Throwable expected) ->
+                {
+                    runner.test("with " + projectSignature, (Test test) ->
+                    {
+                        final QubFolder qubFolder = QubFolderTests.getQubFolder(test, "/qub/");
+                        test.assertThrows(() -> qubFolder.getProjectJSONFile(projectSignature), expected);
+                    });
+                };
+
+                getProjectJSONFileErrorTest.run(null, new PreConditionFailure("projectSignature cannot be null."));
+
+                runner.test("with non-existing Qub folder", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder(test, "/qub/");
+                    final ProjectSignature projectSignature = ProjectSignature.create("a", "b", "1");
+                    test.assertEqual(
+                        qubFolder.getFile(projectSignature.getPublisher() + "/" + projectSignature.getProject() + "/versions/" + projectSignature.getVersion() + "/project.json").await(),
+                        qubFolder.getProjectJSONFile(projectSignature).await());
+                });
+
+                runner.test("with non-existing publisher folder", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder(test, "/qub/");
+                    qubFolder.create().await();
+                    final ProjectSignature projectSignature = ProjectSignature.create("a", "b", "1");
+                    test.assertEqual(
+                        qubFolder.getFile(projectSignature.getPublisher() + "/" + projectSignature.getProject() + "/versions/" + projectSignature.getVersion() + "/project.json").await(),
+                        qubFolder.getProjectJSONFile(projectSignature).await());
+                });
+
+                runner.test("with non-existing project folder", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder(test, "/qub/");
+                    final ProjectSignature projectSignature = ProjectSignature.create("a", "b", "1");
+                    qubFolder.getPublisherFolder(projectSignature.getPublisher()).await().create().await();
+                    test.assertEqual(
+                        qubFolder.getFile(projectSignature.getPublisher() + "/" + projectSignature.getProject() + "/versions/" + projectSignature.getVersion() + "/project.json").await(),
+                        qubFolder.getProjectJSONFile(projectSignature).await());
+                });
+
+                runner.test("with non-existing versions folder", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder(test, "/qub/");
+                    final ProjectSignature projectSignature = ProjectSignature.create("a", "b", "1");
+                    qubFolder.getProjectFolder(projectSignature.getPublisher(), projectSignature.getProject()).await().create().await();
+                    test.assertEqual(
+                        qubFolder.getFile(projectSignature.getPublisher() + "/" + projectSignature.getProject() + "/versions/" + projectSignature.getVersion() + "/project.json").await(),
+                        qubFolder.getProjectJSONFile(projectSignature).await());
+                });
+
+                runner.test("with empty versions folder", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder(test, "/qub/");
+                    final ProjectSignature projectSignature = ProjectSignature.create("a", "b", "1");
+                    final QubProjectFolder projectFolder = qubFolder.getProjectFolder(projectSignature.getPublisher(), projectSignature.getProject()).await();
+                    projectFolder.createFolder("versions").await();
+                    test.assertEqual(
+                        qubFolder.getFile(projectSignature.getPublisher() + "/" + projectSignature.getProject() + "/versions/" + projectSignature.getVersion() + "/project.json").await(),
+                        qubFolder.getProjectJSONFile(projectSignature).await());
+                });
+
+                runner.test("with non-existing project.json file", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder(test, "/qub/");
+                    final ProjectSignature projectSignature = ProjectSignature.create("a", "b", "1");
+                    final QubProjectVersionFolder projectVersionFolder = qubFolder.getProjectVersionFolder(projectSignature.getPublisher(), projectSignature.getProject(), projectSignature.getVersion()).await();
+                    projectVersionFolder.create().await();
+                    test.assertEqual(
+                        qubFolder.getFile(projectSignature.getPublisher() + "/" + projectSignature.getProject() + "/versions/" + projectSignature.getVersion() + "/project.json").await(),
+                        qubFolder.getProjectJSONFile(projectSignature).await());
+                });
+
+                runner.test("with existing project.json file", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder(test, "/qub/");
+                    final ProjectSignature projectSignature = ProjectSignature.create("a", "b", "1");
+                    final QubProjectVersionFolder projectVersionFolder = qubFolder.getProjectVersionFolder(projectSignature.getPublisher(), projectSignature.getProject(), projectSignature.getVersion()).await();
+                    projectVersionFolder.createFile("project.json").await();
+                    test.assertEqual(
+                        qubFolder.getFile(projectSignature.getPublisher() + "/" + projectSignature.getProject() + "/versions/" + projectSignature.getVersion() + "/project.json").await(),
+                        qubFolder.getProjectJSONFile(projectSignature).await());
+                });
+            });
+
             runner.testGroup("getCompiledSourcesFile(String,String,String)", () ->
             {
                 final Action4<String,String,String,Throwable> getCompiledSourcesFileErrorTest = (String publisherName, String projectName, String version, Throwable expected) ->
