@@ -4,19 +4,23 @@ package qub;
  * A node with a single link to another SingleLinkNode.
  * @param <T> The type of value stored in the single-link node.
  */
-public class SingleLinkNode<T> implements Iterable<T>
+public class Node1<T>
 {
     private volatile T value;
-    private volatile SingleLinkNode<T> next;
+    private volatile Node1<T> node1;
+
+    private Node1(T value)
+    {
+        this.value = value;
+    }
 
     /**
      * Create a new single-link node with the provided value.
      * @param value The value to store in this single-link node.
      */
-    public SingleLinkNode(T value)
+    public static <T> Node1<T> create(T value)
     {
-        this.value = value;
-        this.next = null;
+        return new Node1<>(value);
     }
 
     /**
@@ -32,44 +36,28 @@ public class SingleLinkNode<T> implements Iterable<T>
      * Set the value stored in this single-link node.
      * @param value The value to store in this single-link node.
      */
-    public void setValue(T value)
+    public Node1<T> setValue(T value)
     {
         this.value = value;
+        return this;
     }
 
     /**
      * Get the next node in this single-link node chain/list.
      * @return The next node in this single-link node chain/list.
      */
-    public SingleLinkNode<T> getNext()
+    public Node1<T> getNode1()
     {
-        return next;
+        return node1;
     }
 
     /**
      * Set the next node in this single-link node chain/list.
-     * @param next The next node in this single-link node chain/list.
+     * @param node1 The next node in this single-link node chain/list.
      */
-    public void setNext(SingleLinkNode<T> next)
+    public Node1<T> setNode1(Node1<T> node1)
     {
-        this.next = next;
-    }
-
-    @Override
-    public Iterator<T> iterate()
-    {
-        return new SingleLinkNodeIterator<>(this);
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return Iterable.equals(this, rhs);
-    }
-
-    @Override
-    public String toString()
-    {
-        return Iterable.toString(this);
+        this.node1 = node1;
+        return this;
     }
 }

@@ -1,14 +1,14 @@
 package qub;
 
-public class SingleLinkListTests
+public interface Node1ListTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
-        runner.testGroup(SingleLinkList.class, () ->
+        runner.testGroup(Node1List.class, () ->
         {
             ListTests.test(runner, (Integer count) ->
             {
-                final SingleLinkList<Integer> result = new SingleLinkList<>();
+                final Node1List<Integer> result = Node1List.create();
                 for (int i = 0; i < count; ++i)
                 {
                     result.add(i);

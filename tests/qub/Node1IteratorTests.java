@@ -1,30 +1,30 @@
 package qub;
 
-public class SingleLinkNodeIteratorTests
+public interface Node1IteratorTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
-        runner.testGroup(SingleLinkNodeIterator.class, () ->
+        runner.testGroup(Node1Iterator.class, () ->
         {
             IteratorTests.test(runner, (Integer count, Boolean started) ->
             {
-                SingleLinkNode<Integer> head = null;
-                SingleLinkNode<Integer> tail = null;
+                Node1<Integer> head = null;
+                Node1<Integer> tail = null;
                 for (int i = 0; i < count; ++i)
                 {
                     if (head == null)
                     {
-                        head = new SingleLinkNode<>(i);
+                        head = Node1.create(i);
                         tail = head;
                     }
                     else
                     {
-                        tail.setNext(new SingleLinkNode<>(i));
-                        tail = tail.getNext();
+                        tail.setNode1(Node1.create(i));
+                        tail = tail.getNode1();
                     }
                 }
 
-                final SingleLinkNodeIterator<Integer> iterator = new SingleLinkNodeIterator<>(head);
+                final Node1Iterator<Integer> iterator = new Node1Iterator<>(head);
 
                 if (started)
                 {

@@ -1,11 +1,11 @@
 package qub;
 
-public class SingleLinkNodeIterator<T> implements Iterator<T>
+public class Node1Iterator<T> implements Iterator<T>
 {
     private boolean hasStarted;
-    private SingleLinkNode<T> currentNode;
+    private Node1<T> currentNode;
 
-    public SingleLinkNodeIterator(SingleLinkNode<T> node)
+    public Node1Iterator(Node1<T> node)
     {
         hasStarted = false;
         currentNode = node;
@@ -40,7 +40,7 @@ public class SingleLinkNodeIterator<T> implements Iterator<T>
         }
         else if (currentNode != null)
         {
-            currentNode = currentNode.getNext();
+            currentNode = currentNode.getNode1();
         }
 
         return hasCurrent();

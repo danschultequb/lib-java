@@ -1,19 +1,22 @@
 package qub;
 
-public class SingleLinkList<T> implements List<T>
+public class Node1List<T> implements List<T>
 {
-    private volatile SingleLinkNode<T> head;
-    private volatile SingleLinkNode<T> tail;
+    private volatile Node1<T> head;
 
-    public SingleLinkList()
+    private Node1List()
     {
         head = null;
-        tail = null;
     }
 
-    private SingleLinkNode<T> getNode(int index)
+    public static <T> Node1List<T> create()
     {
-        SingleLinkNode<T> result;
+        return new Node1List<>();
+    }
+
+    private Node1<T> getNode(int index)
+    {
+        Node1<T> result;
         if (index == -1)
         {
             result = null;
@@ -23,7 +26,7 @@ public class SingleLinkList<T> implements List<T>
             result = head;
             for (int i = 0; result != null && i < index; ++i)
             {
-                result = result.getNext();
+                result = result.getNode1();
             }
         }
 
@@ -31,29 +34,29 @@ public class SingleLinkList<T> implements List<T>
     }
 
     @Override
-    public SingleLinkList<T> insert(int insertIndex, T value)
+    public Node1List<T> insert(int insertIndex, T value)
     {
         PreCondition.assertBetween(0, insertIndex, getCount(), "insertIndex");
 
-        final SingleLinkNode<T> nodeToAdd = new SingleLinkNode<>(value);
+        final Node1<T> nodeToAdd = Node1.create(value);
 
         if (insertIndex == 0)
         {
-            nodeToAdd.setNext(head);
+            nodeToAdd.setNode1(head);
             head = nodeToAdd;
         }
         else
         {
-            final SingleLinkNode<T> nodeBeforeInsertIndex = this.getNode(insertIndex - 1);
-            nodeToAdd.setNext(nodeBeforeInsertIndex.getNext());
-            nodeBeforeInsertIndex.setNext(nodeToAdd);
+            final Node1<T> nodeBeforeInsertIndex = this.getNode(insertIndex - 1);
+            nodeToAdd.setNode1(nodeBeforeInsertIndex.getNode1());
+            nodeBeforeInsertIndex.setNode1(nodeToAdd);
         }
 
         return this;
     }
 
     @Override
-    public SingleLinkList<T> set(int index, T value)
+    public Node1List<T> set(int index, T value)
     {
         PreCondition.assertIndexAccess(index, getCount());
 
@@ -66,26 +69,19 @@ public class SingleLinkList<T> implements List<T>
     {
         PreCondition.assertIndexAccess(index, getCount());
 
-        final SingleLinkNode<T> nodeBeforeNodeToRemove = this.getNode(index - 1);
-        final SingleLinkNode<T> nodeToRemove = (nodeBeforeNodeToRemove == null ? head : nodeBeforeNodeToRemove.getNext());
+        final Node1<T> nodeBeforeNodeToRemove = this.getNode(index - 1);
+        final Node1<T> nodeToRemove = (nodeBeforeNodeToRemove == null ? head : nodeBeforeNodeToRemove.getNode1());
 
         if (nodeBeforeNodeToRemove == null)
         {
-            head = nodeToRemove.getNext();
+            head = nodeToRemove.getNode1();
         }
         else
         {
-            nodeBeforeNodeToRemove.setNext(nodeToRemove.getNext());
+            nodeBeforeNodeToRemove.setNode1(nodeToRemove.getNode1());
         }
 
-        if (nodeToRemove == tail)
-        {
-            tail = nodeBeforeNodeToRemove;
-        }
-        else
-        {
-            nodeToRemove.setNext(null);
-        }
+        nodeToRemove.setNode1(null);
 
         final T result = nodeToRemove.getValue();
         nodeToRemove.setValue(null);
@@ -100,12 +96,12 @@ public class SingleLinkList<T> implements List<T>
 
         T result = null;
 
-        SingleLinkNode<T> previousNode = null;
-        SingleLinkNode<T> currentNode = head;
+        Node1<T> previousNode = null;
+        Node1<T> currentNode = head;
         while (currentNode != null)
         {
             final T nodeValue = currentNode.getValue();
-            final SingleLinkNode<T> nextNode = currentNode.getNext();
+            final Node1<T> nextNode = currentNode.getNode1();
             if (condition.run(nodeValue))
             {
                 result = nodeValue;
@@ -116,15 +112,10 @@ public class SingleLinkList<T> implements List<T>
                 }
                 else
                 {
-                    previousNode.setNext(nextNode);
+                    previousNode.setNode1(nextNode);
                 }
 
-                if (nextNode == null)
-                {
-                    tail = previousNode;
-                }
-
-                currentNode.setNext(null);
+                currentNode.setNode1(null);
                 currentNode.setValue(null);
                 break;
             }
@@ -139,18 +130,17 @@ public class SingleLinkList<T> implements List<T>
     }
 
     @Override
-    public SingleLinkList<T> clear()
+    public Node1List<T> clear()
     {
-        SingleLinkNode<T> currentNode = head;
+        Node1<T> currentNode = head;
         while (currentNode != null)
         {
-            final SingleLinkNode<T> nextNode = currentNode.getNext();
+            final Node1<T> nextNode = currentNode.getNode1();
             currentNode.setValue(null);
-            currentNode.setNext(null);
+            currentNode.setNode1(null);
             currentNode = nextNode;
         }
         head = null;
-        tail = null;
 
         return this;
     }
@@ -166,7 +156,7 @@ public class SingleLinkList<T> implements List<T>
     @Override
     public Iterator<T> iterate()
     {
-        return head == null ? new EmptyIterator<>() : head.iterate();
+        return head == null ? new EmptyIterator<>() : new Node1Iterator<>(this.head);
     }
 
     @Override

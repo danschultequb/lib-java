@@ -174,7 +174,7 @@ public class TypesTests
 
                 runner.test("with existing private object memberVariable", (Test test) ->
                 {
-                    final SingleLinkNode<Integer> node = new SingleLinkNode<>(2);
+                    final Node1<Integer> node = Node1.create(2);
                     test.assertEqual(2, Types.getMemberVariableValue(node, "value"));
                 });
             });
@@ -224,7 +224,7 @@ public class TypesTests
 
                 runner.test("with existing private object memberVariable", (Test test) ->
                 {
-                    final SingleLinkNode<Integer> node = new SingleLinkNode<>(2);
+                    final Node1<Integer> node = Node1.create(2);
                     Types.setMemberVariableValue(node, "value", 7);
                     test.assertEqual(7, node.getValue());
                 });
