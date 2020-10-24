@@ -250,7 +250,7 @@ public class ByteList implements List<Byte>
     @Override
     public Iterator<Byte> iterate()
     {
-        return count == 0 ? Iterator.empty() : new ByteArrayIterator(bytes, 0, count);
+        return this.count == 0 ? Iterator.create() : new ByteArrayIterator(this.bytes, 0, this.count);
     }
 
     @Override
@@ -271,6 +271,6 @@ public class ByteList implements List<Byte>
      */
     public byte[] toByteArray()
     {
-        return Array.clone(bytes, 0, count);
+        return Array.clone(this.bytes, 0, this.count);
     }
 }

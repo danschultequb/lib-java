@@ -1,19 +1,19 @@
 package qub;
 
-public class Node1Iterator<T> implements Iterator<T>
+public class Node2Iterator<T> implements Iterator<T>
 {
     private boolean hasStarted;
-    private Node1<T> currentNode;
+    private Node2<T> currentNode;
 
-    private Node1Iterator(Node1<T> node)
+    private Node2Iterator(Node2<T> node)
     {
         this.hasStarted = false;
         this.currentNode = node;
     }
 
-    public static <T> Node1Iterator<T> create(Node1<T> node)
+    public static <T> Node2Iterator<T> create(Node2<T> node)
     {
-        return new Node1Iterator<>(node);
+        return new Node2Iterator<>(node);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class Node1Iterator<T> implements Iterator<T>
         }
         else if (this.currentNode != null)
         {
-            this.currentNode = this.currentNode.getNode1();
+            this.currentNode = this.currentNode.getNode2();
         }
 
         return this.hasCurrent();

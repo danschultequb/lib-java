@@ -349,9 +349,9 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      * @param <T> The type of values to iterate over.
      * @return The empty iterator.
      */
-    static <T> Iterator<T> empty()
+    static <T> Iterator<T> create()
     {
-        return new EmptyIterator<>();
+        return EmptyIterator.create();
     }
 
     /**

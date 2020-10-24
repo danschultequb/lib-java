@@ -156,7 +156,7 @@ public class Node1List<T> implements List<T>
     @Override
     public Iterator<T> iterate()
     {
-        return head == null ? new EmptyIterator<>() : new Node1Iterator<>(this.head);
+        return head == null ? EmptyIterator.create() : Node1Iterator.create(this.head);
     }
 
     @Override

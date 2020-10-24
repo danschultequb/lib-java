@@ -270,7 +270,7 @@ public class CharacterList implements List<Character>
     @Override
     public Iterator<Character> iterate()
     {
-        return count == 0 ? Iterator.empty() : new CharacterArrayIterator(characters, 0, count);
+        return count == 0 ? Iterator.create() : new CharacterArrayIterator(characters, 0, count);
     }
 
     @Override

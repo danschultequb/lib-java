@@ -1,14 +1,14 @@
 package qub;
 
-public class DoubleLinkListTests
+public interface Node2ListTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
-        runner.testGroup(DoubleLinkList.class, () ->
+        runner.testGroup(Node2List.class, () ->
         {
             ListTests.test(runner, (Integer count) ->
             {
-                final DoubleLinkList<Integer> result = new DoubleLinkList<>();
+                final Node2List<Integer> result = Node2List.create();
                 for (int i = 0; i < count; ++i)
                 {
                     result.add(i);

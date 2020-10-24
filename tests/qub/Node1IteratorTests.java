@@ -24,7 +24,7 @@ public interface Node1IteratorTests
                     }
                 }
 
-                final Node1Iterator<Integer> iterator = new Node1Iterator<>(head);
+                final Node1Iterator<Integer> iterator = Node1Iterator.create(head);
 
                 if (started)
                 {

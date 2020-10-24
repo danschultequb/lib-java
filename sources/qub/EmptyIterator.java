@@ -4,10 +4,19 @@ public class EmptyIterator<T> implements Iterator<T>
 {
     private boolean hasStarted;
 
+    private EmptyIterator()
+    {
+    }
+
+    public static <T> EmptyIterator<T> create()
+    {
+        return new EmptyIterator<>();
+    }
+
     @Override
     public boolean hasStarted()
     {
-        return hasStarted;
+        return this.hasStarted;
     }
 
     @Override
@@ -27,7 +36,7 @@ public class EmptyIterator<T> implements Iterator<T>
     @Override
     public boolean next()
     {
-        hasStarted = true;
+        this.hasStarted = true;
         return false;
     }
 }

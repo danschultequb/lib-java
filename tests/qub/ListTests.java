@@ -31,6 +31,29 @@ public interface ListTests
                     list.add(70);
                     test.assertEqual(Iterable.create(70), list);
                 });
+
+                runner.test("after inserting a value at index 0", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(0);
+
+                    list.insert(0, 10);
+
+                    final List<Integer> addResult = list.add(20);
+                    test.assertSame(list, addResult);
+                    test.assertEqual(Iterable.create(10, 20), list);
+                });
+
+                runner.test("after inserting values at index 0 and 1", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(0);
+
+                    list.insert(0, 20);
+                    list.insert(0, 10);
+
+                    final List<Integer> addResult = list.add(30);
+                    test.assertSame(list, addResult);
+                    test.assertEqual(Iterable.create(10, 20, 30), list);
+                });
             });
 
             runner.testGroup("insert(int,T)", () ->
@@ -124,7 +147,7 @@ public interface ListTests
                 list.addAll((Iterator<Integer>)null);
                 test.assertEqual(Iterable.create(0, 1, 2, 3, 4, 5), list);
 
-                list.addAll(Iterator.empty());
+                list.addAll(Iterator.create());
                 test.assertEqual(Iterable.create(0, 1, 2, 3, 4, 5), list);
 
                 list.addAll(Iterator.create(6, 7, 8, 9));

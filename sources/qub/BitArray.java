@@ -630,7 +630,7 @@ public class BitArray implements Array<Integer>
     {
         PreCondition.assertEqual(0, getCount() % Integers.bitCount, "getCount() % Integers.bitCount");
 
-        final Iterator<Integer> result = bitChunks.length == 0 ? Iterator.empty() : Iterator.create(bitChunks);
+        final Iterator<Integer> result = bitChunks.length == 0 ? Iterator.create() : Iterator.create(bitChunks);
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertFalse(result.hasStarted(), "result.hasStarted()");

@@ -127,7 +127,7 @@ public interface SetTests
                 runner.test("with empty", (Test test) ->
                 {
                     final Set<Integer> set = creator.run();
-                    set.addAll(Iterator.empty());
+                    set.addAll(Iterator.create());
                     test.assertEqual(0, set.getCount());
                 });
 
