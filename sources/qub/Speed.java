@@ -266,10 +266,10 @@ public class Speed implements Comparable<Speed>
     }
 
     @Override
-    public Comparison compareTo(Speed rhs)
+    public Comparison compareWith(Speed rhs)
     {
         return rhs == null
             ? Comparison.GreaterThan
-            : Comparison.from(this.value - rhs.convertTo(this.distanceUnits, this.durationUnits).value);
+            : Comparison.create(this.value - rhs.convertTo(this.distanceUnits, this.durationUnits).value);
     }
 }

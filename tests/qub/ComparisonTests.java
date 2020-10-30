@@ -12,7 +12,7 @@ public interface ComparisonTests
             {
                 runner.test("with " + differenceValue, (Test test) ->
                 {
-                    test.assertEqual(expected, Comparison.from(differenceValue));
+                    test.assertEqual(expected, Comparison.create(differenceValue));
                 });
             };
 
@@ -27,7 +27,7 @@ public interface ComparisonTests
         {
             runner.test("with negative margin of error", (Test test) ->
             {
-                test.assertThrows(() -> Comparison.from(5, -0.001),
+                test.assertThrows(() -> Comparison.create(5, -0.001),
                     new PreConditionFailure("marginOfError (-0.001) must be greater than or equal to 0.0."));
             });
 
@@ -35,7 +35,7 @@ public interface ComparisonTests
             {
                 runner.test("with " + differenceValue + " and " + marginOfError + " margin of error", (Test test) ->
                 {
-                    test.assertEqual(expected, Comparison.from(differenceValue, marginOfError));
+                    test.assertEqual(expected, Comparison.create(differenceValue, marginOfError));
                 });
             };
 

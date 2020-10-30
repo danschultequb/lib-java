@@ -589,7 +589,7 @@ public interface Strings
         }
         else
         {
-            result = Comparison.from(lhs.compareTo(rhs));
+            result = Comparison.create(lhs.compareTo(rhs));
         }
         return result;
     }

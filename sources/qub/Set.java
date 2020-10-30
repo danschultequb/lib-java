@@ -8,7 +8,7 @@ public interface Set<T> extends Iterable<T>
      * @param <T> The type of elements contained by the created Set.
      * @return The created List.
      */
-    @SuppressWarnings("unchecked")
+    @SafeVarargs
     static <T> Set<T> create(T... initialValues)
     {
         PreCondition.assertNotNull(initialValues, "initialValues");

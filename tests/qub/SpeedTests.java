@@ -552,7 +552,7 @@ public interface SpeedTests
                 {
                     runner.test("with " + English.andList(lhs, rhs), (Test test) ->
                     {
-                        test.assertEqual(expected, lhs.compareTo(rhs));
+                        test.assertEqual(expected, lhs.compareWith(rhs));
                     });
                 };
 

@@ -159,9 +159,9 @@ public class Date implements Comparable<Date>
     }
 
     @Override
-    public Comparison compareTo(Date value)
+    public Comparison compareWith(Date value)
     {
-        return value == null ? Comparison.GreaterThan : this.dateTime.compareTo(value.dateTime);
+        return value == null ? Comparison.GreaterThan : this.dateTime.compareWith(value.dateTime);
     }
 
     @Override

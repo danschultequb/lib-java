@@ -212,7 +212,7 @@ public class Node2List<T> implements List<T>
     @Override
     public Iterator<T> iterate()
     {
-        return head == null ? EmptyIterator.create() : Node2Iterator.create(this.head);
+        return head == null ? EmptyIterator.create() : Node2ListIterator.create(this.head);
     }
 
     @Override

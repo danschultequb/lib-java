@@ -500,7 +500,7 @@ public interface DurationTests
                 {
                     runner.test("with " + duration + " and " + rhs, (Test test) ->
                     {
-                        test.assertEqual(expected, duration.compareTo(rhs));
+                        test.assertEqual(expected, duration.compareWith(rhs));
                     });
                 };
 

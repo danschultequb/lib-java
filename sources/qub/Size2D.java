@@ -98,7 +98,7 @@ public interface Size2D extends ComparableWithError<Size2D>
     }
 
     @Override
-    default Comparison compareTo(Size2D value)
+    default Comparison compareWith(Size2D value)
     {
         return this.compareTo(value, Size2D.zero);
     }

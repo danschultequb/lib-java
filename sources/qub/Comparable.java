@@ -4,14 +4,30 @@ package qub;
  * Describes a type that can be compared to another type.
  * @param <T> The Type that this type can be compared to.
  */
-public interface Comparable<T>
+public interface Comparable<T> extends java.lang.Comparable<T>
 {
+    default int compareTo(T rhs)
+    {
+        int result = 0;
+        switch (this.compareWith(rhs))
+        {
+            case LessThan:
+                result = -1;
+                break;
+
+            case GreaterThan:
+                result = 1;
+                break;
+        }
+        return result;
+    }
+
     /**
      * Compare this value with the provided value.
      * @param value The value to compare this value with.
      * @return The comparison result.
      */
-    Comparison compareTo(T value);
+    Comparison compareWith(T value);
 
     /**
      * Get whether or not this value is less than the provided value.
@@ -20,7 +36,7 @@ public interface Comparable<T>
      */
     default boolean lessThan(T value)
     {
-        return compareTo(value) == Comparison.LessThan;
+        return this.compareWith(value) == Comparison.LessThan;
     }
 
     /**
@@ -30,7 +46,7 @@ public interface Comparable<T>
      */
     default boolean lessThanOrEqualTo(T value)
     {
-        return compareTo(value) != Comparison.GreaterThan;
+        return this.compareWith(value) != Comparison.GreaterThan;
     }
 
     /**
@@ -40,7 +56,7 @@ public interface Comparable<T>
      */
     default boolean greaterThanOrEqualTo(T value)
     {
-        return compareTo(value) != Comparison.LessThan;
+        return this.compareWith(value) != Comparison.LessThan;
     }
 
     /**
@@ -50,7 +66,7 @@ public interface Comparable<T>
      */
     default boolean greaterThan(T value)
     {
-        return compareTo(value) == Comparison.GreaterThan;
+        return this.compareWith(value) == Comparison.GreaterThan;
     }
 
     /**
@@ -64,6 +80,6 @@ public interface Comparable<T>
     {
         PreCondition.assertNotNull(lhs, "lhs");
 
-        return lhs.compareTo(rhs) == Comparison.Equal;
+        return lhs.compareWith(rhs) == Comparison.Equal;
     }
 }

@@ -161,7 +161,7 @@ public class QubProjectVersionFolder extends Folder implements Comparable<QubPro
     }
 
     @Override
-    public Comparison compareTo(QubProjectVersionFolder rhs)
+    public Comparison compareWith(QubProjectVersionFolder rhs)
     {
         Comparison result;
 
@@ -177,7 +177,7 @@ public class QubProjectVersionFolder extends Folder implements Comparable<QubPro
                 result = Comparer.compare(this.getProjectName().await(), rhs.getProjectName().await());
                 if (result == Comparison.Equal)
                 {
-                    result = this.getVersion().await().compareTo(rhs.getVersion().await());
+                    result = this.getVersion().await().compareWith(rhs.getVersion().await());
                 }
             }
         }

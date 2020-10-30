@@ -177,9 +177,9 @@ public class LongValue implements Value<java.lang.Long>, Comparable<java.lang.Lo
     }
 
     @Override
-    public Comparison compareTo(java.lang.Long value)
+    public Comparison compareWith(java.lang.Long value)
     {
-        return value == null ? Comparison.GreaterThan : Comparison.from(this.get() - value);
+        return value == null ? Comparison.GreaterThan : Comparison.create(this.get() - value);
     }
 
     @Override

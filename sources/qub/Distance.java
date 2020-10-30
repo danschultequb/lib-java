@@ -582,7 +582,7 @@ public class Distance implements ComparableWithError<Distance>
     }
 
     @Override
-    public Comparison compareTo(Distance value)
+    public Comparison compareWith(Distance value)
     {
         return this.compareTo(value, Distance.zero);
     }
@@ -600,7 +600,7 @@ public class Distance implements ComparableWithError<Distance>
         else
         {
             final DistanceUnit units = this.getUnits();
-            result = Comparison.from(this.getValue() - value.convertTo(units).getValue(), marginOfError.convertTo(units).getValue());
+            result = Comparison.create(this.getValue() - value.convertTo(units).getValue(), marginOfError.convertTo(units).getValue());
         }
 
         PostCondition.assertNotNull(result, "result");

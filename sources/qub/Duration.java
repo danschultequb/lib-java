@@ -227,10 +227,10 @@ public interface Duration extends ComparableWithError<Duration>
 
     default boolean equals(Duration rhs)
     {
-        return this.compareTo(rhs) == Comparison.Equal;
+        return this.compareWith(rhs) == Comparison.Equal;
     }
 
-    default Comparison compareTo(Duration rhs)
+    default Comparison compareWith(Duration rhs)
     {
         return this.compareTo(rhs, Duration.zero);
     }
@@ -247,7 +247,7 @@ public interface Duration extends ComparableWithError<Duration>
             final double thisValue = this.getValue();
             final double convertedRhsValue = rhs.convertTo(this.getUnits()).getValue();
             final double convertedMarginOfErrorValue = marginOfError.convertTo(this.getUnits()).getValue();
-            result = Comparison.from(thisValue - convertedRhsValue, convertedMarginOfErrorValue);
+            result = Comparison.create(thisValue - convertedRhsValue, convertedMarginOfErrorValue);
         }
 
         PostCondition.assertNotNull(result, "result");

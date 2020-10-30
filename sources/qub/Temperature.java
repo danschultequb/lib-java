@@ -165,7 +165,7 @@ public class Temperature implements Comparable<Temperature>
     }
 
     @Override
-    public Comparison compareTo(Temperature value)
+    public Comparison compareWith(Temperature value)
     {
         Comparison result;
         if (value == null)
@@ -174,7 +174,7 @@ public class Temperature implements Comparable<Temperature>
         }
         else
         {
-            result = Comparison.from(this.toCelsius().getValue() - value.toCelsius().getValue());
+            result = Comparison.create(this.toCelsius().getValue() - value.toCelsius().getValue());
         }
 
         PostCondition.assertNotNull(result, "result");

@@ -7,7 +7,7 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
 {
     static Comparison compare(int lhs, int rhs)
     {
-        return Comparison.from(lhs - rhs);
+        return Comparison.create(lhs - rhs);
     }
 
     static Comparison compare(int lhs, Integer rhs)
@@ -38,7 +38,7 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
         }
         else
         {
-            result = Comparison.from(lhs.compareTo(rhs));
+            result = Comparison.create(lhs.compareTo(rhs));
         }
 
         return result;
@@ -48,7 +48,7 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
     {
         return lhs == rhs ? Comparison.Equal :
                lhs == null ? Comparison.LessThan :
-               lhs.compareTo(rhs);
+               lhs.compareWith(rhs);
     }
 
     static <T> Comparison compare(ComparableWithError<T> lhs, T rhs, T marginOfError)

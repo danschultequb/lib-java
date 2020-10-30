@@ -74,7 +74,7 @@ public interface Integers
      */
     static Comparison compare(int lhs, int rhs)
     {
-        return Comparison.from(lhs - rhs);
+        return Comparison.create(lhs - rhs);
     }
 
     /**

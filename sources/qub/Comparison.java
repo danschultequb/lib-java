@@ -16,9 +16,9 @@ public enum Comparison
      * @param value The difference between the two values.
      * @return The Comparison value.
      */
-    public static Comparison from(double value)
+    public static Comparison create(double value)
     {
-        return Comparison.from(value, 0);
+        return Comparison.create(value, 0);
     }
 
     /**
@@ -28,7 +28,7 @@ public enum Comparison
      *                      equal.
      * @return The Comparison value.
      */
-    public static Comparison from(double value, double marginOfError)
+    public static Comparison create(double value, double marginOfError)
     {
         PreCondition.assertGreaterThanOrEqualTo(marginOfError, 0, "marginOfError");
 

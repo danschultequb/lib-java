@@ -119,7 +119,7 @@ public interface VersionNumber extends Comparable<VersionNumber>
     }
 
     @Override
-    default Comparison compareTo(VersionNumber rhs)
+    default Comparison compareWith(VersionNumber rhs)
     {
         Comparison result;
 

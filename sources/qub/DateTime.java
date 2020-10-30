@@ -330,9 +330,9 @@ public class DateTime implements Comparable<DateTime>
     }
 
     @Override
-    public Comparison compareTo(DateTime value)
+    public Comparison compareWith(DateTime value)
     {
-        return value == null ? Comparison.GreaterThan : Comparison.from(this.offsetDateTime.compareTo(value.offsetDateTime));
+        return value == null ? Comparison.GreaterThan : Comparison.create(this.offsetDateTime.compareTo(value.offsetDateTime));
     }
 
     @Override

@@ -5071,11 +5071,11 @@ public class DataSize implements ComparableWithError<DataSize>
     }
 
     @Override
-    public Comparison compareTo(DataSize value)
+    public Comparison compareWith(DataSize value)
     {
         return value == null
             ? Comparison.GreaterThan
-            : Comparison.from(this.value - value.convertTo(this.units).value);
+            : Comparison.create(this.value - value.convertTo(this.units).value);
     }
 
     @Override

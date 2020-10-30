@@ -730,7 +730,7 @@ public interface MutableVersionNumberTests
                 {
                     runner.test("with " + English.andList(Iterable.create(lhs, rhs).map(Strings::escapeAndQuote)), (Test test) ->
                     {
-                        test.assertEqual(expected, lhs.compareTo(rhs));
+                        test.assertEqual(expected, lhs.compareWith(rhs));
                     });
                 };
 

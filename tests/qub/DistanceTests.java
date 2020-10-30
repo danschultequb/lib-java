@@ -876,17 +876,17 @@ public interface DistanceTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertEqual(Comparison.GreaterThan, Distance.millimeters(1).compareTo(null));
+                    test.assertEqual(Comparison.GreaterThan, Distance.millimeters(1).compareWith(null));
                 });
 
                 runner.test("with less than with equal units", (Test test) ->
                 {
-                    test.assertEqual(Comparison.LessThan, Distance.centimeters(1).compareTo(Distance.centimeters(2)));
+                    test.assertEqual(Comparison.LessThan, Distance.centimeters(1).compareWith(Distance.centimeters(2)));
                 });
 
                 runner.test("with less than with different units", (Test test) ->
                 {
-                    test.assertEqual(Comparison.LessThan, Distance.centimeters(10).compareTo(Distance.meters(1)));
+                    test.assertEqual(Comparison.LessThan, Distance.centimeters(10).compareWith(Distance.meters(1)));
                 });
             });
         });

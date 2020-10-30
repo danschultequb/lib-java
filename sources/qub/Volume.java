@@ -870,8 +870,8 @@ public class Volume implements Comparable<Volume>
     }
 
     @Override
-    public Comparison compareTo(Volume rhs)
+    public Comparison compareWith(Volume rhs)
     {
-        return rhs == null ? Comparison.GreaterThan : Comparison.from(this.value - rhs.convertTo(this.units).value);
+        return rhs == null ? Comparison.GreaterThan : Comparison.create(this.value - rhs.convertTo(this.units).value);
     }
 }

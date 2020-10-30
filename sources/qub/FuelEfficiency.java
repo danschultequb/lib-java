@@ -258,10 +258,10 @@ public class FuelEfficiency implements Comparable<FuelEfficiency>
     }
 
     @Override
-    public Comparison compareTo(FuelEfficiency rhs)
+    public Comparison compareWith(FuelEfficiency rhs)
     {
         return rhs == null
             ? Comparison.GreaterThan
-            : Comparison.from(this.value - rhs.convertTo(this.distanceUnits, this.volumeUnits).value);
+            : Comparison.create(this.value - rhs.convertTo(this.distanceUnits, this.volumeUnits).value);
     }
 }

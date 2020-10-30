@@ -145,9 +145,9 @@ public class IntegerValue implements Value<java.lang.Integer>, Comparable<java.l
     }
 
     @Override
-    public Comparison compareTo(Integer value)
+    public Comparison compareWith(Integer value)
     {
-        return value == null ? Comparison.GreaterThan : Comparison.from(this.get() - value);
+        return value == null ? Comparison.GreaterThan : Comparison.create(this.get() - value);
     }
 
     @Override
