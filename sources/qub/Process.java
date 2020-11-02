@@ -744,6 +744,20 @@ public interface Process extends Disposable
     }
 
     /**
+     * Get the version of Java that is running this application.
+     * @return The version of Java that is running this application.
+     */
+    default VersionNumber getJavaVersion()
+    {
+        final String javaVersionString = this.getSystemProperty("java.version").await();
+        final VersionNumber result = VersionNumber.parse(javaVersionString).await();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
      * Create a new Window for this Process. The new Window will be created in an invisible state,
      * so it will not be visible initially.
      * @return The new Window.

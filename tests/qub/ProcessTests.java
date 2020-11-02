@@ -935,6 +935,12 @@ public interface ProcessTests
                     test.assertEqual(originalJvmClassPath, test.getProcess().getJVMClasspath().await());
                 }
             });
+
+            runner.test("getJavaVersion()", (Test test) ->
+            {
+                final VersionNumber version = test.getProcess().getJavaVersion();
+                test.assertNotNull(version);
+            });
         });
     }
 }
