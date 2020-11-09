@@ -114,6 +114,13 @@ public interface ProcessFactoryTests
                     test.assertThrows(() -> factory.run(Path.parse("javac"), Iterable.create(), null, null, null, null, null),
                         new PreConditionFailure("workingFolderPath cannot be null."));
                 });
+
+                runner.test("with valid arguments", (Test test) ->
+                {
+                    final ProcessFactory factory = creator.run(test);
+                    final Integer runResult = factory.run(Path.parse("javac"), Iterable.create(), test.getProcess().getCurrentFolderPath(), null, null, null, null).await();
+                    test.assertEqual(2, runResult);
+                });
             });
 
             runner.testGroup("start()", () ->
@@ -137,6 +144,34 @@ public interface ProcessFactoryTests
                     final ProcessFactory factory = creator.run(test);
                     test.assertThrows(() -> factory.start(Path.parse("javac"), Iterable.create(), null, null, null, null, null),
                         new PreConditionFailure("workingFolderPath cannot be null."));
+                });
+
+                runner.test("with valid arguments", (Test test) ->
+                {
+                    final ProcessFactory factory = creator.run(test);
+                    final ChildProcess runResult = factory.start(Path.parse("javac"), Iterable.create(), test.getProcess().getCurrentFolderPath(), null, null, null, null).await();
+                    test.assertNotNull(runResult);
+                    test.assertEqual(ProcessState.Running, runResult.getState());
+                    test.assertEqual(2, runResult.await());
+                    test.assertEqual(ProcessState.NotRunning, runResult.getState());
+                    test.assertEqual(2, runResult.await());
+                    test.assertEqual(ProcessState.NotRunning, runResult.getState());
+                });
+
+                runner.test("with delay before awaiting", (Test test) ->
+                {
+                    final ProcessFactory factory = creator.run(test);
+                    final ChildProcess runResult = factory.start(Path.parse("javac"), Iterable.create(), test.getProcess().getCurrentFolderPath(), null, null, null, null).await();
+                    test.assertNotNull(runResult);
+                    test.assertEqual(ProcessState.Running, runResult.getState());
+
+                    test.getClock().delay(Duration.seconds(0.5)).await();
+
+                    test.assertEqual(ProcessState.NotRunning, runResult.getState());
+                    test.assertEqual(2, runResult.await());
+                    test.assertEqual(ProcessState.NotRunning, runResult.getState());
+                    test.assertEqual(2, runResult.await());
+                    test.assertEqual(ProcessState.NotRunning, runResult.getState());
                 });
             });
         });

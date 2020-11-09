@@ -22,7 +22,7 @@ public abstract class ProcessBuilderDecorator<T extends ProcessBuilder> implemen
     }
 
     @Override
-    public Result<ChildProcess> start()
+    public Result<? extends ChildProcess> start()
     {
         return this.processBuilder.start();
     }

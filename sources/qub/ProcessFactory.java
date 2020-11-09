@@ -72,7 +72,7 @@ public interface ProcessFactory
      * @param verbose The CharacterWriteStream that verbose logs will be written to.
      * @return A reference to the created child process.
      */
-    Result<ChildProcess> start(Path executablePath, Iterable<String> arguments, Path workingFolderPath, ByteReadStream redirectedInputStream, Action1<ByteReadStream> redirectedOutputStream, Action1<ByteReadStream> redirectedErrorStream, CharacterWriteStream verbose);
+    Result<? extends ChildProcess> start(Path executablePath, Iterable<String> arguments, Path workingFolderPath, ByteReadStream redirectedInputStream, Action1<ByteReadStream> redirectedOutputStream, Action1<ByteReadStream> redirectedErrorStream, CharacterWriteStream verbose);
 
     /**
      * Get the full command line string that will be run.

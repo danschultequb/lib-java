@@ -6,7 +6,18 @@ public interface FakeProcessFactoryTests
     {
         runner.testGroup(FakeProcessFactoryTests.class, () ->
         {
-            ProcessFactoryTests.test(runner, (Test test) -> new FakeProcessFactory(test.getParallelAsyncRunner(), Path.parse("/working/")));
+            ProcessFactoryTests.test(runner, (Test test) ->
+            {
+                final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
+                final Clock clock = test.getClock();
+                return new FakeProcessFactory(asyncRunner, Path.parse("/working/"))
+                    .add(FakeProcessRun.get("javac")
+                        .setFunction(() ->
+                        {
+                            clock.delay(Duration.seconds(0.1)).await();
+                            return 2;
+                        }));
+            });
 
             runner.testGroup("constructor(String)", () ->
             {

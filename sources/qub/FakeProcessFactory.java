@@ -68,7 +68,7 @@ public class FakeProcessFactory implements ProcessFactory
     }
 
     @Override
-    public Result<ChildProcess> start(Path executablePath, Iterable<String> arguments, Path workingFolderPath, ByteReadStream redirectedInputStream, Action1<ByteReadStream> redirectedOutputStream, Action1<ByteReadStream> redirectedErrorStream, CharacterWriteStream verbose)
+    public Result<FakeChildProcess> start(Path executablePath, Iterable<String> arguments, Path workingFolderPath, ByteReadStream redirectedInputStream, Action1<ByteReadStream> redirectedOutputStream, Action1<ByteReadStream> redirectedErrorStream, CharacterWriteStream verbose)
     {
         PreCondition.assertNotNull(executablePath, "executablePath");
         PreCondition.assertNotNull(arguments, "arguments");
@@ -103,7 +103,9 @@ public class FakeProcessFactory implements ProcessFactory
                 match = partialMatch;
             }
 
-            ChildProcess result;
+            final FakeChildProcess result = FakeChildProcess.create()
+                .setState(ProcessState.Running);
+
             if (match == null)
             {
                 final String command = ProcessFactory.getCommand(executablePath, arguments, workingFolderPath);
@@ -114,7 +116,7 @@ public class FakeProcessFactory implements ProcessFactory
                 final Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer> function = match.getFunction();
                 if (function == null)
                 {
-                    result = BasicChildProcess.create(0);
+                    result.setProcessResult(0);
                 }
                 else
                 {
@@ -125,24 +127,25 @@ public class FakeProcessFactory implements ProcessFactory
                             : InMemoryByteStream.create().endOfStream();
 
                         final InMemoryByteStream output = InMemoryByteStream.create();
-                        final Result<Void> outputTask = redirectedOutputStream != null
-                            ? this.asyncRunner.schedule(() -> redirectedOutputStream.run(output))
-                            : Result.success();
+                        if (redirectedOutputStream != null)
+                        {
+                            result.setOutputResult(this.asyncRunner.schedule(() -> redirectedOutputStream.run(output)));
+                        }
 
                         final InMemoryByteStream error = InMemoryByteStream.create();
-                        final Result<Void> errorTask = redirectedErrorStream != null
-                            ? this.asyncRunner.schedule(() -> redirectedErrorStream.run(error))
-                            : Result.success();
+                        if (redirectedErrorStream != null)
+                        {
+                            result.setErrorResult(this.asyncRunner.schedule(() -> redirectedErrorStream.run(error)));
+                        }
 
-                        final Function0<Integer> processFunction = () ->
+                        result.setProcessResult(this.asyncRunner.schedule(() ->
                         {
                             final int exitCode = function.run(input, output, error);
                             output.endOfStream();
                             error.endOfStream();
+                            result.setState(ProcessState.NotRunning);
                             return exitCode;
-                        };
-
-                        result = BasicChildProcess.create(processFunction, outputTask, errorTask);
+                        }));
                     }
                     catch (Throwable error)
                     {

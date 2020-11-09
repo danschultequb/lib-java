@@ -1,5 +1,7 @@
 package qub;
 
+import java.io.IOException;
+
 /**
  * A ProcessFactory implementation that invokes external processes.
  */
@@ -115,23 +117,9 @@ public class RealProcessFactory implements ProcessFactory
                     ? Result.success()
                     : this.parallelAsyncRunner.schedule(() -> redirectErrorAction.run(new InputStreamToByteReadStream(childProcess.getErrorStream())));
 
-                final Function0<Integer> processFunction = () ->
-                {
-                    final int exitCode;
-                    try
-                    {
-                        exitCode = childProcess.waitFor();
-                    }
-                    catch (Throwable e)
-                    {
-                        throw Exceptions.asRuntime(e);
-                    }
-                    return exitCode;
-                };
-
-                result = BasicChildProcess.create(processFunction, outputAction, errorAction);
+                result = RealChildProcess.create(childProcess, outputAction, errorAction);
             }
-            catch (Throwable e)
+            catch (java.io.IOException e)
             {
                 throw Exceptions.asRuntime(e);
             }

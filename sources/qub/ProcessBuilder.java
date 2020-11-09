@@ -17,7 +17,7 @@ public interface ProcessBuilder
      * to complete before returning.
      * @return The ChildProcess that can be used to monitor the started process.
      */
-    Result<ChildProcess> start();
+    Result<? extends ChildProcess> start();
 
     /**
      * Get the path to the executable that this ProcessBuilder will invoke.

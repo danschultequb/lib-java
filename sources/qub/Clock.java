@@ -42,4 +42,17 @@ public interface Clock
 
         return this.scheduleAt(this.getCurrentDateTime().plus(duration), action);
     }
+
+    /**
+     * Delay the current thread for the provided duration.
+     * @param duration The duration to delay the current thread.
+     * @return The result of delaying the current thread.
+     */
+    default Result<Void> delay(Duration duration)
+    {
+        PreCondition.assertNotNull(duration, "duration");
+        PreCondition.assertGreaterThanOrEqualTo(duration, Duration.zero, "duration");
+
+        return this.scheduleAfter(duration, Action0.empty);
+    }
 }
