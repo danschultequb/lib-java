@@ -167,6 +167,18 @@ public class JSONProperty implements MapEntry<String,JSONSegment>
         return JSONSegment.toString((Function2<IndentedCharacterWriteStream,JSONFormat,Result<Integer>>)this::toString);
     }
 
+    /**
+     * Get the String representation of this JSONSegment using the provided format.
+     * @param format The format to use when converting this JSONSegment to a string.
+     * @return The number of characters that were written.
+     */
+    public String toString(JSONFormat format)
+    {
+        PreCondition.assertNotNull(format, "format");
+
+        return JSONSegment.toString((IndentedCharacterWriteStream stream) -> this.toString(stream, format));
+    }
+
     public Result<Integer> toString(IndentedCharacterWriteStream stream, JSONFormat format)
     {
         PreCondition.assertNotNull(stream, "stream");

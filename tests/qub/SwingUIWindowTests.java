@@ -392,7 +392,7 @@ public interface SwingUIWindowTests
                     Iterable.create(Distance.inches(1)));
                 setHeightTest.run(
                     Distance.feet(1),
-                    Iterable.create(Distance.inches(7.35), Distance.inches(9.77)));
+                    Iterable.create(Distance.inches(7.35), Distance.inches(9.77), Distance.inches(12)));
             });
 
             runner.test("getDynamicHeight()", (Test test) ->
