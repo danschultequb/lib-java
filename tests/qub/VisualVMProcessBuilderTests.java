@@ -32,7 +32,7 @@ public interface VisualVMProcessBuilderTests
                         process.setEnvironmentVariables(new EnvironmentVariables()
                             .set("QUB_HOME", "/qub/"));
 
-                        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                         fileSystem.createRoot("/").await();
                         process.setFileSystem(fileSystem);
 
@@ -48,7 +48,7 @@ public interface VisualVMProcessBuilderTests
                         process.setEnvironmentVariables(new EnvironmentVariables()
                             .set("QUB_HOME", "/qub/"));
 
-                        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                         fileSystem.createRoot("/").await();
                         fileSystem.createFolder("/qub/").await();
                         process.setFileSystem(fileSystem);
@@ -65,7 +65,7 @@ public interface VisualVMProcessBuilderTests
                         process.setEnvironmentVariables(new EnvironmentVariables()
                             .set("QUB_HOME", "/qub/"));
 
-                        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                         fileSystem.createRoot("/").await();
                         fileSystem.createFolder("/qub/oracle/").await();
                         process.setFileSystem(fileSystem);
@@ -82,7 +82,7 @@ public interface VisualVMProcessBuilderTests
                         process.setEnvironmentVariables(new EnvironmentVariables()
                             .set("QUB_HOME", "/qub/"));
 
-                        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                         fileSystem.createRoot("/").await();
                         fileSystem.createFolder("/qub/oracle/visualvm/").await();
                         process.setFileSystem(fileSystem);
@@ -99,7 +99,7 @@ public interface VisualVMProcessBuilderTests
                         process.setEnvironmentVariables(new EnvironmentVariables()
                             .set("QUB_HOME", "/qub/"));
 
-                        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                         fileSystem.createRoot("/").await();
                         fileSystem.createFolder("/qub/oracle/visualvm/versions").await();
                         process.setFileSystem(fileSystem);
@@ -116,7 +116,7 @@ public interface VisualVMProcessBuilderTests
                         process.setEnvironmentVariables(new EnvironmentVariables()
                             .set("QUB_HOME", "/qub/"));
 
-                        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                         fileSystem.createRoot("/").await();
                         fileSystem.createFolder("/qub/oracle/visualvm/versions/1.2.3/").await();
                         process.setFileSystem(fileSystem);
@@ -134,7 +134,7 @@ public interface VisualVMProcessBuilderTests
                         process.setEnvironmentVariables(new EnvironmentVariables()
                             .set("QUB_HOME", "/qub/"));
 
-                        final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                         fileSystem.createRoot("/").await();
                         fileSystem.createFolder("/qub/oracle/visualvm/versions/1/").await();
                         fileSystem.createFolder("/qub/oracle/visualvm/versions/2/").await();

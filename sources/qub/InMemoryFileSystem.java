@@ -8,12 +8,17 @@ public class InMemoryFileSystem implements FileSystem
     private final List<InMemoryRoot> roots;
     private final Clock clock;
 
-    public InMemoryFileSystem(Clock clock)
+    private InMemoryFileSystem(Clock clock)
     {
         PreCondition.assertNotNull(clock, "clock");
 
-        roots = List.create();
+        this.roots = List.create();
         this.clock = clock;
+    }
+
+    public static InMemoryFileSystem create(Clock clock)
+    {
+        return new InMemoryFileSystem(clock);
     }
 
     private InMemoryRoot getInMemoryRoot(String inMemoryRootPath)

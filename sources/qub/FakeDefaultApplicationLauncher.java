@@ -5,6 +5,15 @@ package qub;
  */
 public class FakeDefaultApplicationLauncher implements DefaultApplicationLauncher
 {
+    private FakeDefaultApplicationLauncher()
+    {
+    }
+
+    public static FakeDefaultApplicationLauncher create()
+    {
+        return new FakeDefaultApplicationLauncher();
+    }
+
     @Override
     public Result<Void> openFileWithDefaultApplication(Path filePathToOpen)
     {

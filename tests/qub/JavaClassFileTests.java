@@ -16,7 +16,7 @@ public interface JavaClassFileTests
 
                 runner.test("with class file that doesn't exist", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("/").await();
 
                     final File file = fileSystem.getFile("/outputs/a/b.class").await();
@@ -28,7 +28,7 @@ public interface JavaClassFileTests
 
                 runner.test("with non-class file that doesn't exist", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("/").await();
 
                     final File file = fileSystem.getFile("/outputs/a/b.txt").await();
@@ -43,14 +43,14 @@ public interface JavaClassFileTests
             {
                 runner.test("with non-anonymous class file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     final JavaClassFile classFile = new JavaClassFile(fileSystem.getFile("/outputs/a/b.class").await());
                     test.assertFalse(classFile.isAnonymousClass());
                 });
 
                 runner.test("with anonymous class file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     final JavaClassFile classFile = new JavaClassFile(fileSystem.getFile("/outputs/a/b$1.class").await());
                     test.assertTrue(classFile.isAnonymousClass());
                 });
@@ -168,14 +168,14 @@ public interface JavaClassFileTests
             {
                 runner.test("with non-anonymous class file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     final JavaClassFile classFile = new JavaClassFile(fileSystem.getFile("/outputs/a/banana.class").await());
                     test.assertEqual("banana", classFile.getTypeName());
                 });
 
                 runner.test("with anonymous class file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     final JavaClassFile classFile = new JavaClassFile(fileSystem.getFile("/outputs/a/boat$1.class").await());
                     test.assertEqual("boat", classFile.getTypeName());
                 });
@@ -293,7 +293,7 @@ public interface JavaClassFileTests
             {
                 runner.test("with null folder", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     final JavaClassFile classFile = new JavaClassFile(fileSystem.getFile("/outputs/a/banana.class").await());
                     test.assertThrows(() -> classFile.getFullTypeName((Folder)null),
                         new PreConditionFailure("outputFolder cannot be null."));
@@ -301,14 +301,14 @@ public interface JavaClassFileTests
 
                 runner.test("with non-anonymous class file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     final JavaClassFile classFile = new JavaClassFile(fileSystem.getFile("/outputs/a/banana.class").await());
                     test.assertEqual("a.banana", classFile.getFullTypeName(fileSystem.getFolder("/outputs/").await()));
                 });
 
                 runner.test("with anonymous class file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     final JavaClassFile classFile = new JavaClassFile(fileSystem.getFile("/outputs/a/boat$1.class").await());
                     test.assertEqual("boat", classFile.getFullTypeName(fileSystem.getFolder("/outputs/a").await()));
                 });

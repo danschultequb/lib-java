@@ -10,7 +10,7 @@ public interface FolderFileSystemTests
             {
                 runner.test("with null path", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("/");
                     
                     test.assertThrows(() -> FolderFileSystem.get(fileSystem, (String)null),
@@ -19,7 +19,7 @@ public interface FolderFileSystemTests
 
                 runner.test("with empty path", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("/");
 
                     test.assertThrows(() -> FolderFileSystem.get(fileSystem, ""),
@@ -28,7 +28,7 @@ public interface FolderFileSystemTests
 
                 runner.test("with relative path", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("/");
 
                     test.assertThrows(() -> FolderFileSystem.get(fileSystem, "basefolder"),
@@ -37,7 +37,7 @@ public interface FolderFileSystemTests
 
                 runner.test("with relative path that ends with backslash", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("/").await();
 
                     test.assertThrows(() -> FolderFileSystem.get(fileSystem, "basefolder\\"),
@@ -46,7 +46,7 @@ public interface FolderFileSystemTests
 
                 runner.test("with relative path that ends with forward slash", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("/").await();
 
                     test.assertThrows(() -> FolderFileSystem.get(fileSystem, "basefolder/"),
@@ -55,7 +55,7 @@ public interface FolderFileSystemTests
 
                 runner.test("with rooted path", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("/");
 
                     final FolderFileSystem folderFileSystem = FolderFileSystem.get(fileSystem, "\\basefolder");
@@ -64,7 +64,7 @@ public interface FolderFileSystemTests
 
                 runner.test("with rooted path that ends with backslash", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("/");
 
                     final FolderFileSystem folderFileSystem = FolderFileSystem.get(fileSystem, "/basefolder\\");
@@ -73,7 +73,7 @@ public interface FolderFileSystemTests
 
                 runner.test("with rooted path that ends with forward slash", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("/");
 
                     final FolderFileSystem folderFileSystem = FolderFileSystem.get(fileSystem, "/basefolder/");

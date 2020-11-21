@@ -82,7 +82,7 @@ public interface ProcessFactoryTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     fileSystem.createRoot("/").await();
                     final File file = fileSystem.createFile("/folder/file").await();
                     final ProcessFactory factory = creator.run(test);

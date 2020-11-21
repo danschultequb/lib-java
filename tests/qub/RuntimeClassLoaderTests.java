@@ -19,7 +19,7 @@ public interface RuntimeClassLoaderTests
 
                 runner.test("with Folder and Jar file arguments", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     final Folder classFolder = fileSystem.getFolder("/class/source/").await();
                     final File jarFile = fileSystem.getFile("/example.jar").await();
                     try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(classFolder, jarFile))

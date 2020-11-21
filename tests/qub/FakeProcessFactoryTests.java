@@ -77,7 +77,7 @@ public interface FakeProcessFactoryTests
 
                 runner.test("with non-null working folder", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = new InMemoryFileSystem(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                     final Folder workingFolder = fileSystem.getFolder("/working/folder/here/").await();
                     final FakeProcessFactory factory = new FakeProcessFactory(test.getParallelAsyncRunner(), workingFolder);
                     test.assertEqual(Path.parse("/working/folder/here/"), factory.getWorkingFolderPath());

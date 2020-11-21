@@ -6,13 +6,13 @@ public interface FakeDefaultApplicationLauncherTests
     {
         runner.testGroup(FakeDefaultApplicationLauncher.class, () ->
         {
-            DefaultApplicationLauncherTests.test(runner, FakeDefaultApplicationLauncher::new);
+            DefaultApplicationLauncherTests.test(runner, FakeDefaultApplicationLauncher::create);
 
             runner.testGroup("openFileWithDefaultApplication(String)", () ->
             {
                 runner.test("with file that doesn't exist", (Test test) ->
                 {
-                    final FakeDefaultApplicationLauncher launcher = new FakeDefaultApplicationLauncher();
+                    final FakeDefaultApplicationLauncher launcher = FakeDefaultApplicationLauncher.create();
                     test.assertNull(launcher.openFileWithDefaultApplication("hello there").await());
                 });
             });
