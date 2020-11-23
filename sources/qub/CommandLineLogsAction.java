@@ -69,14 +69,38 @@ public interface CommandLineLogsAction
         PreCondition.assertNotNull(projectDataFolder, "projectDataFolder");
         PreCondition.assertNotNullAndNotEmpty(streams, "streams");
 
-        final Folder projectLogsFolder = CommandLineLogsAction.getQubProjectLogsFolder(projectDataFolder);
-        final int logFileCount = projectLogsFolder.getFiles()
-            .then((Iterable<File> logFiles) -> logFiles.getCount())
-            .catchError(NotFoundException.class, () -> 0)
-            .await();
-        final String logFileName = (logFileCount + 1) + ".log";
-        final CharacterWriteStream logStream = projectLogsFolder.getFile(logFileName).await()
-            .getContentsCharacterWriteStream().await();
+        final File logFile = CommandLineLogsAction.getLogFile(projectDataFolder);
+        return CommandLineLogsAction.addLogStream(logFile, streams);
+    }
+
+    /**
+     * Combine the provided streams with a log stream so that any characters that are written to
+     * the provided streams will also be written to log stream.
+     * @param logFile The file that the combined streams will log to.
+     * @param streams The streams that will be combined with the created log stream.
+     * @return The combined streams in the same order that they appeared in the provided streams Iterable.
+     */
+    static LogCharacterWriteStreams addLogStream(File logFile, CharacterWriteStream... streams)
+    {
+        PreCondition.assertNotNull(logFile, "logFile");
+        PreCondition.assertNotNullAndNotEmpty(streams, "streams");
+
+        return CommandLineLogsAction.addLogStream(logFile, Iterable.create(streams));
+    }
+
+    /**
+     * Combine the provided streams with a log stream so that any characters that are written to
+     * the provided streams will also be written to log stream.
+     * @param logFile The file that the combined streams will log to.
+     * @param streams The streams that will be combined with the created log stream.
+     * @return The combined streams in the same order that they appeared in the provided streams Iterable.
+     */
+    static LogCharacterWriteStreams addLogStream(File logFile, Iterable<CharacterWriteStream> streams)
+    {
+        PreCondition.assertNotNull(logFile, "logFile");
+        PreCondition.assertNotNullAndNotEmpty(streams, "streams");
+
+        final CharacterWriteStream logStream = logFile.getContentsCharacterWriteStream().await();
 
         final List<CharacterWriteStream> combinedStreams = List.create();
         for (CharacterWriteStream stream : streams)
@@ -94,10 +118,27 @@ public interface CommandLineLogsAction
                 combinedStreams.add(null);
             }
         }
-        final LogCharacterWriteStreams result = LogCharacterWriteStreams.create(logStream, combinedStreams);
+        final LogCharacterWriteStreams result = LogCharacterWriteStreams.create(logFile, logStream, combinedStreams);
 
-        PostCondition.assertNotNullAndNotEmpty(result, "result");
-        PostCondition.assertEqual(streams.getCount(), result.getCount(), "result.getCount()");
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(streams.getCount(), result.getCombinedStreamsCount(), "result.getCombinedStreamsCount()");
+
+        return result;
+    }
+
+    static File getLogFile(Folder projectDataFolder)
+    {
+        PreCondition.assertNotNull(projectDataFolder, "projectDataFolder");
+
+        final Folder projectLogsFolder = CommandLineLogsAction.getQubProjectLogsFolder(projectDataFolder);
+        final int logFileCount = projectLogsFolder.getFiles()
+            .then((Iterable<File> logFiles) -> logFiles.getCount())
+            .catchError(NotFoundException.class, () -> 0)
+            .await();
+        final String logFileName = (logFileCount + 1) + ".log";
+        final File result = projectLogsFolder.getFile(logFileName).await();
+
+        PostCondition.assertNotNull(result, "result");
 
         return result;
     }
