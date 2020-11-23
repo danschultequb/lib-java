@@ -69,6 +69,8 @@ public interface LinePrefixCharacterToByteWriteStream extends LinePrefixCharacte
      */
     default LinePrefixCharacterToByteWriteStream setLinePrefix(String linePrefix)
     {
+        PreCondition.assertNotNull(linePrefix, "linePrefix");
+
         return this.setLinePrefix(() -> linePrefix);
     }
 }

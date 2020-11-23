@@ -138,10 +138,10 @@ public interface LinePrefixCharacterToByteWriteStreamTests
                     final InMemoryCharacterToByteStream innerStream = InMemoryCharacterToByteStream.create();
                     final LinePrefixCharacterToByteWriteStream stream = LinePrefixCharacterToByteWriteStream.create(innerStream);
 
-                    final LinePrefixCharacterToByteWriteStream setLinePrefixResult = stream.setLinePrefix((String)null);
-                    test.assertSame(stream, setLinePrefixResult);
+                    test.assertThrows(() -> stream.setLinePrefix((String)null),
+                        new PreConditionFailure("linePrefix cannot be null."));
 
-                    test.assertNull(stream.getLinePrefix());
+                    test.assertEqual("", stream.getLinePrefix());
                 });
 
                 runner.test("with empty", (Test test) ->
@@ -275,13 +275,6 @@ public interface LinePrefixCharacterToByteWriteStreamTests
                 writeTest.run("a\nb", "\n", "", 'c', "a\nbc");
                 writeTest.run("a", "\n", "", '\n', "a\n");
                 writeTest.run("a\n", "\n", "", '\n', "a\n\n");
-
-                writeTest.run("", "\n", null, 'a', "a");
-                writeTest.run("a", "\n", null, 'b', "ab");
-                writeTest.run("a\n", "\n", null, 'b', "a\nb");
-                writeTest.run("a\nb", "\n", null, 'c', "a\nbc");
-                writeTest.run("a", "\n", null, '\n', "a\n");
-                writeTest.run("a\n", "\n", null, '\n', "a\n\n");
             });
 
             runner.testGroup("write(char[])", () ->
@@ -338,16 +331,6 @@ public interface LinePrefixCharacterToByteWriteStreamTests
                 writeTest.run("a", "\n", "", new char[] { '\n', 'b' }, "a\nb");
                 writeTest.run("a", "\n", "", new char[] { '\n', 'b', '\r', '\n' }, "a\nb\r\n");
                 writeTest.run("a", "\n", "", new char[] { '\n', 'b', '\r', '\n', 'c' }, "a\nb\r\nc");
-
-                writeTest.run("", "\n", null, new char[0], "");
-                writeTest.run("a", "\n", null, new char[] { 'b' }, "ab");
-                writeTest.run("a\n", "\n", null, new char[] { 'b' }, "a\nb");
-                writeTest.run("a\nb", "\n", null, new char[] { 'c' }, "a\nbc");
-                writeTest.run("a", "\n", null, new char[] { '\n' }, "a\n");
-                writeTest.run("a\n", "\n", null, new char[] { '\n' }, "a\n\n");
-                writeTest.run("a", "\n", null, new char[] { '\n', 'b' }, "a\nb");
-                writeTest.run("a", "\n", null, new char[] { '\n', 'b', '\r', '\n' }, "a\nb\r\n");
-                writeTest.run("a", "\n", null, new char[] { '\n', 'b', '\r', '\n', 'c' }, "a\nb\r\nc");
             });
 
             runner.testGroup("write(String)", () ->
@@ -404,16 +387,6 @@ public interface LinePrefixCharacterToByteWriteStreamTests
                 writeTest.run("a", "\n", "", "\nb", "a\nb");
                 writeTest.run("a", "\n", "", "\nb\r\n", "a\nb\r\n");
                 writeTest.run("a", "\n", "", "\nb\r\nc", "a\nb\r\nc");
-
-                writeTest.run("", "\n", null, "", "");
-                writeTest.run("a", "\n", null, "b", "ab");
-                writeTest.run("a\n", "\n", null, "b", "a\nb");
-                writeTest.run("a\nb", "\n", null, "c", "a\nbc");
-                writeTest.run("a", "\n", null, "\n", "a\n");
-                writeTest.run("a\n", "\n", null, "\n", "a\n\n");
-                writeTest.run("a", "\n", null, "\nb", "a\nb");
-                writeTest.run("a", "\n", null, "\nb\r\n", "a\nb\r\n");
-                writeTest.run("a", "\n", null, "\nb\r\nc", "a\nb\r\nc");
             });
 
             runner.testGroup("writeLine()", () ->
@@ -448,11 +421,6 @@ public interface LinePrefixCharacterToByteWriteStreamTests
                 writeTest.run("a", "\n", "", "a\n");
                 writeTest.run("a\n", "\n", "", "a\n\n");
                 writeTest.run("a\nb", "\n", "", "a\nb\n");
-
-                writeTest.run("", "\n", null, "\n");
-                writeTest.run("a", "\n", null, "a\n");
-                writeTest.run("a\n", "\n", null, "a\n\n");
-                writeTest.run("a\nb", "\n", null, "a\nb\n");
             });
         });
     }

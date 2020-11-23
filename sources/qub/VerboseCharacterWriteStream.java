@@ -3,23 +3,25 @@ package qub;
 /**
  * A CharacterWriteStream that can be used to write verbose logs.
  */
+@Deprecated
 public class VerboseCharacterWriteStream implements CharacterWriteStream
 {
-    private final boolean isVerbose;
     private final LinePrefixCharacterWriteStream innerStream;
+    private boolean isVerbose;
 
+    @Deprecated
     public VerboseCharacterWriteStream(boolean isVerbose, CharacterWriteStream innerStream)
     {
-        PreCondition.assertTrue(!isVerbose || innerStream != null, "!isVerbose || innerStream != null");
+        PreCondition.assertNotNull(innerStream, "innerStream");
 
         this.isVerbose = isVerbose;
-
-        if (innerStream == null)
-        {
-            innerStream = InMemoryCharacterToByteStream.create();
-        }
         this.innerStream = LinePrefixCharacterWriteStream.create(innerStream)
             .setLinePrefix("VERBOSE: ");
+    }
+
+    public static VerboseCharacterWriteStream create(CharacterWriteStream innerStream)
+    {
+        return new VerboseCharacterWriteStream(true, innerStream);
     }
 
     /**
@@ -29,6 +31,12 @@ public class VerboseCharacterWriteStream implements CharacterWriteStream
     public boolean isVerbose()
     {
         return this.isVerbose;
+    }
+
+    public VerboseCharacterWriteStream setIsVerbose(boolean isVerbose)
+    {
+        this.isVerbose = isVerbose;
+        return this;
     }
 
     @Override

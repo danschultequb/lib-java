@@ -46,82 +46,65 @@ public interface CommandLineLogsAction
      * Combine the provided streams with a log stream so that any characters that are written to
      * the provided streams will also be written to log stream.
      * @param projectDataFolder The data folder for the running application/project.
-     * @param streams The streams that will be combined with the created log stream.
-     * @return The combined streams in the same order that they appeared in the provided streams Iterable.
      */
-    static LogCharacterWriteStreams addLogStream(Folder projectDataFolder, CharacterWriteStream... streams)
+    static LogStreams addLogStream(Folder projectDataFolder, CharacterToByteWriteStream output, VerboseCharacterToByteWriteStream verbose)
     {
-        PreCondition.assertNotNull(projectDataFolder, "projectDataFolder");
-        PreCondition.assertNotNullAndNotEmpty(streams, "streams");
-        
-        return CommandLineLogsAction.addLogStream(projectDataFolder, Iterable.create(streams));
+        return CommandLineLogsAction.addLogStream(projectDataFolder, output, null, verbose);
     }
 
     /**
      * Combine the provided streams with a log stream so that any characters that are written to
      * the provided streams will also be written to log stream.
      * @param projectDataFolder The data folder for the running application/project.
-     * @param streams The streams that will be combined with the created log stream.
-     * @return The combined streams in the same order that they appeared in the provided streams Iterable.
      */
-    static LogCharacterWriteStreams addLogStream(Folder projectDataFolder, Iterable<CharacterWriteStream> streams)
+    static LogStreams addLogStream(Folder projectDataFolder, CharacterToByteWriteStream output, CharacterToByteWriteStream error, VerboseCharacterToByteWriteStream verbose)
     {
         PreCondition.assertNotNull(projectDataFolder, "projectDataFolder");
-        PreCondition.assertNotNullAndNotEmpty(streams, "streams");
 
         final File logFile = CommandLineLogsAction.getLogFile(projectDataFolder);
-        return CommandLineLogsAction.addLogStream(logFile, streams);
+        return CommandLineLogsAction.addLogStream(logFile, output, error, verbose);
     }
 
     /**
      * Combine the provided streams with a log stream so that any characters that are written to
      * the provided streams will also be written to log stream.
      * @param logFile The file that the combined streams will log to.
-     * @param streams The streams that will be combined with the created log stream.
-     * @return The combined streams in the same order that they appeared in the provided streams Iterable.
      */
-    static LogCharacterWriteStreams addLogStream(File logFile, CharacterWriteStream... streams)
+    static LogStreams addLogStream(File logFile, CharacterToByteWriteStream output, VerboseCharacterToByteWriteStream verbose)
     {
-        PreCondition.assertNotNull(logFile, "logFile");
-        PreCondition.assertNotNullAndNotEmpty(streams, "streams");
-
-        return CommandLineLogsAction.addLogStream(logFile, Iterable.create(streams));
+        return CommandLineLogsAction.addLogStream(logFile, output, null, verbose);
     }
 
     /**
      * Combine the provided streams with a log stream so that any characters that are written to
      * the provided streams will also be written to log stream.
      * @param logFile The file that the combined streams will log to.
-     * @param streams The streams that will be combined with the created log stream.
-     * @return The combined streams in the same order that they appeared in the provided streams Iterable.
      */
-    static LogCharacterWriteStreams addLogStream(File logFile, Iterable<CharacterWriteStream> streams)
+    static LogStreams addLogStream(File logFile, CharacterToByteWriteStream output, CharacterToByteWriteStream error, VerboseCharacterToByteWriteStream verbose)
     {
         PreCondition.assertNotNull(logFile, "logFile");
-        PreCondition.assertNotNullAndNotEmpty(streams, "streams");
 
-        final CharacterWriteStream logStream = logFile.getContentsCharacterWriteStream(OpenWriteType.CreateOrAppend).await();
+        final CharacterToByteWriteStream logStream = logFile.getContentsCharacterWriteStream(OpenWriteType.CreateOrAppend).await();
 
-        final List<CharacterWriteStream> combinedStreams = List.create();
-        for (CharacterWriteStream stream : streams)
+        if (output != null)
         {
-            if (stream instanceof VerboseCharacterWriteStream)
-            {
-                combinedStreams.add(CharacterWriteStreamList.create(stream, new VerboseCharacterWriteStream(true, logStream)));
-            }
-            else if (stream != null)
-            {
-                combinedStreams.add(CharacterWriteStreamList.create(stream, logStream));
-            }
-            else
-            {
-                combinedStreams.add(null);
-            }
+            output = CharacterToByteWriteStreamList.create(output, logStream);
         }
-        final LogCharacterWriteStreams result = LogCharacterWriteStreams.create(logFile, logStream, combinedStreams);
+
+        if (error != null)
+        {
+            error = CharacterToByteWriteStreamList.create(error, LinePrefixCharacterToByteWriteStream.create(logStream).setLinePrefix("ERROR: "));
+        }
+
+        if (verbose != null)
+        {
+            verbose = VerboseCharacterToByteWriteStream.create(CharacterToByteWriteStreamList.create(verbose, VerboseCharacterToByteWriteStream.create(logStream)))
+                .setLinePrefix("");
+        }
+
+        final LogStreams result = LogStreams.create(logFile, logStream, output, error, verbose);
 
         PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(streams.getCount(), result.getCombinedStreamsCount(), "result.getCombinedStreamsCount()");
 
         return result;
     }

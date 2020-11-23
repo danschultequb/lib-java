@@ -17,8 +17,8 @@ public class CommandLineParameterVerbose extends CommandLineParameterBoolean
 
         this.writeStream = writeStream;
 
-        setDescription("Whether or not to show verbose logs.");
-        addAlias("v");
+        this.setDescription("Whether or not to show verbose logs.");
+        this.addAlias("v");
     }
 
     @Override
@@ -101,7 +101,17 @@ public class CommandLineParameterVerbose extends CommandLineParameterBoolean
     {
         return Result.create(() ->
         {
-            return new VerboseCharacterWriteStream(this.getValue().await(), writeStream);
+            return VerboseCharacterWriteStream.create(this.writeStream)
+                .setIsVerbose(this.getValue().await());
+        });
+    }
+
+    public Result<VerboseCharacterToByteWriteStream> getVerboseCharacterToByteWriteStream()
+    {
+        return Result.create(() ->
+        {
+            return VerboseCharacterToByteWriteStream.create(this.writeStream)
+                .setIsVerbose(this.getValue().await());
         });
     }
 
