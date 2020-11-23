@@ -49,11 +49,25 @@ public interface CommandLineLogsAction
      * @param streams The streams that will be combined with the created log stream.
      * @return The combined streams in the same order that they appeared in the provided streams Iterable.
      */
-    static Indexable<CharacterWriteStream> addLogStreams(Folder projectDataFolder, Iterable<CharacterWriteStream> streams)
+    static LogCharacterWriteStreams addLogStream(Folder projectDataFolder, CharacterWriteStream... streams)
     {
         PreCondition.assertNotNull(projectDataFolder, "projectDataFolder");
         PreCondition.assertNotNullAndNotEmpty(streams, "streams");
+        
+        return CommandLineLogsAction.addLogStream(projectDataFolder, Iterable.create(streams));
+    }
 
+    /**
+     * Combine the provided streams with a log stream so that any characters that are written to
+     * the provided streams will also be written to log stream.
+     * @param projectDataFolder The data folder for the running application/project.
+     * @param streams The streams that will be combined with the created log stream.
+     * @return The combined streams in the same order that they appeared in the provided streams Iterable.
+     */
+    static LogCharacterWriteStreams addLogStream(Folder projectDataFolder, Iterable<CharacterWriteStream> streams)
+    {
+        PreCondition.assertNotNull(projectDataFolder, "projectDataFolder");
+        PreCondition.assertNotNullAndNotEmpty(streams, "streams");
 
         final Folder projectLogsFolder = CommandLineLogsAction.getQubProjectLogsFolder(projectDataFolder);
         final int logFileCount = projectLogsFolder.getFiles()
@@ -64,22 +78,23 @@ public interface CommandLineLogsAction
         final CharacterWriteStream logStream = projectLogsFolder.getFile(logFileName).await()
             .getContentsCharacterWriteStream().await();
 
-        final List<CharacterWriteStream> result = List.create();
+        final List<CharacterWriteStream> combinedStreams = List.create();
         for (CharacterWriteStream stream : streams)
         {
             if (stream instanceof VerboseCharacterWriteStream)
             {
-                result.add(CharacterWriteStreamList.create(stream, new VerboseCharacterWriteStream(true, logStream)));
+                combinedStreams.add(CharacterWriteStreamList.create(stream, new VerboseCharacterWriteStream(true, logStream)));
             }
             else if (stream != null)
             {
-                result.add(CharacterWriteStreamList.create(stream, logStream));
+                combinedStreams.add(CharacterWriteStreamList.create(stream, logStream));
             }
             else
             {
-                result.add(null);
+                combinedStreams.add(null);
             }
         }
+        final LogCharacterWriteStreams result = LogCharacterWriteStreams.create(logStream, combinedStreams);
 
         PostCondition.assertNotNullAndNotEmpty(result, "result");
         PostCondition.assertEqual(streams.getCount(), result.getCount(), "result.getCount()");
