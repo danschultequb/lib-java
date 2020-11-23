@@ -100,7 +100,7 @@ public interface CommandLineLogsAction
         PreCondition.assertNotNull(logFile, "logFile");
         PreCondition.assertNotNullAndNotEmpty(streams, "streams");
 
-        final CharacterWriteStream logStream = logFile.getContentsCharacterWriteStream().await();
+        final CharacterWriteStream logStream = logFile.getContentsCharacterWriteStream(OpenWriteType.CreateOrAppend).await();
 
         final List<CharacterWriteStream> combinedStreams = List.create();
         for (CharacterWriteStream stream : streams)

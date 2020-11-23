@@ -96,4 +96,10 @@ public class InMemoryFile
     {
         return DataSize.bytes(this.contents.length);
     }
+
+    @Override
+    public String toString()
+    {
+        return this.name;
+    }
 }
