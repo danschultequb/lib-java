@@ -97,15 +97,6 @@ public class CommandLineParameterVerbose extends CommandLineParameterBoolean
         return this;
     }
 
-    public Result<VerboseCharacterWriteStream> getVerboseCharacterWriteStream()
-    {
-        return Result.create(() ->
-        {
-            return VerboseCharacterWriteStream.create(this.writeStream)
-                .setIsVerbose(this.getValue().await());
-        });
-    }
-
     public Result<VerboseCharacterToByteWriteStream> getVerboseCharacterToByteWriteStream()
     {
         return Result.create(() ->
