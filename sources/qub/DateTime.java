@@ -290,6 +290,8 @@ public class DateTime implements Comparable<DateTime>
      */
     public DateTime minus(Duration duration)
     {
+        PreCondition.assertNotNull(duration, "duration");
+
         return this.plus(duration.negate());
     }
 

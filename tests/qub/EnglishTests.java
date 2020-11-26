@@ -19,7 +19,7 @@ public interface EnglishTests
                 listErrorTest.run(null, "or", new PreConditionFailure("values cannot be null."));
                 listErrorTest.run(Iterable.create(), null, new PreConditionFailure("listType cannot be null."));
                 listErrorTest.run(Iterable.create(), "", new PreConditionFailure("listType cannot be empty."));
-                listErrorTest.run(Iterable.create(), "apples", new PreConditionFailure("listType.toLowerCase() (apples) must be either and or or."));
+                listErrorTest.run(Iterable.create(), "apples", new PreConditionFailure("listType.toLowerCase() (\"apples\") must be \"and\" or \"or\"."));
 
                 final Action3<Iterable<String>,String,String> listTest = (Iterable<String> values, String listType, String expected) ->
                 {

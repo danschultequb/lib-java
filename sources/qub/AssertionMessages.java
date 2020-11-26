@@ -127,106 +127,108 @@ public interface AssertionMessages
 
     static String instanceOf(Object value, Iterable<Class<?>> types, String expressionName)
     {
+        PreCondition.assertNotNullAndNotEmpty(types, "types");
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
         return expressionName + " (" + Types.getFullTypeName(value) + ") must be of type " + English.orList(types.map(Types::getFullTypeName)) + ".";
     }
 
-    static String oneOf(char value, char[] values, String expressionName)
+    static String oneOf(char value, char[] possibleValues, String expressionName)
     {
-        final CharacterList list = CharacterList.create();
-        list.addAll(expressionName + " (" + value + ") must be either");
-        for (int i = 0; i < values.length - 1; ++i)
-        {
-            list.addAll(" " + values[i]);
-            if (values.length > 2)
-            {
-                list.add(',');
-            }
-        }
-        list.addAll(" or " + values[values.length - 1] + ".");
-        return list.toString(true);
+        PreCondition.assertNotNullAndNotEmpty(possibleValues, "possibleValues");
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
+        return AssertionMessages.oneOf(value, CharacterArray.create(possibleValues), expressionName, Characters::escapeAndQuote);
     }
 
-    static String oneOf(int value, int[] values, String expressionName)
+    static String oneOf(String value, String[] possibleValues, String expressionName)
     {
-        final CharacterList list = CharacterList.create();
-        list.addAll(expressionName + " (" + value + ") must be either");
-        for (int i = 0; i < values.length - 1; ++i)
-        {
-            list.addAll(" " + values[i]);
-            if (values.length > 2)
-            {
-                list.add(',');
-            }
-        }
-        list.addAll(" or " + values[values.length - 1] + ".");
-        return list.toString(true);
+        PreCondition.assertNotNullAndNotEmpty(possibleValues, "possibleValues");
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
+        return AssertionMessages.oneOf(value, Array.create(possibleValues), expressionName, Strings::escapeAndQuote);
     }
 
-    static String oneOf(long value, long[] values, String expressionName)
+    static String oneOf(int value, int[] possibleValues, String expressionName)
     {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(expressionName + " (" + value + ") must be either");
-        for (int i = 0; i < values.length - 1; ++i)
-        {
-            builder.append(" " + values[i]);
-            if (values.length > 2)
-            {
-                builder.append(",");
-            }
-        }
-        builder.append(" or " + values[values.length - 1] + ".");
-        return builder.toString();
+        PreCondition.assertNotNullAndNotEmpty(possibleValues, "possibleValues");
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
+        return AssertionMessages.oneOf(value, IntegerArray.create(possibleValues), expressionName);
+    }
+
+    static String oneOf(long value, long[] possibleValues, String expressionName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(possibleValues, "possibleValues");
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
+        return AssertionMessages.oneOf(value, LongArray.create(possibleValues), expressionName);
     }
 
     static <T> String oneOf(T value, T[] possibleValues, String expressionName)
     {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(expressionName + " (" + Objects.toString(value) + ") must be ");
-        if (possibleValues.length == 1)
-        {
-            builder.append(possibleValues[0]);
-        }
-        else
-        {
-            builder.append("either");
-            for (int i = 0; i < possibleValues.length - 1; ++i)
-            {
-                builder.append(" " + possibleValues[i]);
-                if (possibleValues.length > 2)
-                {
-                    builder.append(",");
-                }
-            }
-            builder.append(" or " + possibleValues[possibleValues.length - 1]);
-        }
-        builder.append(".");
-        return builder.toString();
+        PreCondition.assertNotNullAndNotEmpty(possibleValues, "possibleValues");
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
+        return AssertionMessages.oneOf(value, Iterable.create(possibleValues), expressionName);
     }
 
     static <T> String oneOf(T value, Iterable<T> possibleValues, String expressionName)
     {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(expressionName + " (" + Objects.toString(value) + ") must be ");
-        final int possibleValuesCount = possibleValues.getCount();
-        final T lastPossibleValue = possibleValues.last();
-        if (possibleValuesCount == 1)
+        PreCondition.assertNotNullAndNotEmpty(possibleValues, "possibleValues");
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+
+        Class<?> valueType = null;
+        if (value != null)
         {
-            builder.append(lastPossibleValue);
+            valueType = value.getClass();
         }
         else
         {
-            builder.append("either");
-            for (final T possibleValue : possibleValues.skipLast())
+            for (final T possibleValue : possibleValues)
             {
-                builder.append(" " + possibleValue);
-                if (possibleValuesCount > 2)
+                if (possibleValue != null)
                 {
-                    builder.append(",");
+                    valueType = possibleValue.getClass();
+                    break;
                 }
             }
-            builder.append(" or " + lastPossibleValue);
         }
-        builder.append(".");
-        return builder.toString();
+
+        final Function1<T,String> valueTransform;
+        if (valueType == String.class)
+        {
+            valueTransform = (T string) -> Objects.toString(Strings.escapeAndQuote((String)string));
+        }
+        else if (valueType == Character.class)
+        {
+            valueTransform = (T character) -> Objects.toString(Characters.escapeAndQuote((Character)character));
+        }
+        else
+        {
+            valueTransform = Objects::toString;
+        }
+
+        return AssertionMessages.oneOf(value, possibleValues, expressionName, valueTransform);
+    }
+
+    static <T> String oneOf(T value, Iterable<T> possibleValues, String expressionName, Function1<T,String> valueTransform)
+    {
+        PreCondition.assertNotNullAndNotEmpty(possibleValues, "possibleValues");
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+        PreCondition.assertNotNull(valueTransform, "valueTransform");
+
+        final String result = CharacterList.create()
+            .addAll(expressionName)
+            .addAll(" (")
+            .addAll(valueTransform.run(value))
+            .addAll(") must be ")
+            .addAll(English.orList(possibleValues.map(valueTransform)))
+            .add('.')
+            .toString(true);
+
+        PostCondition.assertNotNullAndNotEmpty(result, "result");
+
+        return result;
     }
 }

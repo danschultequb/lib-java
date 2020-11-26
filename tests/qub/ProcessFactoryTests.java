@@ -165,7 +165,12 @@ public interface ProcessFactoryTests
                     test.assertNotNull(runResult);
                     test.assertEqual(ProcessState.Running, runResult.getState());
 
-                    test.getClock().delay(Duration.seconds(0.5)).await();
+                    final Clock clock = test.getClock();
+                    final DateTime startWaitTime = clock.getCurrentDateTime();
+                    while (runResult.getState() == ProcessState.Running &&
+                           clock.getCurrentDateTime().minus(startWaitTime).lessThan(Duration.seconds(5)))
+                    {
+                    }
 
                     test.assertEqual(ProcessState.NotRunning, runResult.getState());
                     test.assertEqual(2, runResult.await());

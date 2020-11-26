@@ -389,7 +389,7 @@ public interface BitArrayTests
                     final BitArray block = BitArray.create(3);
                     test.assertThrows(
                         () -> block.setAllBits(-1),
-                        new PreConditionFailure("value (-1) must be either 0 or 1."));
+                        new PreConditionFailure("value (-1) must be 0 or 1."));
                     test.assertEqual("000", block.toString());
                 });
 

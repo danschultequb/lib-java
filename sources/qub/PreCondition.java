@@ -180,6 +180,23 @@ public class PreCondition
      * @preCondition variableName != null && variableName.length() > 0
      * @postCondition value != null && value.length != 0
      */
+    public static void assertNotNullAndNotEmpty(int[] value, String expressionName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
+        PreCondition.assertNotNull(value, expressionName);
+        if (value.length == 0)
+        {
+            throw new PreConditionFailure(AssertionMessages.notEmpty(expressionName));
+        }
+    }
+
+    /**
+     * Assert that the provided value is not null and not empty.
+     * @param value The value to check.
+     * @param expressionName The name of the variable that contains value.
+     * @preCondition variableName != null && variableName.length() > 0
+     * @postCondition value != null && value.length != 0
+     */
     public static void assertNotNullAndNotEmpty(long[] value, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");

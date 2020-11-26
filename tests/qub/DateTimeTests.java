@@ -1392,7 +1392,7 @@ public interface DateTimeTests
                     final DateTime dateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(10));
                     test.assertThrows(
                         () -> dateTime.minus((Duration)null),
-                        new NullPointerException());
+                        new PreConditionFailure("duration cannot be null."));
                 });
 
                 runner.test("with 0 seconds", (Test test) ->

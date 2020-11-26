@@ -61,6 +61,16 @@ public interface Characters
     }
 
     /**
+     * Surround the provided character with single quotes and textualize any escaped characters.
+     * @param character The character to quote and escape.
+     * @return The quoted and escaped character.
+     */
+    static String escapeAndQuote(Character character)
+    {
+        return Strings.quote(Characters.escape(character));
+    }
+
+    /**
      * Escape the provided character if it is an escaped character (such as '\n' or '\t').
      * @param character The character to escape.
      * @return The escaped character.
@@ -68,6 +78,18 @@ public interface Characters
     static String escape(char character)
     {
         return Characters.escape(character, CharacterArray.create('\''));
+    }
+
+    /**
+     * Escape the provided character if it is an escaped character (such as '\n' or '\t').
+     * @param character The character to escape.
+     * @return The escaped character.
+     */
+    static String escape(Character character)
+    {
+        return character == null
+            ? "null"
+            : Characters.escape(character, CharacterArray.create('\''));
     }
 
     /**

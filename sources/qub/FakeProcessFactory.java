@@ -36,7 +36,14 @@ public class FakeProcessFactory implements ProcessFactory
      */
     public FakeProcessFactory(AsyncRunner asyncRunner, Folder workingFolder)
     {
-        this(asyncRunner, workingFolder.getPath());
+        this(asyncRunner, FakeProcessFactory.getWorkingFolderPath(workingFolder));
+    }
+
+    private static Path getWorkingFolderPath(Folder workingFolder)
+    {
+        PreCondition.assertNotNull(workingFolder, "workingFolder");
+
+        return workingFolder.getPath();
     }
 
     /**

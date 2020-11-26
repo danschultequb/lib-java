@@ -72,7 +72,7 @@ public interface FakeProcessFactoryTests
                 runner.test("with null working folder", (Test test) ->
                 {
                     test.assertThrows(() -> new FakeProcessFactory(test.getParallelAsyncRunner(), (Folder)null),
-                        new NullPointerException());
+                        new PreConditionFailure("workingFolder cannot be null."));
                 });
 
                 runner.test("with non-null working folder", (Test test) ->

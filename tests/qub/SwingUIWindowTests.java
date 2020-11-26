@@ -321,10 +321,10 @@ public interface SwingUIWindowTests
 
                 setWidthTest.run(
                     Distance.zero,
-                    Iterable.create(Distance.inches(1.98), Distance.inches(2.58)));
+                    Iterable.create(Distance.inches(1.32), Distance.inches(1.98), Distance.inches(2.58)));
                 setWidthTest.run(
                     Distance.inches(1),
-                    Iterable.create(Distance.inches(1.98), Distance.inches(2.58)));
+                    Iterable.create(Distance.inches(1.32), Distance.inches(1.98), Distance.inches(2.58)));
                 setWidthTest.run(
                     Distance.feet(1),
                     Iterable.create(Distance.feet(1)));
@@ -386,7 +386,7 @@ public interface SwingUIWindowTests
 
                 setHeightTest.run(
                     Distance.zero,
-                    Iterable.create(Distance.inches(0.56), Distance.inches(0.71)));
+                    Iterable.create(Distance.inches(0.37), Distance.inches(0.56), Distance.inches(0.71)));
                 setHeightTest.run(
                     Distance.inches(1),
                     Iterable.create(Distance.inches(1)));
@@ -451,16 +451,19 @@ public interface SwingUIWindowTests
                 setSizeTest.run(
                     Size2D.create(Distance.zero, Distance.zero),
                     Iterable.create(
+                        Size2D.create(Distance.inches(1.32), Distance.inches(0.37)),
                         Size2D.create(Distance.inches(1.98), Distance.inches(0.56)),
                         Size2D.create(Distance.inches(2.58), Distance.inches(0.71))));
                 setSizeTest.run(
                     Size2D.create(Distance.zero, Distance.inches(1)),
                     Iterable.create(
+                        Size2D.create(Distance.inches(1.32), Distance.inches(1)),
                         Size2D.create(Distance.inches(1.98), Distance.inches(1)),
                         Size2D.create(Distance.inches(2.58), Distance.inches(1))));
                 setSizeTest.run(Size2D.create(
                     Distance.inches(1), Distance.zero),
                     Iterable.create(
+                        Size2D.create(Distance.inches(1.32), Distance.inches(0.37)),
                         Size2D.create(Distance.inches(1.98), Distance.inches(0.56)),
                         Size2D.create(Distance.inches(2.58), Distance.inches(0.71))));
                 setSizeTest.run(
@@ -509,18 +512,18 @@ public interface SwingUIWindowTests
                 setSizeTest.run(
                     Distance.zero,
                     Distance.zero,
-                    Iterable.create(Distance.inches(1.98), Distance.inches(2.58)),
-                    Iterable.create(Distance.inches(0.56), Distance.inches(0.71)));
+                    Iterable.create(Distance.inches(1.32), Distance.inches(1.98), Distance.inches(2.58)),
+                    Iterable.create(Distance.inches(0.37), Distance.inches(0.56), Distance.inches(0.71)));
                 setSizeTest.run(
                     Distance.zero,
                     Distance.inches(2),
-                    Iterable.create(Distance.inches(1.98), Distance.inches(2.58)),
+                    Iterable.create(Distance.inches(1.32), Distance.inches(1.98), Distance.inches(2.58)),
                     Iterable.create(Distance.inches(2)));
                 setSizeTest.run(
                     Distance.inches(1.5),
                     Distance.zero,
-                    Iterable.create(Distance.inches(1.98), Distance.inches(2.58)),
-                    Iterable.create(Distance.inches(0.56), Distance.inches(0.71)));
+                    Iterable.create(Distance.inches(1.5), Distance.inches(1.98), Distance.inches(2.58)),
+                    Iterable.create(Distance.inches(0.37), Distance.inches(0.56), Distance.inches(0.71)));
                 setSizeTest.run(
                     Distance.inches(5),
                     Distance.inches(4),

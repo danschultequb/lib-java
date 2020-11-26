@@ -624,25 +624,25 @@ public interface AssertionMessagesTests
                 runner.test("with null types", (Test test) ->
                 {
                     test.assertThrows(() -> AssertionMessages.instanceOf(20, (Iterable<Class<?>>)null, "blah"),
-                        new NullPointerException());
+                        new PreConditionFailure("types cannot be null."));
                 });
 
                 runner.test("with empty types", (Test test) ->
                 {
-                    test.assertEqual("blah (java.lang.Integer) must be of type .",
-                        AssertionMessages.instanceOf(20, Iterable.create(), "blah"));
+                    test.assertThrows(() -> AssertionMessages.instanceOf(20, Iterable.create(), "blah"),
+                        new PreConditionFailure("types cannot be empty."));
                 });
 
                 runner.test("with null expressionName", (Test test) ->
                 {
-                    test.assertEqual("null (java.lang.String) must be of type qub.IntegerValue.",
-                        AssertionMessages.instanceOf("abc", Iterable.create(IntegerValue.class), null));
+                    test.assertThrows(() -> AssertionMessages.instanceOf("abc", Iterable.create(IntegerValue.class), null),
+                        new PreConditionFailure("expressionName cannot be null."));
                 });
 
                 runner.test("with empty expressionName", (Test test) ->
                 {
-                    test.assertEqual(" (java.lang.String) must be of type qub.IntegerValue.",
-                        AssertionMessages.instanceOf("abc", Iterable.create(IntegerValue.class), ""));
+                    test.assertThrows(() -> AssertionMessages.instanceOf("abc", Iterable.create(IntegerValue.class), ""),
+                        new PreConditionFailure("expressionName cannot be empty."));
                 });
 
                 runner.test("with non-empty expressionName", (Test test) ->
@@ -656,43 +656,43 @@ public interface AssertionMessagesTests
             {
                 runner.test("with null values", (Test test) ->
                 {
-                    test.assertThrows(new java.lang.NullPointerException(),
-                        () -> AssertionMessages.oneOf('a', (char[])null, "blah"));
+                    test.assertThrows(() -> AssertionMessages.oneOf('a', (char[])null, "blah"),
+                        new PreConditionFailure("possibleValues cannot be null."));
                 });
 
                 runner.test("with empty values", (Test test) ->
                 {
-                    test.assertThrows(new java.lang.ArrayIndexOutOfBoundsException("Index -1 out of bounds for length 0"),
-                        () -> AssertionMessages.oneOf('a', new char[0], "blah"));
+                    test.assertThrows(() -> AssertionMessages.oneOf('a', new char[0], "blah"),
+                        new PreConditionFailure("possibleValues cannot be empty."));
                 });
 
                 runner.test("with one-element values", (Test test) ->
                 {
-                    test.assertEqual("blah (a) must be either or z.",
+                    test.assertEqual("blah (\"a\") must be \"z\".",
                         AssertionMessages.oneOf('a', new char[] { 'z' }, "blah"));
                 });
 
                 runner.test("with two-element values", (Test test) ->
                 {
-                    test.assertEqual("blah (a) must be either y or z.",
+                    test.assertEqual("blah (\"a\") must be \"y\" or \"z\".",
                         AssertionMessages.oneOf('a', new char[] { 'y', 'z' }, "blah"));
                 });
 
                 runner.test("with null expressionName", (Test test) ->
                 {
-                    test.assertEqual("null (a) must be either x, y, or z.",
-                        AssertionMessages.oneOf('a', new char[] { 'x', 'y', 'z' }, null));
+                    test.assertThrows(() -> AssertionMessages.oneOf('a', new char[] { 'x', 'y', 'z' }, null),
+                        new PreConditionFailure("expressionName cannot be null."));
                 });
 
                 runner.test("with empty expressionName", (Test test) ->
                 {
-                    test.assertEqual(" (a) must be either x, y, or z.",
-                        AssertionMessages.oneOf('a', new char[] { 'x', 'y', 'z' }, ""));
+                    test.assertThrows(() -> AssertionMessages.oneOf('a', new char[] { 'x', 'y', 'z' }, ""),
+                        new PreConditionFailure("expressionName cannot be empty."));
                 });
 
                 runner.test("with non-empty expressionName", (Test test) ->
                 {
-                    test.assertEqual("blah (a) must be either x, y, or z.",
+                    test.assertEqual("blah (\"a\") must be \"x\", \"y\", or \"z\".",
                         AssertionMessages.oneOf('a', new char[] { 'x', 'y', 'z' }, "blah"));
                 });
             });
@@ -701,43 +701,43 @@ public interface AssertionMessagesTests
             {
                 runner.test("with null values", (Test test) ->
                 {
-                    test.assertThrows(new java.lang.NullPointerException(),
-                        () -> AssertionMessages.oneOf(5, (int[])null, "blah"));
+                    test.assertThrows(() -> AssertionMessages.oneOf(5, (int[])null, "blah"),
+                        new PreConditionFailure("possibleValues cannot be null."));
                 });
 
                 runner.test("with empty values", (Test test) ->
                 {
-                    test.assertThrows(new java.lang.ArrayIndexOutOfBoundsException("Index -1 out of bounds for length 0"),
-                        () -> AssertionMessages.oneOf(5, new int[0], "blah"));
+                    test.assertThrows(() -> AssertionMessages.oneOf(5, new int[0], "blah"),
+                        new PreConditionFailure("possibleValues cannot be empty."));
                 });
 
                 runner.test("with one-element values", (Test test) ->
                 {
-                    test.assertEqual("blah (5) must be either or 6.",
+                    test.assertEqual("blah (5) must be 6.",
                         AssertionMessages.oneOf(5, new int[] { 6 }, "blah"));
                 });
 
                 runner.test("with two-element values", (Test test) ->
                 {
-                    test.assertEqual("blah (5) must be either 6 or 7.",
+                    test.assertEqual("blah (5) must be 6 or 7.",
                         AssertionMessages.oneOf(5, new int[] { 6, 7 }, "blah"));
                 });
 
                 runner.test("with null expressionName", (Test test) ->
                 {
-                    test.assertEqual("null (5) must be either 6, 7, or 8.",
-                        AssertionMessages.oneOf(5, new int[] { 6, 7, 8 }, null));
+                    test.assertThrows(() -> AssertionMessages.oneOf(5, new int[] { 6, 7, 8 }, null),
+                        new PreConditionFailure("expressionName cannot be null."));
                 });
 
                 runner.test("with empty expressionName", (Test test) ->
                 {
-                    test.assertEqual(" (5) must be either 6, 7, or 8.",
-                        AssertionMessages.oneOf(5, new int[] { 6, 7, 8 }, ""));
+                    test.assertThrows(() -> AssertionMessages.oneOf(5, new int[] { 6, 7, 8 }, ""),
+                        new PreConditionFailure("expressionName cannot be empty."));
                 });
 
                 runner.test("with non-empty expressionName", (Test test) ->
                 {
-                    test.assertEqual("blah (5) must be either 6, 7, or 8.",
+                    test.assertEqual("blah (5) must be 6, 7, or 8.",
                         AssertionMessages.oneOf(5, new int[] { 6, 7, 8 }, "blah"));
                 });
             });
@@ -746,43 +746,43 @@ public interface AssertionMessagesTests
             {
                 runner.test("with null values", (Test test) ->
                 {
-                    test.assertThrows(new java.lang.NullPointerException(),
-                        () -> AssertionMessages.oneOf(5, (long[])null, "blah"));
+                    test.assertThrows(() -> AssertionMessages.oneOf(5, (long[])null, "blah"),
+                        new PreConditionFailure("possibleValues cannot be null."));
                 });
 
                 runner.test("with empty values", (Test test) ->
                 {
-                    test.assertThrows(new java.lang.ArrayIndexOutOfBoundsException("Index -1 out of bounds for length 0"),
-                        () -> AssertionMessages.oneOf(5, new long[0], "blah"));
+                    test.assertThrows(() -> AssertionMessages.oneOf(5, new long[0], "blah"),
+                        new PreConditionFailure("possibleValues cannot be empty."));
                 });
 
                 runner.test("with one-element values", (Test test) ->
                 {
-                    test.assertEqual("blah (5) must be either or 6.",
+                    test.assertEqual("blah (5) must be 6.",
                         AssertionMessages.oneOf(5, new long[] { 6 }, "blah"));
                 });
 
                 runner.test("with two-element values", (Test test) ->
                 {
-                    test.assertEqual("blah (5) must be either 6 or 7.",
+                    test.assertEqual("blah (5) must be 6 or 7.",
                         AssertionMessages.oneOf(5, new long[] { 6, 7 }, "blah"));
                 });
 
                 runner.test("with null expressionName", (Test test) ->
                 {
-                    test.assertEqual("null (5) must be either 6, 7, or 8.",
-                        AssertionMessages.oneOf(5, new long[] { 6, 7, 8 }, null));
+                    test.assertThrows(() -> AssertionMessages.oneOf(5, new long[] { 6, 7, 8 }, null),
+                        new PreConditionFailure("expressionName cannot be null."));
                 });
 
                 runner.test("with empty expressionName", (Test test) ->
                 {
-                    test.assertEqual(" (5) must be either 6, 7, or 8.",
-                        AssertionMessages.oneOf(5, new long[] { 6, 7, 8 }, ""));
+                    test.assertThrows(() -> AssertionMessages.oneOf(5, new long[] { 6, 7, 8 }, ""),
+                        new PreConditionFailure("expressionName cannot be empty."));
                 });
 
                 runner.test("with non-empty expressionName", (Test test) ->
                 {
-                    test.assertEqual("blah (5) must be either 6, 7, or 8.",
+                    test.assertEqual("blah (5) must be 6, 7, or 8.",
                         AssertionMessages.oneOf(5, new long[] { 6, 7, 8 }, "blah"));
                 });
             });
@@ -791,43 +791,43 @@ public interface AssertionMessagesTests
             {
                 runner.test("with null values", (Test test) ->
                 {
-                    test.assertThrows(new NullPointerException(),
-                        () -> AssertionMessages.oneOf("a", (String[])null, "blah"));
+                    test.assertThrows(() -> AssertionMessages.oneOf("a", (String[])null, "blah"),
+                        new PreConditionFailure("possibleValues cannot be null."));
                 });
 
                 runner.test("with empty values", (Test test) ->
                 {
-                    test.assertThrows(new ArrayIndexOutOfBoundsException("Index -1 out of bounds for length 0"),
-                        () -> AssertionMessages.oneOf("a", new String[0], "blah"));
+                    test.assertThrows(() -> AssertionMessages.oneOf("a", new String[0], "blah"),
+                        new PreConditionFailure("possibleValues cannot be empty."));
                 });
 
                 runner.test("with one-element values", (Test test) ->
                 {
-                    test.assertEqual("blah (a) must be b.",
+                    test.assertEqual("blah (\"a\") must be \"b\".",
                         AssertionMessages.oneOf("a", new String[] { "b" }, "blah"));
                 });
 
                 runner.test("with two-element values", (Test test) ->
                 {
-                    test.assertEqual("blah (a) must be either b or c.",
+                    test.assertEqual("blah (\"a\") must be \"b\" or \"c\".",
                         AssertionMessages.oneOf("a", new String[] { "b", "c" }, "blah"));
                 });
 
                 runner.test("with null expressionName", (Test test) ->
                 {
-                    test.assertEqual("null (a) must be either b, c, or d.",
-                        AssertionMessages.oneOf("a", new String[] { "b", "c", "d" }, null));
+                    test.assertThrows(() -> AssertionMessages.oneOf("a", new String[] { "b", "c", "d" }, null),
+                        new PreConditionFailure("expressionName cannot be null."));
                 });
 
                 runner.test("with empty expressionName", (Test test) ->
                 {
-                    test.assertEqual(" (a) must be either b, c, or d.",
-                        AssertionMessages.oneOf("a", new String[] { "b", "c", "d" }, ""));
+                    test.assertThrows(() -> AssertionMessages.oneOf("a", new String[] { "b", "c", "d" }, ""),
+                        new PreConditionFailure("expressionName cannot be empty."));
                 });
 
                 runner.test("with non-empty expressionName", (Test test) ->
                 {
-                    test.assertEqual("blah (a) must be either b, c, or d.",
+                    test.assertEqual("blah (\"a\") must be \"b\", \"c\", or \"d\".",
                         AssertionMessages.oneOf("a", new String[] { "b", "c", "d" }, "blah"));
                 });
             });
@@ -836,43 +836,43 @@ public interface AssertionMessagesTests
             {
                 runner.test("with null values", (Test test) ->
                 {
-                    test.assertThrows(new java.lang.NullPointerException(),
-                        () -> AssertionMessages.oneOf("a", (Iterable<String>)null, "blah"));
+                    test.assertThrows(() -> AssertionMessages.oneOf("a", (Iterable<String>)null, "blah"),
+                        new PreConditionFailure("possibleValues cannot be null."));
                 });
 
                 runner.test("with empty values", (Test test) ->
                 {
-                    test.assertEqual("blah (a) must be either or null.",
-                        AssertionMessages.oneOf("a", Iterable.create(), "blah"));
+                    test.assertThrows(() -> AssertionMessages.oneOf("a", Iterable.create(), "blah"),
+                        new PreConditionFailure("possibleValues cannot be empty."));
                 });
 
                 runner.test("with one-element values", (Test test) ->
                 {
-                    test.assertEqual("blah (a) must be b.",
+                    test.assertEqual("blah (\"a\") must be \"b\".",
                         AssertionMessages.oneOf("a", Iterable.create("b"), "blah"));
                 });
 
                 runner.test("with two-element values", (Test test) ->
                 {
-                    test.assertEqual("blah (a) must be either b or c.",
+                    test.assertEqual("blah (\"a\") must be \"b\" or \"c\".",
                         AssertionMessages.oneOf("a", Iterable.create("b", "c"), "blah"));
                 });
 
                 runner.test("with null expressionName", (Test test) ->
                 {
-                    test.assertEqual("null (a) must be either b, c, or d.",
-                        AssertionMessages.oneOf("a", Iterable.create("b", "c", "d"), null));
+                    test.assertThrows(() -> AssertionMessages.oneOf("a", Iterable.create("b", "c", "d"), null),
+                        new PreConditionFailure("expressionName cannot be null."));
                 });
 
                 runner.test("with empty expressionName", (Test test) ->
                 {
-                    test.assertEqual(" (a) must be either b, c, or d.",
-                        AssertionMessages.oneOf("a", Iterable.create("b", "c", "d"), ""));
+                    test.assertThrows(() -> AssertionMessages.oneOf("a", Iterable.create("b", "c", "d"), ""),
+                        new PreConditionFailure("expressionName cannot be empty."));
                 });
 
                 runner.test("with non-empty expressionName", (Test test) ->
                 {
-                    test.assertEqual("blah (a) must be either b, c, or d.",
+                    test.assertEqual("blah (\"a\") must be \"b\", \"c\", or \"d\".",
                         AssertionMessages.oneOf("a", Iterable.create("b", "c", "d"), "blah"));
                 });
             });
