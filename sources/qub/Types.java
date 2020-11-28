@@ -510,6 +510,7 @@ public interface Types
      * @param fullClassName The full name of the class to get.
      * @return The Class object associated with the provided full class name.
      */
+    @Deprecated
     static Result<Class<?>> getClass(String fullClassName)
     {
         PreCondition.assertNotNullAndNotEmpty(fullClassName, "fullClassName");
@@ -571,6 +572,7 @@ public interface Types
         return Types.getFullTypeName(value == null ? null : value.getClass());
     }
 
+    @Deprecated
     static Result<String> getTypeContainerPathString(String fullTypeName)
     {
         PreCondition.assertNotNullAndNotEmpty(fullTypeName, "fullTypeName");
@@ -582,6 +584,7 @@ public interface Types
         });
     }
 
+    @Deprecated
     static Result<String> getTypeContainerPathString(Class<?> type)
     {
         PreCondition.assertNotNull(type, "type");
@@ -592,6 +595,7 @@ public interface Types
         });
     }
 
+    @Deprecated
     static Result<Path> getTypeContainerPath(String fullTypeName)
     {
         PreCondition.assertNotNullAndNotEmpty(fullTypeName, "fullTypeName");
@@ -603,6 +607,7 @@ public interface Types
         });
     }
 
+    @Deprecated
     static Result<Path> getTypeContainerPath(Class<?> type)
     {
         PreCondition.assertNotNull(type, "type");

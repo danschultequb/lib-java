@@ -5,7 +5,6 @@ public final class BasicTestRunner implements TestRunner
     private static final Skip noMessageSkip = new Skip(null);
 
     private final Process process;
-    private Result<Boolean> hasNetworkConnection;
 
     private int passedTestCount;
     private int failedTestCount;

@@ -73,7 +73,10 @@ public interface Size2D extends ComparableWithError<Size2D>
     {
         PreCondition.assertNotNull(size, "size");
 
-        return "{\"width\":\"" + size.getWidth() + "\",\"height\":\"" + size.getHeight() + "\"}";
+        return JSONObject.create()
+            .setString("width", size.getWidth().toString())
+            .setString("height", size.getHeight().toString())
+            .toString();
     }
 
     static boolean equals(Size2D lhs, Object rhs)

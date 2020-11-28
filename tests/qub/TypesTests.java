@@ -1000,32 +1000,6 @@ public class TypesTests
                 });
             });
 
-            runner.testGroup("getClass(String)", () ->
-            {
-                runner.test("with null fullClassName", (Test test) ->
-                {
-                    test.assertThrows(() -> Types.getClass(null),
-                        new PreConditionFailure("fullClassName cannot be null."));
-                });
-
-                runner.test("with empty fullClassName", (Test test) ->
-                {
-                    test.assertThrows(() -> Types.getClass(""),
-                        new PreConditionFailure("fullClassName cannot be empty."));
-                });
-
-                runner.test("with no matching class", (Test test) ->
-                {
-                    test.assertThrows(() -> Types.getClass("spam").await(),
-                        new NotFoundException("Could not load a class named \"spam\"."));
-                });
-
-                runner.test("with matching class", (Test test) ->
-                {
-                    test.assertSame(TypesTests.class, Types.getClass("qub.TypesTests").await());
-                });
-            });
-
             runner.testGroup("getTypeName(Object)", () ->
             {
                 runner.test("with null", (Test test) ->

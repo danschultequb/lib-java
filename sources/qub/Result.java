@@ -441,7 +441,7 @@ public interface Result<T>
      * Create a new Result by synchronously running the provided Action and returning the result.
      * @param action The action to run.
      */
-    static <U> SyncResult<U> create(Action0 action)
+    static SyncResult<Void> create(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 

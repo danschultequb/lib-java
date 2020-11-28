@@ -8,18 +8,18 @@ public interface CommandLineLogsActionTests
 
         runner.testGroup(CommandLineLogsAction.class, () ->
         {
-            runner.testGroup("add(CommandLineActions<? extends QubProcess>)", () ->
+            runner.testGroup("addAction(CommandLineActions<? extends QubProcess>)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> CommandLineLogsAction.add(null),
+                    test.assertThrows(() -> CommandLineLogsAction.addAction(null),
                         new PreConditionFailure("actions cannot be null."));
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
                     final CommandLineActions<QubProcess> actions = CommandLineActions.create();
-                    final CommandLineAction<QubProcess> action = CommandLineLogsAction.add(actions);
+                    final CommandLineAction<QubProcess> action = CommandLineLogsAction.addAction(actions);
                     test.assertNotNull(action);
                     test.assertEqual(CommandLineLogsAction.actionName, action.getName());
                     test.assertEqual(CommandLineLogsAction.actionDescription, action.getDescription());

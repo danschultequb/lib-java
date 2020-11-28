@@ -150,11 +150,11 @@ public class SyncResult<T> implements Result<T>
      * Create a new Result by synchronously running the provided Action and returning the result.
      * @param action The action to run.
      */
-    public static <U> SyncResult<U> create(Action0 action)
+    public static SyncResult<Void> create(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        SyncResult<U> result;
+        SyncResult<Void> result;
         try
         {
             action.run();
