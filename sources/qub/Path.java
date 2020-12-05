@@ -473,13 +473,13 @@ public class Path
     @Override
     public boolean equals(Object rhs)
     {
-        return (rhs instanceof Path && equals((Path)rhs)) ||
-            (rhs instanceof String && equals((String)rhs));
+        return (rhs instanceof Path && this.equals((Path)rhs)) ||
+            (rhs instanceof String && this.equals((String)rhs));
     }
 
     public boolean equals(String rhs)
     {
-        return !Strings.isNullOrEmpty(rhs) && equals(Path.parse(rhs));
+        return !Strings.isNullOrEmpty(rhs) && this.equals(Path.parse(rhs));
     }
 
     public boolean equals(Path rhs)

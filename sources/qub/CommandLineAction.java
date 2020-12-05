@@ -3,7 +3,7 @@ package qub;
 /**
  * An action for a command line application.
  */
-public class CommandLineAction<TProcess extends Process>
+public class CommandLineAction<TProcess extends DesktopProcess>
 {
     private final String name;
     private final Action1<TProcess> mainAction;
@@ -32,7 +32,7 @@ public class CommandLineAction<TProcess extends Process>
      * @param name The name of the CommandLineAction.
      * @param mainAction The behavior/action of the CommandLineAction.
      */
-    public static <TProcess extends Process> CommandLineAction<TProcess> create(String name, Action1<TProcess> mainAction)
+    public static <TProcess extends DesktopProcess> CommandLineAction<TProcess> create(String name, Action1<TProcess> mainAction)
     {
         return new CommandLineAction<>(name, mainAction);
     }

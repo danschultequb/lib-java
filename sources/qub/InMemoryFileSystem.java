@@ -16,6 +16,11 @@ public class InMemoryFileSystem implements FileSystem
         this.clock = clock;
     }
 
+    public static InMemoryFileSystem create()
+    {
+        return InMemoryFileSystem.create(ManualClock.create());
+    }
+
     public static InMemoryFileSystem create(Clock clock)
     {
         return new InMemoryFileSystem(clock);

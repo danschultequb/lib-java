@@ -145,4 +145,34 @@ public interface CharacterWriteStream extends Disposable
             return result;
         });
     }
+
+    default Result<Integer> writeLines(String... lines)
+    {
+        PreCondition.assertNotNull(lines, "lines");
+
+        return Result.create(() ->
+        {
+            int result = 0;
+            for (final String line : lines)
+            {
+                result += this.writeLine(line).await();
+            }
+            return result;
+        });
+    }
+
+    default Result<Integer> writeLines(Iterable<String> lines)
+    {
+        PreCondition.assertNotNull(lines, "lines");
+
+        return Result.create(() ->
+        {
+            int result = 0;
+            for (final String line : lines)
+            {
+                result += this.writeLine(line).await();
+            }
+            return result;
+        });
+    }
 }

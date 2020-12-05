@@ -14,44 +14,19 @@ public interface VisualVMProcessBuilderTests
                         new PreConditionFailure("process cannot be null."));
                 });
 
-                runner.test("with no QUB_HOME environment variable", (Test test) ->
-                {
-                    try (final Process process = Process.create())
-                    {
-                        process.setEnvironmentVariables(new EnvironmentVariables());
-
-                        test.assertThrows(() -> VisualVMProcessBuilder.get(process).await(),
-                            new NotFoundException("No environment variable named \"QUB_HOME\" found."));
-                    }
-                });
-
-                runner.test("with no QubFolder", (Test test) ->
-                {
-                    try (final Process process = Process.create())
-                    {
-                        process.setEnvironmentVariables(new EnvironmentVariables()
-                            .set("QUB_HOME", "/qub/"));
-
-                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
-                        fileSystem.createRoot("/").await();
-                        process.setFileSystem(fileSystem);
-
-                        test.assertThrows(() -> VisualVMProcessBuilder.get(process).await(),
-                            new NotFoundException("No project named oracle/visualvm has been published."));
-                    }
-                });
-
                 runner.test("with no oracle publisher folder", (Test test) ->
                 {
-                    try (final Process process = Process.create())
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        process.setEnvironmentVariables(new EnvironmentVariables()
-                            .set("QUB_HOME", "/qub/"));
-
                         final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                         fileSystem.createRoot("/").await();
-                        fileSystem.createFolder("/qub/").await();
-                        process.setFileSystem(fileSystem);
+                        final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
+                        final File fakeJavaCompiledSourcesJarFile = qubFolder.getCompiledSourcesFile("qub", "fake-java", "50").await();
+                        fakeJavaCompiledSourcesJarFile.create().await();
+                        process.setFileSystem(fileSystem, "/");
+
+                        process.setTypeLoader(FakeTypeLoader.create()
+                            .addTypeContainer("fake.MainClassFullName", fakeJavaCompiledSourcesJarFile));
 
                         test.assertThrows(() -> VisualVMProcessBuilder.get(process).await(),
                             new NotFoundException("No project named oracle/visualvm has been published."));
@@ -60,15 +35,19 @@ public interface VisualVMProcessBuilderTests
 
                 runner.test("with no visualvm project folder", (Test test) ->
                 {
-                    try (final Process process = Process.create())
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        process.setEnvironmentVariables(new EnvironmentVariables()
-                            .set("QUB_HOME", "/qub/"));
-
                         final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                         fileSystem.createRoot("/").await();
-                        fileSystem.createFolder("/qub/oracle/").await();
-                        process.setFileSystem(fileSystem);
+                        final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
+                        final File fakeJavaCompiledSourcesJarFile = qubFolder.getCompiledSourcesFile("qub", "fake-java", "50").await();
+                        fakeJavaCompiledSourcesJarFile.create().await();
+                        qubFolder.getPublisherFolder("oracle").await()
+                            .create().await();
+                        process.setFileSystem(fileSystem, "/");
+
+                        process.setTypeLoader(FakeTypeLoader.create()
+                            .addTypeContainer("fake.MainClassFullName", fakeJavaCompiledSourcesJarFile));
 
                         test.assertThrows(() -> VisualVMProcessBuilder.get(process).await(),
                             new NotFoundException("No project named oracle/visualvm has been published."));
@@ -77,15 +56,19 @@ public interface VisualVMProcessBuilderTests
 
                 runner.test("with no versions folder", (Test test) ->
                 {
-                    try (final Process process = Process.create())
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        process.setEnvironmentVariables(new EnvironmentVariables()
-                            .set("QUB_HOME", "/qub/"));
-
                         final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                         fileSystem.createRoot("/").await();
-                        fileSystem.createFolder("/qub/oracle/visualvm/").await();
-                        process.setFileSystem(fileSystem);
+                        final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
+                        final File fakeJavaCompiledSourcesJarFile = qubFolder.getCompiledSourcesFile("qub", "fake-java", "50").await();
+                        fakeJavaCompiledSourcesJarFile.create().await();
+                        qubFolder.getProjectFolder("oracle", "visualvm").await()
+                            .create().await();
+                        process.setFileSystem(fileSystem, "/");
+
+                        process.setTypeLoader(FakeTypeLoader.create()
+                            .addTypeContainer("fake.MainClassFullName", fakeJavaCompiledSourcesJarFile));
 
                         test.assertThrows(() -> VisualVMProcessBuilder.get(process).await(),
                             new NotFoundException("No project named oracle/visualvm has been published."));
@@ -94,15 +77,20 @@ public interface VisualVMProcessBuilderTests
 
                 runner.test("with no version folder", (Test test) ->
                 {
-                    try (final Process process = Process.create())
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        process.setEnvironmentVariables(new EnvironmentVariables()
-                            .set("QUB_HOME", "/qub/"));
-
                         final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                         fileSystem.createRoot("/").await();
-                        fileSystem.createFolder("/qub/oracle/visualvm/versions").await();
-                        process.setFileSystem(fileSystem);
+                        final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
+                        final File fakeJavaCompiledSourcesJarFile = qubFolder.getCompiledSourcesFile("qub", "fake-java", "50").await();
+                        fakeJavaCompiledSourcesJarFile.create().await();
+                        qubFolder.getProjectFolder("oracle", "visualvm").await()
+                            .getProjectVersionsFolder().await()
+                            .create().await();
+                        process.setFileSystem(fileSystem, "/");
+
+                        process.setTypeLoader(FakeTypeLoader.create()
+                            .addTypeContainer("fake.MainClassFullName", fakeJavaCompiledSourcesJarFile));
 
                         test.assertThrows(() -> VisualVMProcessBuilder.get(process).await(),
                             new NotFoundException("No project named oracle/visualvm has been published."));
@@ -111,15 +99,18 @@ public interface VisualVMProcessBuilderTests
 
                 runner.test("with no published files", (Test test) ->
                 {
-                    try (final Process process = Process.create())
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        process.setEnvironmentVariables(new EnvironmentVariables()
-                            .set("QUB_HOME", "/qub/"));
-
                         final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                         fileSystem.createRoot("/").await();
-                        fileSystem.createFolder("/qub/oracle/visualvm/versions/1.2.3/").await();
-                        process.setFileSystem(fileSystem);
+                        final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
+                        final File fakeJavaCompiledSourcesJarFile = qubFolder.getCompiledSourcesFile("qub", "fake-java", "50").await();
+                        fakeJavaCompiledSourcesJarFile.create().await();
+                        qubFolder.getProjectVersionFolder("oracle", "visualvm", "1.2.3").await().create().await();
+                        process.setFileSystem(fileSystem, "/");
+
+                        process.setTypeLoader(FakeTypeLoader.create()
+                            .addTypeContainer("fake.MainClassFullName", fakeJavaCompiledSourcesJarFile));
 
                         final VisualVMProcessBuilder processBuilder = VisualVMProcessBuilder.get(process).await();
                         test.assertNotNull(processBuilder);
@@ -129,16 +120,19 @@ public interface VisualVMProcessBuilderTests
 
                 runner.test("with multiple versions", (Test test) ->
                 {
-                    try (final Process process = Process.create())
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        process.setEnvironmentVariables(new EnvironmentVariables()
-                            .set("QUB_HOME", "/qub/"));
-
                         final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
                         fileSystem.createRoot("/").await();
-                        fileSystem.createFolder("/qub/oracle/visualvm/versions/1/").await();
-                        fileSystem.createFolder("/qub/oracle/visualvm/versions/2/").await();
-                        process.setFileSystem(fileSystem);
+                        final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
+                        final File fakeJavaCompiledSourcesJarFile = qubFolder.getCompiledSourcesFile("qub", "fake-java", "50").await();
+                        fakeJavaCompiledSourcesJarFile.create().await();
+                        qubFolder.getProjectVersionFolder("oracle", "visualvm", "1").await().create().await();
+                        qubFolder.getProjectVersionFolder("oracle", "visualvm", "2").await().create().await();
+                        process.setFileSystem(fileSystem, "/");
+
+                        process.setTypeLoader(FakeTypeLoader.create()
+                            .addTypeContainer("fake.MainClassFullName", fakeJavaCompiledSourcesJarFile));
 
                         final VisualVMProcessBuilder processBuilder = VisualVMProcessBuilder.get(process).await();
                         test.assertNotNull(processBuilder);

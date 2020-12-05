@@ -30,7 +30,8 @@ public interface JavaTypeLoaderTests
                 runner.test("with " + Strings.escapeAndQuote(String.class), (Test test) ->
                 {
                     final JavaTypeLoader typeLoader = JavaTypeLoader.create();
-                    typeLoader.getTypeContainerPathString(String.class).await();
+                    test.assertThrows(() -> typeLoader.getTypeContainerPathString("java.lang.String").await(),
+                        new NotFoundException("Could not find a type container for a type named \"java.lang.String\"."));
                 });
             });
 
@@ -51,6 +52,13 @@ public interface JavaTypeLoaderTests
                     {
                         test.assertTrue(fileSystem.fileExists(typeContainerPath).await());
                     }
+                });
+
+                runner.test("with " + Strings.escapeAndQuote(String.class), (Test test) ->
+                {
+                    final JavaTypeLoader typeLoader = JavaTypeLoader.create();
+                    test.assertThrows(() -> typeLoader.getTypeContainerPathString(String.class).await(),
+                        new NotFoundException("Could not find a type container for a type named \"java.lang.String\"."));
                 });
             });
 

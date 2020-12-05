@@ -81,15 +81,6 @@ public class JavaTypeLoader implements TypeLoader
 
             if (result == null)
             {
-                final java.lang.ClassLoader classLoader = type.getClassLoader();
-                if (classLoader != null)
-                {
-
-                }
-            }
-
-            if (result == null)
-            {
                 throw new NotFoundException("Could not find a type container for a type named " + Strings.escapeAndQuote(Types.getFullTypeName(type)) + ".");
             }
 

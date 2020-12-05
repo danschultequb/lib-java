@@ -4,12 +4,28 @@ public interface ProcessBuilderTests
 {
     static BasicProcessBuilder createBuilder(Test test)
     {
-        final ProcessFactory factory = new FakeProcessFactory(test.getParallelAsyncRunner(), Path.parse("/working/"))
+        final ManualClock clock = ManualClock.create();
+        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(clock);
+        fileSystem.createRoot("/").await();
+        final Folder workingFolder = fileSystem.createFolder("/working/folder/").await();
+        final ProcessFactory factory = FakeProcessFactory.create(test.getParallelAsyncRunner(), workingFolder)
             .add(FakeProcessRun.get("/files/executable.exe")
                 .setFunction((ByteWriteStream output, ByteWriteStream error) ->
                 {
-                    CharacterWriteStream.create(output).write("I'm output!\nI'm more output!\nI'm the last output.").await();
-                    CharacterWriteStream.create(error).write("I'm error!\r\nI'm more error!\nStill a little more error.\nIt's over?\n").await();
+                    CharacterWriteStream.create(output)
+                        .writeLines(
+                            "I'm output!",
+                            "I'm more output!",
+                            "I'm the last output.")
+                        .await();
+                    CharacterWriteStream.create(error)
+                        .writeLines(
+                            "I'm error!",
+                            "I'm more error!",
+                            "Still a little more error.",
+                            "It's over?",
+                            "")
+                        .await();
                 }));
         return new BasicProcessBuilder(factory, Path.parse("/files/executable.exe"), Path.parse("/working/"));
     }
@@ -20,7 +36,7 @@ public interface ProcessBuilderTests
         {
             runner.test("constructor()", (Test test) ->
             {
-                final BasicProcessBuilder builder = createBuilder(test);
+                final BasicProcessBuilder builder = ProcessBuilderTests.createBuilder(test);
                 test.assertEqual(Path.parse("/files/executable.exe"), builder.getExecutablePath());
                 test.assertEqual(Iterable.create(), builder.getArguments());
                 test.assertEqual(Path.parse("/working/"), builder.getWorkingFolderPath());
@@ -265,7 +281,7 @@ public interface ProcessBuilderTests
                         Iterable.create(
                             "I'm output!\n",
                             "I'm more output!\n",
-                            "I'm the last output."
+                            "I'm the last output.\n"
                         ),
                         outputLines);
                 });
@@ -298,11 +314,11 @@ public interface ProcessBuilderTests
                     test.assertEqual(0, builder.run().await());
                     test.assertEqual(
                         Iterable.create(
-                            "I'm error!\r\n",
+                            "I'm error!\n",
                             "I'm more error!\n",
                             "Still a little more error.\n",
-                            "It's over?\n"
-                        ),
+                            "It's over?\n",
+                            "\n"),
                         outputLines);
                 });
             });

@@ -1,54 +1,71 @@
 package qub;
 
 /**
- * An interface for a process/application that runs from the Qub folder.
+ * A Process object that is running in a Desktop environment (Windows, Linux, Mac, etc.).
  */
-@Deprecated
-public interface QubProcess extends Process
+public class DesktopProcess extends ProcessBase
 {
+    private final CommandLineArguments commandLineArguments;
+    private int exitCode;
+    private final LongValue processId;
+    private final Value<ProcessFactory> processFactory;
+    private final Value<String> mainClassFullName;
+
     /**
-     * Create a new QubProcess object with the provided command line arguments.
-     * @param commandLineArgumentStrings The command line arguments provided to the new QubProcess.
+     * Create a new JavaProcess object with the provided command line arguments.
+     * @param commandLineArgumentStrings The command line arguments provided to the new JavaProcess.
      */
-    static QubProcess create(String... commandLineArgumentStrings)
+    public static DesktopProcess create(String... commandLineArgumentStrings)
     {
         PreCondition.assertNotNull(commandLineArgumentStrings, "commandLineArgumentStrings");
 
-        return QubProcess.create(CommandLineArguments.create(commandLineArgumentStrings));
+        return DesktopProcess.create(CommandLineArguments.create(commandLineArgumentStrings));
     }
 
     /**
-     * Create a new QubProcess object with the provided command line arguments.
-     * @param commandLineArgumentStrings The command line arguments provided to the new QubProcess.
+     * Create a new JavaProcess object with the provided command line arguments.
+     * @param commandLineArgumentStrings The command line arguments provided to the new JavaProcess.
      */
-    static QubProcess create(Iterable<String> commandLineArgumentStrings)
+    public static DesktopProcess create(Iterable<String> commandLineArgumentStrings)
     {
         PreCondition.assertNotNull(commandLineArgumentStrings, "commandLineArgumentStrings");
 
-        return QubProcess.create(CommandLineArguments.create(commandLineArgumentStrings));
+        return DesktopProcess.create(CommandLineArguments.create(commandLineArgumentStrings));
     }
 
     /**
-     * Create a new QubProcess object with the provided command line arguments.
-     * @param commandLineArguments The command line arguments provided to the new QubProcess.
+     * Create a new JavaProcess object with the provided command line arguments.
+     * @param commandLineArguments The command line arguments provided to the new JavaProcess.
      */
-    static QubProcess create(CommandLineArguments commandLineArguments)
+    public static DesktopProcess create(CommandLineArguments commandLineArguments)
     {
         PreCondition.assertNotNull(commandLineArguments, "commandLineArguments");
 
-        return QubProcess.create(commandLineArguments, new ManualAsyncRunner());
+        return DesktopProcess.create(commandLineArguments, new ManualAsyncRunner());
     }
 
     /**
-     * Create a new QubProcess object with the provided command line arguments.
-     * @param commandLineArguments The command line arguments provided to the new QubProcess.
+     * Create a new JavaProcess object with the provided command line arguments.
+     * @param commandLineArguments The command line arguments provided to the new JavaProcess.
      */
-    static QubProcess create(CommandLineArguments commandLineArguments, AsyncScheduler mainAsyncRunner)
+    public static DesktopProcess create(CommandLineArguments commandLineArguments, AsyncScheduler mainAsyncRunner)
     {
         PreCondition.assertNotNull(commandLineArguments, "commandLineArguments");
         PreCondition.assertNotNull(mainAsyncRunner, "mainAsyncRunner");
 
-        return DesktopProcess.create(commandLineArguments, mainAsyncRunner);
+        return new DesktopProcess(commandLineArguments, mainAsyncRunner);
+    }
+
+    protected DesktopProcess(CommandLineArguments commandLineArguments, AsyncScheduler mainAsyncRunner)
+    {
+        super(mainAsyncRunner);
+
+        PreCondition.assertNotNull(commandLineArguments, "commandLineArguments");
+
+        this.commandLineArguments = commandLineArguments;
+        this.processId = LongValue.create();
+        this.processFactory = Value.create();
+        this.mainClassFullName = Value.create();
     }
 
     /**
@@ -238,89 +255,209 @@ public interface QubProcess extends Process
     }
 
     /**
-     * Get the Qub folder that contains the main binaries for this process.
-     * @return The Qub folder that contains the main binaries for this process.
+     * Get the id of this process.
+     * @return The id of this process.
      */
-    default Result<QubFolder> getQubFolder()
+    public long getProcessId()
+    {
+        return this.processId.getOrSet(this.createDefaultProcessId());
+    }
+
+    protected long createDefaultProcessId()
+    {
+        return java.lang.ProcessHandle.current().pid();
+    }
+
+    /**
+     * Set the process ID of this DesktopProcess.
+     * @param processId The process ID of this process.
+     * @return This object for method chaining.
+     */
+    protected DesktopProcess setProcessId(long processId)
+    {
+        this.processId.set(processId);
+
+        return this;
+    }
+
+    /**
+     * Get the exit code that this process will return when it finishes.
+     * @return The exit code that this process will return when it finishes.
+     */
+    public int getExitCode()
+    {
+        return this.exitCode;
+    }
+
+    /**
+     * Set the exit code that this process will return when it finishes.
+     * @param exitCode The exit code that this process will return when it finishes.
+     * @return This DesktopProcess for method chaining.
+     */
+    public DesktopProcess setExitCode(int exitCode)
+    {
+        this.exitCode = exitCode;
+        return this;
+    }
+
+    /**
+     * Add one to the current exit code.
+     * @return This DesktopProcess for method chaining.
+     */
+    public DesktopProcess incrementExitCode()
+    {
+        return this.setExitCode(getExitCode() + 1);
+    }
+
+    /**
+     * Get the CommandLineArguments that were passed on the command line.
+     * @return The CommandLineArguments that were passed on the command line.
+     */
+    public CommandLineArguments getCommandLineArguments()
+    {
+        return this.commandLineArguments;
+    }
+
+    /**
+     * Create a CommandLineParameters object that can be used to create CommandLineParameter
+     * objects. These CommandLineParameter objects can parse the CommandLineArguments that are
+     * passed on the command line.
+     * @return A new CommandLineParameters object.
+     */
+    public CommandLineParameters createCommandLineParameters()
+    {
+        return new CommandLineParameters()
+            .setArguments(this.getCommandLineArguments());
+    }
+
+    /**
+     * Create a CommandLineActions object that can be used to create CommandLineAction objects. The
+     * first positional argument will be used as the action (--action) parameter to determine which
+     * action should be invoked.
+     * @return A new CommandLineActions object.
+     */
+    public <TProcess extends DesktopProcess> CommandLineActions<TProcess> createCommandLineActions()
+    {
+        return CommandLineActions.create();
+    }
+
+    /**
+     * Get the object that can be used to invoke external processes.
+     * @return The object that can be used to invoke external processes.
+     */
+    public ProcessFactory getProcessFactory()
+    {
+        return this.processFactory.getOrSet(this::createDefaultProcessFactory);
+    }
+
+    protected ProcessFactory createDefaultProcessFactory()
+    {
+        final AsyncRunner parallelAsyncRunner = this.getParallelAsyncRunner();
+        final EnvironmentVariables environmentVariables = this.getEnvironmentVariables();
+        final Folder currentFolder = this.getCurrentFolder();
+        return new RealProcessFactory(parallelAsyncRunner, environmentVariables, currentFolder);
+    }
+
+    /**
+     * Set the object that can be used to invoke external processes.
+     * @param processFactory The object that can be used to invoke external processes.
+     * @return This object for method chaining.
+     */
+    protected ProcessBase setProcessFactory(ProcessFactory processFactory)
+    {
+        PreCondition.assertNotNull(processFactory, "processFactory");
+
+        this.processFactory.set(processFactory);
+
+        return this;
+    }
+
+    /**
+     * Get the ProcessBuilder for the provided executable path.
+     * @param executablePath The path to the executable.
+     * @return The ProcessBuilder for the provided executable path.
+     */
+    public Result<ProcessBuilder> getProcessBuilder(String executablePath)
+    {
+        PreCondition.assertNotNullAndNotEmpty(executablePath, "executablePath");
+
+        return this.getProcessFactory().getProcessBuilder(executablePath);
+    }
+
+    /**
+     * Get the ProcessBuilder for the provided executable path.
+     * @param executablePath The path to the executable.
+     * @return The ProcessBuilder for the provided executable path.
+     */
+    public Result<ProcessBuilder> getProcessBuilder(Path executablePath)
+    {
+        PreCondition.assertNotNull(executablePath, "executablePath");
+
+        return this.getProcessFactory().getProcessBuilder(executablePath);
+    }
+
+    /**
+     * Get the ProcessBuilder for the provided executable file.
+     * @param executableFile The file to executable.
+     * @return The ProcessBuilder for the provided executable file.
+     */
+    public Result<ProcessBuilder> getProcessBuilder(File executableFile)
+    {
+        PreCondition.assertNotNull(executableFile, "executableFile");
+
+        return this.getProcessFactory().getProcessBuilder(executableFile);
+    }
+
+    @Override
+    protected DesktopProcess setSystemProperty(String systemPropertyName, String systemPropertyValue)
+    {
+        return (DesktopProcess)super.setSystemProperty(systemPropertyName, systemPropertyValue);
+    }
+
+    /**
+     * Get whether or not this application is running in a Windows environment.
+     * @return Whether or not this application is running in a Windows environment.
+     */
+    public Result<Boolean> onWindows()
     {
         return Result.create(() ->
         {
-            return this.getQubProjectVersionFolder().await()
-                .getQubFolder().await();
+            final String osName = this.getSystemProperty("os.name").await();
+            return osName.toLowerCase().contains("windows");
         });
     }
 
     /**
-     * Get the name of the current process's publisher.
-     * @return The name of the current process's publisher.
+     * Get the classpath that was provided to this application's JVM when it was started.
+     * @return The classpath that was provided to this application's JVM when it was started.
      */
-    default Result<String> getPublisherName()
+    public Result<String> getJVMClasspath()
     {
-        return Result.create(() ->
-        {
-            return this.getQubProjectVersionFolder().await()
-                .getPublisherName().await();
-        });
-    }
-
-    default Result<QubPublisherFolder> getQubPublisherFolder()
-    {
-        return Result.create(() ->
-        {
-            return this.getQubProjectVersionFolder().await()
-                .getPublisherFolder().await();
-        });
+        return this.getSystemProperty("java.class.path");
     }
 
     /**
-     * Get the name of the current process's project.
-     * @return The name of the current process's project.
+     * Set the java.class.path system property. This will not change the classpath of the running
+     * JVM, but rather will only modify the system property.
+     * @return This object for method chaining.
      */
-    default Result<String> getProjectName()
+    protected DesktopProcess setJVMClasspath(String jvmClasspath)
     {
-        return Result.create(() ->
-        {
-            return this.getQubProjectVersionFolder().await()
-                .getProjectName().await();
-        });
-    }
+        PreCondition.assertNotNull(jvmClasspath, "jvmClasspath");
 
-    default Result<QubProjectFolder> getQubProjectFolder()
-    {
-        return Result.create(() ->
-        {
-            return this.getQubProjectVersionFolder().await()
-                .getProjectFolder().await();
-        });
+        return this.setSystemProperty("java.class.path", jvmClasspath);
     }
 
     /**
-     * Get the data folder that is associated with the current process's project.
-     * @return The data folder that is associated with the current process's project.
+     * Get the full name of the main class of this application.
+     * @return The full name of the main class of this application.
      */
-    default Result<Folder> getQubProjectDataFolder()
+    public String getMainClassFullName()
     {
-        return Result.create(() ->
-        {
-            final QubProjectFolder projectFolder = this.getQubProjectFolder().await();
-            return projectFolder.getProjectDataFolder().await();
-        });
+        return this.mainClassFullName.getOrSet(this::createDefaultMainClassFullName);
     }
 
-    /**
-     * Get the version of the current process's project.
-     * @return The version of the current process's project.
-     */
-    default Result<VersionNumber> getVersion()
-    {
-        return Result.create(() ->
-        {
-            return this.getQubProjectVersionFolder().await()
-                .getVersion().await();
-        });
-    }
-
-    default String getMainClassFullName()
+    protected String createDefaultMainClassFullName()
     {
         final String javaApplicationArguments = this.getSystemProperty("sun.java.command").await();
         final int firstSpaceIndex = javaApplicationArguments.indexOf(' ');
@@ -331,11 +468,41 @@ public interface QubProcess extends Process
         return result;
     }
 
+    protected DesktopProcess setMainClassFullName(String mainClassFullName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(mainClassFullName, "mainClassFullName");
+
+        this.mainClassFullName.set(mainClassFullName);
+
+        return this;
+    }
+
+    public Result<Class<?>> getMainClass()
+    {
+        return Result.create(() ->
+        {
+            final String mainClassFullName = this.getMainClassFullName();
+            final TypeLoader typeLoader = this.getTypeLoader();
+            return typeLoader.getType(mainClassFullName).await();
+        });
+    }
+
     /**
-     * Get the QubProjectVersionFolder for the current process.
-     * @return The QubProjectVersionFolder for the current process.
+     * Get the version of Java that is running this application.
+     * @return The version of Java that is running this application.
      */
-    default Result<QubProjectVersionFolder> getQubProjectVersionFolder()
+    public VersionNumber getJavaVersion()
+    {
+        final String javaVersionString = this.getSystemProperty("java.version").await();
+        final VersionNumber result = VersionNumber.parse(javaVersionString).await();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    @Override
+    public Result<QubProjectVersionFolder> getQubProjectVersionFolder()
     {
         return Result.create(() ->
         {
@@ -368,57 +535,4 @@ public interface QubProcess extends Process
             return result;
         });
     }
-
-    /**
-     * Create a CommandLineParameters object that can be used to create CommandLineParameter
-     * objects. These CommandLineParameter objects can parse the CommandLineArguments that are
-     * passed on the command line.
-     * @return A new CommandLineParameters object.
-     */
-    default CommandLineParameters createCommandLineParameters()
-    {
-        return new CommandLineParameters()
-            .setArguments(this.getCommandLineArguments());
-    }
-
-    /**
-     * Get the CommandLineArguments that were passed on the command line.
-     * @return The CommandLineArguments that were passed on the command line.
-     */
-    CommandLineArguments getCommandLineArguments();
-
-    @Deprecated
-    default Stopwatch getStopwatch()
-    {
-        return this.getClock().createStopwatch();
-    }
-
-    @Deprecated
-    Process setOutputWriteStream(CharacterToByteWriteStream output);
-
-    @Deprecated
-    Process setErrorWriteStream(CharacterToByteWriteStream error);
-
-    /**
-     * Get the version of Java that is running this application.
-     * @return The version of Java that is running this application.
-     */
-    @Deprecated
-    default VersionNumber getJavaVersion()
-    {
-        final String javaVersionString = this.getSystemProperty("java.version").await();
-        final VersionNumber result = VersionNumber.parse(javaVersionString).await();
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    /**
-     * Set the exit code that this process will return when it finishes.
-     * @param exitCode The exit code that this process will return when it finishes.
-     * @return This DesktopProcess for method chaining.
-     */
-    @Deprecated
-    Process setExitCode(int exitCode);
 }

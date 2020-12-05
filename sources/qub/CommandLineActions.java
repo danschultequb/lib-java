@@ -3,7 +3,7 @@ package qub;
 /**
  * A collection of CommandLineAction objects that can be used for an application.
  */
-public class CommandLineActions<TProcess extends Process>
+public class CommandLineActions<TProcess extends DesktopProcess>
 {
     private String applicationName;
     private String applicationDescription;
@@ -14,7 +14,7 @@ public class CommandLineActions<TProcess extends Process>
         this.actions = List.create();
     }
 
-    public static <TProcess extends Process> CommandLineActions<TProcess> create()
+    public static <TProcess extends DesktopProcess> CommandLineActions<TProcess> create()
     {
         return new CommandLineActions<>();
     }
@@ -122,7 +122,7 @@ public class CommandLineActions<TProcess extends Process>
         PreCondition.assertNotNullAndNotEmpty(actionName, "actionName");
         PreCondition.assertNotNull(mainFunction, "mainFunction");
 
-        return this.addAction(actionName, Process.getMainAction(mainFunction));
+        return this.addAction(actionName, DesktopProcess.getMainAction(mainFunction));
     }
 
     public <TParameters> CommandLineAction<TProcess> addAction(String actionName, Function1<TProcess,TParameters> getParametersFunction, Action1<TParameters> mainAction)
@@ -131,7 +131,7 @@ public class CommandLineActions<TProcess extends Process>
         PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
         PreCondition.assertNotNull(mainAction, "mainAction");
 
-        return this.addAction(actionName, Process.getMainAction(getParametersFunction, mainAction));
+        return this.addAction(actionName, DesktopProcess.getMainAction(getParametersFunction, mainAction));
     }
 
     public <TParameters> CommandLineAction<TProcess> addAction(String actionName, Function1<TProcess,TParameters> getParametersFunction, Function1<TParameters,Integer> mainFunction)
@@ -140,7 +140,7 @@ public class CommandLineActions<TProcess extends Process>
         PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
         PreCondition.assertNotNull(mainFunction, "mainFunction");
 
-        return this.addAction(actionName, Process.getMainAction(getParametersFunction, mainFunction));
+        return this.addAction(actionName, DesktopProcess.getMainAction(getParametersFunction, mainFunction));
     }
 
     /**

@@ -3,6 +3,7 @@ package qub;
 /**
  * A Stopwatch class that can determine the duration between start and stop events.
  */
+@Deprecated
 public interface Stopwatch
 {
     /**

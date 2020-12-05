@@ -77,4 +77,39 @@ public interface Value<T> extends Getter<T>, Setter<T>
      * @param value The value to set.
      */
     Value<T> set(T value);
+
+    /**
+     * If this Value has a value already, then return that value. If not, then set this Value's
+     * value to the provided initial value and then return that value.
+     * @param initialValue The value that this Value will be initialized to if no value has been
+     *                     set.
+     * @return The value stored in this Value.
+     */
+    default T getOrSet(T initialValue)
+    {
+        return this.getOrSet(() -> initialValue);
+    }
+
+    /**
+     * If this Value has a value already, then return that value. If not, then set this Value's
+     * value to the result of the provided creator function and then return that value.
+     * @param creator The function that will be used to initialize this Value if no value exists.
+     * @return The value stored in this Value.
+     */
+    default T getOrSet(Function0<T> creator)
+    {
+        PreCondition.assertNotNull(creator, "creator");
+
+        final T result;
+        if (this.hasValue())
+        {
+            result = this.get();
+        }
+        else
+        {
+            result = creator.run();
+            this.set(result);
+        }
+        return result;
+    }
 }

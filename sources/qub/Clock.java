@@ -55,4 +55,13 @@ public interface Clock
 
         return this.scheduleAfter(duration, Action0.empty);
     }
+
+    /**
+     * Create a Stopwatch object based on this Clock.
+     * @return The Stopwatch object based on this Clock.
+     */
+    default Stopwatch2 createStopwatch()
+    {
+        return Stopwatch2.create(this);
+    }
 }

@@ -118,7 +118,7 @@ public interface ProcessFactoryTests
                 runner.test("with valid arguments", (Test test) ->
                 {
                     final ProcessFactory factory = creator.run(test);
-                    final Integer runResult = factory.run(Path.parse("javac"), Iterable.create(), test.getProcess().getCurrentFolderPath(), null, null, null, null).await();
+                    final Integer runResult = factory.run(Path.parse("javac"), Iterable.create(), factory.getWorkingFolderPath(), null, null, null, null).await();
                     test.assertEqual(2, runResult);
                 });
             });
@@ -149,7 +149,7 @@ public interface ProcessFactoryTests
                 runner.test("with valid arguments", (Test test) ->
                 {
                     final ProcessFactory factory = creator.run(test);
-                    final ChildProcess runResult = factory.start(Path.parse("javac"), Iterable.create(), test.getProcess().getCurrentFolderPath(), null, null, null, null).await();
+                    final ChildProcess runResult = factory.start(Path.parse("javac"), Iterable.create(), factory.getWorkingFolderPath(), null, null, null, null).await();
                     test.assertNotNull(runResult);
                     test.assertEqual(ProcessState.Running, runResult.getState());
                     test.assertEqual(2, runResult.await());
@@ -161,7 +161,7 @@ public interface ProcessFactoryTests
                 runner.test("with delay before awaiting", (Test test) ->
                 {
                     final ProcessFactory factory = creator.run(test);
-                    final ChildProcess runResult = factory.start(Path.parse("javac"), Iterable.create(), test.getProcess().getCurrentFolderPath(), null, null, null, null).await();
+                    final ChildProcess runResult = factory.start(Path.parse("javac"), Iterable.create(), factory.getWorkingFolderPath(), null, null, null, null).await();
                     test.assertNotNull(runResult);
                     test.assertEqual(ProcessState.Running, runResult.getState());
 

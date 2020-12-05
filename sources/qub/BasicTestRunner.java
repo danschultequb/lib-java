@@ -75,8 +75,12 @@ public final class BasicTestRunner implements TestRunner
     {
         PreCondition.assertNotNullAndNotEmpty(fullClassName, "fullClassName");
 
-        return Types.getClass(fullClassName)
-            .then((Class<?> classWithTests) -> testClass(classWithTests).await());
+        return Result.create(() ->
+        {
+            final TypeLoader typeLoader = this.process.getTypeLoader();
+            final Class<?> classWithTests = typeLoader.getType(fullClassName).await();
+            this.testClass(classWithTests).await();
+        });
     }
 
     @Override
@@ -194,7 +198,7 @@ public final class BasicTestRunner implements TestRunner
     @Override
     public void test(String testName, Action1<Test> testAction)
     {
-        test(testName, null, testAction);
+        this.test(testName, null, testAction);
     }
 
     @Override

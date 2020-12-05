@@ -15,52 +15,6 @@ public class QubProjectVersionFolder extends Folder implements Comparable<QubPro
         return new QubProjectVersionFolder(projectVersionFolder);
     }
 
-    public static Result<QubProjectVersionFolder> getFromType(FileSystem fileSystem, Class<?> type)
-    {
-        PreCondition.assertNotNull(fileSystem, "fileSystem");
-        PreCondition.assertNotNull(type, "type");
-
-        return Result.create(() ->
-        {
-            QubProjectVersionFolder result;
-
-            final Path typeContainerPath = Types.getTypeContainerPath(type).await();
-            final File projectVersionFile = fileSystem.getFile(typeContainerPath).await();
-            if (projectVersionFile.exists().await())
-            {
-                result = QubProjectVersionFolder.get(projectVersionFile.getParentFolder().await());
-            }
-            else
-            {
-                final Folder projectVersionFolder = fileSystem.getFolder(typeContainerPath).await();
-                if (projectVersionFolder.exists().await() || typeContainerPath.endsWith('/') || typeContainerPath.endsWith('\\'))
-                {
-                    result = QubProjectVersionFolder.get(projectVersionFolder);
-                }
-                else
-                {
-                    result = QubProjectVersionFolder.get(projectVersionFile.getParentFolder().await());
-                }
-            }
-
-            PostCondition.assertNotNull(result, "result");
-
-            return result;
-        });
-    }
-
-    public static Result<QubProjectVersionFolder> getFromType(FileSystem fileSystem, String typeFullName)
-    {
-        PreCondition.assertNotNull(fileSystem, "fileSystem");
-        PreCondition.assertNotNullAndNotEmpty(typeFullName, "typeFullName");
-
-        return Result.create(() ->
-        {
-            final Class<?> type = Types.getClass(typeFullName).await();
-            return QubProjectVersionFolder.getFromType(fileSystem, type).await();
-        });
-    }
-
     public Result<QubFolder> getQubFolder()
     {
         return this.getProjectFolder()

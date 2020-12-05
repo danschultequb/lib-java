@@ -9,7 +9,7 @@ public interface CommandLineLogsAction
      * Add a logs action to the provided CommandLineActions object.
      * @param actions The CommandLineActions object to add the logs action to.
      */
-    static <TProcess extends QubProcess> CommandLineAction<TProcess> addAction(CommandLineActions<TProcess> actions)
+    static <TProcess extends DesktopProcess> CommandLineAction<TProcess> addAction(CommandLineActions<TProcess> actions)
     {
         PreCondition.assertNotNull(actions, "actions");
 
@@ -24,7 +24,7 @@ public interface CommandLineLogsAction
         return projectDataFolder.getFolder("logs").await();
     }
 
-    static void run(QubProcess process)
+    static void run(QubProcess2 process)
     {
         PreCondition.assertNotNull(process, "process");
 

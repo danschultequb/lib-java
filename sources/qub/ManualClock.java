@@ -5,28 +5,40 @@ package qub;
  */
 public class ManualClock implements Clock
 {
-    private AsyncScheduler asyncRunner;
+    private final AsyncScheduler asyncRunner;
     private final List<PausedTask> pausedTasks;
     private DateTime currentDateTime;
 
-    public ManualClock(DateTime currentDateTime)
+    private ManualClock(DateTime currentDateTime, AsyncScheduler asyncRunner)
     {
         PreCondition.assertNotNull(currentDateTime, "currentDateTime");
 
-        this.pausedTasks = new ArrayList<>();
+        this.asyncRunner = asyncRunner;
+        this.pausedTasks = List.create();
         this.currentDateTime = currentDateTime;
     }
 
-    /**
-     * Create a new ManualClock object that starts at the provided current date and time.
-     */
-    public ManualClock(DateTime currentDateTime, AsyncScheduler asyncRunner)
+    public static ManualClock create()
     {
-        this(currentDateTime);
+        return ManualClock.create(DateTime.epoch);
+    }
 
+    public static ManualClock create(DateTime currentDateTime)
+    {
+        return new ManualClock(currentDateTime, null);
+    }
+
+    public static ManualClock create(AsyncScheduler asyncRunner)
+    {
+        return ManualClock.create(DateTime.epoch, asyncRunner);
+    }
+
+    public static ManualClock create(DateTime currentDateTime, AsyncScheduler asyncRunner)
+    {
+        PreCondition.assertNotNull(currentDateTime, "currentDateTime");
         PreCondition.assertNotNull(asyncRunner, "asyncRunner");
 
-        this.asyncRunner = asyncRunner;
+        return new ManualClock(currentDateTime, asyncRunner);
     }
 
     /**
@@ -50,24 +62,24 @@ public class ManualClock implements Clock
     {
         PreCondition.assertNotNull(dateTime, "dateTime");
         PreCondition.assertNotNull(action, "action");
-        PreCondition.assertNotNull(asyncRunner, "asyncRunner");
+        PreCondition.assertNotNull(this.asyncRunner, "this.asyncRunner");
 
         AsyncTask<Void> result;
         if (dateTime.lessThanOrEqualTo(getCurrentDateTime()))
         {
-            result = asyncRunner.schedule(action);
+            result = this.asyncRunner.schedule(action);
         }
         else
         {
-            result = asyncRunner.create(action);
+            result = this.asyncRunner.create(action);
 
             final PausedTask pausedTask = new PausedTask(result, dateTime);
 
             int insertIndex = -1;
-            final int pausedTaskCount = pausedTasks.getCount();
+            final int pausedTaskCount = this.pausedTasks.getCount();
             for (int i = 0; i < pausedTaskCount; ++i)
             {
-                final PausedTask existingPausedTask = pausedTasks.get(i);
+                final PausedTask existingPausedTask = this.pausedTasks.get(i);
                 if (pausedTask.isScheduledBefore(existingPausedTask))
                 {
                     insertIndex = i;
@@ -77,11 +89,11 @@ public class ManualClock implements Clock
 
             if (insertIndex == -1)
             {
-                pausedTasks.add(pausedTask);
+                this.pausedTasks.add(pausedTask);
             }
             else
             {
-                pausedTasks.insert(insertIndex, pausedTask);
+                this.pausedTasks.insert(insertIndex, pausedTask);
             }
         }
         return result;
@@ -95,10 +107,10 @@ public class ManualClock implements Clock
     {
         PreCondition.assertNotNull(duration, "duration");
 
-        currentDateTime = currentDateTime.plus(duration);
-        while (pausedTasks.any() && pausedTasks.first().getScheduledAt().lessThanOrEqualTo(currentDateTime))
+        this.currentDateTime = this.currentDateTime.plus(duration);
+        while (this.pausedTasks.any() && this.pausedTasks.first().getScheduledAt().lessThanOrEqualTo(this.currentDateTime))
         {
-            pausedTasks.removeFirst().schedulePausedAction();
+            this.pausedTasks.removeFirst().schedulePausedAction();
         }
     }
 
@@ -115,17 +127,17 @@ public class ManualClock implements Clock
 
         void schedulePausedAction()
         {
-            pausedAction.schedule();
+            this.pausedAction.schedule();
         }
 
         boolean isScheduledBefore(PausedTask pausedTask)
         {
-            return scheduleAt.lessThan(pausedTask.scheduleAt);
+            return this.scheduleAt.lessThan(pausedTask.scheduleAt);
         }
 
         DateTime getScheduledAt()
         {
-            return scheduleAt;
+            return this.scheduleAt;
         }
     }
 }

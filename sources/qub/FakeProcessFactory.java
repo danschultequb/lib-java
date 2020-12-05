@@ -5,38 +5,33 @@ package qub;
  */
 public class FakeProcessFactory implements ProcessFactory
 {
-    private final AsyncRunner asyncRunner;
+    private final AsyncRunner parallelAsyncRunner;
     private final List<FakeProcessRun> fakeProcessRuns;
-    private final Path workingFolderPath;
+    private final Folder workingFolder;
 
     /**
      * Create a new FakeProcessFactory.
      */
-    public FakeProcessFactory(AsyncRunner asyncRunner, String workingFolderPath)
+    private FakeProcessFactory(AsyncRunner parallelAsyncRunner, Folder workingFolder)
     {
-        this(asyncRunner, Path.parse(workingFolderPath));
-    }
+        PreCondition.assertNotNull(parallelAsyncRunner, "parallelAsyncRunner");
+        PreCondition.assertNotNull(workingFolder, "workingFolder");
 
-    /**
-     * Create a new FakeProcessFactory.
-     */
-    public FakeProcessFactory(AsyncRunner asyncRunner, Path workingFolderPath)
-    {
-        PreCondition.assertNotNull(asyncRunner, "parallelAsyncRunner");
-        PreCondition.assertNotNull(workingFolderPath, "workingFolderPath");
-        PreCondition.assertTrue(workingFolderPath.isRooted(), "workingFolderPath.isRooted()");
-
-        this.asyncRunner = asyncRunner;
+        this.parallelAsyncRunner = parallelAsyncRunner;
         this.fakeProcessRuns = List.create();
-        this.workingFolderPath = workingFolderPath;
+        this.workingFolder = workingFolder;
     }
 
-    /**
-     * Create a new FakeProcessBuilderFactory.
-     */
-    public FakeProcessFactory(AsyncRunner asyncRunner, Folder workingFolder)
+    public static FakeProcessFactory create(DesktopProcess process)
     {
-        this(asyncRunner, FakeProcessFactory.getWorkingFolderPath(workingFolder));
+        PreCondition.assertNotNull(process, "process");
+
+        return FakeProcessFactory.create(process.getParallelAsyncRunner(), process.getCurrentFolder());
+    }
+
+    public static FakeProcessFactory create(AsyncRunner parallelAsyncRunner, Folder workingFolder)
+    {
+        return new FakeProcessFactory(parallelAsyncRunner, workingFolder);
     }
 
     private static Path getWorkingFolderPath(Folder workingFolder)
@@ -53,7 +48,7 @@ public class FakeProcessFactory implements ProcessFactory
     @Override
     public Path getWorkingFolderPath()
     {
-        return this.workingFolderPath;
+        return this.workingFolder.getPath();
     }
 
     /**
@@ -83,6 +78,12 @@ public class FakeProcessFactory implements ProcessFactory
 
         return Result.create(() ->
         {
+            final FileSystem fileSystem = this.workingFolder.getFileSystem();
+            if (!fileSystem.folderExists(workingFolderPath).await())
+            {
+                throw new FolderNotFoundException(workingFolderPath);
+            }
+
             FakeProcessRun partialMatch = null;
             FakeProcessRun match = null;
             final int fakeProcessRunCount = this.fakeProcessRuns.getCount();
@@ -136,16 +137,16 @@ public class FakeProcessFactory implements ProcessFactory
                         final InMemoryByteStream output = InMemoryByteStream.create();
                         if (redirectedOutputStream != null)
                         {
-                            result.setOutputResult(this.asyncRunner.schedule(() -> redirectedOutputStream.run(output)));
+                            result.setOutputResult(this.parallelAsyncRunner.schedule(() -> redirectedOutputStream.run(output)));
                         }
 
                         final InMemoryByteStream error = InMemoryByteStream.create();
                         if (redirectedErrorStream != null)
                         {
-                            result.setErrorResult(this.asyncRunner.schedule(() -> redirectedErrorStream.run(error)));
+                            result.setErrorResult(this.parallelAsyncRunner.schedule(() -> redirectedErrorStream.run(error)));
                         }
 
-                        result.setProcessResult(this.asyncRunner.schedule(() ->
+                        result.setProcessResult(this.parallelAsyncRunner.schedule(() ->
                         {
                             final int exitCode = function.run(input, output, error);
                             output.endOfStream();
@@ -172,6 +173,6 @@ public class FakeProcessFactory implements ProcessFactory
     {
         PreCondition.assertNotNull(executablePath, "executablePath");
 
-        return Result.success(new BasicProcessBuilder(this, executablePath, this.workingFolderPath));
+        return Result.success(new BasicProcessBuilder(this, executablePath, this.workingFolder.getPath()));
     }
 }

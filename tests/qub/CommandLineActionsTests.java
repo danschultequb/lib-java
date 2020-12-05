@@ -10,7 +10,7 @@ public interface CommandLineActionsTests
         {
             runner.test("constructor()", (Test test) ->
             {
-                final CommandLineActions<Process> actions = CommandLineActions.create();
+                final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
                 test.assertNotNull(actions);
                 test.assertNull(actions.getApplicationName());
                 test.assertNull(actions.getApplicationDescription());
@@ -20,21 +20,21 @@ public interface CommandLineActionsTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
                     test.assertSame(actions, actions.setApplicationName(null));
                     test.assertEqual(null, actions.getApplicationName());
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
                     test.assertSame(actions, actions.setApplicationName(""));
                     test.assertEqual("", actions.getApplicationName());
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
                     test.assertSame(actions, actions.setApplicationName("hello there"));
                     test.assertEqual("hello there", actions.getApplicationName());
                 });
@@ -44,21 +44,21 @@ public interface CommandLineActionsTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
                     test.assertSame(actions, actions.setApplicationDescription(null));
                     test.assertEqual(null, actions.getApplicationDescription());
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
                     test.assertSame(actions, actions.setApplicationDescription(""));
                     test.assertEqual("", actions.getApplicationDescription());
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
                     test.assertSame(actions, actions.setApplicationDescription("hello there"));
                     test.assertEqual("hello there", actions.getApplicationDescription());
                 });
@@ -68,67 +68,67 @@ public interface CommandLineActionsTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
                     test.assertThrows(() -> actions.containsActionName(null),
                         new PreConditionFailure("actionName cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
                     test.assertThrows(() -> actions.containsActionName(""),
                         new PreConditionFailure("actionName cannot be empty."));
                 });
 
                 runner.test("with non-existing actionName", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
                     test.assertFalse(actions.containsActionName("test"));
                 });
 
                 runner.test("with existing actionName", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
-                    actions.addAction("hello", (Process process) -> {});
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
+                    actions.addAction("hello", (DesktopProcess process) -> {});
                     test.assertTrue(actions.containsActionName("hello"));
                 });
 
                 runner.test("with existing alias actionName", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
-                    actions.addAction("hello", (Process process) -> {})
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
+                    actions.addAction("hello", (DesktopProcess process) -> {})
                         .addAlias("there");
                     test.assertTrue(actions.containsActionName("there"));
                 });
             });
 
-            runner.testGroup("addAction(String,Action1<Process>)", () ->
+            runner.testGroup("addAction(String,Action1<DesktopProcess>)", () ->
             {
                 runner.test("with null actionName", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
-                    test.assertThrows(() -> actions.addAction(null, (Process process) -> {}),
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
+                    test.assertThrows(() -> actions.addAction(null, (DesktopProcess process) -> {}),
                         new PreConditionFailure("actionName cannot be null."));
                 });
 
                 runner.test("with empty actionName", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
-                    test.assertThrows(() -> actions.addAction("", (Process process) -> {}),
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
+                    test.assertThrows(() -> actions.addAction("", (DesktopProcess process) -> {}),
                         new PreConditionFailure("actionName cannot be empty."));
                 });
 
                 runner.test("with null mainAction", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
-                    test.assertThrows(() -> actions.addAction("hello", (Action1<Process>)null),
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
+                    test.assertThrows(() -> actions.addAction("hello", (Action1<DesktopProcess>)null),
                         new PreConditionFailure("mainAction cannot be null."));
                 });
 
                 runner.test("with empty actionName", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
-                    final CommandLineAction action = actions.addAction("hello", (Process process) -> {});
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
+                    final CommandLineAction action = actions.addAction("hello", (DesktopProcess process) -> {});
                     test.assertEqual("hello", action.getName());
                     test.assertEqual(Iterable.create(), action.getAliases());
                     test.assertNull(action.getDescription());
@@ -136,52 +136,52 @@ public interface CommandLineActionsTests
 
                 runner.test("with existing actionName", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
-                    actions.addAction("hello", (Process process) -> {});
-                    test.assertThrows(() -> actions.addAction("hello", (Process process) -> {}),
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
+                    actions.addAction("hello", (DesktopProcess process) -> {});
+                    test.assertThrows(() -> actions.addAction("hello", (DesktopProcess process) -> {}),
                         new PreConditionFailure("this.containsActionName(actionName) cannot be true."));
                     test.assertTrue(actions.containsActionName("hello"));
                 });
 
                 runner.test("with existing actionName alias", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
-                    actions.addAction("hello", (Process process) -> {})
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
+                    actions.addAction("hello", (DesktopProcess process) -> {})
                         .addAlias("there");
-                    test.assertThrows(() -> actions.addAction("there", (Process process) -> {}),
+                    test.assertThrows(() -> actions.addAction("there", (DesktopProcess process) -> {}),
                         new PreConditionFailure("this.containsActionName(actionName) cannot be true."));
                     test.assertTrue(actions.containsActionName("hello"));
                     test.assertTrue(actions.containsActionName("there"));
                 });
             });
 
-            runner.testGroup("addAction(String,Function1<Process,Integer>)", () ->
+            runner.testGroup("addAction(String,Function1<DesktopProcess,Integer>)", () ->
             {
                 runner.test("with null actionName", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
-                    test.assertThrows(() -> actions.addAction(null, (Process process) -> 1),
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
+                    test.assertThrows(() -> actions.addAction(null, (DesktopProcess process) -> 1),
                         new PreConditionFailure("actionName cannot be null."));
                 });
 
                 runner.test("with empty actionName", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
-                    test.assertThrows(() -> actions.addAction("", (Process process) -> 2),
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
+                    test.assertThrows(() -> actions.addAction("", (DesktopProcess process) -> 2),
                         new PreConditionFailure("actionName cannot be empty."));
                 });
 
                 runner.test("with null mainAction", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
-                    test.assertThrows(() -> actions.addAction("hello", (Function1<Process,Integer>)null),
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
+                    test.assertThrows(() -> actions.addAction("hello", (Function1<DesktopProcess,Integer>)null),
                         new PreConditionFailure("mainFunction cannot be null."));
                 });
 
                 runner.test("with empty actionName", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
-                    final CommandLineAction action = actions.addAction("hello", (Process process) -> 3);
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
+                    final CommandLineAction action = actions.addAction("hello", (DesktopProcess process) -> 3);
                     test.assertEqual("hello", action.getName());
                     test.assertEqual(Iterable.create(), action.getAliases());
                     test.assertNull(action.getDescription());
@@ -189,40 +189,40 @@ public interface CommandLineActionsTests
 
                 runner.test("with existing actionName", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
-                    actions.addAction("hello", (Process process) -> {});
-                    test.assertThrows(() -> actions.addAction("hello", (Process process) -> 4),
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
+                    actions.addAction("hello", (DesktopProcess process) -> {});
+                    test.assertThrows(() -> actions.addAction("hello", (DesktopProcess process) -> 4),
                         new PreConditionFailure("this.containsActionName(actionName) cannot be true."));
                     test.assertTrue(actions.containsActionName("hello"));
                 });
 
                 runner.test("with existing actionName alias", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
-                    actions.addAction("hello", (Process process) -> {})
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
+                    actions.addAction("hello", (DesktopProcess process) -> {})
                         .addAlias("there");
-                    test.assertThrows(() -> actions.addAction("there", (Process process) -> 5),
+                    test.assertThrows(() -> actions.addAction("there", (DesktopProcess process) -> 5),
                         new PreConditionFailure("this.containsActionName(actionName) cannot be true."));
                     test.assertTrue(actions.containsActionName("hello"));
                     test.assertTrue(actions.containsActionName("there"));
                 });
             });
 
-            runner.testGroup("run(Process)", () ->
+            runner.testGroup("run(DesktopProcess)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create();
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
                     test.assertThrows(() -> actions.run(null),
                         new PreConditionFailure("process cannot be null."));
                 });
 
                 runner.test("with no actions and no arguments", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create()
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
-                    try (Process process = Process.create())
+                    try (DesktopProcess process = DesktopProcess.create())
                     {
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
@@ -242,10 +242,10 @@ public interface CommandLineActionsTests
 
                 runner.test("with no actions and empty action argument", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create()
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
-                    try (Process process = Process.create("--action="))
+                    try (DesktopProcess process = DesktopProcess.create("--action="))
                     {
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
@@ -265,10 +265,10 @@ public interface CommandLineActionsTests
 
                 runner.test("with no actions and non-empty action argument", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create()
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
-                    try (Process process = Process.create("--action=stuff"))
+                    try (DesktopProcess process = DesktopProcess.create("--action=stuff"))
                     {
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
@@ -290,12 +290,12 @@ public interface CommandLineActionsTests
 
                 runner.test("with one action and empty action argument", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create()
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
-                    actions.addAction("update", (Process process) -> {})
+                    actions.addAction("update", (DesktopProcess process) -> {})
                         .setDescription("Perform the update action");
-                    try (Process process = Process.create("--action="))
+                    try (DesktopProcess process = DesktopProcess.create("--action="))
                     {
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
@@ -318,12 +318,12 @@ public interface CommandLineActionsTests
 
                 runner.test("with one action and empty action argument", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create()
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
-                    actions.addAction("update", (Process process) -> {})
+                    actions.addAction("update", (DesktopProcess process) -> {})
                         .setDescription("Update the thing.");
-                    try (Process process = Process.create("--action="))
+                    try (DesktopProcess process = DesktopProcess.create("--action="))
                     {
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
@@ -346,11 +346,11 @@ public interface CommandLineActionsTests
 
                 runner.test("with one action and non-matching action argument", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create()
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
-                    actions.addAction("update", (Process process) -> {});
-                    try (Process process = Process.create("--action=foo"))
+                    actions.addAction("update", (DesktopProcess process) -> {});
+                    try (DesktopProcess process = DesktopProcess.create("--action=foo"))
                     {
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
@@ -375,13 +375,13 @@ public interface CommandLineActionsTests
 
                 runner.test("with two actions and non-matching action argument", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create()
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
-                    actions.addAction("update", (Process process) -> {});
-                    actions.addAction("list", (Process process) -> {})
+                    actions.addAction("update", (DesktopProcess process) -> {});
+                    actions.addAction("list", (DesktopProcess process) -> {})
                         .setDescription("Do the list action.");
-                    try (Process process = Process.create("--action=foo"))
+                    try (DesktopProcess process = DesktopProcess.create("--action=foo"))
                     {
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
@@ -407,13 +407,13 @@ public interface CommandLineActionsTests
 
                 runner.test("with two actions, matching action argument, and -?", (Test test) ->
                 {
-                    final CommandLineActions<Process> actions = CommandLineActions.create()
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
-                    actions.addAction("update", (Process process) -> {});
-                    actions.addAction("list", (Process process) -> {})
+                    actions.addAction("update", (DesktopProcess process) -> {});
+                    actions.addAction("list", (DesktopProcess process) -> {})
                         .setDescription("Do the list action.");
-                    try (Process process = Process.create("--action=list", "-?"))
+                    try (DesktopProcess process = DesktopProcess.create("--action=list", "-?"))
                     {
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
@@ -430,11 +430,11 @@ public interface CommandLineActionsTests
                 runner.test("with one action and name-matching action argument", (Test test) ->
                 {
                     final IntegerValue value = IntegerValue.create(0);
-                    final CommandLineActions<Process> actions = CommandLineActions.create()
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
-                    actions.addAction("update", (Process process) -> { value.increment(); });
-                    try (Process process = Process.create("--action=update"))
+                    actions.addAction("update", (DesktopProcess process) -> { value.increment(); });
+                    try (DesktopProcess process = DesktopProcess.create("--action=update"))
                     {
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
@@ -452,12 +452,12 @@ public interface CommandLineActionsTests
                 runner.test("with one action and alias-matching action argument", (Test test) ->
                 {
                     final IntegerValue value = IntegerValue.create(0);
-                    final CommandLineActions<Process> actions = CommandLineActions.create()
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create()
                         .setApplicationName("hello")
                         .setApplicationDescription("there");
-                    actions.addAction("update", (Process process) -> { value.increment(); })
+                    actions.addAction("update", (DesktopProcess process) -> { value.increment(); })
                         .addAlias("u");
-                    try (Process process = Process.create("--action=u"))
+                    try (DesktopProcess process = DesktopProcess.create("--action=u"))
                     {
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);

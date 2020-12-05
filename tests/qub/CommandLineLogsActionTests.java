@@ -8,7 +8,7 @@ public interface CommandLineLogsActionTests
 
         runner.testGroup(CommandLineLogsAction.class, () ->
         {
-            runner.testGroup("addAction(CommandLineActions<? extends QubProcess>)", () ->
+            runner.testGroup("addAction(CommandLineActions<? extends DesktopProcess>)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
@@ -18,8 +18,8 @@ public interface CommandLineLogsActionTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final CommandLineActions<QubProcess> actions = CommandLineActions.create();
-                    final CommandLineAction<QubProcess> action = CommandLineLogsAction.addAction(actions);
+                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
+                    final CommandLineAction<DesktopProcess> action = CommandLineLogsAction.addAction(actions);
                     test.assertNotNull(action);
                     test.assertEqual(CommandLineLogsAction.actionName, action.getName());
                     test.assertEqual(CommandLineLogsAction.actionDescription, action.getDescription());
@@ -37,11 +37,20 @@ public interface CommandLineLogsActionTests
 
                 runner.test("with non-existing logs folder", (Test test) ->
                 {
-                    try (final QubProcess process = QubProcess.create())
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
-                        fileSystem.createRoot("C:/");
-                        process.setFileSystem(fileSystem);
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
+                        fileSystem.createRoot("/").await();
+                        final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
+                        final QubProjectVersionFolder projectVersionFolder = qubFolder.getProjectVersionFolder("fake", "main-java", "7").await();
+                        final File projectCompiledSourcesFile = projectVersionFolder.getCompiledSourcesFile().await();
+                        projectCompiledSourcesFile.create().await();
+                        final Folder dataFolder = projectVersionFolder.getProjectDataFolder().await();
+                        final Folder logsFolder = dataFolder.getFolder("logs").await();
+                        process.setFileSystem(fileSystem, "/");
+
+                        process.setTypeLoader(FakeTypeLoader.create()
+                            .addTypeContainer("fake.MainClassFullName", projectCompiledSourcesFile));
 
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);
@@ -54,7 +63,7 @@ public interface CommandLineLogsActionTests
                         test.assertEqual(0, process.getExitCode());
                         test.assertEqual(
                             Iterable.create(
-                                "The logs folder (C:/qub/qub/test-java/data/logs/) doesn't exist."),
+                                "The logs folder (" + logsFolder + ") doesn't exist."),
                             Strings.getLines(output.getText().await()));
                         test.assertEqual("", error.getText().await());
                     }
@@ -62,12 +71,21 @@ public interface CommandLineLogsActionTests
 
                 runner.test("with existing logs folder", (Test test) ->
                 {
-                    try (final QubProcess process = QubProcess.create())
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
-                        fileSystem.createRoot("C:/");
-                        fileSystem.createFolder("C:/qub/qub/test-java/data/logs/").await();
-                        process.setFileSystem(fileSystem);
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
+                        fileSystem.createRoot("/").await();
+                        final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
+                        final QubProjectVersionFolder projectVersionFolder = qubFolder.getProjectVersionFolder("fake", "main-java", "7").await();
+                        final File projectCompiledSourcesFile = projectVersionFolder.getCompiledSourcesFile().await();
+                        projectCompiledSourcesFile.create().await();
+                        final Folder dataFolder = projectVersionFolder.getProjectDataFolder().await();
+                        final Folder logsFolder = dataFolder.getFolder("logs").await();
+                        logsFolder.create().await();
+                        process.setFileSystem(fileSystem, "/");
+
+                        process.setTypeLoader(FakeTypeLoader.create()
+                            .addTypeContainer("fake.MainClassFullName", projectCompiledSourcesFile));
 
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
                         process.setOutputWriteStream(output);

@@ -166,9 +166,16 @@ public class RealProcessFactory implements ProcessFactory
 
                 final Path folderPath = executableFilePath.getParent().await();
                 final Folder folder = fileSystem.getFolder(folderPath).await();
-                final Iterable<File> files = folder.getFiles().await();
+                final Iterable<File> files = folder.getFiles()
+                    .catchError(FolderNotFoundException.class, () -> Iterable.create())
+                    .await();
 
-                final String[] executableExtensions = new String[] { "", ".exe", ".bat", ".cmd" };
+                final Iterable<String> executableExtensions = List.create(
+                    this.environmentVariables.get("PATHEXT").await()
+                        .split(";"))
+                    .add("")
+                    .map(String::toLowerCase)
+                    .toList();
                 for (final String executableExtension : executableExtensions)
                 {
                     final Path executablePathWithExtension = Strings.isNullOrEmpty(executableExtension)
@@ -243,6 +250,12 @@ public class RealProcessFactory implements ProcessFactory
 
         return Result.create(() ->
         {
+            final FileSystem fileSystem = this.currentFolder.getFileSystem();
+            if (!fileSystem.folderExists(workingFolderPath).await())
+            {
+                throw new FolderNotFoundException(workingFolderPath);
+            }
+
             if (verbose != null)
             {
                 verbose.writeLine("Looking for executable: " + Strings.escapeAndQuote(executablePath) + " (check extensions: " + checkExtensions + ")").await();

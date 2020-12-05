@@ -2,30 +2,28 @@ package qub;
 
 public interface ManualClockTests
 {
-    DateTime currentDateTime = DateTime.createFromDurationSinceEpoch(Duration.milliseconds(0));
-
     static void test(TestRunner runner)
     {
         runner.testGroup(ManualClock.class, () ->
         {
-            runner.testGroup("constructor", () ->
+            runner.testGroup("create(DateTime,AsyncRunner)", () ->
             {
                 runner.test("with null mainAsyncRunner", (Test test) ->
                 {
-                    test.assertThrows(() -> new ManualClock(currentDateTime, null),
+                    test.assertThrows(() -> ManualClock.create(DateTime.epoch, null),
                         new PreConditionFailure("asyncRunner cannot be null."));
                 });
 
-                runner.test("with null currentDateTime", (Test test) ->
+                runner.test("with null DateTime.epoch", (Test test) ->
                 {
-                    test.assertThrows(() -> new ManualClock(null, test.getMainAsyncRunner()),
+                    test.assertThrows(() -> ManualClock.create(null, test.getMainAsyncRunner()),
                         new PreConditionFailure("currentDateTime cannot be null."));
                 });
 
-                runner.test("with non-null currentDateTime", (Test test) ->
+                runner.test("with non-null DateTime.epoch", (Test test) ->
                 {
-                    final ManualClock clock = new ManualClock(currentDateTime, test.getMainAsyncRunner());
-                    test.assertEqual(currentDateTime, clock.getCurrentDateTime());
+                    final ManualClock clock = ManualClock.create(DateTime.epoch, test.getMainAsyncRunner());
+                    test.assertEqual(DateTime.epoch, clock.getCurrentDateTime());
                 });
             });
 
@@ -46,7 +44,7 @@ public interface ManualClockTests
                     {
                         final ManualClock clock = createClock(asyncRunner);
                         clock.advance(Duration.seconds(0));
-                        test.assertEqual(currentDateTime, clock.getCurrentDateTime());
+                        test.assertEqual(DateTime.epoch, clock.getCurrentDateTime());
                     });
                     
                 });
@@ -57,7 +55,7 @@ public interface ManualClockTests
                     {
                         final ManualClock clock = createClock(asyncRunner);
                         clock.advance(Duration.minutes(5));
-                        test.assertEqual(currentDateTime.plus(Duration.minutes(5)), clock.getCurrentDateTime());
+                        test.assertEqual(DateTime.epoch.plus(Duration.minutes(5)), clock.getCurrentDateTime());
                     });
                 });
             });
@@ -248,7 +246,7 @@ public interface ManualClockTests
                         final Value<Boolean> value = BooleanValue.create();
 
                         final Result<Void> asyncAction = clock.scheduleAt(
-                            currentDateTime.plus(Duration.milliseconds(50)),
+                            DateTime.epoch.plus(Duration.milliseconds(50)),
                             () -> value.set(true));
                         test.assertFalse(value.hasValue());
                         test.assertEqual(DateTime.createFromDurationSinceEpoch(Duration.milliseconds(0)), clock.getCurrentDateTime());
@@ -273,6 +271,6 @@ public interface ManualClockTests
 
     static ManualClock createClock(ManualAsyncRunner asyncRunner)
     {
-        return new ManualClock(currentDateTime, asyncRunner);
+        return ManualClock.create(DateTime.epoch, asyncRunner);
     }
 }

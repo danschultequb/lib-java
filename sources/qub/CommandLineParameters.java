@@ -10,7 +10,7 @@ public class CommandLineParameters
     private final List<CommandLineParameterBase<?>> parameters;
     private int nextParameterPosition;
     private CommandLineArguments arguments;
-    private CommandLineParameterList anonymousParameterList;
+    private CommandLineParameterList<?> anonymousParameterList;
 
     /**
      * Create a new CommandLineParameters object.
@@ -82,7 +82,7 @@ public class CommandLineParameters
         PreCondition.assertNotNull(arguments, "arguments");
 
         this.arguments = arguments;
-        for (final CommandLineParameterBase<?> parameter : parameters)
+        for (final CommandLineParameterBase<?> parameter : this.parameters)
         {
             parameter.setArguments(arguments);
         }
@@ -124,7 +124,7 @@ public class CommandLineParameters
      */
     private Iterable<CommandLineParameterBase<?>> getNonPositionParameters()
     {
-        final Iterable<CommandLineParameterBase<?>> result = parameters.where(Functions.not(CommandLineParameterBase::hasIndex));
+        final Iterable<CommandLineParameterBase<?>> result = this.parameters.where(Functions.not(CommandLineParameterBase::hasIndex));
 
         PostCondition.assertNotNull(result, "result");
 
@@ -142,10 +142,10 @@ public class CommandLineParameters
     {
         PreCondition.assertNotNull(parameter, "parameter");
 
-        parameters.add(parameter);
-        if (arguments != null)
+        this.parameters.add(parameter);
+        if (this.arguments != null)
         {
-            parameter.setArguments(arguments);
+            parameter.setArguments(this.arguments);
         }
 
         return parameter;
@@ -161,7 +161,7 @@ public class CommandLineParameters
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
         PreCondition.assertNotNull(parseArgumentValue, "parseArgumentValue");
 
-        return add(new CommandLineParameter<>(parameterName, null, parseArgumentValue));
+        return this.add(new CommandLineParameter<>(parameterName, null, parseArgumentValue));
     }
 
     /**
@@ -174,7 +174,7 @@ public class CommandLineParameters
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
         PreCondition.assertNotNull(parseArgumentValue, "parseArgumentValue");
 
-        return add(new CommandLineParameter<>(parameterName, nextParameterPosition++, parseArgumentValue));
+        return this.add(new CommandLineParameter<>(parameterName, this.nextParameterPosition++, parseArgumentValue));
     }
 
     /**
@@ -188,7 +188,7 @@ public class CommandLineParameters
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
         PreCondition.assertNull(anonymousParameterList, "anonymousParameterList");
 
-        return addPositional(parameterName, Result::success);
+        return this.addPositional(parameterName, Result::success);
     }
 
     public <T> CommandLineParameterList<T> addPositionList(String parameterName, Function1<String,Result<T>> parseArgumentValue)
@@ -197,8 +197,8 @@ public class CommandLineParameters
         PreCondition.assertNotNull(parseArgumentValue, "parseArgumentValue");
         PreCondition.assertNull(anonymousParameterList, "anonymousParameterList");
 
-        final CommandLineParameterList<T> result = add(new CommandLineParameterList<>(parameterName, nextParameterPosition++, parseArgumentValue));
-        anonymousParameterList = result;
+        final CommandLineParameterList<T> result = this.add(new CommandLineParameterList<>(parameterName, this.nextParameterPosition++, parseArgumentValue));
+        this.anonymousParameterList = result;
 
         PostCondition.assertNotNull(result, "result");
 
@@ -213,7 +213,7 @@ public class CommandLineParameters
      */
     public CommandLineParameterList<String> addPositionStringList(String parameterName)
     {
-        return addPositionList(parameterName, Result::success);
+        return this.addPositionList(parameterName, Result::success);
     }
 
     /**
@@ -266,12 +266,12 @@ public class CommandLineParameters
      * @param parameterName The name of the parameter.
      * @return The new command line parameter.
      */
-    public CommandLineParameter<Folder> addFolder(String parameterName, Process process)
+    public CommandLineParameter<Folder> addFolder(String parameterName, DesktopProcess process)
     {
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
         PreCondition.assertNotNull(process, "process");
 
-        return this.add(parameterName, getFolderParser(process))
+        return this.add(parameterName, CommandLineParameters.getFolderParser(process))
             .setValueRequired(true);
     }
 
@@ -280,15 +280,58 @@ public class CommandLineParameters
      * @param parameterName The name of the parameter.
      * @return The new command line parameter.
      */
-    public CommandLineParameter<Folder> addPositionalFolder(String parameterName, Process process)
+    @Deprecated
+    public CommandLineParameter<Folder> addFolder(String parameterName, Process process)
     {
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
         PreCondition.assertNotNull(process, "process");
 
-        return addPositional(parameterName, getFolderParser(process))
+        return this.add(parameterName, CommandLineParameters.getFolderParser(process))
             .setValueRequired(true);
     }
 
+    /**
+     * Add an optional Folder-valued command line parameter.
+     * @param parameterName The name of the parameter.
+     * @return The new command line parameter.
+     */
+    public CommandLineParameter<Folder> addPositionalFolder(String parameterName, DesktopProcess process)
+    {
+        PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
+        PreCondition.assertNotNull(process, "process");
+
+        return this.addPositional(parameterName, CommandLineParameters.getFolderParser(process))
+            .setValueRequired(true);
+    }
+
+    private static Function1<String,Result<Folder>> getFolderParser(DesktopProcess process)
+    {
+        return (String value) ->
+        {
+            return Result.create(() ->
+            {
+                Folder folder;
+                if (Strings.isNullOrEmpty(value))
+                {
+                    folder = process.getCurrentFolder();
+                }
+                else
+                {
+                    Path path = Path.parse(value);
+                    if (!path.isRooted())
+                    {
+                        path = process.getCurrentFolderPath().resolve(path).await();
+                    }
+
+                    final FileSystem fileSystem = process.getFileSystem();
+                    folder = fileSystem.getFolder(path).await();
+                }
+                return folder;
+            });
+        };
+    }
+
+    @Deprecated
     private static Function1<String,Result<Folder>> getFolderParser(Process process)
     {
         return (String value) ->
@@ -321,12 +364,12 @@ public class CommandLineParameters
      * @param parameterName The name of the parameter.
      * @return The new command line parameter.
      */
-    public CommandLineParameter<File> addFile(String parameterName, Process process)
+    public CommandLineParameter<File> addFile(String parameterName, DesktopProcess process)
     {
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
         PreCondition.assertNotNull(process, "process");
 
-        return add(parameterName, CommandLineParameters.getFileParser(process))
+        return this.add(parameterName, CommandLineParameters.getFileParser(process))
             .setValueRequired(true);
     }
 
@@ -335,15 +378,54 @@ public class CommandLineParameters
      * @param parameterName The name of the parameter.
      * @return The new command line parameter.
      */
-    public CommandLineParameter<File> addPositionalFile(String parameterName, Process process)
+    @Deprecated
+    public CommandLineParameter<File> addFile(String parameterName, Process process)
     {
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
         PreCondition.assertNotNull(process, "process");
 
-        return addPositional(parameterName, CommandLineParameters.getFileParser(process))
+        return this.add(parameterName, CommandLineParameters.getFileParser(process))
             .setValueRequired(true);
     }
 
+    /**
+     * Add an optional File-valued command line parameter.
+     * @param parameterName The name of the parameter.
+     * @return The new command line parameter.
+     */
+    public CommandLineParameter<File> addPositionalFile(String parameterName, DesktopProcess process)
+    {
+        PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
+        PreCondition.assertNotNull(process, "process");
+
+        return this.addPositional(parameterName, CommandLineParameters.getFileParser(process))
+            .setValueRequired(true);
+    }
+
+    private static Function1<String,Result<File>> getFileParser(DesktopProcess process)
+    {
+        return (String value) ->
+        {
+            return Result.create(() ->
+            {
+                File file = null;
+                if (!Strings.isNullOrEmpty(value))
+                {
+                    Path path = Path.parse(value);
+                    if (!path.isRooted())
+                    {
+                        path = process.getCurrentFolderPath().resolve(path).await();
+                    }
+
+                    final FileSystem fileSystem = process.getFileSystem();
+                    file = fileSystem.getFile(path).await();
+                }
+                return file;
+            });
+        };
+    }
+
+    @Deprecated
     private static Function1<String,Result<File>> getFileParser(Process process)
     {
         return (String value) ->
@@ -437,7 +519,7 @@ public class CommandLineParameters
     {
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
 
-        return add(new CommandLineParameterBoolean(parameterName, unspecifiedValue));
+        return this.add(new CommandLineParameterBoolean(parameterName, unspecifiedValue));
     }
 
     /**
@@ -458,6 +540,18 @@ public class CommandLineParameters
      * Add a verbose command line parameter.
      * @return The verbose command line parameter.
      */
+    public CommandLineParameterVerbose addVerbose(DesktopProcess process)
+    {
+        PreCondition.assertNotNull(process, "process");
+
+        return this.add(new CommandLineParameterVerbose(process.getOutputWriteStream()));
+    }
+
+    /**
+     * Add a verbose command line parameter.
+     * @return The verbose command line parameter.
+     */
+    @Deprecated
     public CommandLineParameterVerbose addVerbose(Process process)
     {
         PreCondition.assertNotNull(process, "process");
@@ -479,6 +573,16 @@ public class CommandLineParameters
      * Add a profiler command line parameter.
      * @return The profiler command line parameter.
      */
+    public CommandLineParameterProfiler addProfiler(DesktopProcess process, Class<?> classToAttachTo)
+    {
+        return this.add(new CommandLineParameterProfiler(process, classToAttachTo));
+    }
+
+    /**
+     * Add a profiler command line parameter.
+     * @return The profiler command line parameter.
+     */
+    @Deprecated
     public CommandLineParameterProfiler addProfiler(Process process, Class<?> classToAttachTo)
     {
         return this.add(new CommandLineParameterProfiler(process, classToAttachTo));

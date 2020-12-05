@@ -21,7 +21,7 @@ public class CommandLineParameterHelp extends CommandLineParameterBoolean
      *                written to.
      * @return The result of writing the help lines.
      */
-    public Result<Boolean> showApplicationHelpLines(Process process)
+    public Result<Boolean> showApplicationHelpLines(DesktopProcess process)
     {
         PreCondition.assertNotNull(process, "process");
 
