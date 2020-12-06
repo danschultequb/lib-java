@@ -60,18 +60,8 @@ public interface Clock
      * Create a Stopwatch object based on this Clock.
      * @return The Stopwatch object based on this Clock.
      */
-    @Deprecated
-    default Stopwatch2 createStopwatch()
+    default Stopwatch createStopwatch()
     {
-        return Stopwatch2.create(this);
-    }
-
-    /**
-     * Create a Stopwatch object based on this Clock.
-     * @return The Stopwatch object based on this Clock.
-     */
-    default Stopwatch3 createStopwatch3()
-    {
-        return Stopwatch3.create(this);
+        return Stopwatch.create(this);
     }
 }
