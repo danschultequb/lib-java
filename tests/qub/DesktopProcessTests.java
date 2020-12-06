@@ -97,7 +97,7 @@ public interface DesktopProcessTests
     {
         runner.testGroup(DesktopProcess.class, () ->
         {
-            QubProcessTests.test(runner, creator);
+            ProcessTests.test(runner, creator);
 
             runner.test("getExitCode()", (Test test) ->
             {
@@ -492,31 +492,98 @@ public interface DesktopProcessTests
                         }
                     }
                 });
+            });
 
-                runner.test("onWindows()", (Test test) ->
+            runner.test("onWindows()", (Test test) ->
+            {
+                try (final DesktopProcess process = creator.run(test))
                 {
-                    try (final DesktopProcess process = creator.run(test))
-                    {
-                        test.assertNotNull(process.onWindows().await());
-                    }
-                });
+                    test.assertNotNull(process.onWindows().await());
+                }
+            });
 
-                runner.test("getJVMClasspath()", (Test test) ->
+            runner.test("getJVMClasspath()", (Test test) ->
+            {
+                try (final DesktopProcess process = creator.run(test))
                 {
-                    try (final DesktopProcess process = creator.run(test))
-                    {
-                        test.assertNotNullAndNotEmpty(process.getJVMClasspath().await());
-                    }
-                });
+                    test.assertNotNullAndNotEmpty(process.getJVMClasspath().await());
+                }
+            });
 
-                runner.test("getJavaVersion()", (Test test) ->
+            runner.test("getJavaVersion()", (Test test) ->
+            {
+                try (final DesktopProcess process = creator.run(test))
                 {
-                    try (final DesktopProcess process = creator.run(test))
+                    final VersionNumber version = process.getJavaVersion();
+                    test.assertNotNull(version);
+                }
+            });
+
+            runner.test("getQubFolder()", (Test test) ->
+            {
+                try (final DesktopProcess process = creator.run(test))
+                {
+                    final QubFolder folder = process.getQubFolder().await();
+                    test.assertNotNull(folder);
+                    test.assertTrue(folder.exists().await());
+                }
+            });
+
+            runner.test("getQubProjectVersionFolder()", (Test test) ->
+            {
+                try (final DesktopProcess process = creator.run(test))
+                {
+                    final QubProjectVersionFolder projectVersionFolder = process.getQubProjectVersionFolder().await();
+                    test.assertNotNull(projectVersionFolder);
+                    test.assertTrue(projectVersionFolder.exists().await());
+                }
+            });
+
+            runner.test("getPublisherName()", (Test test) ->
+            {
+                try (final DesktopProcess process = creator.run(test))
+                {
+                    final String publisherName = process.getPublisherName().await();
+                    test.assertNotNullAndNotEmpty(publisherName);
+                }
+            });
+
+            runner.test("getProjectName()", (Test test) ->
+            {
+                try (final DesktopProcess process = creator.run(test))
+                {
+                    final String projectName = process.getProjectName().await();
+                    test.assertNotNullAndNotEmpty(projectName);
+                }
+            });
+
+            runner.test("getVersion()", (Test test) ->
+            {
+                try (final DesktopProcess process = creator.run(test))
+                {
+                    final VersionNumber version = process.getVersion().await();
+                    test.assertNotNull(version);
+                }
+            });
+
+            runner.test("getProjectDataFolder()", (Test test) ->
+            {
+                try (final DesktopProcess process = creator.run(test))
+                {
+                    final Folder qubProjectDataFolder = process.getQubProjectDataFolder().await();
+                    test.assertNotNull(qubProjectDataFolder);
+                    final File testFile = qubProjectDataFolder.getFile("test.txt").await();
+                    testFile.setContentsAsString("hello").await();
+                    try
                     {
-                        final VersionNumber version = process.getJavaVersion();
-                        test.assertNotNull(version);
+                        final Folder projectDataFolder = process.getQubProjectFolder().await().getProjectDataFolder().await();
+                        test.assertEqual("hello", projectDataFolder.getFileContentsAsString("test.txt").await());
                     }
-                });
+                    finally
+                    {
+                        testFile.delete().await();
+                    }
+                }
             });
         });
     }

@@ -24,7 +24,7 @@ public interface CommandLineLogsAction
         return projectDataFolder.getFolder("logs").await();
     }
 
-    static void run(QubProcess2 process)
+    static void run(DesktopProcess process)
     {
         PreCondition.assertNotNull(process, "process");
 

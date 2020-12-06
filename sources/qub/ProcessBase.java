@@ -1,6 +1,6 @@
 package qub;
 
-public abstract class ProcessBase implements QubProcess2
+public abstract class ProcessBase implements Process
 {
     private final Value<CharacterToByteWriteStream> outputWriteStream;
     private final Value<CharacterToByteWriteStream> errorWriteStream;
