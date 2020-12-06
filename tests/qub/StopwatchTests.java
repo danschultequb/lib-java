@@ -4,20 +4,20 @@ public interface StopwatchTests
 {
     static void test(TestRunner runner)
     {
-        runner.testGroup(Stopwatch2.class, () ->
+        runner.testGroup(Stopwatch3.class, () ->
         {
             runner.testGroup("create(Clock)", () ->
             {
                 runner.test("with null clock", (Test test) ->
                 {
-                    test.assertThrows(() -> Stopwatch2.create(null),
+                    test.assertThrows(() -> Stopwatch3.create(null),
                         new PreConditionFailure("clock cannot be null."));
                 });
 
                 runner.test("with non-null clock", (Test test) ->
                 {
                     final ManualClock clock = ManualClock.create();
-                    final Stopwatch2 stopwatch = Stopwatch2.create(clock);
+                    final Stopwatch3 stopwatch = Stopwatch3.create(clock);
                     test.assertNotNull(stopwatch);
                     test.assertFalse(stopwatch.hasStarted());
                 });
@@ -26,13 +26,13 @@ public interface StopwatchTests
             runner.test("start()", (Test test) ->
             {
                 final ManualClock clock = ManualClock.create();
-                final Stopwatch2 stopwatch = Stopwatch2.create(clock);
+                final Stopwatch3 stopwatch = Stopwatch3.create(clock);
 
-                final Stopwatch2 startResult = stopwatch.start2();
+                final Stopwatch3 startResult = stopwatch.start();
                 test.assertSame(stopwatch, startResult);
                 test.assertTrue(stopwatch.hasStarted());
 
-                test.assertThrows(() -> stopwatch.start2(),
+                test.assertThrows(() -> stopwatch.start(),
                     new PreConditionFailure("this.hasStarted() cannot be true."));
                 test.assertTrue(stopwatch.hasStarted());
             });
@@ -42,7 +42,7 @@ public interface StopwatchTests
                 runner.test("with no start()", (Test test) ->
                 {
                     final ManualClock clock = ManualClock.create(DateTime.epoch);
-                    final Stopwatch2 stopwatch = Stopwatch2.create(clock);
+                    final Stopwatch3 stopwatch = Stopwatch3.create(clock);
 
                     test.assertThrows(() -> stopwatch.stop(),
                         new PreConditionFailure("this.hasStarted() cannot be false."));
@@ -52,9 +52,9 @@ public interface StopwatchTests
                 runner.test("with no time elapsed after start()", (Test test) ->
                 {
                     final ManualClock clock = ManualClock.create(DateTime.epoch);
-                    final Stopwatch2 stopwatch = Stopwatch2.create(clock);
+                    final Stopwatch3 stopwatch = Stopwatch3.create(clock);
 
-                    final Stopwatch2 startResult = stopwatch.start2();
+                    final Stopwatch3 startResult = stopwatch.start();
                     test.assertSame(stopwatch, startResult);
 
                     test.assertEqual(Duration.zero, stopwatch.stop());
@@ -64,9 +64,9 @@ public interface StopwatchTests
                 runner.test("with time elapsed after start()", (Test test) ->
                 {
                     final ManualClock clock = ManualClock.create(DateTime.epoch);
-                    final Stopwatch2 stopwatch = Stopwatch2.create(clock);
+                    final Stopwatch3 stopwatch = Stopwatch3.create(clock);
 
-                    stopwatch.start2();
+                    stopwatch.start();
 
                     clock.advance(Duration.seconds(5));
 

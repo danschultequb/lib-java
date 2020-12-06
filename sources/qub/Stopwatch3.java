@@ -3,22 +3,21 @@ package qub;
 /**
  * A Stopwatch class that can determine the duration between start and stop events.
  */
-@Deprecated
-public class Stopwatch2 implements Stopwatch
+public class Stopwatch3
 {
     private final Clock clock;
     private DateTime startTime;
 
-    private Stopwatch2(Clock clock)
+    private Stopwatch3(Clock clock)
     {
         PreCondition.assertNotNull(clock, "clock");
 
         this.clock = clock;
     }
 
-    public static Stopwatch2 create(Clock clock)
+    public static Stopwatch3 create(Clock clock)
     {
-        return new Stopwatch2(clock);
+        return new Stopwatch3(clock);
     }
 
     /**
@@ -33,7 +32,7 @@ public class Stopwatch2 implements Stopwatch
     /**
      * Start the Stopwatch.
      */
-    public Stopwatch2 start2()
+    public Stopwatch3 start()
     {
         PreCondition.assertFalse(this.hasStarted(), "this.hasStarted()");
 
@@ -42,13 +41,6 @@ public class Stopwatch2 implements Stopwatch
         PostCondition.assertTrue(this.hasStarted(), "this.hasStarted()");
 
         return this;
-    }
-
-    @Override
-    @Deprecated
-    public void start()
-    {
-        this.start2();
     }
 
     /**
