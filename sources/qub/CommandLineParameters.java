@@ -579,16 +579,6 @@ public class CommandLineParameters
     }
 
     /**
-     * Add a profiler command line parameter.
-     * @return The profiler command line parameter.
-     */
-    @Deprecated
-    public CommandLineParameterProfiler addProfiler(Process process, Class<?> classToAttachTo)
-    {
-        return this.add(new CommandLineParameterProfiler(process, classToAttachTo));
-    }
-
-    /**
      * Add a help command line parameter.
      * @return The help command line parameter.
      */

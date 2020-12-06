@@ -182,18 +182,4 @@ public interface Process extends Disposable
      * @return The TypeLoader object that can be used to load types and also determine where types were loaded from.
      */
     TypeLoader getTypeLoader();
-
-    /**
-     * Get the id of this process.
-     * @return The id of this process.
-     */
-    @Deprecated
-    long getProcessId();
-
-    /**
-     * Get the object that can be used to invoke external processes.
-     * @return The object that can be used to invoke external processes.
-     */
-    @Deprecated
-    ProcessFactory getProcessFactory();
 }

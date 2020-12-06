@@ -2,7 +2,7 @@ package qub;
 
 public class CommandLineParameterProfiler extends CommandLineParameterBoolean
 {
-    private final Process process;
+    private final DesktopProcess process;
     private final Class<?> classToAttachTo;
 
     public CommandLineParameterProfiler(DesktopProcess process, Class<?> classToAttachTo)
@@ -11,26 +11,6 @@ public class CommandLineParameterProfiler extends CommandLineParameterBoolean
     }
 
     public CommandLineParameterProfiler(DesktopProcess process, Class<?> classToAttachTo, boolean unspecifiedValue)
-    {
-        super("profiler", unspecifiedValue);
-
-        PreCondition.assertNotNull(process, "process");
-        PreCondition.assertNotNull(classToAttachTo, "classToAttachTo");
-
-        this.process = process;
-        this.classToAttachTo = classToAttachTo;
-
-        this.setDescription("Whether or not this application should pause before it is run to allow a profiler to be attached.");
-    }
-
-    @Deprecated
-    public CommandLineParameterProfiler(Process process, Class<?> classToAttachTo)
-    {
-        this(process, classToAttachTo, false);
-    }
-
-    @Deprecated
-    public CommandLineParameterProfiler(Process process, Class<?> classToAttachTo, boolean unspecifiedValue)
     {
         super("profiler", unspecifiedValue);
 
