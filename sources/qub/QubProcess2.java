@@ -3,7 +3,7 @@ package qub;
 /**
  * An interface for a process/application that runs from the Qub folder.
  */
-public interface QubProcess2 extends Process, QubProcess
+public interface QubProcess2 extends Process
 {
     /**
      * Get the Qub folder that contains the main binaries for this process.

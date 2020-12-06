@@ -27,7 +27,7 @@ public interface CommandLineLogsActionTests
                 });
             });
 
-            runner.testGroup("run(QubProcess)", () ->
+            runner.testGroup("run(QubProcess2)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
