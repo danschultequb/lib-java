@@ -53,9 +53,9 @@ public interface FileTests
             
             runner.test("create()", (Test test) ->
             {
-                final File file = getFile(test);
+                final File file = FileTests.getFile(test);
 
-                test.assertNull(file.create().await());
+                test.assertEqual(file, file.create().await());
 
                 test.assertTrue(file.exists().await());
 
@@ -71,13 +71,13 @@ public interface FileTests
             {
                 runner.test("when file doesn't exist", (Test test) ->
                 {
-                    final File file = getFile(test);
+                    final File file = FileTests.getFile(test);
                     test.assertFalse(file.exists().await());
                 });
 
                 runner.test("when file does exist", (Test test) ->
                 {
-                    final File file = getFile(test);
+                    final File file = FileTests.getFile(test);
                     file.create();
                     test.assertTrue(file.exists().await());
                 });
@@ -87,15 +87,15 @@ public interface FileTests
             {
                 runner.test("when file doesn't exist", (Test test) ->
                 {
-                    final File file = getFile(test);
+                    final File file = FileTests.getFile(test);
                     test.assertThrows(() -> file.delete().await(), new FileNotFoundException(file.toString()));
                     test.assertFalse(file.exists().await());
                 });
 
                 runner.test("when file does exist", (Test test) ->
                 {
-                    final File file = getFile(test);
-                    test.assertNull(file.create().await());
+                    final File file = FileTests.getFile(test);
+                    test.assertEqual(file, file.create().await());
 
                     test.assertNull(file.delete().await());
                     test.assertFalse(file.exists().await());
@@ -106,19 +106,19 @@ public interface FileTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final File file = getFile(test);
+                    final File file = FileTests.getFile(test);
                     test.assertFalse(file.equals(null));
                 });
 
                 runner.test("with String", (Test test) ->
                 {
-                    final File file = getFile(test);
+                    final File file = FileTests.getFile(test);
                     test.assertFalse(file.equals(file.getPath().toString()));
                 });
 
                 runner.test("with Path", (Test test) ->
                 {
-                    final File file = getFile(test);
+                    final File file = FileTests.getFile(test);
                     test.assertFalse(file.equals(file.getPath()));
                 });
 
@@ -132,7 +132,7 @@ public interface FileTests
 
                 runner.test("with same", (Test test) ->
                 {
-                    final File file = getFile(test);
+                    final File file = FileTests.getFile(test);
                     test.assertTrue(file.equals(file));
                 });
 
@@ -173,14 +173,14 @@ public interface FileTests
             {
                 runner.test("with non-existing file", (Test test) ->
                 {
-                    final File file = getFile(test);
+                    final File file = FileTests.getFile(test);
                     test.assertThrows(() -> file.getContents().await(), new FileNotFoundException("/A"));
                 });
 
                 runner.test("with existing file with no contents", (Test test) ->
                 {
-                    final File file = getFile(test);
-                    test.assertNull(file.create().await());
+                    final File file = FileTests.getFile(test);
+                    test.assertEqual(file, file.create().await());
                     test.assertEqual(new byte[0], file.getContents().await());
                 });
             });
@@ -189,7 +189,7 @@ public interface FileTests
             {
                 runner.test("with non-existing file", (Test test) ->
                 {
-                    final File file = getFile(test);
+                    final File file = FileTests.getFile(test);
                     test.assertThrows(() -> file.getContentsReadStream().await(),
                         new FileNotFoundException("/A"));
                 });
@@ -199,7 +199,7 @@ public interface FileTests
             {
                 runner.test("with null destinationFilePath", (Test test) ->
                 {
-                    final File file = getFile(test);
+                    final File file = FileTests.getFile(test);
                     test.assertThrows(new PreConditionFailure("destinationFilePath cannot be null."),
                         () -> file.copyTo((Path)null));
                 });
@@ -241,7 +241,7 @@ public interface FileTests
             {
                 runner.test("with null destinationFile", (Test test) ->
                 {
-                    final File file = getFile(test);
+                    final File file = FileTests.getFile(test);
                     test.assertThrows(new PreConditionFailure("destinationFile cannot be null."),
                         () -> file.copyTo((File)null));
                 });
@@ -283,7 +283,7 @@ public interface FileTests
             {
                 runner.test("with null destinationFolderPath", (Test test) ->
                 {
-                    final File file = getFile(test);
+                    final File file = FileTests.getFile(test);
                     test.assertThrows(new PreConditionFailure("destinationFolderPath cannot be null."),
                         () -> file.copyToFolder((Path)null));
                 });
@@ -336,7 +336,7 @@ public interface FileTests
             {
                 runner.test("with null destinationFolder", (Test test) ->
                 {
-                    final File file = getFile(test);
+                    final File file = FileTests.getFile(test);
                     test.assertThrows(new PreConditionFailure("destinationFolder cannot be null."),
                         () -> file.copyToFolder((Folder)null));
                 });

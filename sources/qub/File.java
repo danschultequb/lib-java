@@ -20,7 +20,7 @@ public class File extends FileSystemEntry
      */
     public String getFileExtension()
     {
-        return getPath().getFileExtension();
+        return this.getPath().getFileExtension();
     }
 
     /**
@@ -29,31 +29,31 @@ public class File extends FileSystemEntry
      */
     public String getNameWithoutFileExtension()
     {
-        return getPath().withoutFileExtension().getSegments().last();
+        return this.getPath().withoutFileExtension().getSegments().last();
     }
 
     public Path relativeTo(Path path)
     {
-        return getPath().relativeTo(path);
+        return this.getPath().relativeTo(path);
     }
 
     public Path relativeTo(Folder folder)
     {
-        return getPath().relativeTo(folder);
+        return this.getPath().relativeTo(folder);
     }
 
     public Path relativeTo(Root root)
     {
-        return getPath().relativeTo(root);
+        return this.getPath().relativeTo(root);
     }
 
     /**
      * Create this File and return whether or not it was created as a result of this function.
      * @return Whether or not this function created the file.
      */
-    public Result<Void> create()
+    public Result<File> create()
     {
-        return getFileSystem().createFile(getPath()).then(() -> {});
+        return this.getFileSystem().createFile(getPath());
     }
 
     /**
@@ -62,7 +62,7 @@ public class File extends FileSystemEntry
     @Override
     public Result<Boolean> exists()
     {
-        return getFileSystem().fileExists(getPath());
+        return this.getFileSystem().fileExists(getPath());
     }
 
     @Override
@@ -140,12 +140,12 @@ public class File extends FileSystemEntry
 
     public Result<byte[]> getContents()
     {
-        return getFileSystem().getFileContent(getPath());
+        return this.getFileSystem().getFileContent(getPath());
     }
 
     public Result<String> getContentsAsString()
     {
-        return getFileSystem().getFileContentsAsString(getPath());
+        return this.getFileSystem().getFileContentsAsString(getPath());
     }
 
     public Result<Void> setContents(byte[] content)
