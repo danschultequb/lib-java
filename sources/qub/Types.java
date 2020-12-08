@@ -506,33 +506,6 @@ public interface Types
     }
 
     /**
-     * Get the Class object that is associated with the provided full class name.
-     * @param fullClassName The full name of the class to get.
-     * @return The Class object associated with the provided full class name.
-     */
-    @Deprecated
-    static Result<Class<?>> getClass(String fullClassName)
-    {
-        PreCondition.assertNotNullAndNotEmpty(fullClassName, "fullClassName");
-
-        Result<Class<?>> result;
-        try
-        {
-            final Class<?> typesClass = Types.class;
-            final ClassLoader classLoader = typesClass.getClassLoader();
-            result = Result.success(classLoader.loadClass(fullClassName));
-        }
-        catch (ClassNotFoundException e)
-        {
-            result = Result.error(new NotFoundException("Could not load a class named " + Strings.escapeAndQuote(fullClassName) + "."));
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    /**
      * Get the simple name (without the package path) of the provided type.
      * @param type The type to get the simple name of.
      * @return The simple name (without the package path) of the provided type.
@@ -570,52 +543,5 @@ public interface Types
     static String getFullTypeName(Object value)
     {
         return Types.getFullTypeName(value == null ? null : value.getClass());
-    }
-
-    @Deprecated
-    static Result<String> getTypeContainerPathString(String fullTypeName)
-    {
-        PreCondition.assertNotNullAndNotEmpty(fullTypeName, "fullTypeName");
-
-        return Result.create(() ->
-        {
-            final Class<?> type = Types.getClass(fullTypeName).await();
-            return Types.getTypeContainerPathString(type).await();
-        });
-    }
-
-    @Deprecated
-    static Result<String> getTypeContainerPathString(Class<?> type)
-    {
-        PreCondition.assertNotNull(type, "type");
-
-        return Result.create(() ->
-        {
-            return type.getProtectionDomain().getCodeSource().getLocation().toString().substring("file:/".length());
-        });
-    }
-
-    @Deprecated
-    static Result<Path> getTypeContainerPath(String fullTypeName)
-    {
-        PreCondition.assertNotNullAndNotEmpty(fullTypeName, "fullTypeName");
-
-        return Result.create(() ->
-        {
-            final String typeContainerPathString = Types.getTypeContainerPathString(fullTypeName).await();
-            return Path.parse(typeContainerPathString);
-        });
-    }
-
-    @Deprecated
-    static Result<Path> getTypeContainerPath(Class<?> type)
-    {
-        PreCondition.assertNotNull(type, "type");
-
-        return Result.create(() ->
-        {
-            final String typeContainerPathString = Types.getTypeContainerPathString(type).await();
-            return Path.parse(typeContainerPathString);
-        });
     }
 }

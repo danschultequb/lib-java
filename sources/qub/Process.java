@@ -175,7 +175,13 @@ public interface Process extends Disposable
      * @param systemPropertyName The name of the System property to get.
      * @return The value of the System property.
      */
-    Result<String> getSystemProperty(String systemPropertyName);
+    default Result<String> getSystemProperty(String systemPropertyName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(systemPropertyName, "systemPropertyName");
+
+        return this.getSystemProperties().get(systemPropertyName)
+            .convertError(NotFoundException.class, () -> new NotFoundException("No system property found with the name " + Strings.escapeAndQuote(systemPropertyName) + "."));
+    }
 
     /**
      * Get the TypeLoader object that can be used to load types and also determine where types were loaded from.

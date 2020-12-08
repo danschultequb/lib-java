@@ -2,106 +2,15 @@ package qub;
 
 public interface DesktopProcessTests
 {
-    static void test(TestRunner runner)
+    static void test(TestRunner runner, Function0<? extends DesktopProcess> creator)
     {
         runner.testGroup(DesktopProcess.class, () ->
         {
-            DesktopProcessTests.test(runner, (Test test) -> DesktopProcess.create());
-
-            runner.testGroup("create(String...)", () ->
-            {
-                runner.test("with no arguments", (Test test) ->
-                {
-                    try (final DesktopProcess process = DesktopProcess.create())
-                    {
-                        test.assertEqual(Iterable.create(), process.getCommandLineArguments());
-                    }
-                });
-
-                runner.test("with null", (Test test) ->
-                {
-                    test.assertThrows(() -> DesktopProcess.create((String[])null),
-                        new PreConditionFailure("commandLineArgumentStrings cannot be null."));
-                });
-
-                runner.test("with empty", (Test test) ->
-                {
-                    try (final DesktopProcess process = DesktopProcess.create(new String[0]))
-                    {
-                        test.assertEqual(Iterable.create(), process.getCommandLineArguments());
-                    }
-                });
-
-                runner.test("with non-empty", (Test test) ->
-                {
-                    try (final DesktopProcess process = DesktopProcess.create("hello", "there"))
-                    {
-                        test.assertEqual(Iterable.create("hello", "there"), process.getCommandLineArguments().map(CommandLineArgument::toString));
-                    }
-                });
-            });
-
-            runner.testGroup("create(Iterable<String>)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    test.assertThrows(() -> DesktopProcess.create((Iterable<String>)null),
-                        new PreConditionFailure("commandLineArgumentStrings cannot be null."));
-                });
-
-                runner.test("with empty", (Test test) ->
-                {
-                    try (final DesktopProcess process = DesktopProcess.create(Iterable.create()))
-                    {
-                        test.assertEqual(Iterable.create(), process.getCommandLineArguments());
-                    }
-                });
-
-                runner.test("with non-empty", (Test test) ->
-                {
-                    try (final DesktopProcess process = DesktopProcess.create(Iterable.create("hello", "there")))
-                    {
-                        test.assertEqual(Iterable.create("hello", "there"), process.getCommandLineArguments().map(CommandLineArgument::toString));
-                    }
-                });
-            });
-
-            runner.testGroup("create(CommandLineArguments)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    test.assertThrows(() -> DesktopProcess.create((CommandLineArguments)null),
-                        new PreConditionFailure("commandLineArguments cannot be null."));
-                });
-
-                runner.test("with empty", (Test test) ->
-                {
-                    try (final DesktopProcess process = DesktopProcess.create(CommandLineArguments.create()))
-                    {
-                        test.assertEqual(Iterable.create(), process.getCommandLineArguments());
-                    }
-                });
-
-                runner.test("with non-empty", (Test test) ->
-                {
-                    try (final DesktopProcess process = DesktopProcess.create(CommandLineArguments.create("hello", "there")))
-                    {
-                        test.assertEqual(Iterable.create("hello", "there"), process.getCommandLineArguments().map(CommandLineArgument::toString));
-                    }
-                });
-            });
-        });
-    }
-    
-    static void test(TestRunner runner, Function1<Test,? extends DesktopProcess> creator)
-    {
-        runner.testGroup(DesktopProcess.class, () ->
-        {
-            ProcessTests.test(runner, creator);
+            ProcessTests.test(runner, (Test test) -> creator.run());
 
             runner.test("getExitCode()", (Test test) ->
             {
-                try (final DesktopProcess process = creator.run(test))
+                try (final DesktopProcess process = creator.run())
                 {
                     test.assertEqual(0, process.getExitCode());
                 }
@@ -111,7 +20,7 @@ public interface DesktopProcessTests
             {
                 runner.test("with negative", (Test test) ->
                 {
-                    try (final DesktopProcess process = creator.run(test))
+                    try (final DesktopProcess process = creator.run())
                     {
                         test.assertSame(process, process.setExitCode(-1));
                         test.assertEqual(-1, process.getExitCode());
@@ -120,7 +29,7 @@ public interface DesktopProcessTests
 
                 runner.test("with zero", (Test test) ->
                 {
-                    try (final DesktopProcess process = creator.run(test))
+                    try (final DesktopProcess process = creator.run())
                     {
                         test.assertSame(process, process.setExitCode(0));
                         test.assertEqual(0, process.getExitCode());
@@ -129,7 +38,7 @@ public interface DesktopProcessTests
 
                 runner.test("with positive", (Test test) ->
                 {
-                    try (final DesktopProcess process = creator.run(test))
+                    try (final DesktopProcess process = creator.run())
                     {
                         test.assertSame(process, process.setExitCode(2));
                         test.assertEqual(2, process.getExitCode());
@@ -139,7 +48,7 @@ public interface DesktopProcessTests
 
             runner.test("incrementExitCode()", (Test test) ->
             {
-                try (final DesktopProcess process = creator.run(test))
+                try (final DesktopProcess process = creator.run())
                 {
                     test.assertEqual(0, process.getExitCode());
                     test.assertSame(process, process.incrementExitCode());
@@ -149,7 +58,7 @@ public interface DesktopProcessTests
 
             runner.test("getCommandLineArguments()", (Test test) ->
             {
-                try (final DesktopProcess process = creator.run(test))
+                try (final DesktopProcess process = creator.run())
                 {
                     final CommandLineArguments arguments = process.getCommandLineArguments();
                     test.assertNotNull(arguments);
@@ -161,7 +70,7 @@ public interface DesktopProcessTests
             {
                 runner.test("with null string", (Test test) ->
                 {
-                    try (final DesktopProcess process = creator.run(test))
+                    try (final DesktopProcess process = creator.run())
                     {
                         test.assertThrows(() -> process.getProcessBuilder((String)null),
                             new PreConditionFailure("executablePath cannot be null."));
@@ -170,7 +79,7 @@ public interface DesktopProcessTests
 
                 runner.test("with empty string", (Test test) ->
                 {
-                    try (final DesktopProcess process = creator.run(test))
+                    try (final DesktopProcess process = creator.run())
                     {
                         test.assertThrows(() -> process.getProcessBuilder(""),
                             new PreConditionFailure("executablePath cannot be empty."));
@@ -179,7 +88,7 @@ public interface DesktopProcessTests
 
                 runner.test("with path with file extension relative to the current folder", (Test test) ->
                 {
-                    try (final DesktopProcess process = creator.run(test))
+                    try (final DesktopProcess process = creator.run())
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("project.json").await();
                         test.assertNotNull(builder);
@@ -190,7 +99,7 @@ public interface DesktopProcessTests
 
                 runner.test("with path without file extension relative to the current folder", (Test test) ->
                 {
-                    try (final DesktopProcess process = creator.run(test))
+                    try (final DesktopProcess process = creator.run())
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("project").await();
                         test.assertNotNull(builder);
@@ -201,7 +110,7 @@ public interface DesktopProcessTests
 
                 runner.test("with rooted path with file extension", (Test test) ->
                 {
-                    try (final DesktopProcess process = creator.run(test))
+                    try (final DesktopProcess process = creator.run())
                     {
                         final Path executablePath = process.getCurrentFolder().getFile("project.json").await().getPath();
                         final ProcessBuilder builder = process.getProcessBuilder(executablePath).await();
@@ -213,7 +122,7 @@ public interface DesktopProcessTests
 
                 runner.test("with rooted path without file extension", (Test test) ->
                 {
-                    try (final DesktopProcess process = creator.run(test))
+                    try (final DesktopProcess process = creator.run())
                     {
                         final Path executablePath = process.getCurrentFolder().getFile("project").await().getPath();
                         final ProcessBuilder builder = process.getProcessBuilder(executablePath).await();
@@ -225,7 +134,7 @@ public interface DesktopProcessTests
 
                 runner.test("with rooted path to executable", (Test test) ->
                 {
-                    try (final DesktopProcess process = creator.run(test))
+                    try (final DesktopProcess process = creator.run())
                     {
                         if (process.onWindows().await())
                         {
@@ -237,48 +146,12 @@ public interface DesktopProcessTests
                     }
                 });
 
-                runner.test("with rooted path to executable with fake process", (Test test) ->
-                {
-                    try (final DesktopProcess process = creator.run(test))
-                    {
-                        if (process.onWindows().await())
-                        {
-                            final FileSystem fileSystem = process.getFileSystem();
-                            final File executableFile = fileSystem.getFile("C:/Program Files/Java/jdk1.8.0_192/bin/javac.exe").await();
-                            process.setProcessFactory(FakeProcessFactory.create(process)
-                                .add(FakeProcessRun.get(executableFile)
-                                    .setFunction(8)));
-                            final ProcessBuilder builder = process.getProcessBuilder(executableFile.getPath()).await();
-                            test.assertEqual("javac.exe", builder.getExecutablePath().getSegments().last());
-                            test.assertEqual(Iterable.create(), builder.getArguments());
-                            test.assertEqual(8, builder.run().await());
-                        }
-                    }
-                });
-
                 runner.test("with path with file extension relative to PATH environment variable", (Test test) ->
                 {
-                    try (final DesktopProcess process = creator.run(test))
+                    try (final DesktopProcess process = creator.run())
                     {
                         if (process.onWindows().await())
                         {
-                            final ProcessBuilder builder = process.getProcessBuilder("javac.exe").await();
-                            test.assertEqual("javac.exe", builder.getExecutablePath().getSegments().last());
-                            test.assertEqual(Iterable.create(), builder.getArguments());
-                            test.assertEqual(2, builder.run().await());
-                        }
-                    }
-                });
-
-                runner.test("with path with file extension relative to PATH environment variable with fake process runner", (Test test) ->
-                {
-                    try (final DesktopProcess process = creator.run(test))
-                    {
-                        if (process.onWindows().await())
-                        {
-                            process.setProcessFactory(FakeProcessFactory.create(process)
-                                .add(FakeProcessRun.get("javac.exe")
-                                    .setFunction(2)));
                             final ProcessBuilder builder = process.getProcessBuilder("javac.exe").await();
                             test.assertEqual("javac.exe", builder.getExecutablePath().getSegments().last());
                             test.assertEqual(Iterable.create(), builder.getArguments());
@@ -289,7 +162,7 @@ public interface DesktopProcessTests
 
                 runner.test("with path without file extension relative to PATH environment variable", (Test test) ->
                 {
-                    try (final DesktopProcess process = creator.run(test))
+                    try (final DesktopProcess process = creator.run())
                     {
                         if (process.onWindows().await())
                         {
@@ -317,7 +190,7 @@ public interface DesktopProcessTests
 
                 runner.test("with non-existing working folder", (Test test) ->
                 {
-                    try (final DesktopProcess process = creator.run(test))
+                    try (final DesktopProcess process = creator.run())
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("javac").await();
 
@@ -338,7 +211,7 @@ public interface DesktopProcessTests
 
                 runner.test("with existing working folder (a child folder of the current folder)", (Test test) ->
                 {
-                    try (final DesktopProcess process = creator.run(test))
+                    try (final DesktopProcess process = creator.run())
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("javac").await();
 
@@ -372,7 +245,7 @@ public interface DesktopProcessTests
 
                 runner.test("with existing working folder (the current folder)", (Test test) ->
                 {
-                    try (final DesktopProcess process = creator.run(test))
+                    try (final DesktopProcess process = creator.run())
                     {
                         final ProcessBuilder builder = process.getProcessBuilder("javac").await();
 
@@ -465,7 +338,7 @@ public interface DesktopProcessTests
 
                 runner.test("with path without file extension relative to PATH environment variable with redirected error", (Test test) ->
                 {
-                    try (final DesktopProcess process = creator.run(test))
+                    try (final DesktopProcess process = creator.run())
                     {
                         if (process.onWindows().await())
                         {
@@ -496,7 +369,7 @@ public interface DesktopProcessTests
 
             runner.test("onWindows()", (Test test) ->
             {
-                try (final DesktopProcess process = creator.run(test))
+                try (final DesktopProcess process = creator.run())
                 {
                     test.assertNotNull(process.onWindows().await());
                 }
@@ -504,7 +377,7 @@ public interface DesktopProcessTests
 
             runner.test("getJVMClasspath()", (Test test) ->
             {
-                try (final DesktopProcess process = creator.run(test))
+                try (final DesktopProcess process = creator.run())
                 {
                     test.assertNotNullAndNotEmpty(process.getJVMClasspath().await());
                 }
@@ -512,7 +385,7 @@ public interface DesktopProcessTests
 
             runner.test("getJavaVersion()", (Test test) ->
             {
-                try (final DesktopProcess process = creator.run(test))
+                try (final DesktopProcess process = creator.run())
                 {
                     final VersionNumber version = process.getJavaVersion();
                     test.assertNotNull(version);
@@ -521,7 +394,7 @@ public interface DesktopProcessTests
 
             runner.test("getQubFolder()", (Test test) ->
             {
-                try (final DesktopProcess process = creator.run(test))
+                try (final DesktopProcess process = creator.run())
                 {
                     final QubFolder folder = process.getQubFolder().await();
                     test.assertNotNull(folder);
@@ -531,7 +404,7 @@ public interface DesktopProcessTests
 
             runner.test("getQubProjectVersionFolder()", (Test test) ->
             {
-                try (final DesktopProcess process = creator.run(test))
+                try (final DesktopProcess process = creator.run())
                 {
                     final QubProjectVersionFolder projectVersionFolder = process.getQubProjectVersionFolder().await();
                     test.assertNotNull(projectVersionFolder);
@@ -541,7 +414,7 @@ public interface DesktopProcessTests
 
             runner.test("getPublisherName()", (Test test) ->
             {
-                try (final DesktopProcess process = creator.run(test))
+                try (final DesktopProcess process = creator.run())
                 {
                     final String publisherName = process.getPublisherName().await();
                     test.assertNotNullAndNotEmpty(publisherName);
@@ -550,7 +423,7 @@ public interface DesktopProcessTests
 
             runner.test("getProjectName()", (Test test) ->
             {
-                try (final DesktopProcess process = creator.run(test))
+                try (final DesktopProcess process = creator.run())
                 {
                     final String projectName = process.getProjectName().await();
                     test.assertNotNullAndNotEmpty(projectName);
@@ -559,7 +432,7 @@ public interface DesktopProcessTests
 
             runner.test("getVersion()", (Test test) ->
             {
-                try (final DesktopProcess process = creator.run(test))
+                try (final DesktopProcess process = creator.run())
                 {
                     final VersionNumber version = process.getVersion().await();
                     test.assertNotNull(version);
@@ -568,7 +441,7 @@ public interface DesktopProcessTests
 
             runner.test("getProjectDataFolder()", (Test test) ->
             {
-                try (final DesktopProcess process = creator.run(test))
+                try (final DesktopProcess process = creator.run())
                 {
                     final Folder qubProjectDataFolder = process.getQubProjectDataFolder().await();
                     test.assertNotNull(qubProjectDataFolder);

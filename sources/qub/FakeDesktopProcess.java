@@ -1,7 +1,10 @@
 package qub;
 
-public class FakeDesktopProcess extends DesktopProcess
+public class FakeDesktopProcess extends DesktopProcessBase
 {
+    private final Value<Path> currentFolderPath;
+    private final Value<InMemoryCharacterToByteStream> input;
+
     /**
      * Create a new JavaProcess object with the provided command line arguments.
      * @param commandLineArgumentStrings The command line arguments provided to the new JavaProcess.
@@ -50,112 +53,102 @@ public class FakeDesktopProcess extends DesktopProcess
     protected FakeDesktopProcess(CommandLineArguments commandLineArguments, AsyncScheduler mainAsyncRunner)
     {
         super(commandLineArguments, mainAsyncRunner);
+
+        this.currentFolderPath = Value.create(Path.parse("/"));
+        this.input = Value.create(InMemoryCharacterToByteStream.create().endOfStream());
     }
 
     @Override
-    protected long createDefaultProcessId()
+    protected long getProcessIdValue()
     {
         return 1;
     }
 
     @Override
-    public FakeDesktopProcess setProcessId(long processId)
+    public FakeProcessFactory getProcessFactory()
     {
-        return (FakeDesktopProcess)super.setProcessId(processId);
+        return (FakeProcessFactory)super.getProcessFactory();
     }
 
     @Override
-    protected ProcessFactory createDefaultProcessFactory()
+    protected FakeProcessFactory createDefaultProcessFactory()
     {
         return FakeProcessFactory.create(this);
     }
 
     @Override
-    public FakeDesktopProcess setProcessFactory(ProcessFactory processFactory)
+    public InMemoryCharacterToByteStream getOutputWriteStream()
     {
-        return (FakeDesktopProcess)super.setProcessFactory(processFactory);
+        return (InMemoryCharacterToByteStream)super.getOutputWriteStream();
     }
 
     @Override
-    public FakeDesktopProcess setSystemProperty(String systemPropertyName, String systemPropertyValue)
-    {
-        return (FakeDesktopProcess)super.setSystemProperty(systemPropertyName, systemPropertyValue);
-    }
-
-    @Override
-    public FakeDesktopProcess setJVMClasspath(String jvmClasspath)
-    {
-        return (FakeDesktopProcess)super.setJVMClasspath(jvmClasspath);
-    }
-
-    @Override
-    protected CharacterToByteWriteStream createDefaultOutputWriteStream()
+    protected InMemoryCharacterToByteStream createDefaultOutputWriteStream()
     {
         return InMemoryCharacterToByteStream.create();
     }
 
     @Override
-    public FakeDesktopProcess setOutputWriteStream(ByteWriteStream outputWriteStream)
+    public InMemoryCharacterToByteStream getErrorWriteStream()
     {
-        return (FakeDesktopProcess)super.setOutputWriteStream(outputWriteStream);
+        return (InMemoryCharacterToByteStream)super.getErrorWriteStream();
     }
 
     @Override
-    public FakeDesktopProcess setOutputWriteStream(CharacterToByteWriteStream outputWriteStream)
-    {
-        return (FakeDesktopProcess)super.setOutputWriteStream(outputWriteStream);
-    }
-
-    @Override
-    public CharacterToByteWriteStream createDefaultErrorWriteStream()
+    public InMemoryCharacterToByteStream createDefaultErrorWriteStream()
     {
         return InMemoryCharacterToByteStream.create();
     }
 
     @Override
-    public FakeDesktopProcess setErrorWriteStream(ByteWriteStream errorWriteStream)
+    public InMemoryCharacterToByteStream getInputReadStream()
     {
-        return (FakeDesktopProcess)super.setErrorWriteStream(errorWriteStream);
+        return (InMemoryCharacterToByteStream)super.getInputReadStream();
     }
 
     @Override
-    public FakeDesktopProcess setErrorWriteStream(CharacterToByteWriteStream errorWriteStream)
+    protected InMemoryCharacterToByteStream createDefaultInputReadStream()
     {
-        return (FakeDesktopProcess)super.setErrorWriteStream(errorWriteStream);
+        PreCondition.assertTrue(this.input.hasValue(), "this.input.hasValue()");
+        PreCondition.assertNotNull(this.input.get(), "this.input.get()");
+
+        final InMemoryCharacterToByteStream result = this.input.get();
+        this.input.clear();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    public FakeDesktopProcess setDefaultInputReadStream(InMemoryCharacterToByteStream input)
+    {
+        PreCondition.assertTrue(this.input.hasValue(), "this.input.hasValue()");
+
+        this.input.set(input);
+
+        return this;
     }
 
     @Override
-    protected CharacterToByteReadStream createDefaultInputReadStream()
+    public FixedRandom getRandom()
     {
-        return InMemoryCharacterToByteStream.create().endOfStream();
+        return (FixedRandom)super.getRandom();
     }
 
     @Override
-    public FakeDesktopProcess setInputReadStream(ByteReadStream inputReadStream)
-    {
-        return (FakeDesktopProcess)super.setInputReadStream(inputReadStream);
-    }
-
-    @Override
-    public FakeDesktopProcess setInputReadStream(CharacterToByteReadStream inputReadStream)
-    {
-        return (FakeDesktopProcess)super.setInputReadStream(inputReadStream);
-    }
-
-    @Override
-    public FakeDesktopProcess setRandom(Random random)
-    {
-        return (FakeDesktopProcess)super.setRandom(random);
-    }
-
-    @Override
-    protected Random createDefaultRandom()
+    protected FixedRandom createDefaultRandom()
     {
         return new FixedRandom(1);
     }
 
     @Override
-    protected FileSystem createDefaultFileSystem()
+    public InMemoryFileSystem getFileSystem()
+    {
+        return (InMemoryFileSystem)super.getFileSystem();
+    }
+
+    @Override
+    protected InMemoryFileSystem createDefaultFileSystem()
     {
         final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(this.getClock());
         fileSystem.createRoot("/").await();
@@ -163,63 +156,102 @@ public class FakeDesktopProcess extends DesktopProcess
     }
 
     @Override
-    public FakeDesktopProcess setFileSystem(FileSystem fileSystem, String currentFolderPath)
+    protected Folder createDefaultCurrentFolder()
     {
-        return (FakeDesktopProcess)super.setFileSystem(fileSystem, currentFolderPath);
+        PreCondition.assertTrue(this.currentFolderPath.hasValue(), "this.currentFolderPath.hasValue()");
+
+        final Path currentFolderPath = this.currentFolderPath.get();
+        this.currentFolderPath.clear();
+
+        return this.getFileSystem().getFolder(currentFolderPath).await();
+    }
+
+    public FakeDesktopProcess setDefaultCurrentFolder(String defaultCurrentFolderPath)
+    {
+        PreCondition.assertNotNullAndNotEmpty(defaultCurrentFolderPath, "defaultCurrentFolderPath");
+
+        return this.setDefaultCurrentFolder(Path.parse(defaultCurrentFolderPath));
+    }
+
+    public FakeDesktopProcess setDefaultCurrentFolder(Path defaultCurrentFolderPath)
+    {
+        PreCondition.assertNotNull(defaultCurrentFolderPath, "defaultCurrentFolderPath");
+        PreCondition.assertTrue(defaultCurrentFolderPath.isRooted(), "defaultCurrentFolderPath.isRooted()");
+        PreCondition.assertTrue(this.currentFolderPath.hasValue(), "this.currentFolderPath.hasValue()");
+
+        this.currentFolderPath.set(defaultCurrentFolderPath);
+
+        return this;
     }
 
     @Override
-    public FakeDesktopProcess setFileSystem(FileSystem fileSystem, Path currentFolderPath)
+    public FakeNetwork getNetwork()
     {
-        return (FakeDesktopProcess)super.setFileSystem(fileSystem, currentFolderPath);
+        return (FakeNetwork)super.getNetwork();
     }
 
     @Override
-    protected Network createDefaultNetwork()
+    protected FakeNetwork createDefaultNetwork()
     {
         return new FakeNetwork(this.getClock());
     }
 
     @Override
-    public FakeDesktopProcess setNetwork(Network network)
+    public ManualClock getClock()
     {
-        return (FakeDesktopProcess)super.setNetwork(network);
+        return (ManualClock)super.getClock();
     }
 
     @Override
-    public FakeDesktopProcess setCurrentFolderPathString(String currentFolderPathString)
+    protected ManualClock createDefaultClock()
     {
-        return (FakeDesktopProcess)super.setCurrentFolderPathString(currentFolderPathString);
+        return ManualClock.create(DateTime.epoch, this.getMainAsyncRunner());
     }
 
     @Override
-    public FakeDesktopProcess setCurrentFolderPath(Path currentFolderPath)
+    public FakeDefaultApplicationLauncher getDefaultApplicationLauncher()
     {
-        return (FakeDesktopProcess)super.setCurrentFolderPath(currentFolderPath);
+        return (FakeDefaultApplicationLauncher)super.getDefaultApplicationLauncher();
     }
 
     @Override
-    public FakeDesktopProcess setCurrentFolder(Folder currentFolder)
+    protected FakeDefaultApplicationLauncher createDefaultApplicationLauncher()
     {
-        return (FakeDesktopProcess)super.setCurrentFolder(currentFolder);
+        return FakeDefaultApplicationLauncher.create();
     }
 
     @Override
-    protected Folder createDefaultCurrentFolder()
+    protected Map<String,String> createDefaultSystemProperties()
     {
-        return this.getFileSystem().getFolder("/").await();
+        return Map.<String,String>create()
+            .set("java.version", "fake-java-version")
+            .set("java.class.path", "fake-class-path")
+            .set("os.name", "fake-os-name")
+            .set("sun.java.command", "fake-sun-java-command");
     }
 
     @Override
-    public FakeDesktopProcess setEnvironmentVariables(EnvironmentVariables environmentVariables)
+    public FakeTypeLoader getTypeLoader()
     {
-        return (FakeDesktopProcess)super.setEnvironmentVariables(environmentVariables);
+        return (FakeTypeLoader)super.getTypeLoader();
     }
 
     @Override
-    protected EnvironmentVariables createDefaultEnvironmentVariables()
+    protected FakeTypeLoader createDefaultTypeLoader()
     {
-        return new EnvironmentVariables();
+        return FakeTypeLoader.create();
+    }
+
+    @Override
+    public MutableEnvironmentVariables getEnvironmentVariables()
+    {
+        return (MutableEnvironmentVariables)super.getEnvironmentVariables();
+    }
+
+    @Override
+    protected MutableEnvironmentVariables createDefaultEnvironmentVariables()
+    {
+        return EnvironmentVariables.create();
     }
 
     @Override
@@ -229,62 +261,14 @@ public class FakeDesktopProcess extends DesktopProcess
     }
 
     @Override
-    public FakeDesktopProcess setClock(Clock clock)
-    {
-        return (FakeDesktopProcess)super.setClock(clock);
-    }
-
-    @Override
-    protected Clock createDefaultClock()
-    {
-        return ManualClock.create(DateTime.epoch, this.getMainAsyncRunner());
-    }
-
-    @Override
-    public FakeDesktopProcess setDisplays(Iterable<Display> displays)
-    {
-        return (FakeDesktopProcess)super.setDisplays(displays);
-    }
-
-    @Override
     protected Iterable<Display> createDefaultDisplays()
     {
         return Iterable.create(new Display(1000, 1000, 100, 100));
     }
 
     @Override
-    protected DefaultApplicationLauncher createDefaultApplicationLauncher()
-    {
-        return FakeDefaultApplicationLauncher.create();
-    }
-
-    @Override
-    public FakeDesktopProcess setDefaultApplicationLauncher(DefaultApplicationLauncher defaultApplicationLauncher)
-    {
-        return (FakeDesktopProcess)super.setDefaultApplicationLauncher(defaultApplicationLauncher);
-    }
-
-    @Override
-    public FakeDesktopProcess setMainClassFullName(String mainClassFullName)
-    {
-        return (FakeDesktopProcess)super.setMainClassFullName(mainClassFullName);
-    }
-
-    @Override
     public String createDefaultMainClassFullName()
     {
         return "fake.MainClassFullName";
-    }
-
-    @Override
-    protected TypeLoader createDefaultTypeLoader()
-    {
-        return FakeTypeLoader.create();
-    }
-
-    @Override
-    public FakeDesktopProcess setTypeLoader(TypeLoader typeLoader)
-    {
-        return (FakeDesktopProcess)super.setTypeLoader(typeLoader);
     }
 }

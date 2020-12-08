@@ -3,21 +3,21 @@ package qub;
 /**
  * An action for a command line application.
  */
-public class CommandLineAction<TProcess extends DesktopProcess>
+public class CommandLineAction
 {
     private final String name;
-    private final Action1<TProcess> mainAction;
+    private final Action1<DesktopProcess> mainAction;
     private final List<String> aliases;
     private boolean defaultAction;
     private String description;
-    private CommandLineActions<TProcess> parentActions;
+    private CommandLineActions parentActions;
 
     /**
      * Create a new CommandLineAction with the provided name and action.
      * @param name The name of the CommandLineAction.
      * @param mainAction The behavior/action of the CommandLineAction.
      */
-    private CommandLineAction(String name, Action1<TProcess> mainAction)
+    private CommandLineAction(String name, Action1<DesktopProcess> mainAction)
     {
         PreCondition.assertNotNullAndNotEmpty(name, "name");
         PreCondition.assertNotNull(mainAction, "mainAction");
@@ -32,9 +32,9 @@ public class CommandLineAction<TProcess extends DesktopProcess>
      * @param name The name of the CommandLineAction.
      * @param mainAction The behavior/action of the CommandLineAction.
      */
-    public static <TProcess extends DesktopProcess> CommandLineAction<TProcess> create(String name, Action1<TProcess> mainAction)
+    public static CommandLineAction create(String name, Action1<DesktopProcess> mainAction)
     {
-        return new CommandLineAction<>(name, mainAction);
+        return new CommandLineAction(name, mainAction);
     }
 
     /**
@@ -106,7 +106,7 @@ public class CommandLineAction<TProcess extends DesktopProcess>
             : this.name.equalsIgnoreCase(actionName) || this.aliases.contains(actionName, Comparer::equalIgnoreCase);
     }
 
-    public CommandLineAction<TProcess> addAlias(String alias)
+    public CommandLineAction addAlias(String alias)
     {
         PreCondition.assertNotNullAndNotEmpty(alias, "alias");
         PreCondition.assertFalse(this.containsActionName(alias), "this.aliasAlreadyExists(alias)");
@@ -116,7 +116,7 @@ public class CommandLineAction<TProcess extends DesktopProcess>
         return this;
     }
 
-    public CommandLineAction<TProcess> addAliases(String... aliases)
+    public CommandLineAction addAliases(String... aliases)
     {
         PreCondition.assertNotNullAndNotEmpty(aliases, "aliases");
 
@@ -128,7 +128,7 @@ public class CommandLineAction<TProcess extends DesktopProcess>
         return this;
     }
 
-    public CommandLineAction<TProcess> addAliases(Iterable<String> aliases)
+    public CommandLineAction addAliases(Iterable<String> aliases)
     {
         PreCondition.assertNotNullAndNotEmpty(aliases, "aliases");
 
@@ -145,7 +145,7 @@ public class CommandLineAction<TProcess extends DesktopProcess>
         return this.defaultAction;
     }
 
-    public CommandLineAction<TProcess> setDefaultAction()
+    public CommandLineAction setDefaultAction()
     {
         PreCondition.assertTrue(this.isDefaultAction() || this.parentActions == null || !this.parentActions.hasDefaultAction(), "this.isDefaultAction() || this.parentActions == null || !this.parentActions.hasDefaultAction()");
 
@@ -159,21 +159,21 @@ public class CommandLineAction<TProcess extends DesktopProcess>
         return this.description;
     }
 
-    public CommandLineAction<TProcess> setDescription(String description)
+    public CommandLineAction setDescription(String description)
     {
         this.description = description;
 
         return this;
     }
 
-    public CommandLineAction<TProcess> setParentActions(CommandLineActions<TProcess> parentActions)
+    public CommandLineAction setParentActions(CommandLineActions parentActions)
     {
         this.parentActions = parentActions;
 
         return this;
     }
 
-    public void run(TProcess process)
+    public void run(DesktopProcess process)
     {
         PreCondition.assertNotNull(process, "process");
 

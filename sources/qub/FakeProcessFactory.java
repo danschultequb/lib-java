@@ -22,7 +22,7 @@ public class FakeProcessFactory implements ProcessFactory
         this.workingFolder = workingFolder;
     }
 
-    public static FakeProcessFactory create(DesktopProcess process)
+    public static FakeProcessFactory create(FakeDesktopProcess process)
     {
         PreCondition.assertNotNull(process, "process");
 

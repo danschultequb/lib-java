@@ -24,7 +24,7 @@ public interface CommandLineActionTests
 
                 runner.test("with non-empty name", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertEqual("hello", action.getName());
                     test.assertEqual(Iterable.create(), action.getAliases());
                     test.assertNull(action.getDescription());
@@ -42,33 +42,33 @@ public interface CommandLineActionTests
             {
                 runner.test("with no parentActions set", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertEqual("hello", action.getName());
                     test.assertEqual("hello", action.getFullName());
                 });
 
                 runner.test("with parentActions set with null applicationName", (Test test) ->
                 {
-                    final CommandLineActions<DesktopProcess> parentActions = CommandLineActions.create();
-                    final CommandLineAction<DesktopProcess> action = parentActions.addAction("hello", (DesktopProcess process) -> {});
+                    final CommandLineActions parentActions = CommandLineActions.create();
+                    final CommandLineAction action = parentActions.addAction("hello", (DesktopProcess process) -> {});
                     test.assertEqual("hello", action.getName());
                     test.assertEqual("hello", action.getFullName());
                 });
 
                 runner.test("with parentActions set with empty applicationName", (Test test) ->
                 {
-                    final CommandLineActions<DesktopProcess> parentActions = CommandLineActions.create();
+                    final CommandLineActions parentActions = CommandLineActions.create();
                     parentActions.setApplicationName("");
-                    final CommandLineAction<DesktopProcess> action = parentActions.addAction("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = parentActions.addAction("hello", (DesktopProcess process) -> {});
                     test.assertEqual("hello", action.getName());
                     test.assertEqual("hello", action.getFullName());
                 });
 
                 runner.test("with parentActions set with non-empty applicationName", (Test test) ->
                 {
-                    final CommandLineActions<DesktopProcess> parentActions = CommandLineActions.create();
+                    final CommandLineActions parentActions = CommandLineActions.create();
                     parentActions.setApplicationName("abc");
-                    final CommandLineAction<DesktopProcess> action = parentActions.addAction("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = parentActions.addAction("hello", (DesktopProcess process) -> {});
                     test.assertEqual("hello", action.getName());
                     test.assertEqual("abc hello", action.getFullName());
                 });
@@ -78,7 +78,7 @@ public interface CommandLineActionTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertThrows(() -> action.addAlias(null),
                         new PreConditionFailure("alias cannot be null."));
                     test.assertEqual(Iterable.create(), action.getAliases());
@@ -86,7 +86,7 @@ public interface CommandLineActionTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertThrows(() -> action.addAlias(""),
                         new PreConditionFailure("alias cannot be empty."));
                     test.assertEqual(Iterable.create(), action.getAliases());
@@ -94,14 +94,14 @@ public interface CommandLineActionTests
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertSame(action, action.addAlias("h"));
                     test.assertEqual(Iterable.create("h"), action.getAliases());
                 });
 
                 runner.test("with alias equal to action's name", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertThrows(() -> action.addAlias("hello"),
                         new PreConditionFailure("this.aliasAlreadyExists(alias) cannot be true."));
                     test.assertEqual(Iterable.create(), action.getAliases());
@@ -109,7 +109,7 @@ public interface CommandLineActionTests
 
                 runner.test("with alias already added to action", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertSame(action, action.addAlias("h"));
                     test.assertThrows(() -> action.addAlias("h"),
                         new PreConditionFailure("this.aliasAlreadyExists(alias) cannot be true."));
@@ -118,9 +118,9 @@ public interface CommandLineActionTests
 
                 runner.test("with alias already in use as a different action's name", (Test test) ->
                 {
-                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
-                    final CommandLineAction<DesktopProcess> action1 = actions.addAction("hello", (DesktopProcess process) -> {});
-                    final CommandLineAction<DesktopProcess> action2 = actions.addAction("there", (DesktopProcess process) -> {});
+                    final CommandLineActions actions = CommandLineActions.create();
+                    final CommandLineAction action1 = actions.addAction("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action2 = actions.addAction("there", (DesktopProcess process) -> {});
                     test.assertThrows(() -> action1.addAlias("there"),
                         new PreConditionFailure("this.aliasAlreadyExists(alias) cannot be true."));
                     test.assertEqual(Iterable.create(), action1.getAliases());
@@ -129,9 +129,9 @@ public interface CommandLineActionTests
 
                 runner.test("with alias already in use as a different action's alias", (Test test) ->
                 {
-                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
-                    final CommandLineAction<DesktopProcess> action1 = actions.addAction("hello", (DesktopProcess process) -> {});
-                    final CommandLineAction<DesktopProcess> action2 = actions.addAction("there", (DesktopProcess process) -> {})
+                    final CommandLineActions actions = CommandLineActions.create();
+                    final CommandLineAction action1 = actions.addAction("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action2 = actions.addAction("there", (DesktopProcess process) -> {})
                         .addAlias("h");
                     test.assertThrows(() -> action1.addAlias("h"),
                         new PreConditionFailure("this.aliasAlreadyExists(alias) cannot be true."));
@@ -144,7 +144,7 @@ public interface CommandLineActionTests
             {
                 runner.test("with no arguments", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertThrows(() -> action.addAliases(),
                         new PreConditionFailure("aliases cannot be empty."));
                     test.assertEqual(Iterable.create(), action.getAliases());
@@ -152,7 +152,7 @@ public interface CommandLineActionTests
 
                 runner.test("with null array", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertThrows(() -> action.addAliases((String[])null),
                         new PreConditionFailure("aliases cannot be null."));
                     test.assertEqual(Iterable.create(), action.getAliases());
@@ -160,7 +160,7 @@ public interface CommandLineActionTests
 
                 runner.test("with empty array", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertThrows(() -> action.addAliases(new String[0]),
                         new PreConditionFailure("aliases cannot be empty."));
                     test.assertEqual(Iterable.create(), action.getAliases());
@@ -168,7 +168,7 @@ public interface CommandLineActionTests
 
                 runner.test("with null String", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertThrows(() -> action.addAliases((String)null),
                         new PreConditionFailure("alias cannot be null."));
                     test.assertEqual(Iterable.create(), action.getAliases());
@@ -176,7 +176,7 @@ public interface CommandLineActionTests
 
                 runner.test("with empty String", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertThrows(() -> action.addAliases(""),
                         new PreConditionFailure("alias cannot be empty."));
                     test.assertEqual(Iterable.create(), action.getAliases());
@@ -184,21 +184,21 @@ public interface CommandLineActionTests
 
                 runner.test("with one String", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertSame(action, action.addAliases("h"));
                     test.assertEqual(Iterable.create("h"), action.getAliases());
                 });
 
                 runner.test("with two Strings", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertSame(action, action.addAliases("h", "i"));
                     test.assertEqual(Iterable.create("h", "i"), action.getAliases());
                 });
 
                 runner.test("with alias equal to action's name", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertThrows(() -> action.addAliases("hello"),
                         new PreConditionFailure("this.aliasAlreadyExists(alias) cannot be true."));
                     test.assertEqual(Iterable.create(), action.getAliases());
@@ -206,7 +206,7 @@ public interface CommandLineActionTests
 
                 runner.test("with alias already added to action", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertSame(action, action.addAliases("h"));
                     test.assertThrows(() -> action.addAliases("h"),
                         new PreConditionFailure("this.aliasAlreadyExists(alias) cannot be true."));
@@ -215,9 +215,9 @@ public interface CommandLineActionTests
 
                 runner.test("with alias already in use as a different action's name", (Test test) ->
                 {
-                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
-                    final CommandLineAction<DesktopProcess> action1 = actions.addAction("hello", (DesktopProcess process) -> {});
-                    final CommandLineAction<DesktopProcess> action2 = actions.addAction("there", (DesktopProcess process) -> {});
+                    final CommandLineActions actions = CommandLineActions.create();
+                    final CommandLineAction action1 = actions.addAction("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action2 = actions.addAction("there", (DesktopProcess process) -> {});
                     test.assertThrows(() -> action1.addAliases("there"),
                         new PreConditionFailure("this.aliasAlreadyExists(alias) cannot be true."));
                     test.assertEqual(Iterable.create(), action1.getAliases());
@@ -226,9 +226,9 @@ public interface CommandLineActionTests
 
                 runner.test("with alias already in use as a different action's alias", (Test test) ->
                 {
-                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
-                    final CommandLineAction<DesktopProcess> action1 = actions.addAction("hello", (DesktopProcess process) -> {});
-                    final CommandLineAction<DesktopProcess> action2 = actions.addAction("there", (DesktopProcess process) -> {})
+                    final CommandLineActions actions = CommandLineActions.create();
+                    final CommandLineAction action1 = actions.addAction("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action2 = actions.addAction("there", (DesktopProcess process) -> {})
                         .addAliases("h");
                     test.assertThrows(() -> action1.addAliases("h"),
                         new PreConditionFailure("this.aliasAlreadyExists(alias) cannot be true."));
@@ -241,7 +241,7 @@ public interface CommandLineActionTests
             {
                 runner.test("with null Iterable", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertThrows(() -> action.addAliases((Iterable<String>)null),
                         new PreConditionFailure("aliases cannot be null."));
                     test.assertEqual(Iterable.create(), action.getAliases());
@@ -249,7 +249,7 @@ public interface CommandLineActionTests
 
                 runner.test("with empty Iterable", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertThrows(() -> action.addAliases(Iterable.create()),
                         new PreConditionFailure("aliases cannot be empty."));
                     test.assertEqual(Iterable.create(), action.getAliases());
@@ -257,7 +257,7 @@ public interface CommandLineActionTests
 
                 runner.test("with null String", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertThrows(() -> action.addAliases(Iterable.create((String)null)),
                         new PreConditionFailure("alias cannot be null."));
                     test.assertEqual(Iterable.create(), action.getAliases());
@@ -265,7 +265,7 @@ public interface CommandLineActionTests
 
                 runner.test("with empty String", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertThrows(() -> action.addAliases(Iterable.create("")),
                         new PreConditionFailure("alias cannot be empty."));
                     test.assertEqual(Iterable.create(), action.getAliases());
@@ -273,21 +273,21 @@ public interface CommandLineActionTests
 
                 runner.test("with one String", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertSame(action, action.addAliases(Iterable.create("h")));
                     test.assertEqual(Iterable.create("h"), action.getAliases());
                 });
 
                 runner.test("with two Strings", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertSame(action, action.addAliases(Iterable.create("h", "i")));
                     test.assertEqual(Iterable.create("h", "i"), action.getAliases());
                 });
 
                 runner.test("with alias equal to action's name", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertThrows(() -> action.addAliases(Iterable.create("hello")),
                         new PreConditionFailure("this.aliasAlreadyExists(alias) cannot be true."));
                     test.assertEqual(Iterable.create(), action.getAliases());
@@ -295,7 +295,7 @@ public interface CommandLineActionTests
 
                 runner.test("with alias already added to action", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertSame(action, action.addAliases(Iterable.create("h")));
                     test.assertThrows(() -> action.addAliases(Iterable.create("h")),
                         new PreConditionFailure("this.aliasAlreadyExists(alias) cannot be true."));
@@ -304,9 +304,9 @@ public interface CommandLineActionTests
 
                 runner.test("with alias already in use as a different action's name", (Test test) ->
                 {
-                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
-                    final CommandLineAction<DesktopProcess> action1 = actions.addAction("hello", (DesktopProcess process) -> {});
-                    final CommandLineAction<DesktopProcess> action2 = actions.addAction("there", (DesktopProcess process) -> {});
+                    final CommandLineActions actions = CommandLineActions.create();
+                    final CommandLineAction action1 = actions.addAction("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action2 = actions.addAction("there", (DesktopProcess process) -> {});
                     test.assertThrows(() -> action1.addAliases(Iterable.create("there")),
                         new PreConditionFailure("this.aliasAlreadyExists(alias) cannot be true."));
                     test.assertEqual(Iterable.create(), action1.getAliases());
@@ -315,9 +315,9 @@ public interface CommandLineActionTests
 
                 runner.test("with alias already in use as a different action's alias", (Test test) ->
                 {
-                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
-                    final CommandLineAction<DesktopProcess> action1 = actions.addAction("hello", (DesktopProcess process) -> {});
-                    final CommandLineAction<DesktopProcess> action2 = actions.addAction("there", (DesktopProcess process) -> {})
+                    final CommandLineActions actions = CommandLineActions.create();
+                    final CommandLineAction action1 = actions.addAction("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action2 = actions.addAction("there", (DesktopProcess process) -> {})
                         .addAliases(Iterable.create("h"));
                     test.assertThrows(() -> action1.addAliases(Iterable.create("h")),
                         new PreConditionFailure("this.aliasAlreadyExists(alias) cannot be true."));
@@ -330,21 +330,21 @@ public interface CommandLineActionTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertSame(action, action.setDescription(null));
                     test.assertNull(action.getDescription());
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertSame(action, action.setDescription(""));
                     test.assertEqual("", action.getDescription());
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertSame(action, action.setDescription("there"));
                     test.assertEqual("there", action.getDescription());
                 });
@@ -354,39 +354,39 @@ public interface CommandLineActionTests
             {
                 runner.test("with no parent actions", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
 
-                    final CommandLineAction<DesktopProcess> setDefaultActionResult = action.setDefaultAction();
+                    final CommandLineAction setDefaultActionResult = action.setDefaultAction();
                     test.assertSame(action, setDefaultActionResult);
                     test.assertTrue(action.isDefaultAction());
 
-                    final CommandLineAction<DesktopProcess> setDefaultActionResult2 = action.setDefaultAction();
+                    final CommandLineAction setDefaultActionResult2 = action.setDefaultAction();
                     test.assertSame(action, setDefaultActionResult2);
                     test.assertTrue(action.isDefaultAction());
                 });
 
                 runner.test("with parent actions with no other actions", (Test test) ->
                 {
-                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {})
+                    final CommandLineActions actions = CommandLineActions.create();
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {})
                         .setParentActions(actions);
 
-                    final CommandLineAction<DesktopProcess> setDefaultActionResult = action.setDefaultAction();
+                    final CommandLineAction setDefaultActionResult = action.setDefaultAction();
                     test.assertSame(action, setDefaultActionResult);
                     test.assertTrue(action.isDefaultAction());
 
-                    final CommandLineAction<DesktopProcess> setDefaultActionResult2 = action.setDefaultAction();
+                    final CommandLineAction setDefaultActionResult2 = action.setDefaultAction();
                     test.assertSame(action, setDefaultActionResult2);
                     test.assertTrue(action.isDefaultAction());
                 });
 
                 runner.test("with parent actions with a different default action", (Test test) ->
                 {
-                    final CommandLineActions<DesktopProcess> actions = CommandLineActions.create();
-                    final CommandLineAction<DesktopProcess> action1 = actions.addAction("hello", (DesktopProcess process) -> {});
-                    final CommandLineAction<DesktopProcess> action2 = actions.addAction("there", (DesktopProcess process) -> {});
+                    final CommandLineActions actions = CommandLineActions.create();
+                    final CommandLineAction action1 = actions.addAction("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action2 = actions.addAction("there", (DesktopProcess process) -> {});
 
-                    final CommandLineAction<DesktopProcess> setDefaultActionResult = action1.setDefaultAction();
+                    final CommandLineAction setDefaultActionResult = action1.setDefaultAction();
                     test.assertSame(action1, setDefaultActionResult);
                     test.assertTrue(action1.isDefaultAction());
                     test.assertTrue(actions.hasDefaultAction());
@@ -405,16 +405,16 @@ public interface CommandLineActionTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertSame(action, action.setParentActions(null));
                 });
             });
 
-            runner.testGroup("run(DesktopProcess)", () ->
+            runner.testGroup("run(FakeDesktopProcess)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> {});
                     test.assertThrows(() -> action.run(null),
                         new PreConditionFailure("process cannot be null."));
                 });
@@ -422,8 +422,8 @@ public interface CommandLineActionTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final IntegerValue value = IntegerValue.create(0);
-                    final CommandLineAction<DesktopProcess> action = CommandLineAction.create("hello", (DesktopProcess process) -> { value.increment(); });
-                    try (final DesktopProcess process = DesktopProcess.create())
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process) -> { value.increment(); });
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
                         action.run(process);
                         test.assertEqual(1, value.get());

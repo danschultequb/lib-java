@@ -280,21 +280,6 @@ public class CommandLineParameters
      * @param parameterName The name of the parameter.
      * @return The new command line parameter.
      */
-    @Deprecated
-    public CommandLineParameter<Folder> addFolder(String parameterName, Process process)
-    {
-        PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
-        PreCondition.assertNotNull(process, "process");
-
-        return this.add(parameterName, CommandLineParameters.getFolderParser(process))
-            .setValueRequired(true);
-    }
-
-    /**
-     * Add an optional Folder-valued command line parameter.
-     * @param parameterName The name of the parameter.
-     * @return The new command line parameter.
-     */
     public CommandLineParameter<Folder> addPositionalFolder(String parameterName, DesktopProcess process)
     {
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
@@ -305,34 +290,6 @@ public class CommandLineParameters
     }
 
     private static Function1<String,Result<Folder>> getFolderParser(DesktopProcess process)
-    {
-        return (String value) ->
-        {
-            return Result.create(() ->
-            {
-                Folder folder;
-                if (Strings.isNullOrEmpty(value))
-                {
-                    folder = process.getCurrentFolder();
-                }
-                else
-                {
-                    Path path = Path.parse(value);
-                    if (!path.isRooted())
-                    {
-                        path = process.getCurrentFolderPath().resolve(path).await();
-                    }
-
-                    final FileSystem fileSystem = process.getFileSystem();
-                    folder = fileSystem.getFolder(path).await();
-                }
-                return folder;
-            });
-        };
-    }
-
-    @Deprecated
-    private static Function1<String,Result<Folder>> getFolderParser(Process process)
     {
         return (String value) ->
         {
@@ -378,21 +335,6 @@ public class CommandLineParameters
      * @param parameterName The name of the parameter.
      * @return The new command line parameter.
      */
-    @Deprecated
-    public CommandLineParameter<File> addFile(String parameterName, Process process)
-    {
-        PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
-        PreCondition.assertNotNull(process, "process");
-
-        return this.add(parameterName, CommandLineParameters.getFileParser(process))
-            .setValueRequired(true);
-    }
-
-    /**
-     * Add an optional File-valued command line parameter.
-     * @param parameterName The name of the parameter.
-     * @return The new command line parameter.
-     */
     public CommandLineParameter<File> addPositionalFile(String parameterName, DesktopProcess process)
     {
         PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
@@ -403,30 +345,6 @@ public class CommandLineParameters
     }
 
     private static Function1<String,Result<File>> getFileParser(DesktopProcess process)
-    {
-        return (String value) ->
-        {
-            return Result.create(() ->
-            {
-                File file = null;
-                if (!Strings.isNullOrEmpty(value))
-                {
-                    Path path = Path.parse(value);
-                    if (!path.isRooted())
-                    {
-                        path = process.getCurrentFolderPath().resolve(path).await();
-                    }
-
-                    final FileSystem fileSystem = process.getFileSystem();
-                    file = fileSystem.getFile(path).await();
-                }
-                return file;
-            });
-        };
-    }
-
-    @Deprecated
-    private static Function1<String,Result<File>> getFileParser(Process process)
     {
         return (String value) ->
         {
@@ -541,18 +459,6 @@ public class CommandLineParameters
      * @return The verbose command line parameter.
      */
     public CommandLineParameterVerbose addVerbose(DesktopProcess process)
-    {
-        PreCondition.assertNotNull(process, "process");
-
-        return this.add(new CommandLineParameterVerbose(process.getOutputWriteStream()));
-    }
-
-    /**
-     * Add a verbose command line parameter.
-     * @return The verbose command line parameter.
-     */
-    @Deprecated
-    public CommandLineParameterVerbose addVerbose(Process process)
     {
         PreCondition.assertNotNull(process, "process");
 

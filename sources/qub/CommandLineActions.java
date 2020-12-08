@@ -3,20 +3,20 @@ package qub;
 /**
  * A collection of CommandLineAction objects that can be used for an application.
  */
-public class CommandLineActions<TProcess extends DesktopProcess>
+public class CommandLineActions
 {
     private String applicationName;
     private String applicationDescription;
-    private final List<CommandLineAction<TProcess>> actions;
+    private final List<CommandLineAction> actions;
 
     private CommandLineActions()
     {
         this.actions = List.create();
     }
 
-    public static <TProcess extends DesktopProcess> CommandLineActions<TProcess> create()
+    public static CommandLineActions create()
     {
-        return new CommandLineActions<>();
+        return new CommandLineActions();
     }
 
     /**
@@ -24,7 +24,7 @@ public class CommandLineActions<TProcess extends DesktopProcess>
      * @param applicationName The name of the application that these actions apply to.
      * @return This object for method chaining.
      */
-    public CommandLineActions<TProcess> setApplicationName(String applicationName)
+    public CommandLineActions setApplicationName(String applicationName)
     {
         this.applicationName = applicationName;
 
@@ -45,7 +45,7 @@ public class CommandLineActions<TProcess extends DesktopProcess>
      * @param applicationDescription The description of the application that these actions apply to.
      * @return This object for method chaining.
      */
-    public CommandLineActions<TProcess> setApplicationDescription(String applicationDescription)
+    public CommandLineActions setApplicationDescription(String applicationDescription)
     {
         this.applicationDescription = applicationDescription;
 
@@ -61,7 +61,7 @@ public class CommandLineActions<TProcess extends DesktopProcess>
         return this.applicationDescription;
     }
 
-    public CommandLineAction<TProcess> getDefaultAction()
+    public CommandLineAction getDefaultAction()
     {
         return this.actions.first(CommandLineAction::isDefaultAction);
     }
@@ -71,14 +71,14 @@ public class CommandLineActions<TProcess extends DesktopProcess>
         return this.getDefaultAction() != null;
     }
 
-    public Result<CommandLineAction<TProcess>> getAction(String actionName)
+    public Result<CommandLineAction> getAction(String actionName)
     {
         PreCondition.assertNotNullAndNotEmpty(actionName, "actionName");
 
         return Result.create(() ->
         {
-            final CommandLineAction<TProcess> matchingAction = this.actions
-                .first((CommandLineAction<TProcess> action) -> action.containsActionName(actionName, false));
+            final CommandLineAction matchingAction = this.actions
+                .first((CommandLineAction action) -> action.containsActionName(actionName, false));
             if (matchingAction == null)
             {
                 throw new NotFoundException("No action was found with the name " + Strings.escapeAndQuote(actionName) + ".");
@@ -102,13 +102,13 @@ public class CommandLineActions<TProcess extends DesktopProcess>
             .await();
     }
 
-    public CommandLineAction<TProcess> addAction(String actionName, Action1<TProcess> mainAction)
+    public CommandLineAction addAction(String actionName, Action1<DesktopProcess> mainAction)
     {
         PreCondition.assertNotNullAndNotEmpty(actionName, "actionName");
         PreCondition.assertNotNull(mainAction, "mainAction");
         PreCondition.assertFalse(this.containsActionName(actionName), "this.containsActionName(actionName)");
 
-        final CommandLineAction<TProcess> result = CommandLineAction.create(actionName, mainAction)
+        final CommandLineAction result = CommandLineAction.create(actionName, mainAction)
             .setParentActions(this);
         this.actions.add(result);
 
@@ -117,7 +117,7 @@ public class CommandLineActions<TProcess extends DesktopProcess>
         return result;
     }
 
-    public CommandLineAction<TProcess> addAction(String actionName, Function1<TProcess,Integer> mainFunction)
+    public CommandLineAction addAction(String actionName, Function1<DesktopProcess,Integer> mainFunction)
     {
         PreCondition.assertNotNullAndNotEmpty(actionName, "actionName");
         PreCondition.assertNotNull(mainFunction, "mainFunction");
@@ -125,7 +125,7 @@ public class CommandLineActions<TProcess extends DesktopProcess>
         return this.addAction(actionName, DesktopProcess.getMainAction(mainFunction));
     }
 
-    public <TParameters> CommandLineAction<TProcess> addAction(String actionName, Function1<TProcess,TParameters> getParametersFunction, Action1<TParameters> mainAction)
+    public <TParameters> CommandLineAction addAction(String actionName, Function1<DesktopProcess,TParameters> getParametersFunction, Action1<TParameters> mainAction)
     {
         PreCondition.assertNotNullAndNotEmpty(actionName, "actionName");
         PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
@@ -134,7 +134,7 @@ public class CommandLineActions<TProcess extends DesktopProcess>
         return this.addAction(actionName, DesktopProcess.getMainAction(getParametersFunction, mainAction));
     }
 
-    public <TParameters> CommandLineAction<TProcess> addAction(String actionName, Function1<TProcess,TParameters> getParametersFunction, Function1<TParameters,Integer> mainFunction)
+    public <TParameters> CommandLineAction addAction(String actionName, Function1<DesktopProcess,TParameters> getParametersFunction, Function1<TParameters,Integer> mainFunction)
     {
         PreCondition.assertNotNullAndNotEmpty(actionName, "actionName");
         PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
@@ -149,7 +149,7 @@ public class CommandLineActions<TProcess extends DesktopProcess>
      * will be displayed.
      * @param process The process that is attempting to run an action.
      */
-    public void run(TProcess process)
+    public void run(DesktopProcess process)
     {
         PreCondition.assertNotNull(process, "process");
 
@@ -165,7 +165,7 @@ public class CommandLineActions<TProcess extends DesktopProcess>
 
         final String actionName = actionParameter.removeValue().await();
 
-        CommandLineAction<TProcess> actionToRun = null;
+        CommandLineAction actionToRun = null;
         if (Strings.isNullOrEmpty(actionName))
         {
             if (!helpParameter.getValue().await())
@@ -203,9 +203,9 @@ public class CommandLineActions<TProcess extends DesktopProcess>
                 output.indent(() ->
                 {
                     final CharacterTable actionsTable = CharacterTable.create();
-                    final Iterable<CommandLineAction<TProcess>> orderedActions = this.actions
-                        .order((CommandLineAction<TProcess> lhs, CommandLineAction<TProcess> rhs) -> Strings.lessThan(lhs.getName(), rhs.getName()));
-                    for (final CommandLineAction<TProcess> action : orderedActions)
+                    final Iterable<CommandLineAction> orderedActions = this.actions
+                        .order((CommandLineAction lhs, CommandLineAction rhs) -> Strings.lessThan(lhs.getName(), rhs.getName()));
+                    for (final CommandLineAction action : orderedActions)
                     {
                         String actionNameCellText = action.getName();
                         if (action.isDefaultAction())

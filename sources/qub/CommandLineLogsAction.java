@@ -9,7 +9,7 @@ public interface CommandLineLogsAction
      * Add a logs action to the provided CommandLineActions object.
      * @param actions The CommandLineActions object to add the logs action to.
      */
-    static <TProcess extends DesktopProcess> CommandLineAction<TProcess> addAction(CommandLineActions<TProcess> actions)
+    static CommandLineAction addAction(CommandLineActions actions)
     {
         PreCondition.assertNotNull(actions, "actions");
 

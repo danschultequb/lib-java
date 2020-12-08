@@ -369,12 +369,12 @@ public interface CommandLineParametersTests
                 });
             });
 
-            runner.testGroup("addFolder(String,Process)", () ->
+            runner.testGroup("addFolder(String,DesktopProcess)", () ->
             {
                 runner.test("with null Process", (Test test) ->
                 {
                     final CommandLineParameters parameters = new CommandLineParameters();
-                    test.assertThrows(() -> parameters.addFolder("hello", null),
+                    test.assertThrows(() -> parameters.addFolder("hello", (DesktopProcess)null),
                         new PreConditionFailure("process cannot be null."));
                 });
 
@@ -550,7 +550,7 @@ public interface CommandLineParametersTests
                 });
             });
 
-            runner.testGroup("addFile(String,Process)", () ->
+            runner.testGroup("addFile(String,DesktopProcess)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
@@ -575,7 +575,7 @@ public interface CommandLineParametersTests
                 runner.test("with null process", (Test test) ->
                 {
                     final CommandLineParameters parameters = new CommandLineParameters();
-                    test.assertThrows(() -> parameters.addFile("a", null),
+                    test.assertThrows(() -> parameters.addFile("a", (DesktopProcess)null),
                         new PreConditionFailure("process cannot be null."));
                 });
 

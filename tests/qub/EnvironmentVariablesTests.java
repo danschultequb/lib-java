@@ -6,9 +6,9 @@ public interface EnvironmentVariablesTests
     {
         runner.testGroup(EnvironmentVariables.class, () ->
         {
-            runner.test("constructor()", (Test test) ->
+            runner.test("create()", (Test test) ->
             {
-                final EnvironmentVariables env = new EnvironmentVariables();
+                final MutableEnvironmentVariables env = EnvironmentVariables.create();
                 test.assertNotNull(env);
             });
 
@@ -18,7 +18,7 @@ public interface EnvironmentVariablesTests
                 {
                     runner.test("with " + English.andList(variableName, variableValue), (Test test) ->
                     {
-                        final EnvironmentVariables env = new EnvironmentVariables();
+                        final MutableEnvironmentVariables env = EnvironmentVariables.create();
                         test.assertThrows(() -> env.set(variableName, variableValue), expected);
                     });
                 };
@@ -31,8 +31,8 @@ public interface EnvironmentVariablesTests
                 {
                     runner.test("with " + English.andList(variableName, variableValue), (Test test) ->
                     {
-                        final EnvironmentVariables env = new EnvironmentVariables();
-                        final EnvironmentVariables setResult = env.set(variableName, variableValue);
+                        final MutableEnvironmentVariables env = EnvironmentVariables.create();
+                        final MutableEnvironmentVariables setResult = env.set(variableName, variableValue);
                         test.assertSame(env, setResult);
                         test.assertEqual(variableValue, env.get(variableName).await());
                     });
@@ -43,18 +43,18 @@ public interface EnvironmentVariablesTests
 
                 runner.test("with z=hello when z already equals rain", (Test test) ->
                 {
-                    final EnvironmentVariables env = new EnvironmentVariables()
+                    final MutableEnvironmentVariables env = EnvironmentVariables.create()
                         .set("z", "rain");
-                    final EnvironmentVariables setResult = env.set("z", "hello");
+                    final MutableEnvironmentVariables setResult = env.set("z", "hello");
                     test.assertSame(env, setResult);
                     test.assertEqual("hello", env.get("z").await());
                 });
 
                 runner.test("with z=hello when Z already equals rain", (Test test) ->
                 {
-                    final EnvironmentVariables env = new EnvironmentVariables()
+                    final MutableEnvironmentVariables env = EnvironmentVariables.create()
                         .set("Z", "rain");
-                    final EnvironmentVariables setResult = env.set("z", "hello");
+                    final MutableEnvironmentVariables setResult = env.set("z", "hello");
                     test.assertSame(env, setResult);
                     test.assertEqual("hello", env.get("z").await());
                     test.assertEqual("hello", env.get("Z").await());
@@ -65,35 +65,35 @@ public interface EnvironmentVariablesTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final EnvironmentVariables env = new EnvironmentVariables();
+                    final MutableEnvironmentVariables env = EnvironmentVariables.create();
                     test.assertThrows(() -> env.get(null),
                         new PreConditionFailure("variableName cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final EnvironmentVariables env = new EnvironmentVariables();
+                    final MutableEnvironmentVariables env = EnvironmentVariables.create();
                     test.assertThrows(() -> env.get(""),
                         new PreConditionFailure("variableName cannot be empty."));
                 });
 
                 runner.test("with non-existing variable name", (Test test) ->
                 {
-                    final EnvironmentVariables env = new EnvironmentVariables();
+                    final MutableEnvironmentVariables env = EnvironmentVariables.create();
                     test.assertThrows(() -> env.get("idontexist").await(),
                         new NotFoundException("No environment variable named \"idontexist\" found."));
                 });
 
                 runner.test("with existing variable name", (Test test) ->
                 {
-                    final EnvironmentVariables env = new EnvironmentVariables()
+                    final MutableEnvironmentVariables env = EnvironmentVariables.create()
                         .set("a", "b");
                     test.assertEqual("b", env.get("a").await());
                 });
 
                 runner.test("with existing variable name with different case", (Test test) ->
                 {
-                    final EnvironmentVariables env = new EnvironmentVariables()
+                    final MutableEnvironmentVariables env = EnvironmentVariables.create()
                         .set("a", "b");
                     test.assertEqual("b", env.get("A").await());
                 });
@@ -105,7 +105,7 @@ public interface EnvironmentVariablesTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(value), (Test test) ->
                     {
-                        final EnvironmentVariables env = new EnvironmentVariables();
+                        final MutableEnvironmentVariables env = EnvironmentVariables.create();
                         test.assertThrows(() -> env.resolve(value), expected);
                     });
                 };
@@ -121,51 +121,51 @@ public interface EnvironmentVariablesTests
                 };
 
                 resolveTest.run(
-                    new EnvironmentVariables(),
+                    EnvironmentVariables.create(),
                     "",
                     "");
                 resolveTest.run(
-                    new EnvironmentVariables(),
+                    EnvironmentVariables.create(),
                     "hello",
                     "hello");
                 resolveTest.run(
-                    new EnvironmentVariables(),
+                    EnvironmentVariables.create(),
                     "ab%c",
                     "ab%c");
                 resolveTest.run(
-                    new EnvironmentVariables(),
+                    EnvironmentVariables.create(),
                     "ab%%",
                     "ab%%");
                 resolveTest.run(
-                    new EnvironmentVariables(),
+                    EnvironmentVariables.create(),
                     "ab%c%",
                     "ab");
                 resolveTest.run(
-                    new EnvironmentVariables()
+                    EnvironmentVariables.create()
                         .set("c", "CATS"),
                     "ab%c%",
                     "abCATS");
                 resolveTest.run(
-                    new EnvironmentVariables(),
+                    EnvironmentVariables.create(),
                     "ab%c%d%",
                     "abd%");
                 resolveTest.run(
-                    new EnvironmentVariables()
+                    EnvironmentVariables.create()
                         .set("c", "CATS"),
                     "ab%c%d%",
                     "abCATSd%");
                 resolveTest.run(
-                    new EnvironmentVariables()
+                    EnvironmentVariables.create()
                         .set("c", "CATS"),
                     "ab%c%d%e",
                     "abCATSd%e");
                 resolveTest.run(
-                    new EnvironmentVariables()
+                    EnvironmentVariables.create()
                         .set("c", "CATS"),
                     "ab%c%d%e%",
                     "abCATSd");
                 resolveTest.run(
-                    new EnvironmentVariables()
+                    EnvironmentVariables.create()
                         .set("c", "CATS")
                         .set("e", "EGGS"),
                     "ab%c%d%e%",
