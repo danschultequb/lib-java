@@ -5,8 +5,6 @@ package qub;
  */
 public class BitArray implements Array<Integer>
 {
-    public static final long maximumBitCount = ((long)Integers.maximum) * Integers.bitCount;
-
     private final int[] bitChunks;
     private final long bitCount;
 
@@ -54,7 +52,7 @@ public class BitArray implements Array<Integer>
 
     public static int getBitChunkCount(long bitCount)
     {
-        PreCondition.assertBetween(0, bitCount, maximumBitCount, "bitCount");
+        PreCondition.assertBetween(0, bitCount, Bits.maximumIntegerBitArrayCount, "bitCount");
 
         return (int)Math.ceiling((double)bitCount / (double)Integers.bitCount);
     }
@@ -755,14 +753,14 @@ public class BitArray implements Array<Integer>
 
     public static int bitIndexToChunkIndex(long bitIndex)
     {
-        PreCondition.assertBetween(0, bitIndex, maximumBitCount, "bitIndex");
+        PreCondition.assertBetween(0, bitIndex, Bits.maximumIntegerBitArrayCount, "bitIndex");
 
         return (int)(bitIndex / Integers.bitCount);
     }
 
     public static int bitIndexToChunkBitOffset(long bitIndex)
     {
-        PreCondition.assertBetween(0, bitIndex, maximumBitCount, "bitIndex");
+        PreCondition.assertBetween(0, bitIndex, Bits.maximumIntegerBitArrayCount, "bitIndex");
 
         return (int)(bitIndex % Integers.bitCount);
     }

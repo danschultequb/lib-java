@@ -690,8 +690,8 @@ public interface CharacterWriteStreamListTests
                 runner.test("with null", (Test test) ->
                 {
                     final CharacterWriteStreamList streamList = CharacterWriteStreamList.create();
-                    final CharacterWriteStreamList addAllResult = streamList.addAll((Iterable<CharacterWriteStream>)null);
-                    test.assertSame(streamList, addAllResult);
+                    test.assertThrows(() -> streamList.addAll((Iterable<CharacterWriteStream>)null),
+                        new PreConditionFailure("values cannot be null."));
                     test.assertEqual(Iterable.create(), streamList);
                 });
 

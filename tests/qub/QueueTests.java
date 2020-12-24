@@ -1,8 +1,8 @@
 package qub;
 
-public class QueueTests
+public interface QueueTests
 {
-    public static void test(TestRunner runner, Function0<Queue<Integer>> createQueue)
+    static void test(TestRunner runner, Function0<Queue<Integer>> createQueue)
     {
         runner.testGroup(Queue.class, () ->
         {
@@ -66,7 +66,8 @@ public class QueueTests
                 runner.test("with null", (Test test) ->
                 {
                     final Queue<Integer> queue = createQueue.run();
-                    queue.enqueueAll((Iterable<Integer>)null);
+                    test.assertThrows(() -> queue.enqueueAll((Iterable<Integer>)null),
+                        new PreConditionFailure("values cannot be null."));
                     test.assertEqual(0, queue.getCount());
                 });
 

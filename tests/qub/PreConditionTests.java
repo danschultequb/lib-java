@@ -528,65 +528,6 @@ public interface PreConditionTests
                 assertNonEmptyLengthTest.run(1, 1, 3, "a");
             });
 
-            runner.testGroup("assertNonEmptyLength(long,long,long)", () ->
-            {
-                final Action4<Long,Long,Long,Throwable> assertNonEmptyLengthErrorTest = (Long length, Long startIndex, Long arrayLength, Throwable expected) ->
-                {
-                    runner.test("with " + English.andList(length, startIndex, arrayLength), (Test test) ->
-                    {
-                        test.assertThrows(() -> PreCondition.assertNonEmptyLength(length, startIndex, arrayLength), expected);
-                    });
-                };
-
-                assertNonEmptyLengthErrorTest.run(1L, 5L, -1L, new PreConditionFailure("arrayLength (-1) must be greater than or equal to 1."));
-                assertNonEmptyLengthErrorTest.run(1L, 1L, 0L, new PreConditionFailure("arrayLength (0) must be greater than or equal to 1."));
-                assertNonEmptyLengthErrorTest.run(1L, 1L, 1L, new PreConditionFailure("startIndex (1) must be equal to 0."));
-                assertNonEmptyLengthErrorTest.run(1L, -1L, 5L, new PreConditionFailure("startIndex (-1) must be between 0 and 4."));
-                assertNonEmptyLengthErrorTest.run(1L, 5L, 5L, new PreConditionFailure("startIndex (5) must be between 0 and 4."));
-
-                final Action3<Long,Long,Long> assertNonEmptyLengthTest = (Long length, Long startIndex, Long arrayLength) ->
-                {
-                    runner.test("with " + English.andList(length, startIndex, arrayLength), (Test test) ->
-                    {
-                        PreCondition.assertNonEmptyLength(length, startIndex, arrayLength);
-                    });
-                };
-
-                assertNonEmptyLengthTest.run(1L, 0L, 1L);
-                assertNonEmptyLengthTest.run(1L, 1L, 3L);
-            });
-
-            runner.testGroup("assertNonEmptyLength(long,long,long,String)", () ->
-            {
-                final Action5<Long,Long,Long,String,Throwable> assertNonEmptyLengthErrorTest = (Long length, Long startIndex, Long arrayLength, String variableName, Throwable expected) ->
-                {
-                    runner.test("with " + English.andList(length, startIndex, arrayLength, Strings.escapeAndQuote(variableName)), (Test test) ->
-                    {
-                        test.assertThrows(() -> PreCondition.assertNonEmptyLength(length, startIndex, arrayLength, variableName), expected);
-                    });
-                };
-
-                assertNonEmptyLengthErrorTest.run(1L, 0L, 1L, null, new PreConditionFailure("expressionName cannot be null."));
-                assertNonEmptyLengthErrorTest.run(1L, 0L, 1L, "", new PreConditionFailure("expressionName cannot be empty."));
-                assertNonEmptyLengthErrorTest.run(1L, 5L, -1L, "a", new PreConditionFailure("arrayLength (-1) must be greater than or equal to 1."));
-                assertNonEmptyLengthErrorTest.run(1L, 1L, 0L, "a", new PreConditionFailure("arrayLength (0) must be greater than or equal to 1."));
-                assertNonEmptyLengthErrorTest.run(1L, 1L, 1L, "a", new PreConditionFailure("startIndex (1) must be equal to 0."));
-                assertNonEmptyLengthErrorTest.run(1L, 3L, 2L, "a", new PreConditionFailure("startIndex (3) must be between 0 and 1."));
-                assertNonEmptyLengthErrorTest.run(1L, -1L, 5L, "a", new PreConditionFailure("startIndex (-1) must be between 0 and 4."));
-                assertNonEmptyLengthErrorTest.run(2L, 4L, 5L, "a", new PreConditionFailure("a (2) must be equal to 1."));
-
-                final Action4<Long,Long,Long,String> assertNonEmptyLengthTest = (Long length, Long startIndex, Long arrayLength, String variableName) ->
-                {
-                    runner.test("with " + English.andList(length, startIndex, arrayLength, Strings.escapeAndQuote(variableName)), (Test test) ->
-                    {
-                        PreCondition.assertNonEmptyLength(length, startIndex, arrayLength, variableName);
-                    });
-                };
-
-                assertNonEmptyLengthTest.run(1L, 0L, 1L, "a");
-                assertNonEmptyLengthTest.run(1L, 1L, 3L, "a");
-            });
-
             runner.testGroup("assertStartsWith(String,String,String)", () ->
             {
                 final Action4<String,String,String,Throwable> assertStartsWithErrorTest = (String value, String prefix, String expressionName, Throwable expected) ->

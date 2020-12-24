@@ -121,7 +121,7 @@ public interface Array<T> extends MutableIndexable<T>
      * @param values The values to create a byte[] from.
      * @return The byte[].
      */
-    static Result<byte[]> toByteArray(Iterator<Byte> values)
+    static byte[] toByteArray(Iterator<Byte> values)
     {
         PreCondition.assertNotNull(values, "values");
 
@@ -133,39 +133,33 @@ public interface Array<T> extends MutableIndexable<T>
      * @param values The byte Iterable to convert to a byte array.
      * @return The byte array.
      */
-    static Result<byte[]> toByteArray(Iterable<Byte> values)
+    static byte[] toByteArray(Iterable<Byte> values)
     {
         PreCondition.assertNotNull(values, "values");
 
-        return Result.create(() ->
+        byte[] result;
+        if (values instanceof ByteArray)
         {
-            byte[] result;
-            if (values instanceof ByteArray)
+            result = ((ByteArray)values).toByteArray();
+        }
+        else if (values instanceof ByteList)
+        {
+            result = ((ByteList)values).toByteArray();
+        }
+        else
+        {
+            result = new byte[values.getCount()];
+            int index = 0;
+            for (final Byte value : values)
             {
-                result = ((ByteArray)values).toByteArray();
+                PreCondition.assertNotNull(value, "The " + English.addOrdinalIndicator(index) + " element");
+                result[index++] = value;
             }
-            else if (values instanceof ByteList)
-            {
-                result = ((ByteList)values).toByteArray();
-            }
-            else
-            {
-                result = new byte[values.getCount()];
-                int index = 0;
-                for (final Byte value : values)
-                {
-                    if (value == null)
-                    {
-                        throw new NullPointerException("The " + index + " element cannot be null.");
-                    }
-                    result[index++] = value;
-                }
-            }
+        }
 
-            PostCondition.assertNotNull(result, "result");
+        PostCondition.assertNotNull(result, "result");
 
-            return result;
-        });
+        return result;
     }
 
     /**
@@ -180,7 +174,7 @@ public interface Array<T> extends MutableIndexable<T>
         final byte[] result = new byte[values.length];
         for (int i = 0; i < values.length; ++i)
         {
-            PreCondition.assertByte(values[i], "The " + i + " value");
+            PreCondition.assertByte(values[i], "The " + English.addOrdinalIndicator(i) + " value");
             result[i] = (byte)values[i];
         }
 
@@ -453,6 +447,26 @@ public interface Array<T> extends MutableIndexable<T>
             length = Math.minimum(copyTo.length - copyToStartIndex, Math.minimum(copyFrom.length, length));
             System.arraycopy(copyFrom, copyFromStartIndex, copyTo, copyToStartIndex, length);
         }
+    }
+
+    /**
+     * Copy the contents of the copyFrom int[] to the copyTo int[] starting at the
+     * copyToStartIndex.
+     * @param copyFrom The int[] to copy create.
+     * @param copyTo The int[] to copy to.
+     * @param copyToStartIndex The index within copyTo to start copying to.
+     * @param length The number of integers to copy from the copyFrom int[] to the copyTo int[].
+     */
+    static void copy(int[] copyFrom, int copyFromStartIndex, int[] copyTo, int copyToStartIndex, int length)
+    {
+        PreCondition.assertNotNull(copyFrom, "copyFrom");
+        PreCondition.assertStartIndex(copyFromStartIndex, copyFrom.length, "copyFromStartIndex");
+        PreCondition.assertNotNull(copyTo, "copyTo");
+        PreCondition.assertStartIndex(copyToStartIndex, copyTo.length, "copyToStartIndex");
+        PreCondition.assertLength(length, copyFromStartIndex, copyFrom.length);
+        PreCondition.assertLength(length, copyToStartIndex, copyTo.length);
+
+        System.arraycopy(copyFrom, copyFromStartIndex, copyTo, copyToStartIndex, length);
     }
 
     /**
@@ -1074,6 +1088,25 @@ public interface Array<T> extends MutableIndexable<T>
      * @param indexToRemove The index to "remove" create the array.
      * @param valuesToShift The number of values to shift.
      */
+    static void shiftLeft(int[] values, int indexToRemove, int valuesToShift)
+    {
+        PreCondition.assertNotNullAndNotEmpty(values, "values");
+        PreCondition.assertBetween(0, indexToRemove, values.length - 2, "indexToRemove");
+        PreCondition.assertBetween(0, valuesToShift, values.length - indexToRemove - 1, "valuesToShift");
+
+        for (int i = indexToRemove; i < indexToRemove + valuesToShift; ++i)
+        {
+            values[i] = values[i + 1];
+        }
+    }
+
+    /**
+     * Starting at the provided indexToRemove, shift the values in the provided array one position
+     * to the left. The result is that the value at the indexToRemove will be "removed".
+     * @param values The values.
+     * @param indexToRemove The index to "remove" create the array.
+     * @param valuesToShift The number of values to shift.
+     */
     static void shiftLeft(char[] values, int indexToRemove, int valuesToShift)
     {
         PreCondition.assertNotNullAndNotEmpty(values, "values");
@@ -1094,6 +1127,25 @@ public interface Array<T> extends MutableIndexable<T>
      * @param valuesToShift The number of values to shift.
      */
     static void shiftRight(byte[] values, int indexToOpen, int valuesToShift)
+    {
+        PreCondition.assertNotNullAndNotEmpty(values, "values");
+        PreCondition.assertBetween(0, indexToOpen, values.length - 2, "indexToOpen");
+        PreCondition.assertBetween(0, valuesToShift, values.length - indexToOpen - 1, "valuesToShift");
+
+        for (int i = indexToOpen + valuesToShift; indexToOpen < i; --i)
+        {
+            values[i] = values[i - 1];
+        }
+    }
+
+    /**
+     * Starting at the provided indexToRemove, shift the values in the provided array one position
+     * to the right. The result is that a new position will be opened up the array.
+     * @param values The values.
+     * @param indexToOpen The index to open up in the array.
+     * @param valuesToShift The number of values to shift.
+     */
+    static void shiftRight(int[] values, int indexToOpen, int valuesToShift)
     {
         PreCondition.assertNotNullAndNotEmpty(values, "values");
         PreCondition.assertBetween(0, indexToOpen, values.length - 2, "indexToOpen");

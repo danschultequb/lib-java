@@ -232,7 +232,7 @@ public class PreCondition
      */
     public static <T> void assertNotNullAndNotEmpty(Iterable<T> value, String variableName)
     {
-        assertNotNull(value, variableName);
+        PreCondition.assertNotNull(value, variableName);
         if (!value.any())
         {
             throw new PreConditionFailure(AssertionMessages.notEmpty(variableName));
@@ -761,8 +761,8 @@ public class PreCondition
      */
     public static void assertIndexAccess(int index, int arrayLength, String variableName)
     {
-        assertGreaterThanOrEqualTo(arrayLength, 1, "Indexable length");
-        assertBetween(0, index, arrayLength - 1, variableName);
+        PreCondition.assertGreaterThanOrEqualTo(arrayLength, 1, "Indexable length");
+        PreCondition.assertBetween(0, index, arrayLength - 1, variableName);
     }
 
     /**
@@ -874,41 +874,13 @@ public class PreCondition
     }
 
     /**
-     * Assert that the provided value is a valid length for the provided startIndex and array
-     * length.
-     * @param length The length.
-     * @param startIndex The start index into an array.
-     * @param arrayLength The length of the array.
-     */
-    public static void assertNonEmptyLength(long length, long startIndex, long arrayLength)
-    {
-        PreCondition.assertNonEmptyLength(length, startIndex, arrayLength, "length");
-    }
-
-    /**
-     * Assert that the provided value is a valid length for the provided startIndex and array
-     * length.
-     * @param length The length.
-     * @param startIndex The start index into an array.
-     * @param arrayLength The length of the array.
-     * @param expressionName The name of the expression that produced the value.
-     */
-    public static void assertNonEmptyLength(long length, long startIndex, long arrayLength, String expressionName)
-    {
-        PreCondition.assertNotNullAndNotEmpty(expressionName, "expressionName");
-        PreCondition.assertNonEmptyStartIndex(startIndex, arrayLength);
-
-        PreCondition.assertBetween(1, length, arrayLength - startIndex, expressionName);
-    }
-
-    /**
      * Assert that the int value is either 0 or 1.
      * @param value The int value to check.
      * @param expressionName The name of the expression value.
      */
     public static void assertBit(int value, String expressionName)
     {
-        PreCondition.assertOneOf(value, new int[] { 0, 1 }, expressionName);
+        PreCondition.assertBetween(Bits.minimum, value, Bits.maximum, expressionName);
     }
 
     /**

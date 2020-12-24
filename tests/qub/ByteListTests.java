@@ -1,8 +1,8 @@
 package qub;
 
-public class ByteListTests
+public interface ByteListTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(ByteList.class, () ->
         {

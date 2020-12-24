@@ -109,7 +109,9 @@ public interface List<T> extends MutableIndexable<T>
      */
     default List<T> addAll(Iterable<? extends T> values)
     {
-        if (values != null && values.any())
+        PreCondition.assertNotNull(values, "values");
+
+        if (values.any())
         {
             for (final T value : values)
             {

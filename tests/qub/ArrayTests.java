@@ -259,18 +259,18 @@ public interface ArrayTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    test.assertEqual(new byte[0], Array.toByteArray(Iterator.create()).await());
+                    test.assertEqual(new byte[0], Array.toByteArray(Iterator.create()));
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(Iterator.create((byte)0, (byte)1, (byte)2)).await());
+                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(Iterator.create((byte)0, (byte)1, (byte)2)));
                 });
 
                 runner.test("with null value", (Test test) ->
                 {
-                    test.assertThrows(() -> Array.toByteArray(Iterator.create((byte)0, (byte)1, null)).await(),
-                        new NullPointerException("The 2 element cannot be null."));
+                    test.assertThrows(() -> Array.toByteArray(Iterator.create((byte)0, (byte)1, null)),
+                        new PreConditionFailure("The 2nd element cannot be null."));
                 });
             });
 
@@ -284,28 +284,64 @@ public interface ArrayTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    test.assertEqual(new byte[0], Array.toByteArray(Iterable.create()).await());
+                    test.assertEqual(new byte[0], Array.toByteArray(Iterable.create()));
                 });
 
                 runner.test("with non-empty Array", (Test test) ->
                 {
-                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(Array.create((byte)0, (byte)1, (byte)2)).await());
+                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(Array.create((byte)0, (byte)1, (byte)2)));
                 });
 
                 runner.test("with non-empty ByteArray", (Test test) ->
                 {
-                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(ByteArray.create(0, 1, 2)).await());
+                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(ByteArray.create(0, 1, 2)));
                 });
 
                 runner.test("with non-empty ByteList", (Test test) ->
                 {
-                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(ByteList.createFromBytes((byte)0, (byte)1, (byte)2)).await());
+                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(ByteList.createFromBytes((byte)0, (byte)1, (byte)2)));
                 });
 
                 runner.test("with null value", (Test test) ->
                 {
-                    test.assertThrows(() -> Array.toByteArray(Iterable.create((byte)0, (byte)1, null)).await(),
-                        new NullPointerException("The 2 element cannot be null."));
+                    test.assertThrows(() -> Array.toByteArray(Iterable.create((byte)0, (byte)1, null)),
+                        new PreConditionFailure("The 2nd element cannot be null."));
+                });
+            });
+
+            runner.testGroup("toByteArray(int...)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.toByteArray((int[])null),
+                        new PreConditionFailure("values cannot be null."));
+                });
+
+                runner.test("with integer lower than Bytes.minimum", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.toByteArray(-129),
+                        new PreConditionFailure("The 0th value (-129) must be between -128 and 127."));
+                });
+
+                runner.test("with integer greater than Bytes.maximum", (Test test) ->
+                {
+                    test.assertThrows(() -> Array.toByteArray(128),
+                        new PreConditionFailure("The 0th value (128) must be between -128 and 127."));
+                });
+
+                runner.test("with no arguments", (Test test) ->
+                {
+                    test.assertEqual(new byte[0], Array.toByteArray());
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    test.assertEqual(new byte[0], Array.toByteArray(new int[0]));
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    test.assertEqual(new byte[] { 1, 2, 3 }, Array.toByteArray(1, 2, 3));
                 });
             });
 
@@ -642,6 +678,54 @@ public interface ArrayTests
                 copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, 0, 0, new byte[] { 2 });
                 copyTest.run(new byte[] { 1 }, 0, new byte[] { 2 }, 0, 1, new byte[] { 1 });
                 copyTest.run(new byte[] { 0, 1, 2, 3, 4 }, 1, new byte[] { 5, 6, 7, 8, 9, 10, 11 }, 2, 3, new byte[] { 5, 6, 1, 2, 3, 10, 11 });
+            });
+
+
+
+            runner.testGroup("copy(int[],int,int[],int,int)", () ->
+            {
+                final Action6<int[],Integer,int[],Integer,Integer,Throwable> copyErrorTest = (int[] copyFrom, Integer copyFromStartIndex, int[] copyTo, Integer copyToStartIndex, Integer length, Throwable expected) ->
+                {
+                    runner.test("copy " + Array.toString(copyFrom) + " at index " + copyFromStartIndex + " to " + Array.toString(copyTo) + " at index " + copyToStartIndex + " for length " + length, (Test test) ->
+                    {
+                        final int[] copyFromClone = Array.clone(copyFrom);
+                        final int[] copyToClone = Array.clone(copyTo);
+
+                        test.assertThrows(() -> Array.copy(copyFrom, copyFromStartIndex, copyTo, copyToStartIndex, length), expected);
+
+                        test.assertEqual(copyFromClone, copyFrom);
+                        test.assertEqual(copyToClone, copyTo);
+                    });
+                };
+
+                copyErrorTest.run(null, 0, new int[0], 0, 0, new PreConditionFailure("copyFrom cannot be null."));
+                copyErrorTest.run(new int[0], -1, new int[0], 0, 0, new PreConditionFailure("copyFromStartIndex (-1) must be equal to 0."));
+                copyErrorTest.run(new int[0], 1, new int[0], 0, 0, new PreConditionFailure("copyFromStartIndex (1) must be equal to 0."));
+                copyErrorTest.run(new int[0], 0, null, 0, 0, new PreConditionFailure("copyTo cannot be null."));
+                copyErrorTest.run(new int[0], 0, new int[0], -1, 0, new PreConditionFailure("copyToStartIndex (-1) must be equal to 0."));
+                copyErrorTest.run(new int[0], 0, new int[0], 1, 0, new PreConditionFailure("copyToStartIndex (1) must be equal to 0."));
+                copyErrorTest.run(new int[0], 0, new int[0], 0, -1, new PreConditionFailure("length (-1) must be equal to 0."));
+                copyErrorTest.run(new int[0], 0, new int[0], 0, 1, new PreConditionFailure("length (1) must be equal to 0."));
+
+                final Action6<int[],Integer,int[],Integer,Integer,int[]> copyTest = (int[] copyFrom, Integer copyFromStartIndex, int[] copyTo, Integer copyToStartIndex, Integer length, int[] expectedBytes) ->
+                {
+                    runner.test("copy " + Array.toString(copyFrom) + " at index " + copyFromStartIndex + " to " + Array.toString(copyTo) + " at index " + copyToStartIndex + " for length " + length, (Test test) ->
+                    {
+                        final int[] copyFromClone = Array.clone(copyFrom);
+
+                        Array.copy(copyFrom, copyFromStartIndex, copyTo, copyToStartIndex, length);
+
+                        test.assertEqual(copyFromClone, copyFrom);
+                        test.assertEqual(expectedBytes, copyTo);
+                    });
+                };
+
+                copyTest.run(new int[0], 0, new int[0], 0, 0, new int[0]);
+                copyTest.run(new int[0], 0, new int[] { 2 }, 0, 0, new int[] { 2 });
+                copyTest.run(new int[] { 1 }, 0, new int[0], 0, 0, new int[0]);
+                copyTest.run(new int[] { 1 }, 0, new int[] { 2 }, 0, 0, new int[] { 2 });
+                copyTest.run(new int[] { 1 }, 0, new int[] { 2 }, 0, 1, new int[] { 1 });
+                copyTest.run(new int[] { 0, 1, 2, 3, 4 }, 1, new int[] { 5, 6, 7, 8, 9, 10, 11 }, 2, 3, new int[] { 5, 6, 1, 2, 3, 10, 11 });
             });
 
             runner.testGroup("copy(char[],int,char[],int,int)", () ->
@@ -1429,198 +1513,162 @@ public interface ArrayTests
 
             runner.testGroup("shiftLeft(byte[],int,int)", () ->
             {
-                runner.test("with null values", (Test test) ->
+                final Action4<byte[],Integer,Integer,Throwable> shiftLeftErrorTest = (byte[] values, Integer startIndex, Integer valuesToShift, Throwable expected) ->
                 {
-                    test.assertThrows(() -> Array.shiftLeft((byte[])null, 0, 1),
-                        new PreConditionFailure("values cannot be null."));
-                });
+                    runner.test("with " + English.andList(values == null ? null : ByteArray.create(values), startIndex, valuesToShift), (Test test) ->
+                    {
+                        final byte[] valuesBackup = values == null ? null : Array.clone(values);
 
-                runner.test("with empty values", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.shiftLeft(new byte[0], 0, 1),
-                        new PreConditionFailure("values cannot be empty."));
-                });
+                        test.assertThrows(() -> Array.shiftLeft(values, startIndex, valuesToShift),
+                            expected);
+                        test.assertEqual(valuesBackup, values);
+                    });
+                };
 
-                runner.test("with negative indexToRemove", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.shiftLeft(new byte[] { 0, 1, 2 }, -1, 2),
-                        new PreConditionFailure("indexToRemove (-1) must be between 0 and 1."));
-                });
+                shiftLeftErrorTest.run(null, 0, 1, new PreConditionFailure("values cannot be null."));
+                shiftLeftErrorTest.run(new byte[0], 0, 1, new PreConditionFailure("values cannot be empty."));
+                shiftLeftErrorTest.run(new byte[] { 0, 1, 2 }, -1, 2, new PreConditionFailure("indexToRemove (-1) must be between 0 and 1."));
+                shiftLeftErrorTest.run(new byte[] { 0, 1, 2 }, 2, 2, new PreConditionFailure("indexToRemove (2) must be between 0 and 1."));
+                shiftLeftErrorTest.run(new byte[] { 0, 1, 2 }, 3, 2, new PreConditionFailure("indexToRemove (3) must be between 0 and 1."));
+                shiftLeftErrorTest.run(new byte[] { 0, 1, 2 }, 4, 2, new PreConditionFailure("indexToRemove (4) must be between 0 and 1."));
+                shiftLeftErrorTest.run(new byte[] { 0, 1, 2 }, 1, -1, new PreConditionFailure("valuesToShift (-1) must be between 0 and 1."));
+                shiftLeftErrorTest.run(new byte[] { 0, 1, 2 }, 1, 2, new PreConditionFailure("valuesToShift (2) must be between 0 and 1."));
+                shiftLeftErrorTest.run(new byte[] { 0, 1, 2 }, 1, 3, new PreConditionFailure("valuesToShift (3) must be between 0 and 1."));
 
-                runner.test("with indexToRemove equal to values.length - 1", (Test test) ->
+                final Action4<byte[],Integer,Integer,byte[]> shiftLeftTest = (byte[] values, Integer startIndex, Integer valuesToShift, byte[] expected) ->
                 {
-                    test.assertThrows(() -> Array.shiftLeft(new byte[] { 0, 1, 2 }, 2, 2),
-                        new PreConditionFailure("indexToRemove (2) must be between 0 and 1."));
-                });
+                    runner.test("with " + English.andList(ByteArray.create(values), startIndex, valuesToShift), (Test test) ->
+                    {
+                        Array.shiftLeft(values, startIndex, valuesToShift);
+                        test.assertEqual(expected, values);
+                    });
+                };
 
-                runner.test("with indexToRemove equal to values.length", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.shiftLeft(new byte[] { 0, 1, 2 }, 3, 2),
-                        new PreConditionFailure("indexToRemove (3) must be between 0 and 1."));
-                });
+                shiftLeftTest.run(new byte[] { 0, 1, 2 }, 0, 0, new byte[] { 0, 1, 2 });
+                shiftLeftTest.run(new byte[] { 0, 1, 2 }, 1, 0, new byte[] { 0, 1, 2 });
+                shiftLeftTest.run(new byte[] { 0, 1, 2 }, 0, 1, new byte[] { 1, 1, 2 });
+                shiftLeftTest.run(new byte[] { 0, 1, 2 }, 1, 1, new byte[] { 0, 2, 2 });
+                shiftLeftTest.run(new byte[] { 0, 1, 2 }, 0, 2, new byte[] { 1, 2, 2 });
+            });
 
-                runner.test("with indexToRemove greater than values.length", (Test test) ->
+            runner.testGroup("shiftLeft(int[],int,int)", () ->
+            {
+                final Action4<int[],Integer,Integer,Throwable> shiftLeftErrorTest = (int[] values, Integer startIndex, Integer valuesToShift, Throwable expected) ->
                 {
-                    test.assertThrows(() -> Array.shiftLeft(new byte[] { 0, 1, 2 }, 4, 2),
-                        new PreConditionFailure("indexToRemove (4) must be between 0 and 1."));
-                });
+                    runner.test("with " + English.andList(values == null ? null : IntegerArray.create(values), startIndex, valuesToShift), (Test test) ->
+                    {
+                        final int[] valuesBackup = values == null ? null : Array.clone(values);
 
-                runner.test("with negative valuesToShift", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.shiftLeft(new byte[] { 0, 1, 2 }, 1, -1),
-                        new PreConditionFailure("valuesToShift (-1) must be between 0 and 1."));
-                });
+                        test.assertThrows(() -> Array.shiftLeft(values, startIndex, valuesToShift),
+                            expected);
+                        test.assertEqual(valuesBackup, values);
+                    });
+                };
 
-                runner.test("with negative valuesToShift", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.shiftLeft(new byte[] { 0, 1, 2 }, 1, -1),
-                        new PreConditionFailure("valuesToShift (-1) must be between 0 and 1."));
-                });
+                shiftLeftErrorTest.run(null, 0, 1, new PreConditionFailure("values cannot be null."));
+                shiftLeftErrorTest.run(new int[0], 0, 1, new PreConditionFailure("values cannot be empty."));
+                shiftLeftErrorTest.run(new int[] { 0, 1, 2 }, -1, 2, new PreConditionFailure("indexToRemove (-1) must be between 0 and 1."));
+                shiftLeftErrorTest.run(new int[] { 0, 1, 2 }, 2, 2, new PreConditionFailure("indexToRemove (2) must be between 0 and 1."));
+                shiftLeftErrorTest.run(new int[] { 0, 1, 2 }, 3, 2, new PreConditionFailure("indexToRemove (3) must be between 0 and 1."));
+                shiftLeftErrorTest.run(new int[] { 0, 1, 2 }, 4, 2, new PreConditionFailure("indexToRemove (4) must be between 0 and 1."));
+                shiftLeftErrorTest.run(new int[] { 0, 1, 2 }, 1, -1, new PreConditionFailure("valuesToShift (-1) must be between 0 and 1."));
+                shiftLeftErrorTest.run(new int[] { 0, 1, 2 }, 1, 2, new PreConditionFailure("valuesToShift (2) must be between 0 and 1."));
+                shiftLeftErrorTest.run(new int[] { 0, 1, 2 }, 1, 3, new PreConditionFailure("valuesToShift (3) must be between 0 and 1."));
 
-                runner.test("with valuesToShift equal to count - indexToRemove", (Test test) ->
+                final Action4<int[],Integer,Integer,int[]> shiftLeftTest = (int[] values, Integer startIndex, Integer valuesToShift, int[] expected) ->
                 {
-                    test.assertThrows(() -> Array.shiftLeft(new byte[] { 0, 1, 2 }, 1, 2),
-                        new PreConditionFailure("valuesToShift (2) must be between 0 and 1."));
-                });
+                    runner.test("with " + English.andList(IntegerArray.create(values), startIndex, valuesToShift), (Test test) ->
+                    {
+                        Array.shiftLeft(values, startIndex, valuesToShift);
+                        test.assertEqual(expected, values);
+                    });
+                };
 
-                runner.test("with valuesToShift greater than count - indexToRemove", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.shiftLeft(new byte[] { 0, 1, 2 }, 1, 3),
-                        new PreConditionFailure("valuesToShift (3) must be between 0 and 1."));
-                });
-
-                runner.test("with 0 indexToRemove and 0 valuesToShift", (Test test) ->
-                {
-                    final byte[] values = new byte[] { 0, 1, 2 };
-                    Array.shiftLeft(values, 0, 0);
-                    test.assertEqual(new byte[] { 0, 1, 2 }, values);
-                });
-
-                runner.test("with 1 indexToRemove and 0 valuesToShift", (Test test) ->
-                {
-                    final byte[] values = new byte[] { 0, 1, 2 };
-                    Array.shiftLeft(values, 1, 0);
-                    test.assertEqual(new byte[] { 0, 1, 2 }, values);
-                });
-
-                runner.test("with 0 indexToRemove and 1 valuesToShift", (Test test) ->
-                {
-                    final byte[] values = new byte[] { 0, 1, 2 };
-                    Array.shiftLeft(values, 0, 1);
-                    test.assertEqual(new byte[] { 1, 1, 2 }, values);
-                });
-
-                runner.test("with 1 indexToRemove and 1 valuesToShift", (Test test) ->
-                {
-                    final byte[] values = new byte[] { 0, 1, 2 };
-                    Array.shiftLeft(values, 1, 1);
-                    test.assertEqual(new byte[] { 0, 2, 2 }, values);
-                });
-
-                runner.test("with 0 indexToRemove and 2 valuesToShift", (Test test) ->
-                {
-                    final byte[] values = new byte[] { 0, 1, 2 };
-                    Array.shiftLeft(values, 0, 2);
-                    test.assertEqual(new byte[] { 1, 2, 2 }, values);
-                });
+                shiftLeftTest.run(new int[] { 0, 1, 2 }, 0, 0, new int[] { 0, 1, 2 });
+                shiftLeftTest.run(new int[] { 0, 1, 2 }, 1, 0, new int[] { 0, 1, 2 });
+                shiftLeftTest.run(new int[] { 0, 1, 2 }, 0, 1, new int[] { 1, 1, 2 });
+                shiftLeftTest.run(new int[] { 0, 1, 2 }, 1, 1, new int[] { 0, 2, 2 });
+                shiftLeftTest.run(new int[] { 0, 1, 2 }, 0, 2, new int[] { 1, 2, 2 });
             });
 
             runner.testGroup("shiftRight(byte[],int,int)", () ->
             {
-                runner.test("with null values", (Test test) ->
+                final Action4<byte[],Integer,Integer,Throwable> shiftRightErrorTest = (byte[] values, Integer startIndex, Integer valuesToShift, Throwable expected) ->
                 {
-                    test.assertThrows(() -> Array.shiftRight((byte[])null, 0, 1),
-                        new PreConditionFailure("values cannot be null."));
-                });
+                    runner.test("with " + English.andList(values == null ? null : ByteArray.create(values), startIndex, valuesToShift), (Test test) ->
+                    {
+                        final byte[] valuesBackup = values == null ? null : Array.clone(values);
 
-                runner.test("with empty values", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.shiftRight(new byte[0], 0, 1),
-                        new PreConditionFailure("values cannot be empty."));
-                });
+                        test.assertThrows(() -> Array.shiftRight(values, startIndex, valuesToShift),
+                            expected);
+                        test.assertEqual(valuesBackup, values);
+                    });
+                };
 
-                runner.test("with negative indexToOpen", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.shiftRight(new byte[] { 0, 1, 2 }, -1, 2),
-                        new PreConditionFailure("indexToOpen (-1) must be between 0 and 1."));
-                });
+                shiftRightErrorTest.run(null, 0, 1, new PreConditionFailure("values cannot be null."));
+                shiftRightErrorTest.run(new byte[0], 0, 1, new PreConditionFailure("values cannot be empty."));
+                shiftRightErrorTest.run(new byte[] { 0, 1, 2 }, -1, 2, new PreConditionFailure("indexToOpen (-1) must be between 0 and 1."));
+                shiftRightErrorTest.run(new byte[] { 0, 1, 2 }, 2, 2, new PreConditionFailure("indexToOpen (2) must be between 0 and 1."));
+                shiftRightErrorTest.run(new byte[] { 0, 1, 2 }, 3, 2, new PreConditionFailure("indexToOpen (3) must be between 0 and 1."));
+                shiftRightErrorTest.run(new byte[] { 0, 1, 2 }, 4, 2, new PreConditionFailure("indexToOpen (4) must be between 0 and 1."));
+                shiftRightErrorTest.run(new byte[] { 0, 1, 2 }, 1, -1, new PreConditionFailure("valuesToShift (-1) must be between 0 and 1."));
+                shiftRightErrorTest.run(new byte[] { 0, 1, 2 }, 1, 2, new PreConditionFailure("valuesToShift (2) must be between 0 and 1."));
+                shiftRightErrorTest.run(new byte[] { 0, 1, 2 }, 1, 3, new PreConditionFailure("valuesToShift (3) must be between 0 and 1."));
 
-                runner.test("with indexToOpen equal to values.length - 1", (Test test) ->
+                final Action4<byte[],Integer,Integer,byte[]> shiftRightTest = (byte[] values, Integer startIndex, Integer valuesToShift, byte[] expected) ->
                 {
-                    test.assertThrows(() -> Array.shiftRight(new byte[] { 0, 1, 2 }, 2, 2),
-                        new PreConditionFailure("indexToOpen (2) must be between 0 and 1."));
-                });
+                    runner.test("with " + English.andList(ByteArray.create(values), startIndex, valuesToShift), (Test test) ->
+                    {
+                        Array.shiftRight(values, startIndex, valuesToShift);
+                        test.assertEqual(expected, values);
+                    });
+                };
 
-                runner.test("with indexToOpen equal to values.length", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.shiftRight(new byte[] { 0, 1, 2 }, 3, 2),
-                        new PreConditionFailure("indexToOpen (3) must be between 0 and 1."));
-                });
+                shiftRightTest.run(new byte[] { 0, 1, 2 }, 0, 0, new byte[] { 0, 1, 2 });
+                shiftRightTest.run(new byte[] { 0, 1, 2 }, 1, 0, new byte[] { 0, 1, 2 });
+                shiftRightTest.run(new byte[] { 0, 1, 2 }, 0, 1, new byte[] { 0, 0, 2 });
+                shiftRightTest.run(new byte[] { 0, 1, 2 }, 1, 1, new byte[] { 0, 1, 1 });
+                shiftRightTest.run(new byte[] { 0, 1, 2 }, 0, 2, new byte[] { 0, 0, 1 });
+            });
 
-                runner.test("with indexToOpen greater than values.length", (Test test) ->
+            runner.testGroup("shiftRight(int[],int,int)", () ->
+            {
+                final Action4<int[],Integer,Integer,Throwable> shiftRightErrorTest = (int[] values, Integer startIndex, Integer valuesToShift, Throwable expected) ->
                 {
-                    test.assertThrows(() -> Array.shiftRight(new byte[] { 0, 1, 2 }, 4, 2),
-                        new PreConditionFailure("indexToOpen (4) must be between 0 and 1."));
-                });
+                    runner.test("with " + English.andList(values == null ? null : ByteArray.create(values), startIndex, valuesToShift), (Test test) ->
+                    {
+                        final int[] valuesBackup = values == null ? null : Array.clone(values);
 
-                runner.test("with negative valuesToShift", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.shiftRight(new byte[] { 0, 1, 2 }, 1, -1),
-                        new PreConditionFailure("valuesToShift (-1) must be between 0 and 1."));
-                });
+                        test.assertThrows(() -> Array.shiftRight(values, startIndex, valuesToShift),
+                            expected);
+                        test.assertEqual(valuesBackup, values);
+                    });
+                };
 
-                runner.test("with negative valuesToShift", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.shiftRight(new byte[] { 0, 1, 2 }, 1, -1),
-                        new PreConditionFailure("valuesToShift (-1) must be between 0 and 1."));
-                });
+                shiftRightErrorTest.run(null, 0, 1, new PreConditionFailure("values cannot be null."));
+                shiftRightErrorTest.run(new int[0], 0, 1, new PreConditionFailure("values cannot be empty."));
+                shiftRightErrorTest.run(new int[] { 0, 1, 2 }, -1, 2, new PreConditionFailure("indexToOpen (-1) must be between 0 and 1."));
+                shiftRightErrorTest.run(new int[] { 0, 1, 2 }, 2, 2, new PreConditionFailure("indexToOpen (2) must be between 0 and 1."));
+                shiftRightErrorTest.run(new int[] { 0, 1, 2 }, 3, 2, new PreConditionFailure("indexToOpen (3) must be between 0 and 1."));
+                shiftRightErrorTest.run(new int[] { 0, 1, 2 }, 4, 2, new PreConditionFailure("indexToOpen (4) must be between 0 and 1."));
+                shiftRightErrorTest.run(new int[] { 0, 1, 2 }, 1, -1, new PreConditionFailure("valuesToShift (-1) must be between 0 and 1."));
+                shiftRightErrorTest.run(new int[] { 0, 1, 2 }, 1, 2, new PreConditionFailure("valuesToShift (2) must be between 0 and 1."));
+                shiftRightErrorTest.run(new int[] { 0, 1, 2 }, 1, 3, new PreConditionFailure("valuesToShift (3) must be between 0 and 1."));
 
-                runner.test("with valuesToShift equal to count - indexToOpen", (Test test) ->
+                final Action4<int[],Integer,Integer,int[]> shiftRightTest = (int[] values, Integer startIndex, Integer valuesToShift, int[] expected) ->
                 {
-                    test.assertThrows(() -> Array.shiftRight(new byte[] { 0, 1, 2 }, 1, 2),
-                        new PreConditionFailure("valuesToShift (2) must be between 0 and 1."));
-                });
+                    runner.test("with " + English.andList(ByteArray.create(values), startIndex, valuesToShift), (Test test) ->
+                    {
+                        Array.shiftRight(values, startIndex, valuesToShift);
+                        test.assertEqual(expected, values);
+                    });
+                };
 
-                runner.test("with valuesToShift greater than count - indexToOpen", (Test test) ->
-                {
-                    test.assertThrows(() -> Array.shiftRight(new byte[] { 0, 1, 2 }, 1, 3),
-                        new PreConditionFailure("valuesToShift (3) must be between 0 and 1."));
-                });
-
-                runner.test("with 0 indexToOpen and 0 valuesToShift", (Test test) ->
-                {
-                    final byte[] values = new byte[] { 0, 1, 2 };
-                    Array.shiftRight(values, 0, 0);
-                    test.assertEqual(new byte[] { 0, 1, 2 }, values);
-                });
-
-                runner.test("with 1 indexToOpen and 0 valuesToShift", (Test test) ->
-                {
-                    final byte[] values = new byte[] { 0, 1, 2 };
-                    Array.shiftRight(values, 1, 0);
-                    test.assertEqual(new byte[] { 0, 1, 2 }, values);
-                });
-
-                runner.test("with 0 indexToOpen and 1 valuesToShift", (Test test) ->
-                {
-                    final byte[] values = new byte[] { 0, 1, 2 };
-                    Array.shiftRight(values, 0, 1);
-                    test.assertEqual(new byte[] { 0, 0, 2 }, values);
-                });
-
-                runner.test("with 1 indexToOpen and 1 valuesToShift", (Test test) ->
-                {
-                    final byte[] values = new byte[] { 0, 1, 2 };
-                    Array.shiftRight(values, 1, 1);
-                    test.assertEqual(new byte[] { 0, 1, 1 }, values);
-                });
-
-                runner.test("with 0 indexToOpen and 2 valuesToShift", (Test test) ->
-                {
-                    final byte[] values = new byte[] { 0, 1, 2 };
-                    Array.shiftRight(values, 0, 2);
-                    test.assertEqual(new byte[] { 0, 0, 1 }, values);
-                });
+                shiftRightTest.run(new int[] { 0, 1, 2 }, 0, 0, new int[] { 0, 1, 2 });
+                shiftRightTest.run(new int[] { 0, 1, 2 }, 1, 0, new int[] { 0, 1, 2 });
+                shiftRightTest.run(new int[] { 0, 1, 2 }, 0, 1, new int[] { 0, 0, 2 });
+                shiftRightTest.run(new int[] { 0, 1, 2 }, 1, 1, new int[] { 0, 1, 1 });
+                shiftRightTest.run(new int[] { 0, 1, 2 }, 0, 2, new int[] { 0, 0, 1 });
             });
         });
     }
