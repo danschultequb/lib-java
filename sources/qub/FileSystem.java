@@ -688,69 +688,70 @@ public interface FileSystem
     /**
      * Set the contents of the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted path to the file.
-     * @param content The byte[] contents to set.
+     * @param contents The byte[] contents to set.
      * @return Whether or not the file's contents were set.
      */
-    default Result<Void> setFileContents(String rootedFilePath, byte[] content)
+    default Result<File> setFileContents(String rootedFilePath, byte[] contents)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(content, "content");
+        PreCondition.assertNotNull(contents, "content");
 
-        return this.setFileContents(Path.parse(rootedFilePath), content);
+        return this.setFileContents(Path.parse(rootedFilePath), contents);
     }
 
     /**
      * Set the contents of the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted path to the file.
-     * @param content The byte[] contents to set.
+     * @param contents The byte[] contents to set.
      * @return Whether or not the file's contents were set.
      */
-    default Result<Void> setFileContents(Path rootedFilePath, byte[] content)
+    default Result<File> setFileContents(Path rootedFilePath, byte[] contents)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(content, "content");
+        PreCondition.assertNotNull(contents, "content");
 
         return Result.createUsing(
             () -> { return this.getFileContentsByteWriteStream(rootedFilePath).await(); },
             (ByteWriteStream byteWriteStream) ->
             {
-                if (content.length > 0)
+                if (contents.length > 0)
                 {
-                    byteWriteStream.writeAll(content).await();
+                    byteWriteStream.writeAll(contents).await();
                 }
+                return this.getFile(rootedFilePath).await();
             });
     }
 
     /**
      * Set the contents of the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted path to the file.
-     * @param content The String contents to set.
+     * @param contents The String contents to set.
      * @return Whether or not the file's contents were set.
      */
-    default Result<Void> setFileContentAsString(String rootedFilePath, String content)
+    default Result<File> setFileContentsAsString(String rootedFilePath, String contents)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return this.setFileContentAsString(Path.parse(rootedFilePath), content);
+        return this.setFileContentsAsString(Path.parse(rootedFilePath), contents);
     }
 
     /**
      * Set the contents of the file at the provided rootedFilePath.
      * @param rootedFilePath The rooted path to the file.
-     * @param content The String contents to set.
+     * @param contents The String contents to set.
      * @return Whether or not the file's contents were set.
      */
-    default Result<Void> setFileContentAsString(Path rootedFilePath, String content)
+    default Result<File> setFileContentsAsString(Path rootedFilePath, String contents)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
-        PreCondition.assertNotNull(content, "content");
+        PreCondition.assertNotNull(contents, "content");
 
         return Result.create(() ->
         {
-            final byte[] encodedBytes = Strings.isNullOrEmpty(content)
+            final byte[] encodedBytes = Strings.isNullOrEmpty(contents)
                 ? new byte[0]
-                : CharacterEncoding.UTF_8.encodeCharacters(content).await();
-            this.setFileContents(rootedFilePath, encodedBytes).await();
+                : CharacterEncoding.UTF_8.encodeCharacters(contents).await();
+            return this.setFileContents(rootedFilePath, encodedBytes).await();
         });
     }
 

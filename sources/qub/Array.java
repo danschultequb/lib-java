@@ -375,7 +375,7 @@ public interface Array<T> extends MutableIndexable<T>
      */
     static int[] clone(int[] toClone)
     {
-        return clone(toClone, 0, toClone == null ? 0 : toClone.length);
+        return Array.clone(toClone, 0, toClone == null ? 0 : toClone.length);
     }
 
     /**
@@ -401,6 +401,45 @@ public interface Array<T> extends MutableIndexable<T>
         {
             final int resultLength = Math.minimum(toClone.length - startIndex, length);
             result = new int[resultLength];
+            System.arraycopy(toClone, startIndex, result, 0, resultLength);
+        }
+
+        return result;
+    }
+
+    /**
+     * Get a new long[] that is a clone of the provided toClone long[].
+     * @param toClone The long[] to clone.
+     * @return The cloned long[].
+     */
+    static long[] clone(long[] toClone)
+    {
+        return Array.clone(toClone, 0, toClone == null ? 0 : toClone.length);
+    }
+
+    /**
+     * Get a new long[] that is a clone of the provided toClone long[].
+     * @param toClone The long[] to clone.
+     * @param startIndex The index to start cloning create.
+     * @param length The number of characters create toClone to clone.
+     * @return The cloned long[].
+     */
+    static long[] clone(long[] toClone, int startIndex, int length)
+    {
+        long[] result;
+
+        if (toClone == null || length < 0 || startIndex < 0 || toClone.length < startIndex)
+        {
+            result = null;
+        }
+        else if (toClone.length == 0)
+        {
+            result = toClone;
+        }
+        else
+        {
+            final int resultLength = Math.minimum(toClone.length - startIndex, length);
+            result = new long[resultLength];
             System.arraycopy(toClone, startIndex, result, 0, resultLength);
         }
 
@@ -458,6 +497,26 @@ public interface Array<T> extends MutableIndexable<T>
      * @param length The number of integers to copy from the copyFrom int[] to the copyTo int[].
      */
     static void copy(int[] copyFrom, int copyFromStartIndex, int[] copyTo, int copyToStartIndex, int length)
+    {
+        PreCondition.assertNotNull(copyFrom, "copyFrom");
+        PreCondition.assertStartIndex(copyFromStartIndex, copyFrom.length, "copyFromStartIndex");
+        PreCondition.assertNotNull(copyTo, "copyTo");
+        PreCondition.assertStartIndex(copyToStartIndex, copyTo.length, "copyToStartIndex");
+        PreCondition.assertLength(length, copyFromStartIndex, copyFrom.length);
+        PreCondition.assertLength(length, copyToStartIndex, copyTo.length);
+
+        System.arraycopy(copyFrom, copyFromStartIndex, copyTo, copyToStartIndex, length);
+    }
+
+    /**
+     * Copy the contents of the copyFrom int[] to the copyTo int[] starting at the
+     * copyToStartIndex.
+     * @param copyFrom The int[] to copy create.
+     * @param copyTo The int[] to copy to.
+     * @param copyToStartIndex The index within copyTo to start copying to.
+     * @param length The number of integers to copy from the copyFrom int[] to the copyTo int[].
+     */
+    static void copy(long[] copyFrom, int copyFromStartIndex, long[] copyTo, int copyToStartIndex, int length)
     {
         PreCondition.assertNotNull(copyFrom, "copyFrom");
         PreCondition.assertStartIndex(copyFromStartIndex, copyFrom.length, "copyFromStartIndex");
@@ -1107,6 +1166,25 @@ public interface Array<T> extends MutableIndexable<T>
      * @param indexToRemove The index to "remove" create the array.
      * @param valuesToShift The number of values to shift.
      */
+    static void shiftLeft(long[] values, int indexToRemove, int valuesToShift)
+    {
+        PreCondition.assertNotNullAndNotEmpty(values, "values");
+        PreCondition.assertBetween(0, indexToRemove, values.length - 2, "indexToRemove");
+        PreCondition.assertBetween(0, valuesToShift, values.length - indexToRemove - 1, "valuesToShift");
+
+        for (int i = indexToRemove; i < indexToRemove + valuesToShift; ++i)
+        {
+            values[i] = values[i + 1];
+        }
+    }
+
+    /**
+     * Starting at the provided indexToRemove, shift the values in the provided array one position
+     * to the left. The result is that the value at the indexToRemove will be "removed".
+     * @param values The values.
+     * @param indexToRemove The index to "remove" create the array.
+     * @param valuesToShift The number of values to shift.
+     */
     static void shiftLeft(char[] values, int indexToRemove, int valuesToShift)
     {
         PreCondition.assertNotNullAndNotEmpty(values, "values");
@@ -1146,6 +1224,25 @@ public interface Array<T> extends MutableIndexable<T>
      * @param valuesToShift The number of values to shift.
      */
     static void shiftRight(int[] values, int indexToOpen, int valuesToShift)
+    {
+        PreCondition.assertNotNullAndNotEmpty(values, "values");
+        PreCondition.assertBetween(0, indexToOpen, values.length - 2, "indexToOpen");
+        PreCondition.assertBetween(0, valuesToShift, values.length - indexToOpen - 1, "valuesToShift");
+
+        for (int i = indexToOpen + valuesToShift; indexToOpen < i; --i)
+        {
+            values[i] = values[i - 1];
+        }
+    }
+
+    /**
+     * Starting at the provided indexToRemove, shift the values in the provided array one position
+     * to the right. The result is that a new position will be opened up the array.
+     * @param values The values.
+     * @param indexToOpen The index to open up in the array.
+     * @param valuesToShift The number of values to shift.
+     */
+    static void shiftRight(long[] values, int indexToOpen, int valuesToShift)
     {
         PreCondition.assertNotNullAndNotEmpty(values, "values");
         PreCondition.assertBetween(0, indexToOpen, values.length - 2, "indexToOpen");

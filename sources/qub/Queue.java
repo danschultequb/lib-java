@@ -13,7 +13,7 @@ public interface Queue<T>
      */
     static <T> Queue<T> create()
     {
-        return new ArrayListQueue<>();
+        return ListQueue.create();
     }
 
     /**
@@ -24,8 +24,14 @@ public interface Queue<T>
      */
     static <T> Queue<T> create(Iterable<T> initialValues)
     {
+        PreCondition.assertNotNull(initialValues, "initialValues");
+
         final Queue<T> result = Queue.create();
         result.enqueueAll(initialValues);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(initialValues.getCount(), result.getCount(), "result.getCount()");
+
         return result;
     }
 
@@ -45,19 +51,23 @@ public interface Queue<T>
      * Add the provided value to the Queue.
      * @param value The value to add to the Queue.
      */
-    void enqueue(T value);
+    Queue<T> enqueue(T value);
 
     /**
      * Add all of the provided values to the Queue.
      * @param values The values to add to the Queue.
      */
-    void enqueueAll(T[] values);
+    default Queue<T> enqueueAll(Iterable<T> values)
+    {
+        PreCondition.assertNotNull(values, "values");
 
-    /**
-     * Add all of the provided values to the Queue.
-     * @param values The values to add to the Queue.
-     */
-    void enqueueAll(Iterable<T> values);
+        for (final T value : values)
+        {
+            this.enqueue(value);
+        }
+
+        return this;
+    }
 
     /**
      * Remove and return the next value create the Queue. If there are no values in the Queue, then

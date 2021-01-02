@@ -8,12 +8,7 @@ public class IntegerArrayIterator implements Iterator<Integer>
     private boolean hasStarted;
     private int currentIndex;
 
-    public IntegerArrayIterator(int[] values)
-    {
-        this(values, 0, values.length);
-    }
-
-    public IntegerArrayIterator(int[] values, int startIndex, int length)
+    private IntegerArrayIterator(int[] values, int startIndex, int length)
     {
         PreCondition.assertNotNull(values, "values");
         PreCondition.assertStartIndex(startIndex, values.length);
@@ -24,41 +19,6 @@ public class IntegerArrayIterator implements Iterator<Integer>
         this.length = length;
     }
 
-    @Override
-    public boolean hasStarted()
-    {
-        return hasStarted;
-    }
-
-    @Override
-    public boolean hasCurrent()
-    {
-        return hasStarted && currentIndex < length;
-    }
-
-    @Override
-    public Integer getCurrent()
-    {
-        PreCondition.assertTrue(this.hasCurrent(), "this.hasCurrent()");
-
-        return values[currentIndex];
-    }
-
-    @Override
-    public boolean next()
-    {
-        if (!hasStarted)
-        {
-            hasStarted = true;
-            currentIndex = startIndex;
-        }
-        else if (currentIndex < length)
-        {
-            ++currentIndex;
-        }
-        return currentIndex < length;
-    }
-
     /**
      * Create an iterator for the provided values.
      * @param values The values to iterate over.
@@ -66,7 +26,9 @@ public class IntegerArrayIterator implements Iterator<Integer>
      */
     static IntegerArrayIterator create(int... values)
     {
-        return new IntegerArrayIterator(values);
+        PreCondition.assertNotNull(values, "values");
+        
+        return IntegerArrayIterator.create(values, 0, values.length);
     }
 
     /**
@@ -81,5 +43,40 @@ public class IntegerArrayIterator implements Iterator<Integer>
         PreCondition.assertLength(length, startIndex, values.length);
 
         return new IntegerArrayIterator(values, startIndex, length);
+    }
+
+    @Override
+    public boolean hasStarted()
+    {
+        return this.hasStarted;
+    }
+
+    @Override
+    public boolean hasCurrent()
+    {
+        return this.hasStarted && this.currentIndex < this.startIndex + length;
+    }
+
+    @Override
+    public Integer getCurrent()
+    {
+        PreCondition.assertTrue(this.hasCurrent(), "this.hasCurrent()");
+
+        return this.values[this.currentIndex];
+    }
+
+    @Override
+    public boolean next()
+    {
+        if (!this.hasStarted)
+        {
+            this.hasStarted = true;
+            this.currentIndex = this.startIndex;
+        }
+        else if (this.hasCurrent())
+        {
+            ++this.currentIndex;
+        }
+        return this.hasCurrent();
     }
 }

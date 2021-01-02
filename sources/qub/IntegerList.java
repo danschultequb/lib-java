@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A list of integers. Internally this uses a primitive int[] to store bytes, so it should be more
+ * A list of integers. Internally this uses a primitive int[] to store integers, so it should be more
  * efficient than using a generic List<Integer>.
  */
 public class IntegerList implements List<Integer>
@@ -27,8 +27,16 @@ public class IntegerList implements List<Integer>
     {
         PreCondition.assertNotNull(values, "values");
 
-        return IntegerList.createWithCapacity(values.length)
-            .addAll(values);
+        final IntegerList result = IntegerList.createWithCapacity(values.length);
+        for (final int value : values)
+        {
+            result.add(value);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(values.length, result.getCount(), "result.getCount()");
+
+        return result;
     }
 
     @Override
@@ -89,32 +97,10 @@ public class IntegerList implements List<Integer>
         return this.insert(this.count, value);
     }
 
-    public IntegerList addAll(int... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        if (values.length > 0)
-        {
-            for (final int value : values)
-            {
-                this.add(value);
-            }
-        }
-        return this;
-    }
-
+    @Override
     public IntegerList addAll(Integer... values)
     {
-        PreCondition.assertNotNull(values, "values");
-
-        if (values.length > 0)
-        {
-            for (final int value : values)
-            {
-                this.add(value);
-            }
-        }
-        return this;
+        return (IntegerList)List.super.addAll(values);
     }
 
     @Override
@@ -133,18 +119,13 @@ public class IntegerList implements List<Integer>
         return result;
     }
 
-    /**
-     * Remove the first integers from this IntegerList as a IntegerArray.
-     * @param valuesToRemove The number of integers to remove from this IntegerList.
-     * @return The removed integers.
-     */
-    public IntegerArray removeFirstIntegers(int valuesToRemove)
+    @Override
+    public IntegerArray removeFirst(int valuesToRemove)
     {
         PreCondition.assertGreaterThanOrEqualTo(valuesToRemove, 0, "valuesToRemove");
-        PreCondition.assertNotNullAndNotEmpty(this, "this");
 
-        final int[] integers = new int[valuesToRemove];
-        this.removeFirstIntegers(integers);
+        final int[] integers = new int[Math.minimum(this.count, valuesToRemove)];
+        this.removeFirst(integers);
         return IntegerArray.create(integers);
     }
 
@@ -153,12 +134,11 @@ public class IntegerList implements List<Integer>
      * be enough integers in this list to fill the provided array.
      * @param outputIntegers The array to put the integers into.
      */
-    public int removeFirstIntegers(int[] outputIntegers)
+    public int removeFirst(int[] outputIntegers)
     {
-        PreCondition.assertNotNullAndNotEmpty(outputIntegers, "outputIntegers");
-        PreCondition.assertNotNullAndNotEmpty(this, "this");
+        PreCondition.assertNotNull(outputIntegers, "outputIntegers");
 
-        return this.removeFirstIntegers(outputIntegers, 0, outputIntegers.length);
+        return this.removeFirst(outputIntegers, 0, outputIntegers.length);
     }
 
     /**
@@ -167,12 +147,11 @@ public class IntegerList implements List<Integer>
      * @param startIndex The start index in the array to start putting the bytes to.
      * @param length The number of bytes to remove from the list and put into the array.
      */
-    public int removeFirstIntegers(int[] outputIntegers, int startIndex, int length)
+    public int removeFirst(int[] outputIntegers, int startIndex, int length)
     {
-        PreCondition.assertNotNullAndNotEmpty(outputIntegers, "outputIntegers");
+        PreCondition.assertNotNull(outputIntegers, "outputIntegers");
         PreCondition.assertStartIndex(startIndex, outputIntegers.length);
         PreCondition.assertLength(length, startIndex, outputIntegers.length);
-        PreCondition.assertNotNullAndNotEmpty(this, "this");
 
         final int result = Math.minimum(this.count, length);
         if (result > 0)
@@ -182,28 +161,12 @@ public class IntegerList implements List<Integer>
             {
                 Array.copy(this.integers, result, this.integers, 0, this.count - result);
             }
-            count -= length;
+            count -= result;
         }
 
         PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
 
         return result;
-    }
-
-    @Override
-    public IntegerArray removeFirst(int valuesToRemove)
-    {
-        return this.removeFirstIntegers(valuesToRemove);
-    }
-
-    public IntegerList set(int index, int value)
-    {
-        PreCondition.assertNotNullAndNotEmpty(this, "this");
-        PreCondition.assertBetween(0, index, this.count - 1, "index");
-
-        this.integers[index] = value;
-
-        return this;
     }
 
     @Override
@@ -213,7 +176,9 @@ public class IntegerList implements List<Integer>
         PreCondition.assertBetween(0, index, this.count - 1, "index");
         PreCondition.assertNotNull(value, "value");
 
-        return this.set(index, value.intValue());
+        this.integers[index] = value.intValue();
+
+        return this;
     }
 
     public int getAsInt(int index)
@@ -233,7 +198,7 @@ public class IntegerList implements List<Integer>
     @Override
     public Iterator<Integer> iterate()
     {
-        return this.count == 0 ? Iterator.create() : new IntegerArrayIterator(this.integers, 0, this.count);
+        return IntegerArrayIterator.create(this.integers, 0, this.count);
     }
 
     @Override
@@ -246,14 +211,5 @@ public class IntegerList implements List<Integer>
     public String toString()
     {
         return Iterable.toString(this);
-    }
-
-    /**
-     * Get a int[] representation of this IntegerList.
-     * @return The int[].
-     */
-    public int[] toIntArray()
-    {
-        return Array.clone(this.integers, 0, this.count);
     }
 }

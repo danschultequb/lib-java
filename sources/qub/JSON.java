@@ -7,6 +7,8 @@ public interface JSON
 {
     static String thePropertyNamed(String propertyName)
     {
+        PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
+
         return "the property named " + Strings.escapeAndQuote(propertyName);
     }
 
@@ -25,17 +27,19 @@ public interface JSON
         PreCondition.assertNotNull(type, "type");
         PreCondition.assertNotNullAndNotEmpty(valueName, "valueName");
 
-        final T typedValue = Types.as(value, type);
-        return typedValue == null
-            ? Result.error(new WrongTypeException(JSON.getWrongTypeExceptionMessage(value, Iterable.create(type), valueName)))
-            : Result.success(typedValue);
+        return Result.create(() ->
+        {
+            final T result = Types.as(value, type);
+            if (result == null)
+            {
+                throw new WrongTypeException(JSON.getWrongTypeExceptionMessage(value, Iterable.create(type), valueName));
+            }
+            return result;
+        });
     }
 
     static <T extends JSONSegment> Result<T> as(JSONSegment value, java.lang.Class<T> type)
     {
-        PreCondition.assertNotNull(value, "value");
-        PreCondition.assertNotNull(type, "type");
-
         return JSON.as(value, type, "value");
     }
 
@@ -48,6 +52,11 @@ public interface JSON
         return JSON.as(value, type)
             .catchError(WrongTypeException.class, () -> JSON.as(value, JSONNull.class).await())
             .convertError(WrongTypeException.class, () -> new WrongTypeException(JSON.getWrongTypeExceptionMessage(value, Iterable.create(type, JSONNull.class), valueName)));
+    }
+
+    static <T extends JSONSegment> Result<T> asOrNull(JSONSegment value, java.lang.Class<T> type)
+    {
+        return JSON.asOrNull(value, type, "value");
     }
 
     static Boolean toBooleanOrNull(JSONBoolean segment)

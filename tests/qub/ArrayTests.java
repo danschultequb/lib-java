@@ -634,6 +634,64 @@ public interface ArrayTests
                 cloneTest.run(new int[] { 10, 11, 12 }, 1, 1, new int[] { 11 });
             });
 
+            runner.testGroup("clone(long[])", () ->
+            {
+                final Action1<long[]> test = (long[] longs) ->
+                {
+                    runner.test("with " + (longs == null ? "null long[]" : ("long[" + longs.length + "]")), test1 ->
+                    {
+                        final long[] clonedValues = Array.clone(longs);
+                        if (longs == null || longs.length == 0)
+                        {
+                            test1.assertSame(longs, clonedValues);
+                        }
+                        else
+                        {
+                            test1.assertEqual(longs, clonedValues);
+                            test1.assertNotSame(longs, clonedValues);
+                        }
+                    });
+                };
+
+                test.run(null);
+                test.run(new long[0]);
+                test.run(new long[] { 1 });
+                test.run(new long[] { 1, 2, 3, 4, 5 });
+            });
+
+            runner.testGroup("clone(long[],int,int)", () ->
+            {
+                final Action4<long[],Integer,Integer,long[]> cloneTest = (long[] longs, Integer startIndex, Integer length, long[] expected) ->
+                {
+                    runner.test("with " + (longs == null ? "null long[]" : ("long[" + longs.length + "]")) + " at " + startIndex + " for " + length + " length", (Test test) ->
+                    {
+                        final long[] clonedValues = Array.clone(longs, startIndex, length);
+                        test.assertEqual(expected, clonedValues);
+                    });
+                };
+
+                cloneTest.run(null, -1, -2, null);
+                cloneTest.run(null, -1, 0, null);
+                cloneTest.run(null, -1, 2, null);
+                cloneTest.run(null, 0, -2, null);
+                cloneTest.run(null, 0, 0, null);
+                cloneTest.run(null, 0, 2, null);
+                cloneTest.run(null, 1, -2, null);
+                cloneTest.run(null, 1, 0, null);
+                cloneTest.run(null, 1, 2, null);
+                cloneTest.run(new long[0], -1, -2, null);
+                cloneTest.run(new long[0], -1, 0, null);
+                cloneTest.run(new long[0], -1, 2, null);
+                cloneTest.run(new long[0], 0, -2, null);
+                cloneTest.run(new long[0], 0, 0, new long[0]);
+                cloneTest.run(new long[0], 0, 2, new long[0]);
+                cloneTest.run(new long[0], 1, -2, null);
+                cloneTest.run(new long[0], 1, 0, null);
+                cloneTest.run(new long[0], 1, 2, null);
+                cloneTest.run(new long[] { 1, 2, 3 }, 0, 3, new long[] { 1, 2, 3 });
+                cloneTest.run(new long[] { 10, 11, 12 }, 1, 1, new long[] { 11 });
+            });
+
             runner.testGroup("copy(byte[],int,byte[],int,int)", () ->
             {
                 final Action6<byte[],Integer,byte[],Integer,Integer,RuntimeException> copyErrorTest = (byte[] copyFrom, Integer copyFromStartIndex, byte[] copyTo, Integer copyToStartIndex, Integer length, RuntimeException expectedError) ->

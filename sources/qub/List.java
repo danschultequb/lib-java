@@ -77,7 +77,9 @@ public interface List<T> extends MutableIndexable<T>
     @SuppressWarnings("unchecked")
     default List<T> addAll(T... values)
     {
-        if (values != null && values.length > 0)
+        PreCondition.assertNotNull(values, "values");
+
+        if (values.length > 0)
         {
             for (final T value : values)
             {
@@ -93,7 +95,9 @@ public interface List<T> extends MutableIndexable<T>
      */
     default List<T> addAll(Iterator<? extends T> values)
     {
-        if (values != null && values.any())
+        PreCondition.assertNotNull(values, "values");
+
+        if (values.any())
         {
             for (final T value : values)
             {

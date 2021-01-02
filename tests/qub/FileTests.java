@@ -230,7 +230,7 @@ public interface FileTests
                     final File sourceFile = getFile(fileSystem, "/A");
                     sourceFile.setContentsAsString("hello").await();
                     final Path destinationFilePath = Path.parse("/B");
-                    fileSystem.setFileContentAsString(destinationFilePath, "there").await();
+                    fileSystem.setFileContentsAsString(destinationFilePath, "there").await();
                     sourceFile.copyTo(destinationFilePath).await();
                     test.assertTrue(fileSystem.fileExists(destinationFilePath).await());
                     test.assertEqual(fileSystem.getFileContentsAsString(destinationFilePath).await(), "hello");
@@ -325,7 +325,7 @@ public interface FileTests
                     final FileSystem fileSystem = getFileSystem(test);
                     final File sourceFile = getFile(fileSystem, "/A");
                     sourceFile.setContentsAsString("hello").await();
-                    fileSystem.setFileContentAsString("/B", "there").await();
+                    fileSystem.setFileContentsAsString("/B", "there").await();
                     sourceFile.copyToFolder(Path.parse("/B")).await();
                     test.assertTrue(fileSystem.fileExists("/B/A").await());
                     test.assertEqual(fileSystem.getFileContentsAsString("/B/A").await(), "hello");

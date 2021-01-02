@@ -1,7 +1,5 @@
 package qub;
 
-import java.nio.Buffer;
-
 public class File extends FileSystemEntry
 {
     File(FileSystem fileSystem, String path)
@@ -148,29 +146,29 @@ public class File extends FileSystemEntry
         return this.getFileSystem().getFileContentsAsString(getPath());
     }
 
-    public Result<Void> setContents(byte[] content)
+    public Result<File> setContents(byte[] contents)
     {
-        return getFileSystem().setFileContents(getPath(), content);
+        return this.getFileSystem().setFileContents(getPath(), contents);
     }
 
-    public Result<Void> setContentsAsString(String content)
+    public Result<File> setContentsAsString(String contents)
     {
-        return getFileSystem().setFileContentAsString(getPath(), content);
+        return this.getFileSystem().setFileContentsAsString(getPath(), contents);
     }
 
     public Result<Void> copyTo(Path destinationPath)
     {
-        return getFileSystem().copyFileTo(this, destinationPath);
+        return this.getFileSystem().copyFileTo(this, destinationPath);
     }
 
     public Result<Void> copyTo(File destinationFile)
     {
-        return getFileSystem().copyFileTo(this, destinationFile);
+        return this.getFileSystem().copyFileTo(this, destinationFile);
     }
 
     public Result<Void> copyToFolder(Path destinationFolderPath)
     {
-        return getFileSystem().copyFileToFolder(this, destinationFolderPath);
+        return this.getFileSystem().copyFileToFolder(this, destinationFolderPath);
     }
 
     public Result<Void> copyToFolder(Folder destinationFolder)

@@ -2,6 +2,45 @@ package qub;
 
 public interface QueueTests
 {
+    static void test(TestRunner runner)
+    {
+        runner.testGroup(Queue.class, () ->
+        {
+            runner.test("create()", (Test test) ->
+            {
+                final Queue<Integer> queue = Queue.create();
+                test.assertNotNull(queue);
+                test.assertEqual(0, queue.getCount());
+            });
+
+            runner.testGroup("create(Iterable<T>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Queue.create((Iterable<Integer>)null),
+                        new PreConditionFailure("initialValues cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final Queue<Integer> queue = Queue.create(Iterable.create());
+                    test.assertNotNull(queue);
+                    test.assertEqual(0, queue.getCount());
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    final Queue<Integer> queue = Queue.create(Iterable.create(1, 2, 3));
+                    test.assertNotNull(queue);
+                    test.assertEqual(1, queue.dequeue());
+                    test.assertEqual(2, queue.dequeue());
+                    test.assertEqual(3, queue.dequeue());
+                    test.assertEqual(0, queue.getCount());
+                });
+            });
+        });
+    }
+
     static void test(TestRunner runner, Function0<Queue<Integer>> createQueue)
     {
         runner.testGroup(Queue.class, () ->
@@ -33,34 +72,6 @@ public interface QueueTests
                 test.assertEqual(0, queue.getCount());
             });
 
-            runner.testGroup("enqueueAll(T[])", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final Queue<Integer> queue = createQueue.run();
-                    queue.enqueueAll((Integer[])null);
-                    test.assertFalse(queue.any());
-                });
-
-                runner.test("with empty", (Test test) ->
-                {
-                    final Queue<Integer> queue = createQueue.run();
-                    queue.enqueueAll(new Integer[0]);
-                    test.assertEqual(0, queue.getCount());
-                });
-
-                runner.test("with non-empty", (Test test) ->
-                {
-                    final Queue<Integer> queue = createQueue.run();
-                    queue.enqueueAll(new Integer[] { 0, 1, 2 });
-                    test.assertEqual(3, queue.getCount());
-                    for (int i = 0; i < 3; ++i)
-                    {
-                        test.assertEqual(i, queue.dequeue());
-                    }
-                });
-            });
-
             runner.testGroup("enqueueAll(Iterable<T>)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -74,14 +85,16 @@ public interface QueueTests
                 runner.test("with empty", (Test test) ->
                 {
                     final Queue<Integer> queue = createQueue.run();
-                    queue.enqueueAll(Iterable.create());
+                    final Queue<Integer> enqueueAllTests = queue.enqueueAll(Iterable.create());
+                    test.assertSame(queue, enqueueAllTests);
                     test.assertEqual(0, queue.getCount());
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
                     final Queue<Integer> queue = createQueue.run();
-                    queue.enqueueAll(Iterable.create(0, 1, 2));
+                    final Queue<Integer> enqueueAllTests = queue.enqueueAll(Iterable.create(0, 1, 2));
+                    test.assertSame(queue, enqueueAllTests);
                     test.assertEqual(3, queue.getCount());
                     for (int i = 0; i < 3; ++i)
                     {

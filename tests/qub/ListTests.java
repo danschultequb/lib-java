@@ -132,6 +132,9 @@ public interface ListTests
                 final List<Integer> list = createList.run(0);
                 test.assertEqual(Iterable.create(), list);
 
+                test.assertThrows(() -> list.addAll((Integer[])null),
+                    new PreConditionFailure("values cannot be null."));
+
                 list.addAll();
                 test.assertEqual(Iterable.create(), list);
 
@@ -144,7 +147,8 @@ public interface ListTests
                 list.addAll(1, 2, 3, 4, 5);
                 test.assertEqual(Iterable.create(0, 1, 2, 3, 4, 5), list);
 
-                list.addAll((Iterator<Integer>)null);
+                test.assertThrows(() -> list.addAll((Iterator<Integer>)null),
+                    new PreConditionFailure("values cannot be null."));
                 test.assertEqual(Iterable.create(0, 1, 2, 3, 4, 5), list);
 
                 list.addAll(Iterator.create());

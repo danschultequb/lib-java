@@ -121,6 +121,41 @@ public class JSONArray implements JSONSegment, List<JSONSegment>
     }
 
     @Override
+    public JSONArray add(JSONSegment value)
+    {
+        return (JSONArray)List.super.add(value);
+    }
+
+    public JSONArray addString(String value)
+    {
+        PreCondition.assertNotNull(value, "value");
+
+        return this.add(JSONString.get(value));
+    }
+
+    public JSONArray addNumber(long value)
+    {
+        return this.add(JSONNumber.get(value));
+    }
+
+    public JSONArray addNumber(String value)
+    {
+        PreCondition.assertNotNullAndNotEmpty(value, "value");
+
+        return this.add(JSONNumber.get(value));
+    }
+
+    public JSONArray addNumber(double value)
+    {
+        return this.add(JSONNumber.get(value));
+    }
+
+    public JSONArray addBoolean(boolean value)
+    {
+        return this.add(JSONBoolean.get(value));
+    }
+
+    @Override
     public JSONSegment removeAt(int index)
     {
         PreCondition.assertIndexAccess(index, this.getCount(), "index");

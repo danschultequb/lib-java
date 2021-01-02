@@ -6,6 +6,29 @@ public interface IntegerListTests
     {
         runner.testGroup(IntegerList.class, () ->
         {
+            runner.testGroup("createWithCapacity(int)", () ->
+            {
+                runner.test("with negative", (Test test) ->
+                {
+                    test.assertThrows(() -> IntegerList.createWithCapacity(-1),
+                        new PreConditionFailure("initialCapacity (-1) must be greater than or equal to 0."));
+                });
+
+                final Action1<Integer> createWithCapacityTest = (Integer initialCapacity) ->
+                {
+                    runner.test("with " + initialCapacity, (Test test) ->
+                    {
+                        final IntegerList list = IntegerList.createWithCapacity(initialCapacity);
+                        test.assertNotNull(list);
+                        test.assertEqual(0, list.getCount());
+                    });
+                };
+
+                createWithCapacityTest.run(0);
+                createWithCapacityTest.run(1);
+                createWithCapacityTest.run(10);
+            });
+
             runner.testGroup("create(int...)", () ->
             {
                 runner.test("with null int array", (Test test) ->
@@ -54,278 +77,327 @@ public interface IntegerListTests
 
             runner.testGroup("insert(int,int)", () ->
             {
-                runner.test("with negative index", (Test test) ->
+                final Action4<IntegerList,Integer,Integer,Throwable> insertErrorTest = (IntegerList list, Integer insertIndex, Integer value, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(list, insertIndex, value), (Test test) ->
+                    {
+                        test.assertThrows(() -> list.insert(insertIndex.intValue(), value.intValue()), expected);
+                    });
+                };
+
+                insertErrorTest.run(IntegerList.create(), -1, 5, new PreConditionFailure("insertIndex (-1) must be equal to 0."));
+                insertErrorTest.run(IntegerList.create(), 1, 5, new PreConditionFailure("insertIndex (1) must be equal to 0."));
+                insertErrorTest.run(IntegerList.create(1, 2, 3), 4, 7, new PreConditionFailure("insertIndex (4) must be between 0 and 3."));
+
+                final Action4<IntegerList,Integer,Integer,IntegerList> insertTest = (IntegerList list, Integer insertIndex, Integer value, IntegerList expected) ->
+                {
+                    runner.test("with " + English.andList(list, insertIndex, value), (Test test) ->
+                    {
+                        final IntegerList insertResult = list.insert(insertIndex.intValue(), value.intValue());
+                        test.assertSame(list, insertResult);
+                        test.assertEqual(expected, list);
+                    });
+                };
+
+                insertTest.run(IntegerList.create(), 0, 5, IntegerList.create(5));
+                insertTest.run(IntegerList.create(1, 2, 3), 0, 7, IntegerList.create(7, 1, 2, 3));
+                insertTest.run(IntegerList.create(1, 2, 3), 1, 7, IntegerList.create(1, 7, 2, 3));
+                insertTest.run(IntegerList.create(1, 2, 3), 2, 7, IntegerList.create(1, 2, 7, 3));
+                insertTest.run(IntegerList.create(1, 2, 3), 3, 7, IntegerList.create(1, 2, 3, 7));
+
+                runner.test("with list that won't grow as a result of insertion", (Test test) ->
                 {
                     final IntegerList list = IntegerList.create();
-                    test.assertThrows(() -> list.insert(-1, 5),
-                        new PreConditionFailure("insertIndex (-1) must be equal to 0."));
-                    test.assertEqual(0, list.getCount());
-                });
 
-                runner.test("with zero index on empty list", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create();
-                    final IntegerList insertResult = list.insert(0, 5);
-                    test.assertSame(list, insertResult);
-                    test.assertEqual(1, list.getCount());
-                    test.assertEqual(5, list.get(0));
-                });
+                    list.insert(0, 0); // Grow to capacity: 1
+                    test.assertEqual(IntegerList.create(0), list);
 
-                runner.test("with positive index on empty list", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create();
-                    test.assertThrows(() -> list.insert(1, 5),
-                        new PreConditionFailure("insertIndex (1) must be equal to 0."));
-                    test.assertEqual(0, list.getCount());
-                });
+                    list.insert(1, 1); // Grow to capacity: 3
+                    test.assertEqual(IntegerList.create(0, 1), list);
 
-                runner.test("with zero index on non-empty list", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    final IntegerList insertResult = list.insert(0, 7);
-                    test.assertSame(list, insertResult);
-                    test.assertEqual(IntegerList.create(7, 1, 2, 3), list);
-                });
+                    list.insert(2, 2); // No growth
+                    test.assertEqual(IntegerList.create(0, 1, 2), list);
 
-                runner.test("with positive index less than count on non-empty list", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    list.insert(2, 7);
-                    test.assertEqual(IntegerList.create(1, 2, 7, 3), list);
-                });
+                    list.insert(0, 3); // Grow to capacity: 7
+                    test.assertEqual(IntegerList.create(3, 0, 1, 2), list);
 
-                runner.test("with positive index equal to count on non-empty list", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    list.insert(3, 7);
-                    test.assertEqual(IntegerList.create(1, 2, 3, 7), list);
-                });
-
-                runner.test("with positive index greater than count on non-empty list", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    test.assertThrows(() -> list.insert(4, 7),
-                        new PreConditionFailure("insertIndex (4) must be between 0 and 3."));
-                    test.assertEqual(IntegerList.create(1, 2, 3), list);
+                    list.insert(2, 4);
+                    test.assertEqual(IntegerList.create(3, 0, 4, 1, 2), list);
                 });
             });
 
             runner.testGroup("insert(int,Integer)", () ->
             {
-                runner.test("with negative index", (Test test) ->
+                final Action4<IntegerList,Integer,Integer,Throwable> insertErrorTest = (IntegerList list, Integer insertIndex, Integer value, Throwable expected) ->
                 {
-                    final IntegerList list = IntegerList.create();
-                    test.assertThrows(() -> list.insert(-1, Integer.valueOf(5)),
-                        new PreConditionFailure("insertIndex (-1) must be equal to 0."));
-                    test.assertEqual(0, list.getCount());
-                });
+                    runner.test("with " + English.andList(list, insertIndex, value), (Test test) ->
+                    {
+                        test.assertThrows(() -> list.insert(insertIndex.intValue(), value), expected);
+                    });
+                };
 
-                runner.test("with null value", (Test test) ->
+                insertErrorTest.run(IntegerList.create(), -1, 5, new PreConditionFailure("insertIndex (-1) must be equal to 0."));
+                insertErrorTest.run(IntegerList.create(), 1, 5, new PreConditionFailure("insertIndex (1) must be equal to 0."));
+                insertErrorTest.run(IntegerList.create(1, 2, 3), 4, 7, new PreConditionFailure("insertIndex (4) must be between 0 and 3."));
+                insertErrorTest.run(IntegerList.create(), 0, null, new PreConditionFailure("value cannot be null."));
+
+                final Action4<IntegerList,Integer,Integer,IntegerList> insertTest = (IntegerList list, Integer insertIndex, Integer value, IntegerList expected) ->
+                {
+                    runner.test("with " + English.andList(list, insertIndex, value), (Test test) ->
+                    {
+                        final IntegerList insertResult = list.insert(insertIndex.intValue(), value);
+                        test.assertSame(list, insertResult);
+                        test.assertEqual(expected, list);
+                    });
+                };
+
+                insertTest.run(IntegerList.create(), 0, 5, IntegerList.create(5));
+                insertTest.run(IntegerList.create(1, 2, 3), 0, 7, IntegerList.create(7, 1, 2, 3));
+                insertTest.run(IntegerList.create(1, 2, 3), 2, 7, IntegerList.create(1, 2, 7, 3));
+                insertTest.run(IntegerList.create(1, 2, 3), 3, 7, IntegerList.create(1, 2, 3, 7));
+            });
+
+            runner.testGroup("add(int)", () ->
+            {
+                final Action3<IntegerList,Integer,IntegerList> addTest = (IntegerList list, Integer value, IntegerList expected) ->
+                {
+                    runner.test("with " + English.andList(list, value), (Test test) ->
+                    {
+                        final IntegerList addResult = list.add(value.intValue());
+                        test.assertSame(list, addResult);
+                        test.assertEqual(expected, list);
+                    });
+                };
+
+                addTest.run(IntegerList.create(), 0, IntegerList.create(0));
+                addTest.run(IntegerList.create(1), 2, IntegerList.create(1, 2));
+                addTest.run(IntegerList.create(3, 4), 5, IntegerList.create(3, 4, 5));
+            });
+
+            runner.testGroup("add(Integer)", () ->
+            {
+                runner.test("with null", (Test test) ->
                 {
                     final IntegerList list = IntegerList.create();
-                    test.assertThrows(() -> list.insert(0, null),
+                    test.assertThrows(() -> list.add(null),
                         new PreConditionFailure("value cannot be null."));
+                    test.assertEqual(IntegerList.create(), list);
+                });
+
+                final Action3<IntegerList,Integer,IntegerList> addTest = (IntegerList list, Integer value, IntegerList expected) ->
+                {
+                    runner.test("with " + English.andList(list, value), (Test test) ->
+                    {
+                        final IntegerList addResult = list.add(value);
+                        test.assertSame(list, addResult);
+                        test.assertEqual(expected, list);
+                    });
+                };
+
+                addTest.run(IntegerList.create(), 0, IntegerList.create(0));
+                addTest.run(IntegerList.create(1), 2, IntegerList.create(1, 2));
+                addTest.run(IntegerList.create(3, 4), 5, IntegerList.create(3, 4, 5));
+            });
+
+            runner.testGroup("addAll(Integer...)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final IntegerList list = IntegerList.create();
+                    test.assertThrows(() -> list.addAll((Integer[])null),
+                        new PreConditionFailure("values cannot be null."));
                     test.assertEqual(0, list.getCount());
                 });
 
-                runner.test("with zero index on empty list", (Test test) ->
+                runner.test("with no values", (Test test) ->
                 {
                     final IntegerList list = IntegerList.create();
-                    final IntegerList insertResult = list.insert(0, Integer.valueOf(5));
-                    test.assertSame(list, insertResult);
-                    test.assertEqual(1, list.getCount());
-                    test.assertEqual(5, list.get(0));
+                    final IntegerList addAllResult = list.addAll();
+                    test.assertSame(list, addAllResult);
+                    test.assertEqual(IntegerList.create(), list);
                 });
 
-                runner.test("with positive index on empty list", (Test test) ->
+                runner.test("with one value", (Test test) ->
                 {
                     final IntegerList list = IntegerList.create();
-                    test.assertThrows(() -> list.insert(1, Integer.valueOf(5)),
-                        new PreConditionFailure("insertIndex (1) must be equal to 0."));
-                    test.assertEqual(0, list.getCount());
+                    final IntegerList addAllResult = list.addAll(Integer.valueOf(5));
+                    test.assertSame(list, addAllResult);
+                    test.assertEqual(IntegerList.create(5), list);
                 });
 
-                runner.test("with zero index on non-empty list", (Test test) ->
+                runner.test("with two values", (Test test) ->
                 {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    final IntegerList insertResult = list.insert(0, Integer.valueOf(7));
-                    test.assertSame(list, insertResult);
-                    test.assertEqual(IntegerList.create(7, 1, 2, 3), list);
-                });
-
-                runner.test("with positive index less than count on non-empty list", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    list.insert(2, Integer.valueOf(7));
-                    test.assertEqual(IntegerList.create(1, 2, 7, 3), list);
-                });
-
-                runner.test("with positive index equal to count on non-empty list", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    list.insert(3, Integer.valueOf(7));
-                    test.assertEqual(IntegerList.create(1, 2, 3, 7), list);
-                });
-
-                runner.test("with positive index greater than count on non-empty list", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    test.assertThrows(() -> list.insert(4, Integer.valueOf(7)), new PreConditionFailure("insertIndex (4) must be between 0 and 3."));
-                    test.assertEqual(IntegerList.create(1, 2, 3), list);
-                });
-
-                runner.test("with index less than count when the list doesn't need to grow", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    list.add(4); // Initiate growth.
-                    list.insert(0, Integer.valueOf(0));
-                    test.assertEqual(IntegerList.create(0, 1, 2, 3, 4), list);
+                    final IntegerList list = IntegerList.create();
+                    final IntegerList addAllResult = list.addAll(Integer.valueOf(5), Integer.valueOf(6));
+                    test.assertSame(list, addAllResult);
+                    test.assertEqual(IntegerList.create(5, 6), list);
                 });
             });
 
             runner.testGroup("removeAt(int)", () ->
             {
-                runner.test("with negative index with an empty list", (Test test) ->
+                final Action3<IntegerList,Integer,Throwable> removeAtErrorTest = (IntegerList list, Integer index, Throwable expected) ->
                 {
-                    final IntegerList list = IntegerList.create();
-                    test.assertThrows(() -> list.removeAt(-1),
-                        new PreConditionFailure("this cannot be empty."));
-                    test.assertEqual(IntegerList.create(), list);
-                });
+                    runner.test("with " + English.andList(list, index), (Test test) ->
+                    {
+                        test.assertThrows(() -> list.removeAt(index), expected);
+                    });
+                };
 
-                runner.test("with 0 index with an empty list", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create();
-                    test.assertThrows(() -> list.removeAt(0),
-                        new PreConditionFailure("this cannot be empty."));
-                    test.assertEqual(IntegerList.create(), list);
-                });
+                removeAtErrorTest.run(IntegerList.create(), -1, new PreConditionFailure("this cannot be empty."));
+                removeAtErrorTest.run(IntegerList.create(), 0, new PreConditionFailure("this cannot be empty."));
+                removeAtErrorTest.run(IntegerList.create(), 1, new PreConditionFailure("this cannot be empty."));
+                removeAtErrorTest.run(IntegerList.create(1, 2, 3), -1, new PreConditionFailure("index (-1) must be between 0 and 2."));
+                removeAtErrorTest.run(IntegerList.create(1, 2, 3), 3, new PreConditionFailure("index (3) must be between 0 and 2."));
+                removeAtErrorTest.run(IntegerList.create(1, 2, 3), 4, new PreConditionFailure("index (4) must be between 0 and 2."));
 
-                runner.test("with 1 index with an empty list", (Test test) ->
+                final Action4<IntegerList,Integer,Integer,IntegerList> removeAtTest = (IntegerList list, Integer index, Integer expectedResult, IntegerList expectedList) ->
                 {
-                    final IntegerList list = IntegerList.create();
-                    test.assertThrows(() -> list.removeAt(1),
-                        new PreConditionFailure("this cannot be empty."));
-                    test.assertEqual(IntegerList.create(), list);
-                });
+                    runner.test("with " + English.andList(list, index), (Test test) ->
+                    {
+                        test.assertEqual(expectedResult, list.removeAt(index));
+                        test.assertEqual(expectedList, list);
+                    });
+                };
 
-                runner.test("with negative index with a non-empty list", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    test.assertThrows(() -> list.removeAt(-1), new PreConditionFailure("index (-1) must be between 0 and 2."));
-                    test.assertEqual(IntegerList.create(1, 2, 3), list);
-                });
-
-                runner.test("with 0 index with a non-empty list", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    test.assertEqual(1, list.removeAt(0));
-                    test.assertEqual(IntegerList.create(2, 3), list);
-                });
-
-                runner.test("with 1 index with a non-empty list", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3, 4, 5, 6);
-                    test.assertEqual(2, list.removeAt(1));
-                    test.assertEqual(IntegerList.create(1, 3, 4, 5, 6), list);
-                });
-
-                runner.test("with count - 1 index with a non-empty list", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    test.assertEqual(3, list.removeAt(list.getCount() - 1));
-                    test.assertEqual(IntegerList.create(1, 2), list);
-                });
-
-                runner.test("with count index with a non-empty list", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    test.assertThrows(() -> list.removeAt(list.getCount()), new PreConditionFailure("index (3) must be between 0 and 2."));
-                    test.assertEqual(IntegerList.create(1, 2, 3), list);
-                });
-
-                runner.test("with count + 1 index with a non-empty list", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    test.assertThrows(() -> list.removeAt(list.getCount() + 1), new PreConditionFailure("index (4) must be between 0 and 2."));
-                    test.assertEqual(IntegerList.create(1, 2, 3), list);
-                });
+                removeAtTest.run(IntegerList.create(1, 2, 3), 0, 1, IntegerList.create(2, 3));
+                removeAtTest.run(IntegerList.create(1, 2, 3, 4, 5, 6), 1, 2, IntegerList.create(1, 3, 4, 5, 6));
+                removeAtTest.run(IntegerList.create(1, 2, 3), 2, 3, IntegerList.create(1, 2));
             });
 
-            runner.testGroup("set(int,int)", () ->
+            runner.testGroup("removeFirst(int)", () ->
             {
-                runner.test("with negative index", (Test test) ->
+                final Action3<IntegerList,Integer,Throwable> removeFirstErrorTest = (IntegerList list, Integer valuesToRemove, Throwable expected) ->
                 {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    test.assertThrows(() -> list.set(-1, 5), new PreConditionFailure("index (-1) must be between 0 and 2."));
-                    test.assertEqual(IntegerList.create(1, 2, 3), list);
-                });
+                    runner.test("with " + English.andList(list, valuesToRemove), (Test test) ->
+                    {
+                        test.assertThrows(() -> list.removeFirst(valuesToRemove), expected);
+                    });
+                };
 
-                runner.test("with zero index", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    list.set(0, 5);
-                    test.assertEqual(IntegerList.create(5, 2, 3), list);
-                });
+                removeFirstErrorTest.run(IntegerList.create(), -1, new PreConditionFailure("valuesToRemove (-1) must be greater than or equal to 0."));
+                removeFirstErrorTest.run(IntegerList.create(1, 2, 3), -1, new PreConditionFailure("valuesToRemove (-1) must be greater than or equal to 0."));
 
-                runner.test("with count - 1 index", (Test test) ->
+                final Action4<IntegerList,Integer,IntegerArray,IntegerList> removeFirstTest = (IntegerList list, Integer valuesToRemove, IntegerArray expectedResult, IntegerList expectedList) ->
                 {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    list.set(2, 5);
-                    test.assertEqual(IntegerList.create(1, 2, 5), list);
-                });
+                    runner.test("with " + English.andList(list, valuesToRemove), (Test test) ->
+                    {
+                        test.assertEqual(expectedResult, list.removeFirst(valuesToRemove));
+                        test.assertEqual(expectedList, list);
+                    });
+                };
 
-                runner.test("with count index", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    test.assertThrows(() -> list.set(3, 5), new PreConditionFailure("index (3) must be between 0 and 2."));
-                    test.assertEqual(IntegerList.create(1, 2, 3), list);
-                });
+                removeFirstTest.run(IntegerList.create(), 0, IntegerArray.create(), IntegerList.create());
+                removeFirstTest.run(IntegerList.create(), 1, IntegerArray.create(), IntegerList.create());
+                removeFirstTest.run(IntegerList.create(), 2, IntegerArray.create(), IntegerList.create());
+            });
 
-                runner.test("with count + 1 index", (Test test) ->
+            runner.testGroup("removeFirst(int[])", () ->
+            {
+                final Action3<IntegerList,int[],Throwable> removeFirstErrorTest = (IntegerList list, int[] outputIntegers, Throwable expected) ->
                 {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    test.assertThrows(() -> list.set(4, 5), new PreConditionFailure("index (4) must be between 0 and 2."));
-                    test.assertEqual(IntegerList.create(1, 2, 3), list);
-                });
+                    runner.test("with " + English.andList(list, outputIntegers), (Test test) ->
+                    {
+                        test.assertThrows(() -> list.removeFirst(outputIntegers), expected);
+                    });
+                };
+
+                removeFirstErrorTest.run(IntegerList.create(), null, new PreConditionFailure("outputIntegers cannot be null."));
+
+                final Action5<IntegerList,int[],Integer,int[],IntegerList> removeFirstTest = (IntegerList list, int[] outputIntegers, Integer expectedResult, int[] expectedOutputLongs, IntegerList expectedList) ->
+                {
+                    runner.test("with " + English.andList(list, outputIntegers), (Test test) ->
+                    {
+                        test.assertEqual(expectedResult, list.removeFirst(outputIntegers));
+                        test.assertEqual(expectedOutputLongs, outputIntegers);
+                        test.assertEqual(expectedList, list);
+                    });
+                };
+
+                removeFirstTest.run(IntegerList.create(), new int[] {}, 0, new int[] {}, IntegerList.create());
+                removeFirstTest.run(IntegerList.create(), new int[] { 10 }, 0, new int[] { 10 }, IntegerList.create());
+                removeFirstTest.run(IntegerList.create(), new int[] { 10, 11 }, 0, new int[] { 10, 11 }, IntegerList.create());
+                removeFirstTest.run(IntegerList.create(), new int[] { 10, 11, 12 }, 0, new int[] { 10, 11, 12 }, IntegerList.create());
+                removeFirstTest.run(IntegerList.create(0, 1, 2), new int[] {}, 0, new int[] {}, IntegerList.create(0, 1, 2));
+                removeFirstTest.run(IntegerList.create(0, 1, 2), new int[] { 10 }, 1, new int[] { 0 }, IntegerList.create(1, 2));
+                removeFirstTest.run(IntegerList.create(0, 1, 2), new int[] { 10, 11 }, 2, new int[] { 0, 1 }, IntegerList.create(2));
+                removeFirstTest.run(IntegerList.create(0, 1, 2), new int[] { 10, 11, 12 }, 3, new int[] { 0, 1, 2 }, IntegerList.create());
+                removeFirstTest.run(IntegerList.create(0, 1, 2), new int[] { 10, 11, 12, 13 }, 3, new int[] { 0, 1, 2, 13 }, IntegerList.create());
+            });
+
+            runner.testGroup("removeFirst(int[],int,int)", () ->
+            {
+                final Action5<IntegerList,int[],Integer,Integer,Throwable> removeFirstErrorTest = (IntegerList list, int[] outputIntegers, Integer startIndex, Integer length, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(list, outputIntegers, startIndex, length), (Test test) ->
+                    {
+                        test.assertThrows(() -> list.removeFirst(outputIntegers, startIndex, length), expected);
+                    });
+                };
+
+                removeFirstErrorTest.run(IntegerList.create(), null, 0, 0, new PreConditionFailure("outputIntegers cannot be null."));
+                removeFirstErrorTest.run(IntegerList.create(), new int[0], -1, 0, new PreConditionFailure("startIndex (-1) must be equal to 0."));
+                removeFirstErrorTest.run(IntegerList.create(), new int[0], 1, 0, new PreConditionFailure("startIndex (1) must be equal to 0."));
+                removeFirstErrorTest.run(IntegerList.create(), new int[0], 0, -1, new PreConditionFailure("length (-1) must be equal to 0."));
+                removeFirstErrorTest.run(IntegerList.create(), new int[0], 0, 1, new PreConditionFailure("length (1) must be equal to 0."));
+
+                final Action7<IntegerList,int[],Integer,Integer,Integer,int[],IntegerList> removeFirstTest = (IntegerList list, int[] outputIntegers, Integer startIndex, Integer length, Integer expectedResult, int[] expectedOutputLongs, IntegerList expectedList) ->
+                {
+                    runner.test("with " + English.andList(list, outputIntegers, startIndex, length), (Test test) ->
+                    {
+                        test.assertEqual(expectedResult, list.removeFirst(outputIntegers, startIndex, length));
+                        test.assertEqual(expectedOutputLongs, outputIntegers);
+                        test.assertEqual(expectedList, list);
+                    });
+                };
+
+                removeFirstTest.run(IntegerList.create(), new int[] {}, 0, 0, 0, new int[] {}, IntegerList.create());
+                removeFirstTest.run(IntegerList.create(), new int[] { 10 }, 0, 0, 0, new int[] { 10 }, IntegerList.create());
+                removeFirstTest.run(IntegerList.create(), new int[] { 10 }, 0, 1, 0, new int[] { 10 }, IntegerList.create());
+                removeFirstTest.run(IntegerList.create(), new int[] { 10, 11 }, 0, 0, 0, new int[] { 10, 11 }, IntegerList.create());
+                removeFirstTest.run(IntegerList.create(), new int[] { 10, 11 }, 0, 1, 0, new int[] { 10, 11 }, IntegerList.create());
+                removeFirstTest.run(IntegerList.create(), new int[] { 10, 11 }, 0, 2, 0, new int[] { 10, 11 }, IntegerList.create());
+                removeFirstTest.run(IntegerList.create(), new int[] { 10, 11 }, 1, 0, 0, new int[] { 10, 11 }, IntegerList.create());
+                removeFirstTest.run(IntegerList.create(), new int[] { 10, 11 }, 1, 1, 0, new int[] { 10, 11 }, IntegerList.create());
+                removeFirstTest.run(IntegerList.create(), new int[] { 10, 11, 12 }, 0, 0, 0, new int[] { 10, 11, 12 }, IntegerList.create());
+                removeFirstTest.run(IntegerList.create(), new int[] { 10, 11, 12 }, 0, 1, 0, new int[] { 10, 11, 12 }, IntegerList.create());
+                removeFirstTest.run(IntegerList.create(), new int[] { 10, 11, 12 }, 0, 2, 0, new int[] { 10, 11, 12 }, IntegerList.create());
+                removeFirstTest.run(IntegerList.create(), new int[] { 10, 11, 12 }, 0, 3, 0, new int[] { 10, 11, 12 }, IntegerList.create());
+                removeFirstTest.run(IntegerList.create(0, 1, 2), new int[] {}, 0, 0, 0, new int[] {}, IntegerList.create(0, 1, 2));
+                removeFirstTest.run(IntegerList.create(0, 1, 2), new int[] { 10 }, 0, 0, 0, new int[] { 10 }, IntegerList.create(0, 1, 2));
+                removeFirstTest.run(IntegerList.create(0, 1, 2), new int[] { 10 }, 0, 1, 1, new int[] { 0 }, IntegerList.create(1, 2));
+                removeFirstTest.run(IntegerList.create(0, 1, 2), new int[] { 10, 11 }, 0, 0, 0, new int[] { 10, 11 }, IntegerList.create(0, 1, 2));
+                removeFirstTest.run(IntegerList.create(0, 1, 2), new int[] { 10, 11, 12 }, 0, 3, 3, new int[] { 0, 1, 2 }, IntegerList.create());
+                removeFirstTest.run(IntegerList.create(0, 1, 2), new int[] { 10, 11, 12, 13 }, 0, 4, 3, new int[] { 0, 1, 2, 13 }, IntegerList.create());
             });
 
             runner.testGroup("set(int,Integer)", () ->
             {
-                runner.test("with negative index", (Test test) ->
+                final Action4<IntegerList,Integer,Integer,Throwable> setErrorTest = (IntegerList list, Integer index, Integer value, Throwable expected) ->
                 {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    test.assertThrows(() -> list.set(-1, Integer.valueOf(5)), new PreConditionFailure("index (-1) must be between 0 and 2."));
-                    test.assertEqual(IntegerList.create(1, 2, 3), list);
-                });
+                    runner.test("with " + English.andList(list, index, value), (Test test) ->
+                    {
+                        test.assertThrows(() -> list.set(index, value), expected);
+                    });
+                };
 
-                runner.test("with zero index", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    list.set(0, Integer.valueOf(5));
-                    test.assertEqual(IntegerList.create(5, 2, 3), list);
-                });
+                setErrorTest.run(IntegerList.create(1, 2, 3), -1, 5, new PreConditionFailure("index (-1) must be between 0 and 2."));
+                setErrorTest.run(IntegerList.create(1, 2, 3), 3, 5, new PreConditionFailure("index (3) must be between 0 and 2."));
+                setErrorTest.run(IntegerList.create(1, 2, 3), 4, 5, new PreConditionFailure("index (4) must be between 0 and 2."));
+                setErrorTest.run(IntegerList.create(1, 2, 3), 1, null, new PreConditionFailure("value cannot be null."));
 
-                runner.test("with count - 1 index", (Test test) ->
+                final Action4<IntegerList,Integer,Integer,IntegerList> setTest = (IntegerList list, Integer index, Integer value, IntegerList expected) ->
                 {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    list.set(2, Integer.valueOf(5));
-                    test.assertEqual(IntegerList.create(1, 2, 5), list);
-                });
+                    runner.test("with " + English.andList(list, index, value), (Test test) ->
+                    {
+                        final IntegerList setResult = list.set(index, value);
+                        test.assertSame(list, setResult);
+                        test.assertEqual(expected, list);
+                    });
+                };
 
-                runner.test("with count index", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    test.assertThrows(() -> list.set(3, Integer.valueOf(5)), new PreConditionFailure("index (3) must be between 0 and 2."));
-                    test.assertEqual(IntegerList.create(1, 2, 3), list);
-                });
-
-                runner.test("with count + 1 index", (Test test) ->
-                {
-                    final IntegerList list = IntegerList.create(1, 2, 3);
-                    test.assertThrows(() -> list.set(4, Integer.valueOf(5)), new PreConditionFailure("index (4) must be between 0 and 2."));
-                    test.assertEqual(IntegerList.create(1, 2, 3), list);
-                });
+                setTest.run(IntegerList.create(1, 2, 3), 0, 5, IntegerList.create(5, 2, 3));
+                setTest.run(IntegerList.create(1, 2, 3), 2, 5, IntegerList.create(1, 2, 5));
             });
 
             runner.testGroup("get(int)", () ->

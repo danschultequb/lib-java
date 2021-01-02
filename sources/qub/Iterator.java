@@ -397,7 +397,7 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      */
     static Iterator<Integer> create(int[] values)
     {
-        return new IntegerArrayIterator(values);
+        return IntegerArrayIterator.create(values);
     }
 
     /**

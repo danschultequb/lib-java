@@ -652,8 +652,8 @@ public interface CharacterToByteWriteStreamListTests
                 runner.test("with null", (Test test) ->
                 {
                     final CharacterToByteWriteStreamList streamList = CharacterToByteWriteStreamList.create();
-                    final CharacterToByteWriteStreamList addAllResult = streamList.addAll((Iterator<CharacterToByteWriteStream>)null);
-                    test.assertSame(streamList, addAllResult);
+                    test.assertThrows(() -> streamList.addAll((Iterator<CharacterToByteWriteStream>)null),
+                        new PreConditionFailure("values cannot be null."));
                     test.assertEqual(Iterable.create(), streamList);
                 });
 

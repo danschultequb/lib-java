@@ -11,39 +11,42 @@ public class ListQueue<T> implements Queue<T>
     /**
      * Create a new Queue.
      */
-    public ListQueue(List<T> values)
+    protected ListQueue(List<T> values)
     {
         this.values = values;
+    }
+
+    public static <T> ListQueue<T> create()
+    {
+        return new ListQueue<>(List.create());
     }
 
     @Override
     public boolean any()
     {
-        return values.any();
+        return this.values.any();
     }
 
     @Override
     public int getCount()
     {
-        return values.getCount();
+        return this.values.getCount();
     }
 
     @Override
-    public void enqueue(T value)
+    public ListQueue<T> enqueue(T value)
     {
-        values.add(value);
+        this.values.add(value);
+
+        return this;
     }
 
     @Override
-    public void enqueueAll(T[] values)
-    {
-        this.values.addAll(values);
-    }
-
-    @Override
-    public void enqueueAll(Iterable<T> values)
+    public ListQueue<T> enqueueAll(Iterable<T> values)
     {
         this.values.addAll(values);
+
+        return this;
     }
 
     @Override
@@ -51,12 +54,12 @@ public class ListQueue<T> implements Queue<T>
     {
         PreCondition.assertTrue(any(), "any()");
 
-        return values.removeFirst();
+        return this.values.removeFirst();
     }
 
     @Override
     public Result<T> peek()
     {
-        return values.any() ? Result.success(values.first()) : Result.error(new QueueEmptyException());
+        return this.values.any() ? Result.success(this.values.first()) : Result.error(new QueueEmptyException());
     }
 }

@@ -230,6 +230,31 @@ public interface Math
      * @param scale The divisor value.
      * @return The remainder value.
      */
+    static int modulo(long value, int scale)
+    {
+        PreCondition.assertNotEqual(0, scale, "scale");
+
+        int result;
+        if (0 <= value && 0 <= scale)
+        {
+            result = (int)(value % scale);
+        }
+        else
+        {
+            result = (int)(value - (scale * (long)Math.floor((double)value / (double)scale)));
+        }
+
+        PostCondition.assertBetween(0, result, scale, "result");
+
+        return result;
+    }
+
+    /**
+     * Get the remainder when value is divided by scale.
+     * @param value The dividend value.
+     * @param scale The divisor value.
+     * @return The remainder value.
+     */
     static long modulo(long value, long scale)
     {
         PreCondition.assertNotEqual(0, scale, "scale");
