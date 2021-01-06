@@ -294,7 +294,16 @@ public class CharacterList implements List<Character>
     public String toString(boolean asString)
     {
         return asString
-            ? String.valueOf(characters, 0, count)
+            ? String.valueOf(this.characters, 0, this.count)
             : Iterable.toString(this);
+    }
+
+    /**
+     * Get the characters of this CharacterList as a char[].
+     * @return The characters of this CharacterList as a char[].
+     */
+    public char[] toCharArray()
+    {
+        return Array.clone(this.characters, 0, this.count);
     }
 }

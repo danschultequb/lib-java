@@ -319,16 +319,14 @@ public interface InputStreamToByteReadStreamTests
                 runner.test("when empty", (Test test) ->
                 {
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 0);
-                    test.assertThrows(() -> readStream.readAllBytes().await(),
-                        new EndOfStreamException());
+                    test.assertEqual(new byte[0], readStream.readAllBytes().await());
                 });
 
                 runner.test("when not empty", (Test test) ->
                 {
                     final InputStreamToByteReadStream readStream = getByteReadStream(test, 5);
                     test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, readStream.readAllBytes().await());
-                    test.assertThrows(() -> readStream.readAllBytes().await(),
-                        new EndOfStreamException());
+                    test.assertEqual(new byte[0], readStream.readAllBytes().await());
                 });
             });
 

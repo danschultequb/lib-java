@@ -375,20 +375,21 @@ public interface InMemoryCharacterToByteStreamTests
                 runner.test("with no characters to read", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream("");
-                    test.assertThrows(() -> characterReadStream.readAllCharacters().await(),
-                        new EndOfStreamException());
+                    test.assertEqual(new char[0], characterReadStream.readAllCharacters().await());
                 });
 
                 runner.test("with one character to read", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream("f");
                     test.assertEqual(new char[] { 'f' }, characterReadStream.readAllCharacters().await());
+                    test.assertEqual(new char[0], characterReadStream.readAllCharacters().await());
                 });
 
                 runner.test("with multiple characters to read", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream("fedcb");
                     test.assertEqual(new char[] { 'f', 'e', 'd', 'c', 'b' }, characterReadStream.readAllCharacters().await());
+                    test.assertEqual(new char[0], characterReadStream.readAllCharacters().await());
                 });
             });
 
@@ -431,6 +432,37 @@ public interface InMemoryCharacterToByteStreamTests
                     test.assertEqual("abc", characterReadStream.readString(3).await());
                     test.assertEqual("d", characterReadStream.readString(1).await());
                     test.assertEqual("efghi", characterReadStream.readString(1000).await());
+                });
+            });
+
+            runner.testGroup("readEntireString()", () ->
+            {
+                runner.test("with disposed CharacterReadStream", (Test test) ->
+                {
+                    final InMemoryCharacterToByteStream characterReadStream = createStream();
+                    test.assertTrue(characterReadStream.dispose().await());
+                    test.assertThrows(characterReadStream::readEntireString,
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
+                });
+
+                runner.test("with no characters to read", (Test test) ->
+                {
+                    final InMemoryCharacterToByteStream characterReadStream = createStream("");
+                    test.assertEqual("", characterReadStream.readEntireString().await());
+                });
+
+                runner.test("with one character to read", (Test test) ->
+                {
+                    final InMemoryCharacterToByteStream characterReadStream = createStream("f");
+                    test.assertEqual("f", characterReadStream.readEntireString().await());
+                    test.assertEqual("", characterReadStream.readEntireString().await());
+                });
+
+                runner.test("with multiple characters to read", (Test test) ->
+                {
+                    final InMemoryCharacterToByteStream characterReadStream = createStream("fedcb");
+                    test.assertEqual("fedcb", characterReadStream.readEntireString().await());
+                    test.assertEqual("", characterReadStream.readEntireString().await());
                 });
             });
 

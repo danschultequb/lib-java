@@ -113,34 +113,7 @@ public interface CharacterReadStream extends Disposable
 
         return Result.create(() ->
         {
-            final List<char[]> readCharacterArrays = new ArrayList<>();
-            char[] buffer = new char[1024];
-
-            while(true)
-            {
-                final Integer charactersRead = readCharacters(buffer)
-                    .catchError(EndOfStreamException.class)
-                    .await();
-                if (charactersRead == null || charactersRead == -1)
-                {
-                    if (!readCharacterArrays.any())
-                    {
-                        throw new EndOfStreamException();
-                    }
-                    break;
-                }
-                else if (charactersRead == buffer.length)
-                {
-                    readCharacterArrays.add(buffer);
-                    buffer = new char[buffer.length * 2];
-                }
-                else
-                {
-                    readCharacterArrays.add(Array.clone(buffer, 0, charactersRead));
-                }
-            }
-
-            return Array.mergeCharacters(readCharacterArrays);
+            return CharacterList.create(CharacterReadStream.iterate(this)).toCharArray();
         });
     }
 
@@ -224,8 +197,8 @@ public interface CharacterReadStream extends Disposable
         PreCondition.assertGreaterThan(charactersToRead, 0, "charactersToRead");
         PreCondition.assertNotDisposed(this, "this");
 
-        return readCharacters(charactersToRead)
-            .then((char[] characters) -> characters == null ? null : String.valueOf(characters));
+        return this.readCharacters(charactersToRead)
+            .then((char[] characters) -> String.valueOf(characters));
     }
 
     /**
@@ -239,7 +212,7 @@ public interface CharacterReadStream extends Disposable
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        return readAllCharacters()
+        return this.readAllCharacters()
             .then((char[] characters) -> String.valueOf(characters));
     }
 
@@ -253,7 +226,7 @@ public interface CharacterReadStream extends Disposable
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        return readStringUntil(new char[] { value });
+        return this.readStringUntil(new char[] { value });
     }
 
     /**
@@ -267,7 +240,7 @@ public interface CharacterReadStream extends Disposable
         PreCondition.assertNotNullAndNotEmpty(values, "values");
         PreCondition.assertNotDisposed(this, "this");
 
-        return readStringUntil(String.valueOf(values));
+        return this.readStringUntil(String.valueOf(values));
     }
 
     /**
@@ -281,8 +254,8 @@ public interface CharacterReadStream extends Disposable
         PreCondition.assertNotNullAndNotEmpty(value, "value");
         PreCondition.assertNotDisposed(this, "this");
 
-        return readCharactersUntil(value)
-            .then((Function1<char[],String>)String::valueOf);
+        return this.readCharactersUntil(value)
+            .then((char[] characters) -> String.valueOf(characters));
     }
 
     /**
@@ -291,7 +264,7 @@ public interface CharacterReadStream extends Disposable
      */
     default Result<String> readLine()
     {
-        return readLine(false);
+        return this.readLine(false);
     }
 
     /**

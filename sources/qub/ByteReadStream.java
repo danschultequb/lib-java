@@ -85,12 +85,7 @@ public interface ByteReadStream extends Disposable
         {
             final InMemoryByteStream byteStream = InMemoryByteStream.create();
             byteStream.writeAll(this).await();
-            final byte[] bytes = byteStream.getBytes();
-            if (bytes.length == 0)
-            {
-                throw new EndOfStreamException();
-            }
-            return bytes;
+            return byteStream.getBytes();
         });
     }
 
@@ -164,6 +159,18 @@ public interface ByteReadStream extends Disposable
             }
             return result;
         });
+    }
+
+    /**
+     * Get a ByteReadStream that wraps this ByteReadStream but will return at most the provided number of bytes.
+     * @param toTake The maximum number of bytes that can be read from the returned ByteReadStream.
+     * @return The ByteReadStream that limits the number of bytes that can be read.
+     */
+    default ByteReadStream take(long toTake)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(toTake, 0, "toTake");
+
+        return TakeByteReadStream.create(this, toTake);
     }
 
     static ByteReadStreamIterator iterate(ByteReadStream byteReadStream)
