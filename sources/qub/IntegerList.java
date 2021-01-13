@@ -104,6 +104,12 @@ public class IntegerList implements List<Integer>
     }
 
     @Override
+    public IntegerList addAll(Iterator<? extends Integer> values)
+    {
+        return (IntegerList)List.super.addAll(values);
+    }
+
+    @Override
     public Integer removeAt(int index)
     {
         PreCondition.assertNotNullAndNotEmpty(this, "this");

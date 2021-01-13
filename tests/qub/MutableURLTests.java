@@ -13,7 +13,7 @@ public interface MutableURLTests
                 test.assertNull(url.getHost());
                 test.assertNull(url.getPort());
                 test.assertNull(url.getPath());
-                test.assertNull(url.getQuery());
+                test.assertNull(url.getQueryString());
                 test.assertNull(url.getFragment());
                 test.assertEqual("", url.toString());
             });
@@ -103,116 +103,116 @@ public interface MutableURLTests
                 runner.test("with null", (Test test) ->
                 {
                     final MutableURL url = MutableURL.create();
-                    final MutableURL setQueryResult = url.setQuery(null);
+                    final MutableURL setQueryResult = url.setQueryString(null);
                     test.assertSame(url, setQueryResult);
-                    test.assertNull(url.getQuery());
+                    test.assertNull(url.getQueryString());
                 });
 
                 runner.test("with \"\"", (Test test) ->
                 {
                     final MutableURL url = MutableURL.create();
-                    final MutableURL setQueryResult = url.setQuery("");
+                    final MutableURL setQueryResult = url.setQueryString("");
                     test.assertSame(url, setQueryResult);
-                    test.assertNull(url.getQuery());
+                    test.assertNull(url.getQueryString());
                 });
 
                 runner.test("with \"?\"", (Test test) ->
                 {
                     final MutableURL url = MutableURL.create();
-                    final MutableURL setQueryResult = url.setQuery("?");
+                    final MutableURL setQueryResult = url.setQueryString("?");
                     test.assertSame(url, setQueryResult);
-                    test.assertNull(url.getQuery());
+                    test.assertNull(url.getQueryString());
                 });
 
                 runner.test("with \"a\"", (Test test) ->
                 {
                     final MutableURL url = MutableURL.create();
-                    final MutableURL setQueryResult = url.setQuery("a");
+                    final MutableURL setQueryResult = url.setQueryString("a");
                     test.assertSame(url, setQueryResult);
-                    test.assertEqual("a", url.getQuery());
-                    test.assertNull(url.getQueryParameterValue("a").await());
+                    test.assertEqual("a", url.getQueryString());
+                    test.assertNull(url.getQueryParameter("a").await());
                 });
 
                 runner.test("with \"a=\"", (Test test) ->
                 {
                     final MutableURL url = MutableURL.create();
-                    final MutableURL setQueryResult = url.setQuery("a=");
+                    final MutableURL setQueryResult = url.setQueryString("a=");
                     test.assertSame(url, setQueryResult);
-                    test.assertEqual("a=", url.getQuery());
-                    test.assertEqual("", url.getQueryParameterValue("a").await());
+                    test.assertEqual("a=", url.getQueryString());
+                    test.assertEqual("", url.getQueryParameter("a").await());
                 });
 
                 runner.test("with \"a=b\"", (Test test) ->
                 {
                     final MutableURL url = MutableURL.create();
-                    final MutableURL setQueryResult = url.setQuery("a=b");
+                    final MutableURL setQueryResult = url.setQueryString("a=b");
                     test.assertSame(url, setQueryResult);
-                    test.assertEqual("a=b", url.getQuery());
-                    test.assertEqual("b", url.getQueryParameterValue("a").await());
+                    test.assertEqual("a=b", url.getQueryString());
+                    test.assertEqual("b", url.getQueryParameter("a").await());
                 });
 
                 runner.test("with \"&\"", (Test test) ->
                 {
                     final MutableURL url = MutableURL.create();
-                    final MutableURL setQueryResult = url.setQuery("&");
+                    final MutableURL setQueryResult = url.setQueryString("&");
                     test.assertSame(url, setQueryResult);
-                    test.assertNull(url.getQuery());
+                    test.assertNull(url.getQueryString());
                 });
 
                 runner.test("with \"a&\"", (Test test) ->
                 {
                     final MutableURL url = MutableURL.create();
-                    final MutableURL setQueryResult = url.setQuery("a&");
+                    final MutableURL setQueryResult = url.setQueryString("a&");
                     test.assertSame(url, setQueryResult);
-                    test.assertEqual("a", url.getQuery());
-                    test.assertNull(url.getQueryParameterValue("a").await());
+                    test.assertEqual("a", url.getQueryString());
+                    test.assertNull(url.getQueryParameter("a").await());
                 });
 
                 runner.test("with \"a=b&\"", (Test test) ->
                 {
                     final MutableURL url = MutableURL.create();
-                    final MutableURL setQueryResult = url.setQuery("a=b&");
+                    final MutableURL setQueryResult = url.setQueryString("a=b&");
                     test.assertSame(url, setQueryResult);
-                    test.assertEqual("a=b", url.getQuery());
-                    test.assertEqual("b", url.getQueryParameterValue("a").await());
+                    test.assertEqual("a=b", url.getQueryString());
+                    test.assertEqual("b", url.getQueryParameter("a").await());
                 });
 
                 runner.test("with \"a=b&c\"", (Test test) ->
                 {
                     final MutableURL url = MutableURL.create();
-                    final MutableURL setQueryResult = url.setQuery("a=b&c");
+                    final MutableURL setQueryResult = url.setQueryString("a=b&c");
                     test.assertSame(url, setQueryResult);
-                    test.assertEqual("a=b&c", url.getQuery());
-                    test.assertEqual("b", url.getQueryParameterValue("a").await());
-                    test.assertNull(url.getQueryParameterValue("c").await());
+                    test.assertEqual("a=b&c", url.getQueryString());
+                    test.assertEqual("b", url.getQueryParameter("a").await());
+                    test.assertNull(url.getQueryParameter("c").await());
                 });
 
                 runner.test("with \"a=b&c&\"", (Test test) ->
                 {
                     final MutableURL url = MutableURL.create();
-                    final MutableURL setQueryResult = url.setQuery("a=b&c&");
+                    final MutableURL setQueryResult = url.setQueryString("a=b&c&");
                     test.assertSame(url, setQueryResult);
-                    test.assertEqual("a=b&c", url.getQuery());
-                    test.assertEqual("b", url.getQueryParameterValue("a").await());
-                    test.assertNull(url.getQueryParameterValue("c").await());
+                    test.assertEqual("a=b&c", url.getQueryString());
+                    test.assertEqual("b", url.getQueryParameter("a").await());
+                    test.assertNull(url.getQueryParameter("c").await());
                 });
 
                 runner.test("with \"a=b&c=&\"", (Test test) ->
                 {
                     final MutableURL url = MutableURL.create();
-                    final MutableURL setQueryResult = url.setQuery("a=b&c=&");
+                    final MutableURL setQueryResult = url.setQueryString("a=b&c=&");
                     test.assertSame(url, setQueryResult);
-                    test.assertEqual("a=b&c=", url.getQuery());
-                    test.assertEqual("b", url.getQueryParameterValue("a").await());
-                    test.assertEqual("", url.getQueryParameterValue("c").await());
+                    test.assertEqual("a=b&c=", url.getQueryString());
+                    test.assertEqual("b", url.getQueryParameter("a").await());
+                    test.assertEqual("", url.getQueryParameter("c").await());
                 });
 
                 runner.test("with \"=bad&\"", (Test test) ->
                 {
                     final MutableURL url = MutableURL.create();
-                    final MutableURL setQueryResult = url.setQuery("=bad&");
+                    final MutableURL setQueryResult = url.setQueryString("=bad&");
                     test.assertSame(url, setQueryResult);
-                    test.assertNull(url.getQuery());
+                    test.assertNull(url.getQueryString());
                 });
             });
 
@@ -225,7 +225,7 @@ public interface MutableURLTests
                         final MutableURL url = MutableURL.create();
                         test.assertThrows(() -> url.setQueryParameter(queryParameterName, queryParameterValue),
                             expected);
-                        test.assertNull(url.getQuery());
+                        test.assertNull(url.getQueryString());
                     });
                 };
 
@@ -243,7 +243,7 @@ public interface MutableURLTests
                         final MutableURL url = MutableURL.create();
                         final MutableURL setQueryParameterResult = url.setQueryParameter(queryParameterName, queryParameterValue);
                         test.assertSame(url, setQueryParameterResult);
-                        test.assertEqual(queryParameterValue, url.getQueryParameterValue(queryParameterName).await());
+                        test.assertEqual(queryParameterValue, url.getQueryParameter(queryParameterName).await());
                     });
                 };
 

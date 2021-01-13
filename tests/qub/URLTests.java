@@ -13,9 +13,117 @@ public interface URLTests
                 test.assertNull(url.getHost());
                 test.assertNull(url.getPort());
                 test.assertNull(url.getPath());
-                test.assertNull(url.getQuery());
+                test.assertNull(url.getQueryString());
                 test.assertNull(url.getFragment());
                 test.assertEqual("", url.toString());
+            });
+
+            runner.testGroup("encodePath(String,CharacterList)", () ->
+            {
+                final Action2<String,String> encodePathTest = (String path, String expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(path), (Test test) ->
+                    {
+                        final CharacterList output = CharacterList.create();
+                        URL.encodePath(path, output);
+                        test.assertEqual(expected, output.toString());
+                    });
+                };
+
+                encodePathTest.run(null, "");
+                encodePathTest.run("", "");
+                encodePathTest.run("abc", "abc");
+                encodePathTest.run("" + (char)0x00, "%00");
+                encodePathTest.run("\t", "%09");
+                encodePathTest.run("\r", "%0D");
+                encodePathTest.run("\n", "%0A");
+                encodePathTest.run("" + (char)0x10, "%10");
+                encodePathTest.run("" + (char)0x1F, "%1F");
+                encodePathTest.run(" ", "%20");
+                encodePathTest.run("\"", "%22");
+                encodePathTest.run("#", "%23");
+                encodePathTest.run("<", "%3C");
+                encodePathTest.run(">", "%3E");
+                encodePathTest.run("?", "%3F");
+                encodePathTest.run("`", "%60");
+                encodePathTest.run("{", "%7B");
+                encodePathTest.run("}", "%7D");
+                encodePathTest.run("" + (char)0x7E, "~");
+                encodePathTest.run("" + (char)0x7F, "%7F");
+                encodePathTest.run("\"", "%22");
+                encodePathTest.run("'", "'");
+            });
+
+            runner.testGroup("encodeQuery(String,CharacterList)", () ->
+            {
+                final Action2<String,String> encodeQueryTest = (String query, String expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(query), (Test test) ->
+                    {
+                        final CharacterList output = CharacterList.create();
+                        URL.encodeQuery(query, output);
+                        test.assertEqual(expected, output.toString());
+                    });
+                };
+
+                encodeQueryTest.run(null, "");
+                encodeQueryTest.run("", "");
+                encodeQueryTest.run("abc", "abc");
+                encodeQueryTest.run("" + (char)0x00, "%00");
+                encodeQueryTest.run("\t", "%09");
+                encodeQueryTest.run("\r", "%0D");
+                encodeQueryTest.run("\n", "%0A");
+                encodeQueryTest.run("" + (char)0x10, "%10");
+                encodeQueryTest.run("" + (char)0x1F, "%1F");
+                encodeQueryTest.run(" ", "%20");
+                encodeQueryTest.run("\"", "%22");
+                encodeQueryTest.run("#", "%23");
+                encodeQueryTest.run("<", "%3C");
+                encodeQueryTest.run(">", "%3E");
+                encodeQueryTest.run("?", "?");
+                encodeQueryTest.run("`", "`");
+                encodeQueryTest.run("{", "{");
+                encodeQueryTest.run("}", "}");
+                encodeQueryTest.run("" + (char)0x7E, "~");
+                encodeQueryTest.run("" + (char)0x7F, "%7F");
+                encodeQueryTest.run("\"", "%22");
+                encodeQueryTest.run("'", "'");
+            });
+
+            runner.testGroup("encodeFragment(String,CharacterList)", () ->
+            {
+                final Action2<String,String> encodeFragmentTest = (String fragment, String expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(fragment), (Test test) ->
+                    {
+                        final CharacterList output = CharacterList.create();
+                        URL.encodeFragment(fragment, output);
+                        test.assertEqual(expected, output.toString());
+                    });
+                };
+
+                encodeFragmentTest.run(null, "");
+                encodeFragmentTest.run("", "");
+                encodeFragmentTest.run("abc", "abc");
+                encodeFragmentTest.run("" + (char)0x00, "%00");
+                encodeFragmentTest.run("\t", "%09");
+                encodeFragmentTest.run("\r", "%0D");
+                encodeFragmentTest.run("\n", "%0A");
+                encodeFragmentTest.run("" + (char)0x10, "%10");
+                encodeFragmentTest.run("" + (char)0x1F, "%1F");
+                encodeFragmentTest.run(" ", "%20");
+                encodeFragmentTest.run("\"", "%22");
+                encodeFragmentTest.run("#", "#");
+                encodeFragmentTest.run("<", "%3C");
+                encodeFragmentTest.run(">", "%3E");
+                encodeFragmentTest.run("?", "?");
+                encodeFragmentTest.run("`", "%60");
+                encodeFragmentTest.run("{", "{");
+                encodeFragmentTest.run("}", "}");
+                encodeFragmentTest.run("" + (char)0x7E, "~");
+                encodeFragmentTest.run("" + (char)0x7F, "%7F");
+                encodeFragmentTest.run("\"", "%22");
+                encodeFragmentTest.run("'", "'");
             });
 
             runner.testGroup("toString()", () ->
@@ -62,7 +170,12 @@ public interface URLTests
                 toStringTest.run(
                     URL.create()
                         .setHost("www.example.com")
-                        .setQuery("?a=b&c=d&e&f="),
+                        .setQueryString("a=b&c=d&e&f="),
+                    "www.example.com?a=b&c=d&e&f=");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setQueryString("?a=b&c=d&e&f="),
                     "www.example.com?a=b&c=d&e&f=");
                 toStringTest.run(
                     URL.create()
@@ -74,6 +187,298 @@ public interface URLTests
                         .setHost("www.example.com")
                         .setFragment("firstHeading"),
                     "www.example.com#firstHeading");
+                toStringTest.run(
+                    URL.create()
+                        .setScheme("https")
+                        .setHost("www.example.com")
+                        .setPath("/my path/?#")
+                        .setQueryString("?hello there #<> friend")
+                        .setFragment("#i`m a fragment"),
+                    "https://www.example.com/my path/?#?hello there #<> friend#i`m a fragment");
+            });
+
+            runner.testGroup("toString(boolean)", () ->
+            {
+                final Action3<URL,Boolean,String> toStringTest = (URL url, Boolean percentEncode, String expected) ->
+                {
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(url), percentEncode), (Test test) ->
+                    {
+                        test.assertEqual(expected, url.toString(percentEncode));
+                    });
+                };
+
+                toStringTest.run(URL.create(), false, "");
+                toStringTest.run(URL.create(), true, "");
+                toStringTest.run(
+                    URL.create().setScheme("ftp"),
+                    false,
+                    "ftp://");
+                toStringTest.run(
+                    URL.create().setScheme("ftp"),
+                    true,
+                    "ftp://");
+                toStringTest.run(
+                    URL.create().setScheme("ftp").setHost("www.example.com"),
+                    false,
+                    "ftp://www.example.com");
+                toStringTest.run(
+                    URL.create().setScheme("ftp").setHost("www.example.com"),
+                    true,
+                    "ftp://www.example.com");
+                toStringTest.run(
+                    URL.create().setScheme("ftp").setHost("www.example.com").setPort(8080),
+                    false,
+                    "ftp://www.example.com:8080");
+                toStringTest.run(
+                    URL.create().setScheme("ftp").setHost("www.example.com").setPort(8080),
+                    true,
+                    "ftp://www.example.com:8080");
+                toStringTest.run(
+                    URL.create().setHost("www.example.com").setPort(8080),
+                    false,
+                    "www.example.com:8080");
+                toStringTest.run(
+                    URL.create().setHost("www.example.com").setPort(8080),
+                    true,
+                    "www.example.com:8080");
+                toStringTest.run(
+                    URL.create()
+                        .setScheme("ftp")
+                        .setHost("www.example.com")
+                        .setPort(8080)
+                        .setPath("my/index.html"),
+                    false,
+                    "ftp://www.example.com:8080/my/index.html");
+                toStringTest.run(
+                    URL.create()
+                        .setScheme("ftp")
+                        .setHost("www.example.com")
+                        .setPort(8080)
+                        .setPath("my/index.html"),
+                    true,
+                    "ftp://www.example.com:8080/my/index.html");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setPort(8080)
+                        .setPath("your/index.html"),
+                    false,
+                    "www.example.com:8080/your/index.html");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setPort(8080)
+                        .setPath("your/index.html"),
+                    true,
+                    "www.example.com:8080/your/index.html");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setPath("/"),
+                    false,
+                    "www.example.com/");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setPath("/"),
+                    true,
+                    "www.example.com/");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setQueryString("?a=b&c=d&e&f="),
+                    false,
+                    "www.example.com?a=b&c=d&e&f=");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setQueryString("?a=b&c=d&e&f="),
+                    true,
+                    "www.example.com?a=b&c=d&e&f=");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setFragment("#firstHeading"),
+                    false,
+                    "www.example.com#firstHeading");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setFragment("#firstHeading"),
+                    true,
+                    "www.example.com#firstHeading");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setFragment("firstHeading"),
+                    false,
+                    "www.example.com#firstHeading");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setFragment("firstHeading"),
+                    true,
+                    "www.example.com#firstHeading");
+                toStringTest.run(
+                    URL.create()
+                        .setScheme("https")
+                        .setHost("www.example.com")
+                        .setPath("/my path/?#")
+                        .setQueryString("?hello there #<> friend")
+                        .setFragment("#i`m a fragment"),
+                    false,
+                    "https://www.example.com/my path/?#?hello there #<> friend#i`m a fragment");
+                toStringTest.run(
+                    URL.create()
+                        .setScheme("https")
+                        .setHost("www.example.com")
+                        .setPath("/my path/?#")
+                        .setQueryString("?hello there #<> friend")
+                        .setFragment("#i`m a fragment"),
+                    true,
+                    "https://www.example.com/my%20path/%3F%23?hello%20there%20%23%3C%3E%20friend#i%60m%20a%20fragment");
+            });
+
+            runner.testGroup("toString(URL,boolean)", () ->
+            {
+                final Action3<URL,Boolean,String> toStringTest = (URL url, Boolean percentEncode, String expected) ->
+                {
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(url), percentEncode), (Test test) ->
+                    {
+                        test.assertEqual(expected, URL.toString(url, percentEncode));
+                    });
+                };
+
+                toStringTest.run(URL.create(), false, "");
+                toStringTest.run(URL.create(), true, "");
+                toStringTest.run(
+                    URL.create().setScheme("ftp"),
+                    false,
+                    "ftp://");
+                toStringTest.run(
+                    URL.create().setScheme("ftp"),
+                    true,
+                    "ftp://");
+                toStringTest.run(
+                    URL.create().setScheme("ftp").setHost("www.example.com"),
+                    false,
+                    "ftp://www.example.com");
+                toStringTest.run(
+                    URL.create().setScheme("ftp").setHost("www.example.com"),
+                    true,
+                    "ftp://www.example.com");
+                toStringTest.run(
+                    URL.create().setScheme("ftp").setHost("www.example.com").setPort(8080),
+                    false,
+                    "ftp://www.example.com:8080");
+                toStringTest.run(
+                    URL.create().setScheme("ftp").setHost("www.example.com").setPort(8080),
+                    true,
+                    "ftp://www.example.com:8080");
+                toStringTest.run(
+                    URL.create().setHost("www.example.com").setPort(8080),
+                    false,
+                    "www.example.com:8080");
+                toStringTest.run(
+                    URL.create().setHost("www.example.com").setPort(8080),
+                    true,
+                    "www.example.com:8080");
+                toStringTest.run(
+                    URL.create()
+                        .setScheme("ftp")
+                        .setHost("www.example.com")
+                        .setPort(8080)
+                        .setPath("my/index.html"),
+                    false,
+                    "ftp://www.example.com:8080/my/index.html");
+                toStringTest.run(
+                    URL.create()
+                        .setScheme("ftp")
+                        .setHost("www.example.com")
+                        .setPort(8080)
+                        .setPath("my/index.html"),
+                    true,
+                    "ftp://www.example.com:8080/my/index.html");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setPort(8080)
+                        .setPath("your/index.html"),
+                    false,
+                    "www.example.com:8080/your/index.html");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setPort(8080)
+                        .setPath("your/index.html"),
+                    true,
+                    "www.example.com:8080/your/index.html");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setPath("/"),
+                    false,
+                    "www.example.com/");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setPath("/"),
+                    true,
+                    "www.example.com/");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setQueryString("?a=b&c=d&e&f="),
+                    false,
+                    "www.example.com?a=b&c=d&e&f=");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setQueryString("?a=b&c=d&e&f="),
+                    true,
+                    "www.example.com?a=b&c=d&e&f=");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setFragment("#firstHeading"),
+                    false,
+                    "www.example.com#firstHeading");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setFragment("#firstHeading"),
+                    true,
+                    "www.example.com#firstHeading");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setFragment("firstHeading"),
+                    false,
+                    "www.example.com#firstHeading");
+                toStringTest.run(
+                    URL.create()
+                        .setHost("www.example.com")
+                        .setFragment("firstHeading"),
+                    true,
+                    "www.example.com#firstHeading");
+                toStringTest.run(
+                    URL.create()
+                        .setScheme("https")
+                        .setHost("www.example.com")
+                        .setPath("/my path/?#")
+                        .setQueryString("?hello there #<> friend")
+                        .setFragment("#i`m a fragment"),
+                    false,
+                    "https://www.example.com/my path/?#?hello there #<> friend#i`m a fragment");
+                toStringTest.run(
+                    URL.create()
+                        .setScheme("https")
+                        .setHost("www.example.com")
+                        .setPath("/my path/?#")
+                        .setQueryString("?hello there #<> friend")
+                        .setFragment("#i`m a fragment"),
+                    true,
+                    "https://www.example.com/my%20path/%3F%23?hello%20there%20%23%3C%3E%20friend#i%60m%20a%20fragment");
             });
 
             runner.testGroup("parse(String)", () ->
@@ -157,21 +562,21 @@ public interface URLTests
                         .setScheme("http")
                         .setHost("www.example.com")
                         .setPort(20)
-                        .setQuery("?q1"));
+                        .setQueryString("?q1"));
                 parseTest.run(
                     "http://www.example.com:20?q1=",
                     URL.create()
                         .setScheme("http")
                         .setHost("www.example.com")
                         .setPort(20)
-                        .setQuery("?q1="));
+                        .setQueryString("?q1="));
                 parseTest.run(
                     "http://www.example.com:20?q1=v1",
                     URL.create()
                         .setScheme("http")
                         .setHost("www.example.com")
                         .setPort(20)
-                        .setQuery("?q1=v1"));
+                        .setQueryString("?q1=v1"));
                 parseTest.run(
                     "http://www.example.com:20/?",
                     URL.create()
@@ -186,14 +591,14 @@ public interface URLTests
                         .setHost("www.example.com")
                         .setPort(20)
                         .setPath("/")
-                        .setQuery("?q2"));
+                        .setQueryString("?q2"));
                 parseTest.run(
                     "http://www.example.com/?q3=v3&q3.1=v3.1",
                     URL.create()
                         .setScheme("http")
                         .setHost("www.example.com")
                         .setPath("/")
-                        .setQuery("q3=v3&q3.1=v3.1"));
+                        .setQueryString("q3=v3&q3.1=v3.1"));
                 parseTest.run(
                     "http://www.example.com:20#",
                     URL.create()
@@ -238,7 +643,7 @@ public interface URLTests
                         .setHost("www.example.com")
                         .setPort(8080)
                         .setPath("/index.html")
-                        .setQuery("?a=b&c=d")
+                        .setQueryString("?a=b&c=d")
                         .setFragment("#fragmentthing"));
             });
         });

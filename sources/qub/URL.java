@@ -44,7 +44,13 @@ public interface URL
      * Get the query string of this URL.
      * @return The query string of this URL.
      */
-    String getQuery();
+    String getQueryString();
+
+    /**
+     * Get the query parameters of this URL.
+     * @return The query parameters of this URL.
+     */
+    Map<String,String> getQueryParameters();
 
     /**
      * Get the value for the query parameter with the provided name. If the no query parameter
@@ -53,7 +59,7 @@ public interface URL
      * @return The value for the query parameter with the provided name, or null if no query
      * parameter exists with the provided name.
      */
-    Result<String> getQueryParameterValue(String queryParameterName);
+    Result<String> getQueryParameter(String queryParameterName);
 
     /**
      * Get the fragment of this URL.
@@ -72,11 +78,122 @@ public interface URL
             Comparer.equal(this.getScheme(), rhs.getScheme()) &&
             Comparer.equal(this.getHost(), rhs.getHost()) &&
             Comparer.equal(this.getPort(), rhs.getPort()) &&
-            Comparer.equal(this.getQuery(), rhs.getQuery()) &&
+            Comparer.equal(this.getPath(), rhs.getPath()) &&
+            Comparer.equal(this.getQueryParameters(), rhs.getQueryParameters()) &&
             Comparer.equal(this.getFragment(), rhs.getFragment());
     }
 
+    static void encodePath(String path, CharacterList output)
+    {
+        PreCondition.assertNotNull(output, "output");
+
+        if (!Strings.isNullOrEmpty(path))
+        {
+            for (final byte b : CharacterEncoding.UTF_8.encodeCharacters(path).await())
+            {
+                if (b <= 0x001F /* control characters */ ||
+                    b >  0x007E /* ~ */ ||
+                    b == 0x0020 /* SPACE */ ||
+                    b == 0x0022 /* " */ ||
+                    b == 0x0023 /* # */ ||
+                    b == 0x003C /* < */ ||
+                    b == 0x003E /* > */ ||
+                    b == 0x003F /* ? */ ||
+                    b == 0x0060 /* ` */ ||
+                    b == 0x007B /* { */ ||
+                    b == 0x007D /* } */)
+                {
+                    output.add('%');
+                    final String hexString = Bytes.toHexString(b, false);
+                    if (hexString.length() == 1)
+                    {
+                        output.add('0');
+                    }
+                    output.addAll(hexString);
+                }
+                else
+                {
+                    output.add((char)b);
+                }
+            }
+        }
+    }
+
+    static void encodeQuery(String query, CharacterList output)
+    {
+        PreCondition.assertNotNull(output, "output");
+
+        if (!Strings.isNullOrEmpty(query))
+        {
+            for (final byte b : CharacterEncoding.UTF_8.encodeCharacters(query).await())
+            {
+                if (b <= 0x001F /* control characters */ ||
+                    b >  0x007E /* ~ */ ||
+                    b == 0x0020 /* SPACE */ ||
+                    b == 0x0022 /* " */ ||
+                    b == 0x0023 /* # */ ||
+                    b == 0x003C /* < */ ||
+                    b == 0x003E /* > */)
+                {
+                    output.add('%');
+                    final String hexString = Bytes.toHexString(b, false);
+                    if (hexString.length() == 1)
+                    {
+                        output.add('0');
+                    }
+                    output.addAll(hexString);
+                }
+                else
+                {
+                    output.add((char)b);
+                }
+            }
+        }
+    }
+
+    static void encodeFragment(String fragment, CharacterList output)
+    {
+        PreCondition.assertNotNull(output, "output");
+
+        if (!Strings.isNullOrEmpty(fragment))
+        {
+            for (final byte b : CharacterEncoding.UTF_8.encodeCharacters(fragment).await())
+            {
+                if (b <= 0x001F /* control characters */ ||
+                    b >  0x007E /* ~ */ ||
+                    b == 0x0020 /* SPACE */ ||
+                    b == 0x0022 /* " */ ||
+                    b == 0x003C /* < */ ||
+                    b == 0x003E /* > */ ||
+                    b == 0x0060 /* ` */)
+                {
+                    output.add('%');
+                    final String hexString = Bytes.toHexString(b, false);
+                    if (hexString.length() == 1)
+                    {
+                        output.add('0');
+                    }
+                    output.addAll(hexString);
+                }
+                else
+                {
+                    output.add((char)b);
+                }
+            }
+        }
+    }
+
+    default String toString(boolean percentEncode)
+    {
+        return URL.toString(this, percentEncode);
+    }
+
     static String toString(URL url)
+    {
+        return URL.toString(url, false);
+    }
+
+    static String toString(URL url, boolean percentEncode)
     {
         PreCondition.assertNotNull(url, "url");
 
@@ -109,27 +226,51 @@ public interface URL
             {
                 list.add('/');
             }
-            list.addAll(path);
+
+            if (percentEncode)
+            {
+                URL.encodePath(path, list);
+            }
+            else
+            {
+                list.addAll(path);
+            }
         }
 
-        final String query = url.getQuery();
+        final String query = url.getQueryString();
         if (!Strings.isNullOrEmpty(query))
         {
             if (!query.startsWith("?"))
             {
                 list.add('?');
             }
-            list.addAll(query);
+
+            if (percentEncode)
+            {
+                URL.encodeQuery(query, list);
+            }
+            else
+            {
+                list.addAll(query);
+            }
         }
 
         final String fragment = url.getFragment();
-        if (fragment != null)
+        if (!Strings.isNullOrEmpty(fragment))
         {
             if (!fragment.startsWith("#"))
             {
                 list.add('#');
             }
-            list.addAll(fragment);
+
+            if (percentEncode)
+            {
+                URL.encodeFragment(fragment, list);
+            }
+            else
+            {
+                list.addAll(fragment);
+            }
         }
 
         final String result = list.toString(true);
@@ -338,7 +479,7 @@ public interface URL
                         switch (lexer.getCurrent().getType())
                         {
                             case Hash:
-                                result.setQuery(URL.takeText(list));
+                                result.setQueryString(URL.takeText(list));
                                 list.addAll(lexer.getCurrent().toString());
                                 currentState = URLParseState.Fragment;
                                 break;
@@ -382,7 +523,7 @@ public interface URL
                     break;
 
                 case Query:
-                    result.setQuery(URL.takeText(list));
+                    result.setQueryString(URL.takeText(list));
                     break;
 
                 case Fragment:

@@ -99,7 +99,7 @@ public class MutableURL implements URL
     }
 
     @Override
-    public String getQuery()
+    public String getQueryString()
     {
         String result;
         if (!query.any())
@@ -138,7 +138,7 @@ public class MutableURL implements URL
      * Set the query string of this MutableURL.
      * @param queryString The query string of this MutableURL.
      */
-    public MutableURL setQuery(String queryString)
+    public MutableURL setQueryString(String queryString)
     {
         this.query.clear();
         if (!Strings.isNullOrEmpty(queryString))
@@ -208,7 +208,23 @@ public class MutableURL implements URL
     }
 
     @Override
-    public Result<String> getQueryParameterValue(String queryParameterName)
+    public Map<String,String> getQueryParameters()
+    {
+        return this.query;
+    }
+
+    public MutableURL setQueryParameters(Map<String,String> queryParameters)
+    {
+        PreCondition.assertNotNull(queryParameters, "queryParameters");
+
+        this.query.clear();
+        this.query.setAll(queryParameters);
+
+        return this;
+    }
+
+    @Override
+    public Result<String> getQueryParameter(String queryParameterName)
     {
         return query.get(queryParameterName);
     }

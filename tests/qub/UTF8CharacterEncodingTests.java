@@ -227,6 +227,24 @@ public interface UTF8CharacterEncodingTests
                     test.assertFalse(encoding.equals(new USASCIICharacterEncoding()));
                 });
             });
+
+            runner.testGroup("toUnicodeCodePoints(String)", () ->
+            {
+                final Action2<String,Iterable<Integer>> toUnicodeCodePointsTest = (String characters, Iterable<Integer> expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(characters), (Test test) ->
+                    {
+                        test.assertEqual(expected, encoding.toUnicodeCodePoints(characters));
+                    });
+                };
+
+                toUnicodeCodePointsTest.run("", List.create());
+                toUnicodeCodePointsTest.run("abc", List.create(97, 98, 99));
+                toUnicodeCodePointsTest.run("" + (char)0x41, List.create(0x41));
+                toUnicodeCodePointsTest.run("" + (char)0xDF, List.create(0xDF));
+                toUnicodeCodePointsTest.run("" + (char)0x6771, List.create(0x6771));
+                toUnicodeCodePointsTest.run("" + (char)0xD801 + (char)0xDC00, List.create(66560));
+            });
         });
     }
 }

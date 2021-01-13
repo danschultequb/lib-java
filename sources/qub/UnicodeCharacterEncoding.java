@@ -134,4 +134,21 @@ public interface UnicodeCharacterEncoding extends CharacterEncoding
      * iterates.
      */
     UnicodeCodePointIterator iterateDecodedUnicodeCodePoints(Iterator<Byte> bytes);
+
+    /**
+     * Convert the characters of the provided String to its unicode code points.
+     * @param characters The characters to convert.
+     * @return The unicode code points of the provided characters.
+     */
+    default Indexable<Integer> toUnicodeCodePoints(String characters)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+
+        final IntegerList result = IntegerList.create()
+            .addAll(CharacterToUnicodeCodePointIterator.create(Strings.iterate(characters)));
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
 }
