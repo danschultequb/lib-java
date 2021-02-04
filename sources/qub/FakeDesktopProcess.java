@@ -217,7 +217,7 @@ public class FakeDesktopProcess extends DesktopProcessBase
     @Override
     protected FakeDefaultApplicationLauncher createDefaultApplicationLauncher()
     {
-        return FakeDefaultApplicationLauncher.create();
+        return FakeDefaultApplicationLauncher.create(this.getFileSystem());
     }
 
     @Override
@@ -239,7 +239,17 @@ public class FakeDesktopProcess extends DesktopProcessBase
     @Override
     protected FakeTypeLoader createDefaultTypeLoader()
     {
-        return FakeTypeLoader.create();
+        final InMemoryFileSystem fileSystem = this.getFileSystem();
+        final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
+        final File compiledSourcesFile = qubFolder.getCompiledSourcesFile("fake-publisher", "fake-project", "8").await();
+        compiledSourcesFile.create().await();
+
+        final FakeTypeLoader result = FakeTypeLoader.create();
+        result.addTypeContainer(this.getMainClassFullName(), compiledSourcesFile);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     @Override

@@ -61,6 +61,33 @@ public class CommandLineActions
         return this.applicationDescription;
     }
 
+    /**
+     * Get the full action name of the provided action name. The full action name is the
+     * application's name followed by the action path to reach the provided action.
+     * @param actionName The name of the action to get the full action of.
+     * @return The full action name.
+     */
+    public String getFullActionName(String actionName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(actionName, "actionName");
+
+        final CharacterList fullActionName = CharacterList.create();
+
+        final String applicationName = this.getApplicationName();
+        if (!Strings.isNullOrEmpty(applicationName))
+        {
+            fullActionName.addAll(applicationName)
+                  .add(' ');
+        }
+        fullActionName.addAll(actionName);
+        final String result = fullActionName.toString();
+
+        PostCondition.assertNotNullAndNotEmpty(result, "result");
+        PostCondition.assertEndsWith(result, actionName, "result");
+
+        return result;
+    }
+
     public CommandLineAction getDefaultAction()
     {
         return this.actions.first(CommandLineAction::isDefaultAction);

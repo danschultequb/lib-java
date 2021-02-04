@@ -126,45 +126,6 @@ public interface Process extends Disposable
     DefaultApplicationLauncher getDefaultApplicationLauncher();
 
     /**
-     * Open the provided file path with the registered default application.
-     * @param filePathToOpen The file path to open.
-     * @return The result of opening the file path.
-     */
-    default Result<Void> openFileWithDefaultApplication(String filePathToOpen)
-    {
-        PreCondition.assertNotNullAndNotEmpty(filePathToOpen, "file");
-
-        final DefaultApplicationLauncher launcher = this.getDefaultApplicationLauncher();
-        return launcher.openFileWithDefaultApplication(filePathToOpen);
-    }
-
-    /**
-     * Open the provided file path with the registered default application.
-     * @param filePathToOpen The file path to open.
-     * @return The result of opening the file path.
-     */
-    default Result<Void> openFileWithDefaultApplication(Path filePathToOpen)
-    {
-        PreCondition.assertNotNull(filePathToOpen, "file");
-
-        final DefaultApplicationLauncher launcher = this.getDefaultApplicationLauncher();
-        return launcher.openFileWithDefaultApplication(filePathToOpen);
-    }
-
-    /**
-     * Open the provided file with the registered default application.
-     * @param file The file to open.
-     * @return The result of opening the file.
-     */
-    default Result<Void> openFileWithDefaultApplication(File file)
-    {
-        PreCondition.assertNotNull(file, "file");
-
-        final DefaultApplicationLauncher launcher = this.getDefaultApplicationLauncher();
-        return launcher.openFileWithDefaultApplication(file);
-    }
-
-    /**
      * Get the system properties of this process.
      * @return The system properties of this process.
      */

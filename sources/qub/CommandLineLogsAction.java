@@ -5,6 +5,21 @@ public interface CommandLineLogsAction
     String actionName = "logs";
     String actionDescription = "Show the logs folder.";
 
+    static Folder getLogsFolderFromProcess(DesktopProcess process)
+    {
+        PreCondition.assertNotNull(process, "process");
+
+        final Folder dataFolder = process.getQubProjectDataFolder().await();
+        return CommandLineLogsAction.getLogsFolderFromDataFolder(dataFolder);
+    }
+
+    static Folder getLogsFolderFromDataFolder(Folder dataFolder)
+    {
+        PreCondition.assertNotNull(dataFolder, "dataFolder");
+
+        return dataFolder.getFolder("logs").await();
+    }
+
     /**
      * Add a logs action to the provided CommandLineActions object.
      * @param actions The CommandLineActions object to add the logs action to.
@@ -13,32 +28,105 @@ public interface CommandLineLogsAction
     {
         PreCondition.assertNotNull(actions, "actions");
 
-        return actions.addAction(CommandLineLogsAction.actionName, CommandLineLogsAction::run)
+        return CommandLineLogsAction.addAction(actions, CommandLineLogsActionParameters.create());
+    }
+
+    /**
+     * Add a logs action to the provided CommandLineActions object.
+     * @param actions The CommandLineActions object to add the logs action to.
+     */
+    static CommandLineAction addAction(CommandLineActions actions, CommandLineLogsActionParameters parameters)
+    {
+        PreCondition.assertNotNull(actions, "actions");
+        PreCondition.assertNotNull(parameters, "parameters");
+
+        final String fullActionName = actions.getFullActionName(CommandLineLogsAction.actionName);
+        return actions.addAction(CommandLineLogsAction.actionName,
+                (DesktopProcess process) -> CommandLineLogsAction.getParameters(process, fullActionName, parameters),
+                CommandLineLogsAction::run)
             .setDescription(CommandLineLogsAction.actionDescription);
     }
 
-    static Folder getQubProjectLogsFolder(Folder projectDataFolder)
-    {
-        PreCondition.assertNotNull(projectDataFolder, "projectDataFolder");
-
-        return projectDataFolder.getFolder("logs").await();
-    }
-
-    static void run(DesktopProcess process)
+    static CommandLineLogsActionParameters getParameters(DesktopProcess process, String fullActionName, CommandLineLogsActionParameters parameters)
     {
         PreCondition.assertNotNull(process, "process");
+        PreCondition.assertNotNullAndNotEmpty(fullActionName, "fullActionName");
+        PreCondition.assertNotNull(parameters, "parameters");
 
-        final Folder projectDataFolder = process.getQubProjectDataFolder().await();
-        final Folder projectLogsFolder = CommandLineLogsAction.getQubProjectLogsFolder(projectDataFolder);
-        if (!projectLogsFolder.exists().await())
+        final CommandLineParameters commandLineParameters = process.createCommandLineParameters()
+            .setApplicationName(fullActionName)
+            .setApplicationDescription(CommandLineLogsAction.actionDescription);
+        final CommandLineParameter<Path> openWithParameter = commandLineParameters.add("openWith",
+            (String parameterValue) ->
+            {
+                return Result.success(Path.parse(parameterValue));
+            })
+            .setDescription("The application to use to open the logs folder.");
+        final CommandLineParameterHelp helpParameter = commandLineParameters.addHelp();
+
+        CommandLineLogsActionParameters result = null;
+        if (!helpParameter.showApplicationHelpLines(process).await())
         {
-            process.getOutputWriteStream().writeLine("The logs folder (" + projectLogsFolder + ") doesn't exist.").await();
+            result = parameters;
+
+            if (result.getLogsFolder() == null)
+            {
+                result.setLogsFolder(CommandLineLogsAction.getLogsFolderFromProcess(process));
+            }
+
+            if (result.getOutput() == null)
+            {
+                result.setOutput(process.getOutputWriteStream());
+            }
+
+            if (result.getDefaultApplicationLauncher() == null)
+            {
+                result.setDefaultApplicationLauncher(process.getDefaultApplicationLauncher());
+            }
+
+            if (result.getProcessFactory() == null)
+            {
+                result.setProcessFactory(process.getProcessFactory());
+            }
+
+            final Path openWith = openWithParameter.getValue().await();
+            if (openWith != null)
+            {
+                result.setOpenWith(openWith);
+            }
+        }
+
+        return result;
+    }
+
+    static void run(CommandLineLogsActionParameters parameters)
+    {
+        PreCondition.assertNotNull(parameters, "parameters");
+        PreCondition.assertNotNull(parameters.getLogsFolder(), "parameters.getLogsFolder()");
+        PreCondition.assertNotNull(parameters.getOutput(), "parameters.getOutput()");
+        PreCondition.assertNotNull(parameters.getDefaultApplicationLauncher(), "parameters.getDefaultApplicationLauncher()");
+        PreCondition.assertNotNull(parameters.getProcessFactory(), "parameters.getProcessFactory()");
+
+        final Folder logsFolder = parameters.getLogsFolder();
+        final CharacterWriteStream output = parameters.getOutput();
+        final DefaultApplicationLauncher defaultApplicationLauncher = parameters.getDefaultApplicationLauncher();
+        final ProcessFactory processFactory = parameters.getProcessFactory();
+        final Path openWith = parameters.getOpenWith();
+
+        if (!logsFolder.exists().await())
+        {
+            output.writeLine("The logs folder (" + logsFolder + ") doesn't exist.").await();
+        }
+        else if (openWith == null)
+        {
+            defaultApplicationLauncher.openFolderWithDefaultApplication(logsFolder).await();
         }
         else
         {
-            final Path projectLogsFolderPath = projectLogsFolder.getPath();
-            final DefaultApplicationLauncher applicationLauncher = process.getDefaultApplicationLauncher();
-            applicationLauncher.openFileWithDefaultApplication(projectLogsFolderPath).await();
+            processFactory.getProcessBuilder(openWith).await()
+                .addArgument(logsFolder.toString())
+                .run()
+                .await();
         }
     }
 
@@ -47,22 +135,45 @@ public interface CommandLineLogsAction
      * the provided streams will also be written to log stream.
      * @param projectDataFolder The data folder for the running application/project.
      */
-    static LogStreams addLogStream(Folder projectDataFolder, CharacterToByteWriteStream output, VerboseCharacterToByteWriteStream verbose)
+    static LogStreams addLogStreamFromDataFolder(Folder projectDataFolder, CharacterToByteWriteStream output, VerboseCharacterToByteWriteStream verbose)
     {
-        return CommandLineLogsAction.addLogStream(projectDataFolder, output, null, verbose);
+        return CommandLineLogsAction.addLogStreamFromDataFolder(projectDataFolder, output, null, verbose);
     }
 
     /**
      * Combine the provided streams with a log stream so that any characters that are written to
      * the provided streams will also be written to log stream.
-     * @param projectDataFolder The data folder for the running application/project.
+     * @param dataFolder The data folder for the running application/project.
      */
-    static LogStreams addLogStream(Folder projectDataFolder, CharacterToByteWriteStream output, CharacterToByteWriteStream error, VerboseCharacterToByteWriteStream verbose)
+    static LogStreams addLogStreamFromDataFolder(Folder dataFolder, CharacterToByteWriteStream output, CharacterToByteWriteStream error, VerboseCharacterToByteWriteStream verbose)
     {
-        PreCondition.assertNotNull(projectDataFolder, "projectDataFolder");
+        PreCondition.assertNotNull(dataFolder, "projectDataFolder");
 
-        final File logFile = CommandLineLogsAction.getLogFile(projectDataFolder);
-        return CommandLineLogsAction.addLogStream(logFile, output, error, verbose);
+        final Folder logsFolder = CommandLineLogsAction.getLogsFolderFromDataFolder(dataFolder);
+        return CommandLineLogsAction.addLogStreamFromLogsFolder(logsFolder, output, error, verbose);
+    }
+
+    /**
+     * Combine the provided streams with a log stream so that any characters that are written to
+     * the provided streams will also be written to log stream.
+     * @param logsFolder The logs folder for the running application/project.
+     */
+    static LogStreams addLogStreamFromLogsFolder(Folder logsFolder, CharacterToByteWriteStream output, VerboseCharacterToByteWriteStream verbose)
+    {
+        return CommandLineLogsAction.addLogStreamFromLogsFolder(logsFolder, output, null, verbose);
+    }
+
+    /**
+     * Combine the provided streams with a log stream so that any characters that are written to
+     * the provided streams will also be written to log stream.
+     * @param logsFolder The logs folder for the running application/project.
+     */
+    static LogStreams addLogStreamFromLogsFolder(Folder logsFolder, CharacterToByteWriteStream output, CharacterToByteWriteStream error, VerboseCharacterToByteWriteStream verbose)
+    {
+        PreCondition.assertNotNull(logsFolder, "logsFolder");
+
+        final File logFile = CommandLineLogsAction.getLogFileFromLogsFolder(logsFolder);
+        return CommandLineLogsAction.addLogStreamFromLogFile(logFile, output, error, verbose);
     }
 
     /**
@@ -70,9 +181,20 @@ public interface CommandLineLogsAction
      * the provided streams will also be written to log stream.
      * @param logFile The file that the combined streams will log to.
      */
+    static LogStreams addLogStreamFromLogFile(File logFile, CharacterToByteWriteStream output, VerboseCharacterToByteWriteStream verbose)
+    {
+        return CommandLineLogsAction.addLogStreamFromLogFile(logFile, output, null, verbose);
+    }
+
+    /**
+     * Combine the provided streams with a log stream so that any characters that are written to
+     * the provided streams will also be written to log stream.
+     * @param logFile The file that the combined streams will log to.
+     */
+    @Deprecated
     static LogStreams addLogStream(File logFile, CharacterToByteWriteStream output, VerboseCharacterToByteWriteStream verbose)
     {
-        return CommandLineLogsAction.addLogStream(logFile, output, null, verbose);
+        return CommandLineLogsAction.addLogStreamFromLogFile(logFile, output, null, verbose);
     }
 
     /**
@@ -80,7 +202,7 @@ public interface CommandLineLogsAction
      * the provided streams will also be written to log stream.
      * @param logFile The file that the combined streams will log to.
      */
-    static LogStreams addLogStream(File logFile, CharacterToByteWriteStream output, CharacterToByteWriteStream error, VerboseCharacterToByteWriteStream verbose)
+    static LogStreams addLogStreamFromLogFile(File logFile, CharacterToByteWriteStream output, CharacterToByteWriteStream error, VerboseCharacterToByteWriteStream verbose)
     {
         PreCondition.assertNotNull(logFile, "logFile");
 
@@ -109,17 +231,32 @@ public interface CommandLineLogsAction
         return result;
     }
 
-    static File getLogFile(Folder projectDataFolder)
+    static File getLogFileFromProcess(DesktopProcess process)
     {
-        PreCondition.assertNotNull(projectDataFolder, "projectDataFolder");
+        PreCondition.assertNotNull(process, "process");
 
-        final Folder projectLogsFolder = CommandLineLogsAction.getQubProjectLogsFolder(projectDataFolder);
-        final int logFileCount = projectLogsFolder.getFiles()
+        final Folder logsFolder = CommandLineLogsAction.getLogsFolderFromProcess(process);
+        return CommandLineLogsAction.getLogFileFromLogsFolder(logsFolder);
+    }
+
+    static File getLogFileFromDataFolder(Folder dataFolder)
+    {
+        PreCondition.assertNotNull(dataFolder, "dataFolder");
+
+        final Folder logsFolder = CommandLineLogsAction.getLogsFolderFromDataFolder(dataFolder);
+        return CommandLineLogsAction.getLogFileFromLogsFolder(logsFolder);
+    }
+
+    static File getLogFileFromLogsFolder(Folder logsFolder)
+    {
+        PreCondition.assertNotNull(logsFolder, "logsFolder");
+
+        final int logFileCount = logsFolder.getFiles()
             .then((Iterable<File> logFiles) -> logFiles.getCount())
             .catchError(NotFoundException.class, () -> 0)
             .await();
         final String logFileName = (logFileCount + 1) + ".log";
-        final File result = projectLogsFolder.getFile(logFileName).await();
+        final File result = logsFolder.getFile(logFileName).await();
 
         PostCondition.assertNotNull(result, "result");
 

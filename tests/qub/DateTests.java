@@ -14,6 +14,15 @@ public interface DateTests
                 test.assertEqual(1, epoch.getDayOfMonth());
                 test.assertEqual(Duration.zero, epoch.getDurationSinceEpoch());
             });
+
+            runner.testGroup("create(DateTime)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Date.create(null),
+                        new PreConditionFailure("dateTime cannot be null."));
+                });
+            });
         });
     }
 }

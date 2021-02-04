@@ -178,7 +178,7 @@ public class RealDesktopProcess extends DesktopProcessBase
     @Override
     protected DefaultApplicationLauncher createDefaultApplicationLauncher()
     {
-        return new RealDefaultApplicationLauncher();
+        return RealDefaultApplicationLauncher.create();
     }
 
     @Override

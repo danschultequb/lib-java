@@ -6,33 +6,35 @@ package qub;
 public interface DefaultApplicationLauncher
 {
     /**
-     * Open the provided file path with the registered default application.
-     * @param filePathToOpen The file path to open.
+     * Open the provided path with the registered default application.
+     * @param pathToOpen The path to open.
      * @return The result of opening the file path.
      */
-    default Result<Void> openFileWithDefaultApplication(String filePathToOpen)
+    default Result<Void> openWithDefaultApplication(String pathToOpen)
     {
-        PreCondition.assertNotNullAndNotEmpty(filePathToOpen, "filePathToOpen");
+        PreCondition.assertNotNullAndNotEmpty(pathToOpen, "pathToOpen");
 
-        return this.openFileWithDefaultApplication(Path.parse(filePathToOpen));
+        return this.openWithDefaultApplication(Path.parse(pathToOpen));
     }
 
     /**
-     * Open the provided file path with the registered default application.
-     * @param filePathToOpen The file path to open.
+     * Open the provided path with the registered default application.
+     * @param pathToOpen The path to open.
      * @return The result of opening the file path.
      */
-    Result<Void> openFileWithDefaultApplication(Path filePathToOpen);
+    Result<Void> openWithDefaultApplication(Path pathToOpen);
 
     /**
      * Open the provided file with the registered default application.
      * @param fileToOpen The file to open.
      * @return The result of opening the file.
      */
-    default Result<Void> openFileWithDefaultApplication(File fileToOpen)
-    {
-        PreCondition.assertNotNull(fileToOpen, "fileToOpen");
+    Result<Void> openFileWithDefaultApplication(File fileToOpen);
 
-        return this.openFileWithDefaultApplication(fileToOpen.getPath());
-    }
+    /**
+     * Open the provided folder with the registered default application.
+     * @param folderToOpen The folder to open.
+     * @return The result of opening the folder.
+     */
+    Result<Void> openFolderWithDefaultApplication(Folder folderToOpen);
 }

@@ -64,6 +64,43 @@ public interface CommandLineActionsTests
                 });
             });
 
+            runner.testGroup("getFullActionName(String)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final CommandLineActions actions = CommandLineActions.create();
+                    test.assertThrows(() -> actions.getFullActionName(null),
+                        new PreConditionFailure("actionName cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final CommandLineActions actions = CommandLineActions.create();
+                    test.assertThrows(() -> actions.getFullActionName(""),
+                        new PreConditionFailure("actionName cannot be empty."));
+                });
+
+                runner.test("with no application name", (Test test) ->
+                {
+                    final CommandLineActions actions = CommandLineActions.create();
+                    test.assertEqual("hello", actions.getFullActionName("hello"));
+                });
+
+                runner.test("with application name", (Test test) ->
+                {
+                    final CommandLineActions actions = CommandLineActions.create()
+                        .setApplicationName("hello");
+                    test.assertEqual("hello there", actions.getFullActionName("there"));
+                });
+
+                runner.test("with application name with spaces", (Test test) ->
+                {
+                    final CommandLineActions actions = CommandLineActions.create()
+                        .setApplicationName("hello there my");
+                    test.assertEqual("hello there my friend", actions.getFullActionName("friend"));
+                });
+            });
+
             runner.testGroup("containsActionName(String)", () ->
             {
                 runner.test("with null", (Test test) ->
