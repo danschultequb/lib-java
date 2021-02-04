@@ -26,9 +26,8 @@ public interface CommandLineConfigurationAction
         PreCondition.assertNotNull(actions, "actions");
         PreCondition.assertNotNull(parameters, "parameters");
 
-        final String fullActionName = actions.getFullActionName(CommandLineConfigurationAction.actionName);
         return actions.addAction(CommandLineConfigurationAction.actionName,
-                (DesktopProcess process) -> CommandLineConfigurationAction.getParameters(process, fullActionName, parameters),
+                (DesktopProcess process, String fullActionName) -> CommandLineConfigurationAction.getParameters(process, fullActionName, parameters),
                 CommandLineConfigurationAction::run)
             .addAliases(CommandLineConfigurationAction.actionAliases)
             .setDescription(CommandLineConfigurationAction.actionDescription);

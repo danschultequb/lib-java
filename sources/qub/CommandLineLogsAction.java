@@ -40,9 +40,8 @@ public interface CommandLineLogsAction
         PreCondition.assertNotNull(actions, "actions");
         PreCondition.assertNotNull(parameters, "parameters");
 
-        final String fullActionName = actions.getFullActionName(CommandLineLogsAction.actionName);
         return actions.addAction(CommandLineLogsAction.actionName,
-                (DesktopProcess process) -> CommandLineLogsAction.getParameters(process, fullActionName, parameters),
+                (DesktopProcess process, String fullActionName) -> CommandLineLogsAction.getParameters(process, fullActionName, parameters),
                 CommandLineLogsAction::run)
             .setDescription(CommandLineLogsAction.actionDescription);
     }

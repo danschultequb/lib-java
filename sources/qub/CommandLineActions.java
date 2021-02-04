@@ -179,6 +179,34 @@ public class CommandLineActions
         return this.addAction(actionName, DesktopProcess.getMainAction(getParametersFunction, mainFunction));
     }
 
+    public <TParameters> CommandLineAction addAction(String actionName, Function2<DesktopProcess,String,TParameters> getParametersFunction, Action1<TParameters> mainAction)
+    {
+        PreCondition.assertNotNullAndNotEmpty(actionName, "actionName");
+        PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
+        PreCondition.assertNotNull(mainAction, "mainAction");
+
+        final String fullActionName = this.getFullActionName(actionName);
+        return this.addAction(
+            actionName,
+            DesktopProcess.getMainAction(
+                (DesktopProcess process) -> getParametersFunction.run(process, fullActionName),
+                mainAction));
+    }
+
+    public <TParameters> CommandLineAction addAction(String actionName, Function2<DesktopProcess,String,TParameters> getParametersFunction, Function1<TParameters,Integer> mainFunction)
+    {
+        PreCondition.assertNotNullAndNotEmpty(actionName, "actionName");
+        PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
+        PreCondition.assertNotNull(mainFunction, "mainFunction");
+
+        final String fullActionName = this.getFullActionName(actionName);
+        return this.addAction(
+            actionName,
+            DesktopProcess.getMainAction(
+                (DesktopProcess process) -> getParametersFunction.run(process, fullActionName),
+                mainFunction));
+    }
+
     /**
      * Run the action from this collection that matches the action argument from the provided
      * process. If no action argument is found, then the help message for this action collection
