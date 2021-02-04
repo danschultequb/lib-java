@@ -59,7 +59,9 @@ public interface CommandLineLogsAction
         final CommandLineParameter<Path> openWithParameter = commandLineParameters.add("openWith",
             (String parameterValue) ->
             {
-                return Result.success(Path.parse(parameterValue));
+                return Result.success(Strings.isNullOrEmpty(parameterValue)
+                    ? null
+                    : Path.parse(parameterValue));
             })
             .setDescription("The application to use to open the logs folder.");
         final CommandLineParameterHelp helpParameter = commandLineParameters.addHelp();
