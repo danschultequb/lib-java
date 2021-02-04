@@ -139,7 +139,28 @@ public interface CommandLineActionsTests
                 });
             });
 
-            runner.testGroup("addAction(String,Action1)", () ->
+            runner.testGroup("addAction(Action1<CommandLineActions>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final CommandLineActions actions = CommandLineActions.create();
+                    test.assertThrows(() -> actions.addAction(null),
+                        new PreConditionFailure("actionAdder cannot be null."));
+                });
+
+                runner.test("with non-null", (Test test) ->
+                {
+                    final CommandLineActions actions = CommandLineActions.create();
+                    final CommandLineActions addActionResult = actions.addAction((CommandLineActions innerActions) ->
+                    {
+                        innerActions.addAction("hello", (DesktopProcess process) -> {});
+                    });
+                    test.assertSame(actions, addActionResult);
+                    test.assertTrue(actions.containsActionName("hello"));
+                });
+            });
+
+            runner.testGroup("addAction(String,Action1<DesktopProcess>)", () ->
             {
                 runner.test("with null actionName", (Test test) ->
                 {

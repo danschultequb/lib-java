@@ -129,6 +129,15 @@ public class CommandLineActions
             .await();
     }
 
+    public CommandLineActions addAction(Action1<CommandLineActions> actionAdder)
+    {
+        PreCondition.assertNotNull(actionAdder, "actionAdder");
+
+        actionAdder.run(this);
+
+        return this;
+    }
+
     public CommandLineAction addAction(String actionName, Action1<DesktopProcess> mainAction)
     {
         PreCondition.assertNotNullAndNotEmpty(actionName, "actionName");
