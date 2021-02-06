@@ -5,6 +5,7 @@ package qub;
  */
 public class CommandLineActions
 {
+    private DesktopProcess process;
     private String applicationName;
     private String applicationDescription;
     private final List<CommandLineAction> actions;
@@ -17,6 +18,20 @@ public class CommandLineActions
     public static CommandLineActions create()
     {
         return new CommandLineActions();
+    }
+
+    public DesktopProcess getProcess()
+    {
+        return this.process;
+    }
+
+    public CommandLineActions setProcess(DesktopProcess process)
+    {
+        PreCondition.assertNotNull(process, "process");
+
+        this.process = process;
+
+        return this;
     }
 
     /**
@@ -179,39 +194,55 @@ public class CommandLineActions
         return this.addAction(actionName, DesktopProcess.getMainAction(getParametersFunction, mainFunction));
     }
 
-    public <TParameters> CommandLineAction addAction(String actionName, Function2<DesktopProcess,String,TParameters> getParametersFunction, Action1<TParameters> mainAction)
+    public <TParameters> CommandLineAction addAction(String actionName, Function2<DesktopProcess,CommandLineAction,TParameters> getParametersFunction, Action1<TParameters> mainAction)
     {
         PreCondition.assertNotNullAndNotEmpty(actionName, "actionName");
         PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
         PreCondition.assertNotNull(mainAction, "mainAction");
 
-        final String fullActionName = this.getFullActionName(actionName);
-        return this.addAction(
+        final Value<CommandLineAction> actionValue = Value.create();
+        actionValue.set(this.addAction(
             actionName,
             DesktopProcess.getMainAction(
-                (DesktopProcess process) -> getParametersFunction.run(process, fullActionName),
-                mainAction));
+                (DesktopProcess process) -> getParametersFunction.run(process, actionValue.get()),
+                mainAction)));
+        final CommandLineAction result = actionValue.get();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
-    public <TParameters> CommandLineAction addAction(String actionName, Function2<DesktopProcess,String,TParameters> getParametersFunction, Function1<TParameters,Integer> mainFunction)
+    public <TParameters> CommandLineAction addAction(String actionName, Function2<DesktopProcess,CommandLineAction,TParameters> getParametersFunction, Function1<TParameters,Integer> mainFunction)
     {
         PreCondition.assertNotNullAndNotEmpty(actionName, "actionName");
         PreCondition.assertNotNull(getParametersFunction, "getParametersFunction");
         PreCondition.assertNotNull(mainFunction, "mainFunction");
 
-        final String fullActionName = this.getFullActionName(actionName);
-        return this.addAction(
+        final Value<CommandLineAction> actionValue = Value.create();
+        actionValue.set(this.addAction(
             actionName,
             DesktopProcess.getMainAction(
-                (DesktopProcess process) -> getParametersFunction.run(process, fullActionName),
-                mainFunction));
+                (DesktopProcess process) -> getParametersFunction.run(process, actionValue.get()),
+                mainFunction)));
+        final CommandLineAction result = actionValue.get();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    public void run()
+    {
+        PreCondition.assertNotNull(this.getProcess(), "this.getProcess()");
+
+        this.run(this.getProcess());
     }
 
     /**
      * Run the action from this collection that matches the action argument from the provided
      * process. If no action argument is found, then the help message for this action collection
      * will be displayed.
-     * @param process The process that is attempting to run an action.
      */
     public void run(DesktopProcess process)
     {

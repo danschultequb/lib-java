@@ -262,6 +262,23 @@ public class CommandLineParameters
     }
 
     /**
+     * Add an optional Path-valued command line parameter.
+     * @param parameterName The name of the parameter.
+     * @return The new command line parameter.
+     */
+    public CommandLineParameter<Path> addPath(String parameterName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(parameterName, "parameterName");
+
+        return this.add(parameterName, (String argumentValue) ->
+        {
+            return Result.success(Strings.isNullOrEmpty(argumentValue)
+                ? null
+                : Path.parse(argumentValue));
+        });
+    }
+
+    /**
      * Add an optional Folder-valued command line parameter.
      * @param parameterName The name of the parameter.
      * @return The new command line parameter.

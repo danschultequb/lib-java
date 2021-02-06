@@ -2,9 +2,6 @@ package qub;
 
 public interface CommandLineLogsAction
 {
-    String actionName = "logs";
-    String actionDescription = "Show the logs folder.";
-
     static Folder getLogsFolderFromProcess(DesktopProcess process)
     {
         PreCondition.assertNotNull(process, "process");
@@ -40,28 +37,20 @@ public interface CommandLineLogsAction
         PreCondition.assertNotNull(actions, "actions");
         PreCondition.assertNotNull(parameters, "parameters");
 
-        return actions.addAction(CommandLineLogsAction.actionName,
-                (DesktopProcess process, String fullActionName) -> CommandLineLogsAction.getParameters(process, fullActionName, parameters),
+        return actions.addAction("logs",
+                (DesktopProcess process, CommandLineAction action) -> CommandLineLogsAction.getParameters(process, action, parameters),
                 CommandLineLogsAction::run)
-            .setDescription(CommandLineLogsAction.actionDescription);
+            .setDescription("Show the logs folder.");
     }
 
-    static CommandLineLogsActionParameters getParameters(DesktopProcess process, String fullActionName, CommandLineLogsActionParameters parameters)
+    static CommandLineLogsActionParameters getParameters(DesktopProcess process, CommandLineAction action, CommandLineLogsActionParameters parameters)
     {
         PreCondition.assertNotNull(process, "process");
-        PreCondition.assertNotNullAndNotEmpty(fullActionName, "fullActionName");
+        PreCondition.assertNotNull(action, "action");
         PreCondition.assertNotNull(parameters, "parameters");
 
-        final CommandLineParameters commandLineParameters = process.createCommandLineParameters()
-            .setApplicationName(fullActionName)
-            .setApplicationDescription(CommandLineLogsAction.actionDescription);
-        final CommandLineParameter<Path> openWithParameter = commandLineParameters.add("openWith",
-            (String parameterValue) ->
-            {
-                return Result.success(Strings.isNullOrEmpty(parameterValue)
-                    ? null
-                    : Path.parse(parameterValue));
-            })
+        final CommandLineParameters commandLineParameters = action.createCommandLineParameters();
+        final CommandLineParameter<Path> openWithParameter = commandLineParameters.addPath("openWith")
             .setDescription("The application to use to open the logs folder.");
         final CommandLineParameterHelp helpParameter = commandLineParameters.addHelp();
 

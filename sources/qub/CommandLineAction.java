@@ -173,6 +173,13 @@ public class CommandLineAction
         return this;
     }
 
+    public CommandLineParameters createCommandLineParameters()
+    {
+        return CommandLineParameters.create()
+            .setApplicationName(this.getFullName())
+            .setApplicationDescription(this.getDescription());
+    }
+
     public void run(DesktopProcess process)
     {
         PreCondition.assertNotNull(process, "process");

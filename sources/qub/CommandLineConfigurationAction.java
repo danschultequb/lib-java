@@ -2,10 +2,6 @@ package qub;
 
 public interface CommandLineConfigurationAction
 {
-    String actionName = "configuration";
-    Iterable<String> actionAliases = Iterable.create("config");
-    String actionDescription = "Open the configuration file for this application.";
-
     /**
      * Add a configuration action to the provided CommandLineActions object.
      * @param actions The CommandLineActions object to add the configuration action to.
@@ -26,22 +22,22 @@ public interface CommandLineConfigurationAction
         PreCondition.assertNotNull(actions, "actions");
         PreCondition.assertNotNull(parameters, "parameters");
 
-        return actions.addAction(CommandLineConfigurationAction.actionName,
-                (DesktopProcess process, String fullActionName) -> CommandLineConfigurationAction.getParameters(process, fullActionName, parameters),
+        return actions.addAction("configuration",
+                (DesktopProcess process, CommandLineAction action) -> CommandLineConfigurationAction.getParameters(process, action, parameters),
                 CommandLineConfigurationAction::run)
-            .addAliases(CommandLineConfigurationAction.actionAliases)
-            .setDescription(CommandLineConfigurationAction.actionDescription);
+            .addAlias("config")
+            .setDescription("Open the configuration file for this application.");
     }
 
-    static CommandLineConfigurationActionParameters getParameters(DesktopProcess process, String fullActionName, CommandLineConfigurationActionParameters parameters)
+    static CommandLineConfigurationActionParameters getParameters(DesktopProcess process, CommandLineAction action, CommandLineConfigurationActionParameters parameters)
     {
         PreCondition.assertNotNull(process, "process");
-        PreCondition.assertNotNullAndNotEmpty(fullActionName, "fullActionName");
+        PreCondition.assertNotNull(action, "action");
         PreCondition.assertNotNull(parameters, "parameters");
 
         final CommandLineParameters commandLineParameters = process.createCommandLineParameters()
-            .setApplicationName(fullActionName)
-            .setApplicationDescription(CommandLineConfigurationAction.actionDescription);
+            .setApplicationName(action.getFullName())
+            .setApplicationDescription(action.getDescription());
         final CommandLineParameterHelp helpParameter = commandLineParameters.addHelp();
 
         CommandLineConfigurationActionParameters result = null;

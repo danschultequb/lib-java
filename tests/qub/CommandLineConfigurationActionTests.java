@@ -19,10 +19,10 @@ public interface CommandLineConfigurationActionTests
                     final CommandLineActions actions = CommandLineActions.create();
                     final CommandLineAction action = CommandLineConfigurationAction.addAction(actions);
                     test.assertNotNull(action);
-                    test.assertEqual(CommandLineConfigurationAction.actionName, action.getName());
-                    test.assertEqual(CommandLineConfigurationAction.actionDescription, action.getDescription());
-                    test.assertEqual(CommandLineConfigurationAction.actionAliases, action.getAliases());
-                    test.assertTrue(actions.containsActionName(CommandLineConfigurationAction.actionName));
+                    test.assertEqual("configuration", action.getName());
+                    test.assertEqual("Open the configuration file for this application.", action.getDescription());
+                    test.assertEqual(Iterable.create("config"), action.getAliases());
+                    test.assertTrue(actions.containsActionName("configuration"));
                 });
             });
 
@@ -52,10 +52,10 @@ public interface CommandLineConfigurationActionTests
                     final CommandLineConfigurationActionParameters parameters = CommandLineConfigurationActionParameters.create();
                     final CommandLineAction action = CommandLineConfigurationAction.addAction(actions, parameters);
                     test.assertNotNull(action);
-                    test.assertEqual(CommandLineConfigurationAction.actionName, action.getName());
-                    test.assertEqual(CommandLineConfigurationAction.actionDescription, action.getDescription());
-                    test.assertEqual(CommandLineConfigurationAction.actionAliases, action.getAliases());
-                    test.assertTrue(actions.containsActionName(CommandLineConfigurationAction.actionName));
+                    test.assertEqual("configuration", action.getName());
+                    test.assertEqual("Open the configuration file for this application.", action.getDescription());
+                    test.assertEqual(Iterable.create("config"), action.getAliases());
+                    test.assertTrue(actions.containsActionName("configuration"));
                     test.assertNull(parameters.getDataFolder());
                     test.assertNull(parameters.getDefaultApplicationLauncher());
                 });
@@ -66,31 +66,20 @@ public interface CommandLineConfigurationActionTests
                 runner.test("with null process", (Test test) ->
                 {
                     final FakeDesktopProcess process = null;
-                    final String fullActionName = "full-action-name";
+                    final CommandLineAction action = CommandLineAction.create("full-action-name", (DesktopProcess actionProcess) -> {});
                     final CommandLineConfigurationActionParameters parameters = CommandLineConfigurationActionParameters.create();
-                    test.assertThrows(() -> CommandLineConfigurationAction.getParameters(process, fullActionName, parameters),
+                    test.assertThrows(() -> CommandLineConfigurationAction.getParameters(process, action, parameters),
                         new PreConditionFailure("process cannot be null."));
                 });
 
-                runner.test("with null fullActionName", (Test test) ->
+                runner.test("with null action", (Test test) ->
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
                         final CommandLineConfigurationActionParameters parameters = CommandLineConfigurationActionParameters.create();
-                        final String fullActionName = null;
-                        test.assertThrows(() -> CommandLineConfigurationAction.getParameters(process, fullActionName, parameters),
-                            new PreConditionFailure("fullActionName cannot be null."));
-                    }
-                });
-
-                runner.test("with empty fullActionName", (Test test) ->
-                {
-                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
-                    {
-                        final CommandLineConfigurationActionParameters parameters = CommandLineConfigurationActionParameters.create();
-                        final String fullActionName = "";
-                        test.assertThrows(() -> CommandLineConfigurationAction.getParameters(process, fullActionName, parameters),
-                            new PreConditionFailure("fullActionName cannot be empty."));
+                        final CommandLineAction action = null;
+                        test.assertThrows(() -> CommandLineConfigurationAction.getParameters(process, action, parameters),
+                            new PreConditionFailure("action cannot be null."));
                     }
                 });
 
@@ -98,9 +87,9 @@ public interface CommandLineConfigurationActionTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
+                        final CommandLineAction action = CommandLineAction.create("full-action-name", (DesktopProcess actionProcess) -> {});
                         final CommandLineConfigurationActionParameters parameters = null;
-                        final String fullActionName = "full-action-name";
-                        test.assertThrows(() -> CommandLineConfigurationAction.getParameters(process, fullActionName, parameters),
+                        test.assertThrows(() -> CommandLineConfigurationAction.getParameters(process, action, parameters),
                             new PreConditionFailure("parameters cannot be null."));
                     }
                 });
@@ -109,10 +98,11 @@ public interface CommandLineConfigurationActionTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create("--help"))
                     {
+                        final CommandLineAction action = CommandLineAction.create("my-application config", (DesktopProcess actionProcess) -> {})
+                            .setDescription("Open the configuration file for this application.");
                         final CommandLineConfigurationActionParameters parameters = CommandLineConfigurationActionParameters.create();
-                        final String fullActionName = "my-application config";
 
-                        final CommandLineConfigurationActionParameters getParametersResult = CommandLineConfigurationAction.getParameters(process, fullActionName, parameters);
+                        final CommandLineConfigurationActionParameters getParametersResult = CommandLineConfigurationAction.getParameters(process, action, parameters);
                         test.assertNull(getParametersResult);
 
                         test.assertEqual(
@@ -129,10 +119,10 @@ public interface CommandLineConfigurationActionTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final String fullActionName = "full-action-name";
+                        final CommandLineAction action = CommandLineAction.create("my-application config", (DesktopProcess actionProcess) -> {});
                         final CommandLineConfigurationActionParameters parameters = CommandLineConfigurationActionParameters.create();
 
-                        final CommandLineConfigurationActionParameters getParametersResult = CommandLineConfigurationAction.getParameters(process, fullActionName, parameters);
+                        final CommandLineConfigurationActionParameters getParametersResult = CommandLineConfigurationAction.getParameters(process, action, parameters);
                         test.assertSame(parameters, getParametersResult);
                         test.assertEqual(process.getFileSystem().getFolder("/qub/fake-publisher/fake-project/data/").await(), parameters.getDataFolder());
                         test.assertSame(process.getDefaultApplicationLauncher(), parameters.getDefaultApplicationLauncher());
@@ -148,13 +138,13 @@ public interface CommandLineConfigurationActionTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final String fullActionName = "full-action-name";
+                        final CommandLineAction action = CommandLineAction.create("my-application config", (DesktopProcess actionProcess) -> {});
                         final InMemoryFileSystem fileSystem = process.getFileSystem();
                         final Folder dataFolder = fileSystem.getFolder("/data/folder/").await();
                         final CommandLineConfigurationActionParameters parameters = CommandLineConfigurationActionParameters.create()
                             .setDataFolder(dataFolder);
 
-                        final CommandLineConfigurationActionParameters getParametersResult = CommandLineConfigurationAction.getParameters(process, fullActionName, parameters);
+                        final CommandLineConfigurationActionParameters getParametersResult = CommandLineConfigurationAction.getParameters(process, action, parameters);
                         test.assertSame(parameters, getParametersResult);
                         test.assertEqual(dataFolder, parameters.getDataFolder());
                         test.assertSame(process.getDefaultApplicationLauncher(), parameters.getDefaultApplicationLauncher());
@@ -170,12 +160,12 @@ public interface CommandLineConfigurationActionTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final String fullActionName = "full-action-name";
+                        final CommandLineAction action = CommandLineAction.create("my-application config", (DesktopProcess actionProcess) -> {});
                         final FakeDefaultApplicationLauncher defaultApplicationLauncher = process.getDefaultApplicationLauncher();
                         final CommandLineConfigurationActionParameters parameters = CommandLineConfigurationActionParameters.create()
                             .setDefaultApplicationLauncher(defaultApplicationLauncher);
 
-                        final CommandLineConfigurationActionParameters getParametersResult = CommandLineConfigurationAction.getParameters(process, fullActionName, parameters);
+                        final CommandLineConfigurationActionParameters getParametersResult = CommandLineConfigurationAction.getParameters(process, action, parameters);
                         test.assertSame(parameters, getParametersResult);
                         test.assertEqual(process.getFileSystem().getFolder("/qub/fake-publisher/fake-project/data/").await(), parameters.getDataFolder());
                         test.assertSame(defaultApplicationLauncher, parameters.getDefaultApplicationLauncher());
@@ -191,12 +181,12 @@ public interface CommandLineConfigurationActionTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final String fullActionName = "full-action-name";
+                        final CommandLineAction action = CommandLineAction.create("my-application config", (DesktopProcess actionProcess) -> {});
                         final JSONSchema configurationSchema = JSONSchema.create();
                         final CommandLineConfigurationActionParameters parameters = CommandLineConfigurationActionParameters.create()
                             .setConfigurationSchema(configurationSchema);
 
-                        final CommandLineConfigurationActionParameters getParametersResult = CommandLineConfigurationAction.getParameters(process, fullActionName, parameters);
+                        final CommandLineConfigurationActionParameters getParametersResult = CommandLineConfigurationAction.getParameters(process, action, parameters);
                         test.assertSame(parameters, getParametersResult);
                         test.assertEqual(process.getFileSystem().getFolder("/qub/fake-publisher/fake-project/data/").await(), parameters.getDataFolder());
                         test.assertSame(process.getDefaultApplicationLauncher(), parameters.getDefaultApplicationLauncher());
@@ -212,12 +202,12 @@ public interface CommandLineConfigurationActionTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final String fullActionName = "full-action-name";
+                        final CommandLineAction action = CommandLineAction.create("my-application config", (DesktopProcess actionProcess) -> {});
                         final Path configurationSchemaFileRelativePath = Path.parse("fake-configuration.schema.json");
                         final CommandLineConfigurationActionParameters parameters = CommandLineConfigurationActionParameters.create()
                             .setConfigurationSchemaFileRelativePath(configurationSchemaFileRelativePath);
 
-                        final CommandLineConfigurationActionParameters getParametersResult = CommandLineConfigurationAction.getParameters(process, fullActionName, parameters);
+                        final CommandLineConfigurationActionParameters getParametersResult = CommandLineConfigurationAction.getParameters(process, action, parameters);
                         test.assertSame(parameters, getParametersResult);
                         test.assertEqual(process.getFileSystem().getFolder("/qub/fake-publisher/fake-project/data/").await(), parameters.getDataFolder());
                         test.assertSame(process.getDefaultApplicationLauncher(), parameters.getDefaultApplicationLauncher());
@@ -233,12 +223,12 @@ public interface CommandLineConfigurationActionTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final String fullActionName = "full-action-name";
+                        final CommandLineAction action = CommandLineAction.create("my-application config", (DesktopProcess actionProcess) -> {});
                         final Path configurationFileRelativePath = Path.parse("fake-configuration.json");
                         final CommandLineConfigurationActionParameters parameters = CommandLineConfigurationActionParameters.create()
                             .setConfigurationFileRelativePath(configurationFileRelativePath);
 
-                        final CommandLineConfigurationActionParameters getParametersResult = CommandLineConfigurationAction.getParameters(process, fullActionName, parameters);
+                        final CommandLineConfigurationActionParameters getParametersResult = CommandLineConfigurationAction.getParameters(process, action, parameters);
                         test.assertSame(parameters, getParametersResult);
                         test.assertEqual(process.getFileSystem().getFolder("/qub/fake-publisher/fake-project/data/").await(), parameters.getDataFolder());
                         test.assertSame(process.getDefaultApplicationLauncher(), parameters.getDefaultApplicationLauncher());

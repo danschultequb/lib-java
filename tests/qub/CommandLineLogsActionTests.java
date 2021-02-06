@@ -57,13 +57,13 @@ public interface CommandLineLogsActionTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    try (final FakeDesktopProcess process = FakeDesktopProcess.create(CommandLineLogsAction.actionName))
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create("logs"))
                     {
                         final CommandLineActions actions = CommandLineActions.create();
                         final CommandLineAction action = CommandLineLogsAction.addAction(actions);
                         test.assertNotNull(action);
-                        test.assertEqual(CommandLineLogsAction.actionName, action.getName());
-                        test.assertEqual(CommandLineLogsAction.actionDescription, action.getDescription());
+                        test.assertEqual("logs", action.getName());
+                        test.assertEqual("Show the logs folder.", action.getDescription());
                         test.assertTrue(actions.containsActionName(action.getName()));
                     }
                 });
@@ -95,10 +95,10 @@ public interface CommandLineLogsActionTests
                     final CommandLineLogsActionParameters parameters = CommandLineLogsActionParameters.create();
                     final CommandLineAction action = CommandLineLogsAction.addAction(actions, parameters);
                     test.assertNotNull(action);
-                    test.assertEqual(CommandLineLogsAction.actionName, action.getName());
-                    test.assertEqual(CommandLineLogsAction.actionDescription, action.getDescription());
+                    test.assertEqual("logs", action.getName());
+                    test.assertEqual("Show the logs folder.", action.getDescription());
                     test.assertEqual(Iterable.create(), action.getAliases());
-                    test.assertTrue(actions.containsActionName(CommandLineLogsAction.actionName));
+                    test.assertTrue(actions.containsActionName("logs"));
                     test.assertNull(parameters.getLogsFolder());
                     test.assertNull(parameters.getOutput());
                     test.assertNull(parameters.getProcessFactory());

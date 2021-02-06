@@ -245,7 +245,13 @@ public interface DesktopProcess extends Process
      */
     default CommandLineActions createCommandLineActions()
     {
-        return CommandLineActions.create();
+        final CommandLineActions result = CommandLineActions.create()
+            .setProcess(this);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertSame(this, result.getProcess(), "result.getProcess()");
+
+        return result;
     }
 
     /**
