@@ -49,7 +49,7 @@ public interface CommandLineLogsAction
         PreCondition.assertNotNull(action, "action");
         PreCondition.assertNotNull(parameters, "parameters");
 
-        final CommandLineParameters commandLineParameters = action.createCommandLineParameters();
+        final CommandLineParameters commandLineParameters = action.createCommandLineParameters(process);
         final CommandLineParameter<Path> openWithParameter = commandLineParameters.addPath("openWith")
             .setDescription("The application to use to open the logs folder.");
         final CommandLineParameterHelp helpParameter = commandLineParameters.addHelp();

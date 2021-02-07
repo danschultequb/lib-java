@@ -173,9 +173,19 @@ public class CommandLineAction
         return this;
     }
 
-    public CommandLineParameters createCommandLineParameters()
+    public CommandLineParameters createCommandLineParameters(DesktopProcess process)
     {
+        PreCondition.assertNotNull(process, "process");
+
+        return this.createCommandLineParameters(process.getCommandLineArguments());
+    }
+
+    public CommandLineParameters createCommandLineParameters(CommandLineArguments arguments)
+    {
+        PreCondition.assertNotNull(arguments, "arguments");
+
         return CommandLineParameters.create()
+            .setArguments(arguments)
             .setApplicationName(this.getFullName())
             .setApplicationDescription(this.getDescription());
     }

@@ -35,9 +35,7 @@ public interface CommandLineConfigurationAction
         PreCondition.assertNotNull(action, "action");
         PreCondition.assertNotNull(parameters, "parameters");
 
-        final CommandLineParameters commandLineParameters = process.createCommandLineParameters()
-            .setApplicationName(action.getFullName())
-            .setApplicationDescription(action.getDescription());
+        final CommandLineParameters commandLineParameters = action.createCommandLineParameters(process);
         final CommandLineParameterHelp helpParameter = commandLineParameters.addHelp();
 
         CommandLineConfigurationActionParameters result = null;
