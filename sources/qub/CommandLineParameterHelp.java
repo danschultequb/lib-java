@@ -3,15 +3,44 @@ package qub;
 public class CommandLineParameterHelp extends CommandLineParameterBoolean
 {
     private final CommandLineParameters parameters;
+    private boolean forceShowApplicationHelpLines;
 
     public CommandLineParameterHelp(CommandLineParameters parameters)
     {
         super("help");
 
+        PreCondition.assertNotNull(parameters, "parameters");
+
         this.parameters = parameters;
 
         this.setDescription("Show the help message for this application.");
         this.addAlias("?");
+    }
+
+    /**
+     * Get whether or not this parameter will show the application's help lines, even if no --help
+     * or --? command line arguments are provided.
+     * @return Whether or not this parameter will show the application's help lines, even if no
+     * --help or --? command line arguments are provided.
+     */
+    public boolean getForceShowApplicationHelpLines()
+    {
+        return this.forceShowApplicationHelpLines;
+    }
+
+    /**
+     * Set whether or not this parameter will show the application's help lines, even if no --help
+     * or --? command line arguments are provided.
+     * @param forceShowApplicationHelpLines Whether or not this parameter will show the
+     *                                      application's help lines, even if no --help or --?
+     *                                      command line arguments are provided.
+     * @return This object for method chaining.
+     */
+    public CommandLineParameterHelp setForceShowApplicationHelpLines(boolean forceShowApplicationHelpLines)
+    {
+        this.forceShowApplicationHelpLines = forceShowApplicationHelpLines;
+
+        return this;
     }
 
     /**
@@ -27,10 +56,10 @@ public class CommandLineParameterHelp extends CommandLineParameterBoolean
 
         return Result.create(() ->
         {
-            final boolean showHelpLines = this.getValue().await();
+            final boolean showHelpLines = this.getForceShowApplicationHelpLines() || this.getValue().await();
             if (showHelpLines)
             {
-                this.writeApplicationHelpLines(process.getOutputWriteStream()).await();
+                this.writeApplicationHelpLines(IndentedCharacterWriteStream.create(process.getOutputWriteStream())).await();
 
                 process.setExitCode(-1);
             }
@@ -44,41 +73,17 @@ public class CommandLineParameterHelp extends CommandLineParameterBoolean
      *                written to.
      * @return The number of characters that were written.
      */
-    public Result<Integer> writeApplicationHelpLines(CharacterWriteStream writeStream)
-    {
-        PreCondition.assertNotNull(writeStream, "process");
-
-        return CommandLineParameterHelp.writeApplicationHelpLines(
-            writeStream,
-            this.parameters.getApplicationName(),
-            this.parameters.getApplicationDescription(),
-            this.parameters.getOrderedParameters());
-    }
-
-    /**
-     * Get the lines that explain how to run this application from the command line.
-     */
-    public static Result<Integer> writeApplicationHelpLines(CharacterWriteStream writeStream, String applicationName, String applicationDescription, Iterable<CommandLineParameterBase<?>> parameters)
-    {
-        PreCondition.assertNotNull(writeStream, "writeStream");
-
-        return CommandLineParameterHelp.writeApplicationHelpLines(
-            IndentedCharacterWriteStream.create(writeStream),
-            applicationName,
-            applicationDescription,
-            parameters);
-    }
-
-    /**
-     * Get the lines that explain how to run this application from the command line.
-     */
-    public static Result<Integer> writeApplicationHelpLines(IndentedCharacterWriteStream writeStream, String applicationName, String applicationDescription, Iterable<CommandLineParameterBase<?>> parameters)
+    public Result<Integer> writeApplicationHelpLines(IndentedCharacterWriteStream writeStream)
     {
         PreCondition.assertNotNull(writeStream, "writeStream");
 
         return Result.create(() ->
         {
             int result = 0;
+
+            final String applicationName = this.parameters.getApplicationName();
+            final String applicationDescription = this.parameters.getApplicationDescription();
+            final Iterable<CommandLineParameterBase<?>> parameters = this.parameters.getOrderedParameters();
 
             if (!Strings.isNullOrEmpty(applicationName))
             {
