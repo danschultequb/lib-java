@@ -181,17 +181,6 @@ public interface CommandLineLogsAction
      * the provided streams will also be written to log stream.
      * @param logFile The file that the combined streams will log to.
      */
-    @Deprecated
-    static LogStreams addLogStream(File logFile, CharacterToByteWriteStream output, VerboseCharacterToByteWriteStream verbose)
-    {
-        return CommandLineLogsAction.addLogStreamFromLogFile(logFile, output, null, verbose);
-    }
-
-    /**
-     * Combine the provided streams with a log stream so that any characters that are written to
-     * the provided streams will also be written to log stream.
-     * @param logFile The file that the combined streams will log to.
-     */
     static LogStreams addLogStreamFromLogFile(File logFile, CharacterToByteWriteStream output, CharacterToByteWriteStream error, VerboseCharacterToByteWriteStream verbose)
     {
         PreCondition.assertNotNull(logFile, "logFile");
