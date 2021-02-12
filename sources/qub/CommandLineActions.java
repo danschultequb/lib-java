@@ -159,6 +159,15 @@ public class CommandLineActions
         PreCondition.assertNotNull(mainAction, "mainAction");
         PreCondition.assertFalse(this.containsActionName(actionName), "this.containsActionName(actionName)");
 
+        return this.addAction(actionName, (DesktopProcess process, CommandLineAction action) -> mainAction.run(process));
+    }
+
+    public CommandLineAction addAction(String actionName, Action2<DesktopProcess,CommandLineAction> mainAction)
+    {
+        PreCondition.assertNotNullAndNotEmpty(actionName, "actionName");
+        PreCondition.assertNotNull(mainAction, "mainAction");
+        PreCondition.assertFalse(this.containsActionName(actionName), "this.containsActionName(actionName)");
+
         final CommandLineAction result = CommandLineAction.create(actionName, mainAction)
             .setParentActions(this);
         this.actions.add(result);

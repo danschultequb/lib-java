@@ -6,7 +6,7 @@ package qub;
 public class CommandLineAction
 {
     private final String name;
-    private final Action1<DesktopProcess> mainAction;
+    private final Action2<DesktopProcess,CommandLineAction> mainAction;
     private final List<String> aliases;
     private boolean defaultAction;
     private String description;
@@ -17,7 +17,7 @@ public class CommandLineAction
      * @param name The name of the CommandLineAction.
      * @param mainAction The behavior/action of the CommandLineAction.
      */
-    private CommandLineAction(String name, Action1<DesktopProcess> mainAction)
+    private CommandLineAction(String name, Action2<DesktopProcess,CommandLineAction> mainAction)
     {
         PreCondition.assertNotNullAndNotEmpty(name, "name");
         PreCondition.assertNotNull(mainAction, "mainAction");
@@ -33,6 +33,19 @@ public class CommandLineAction
      * @param mainAction The behavior/action of the CommandLineAction.
      */
     public static CommandLineAction create(String name, Action1<DesktopProcess> mainAction)
+    {
+        PreCondition.assertNotNullAndNotEmpty(name, "name");
+        PreCondition.assertNotNull(mainAction, "mainAction");
+
+        return new CommandLineAction(name, (DesktopProcess process, CommandLineAction action) -> mainAction.run(process));
+    }
+
+    /**
+     * Create a new CommandLineAction with the provided name and action.
+     * @param name The name of the CommandLineAction.
+     * @param mainAction The behavior/action of the CommandLineAction.
+     */
+    public static CommandLineAction create(String name, Action2<DesktopProcess,CommandLineAction> mainAction)
     {
         return new CommandLineAction(name, mainAction);
     }
@@ -194,6 +207,6 @@ public class CommandLineAction
     {
         PreCondition.assertNotNull(process, "process");
 
-        this.mainAction.run(process);
+        this.mainAction.run(process, this);
     }
 }

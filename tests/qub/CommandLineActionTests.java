@@ -8,7 +8,7 @@ public interface CommandLineActionTests
 
         runner.testGroup(CommandLineAction.class, () ->
         {
-            runner.testGroup("create(String,Action1<TProcess>)", () ->
+            runner.testGroup("create(String,Action1<DesktopProcess>)", () ->
             {
                 runner.test("with null name", (Test test) ->
                 {
@@ -33,7 +33,37 @@ public interface CommandLineActionTests
 
                 runner.test("with null mainAction", (Test test) ->
                 {
-                    test.assertThrows(() -> CommandLineAction.create("hello", null),
+                    test.assertThrows(() -> CommandLineAction.create("hello", (Action1<DesktopProcess>)null),
+                        new PreConditionFailure("mainAction cannot be null."));
+                });
+            });
+
+            runner.testGroup("create(String,Action2<DesktopProcess,CommandLineAction>)", () ->
+            {
+                runner.test("with null name", (Test test) ->
+                {
+                    test.assertThrows(() -> CommandLineAction.create(null, (DesktopProcess process, CommandLineAction action) -> {}),
+                        new PreConditionFailure("name cannot be null."));
+                });
+
+                runner.test("with empty name", (Test test) ->
+                {
+                    test.assertThrows(() -> CommandLineAction.create("", (DesktopProcess process, CommandLineAction action) -> {}),
+                        new PreConditionFailure("name cannot be empty."));
+                });
+
+                runner.test("with non-empty name", (Test test) ->
+                {
+                    final CommandLineAction action = CommandLineAction.create("hello", (DesktopProcess process, CommandLineAction currentAction) -> {});
+                    test.assertEqual("hello", action.getName());
+                    test.assertEqual(Iterable.create(), action.getAliases());
+                    test.assertNull(action.getDescription());
+                    test.assertFalse(action.isDefaultAction());
+                });
+
+                runner.test("with null mainAction", (Test test) ->
+                {
+                    test.assertThrows(() -> CommandLineAction.create("hello", (Action2<DesktopProcess,CommandLineAction>)null),
                         new PreConditionFailure("mainAction cannot be null."));
                 });
             });
