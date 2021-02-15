@@ -157,16 +157,52 @@ public class JSONObject implements JSONSegment, MutableMap<String,JSONSegment>
         return this.get(propertyName, JSONNumber.class);
     }
 
-    public Result<Double> getNumber(String propertyName)
+    public Result<Number> getNumber(String propertyName)
     {
         return this.getNumberSegment(propertyName)
-            .then(JSONNumber::getValue);
+            .then(JSONNumber::getNumberValue);
     }
 
-    public Result<Double> getNumberOrNull(String propertyName)
+    public Result<Number> getNumberOrNull(String propertyName)
     {
         return this.getOrNull(propertyName, JSONNumber.class)
             .then(JSON::toNumberOrNull);
+    }
+
+    public Result<Double> getDouble(String propertyName)
+    {
+        return this.getNumberSegment(propertyName)
+            .then(JSONNumber::getDoubleValue);
+    }
+
+    public Result<Double> getDoubleOrNull(String propertyName)
+    {
+        return this.getOrNull(propertyName, JSONNumber.class)
+            .then(JSON::toDoubleOrNull);
+    }
+
+    public Result<Long> getLong(String propertyName)
+    {
+        return this.getNumberSegment(propertyName)
+            .then((JSONNumber jsonNumber) -> jsonNumber.getLongValue().await());
+    }
+
+    public Result<Long> getLongOrNull(String propertyName)
+    {
+        return this.getOrNull(propertyName, JSONNumber.class)
+            .then((JSONNumber jsonNumber) -> JSON.toLongOrNull(jsonNumber).await());
+    }
+
+    public Result<Integer> getInteger(String propertyName)
+    {
+        return this.getNumberSegment(propertyName)
+            .then((JSONNumber jsonNumber) -> jsonNumber.getIntegerValue().await());
+    }
+
+    public Result<Integer> getIntegerOrNull(String propertyName)
+    {
+        return this.getOrNull(propertyName, JSONNumber.class)
+            .then((JSONNumber jsonNumber) -> JSON.toIntegerOrNull(jsonNumber).await());
     }
 
     public Result<Void> getNull(String propertyName)
@@ -333,32 +369,35 @@ public class JSONObject implements JSONSegment, MutableMap<String,JSONSegment>
 
     public JSONObject setNumber(String propertyName, long propertyValue)
     {
-        return this.set(propertyName, JSONNumber.get(propertyValue));
+        return this.set(propertyName, JSONNumber.create(propertyValue));
     }
 
     public JSONObject setNumber(String propertyName, double propertyValue)
     {
-        return this.set(propertyName, JSONNumber.get(propertyValue));
+        return this.set(propertyName, JSONNumber.create(propertyValue));
     }
 
-    public JSONObject setNumberOrNull(String propertyName, Integer propertyValue)
+    public JSONObject setNumber(String propertyName, Number propertyValue)
     {
-        return this.set(propertyName, propertyValue == null ? JSONNull.segment : JSONNumber.get(propertyValue));
+        PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
+        PreCondition.assertNotNull(propertyValue, "propertyValue");
+
+        return this.set(propertyName, JSONNumber.create(propertyValue));
     }
 
-    public JSONObject setNumberOrNull(String propertyName, Long propertyValue)
+    public JSONObject setNumberOrNull(String propertyName, long propertyValue)
     {
-        return this.set(propertyName, propertyValue == null ? JSONNull.segment : JSONNumber.get(propertyValue));
+        return this.setNumber(propertyName, propertyValue);
     }
 
-    public JSONObject setNumberOrNull(String propertyName, Float propertyValue)
+    public JSONObject setNumberOrNull(String propertyName, double propertyValue)
     {
-        return this.set(propertyName, propertyValue == null ? JSONNull.segment : JSONNumber.get(propertyValue));
+        return this.setNumber(propertyName, propertyValue);
     }
 
-    public JSONObject setNumberOrNull(String propertyName, Double propertyValue)
+    public JSONObject setNumberOrNull(String propertyName, Number propertyValue)
     {
-        return this.set(propertyName, propertyValue == null ? JSONNull.segment : JSONNumber.get(propertyValue));
+        return this.set(propertyName, propertyValue == null ? JSONNull.segment : JSONNumber.create(propertyValue));
     }
 
     public JSONObject setString(String propertyName, String propertyValue)

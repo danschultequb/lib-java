@@ -3,36 +3,64 @@ package qub;
 public class JSONNumber implements JSONSegment
 {
     private final String text;
-    private final double value;
 
-    private JSONNumber(String text, double value)
+    private JSONNumber(String text)
     {
         PreCondition.assertNotNullAndNotEmpty(text, "text");
 
         this.text = text;
-        this.value = value;
     }
 
-    public static JSONNumber get(long value)
+    public static JSONNumber create(long value)
     {
-        return new JSONNumber(Longs.toString(value), value);
+        return JSONNumber.create(Longs.toString(value));
     }
 
-    public static JSONNumber get(double value)
+    public static JSONNumber create(double value)
     {
-        return new JSONNumber(Doubles.toString(value), value);
+        return JSONNumber.create(Doubles.toString(value));
     }
 
-    public static JSONNumber get(String text)
+    public static JSONNumber create(Number value)
+    {
+        PreCondition.assertNotNull(value, "value");
+
+        return JSONNumber.create(value.toString());
+    }
+
+    public static JSONNumber create(String text)
     {
         PreCondition.assertNotNullAndNotEmpty(text, "text");
 
-        return new JSONNumber(text, java.lang.Double.parseDouble(text));
+        return new JSONNumber(text);
     }
 
-    public double getValue()
+    public Number getNumberValue()
     {
-        return this.value;
+        Number result = this.getLongValue().catchError().await();
+        if (result == null)
+        {
+            result = this.getDoubleValue();
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    public Result<Integer> getIntegerValue()
+    {
+        return Integers.parse(this.text);
+    }
+
+    public Result<Long> getLongValue()
+    {
+        return Longs.parse(this.text);
+    }
+
+    public Double getDoubleValue()
+    {
+        return Doubles.parse(this.text).await();
     }
 
     @Override
@@ -59,7 +87,6 @@ public class JSONNumber implements JSONSegment
     public boolean equals(JSONNumber rhs)
     {
         return rhs != null &&
-            this.value == rhs.value &&
             this.text.equals(rhs.text);
     }
 }

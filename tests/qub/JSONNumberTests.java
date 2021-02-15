@@ -6,35 +6,53 @@ public interface JSONNumberTests
     {
         runner.testGroup(JSONNumber.class, () ->
         {
-            runner.test("get(long)", (Test test) ->
+            runner.test("create(int)", (Test test) ->
             {
-                final JSONNumber number = JSONNumber.get(513L);
-                test.assertEqual(513, number.getValue());
+                final JSONNumber number = JSONNumber.create(513);
+                test.assertEqual(513L, number.getNumberValue());
+                test.assertEqual(513, number.getIntegerValue().await());
+                test.assertEqual(513L, number.getLongValue().await());
+                test.assertEqual(513.0, number.getDoubleValue());
                 test.assertEqual("513", number.toString());
             });
 
-            runner.test("get(double)", (Test test) ->
+            runner.test("create(long)", (Test test) ->
             {
-                final JSONNumber number = JSONNumber.get(51.0);
-                test.assertEqual(51.0, number.getValue());
+                final JSONNumber number = JSONNumber.create(513L);
+                test.assertEqual(513L, number.getNumberValue());
+                test.assertEqual(513, number.getIntegerValue().await());
+                test.assertEqual(513L, number.getLongValue().await());
+                test.assertEqual(513.0, number.getDoubleValue());
+                test.assertEqual("513", number.toString());
+            });
+
+            runner.test("create(double)", (Test test) ->
+            {
+                final JSONNumber number = JSONNumber.create(51.0);
+                test.assertEqual(51.0, number.getNumberValue());
+                test.assertThrows(() -> number.getIntegerValue().await(),
+                    new NumberFormatException("For input string: \"51.0\""));
+                test.assertThrows(() -> number.getLongValue().await(),
+                    new NumberFormatException("For input string: \"51.0\""));
+                test.assertEqual(51.0, number.getDoubleValue());
                 test.assertEqual("51.0", number.toString());
             });
 
-            runner.testGroup("get(String)", () ->
+            runner.testGroup("create(String)", () ->
             {
-                final Action2<String,Double> getTest = (String text, Double expectedValue) ->
+                final Action2<String,Number> getTest = (String text, Number expectedValue) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                     {
-                        final JSONNumber number = JSONNumber.get(text);
+                        final JSONNumber number = JSONNumber.create(text);
                         test.assertEqual(text, number.toString());
-                        test.assertEqual(expectedValue, number.getValue());
+                        test.assertEqual(expectedValue, number.getNumberValue());
                     });
                 };
 
-                getTest.run("9", 9.0);
+                getTest.run("9", 9L);
                 getTest.run("9.0", 9.0);
-                getTest.run("-79", -79.0);
+                getTest.run("-79", -79L);
                 getTest.run("10e0", 10.0);
                 getTest.run("10e1", 100.0);
                 getTest.run("10E2", 1000.0);
@@ -51,12 +69,12 @@ public interface JSONNumberTests
                     });
                 };
 
-                equalsTest.run(JSONNumber.get(0), null, false);
-                equalsTest.run(JSONNumber.get(0), "hello", false);
-                equalsTest.run(JSONNumber.get(0), JSONNumber.get(0), true);
-                equalsTest.run(JSONNumber.get(0), JSONNumber.get(-0), true);
-                equalsTest.run(JSONNumber.get(0), JSONNumber.get(1), false);
-                equalsTest.run(JSONNumber.get(1), JSONNumber.get(1.0), false);
+                equalsTest.run(JSONNumber.create(0), null, false);
+                equalsTest.run(JSONNumber.create(0), "hello", false);
+                equalsTest.run(JSONNumber.create(0), JSONNumber.create(0), true);
+                equalsTest.run(JSONNumber.create(0), JSONNumber.create(-0), true);
+                equalsTest.run(JSONNumber.create(0), JSONNumber.create(1), false);
+                equalsTest.run(JSONNumber.create(1), JSONNumber.create(1.0), false);
             });
 
             runner.testGroup("equals(JSONNumber)", () ->
@@ -69,11 +87,11 @@ public interface JSONNumberTests
                     });
                 };
 
-                equalsTest.run(JSONNumber.get(0), null, false);
-                equalsTest.run(JSONNumber.get(0), JSONNumber.get(0), true);
-                equalsTest.run(JSONNumber.get(0), JSONNumber.get(-0), true);
-                equalsTest.run(JSONNumber.get(0), JSONNumber.get(1), false);
-                equalsTest.run(JSONNumber.get(1), JSONNumber.get(1.0), false);
+                equalsTest.run(JSONNumber.create(0), null, false);
+                equalsTest.run(JSONNumber.create(0), JSONNumber.create(0), true);
+                equalsTest.run(JSONNumber.create(0), JSONNumber.create(-0), true);
+                equalsTest.run(JSONNumber.create(0), JSONNumber.create(1), false);
+                equalsTest.run(JSONNumber.create(1), JSONNumber.create(1.0), false);
             });
         });
     }

@@ -135,19 +135,19 @@ public class JSONArray implements JSONSegment, List<JSONSegment>
 
     public JSONArray addNumber(long value)
     {
-        return this.add(JSONNumber.get(value));
+        return this.add(JSONNumber.create(value));
     }
 
     public JSONArray addNumber(String value)
     {
         PreCondition.assertNotNullAndNotEmpty(value, "value");
 
-        return this.add(JSONNumber.get(value));
+        return this.add(JSONNumber.create(value));
     }
 
     public JSONArray addNumber(double value)
     {
-        return this.add(JSONNumber.get(value));
+        return this.add(JSONNumber.create(value));
     }
 
     public JSONArray addBoolean(boolean value)

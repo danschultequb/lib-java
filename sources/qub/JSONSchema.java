@@ -1,6 +1,6 @@
 package qub;
 
-public class JSONSchema
+public class JSONSchema extends JSONObjectWrapperBase
 {
     public static final String schemaPropertyName = "$schema";
     public static final String typePropertyName = "type";
@@ -15,30 +15,19 @@ public class JSONSchema
     public static final String minLengthPropertyName = "minLength";
     public static final String oneOfPropertyName = "oneOf";
 
-    private final JSONObject json;
-    private String schema;
-    private String type;
-    private JSONSchemaMap properties;
-    private String ref;
-    private Object additionalProperties;
-    private JSONSchemaMap definitions;
-    private String description;
-    private List<Object> enums;
-    private JSONSchema items;
-    private List<String> required;
-    private Integer minLength;
-    private List<JSONSchema> oneOf;
-
     private JSONSchema(JSONObject json)
     {
-        PreCondition.assertNotNull(json, "json");
-
-        this.json = json;
+        super(json);
     }
 
     public static JSONSchema create()
     {
-        return new JSONSchema(JSONObject.create());
+        return JSONSchema.create(JSONObject.create());
+    }
+
+    public static JSONSchema create(JSONObject json)
+    {
+        return new JSONSchema(json);
     }
 
     public static Result<JSONSchema> parse(File file)
@@ -74,134 +63,7 @@ public class JSONSchema
         return Result.create(() ->
         {
             final JSONObject json = JSON.parseObject(characters).await();
-            return JSONSchema.parse(json).await();
-        });
-    }
-
-    public static Result<JSONSchema> parse(JSONObject json)
-    {
-        PreCondition.assertNotNull(json, "json");
-
-        return Result.create(() ->
-        {
-            final JSONSchema result = new JSONSchema(json);
-
-            result.schema = json.getStringOrNull(JSONSchema.schemaPropertyName)
-                .catchError(NotFoundException.class)
-                .await();
-            result.type = json.getStringOrNull(JSONSchema.typePropertyName)
-                .catchError(NotFoundException.class)
-                .await();
-            result.properties = json.getObjectOrNull(JSONSchema.propertiesPropertyName)
-                .catchError(NotFoundException.class)
-                .then((JSONObject propertiesJson) -> JSONSchemaMap.parse(propertiesJson, "property"))
-                .await();
-            result.ref = json.getStringOrNull(JSONSchema.refPropertyName)
-                .catchError(NotFoundException.class)
-                .await();
-            result.additionalProperties = json.get(JSONSchema.additionalPropertiesPropertyName)
-                .then((JSONSegment additionalPropertiesJson) ->
-                {
-                    Object additionalProperties;
-                    if (additionalPropertiesJson instanceof JSONBoolean)
-                    {
-                        additionalProperties = ((JSONBoolean)additionalPropertiesJson).getValue();
-                    }
-                    else if (additionalPropertiesJson instanceof JSONObject)
-                    {
-                        additionalProperties = JSONSchema.parse((JSONObject)additionalPropertiesJson).await();
-                    }
-                    else
-                    {
-                        additionalProperties = null;
-                    }
-                    return additionalProperties;
-                })
-                .catchError(NotFoundException.class)
-                .await();
-            result.definitions = json.getObjectOrNull(JSONSchema.definitionsPropertyName)
-                .catchError(NotFoundException.class)
-                .then((JSONObject propertiesJson) -> JSONSchemaMap.parse(propertiesJson, "definition"))
-                .await();
-            result.description = json.getStringOrNull(JSONSchema.descriptionPropertyName)
-                .catchError(NotFoundException.class)
-                .await();
-            result.enums = json.getArrayOrNull(JSONSchema.enumPropertyName)
-                .catchError(NotFoundException.class)
-                .then((JSONArray enumArray) ->
-                {
-                    List<Object> enums = null;
-                    if (enumArray != null)
-                    {
-                        enums = List.create();
-                        for (final JSONSegment enumElement : enumArray)
-                        {
-                            if (enumElement instanceof JSONNull)
-                            {
-                                enums.add(null);
-                            }
-                            else if (enumElement instanceof JSONString)
-                            {
-                                enums.add(((JSONString)enumElement).getValue());
-                            }
-                            else if (enumElement instanceof JSONNumber)
-                            {
-                                enums.add(((JSONNumber)enumElement).getValue());
-                            }
-                            else if (enumElement instanceof JSONBoolean)
-                            {
-                                enums.add(((JSONBoolean)enumElement).getValue());
-                            }
-                        }
-                    }
-                    return enums;
-                })
-                .await();
-            result.items = json.getObjectOrNull(JSONSchema.itemsPropertyName)
-                .catchError(NotFoundException.class)
-                .then((JSONObject itemsJson) ->
-                {
-                    JSONSchema items = null;
-                    if (itemsJson != null)
-                    {
-                        items = JSONSchema.parse(itemsJson).await();
-                    }
-                    return items;
-                })
-                .await();
-            result.required = json.getArrayOrNull(JSONSchema.requiredPropertyName)
-                .catchError(NotFoundException.class)
-                .then((JSONArray requiredJson) ->
-                {
-                    List<String> required = null;
-                    if (requiredJson != null)
-                    {
-                        required = List.create(requiredJson.instanceOf(JSONString.class).map(JSONString::getValue));
-                    }
-                    return required;
-                })
-                .await();
-            result.minLength = json.getNumberOrNull(JSONSchema.minLengthPropertyName)
-                .catchError(NotFoundException.class)
-                .then((Double minLength) -> minLength == null ? null : minLength.intValue())
-                .await();
-            result.oneOf = json.getArrayOrNull(JSONSchema.oneOfPropertyName)
-                .catchError(NotFoundException.class)
-                .then((JSONArray oneOfJson) ->
-                {
-                    List<JSONSchema> oneOf = null;
-                    if (oneOfJson != null)
-                    {
-                        oneOf = oneOfJson
-                            .instanceOf(JSONObject.class)
-                            .map((JSONObject oneOfJsonObjectElement) -> JSONSchema.parse(oneOfJsonObjectElement).await())
-                            .toList();
-                    }
-                    return oneOf;
-                })
-                .await();
-
-            return result;
+            return JSONSchema.create(json);
         });
     }
 
@@ -211,7 +73,9 @@ public class JSONSchema
      */
     public String getSchema()
     {
-        return this.schema;
+        return this.json.getString(JSONSchema.schemaPropertyName)
+            .catchError()
+            .await();
     }
 
     /**
@@ -222,7 +86,6 @@ public class JSONSchema
     public JSONSchema setSchema(String schema)
     {
         this.json.setStringOrNull(JSONSchema.schemaPropertyName, schema);
-        this.schema = schema;
 
         return this;
     }
@@ -233,10 +96,11 @@ public class JSONSchema
      */
     public String removeSchema()
     {
-        final String result = this.schema;
+        final String result = this.getSchema();
 
-        this.json.remove(JSONSchema.schemaPropertyName).catchError(NotFoundException.class).await();
-        this.schema = null;
+        this.json.remove(JSONSchema.schemaPropertyName)
+            .catchError()
+            .await();
 
         return result;
     }
@@ -247,7 +111,10 @@ public class JSONSchema
      */
     public String getType()
     {
-        return this.type;
+        return json.getStringOrNull(JSONSchema.typePropertyName)
+            .catchError()
+            .await();
+
     }
 
     /**
@@ -258,7 +125,6 @@ public class JSONSchema
     public JSONSchema setType(String type)
     {
         this.json.setStringOrNull(JSONSchema.typePropertyName, type);
-        this.type = type;
 
         return this;
     }
@@ -279,10 +145,11 @@ public class JSONSchema
      */
     public String removeType()
     {
-        final String result = this.type;
+        final String result = this.getType();
 
-        this.json.remove(JSONSchema.typePropertyName).catchError(NotFoundException.class).await();
-        this.type = null;
+        this.json.remove(JSONSchema.typePropertyName)
+            .catchError()
+            .await();
 
         return result;
     }
@@ -293,7 +160,27 @@ public class JSONSchema
      */
     public Map<String,JSONSchema> getProperties()
     {
-        return this.properties == null ? null : this.properties.toMap();
+        MutableMap<String,JSONSchema> result = null;
+
+        final JSONObject propertiesJson = this.json.getObject(JSONSchema.propertiesPropertyName)
+            .catchError()
+            .await();
+        if (propertiesJson != null)
+        {
+            result = Map.create();
+            for (final String propertyName : propertiesJson.getPropertyNames())
+            {
+                final JSONObject propertyJson = propertiesJson.getObject(propertyName)
+                    .catchError()
+                    .await();
+                if (propertyJson != null)
+                {
+                    result.set(propertyName, JSONSchema.create(propertyJson));
+                }
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -305,13 +192,17 @@ public class JSONSchema
     {
         if (properties == null)
         {
-            this.properties = null;
             this.json.setNull(JSONSchema.propertiesPropertyName);
         }
         else
         {
-            this.properties = JSONSchemaMap.create("property").setAll(properties);
-            this.json.setObject(JSONSchema.propertiesPropertyName, this.properties.toJson());
+            final JSONObject propertiesJson = JSONObject.create();
+            for (final MapEntry<String,JSONSchema> property : properties)
+            {
+                final JSONSchema propertyValue = property.getValue();
+                propertiesJson.setObjectOrNull(property.getKey(), propertyValue == null ? null : propertyValue.toJson());
+            }
+            this.json.setObject(JSONSchema.propertiesPropertyName, propertiesJson);
         }
         return this;
     }
@@ -322,9 +213,10 @@ public class JSONSchema
      */
     public Iterable<String> getPropertyNames()
     {
-        return this.properties == null
-            ? Iterable.create()
-            : this.properties.getElementNames();
+        final JSONObject propertiesJson = this.json.getObject(JSONSchema.propertiesPropertyName)
+            .catchError()
+            .await();
+        return propertiesJson == null ? Iterable.create() : propertiesJson.getPropertyNames();
     }
 
     /**
@@ -338,12 +230,30 @@ public class JSONSchema
 
         return Result.create(() ->
         {
-            if (this.properties == null)
+            JSONSchema result = null;
+
+            final JSONObject propertiesJson = this.json.getObject(JSONSchema.propertiesPropertyName)
+                .catchError()
+                .await();
+            if (propertiesJson != null)
+            {
+                final JSONObject propertyJson = propertiesJson.getObject(propertyName)
+                    .catchError()
+                    .await();
+                if (propertyJson != null)
+                {
+                    result = JSONSchema.create(propertyJson);
+                }
+            }
+
+            if (result == null)
             {
                 throw new NotFoundException("No JSON Schema found for the property " + Strings.escapeAndQuote(propertyName) + ".");
             }
 
-            return this.properties.get(propertyName).await();
+            PostCondition.assertNotNull(result, "result");
+
+            return result;
         });
     }
 
@@ -358,12 +268,10 @@ public class JSONSchema
         PreCondition.assertNotNullAndNotEmpty(propertyName, "propertyName");
         PreCondition.assertNotNull(propertySchema, "propertySchema");
 
-        if (this.properties == null)
-        {
-            this.properties = JSONSchemaMap.create("property");
-            this.json.setObject(JSONSchema.propertiesPropertyName, this.properties.toJson());
-        }
-        this.properties.set(propertyName, propertySchema);
+        final JSONObject propertiesJson = this.json.getOrCreateObject(JSONSchema.propertiesPropertyName)
+            .catchError()
+            .await();
+        propertiesJson.setObject(propertyName, propertySchema.toJson());
 
         return this;
     }
@@ -374,7 +282,10 @@ public class JSONSchema
      */
     public String getRef()
     {
-        return this.ref;
+        return this.json.getString(JSONSchema.refPropertyName)
+            .catchError()
+            .await();
+
     }
 
     /**
@@ -385,7 +296,6 @@ public class JSONSchema
     public JSONSchema setRef(String ref)
     {
         this.json.setStringOrNull(JSONSchema.refPropertyName, ref);
-        this.ref = ref;
 
         return this;
     }
@@ -396,10 +306,11 @@ public class JSONSchema
      */
     public String removeRef()
     {
-        final String result = this.ref;
+        final String result = this.getRef();
 
-        this.json.remove(JSONSchema.refPropertyName).catchError(NotFoundException.class).await();
-        this.ref = null;
+        this.json.remove(JSONSchema.refPropertyName)
+            .catchError()
+            .await();
 
         return result;
     }
@@ -410,7 +321,26 @@ public class JSONSchema
      */
     public Object getAdditionalProperties()
     {
-        return this.additionalProperties;
+        return this.json.get(JSONSchema.additionalPropertiesPropertyName)
+            .then((JSONSegment additionalPropertiesJson) ->
+            {
+                Object additionalProperties;
+                if (additionalPropertiesJson instanceof JSONBoolean)
+                {
+                    additionalProperties = ((JSONBoolean)additionalPropertiesJson).getValue();
+                }
+                else if (additionalPropertiesJson instanceof JSONObject)
+                {
+                    additionalProperties = JSONSchema.create((JSONObject)additionalPropertiesJson);
+                }
+                else
+                {
+                    additionalProperties = null;
+                }
+                return additionalProperties;
+            })
+            .catchError(NotFoundException.class)
+            .await();
     }
 
     /**
@@ -419,7 +349,7 @@ public class JSONSchema
      */
     public Boolean getAdditionalPropertiesAsBoolean()
     {
-        return Types.as(this.additionalProperties, Boolean.class);
+        return Types.as(this.getAdditionalProperties(), Boolean.class);
     }
 
     /**
@@ -428,7 +358,7 @@ public class JSONSchema
      */
     public JSONSchema getAdditionalPropertiesAsJSONSchema()
     {
-        return Types.as(this.additionalProperties, JSONSchema.class);
+        return Types.as(this.getAdditionalProperties(), JSONSchema.class);
     }
 
     /**
@@ -438,11 +368,8 @@ public class JSONSchema
      */
     public JSONSchema setAdditionalProperties(Boolean additionalProperties)
     {
-        if (!Comparer.equal(this.additionalProperties, additionalProperties))
-        {
-            this.json.setBooleanOrNull(JSONSchema.additionalPropertiesPropertyName, additionalProperties);
-            this.additionalProperties = additionalProperties;
-        }
+        this.json.setBooleanOrNull(JSONSchema.additionalPropertiesPropertyName, additionalProperties);
+
         return this;
     }
 
@@ -453,11 +380,8 @@ public class JSONSchema
      */
     public JSONSchema setAdditionalProperties(JSONSchema additionalProperties)
     {
-        if (!Comparer.equal(this.additionalProperties, additionalProperties))
-        {
-            this.json.setObjectOrNull(JSONSchema.additionalPropertiesPropertyName, additionalProperties.toJson());
-            this.additionalProperties = additionalProperties;
-        }
+        this.json.setObjectOrNull(JSONSchema.additionalPropertiesPropertyName, additionalProperties == null ? null : additionalProperties.toJson());
+
         return this;
     }
 
@@ -467,12 +391,11 @@ public class JSONSchema
      */
     public Object removeAdditionalProperties()
     {
-        final Object result = this.additionalProperties;
+        final Object result = this.getAdditionalProperties();
 
         this.json.remove(JSONSchema.additionalPropertiesPropertyName)
-            .catchError(NotFoundException.class)
+            .catchError()
             .await();
-        this.additionalProperties = null;
 
         return result;
     }
@@ -501,7 +424,27 @@ public class JSONSchema
      */
     public Map<String,JSONSchema> getDefinitions()
     {
-        return this.definitions == null ? null : this.definitions.toMap();
+        MutableMap<String,JSONSchema> result = null;
+
+        final JSONObject definitionsJson = this.json.getObject(JSONSchema.definitionsPropertyName)
+            .catchError()
+            .await();
+        if (definitionsJson != null)
+        {
+            result = Map.create();
+            for (final String definitionName : definitionsJson.getPropertyNames())
+            {
+                final JSONObject definitionJson = definitionsJson.getObject(definitionName)
+                    .catchError()
+                    .await();
+                if (definitionJson != null)
+                {
+                    result.set(definitionName, JSONSchema.create(definitionJson));
+                }
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -513,13 +456,17 @@ public class JSONSchema
     {
         if (definitions == null)
         {
-            this.definitions = null;
             this.json.setNull(JSONSchema.definitionsPropertyName);
         }
         else
         {
-            this.definitions = JSONSchemaMap.create("definition").setAll(definitions);
-            this.json.setObject(JSONSchema.definitionsPropertyName, this.definitions.toJson());
+            final JSONObject definitionsJson = JSONObject.create();
+            for (final MapEntry<String,JSONSchema> definition : definitions)
+            {
+                final JSONSchema definitionValue = definition.getValue();
+                definitionsJson.setObjectOrNull(definition.getKey(), definitionValue == null ? null : definitionValue.toJson());
+            }
+            this.json.setObject(JSONSchema.definitionsPropertyName, definitionsJson);
         }
         return this;
     }
@@ -530,9 +477,10 @@ public class JSONSchema
      */
     public Iterable<String> getDefinitionNames()
     {
-        return this.definitions == null
-            ? Iterable.create()
-            : this.definitions.getElementNames();
+        final JSONObject definitionsJson = this.json.getObject(JSONSchema.definitionsPropertyName)
+            .catchError()
+            .await();
+        return definitionsJson == null ? Iterable.create() : definitionsJson.getPropertyNames();
     }
 
     /**
@@ -546,12 +494,30 @@ public class JSONSchema
 
         return Result.create(() ->
         {
-            if (this.definitions == null)
+            JSONSchema result = null;
+
+            final JSONObject definitionsJson = this.json.getObject(JSONSchema.definitionsPropertyName)
+                .catchError()
+                .await();
+            if (definitionsJson != null)
+            {
+                final JSONObject definitionJson = definitionsJson.getObject(definitionName)
+                    .catchError()
+                    .await();
+                if (definitionJson != null)
+                {
+                    result = JSONSchema.create(definitionJson);
+                }
+            }
+
+            if (result == null)
             {
                 throw new NotFoundException("No JSON Schema found for the definition " + Strings.escapeAndQuote(definitionName) + ".");
             }
 
-            return this.definitions.get(definitionName).await();
+            PostCondition.assertNotNull(result, "result");
+
+            return result;
         });
     }
 
@@ -566,12 +532,10 @@ public class JSONSchema
         PreCondition.assertNotNullAndNotEmpty(definitionName, "definitionName");
         PreCondition.assertNotNull(definitionSchema, "definitionSchema");
 
-        if (this.definitions == null)
-        {
-            this.definitions = JSONSchemaMap.create("definition");
-            this.json.setObject(JSONSchema.definitionsPropertyName, this.definitions.toJson());
-        }
-        this.definitions.set(definitionName, definitionSchema);
+        final JSONObject definitionsJson = this.json.getOrCreateObject(JSONSchema.definitionsPropertyName)
+            .catchError()
+            .await();
+        definitionsJson.setObject(definitionName, definitionSchema.toJson());
 
         return this;
     }
@@ -582,7 +546,9 @@ public class JSONSchema
      */
     public String getDescription()
     {
-        return this.description;
+        return this.json.getStringOrNull(JSONSchema.descriptionPropertyName)
+            .catchError()
+            .await();
     }
 
     /**
@@ -592,7 +558,6 @@ public class JSONSchema
      */
     public JSONSchema setDescription(String description)
     {
-        this.description = description;
         this.json.setStringOrNull(JSONSchema.descriptionPropertyName, description);
 
         return this;
@@ -604,10 +569,11 @@ public class JSONSchema
      */
     public String removeDescription()
     {
-        final String result = this.description;
+        final String result = this.getDescription();
 
-        this.description = null;
-        this.json.remove(JSONSchema.descriptionPropertyName).catchError(NotFoundException.class).await();
+        this.json.remove(JSONSchema.descriptionPropertyName)
+            .catchError()
+            .await();
 
         return result;
     }
@@ -618,7 +584,33 @@ public class JSONSchema
      */
     public Iterable<Object> getEnum()
     {
-        return this.enums;
+        return this.json.getArray(JSONSchema.enumPropertyName)
+            .then((JSONArray enumArray) ->
+            {
+                final List<Object> enums = List.create();
+                for (final JSONSegment enumElement : enumArray)
+                {
+                    if (enumElement instanceof JSONNull)
+                    {
+                        enums.add(null);
+                    }
+                    else if (enumElement instanceof JSONString)
+                    {
+                        enums.add(((JSONString)enumElement).getValue());
+                    }
+                    else if (enumElement instanceof JSONNumber)
+                    {
+                        enums.add(((JSONNumber)enumElement).getNumberValue());
+                    }
+                    else if (enumElement instanceof JSONBoolean)
+                    {
+                        enums.add(((JSONBoolean)enumElement).getValue());
+                    }
+                }
+                return enums;
+            })
+            .catchError()
+            .await();
     }
 
     /**
@@ -640,15 +632,12 @@ public class JSONSchema
     {
         if (enums == null)
         {
-            this.enums = null;
             this.json.setNull(JSONSchema.enumPropertyName);
         }
         else
         {
             this.json.setArray(JSONSchema.enumPropertyName,
                 JSONArray.create(enums.map(JSONSchema::enumValueToJSON).toList()));
-            this.enums = List.create(enums);
-
         }
         return this;
     }
@@ -662,14 +651,8 @@ public class JSONSchema
     {
         PreCondition.assertInstanceOf(enumValue, Iterable.create(null, Double.class, Float.class, Long.class, Integer.class, Short.class, Byte.class, Character.class, String.class, Boolean.class), "enumValue");
 
-        if (this.enums == null)
-        {
-            this.enums = List.create();
-        }
-
         this.json.getOrCreateArray(JSONSchema.enumPropertyName).await()
             .add(JSONSchema.enumValueToJSON(enumValue));
-        this.enums.add(JSONSchema.simplifyEnumValue(enumValue));
 
         return this;
     }
@@ -681,21 +664,17 @@ public class JSONSchema
         {
             simplifiedEnumValue = ((Float)simplifiedEnumValue).doubleValue();
         }
-        else if (simplifiedEnumValue instanceof Long)
-        {
-            simplifiedEnumValue = ((Long)simplifiedEnumValue).doubleValue();
-        }
         else if (simplifiedEnumValue instanceof Integer)
         {
-            simplifiedEnumValue = ((Integer)simplifiedEnumValue).doubleValue();
+            simplifiedEnumValue = ((Integer)simplifiedEnumValue).longValue();
         }
         else if (simplifiedEnumValue instanceof Short)
         {
-            simplifiedEnumValue = ((Short)simplifiedEnumValue).doubleValue();
+            simplifiedEnumValue = ((Short)simplifiedEnumValue).longValue();
         }
         else if (simplifiedEnumValue instanceof Byte)
         {
-            simplifiedEnumValue = ((Byte)simplifiedEnumValue).doubleValue();
+            simplifiedEnumValue = ((Byte)simplifiedEnumValue).longValue();
         }
         else if (simplifiedEnumValue instanceof Character)
         {
@@ -711,27 +690,27 @@ public class JSONSchema
         JSONSegment result = null;
         if (enumValue instanceof Double)
         {
-            result = JSONNumber.get((Double)enumValue);
+            result = JSONNumber.create((Double)enumValue);
         }
         else if (enumValue instanceof Float)
         {
-            result = JSONNumber.get((Float)enumValue);
+            result = JSONNumber.create((Float)enumValue);
         }
         else if (enumValue instanceof Long)
         {
-            result = JSONNumber.get((Long)enumValue);
+            result = JSONNumber.create((Long)enumValue);
         }
         else if (enumValue instanceof Integer)
         {
-            result = JSONNumber.get((Integer)enumValue);
+            result = JSONNumber.create((Integer)enumValue);
         }
         else if (enumValue instanceof Short)
         {
-            result = JSONNumber.get((Short)enumValue);
+            result = JSONNumber.create((Short)enumValue);
         }
         else if (enumValue instanceof Byte)
         {
-            result = JSONNumber.get((Byte)enumValue);
+            result = JSONNumber.create((Byte)enumValue);
         }
         else if (enumValue instanceof Boolean)
         {
@@ -766,14 +745,29 @@ public class JSONSchema
 
         Object result = null;
 
-        if (this.enums != null)
+        final Iterable<Object> enumValues = this.getEnum();
+        if (!Iterable.isNullOrEmpty(enumValues))
         {
             final Object simplifiedEnumValue = JSONSchema.simplifyEnumValue(enumValue);
-            final int index = this.enums.indexOf(simplifiedEnumValue);
-            if (index >= 0)
+            int index = 0;
+            boolean found = false;
+            for (final Object existingEnumValue : enumValues)
             {
-                result = this.enums.removeAt(index);
+                if (Comparer.equal(simplifiedEnumValue, existingEnumValue))
+                {
+                    found = true;
+                    break;
+                }
+                else
+                {
+                    ++index;
+                }
+            }
+
+            if (found)
+            {
                 this.json.getArray(JSONSchema.enumPropertyName).await().removeAt(index);
+                result = simplifiedEnumValue;
             }
         }
 
@@ -786,10 +780,11 @@ public class JSONSchema
      */
     public Iterable<Object> removeEnum()
     {
-        final Iterable<Object> result = this.enums;
+        final Iterable<Object> result = this.getEnum();
 
-        this.enums = null;
-        this.json.remove(JSONSchema.enumPropertyName).catchError(NotFoundException.class).await();
+        this.json.remove(JSONSchema.enumPropertyName)
+            .catchError()
+            .await();
 
         return result;
     }
@@ -800,7 +795,10 @@ public class JSONSchema
      */
     public JSONSchema getItems()
     {
-        return this.items;
+        return this.json.getObject(JSONSchema.itemsPropertyName)
+            .then((JSONObject itemsJson) -> { return JSONSchema.create(itemsJson); })
+            .catchError()
+            .await();
     }
 
     /**
@@ -810,7 +808,6 @@ public class JSONSchema
      */
     public JSONSchema setItems(JSONSchema items)
     {
-        this.items = items;
         this.json.setObjectOrNull(JSONSchema.itemsPropertyName, items == null ? null : items.toJson());
 
         return this;
@@ -822,10 +819,9 @@ public class JSONSchema
      */
     public JSONSchema removeItems()
     {
-        final JSONSchema result = this.items;
+        final JSONSchema result = this.getItems();
 
-        this.items = null;
-        this.json.remove(JSONSchema.itemsPropertyName).catchError(NotFoundException.class).await();
+        this.json.remove(JSONSchema.itemsPropertyName).catchError().await();
 
         return result;
     }
@@ -836,7 +832,14 @@ public class JSONSchema
      */
     public Iterable<String> getRequired()
     {
-        return this.required;
+        return this.json.getArray(JSONSchema.requiredPropertyName)
+            .then((JSONArray requiredJson) ->
+            {
+                return requiredJson.instanceOf(JSONString.class).map(JSONString::getValue);
+            })
+            .catchError()
+            .await();
+
     }
 
     /**
@@ -858,12 +861,10 @@ public class JSONSchema
     {
         if (required == null)
         {
-            this.required = null;
             this.json.setNull(JSONSchema.requiredPropertyName);
         }
         else
         {
-            this.required = List.create();
             this.json.setArray(JSONSchema.requiredPropertyName, JSONArray.create());
             for (final String requiredPropertyName : required)
             {
@@ -883,12 +884,6 @@ public class JSONSchema
     {
         PreCondition.assertNotNullAndNotEmpty(requiredPropertyName, "requiredPropertyName");
 
-        if (this.required == null)
-        {
-            this.required = List.create();
-        }
-
-        this.required.add(requiredPropertyName);
         this.json.getOrCreateArray(JSONSchema.requiredPropertyName).await()
             .add(JSONString.get(requiredPropertyName));
 
@@ -901,10 +896,9 @@ public class JSONSchema
      */
     public Iterable<String> removeRequired()
     {
-        final Iterable<String> result = this.required;
+        final Iterable<String> result = this.getRequired();
 
-        this.required = null;
-        this.json.remove(JSONSchema.requiredPropertyName).catchError(NotFoundException.class).await();
+        this.json.remove(JSONSchema.requiredPropertyName).catchError().await();
 
         return result;
     }
@@ -915,7 +909,9 @@ public class JSONSchema
      */
     public Integer getMinLength()
     {
-        return this.minLength;
+        return this.json.getIntegerOrNull(JSONSchema.minLengthPropertyName)
+            .catchError()
+            .await();
     }
 
     /**
@@ -927,7 +923,6 @@ public class JSONSchema
     {
         PreCondition.assertGreaterThanOrEqualTo(minLength, 0, "minLength");
 
-        this.minLength = minLength;
         this.json.setNumber(JSONSchema.minLengthPropertyName, minLength);
 
         return this;
@@ -939,10 +934,9 @@ public class JSONSchema
      */
     public Integer removeMinLength()
     {
-        final Integer result = this.minLength;
+        final Integer result = this.getMinLength();
 
-        this.minLength = null;
-        this.json.remove(JSONSchema.minLengthPropertyName);
+        this.json.remove(JSONSchema.minLengthPropertyName).catchError().await();
 
         return result;
     }
@@ -953,7 +947,13 @@ public class JSONSchema
      */
     public Iterable<JSONSchema> getOneOf()
     {
-        return this.oneOf;
+        return this.json.getArray(JSONSchema.oneOfPropertyName)
+            .then((JSONArray oneOfJson) ->
+            {
+                return oneOfJson.instanceOf(JSONObject.class).map(JSONSchema::create);
+            })
+            .catchError()
+            .await();
     }
 
     /**
@@ -975,12 +975,10 @@ public class JSONSchema
     {
         if (oneOf == null)
         {
-            this.oneOf = null;
             this.json.setNull(JSONSchema.oneOfPropertyName);
         }
         else
         {
-            this.oneOf = List.create();
             this.json.setArray(JSONSchema.oneOfPropertyName, JSONArray.create());
             for (final JSONSchema oneOfSchema : oneOf)
             {
@@ -1001,12 +999,6 @@ public class JSONSchema
     {
         PreCondition.assertNotNull(oneOf, "oneOf");
 
-        if (this.oneOf == null)
-        {
-            this.oneOf = List.create();
-        }
-
-        this.oneOf.add(oneOf);
         this.json.getOrCreateArray(JSONSchema.oneOfPropertyName).await()
             .add(oneOf.toJson());
 
@@ -1019,89 +1011,10 @@ public class JSONSchema
      */
     public Iterable<JSONSchema> removeOneOf()
     {
-        final Iterable<JSONSchema> result = this.oneOf;
+        final Iterable<JSONSchema> result = this.getOneOf();
 
-        this.oneOf = null;
-        this.json.remove(JSONSchema.oneOfPropertyName).catchError(NotFoundException.class).await();
+        this.json.remove(JSONSchema.oneOfPropertyName).catchError().await();
 
         return result;
-    }
-
-    /**
-     * Get the JSON representation of this JSONSchema.
-     * @return The JSON representation of this JSONSchema.
-     */
-    public JSONObject toJson()
-    {
-        return this.json;
-    }
-
-    @Override
-    public String toString()
-    {
-        return this.json.toString();
-    }
-
-    /**
-     * Get the String representation of this JSONSchema using the provided format.
-     * @param format The format to use when converting this JSONSchema to a string.
-     * @return The number of characters that were written.
-     */
-    public String toString(JSONFormat format)
-    {
-        return this.json.toString(format);
-    }
-
-    /**
-     * Write the String representation of this JSONSchema to the provided stream.
-     * @param stream The stream to write the String representation of this JSONSchema to.
-     * @return The number of characters that were written.
-     */
-    public Result<Integer> toString(CharacterWriteStream stream)
-    {
-        return this.json.toString(stream);
-    }
-
-    /**
-     * Write the String representation of this JSONSchema to the provided stream.
-     * @param stream The stream to write the String representation of this JSONSchema to.
-     * @return The number of characters that were written.
-     */
-    public Result<Integer> toString(IndentedCharacterWriteStream stream)
-    {
-        return this.json.toString(stream);
-    }
-
-    /**
-     * Write the String representation of this JSONSchema to the provided stream.
-     * @param stream The stream to write the String representation of this JSONSchema to.
-     * @param format The format to use when converting this JSONSchema to a string.
-     * @return The number of characters that were written.
-     */
-    public Result<Integer> toString(CharacterWriteStream stream, JSONFormat format)
-    {
-        return this.json.toString(stream, format);
-    }
-
-    /**
-     * Write the String representation of this JSONSchema to the provided stream.
-     * @param stream The stream to write the String representation of this JSONSchema to.
-     * @param format The format to use when converting this JSONSchema to a string.
-     * @return The number of characters that were written.
-     */
-    public Result<Integer> toString(IndentedCharacterWriteStream stream, JSONFormat format)
-    {
-        return this.json.toString(stream, format);
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return rhs instanceof JSONSchema && this.equals((JSONSchema)rhs);
-    }
-
-    public boolean equals(JSONSchema rhs)
-    {
-        return rhs != null && this.json.equals(rhs.json);
     }
 }

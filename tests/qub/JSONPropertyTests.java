@@ -59,7 +59,7 @@ public interface JSONPropertyTests
                         final JSONProperty property = JSONProperty.create(propertyName, propertyValue);
                         test.assertEqual(propertyName, property.getName());
                         test.assertEqual(propertyName, property.getKey());
-                        test.assertEqual(JSONNumber.get(propertyValue), property.getValue());
+                        test.assertEqual(JSONNumber.create(propertyValue), property.getValue());
                         test.assertEqual(Strings.quote(propertyName) + ":" + propertyValue, property.toString());
                     });
                 };
@@ -89,7 +89,7 @@ public interface JSONPropertyTests
                         final JSONProperty property = JSONProperty.create(propertyName, propertyValue);
                         test.assertEqual(propertyName, property.getName());
                         test.assertEqual(propertyName, property.getKey());
-                        test.assertEqual(JSONNumber.get(propertyValue), property.getValue());
+                        test.assertEqual(JSONNumber.create(propertyValue), property.getValue());
                         test.assertEqual(Strings.quote(propertyName) + ":" + propertyValue, property.toString());
                     });
                 };
@@ -363,7 +363,7 @@ public interface JSONPropertyTests
                     });
                 };
 
-                getNumberValueSegmentTest.run(JSONProperty.create("a", JSONNumber.get(10)), JSONNumber.get(10));
+                getNumberValueSegmentTest.run(JSONProperty.create("a", JSONNumber.create(10)), JSONNumber.create(10));
             });
 
             runner.testGroup("getNumberValue()", () ->
@@ -380,7 +380,7 @@ public interface JSONPropertyTests
                 getNumberValueErrorTest.run(JSONProperty.create("a", false), new WrongTypeException("Expected the property named \"a\" to be a JSONNumber, but was a JSONBoolean instead."));
                 getNumberValueErrorTest.run(JSONProperty.create("a", JSONNull.segment), new WrongTypeException("Expected the property named \"a\" to be a JSONNumber, but was a JSONNull instead."));
 
-                final Action2<JSONProperty,Double> getNumberValueTest = (JSONProperty property, Double expected) ->
+                final Action2<JSONProperty,Number> getNumberValueTest = (JSONProperty property, Number expected) ->
                 {
                     runner.test("with " + property, (Test test) ->
                     {
@@ -388,7 +388,8 @@ public interface JSONPropertyTests
                     });
                 };
 
-                getNumberValueTest.run(JSONProperty.create("a", JSONNumber.get(11)), 11.0);
+                getNumberValueTest.run(JSONProperty.create("a", JSONNumber.create(11)), 11L);
+                getNumberValueTest.run(JSONProperty.create("a", JSONNumber.create(12.0)), 12.0);
             });
 
             runner.testGroup("getNumberOrNullValue()", () ->
@@ -404,7 +405,7 @@ public interface JSONPropertyTests
                 getNumberOrNullValueErrorTest.run(JSONProperty.create("a", "b"), new WrongTypeException("Expected the property named \"a\" to be a JSONNumber or JSONNull, but was a JSONString instead."));
                 getNumberOrNullValueErrorTest.run(JSONProperty.create("a", false), new WrongTypeException("Expected the property named \"a\" to be a JSONNumber or JSONNull, but was a JSONBoolean instead."));
 
-                final Action2<JSONProperty,Double> getNumberOrNullValueTest = (JSONProperty property, Double expected) ->
+                final Action2<JSONProperty,Number> getNumberOrNullValueTest = (JSONProperty property, Number expected) ->
                 {
                     runner.test("with " + property, (Test test) ->
                     {
@@ -413,7 +414,8 @@ public interface JSONPropertyTests
                 };
 
                 getNumberOrNullValueTest.run(JSONProperty.create("a", JSONNull.segment), null);
-                getNumberOrNullValueTest.run(JSONProperty.create("a", JSONNumber.get(11)), 11.0);
+                getNumberOrNullValueTest.run(JSONProperty.create("a", JSONNumber.create(11)), 11L);
+                getNumberOrNullValueTest.run(JSONProperty.create("a", JSONNumber.create(12.0)), 12.0);
             });
 
             runner.testGroup("getStringValueSegment()", () ->

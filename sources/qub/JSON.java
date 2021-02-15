@@ -64,9 +64,24 @@ public interface JSON
         return segment == null ? null : segment.getValue();
     }
 
-    static Double toNumberOrNull(JSONNumber segment)
+    static Result<Integer> toIntegerOrNull(JSONNumber segment)
     {
-        return segment == null ? null : segment.getValue();
+        return Result.create(() -> segment == null ? null : segment.getIntegerValue().await());
+    }
+
+    static Result<Long> toLongOrNull(JSONNumber segment)
+    {
+        return Result.create(() -> segment == null ? null : segment.getLongValue().await());
+    }
+
+    static Double toDoubleOrNull(JSONNumber segment)
+    {
+        return segment == null ? null : segment.getDoubleValue();
+    }
+
+    static Number toNumberOrNull(JSONNumber segment)
+    {
+        return segment == null ? null : segment.getNumberValue();
     }
 
     static String toStringOrNull(JSONString segment)
@@ -187,7 +202,7 @@ public interface JSON
                     break;
 
                 case Number:
-                    result = JSONNumber.get(JSON.takeCurrent(tokenizer).getText());
+                    result = JSONNumber.create(JSON.takeCurrent(tokenizer).getText());
                     break;
 
                 case QuotedString:

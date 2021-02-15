@@ -440,7 +440,146 @@ public interface CommandLineActionTests
                 });
             });
 
-            runner.testGroup("run(FakeDesktopProcess)", () ->
+            runner.testGroup("createCommandLineParameters(DesktopProcess)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final DesktopProcess process = null;
+                    final CommandLineAction action = CommandLineAction.create("fake-action-name", (DesktopProcess actionProcess) -> {});
+                    test.assertThrows(() -> action.createCommandLineParameters(process),
+                        new PreConditionFailure("process cannot be null."));
+                });
+
+                runner.test("with no parentActions and no description", (Test test) ->
+                {
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final CommandLineAction action = CommandLineAction.create("fake-action-name", (DesktopProcess actionProcess) -> {});
+                        final CommandLineParameters parameters = action.createCommandLineParameters(process);
+                        test.assertNotNull(parameters);
+                        test.assertEqual("fake-action-name", parameters.getApplicationName());
+                        test.assertNull(parameters.getApplicationDescription());
+                    }
+                });
+
+                runner.test("with parentActions and no description", (Test test) ->
+                {
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final CommandLineActions actions = process.createCommandLineActions()
+                            .setApplicationName("fake-application-name")
+                            .setApplicationDescription("fake-application-description");
+                        final CommandLineAction action = actions.addAction("fake-action-name", (DesktopProcess actionProcess) -> {});
+                        final CommandLineParameters parameters = action.createCommandLineParameters(process);
+                        test.assertNotNull(parameters);
+                        test.assertEqual("fake-application-name fake-action-name", parameters.getApplicationName());
+                        test.assertNull(parameters.getApplicationDescription());
+                    }
+                });
+
+                runner.test("with parentActions and description", (Test test) ->
+                {
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final CommandLineActions actions = process.createCommandLineActions()
+                            .setApplicationName("fake-application-name")
+                            .setApplicationDescription("fake-application-description");
+                        final CommandLineAction action = actions.addAction("fake-action-name", (DesktopProcess actionProcess) -> {})
+                            .setDescription("fake-action-description");
+                        final CommandLineParameters parameters = action.createCommandLineParameters(process);
+                        test.assertNotNull(parameters);
+                        test.assertEqual("fake-application-name fake-action-name", parameters.getApplicationName());
+                        test.assertEqual("fake-action-description", parameters.getApplicationDescription());
+                    }
+                });
+            });
+
+            runner.testGroup("createCommandLineParameters(CommandLineArguments)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final CommandLineArguments arguments = null;
+                    final CommandLineAction action = CommandLineAction.create("fake-action-name", (DesktopProcess actionProcess) -> {});
+                    test.assertThrows(() -> action.createCommandLineParameters(arguments),
+                        new PreConditionFailure("arguments cannot be null."));
+                });
+
+                runner.test("with no parentActions and no description", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create();
+                    final CommandLineAction action = CommandLineAction.create("fake-action-name", (DesktopProcess actionProcess) -> {});
+                    final CommandLineParameters parameters = action.createCommandLineParameters(arguments);
+                    test.assertNotNull(parameters);
+                    test.assertEqual("fake-action-name", parameters.getApplicationName());
+                    test.assertNull(parameters.getApplicationDescription());
+                });
+
+                runner.test("with parentActions and no description", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create();
+                    final CommandLineActions actions = CommandLineActions.create()
+                        .setApplicationName("fake-application-name")
+                        .setApplicationDescription("fake-application-description");
+                    final CommandLineAction action = actions.addAction("fake-action-name", (DesktopProcess actionProcess) -> {});
+                    final CommandLineParameters parameters = action.createCommandLineParameters(arguments);
+                    test.assertNotNull(parameters);
+                    test.assertEqual("fake-application-name fake-action-name", parameters.getApplicationName());
+                    test.assertNull(parameters.getApplicationDescription());
+                });
+
+                runner.test("with parentActions and description", (Test test) ->
+                {
+                    final CommandLineArguments arguments = CommandLineArguments.create();
+                    final CommandLineActions actions = CommandLineActions.create()
+                        .setApplicationName("fake-application-name")
+                        .setApplicationDescription("fake-application-description");
+                    final CommandLineAction action = actions.addAction("fake-action-name", (DesktopProcess actionProcess) -> {})
+                        .setDescription("fake-action-description");
+                    final CommandLineParameters parameters = action.createCommandLineParameters(arguments);
+                    test.assertNotNull(parameters);
+                    test.assertEqual("fake-application-name fake-action-name", parameters.getApplicationName());
+                    test.assertEqual("fake-action-description", parameters.getApplicationDescription());
+                });
+            });
+
+            runner.testGroup("createCommandLineActions()", () ->
+            {
+                runner.test("with no parentActions and no description", (Test test) ->
+                {
+                    final CommandLineAction action = CommandLineAction.create("fake-action-name", (DesktopProcess process) -> {});
+                    final CommandLineActions actions = action.createCommandLineActions();
+                    test.assertNotNull(actions);
+                    test.assertEqual("fake-action-name", actions.getApplicationName());
+                    test.assertNull(actions.getApplicationDescription());
+                });
+
+                runner.test("with parentActions and no description", (Test test) ->
+                {
+                    final CommandLineActions parentActions = CommandLineActions.create()
+                        .setApplicationName("fake-application-name")
+                        .setApplicationDescription("fake-application-description");
+                    final CommandLineAction action = parentActions.addAction("fake-action-name", (DesktopProcess process) -> {});
+                    final CommandLineActions actions = action.createCommandLineActions();
+                    test.assertNotNull(actions);
+                    test.assertEqual("fake-application-name fake-action-name", actions.getApplicationName());
+                    test.assertNull(actions.getApplicationDescription());
+                });
+
+                runner.test("with parentActions and description", (Test test) ->
+                {
+                    final CommandLineActions parentActions = CommandLineActions.create()
+                        .setApplicationName("fake-application-name")
+                        .setApplicationDescription("fake-application-description");
+                    final CommandLineAction action = parentActions.addAction("fake-action-name", (DesktopProcess process) -> {})
+                        .setDescription("fake-action-description");
+                    final CommandLineActions actions = action.createCommandLineActions();
+                    test.assertNotNull(actions);
+                    test.assertEqual("fake-application-name fake-action-name", actions.getApplicationName());
+                    test.assertEqual("fake-action-description", actions.getApplicationDescription());
+                });
+            });
+
+            runner.testGroup("run(DesktopProcess)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {

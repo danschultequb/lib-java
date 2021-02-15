@@ -111,7 +111,7 @@ public interface JSONArrayTests
 
                 toStringTest.run(Indexable.create(), "[]");
                 toStringTest.run(Indexable.create(JSONNull.segment), "[null]");
-                toStringTest.run(Indexable.create(JSONBoolean.trueSegment, JSONNumber.get(50)), "[true,50]");
+                toStringTest.run(Indexable.create(JSONBoolean.trueSegment, JSONNumber.create(50)), "[true,50]");
             });
 
             runner.testGroup("toString(JSONFormat)", () ->
@@ -127,13 +127,13 @@ public interface JSONArrayTests
 
                 toStringTest.run(Indexable.create(), JSONFormat.consise, "[]");
                 toStringTest.run(Indexable.create(JSONNull.segment), JSONFormat.consise, "[null]");
-                toStringTest.run(Indexable.create(JSONBoolean.trueSegment, JSONNumber.get(50)), JSONFormat.consise, "[true,50]");
+                toStringTest.run(Indexable.create(JSONBoolean.trueSegment, JSONNumber.create(50)), JSONFormat.consise, "[true,50]");
                 toStringTest.run(Indexable.create(JSONObject.create()), JSONFormat.consise, "[{}]");
                 toStringTest.run(Indexable.create(JSONObject.create(), JSONObject.create()), JSONFormat.consise, "[{},{}]");
 
                 toStringTest.run(Indexable.create(), JSONFormat.pretty, "[]");
                 toStringTest.run(Indexable.create(JSONNull.segment), JSONFormat.pretty, "[\n  null\n]");
-                toStringTest.run(Indexable.create(JSONBoolean.trueSegment, JSONNumber.get(50)), JSONFormat.pretty, "[\n  true,\n  50\n]");
+                toStringTest.run(Indexable.create(JSONBoolean.trueSegment, JSONNumber.create(50)), JSONFormat.pretty, "[\n  true,\n  50\n]");
                 toStringTest.run(Indexable.create(JSONObject.create()), JSONFormat.pretty, "[\n  {}\n]");
                 toStringTest.run(Indexable.create(JSONObject.create(), JSONObject.create()), JSONFormat.pretty, "[\n  {},\n  {}\n]");
             });
@@ -152,8 +152,8 @@ public interface JSONArrayTests
                 equalsTest.run(Indexable.create(), null, false);
                 equalsTest.run(Indexable.create(), "hello", false);
                 equalsTest.run(Indexable.create(), JSONArray.create(), true);
-                equalsTest.run(Indexable.create(), JSONArray.create(JSONNull.segment, JSONNumber.get(50.0)), false);
-                equalsTest.run(Indexable.create(JSONNull.segment, JSONNumber.get(50.0)), JSONArray.create(JSONNull.segment, JSONNumber.get(50.0)), true);
+                equalsTest.run(Indexable.create(), JSONArray.create(JSONNull.segment, JSONNumber.create(50.0)), false);
+                equalsTest.run(Indexable.create(JSONNull.segment, JSONNumber.create(50.0)), JSONArray.create(JSONNull.segment, JSONNumber.create(50.0)), true);
             });
 
             runner.testGroup("equals(JSONArray)", () ->
@@ -169,8 +169,8 @@ public interface JSONArrayTests
 
                 equalsTest.run(Indexable.create(), null, false);
                 equalsTest.run(Indexable.create(), JSONArray.create(), true);
-                equalsTest.run(Indexable.create(), JSONArray.create(JSONNull.segment, JSONNumber.get(50.0)), false);
-                equalsTest.run(Indexable.create(JSONNull.segment, JSONNumber.get(50.0)), JSONArray.create(JSONNull.segment, JSONNumber.get(50.0)), true);
+                equalsTest.run(Indexable.create(), JSONArray.create(JSONNull.segment, JSONNumber.create(50.0)), false);
+                equalsTest.run(Indexable.create(JSONNull.segment, JSONNumber.create(50.0)), JSONArray.create(JSONNull.segment, JSONNumber.create(50.0)), true);
             });
 
             runner.testGroup("insert(int,JSONSegment)", () ->
@@ -258,7 +258,7 @@ public interface JSONArrayTests
                 };
 
                 setTest.run(JSONArray.create(JSONNull.segment), 0, JSONBoolean.trueSegment, JSONArray.create(JSONBoolean.trueSegment));
-                setTest.run(JSONArray.create(JSONNull.segment, JSONBoolean.falseSegment), 0, JSONNumber.get(5), JSONArray.create(JSONNumber.get(5), JSONBoolean.falseSegment));
+                setTest.run(JSONArray.create(JSONNull.segment, JSONBoolean.falseSegment), 0, JSONNumber.create(5), JSONArray.create(JSONNumber.create(5), JSONBoolean.falseSegment));
                 setTest.run(JSONArray.create(JSONNull.segment, JSONBoolean.falseSegment), 1, JSONString.get("hello"), JSONArray.create(JSONNull.segment, JSONString.get("hello")));
             });
         });

@@ -17,6 +17,539 @@ public interface JSONSchemaTests
                 test.assertNull(schema.getProperties());
             });
 
+            runner.testGroup("create(JSONObject)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> JSONSchema.create((JSONObject)null),
+                        new PreConditionFailure("json cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create();
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+
+                    schema.setSchema("hello there");
+                    test.assertEqual("hello there", schema.getSchema());
+                    test.assertEqual("hello there", json.getString("$schema").await());
+                });
+
+                runner.test("with non-empty", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setString("$schema", "hello there")
+                        .setString("type", "array");
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertEqual("hello there", schema.getSchema());
+                    test.assertEqual("array", schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with properties", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setObject("properties", JSONObject.create()
+                            .setObject("a", JSONObject.create().setString("type", "string"))
+                            .setObject("b", JSONObject.create().setString("type", "integer")));
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNotNull(schema.getProperties());
+                    test.assertEqual(
+                        JSONSchema.create().setType(JSONSchemaType.String),
+                        schema.getProperty("a").await());
+                    test.assertEqual(
+                        JSONSchema.create().setType(JSONSchemaType.Integer),
+                        schema.getProperty("b").await());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with $ref", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setString("$ref", "hello");
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertEqual("hello", schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with boolean additionalProperties", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setBoolean("additionalProperties", false);
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertEqual(false, schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with definitions", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setObject("definitions", JSONObject.create()
+                            .setObject("a", JSONObject.create().setString("type", "string"))
+                            .setObject("b", JSONObject.create().setString("type", "integer")));
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNotNull(schema.getDefinitions());
+                    test.assertEqual(
+                        JSONSchema.create().setType(JSONSchemaType.String),
+                        schema.getDefinition("a").await());
+                    test.assertEqual(
+                        JSONSchema.create().setType(JSONSchemaType.Integer),
+                        schema.getDefinition("b").await());
+                    test.assertNull(schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with description", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setString("description", "hello");
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertEqual("hello", schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with empty enum", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setArray("enum", JSONArray.create());
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertEqual(Set.create(), schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with null enum", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setArray("enum", JSONArray.create(JSONNull.segment));
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertEqual(Set.create((Object)null), schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with string enum", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setArray("enum", JSONArray.create(JSONString.get("hello")));
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertEqual(Set.create("hello"), schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with number enum", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setArray("enum", JSONArray.create(JSONNumber.create(123)));
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertEqual(Iterable.create(123L), schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with boolean enum", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setArray("enum", JSONArray.create(JSONBoolean.get(true)));
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertEqual(Set.create(true), schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with null items", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setObjectOrNull("items", null);
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with empty items", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setObjectOrNull("items", JSONObject.create());
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertEqual(JSONSchema.create(), schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with null required", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setArrayOrNull("required", null);
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with empty required", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setArrayOrNull("required", JSONArray.create());
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertEqual(Iterable.create(), schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with non-empty required", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setArrayOrNull("required", JSONArray.create(JSONString.get("a")));
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertEqual(Iterable.create("a"), schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with null minLength", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setNumberOrNull("minLength", (Long)null);
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with negative minLength", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setNumberOrNull("minLength", -1);
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertEqual(-1, schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with zero minLength", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setNumberOrNull("minLength", 0);
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertEqual(0, schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with positive minLength", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setNumberOrNull("minLength", 10);
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertEqual(10, schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with null oneOf", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setArrayOrNull("oneOf", null);
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertNull(schema.getOneOf());
+                });
+
+                runner.test("with empty oneOf", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setArrayOrNull("oneOf", JSONArray.create());
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertEqual(Iterable.create(), schema.getOneOf());
+                });
+
+                runner.test("with non-empty oneOf", (Test test) ->
+                {
+                    final JSONObject json = JSONObject.create()
+                        .setArrayOrNull("oneOf", JSONArray.create(JSONObject.create()));
+                    final JSONSchema schema = JSONSchema.create(json);
+                    test.assertNotNull(schema);
+                    test.assertSame(json, schema.toJson());
+                    test.assertNull(schema.getSchema());
+                    test.assertNull(schema.getType());
+                    test.assertNull(schema.getProperties());
+                    test.assertNull(schema.getRef());
+                    test.assertNull(schema.getAdditionalProperties());
+                    test.assertNull(schema.getDefinitions());
+                    test.assertNull(schema.getDescription());
+                    test.assertNull(schema.getEnum());
+                    test.assertNull(schema.getItems());
+                    test.assertNull(schema.getRequired());
+                    test.assertNull(schema.getMinLength());
+                    test.assertEqual(Iterable.create(JSONSchema.create()), schema.getOneOf());
+                });
+            });
+
             runner.testGroup("parse(File)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -233,539 +766,6 @@ public interface JSONSchemaTests
                 });
             });
 
-            runner.testGroup("parse(JSONObject)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    test.assertThrows(() -> JSONSchema.parse((JSONObject)null),
-                        new PreConditionFailure("json cannot be null."));
-                });
-
-                runner.test("with empty", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create();
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-
-                    schema.setSchema("hello there");
-                    test.assertEqual("hello there", schema.getSchema());
-                    test.assertEqual("hello there", json.getString("$schema").await());
-                });
-
-                runner.test("with non-empty", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setString("$schema", "hello there")
-                        .setString("type", "array");
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertEqual("hello there", schema.getSchema());
-                    test.assertEqual("array", schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with properties", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setObject("properties", JSONObject.create()
-                            .setObject("a", JSONObject.create().setString("type", "string"))
-                            .setObject("b", JSONObject.create().setString("type", "integer")));
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNotNull(schema.getProperties());
-                    test.assertEqual(
-                        JSONSchema.create().setType(JSONSchemaType.String),
-                        schema.getProperty("a").await());
-                    test.assertEqual(
-                        JSONSchema.create().setType(JSONSchemaType.Integer),
-                        schema.getProperty("b").await());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with $ref", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setString("$ref", "hello");
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertEqual("hello", schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with boolean additionalProperties", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setBoolean("additionalProperties", false);
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertEqual(false, schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with definitions", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setObject("definitions", JSONObject.create()
-                            .setObject("a", JSONObject.create().setString("type", "string"))
-                            .setObject("b", JSONObject.create().setString("type", "integer")));
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNotNull(schema.getDefinitions());
-                    test.assertEqual(
-                        JSONSchema.create().setType(JSONSchemaType.String),
-                        schema.getDefinition("a").await());
-                    test.assertEqual(
-                        JSONSchema.create().setType(JSONSchemaType.Integer),
-                        schema.getDefinition("b").await());
-                    test.assertNull(schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with description", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setString("description", "hello");
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertEqual("hello", schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with empty enum", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setArray("enum", JSONArray.create());
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertEqual(Set.create(), schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with null enum", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setArray("enum", JSONArray.create(JSONNull.segment));
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertEqual(Set.create((Object)null), schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with string enum", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setArray("enum", JSONArray.create(JSONString.get("hello")));
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertEqual(Set.create("hello"), schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with number enum", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setArray("enum", JSONArray.create(JSONNumber.get(123)));
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertEqual(Set.create(123.0), schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with boolean enum", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setArray("enum", JSONArray.create(JSONBoolean.get(true)));
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertEqual(Set.create(true), schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with null items", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setObjectOrNull("items", null);
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with empty items", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setObjectOrNull("items", JSONObject.create());
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertEqual(JSONSchema.create(), schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with null required", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setArrayOrNull("required", null);
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with empty required", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setArrayOrNull("required", JSONArray.create());
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertEqual(Iterable.create(), schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with non-empty required", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setArrayOrNull("required", JSONArray.create(JSONString.get("a")));
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertEqual(Iterable.create("a"), schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with null minLength", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setNumberOrNull("minLength", (Long)null);
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with negative minLength", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setNumberOrNull("minLength", -1);
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertEqual(-1, schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with zero minLength", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setNumberOrNull("minLength", 0);
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertEqual(0, schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with positive minLength", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setNumberOrNull("minLength", 10);
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertEqual(10, schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with null oneOf", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setArrayOrNull("oneOf", null);
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertNull(schema.getOneOf());
-                });
-
-                runner.test("with empty oneOf", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setArrayOrNull("oneOf", JSONArray.create());
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertEqual(Iterable.create(), schema.getOneOf());
-                });
-
-                runner.test("with non-empty oneOf", (Test test) ->
-                {
-                    final JSONObject json = JSONObject.create()
-                        .setArrayOrNull("oneOf", JSONArray.create(JSONObject.create()));
-                    final JSONSchema schema = JSONSchema.parse(json).await();
-                    test.assertNotNull(schema);
-                    test.assertSame(json, schema.toJson());
-                    test.assertNull(schema.getSchema());
-                    test.assertNull(schema.getType());
-                    test.assertNull(schema.getProperties());
-                    test.assertNull(schema.getRef());
-                    test.assertNull(schema.getAdditionalProperties());
-                    test.assertNull(schema.getDefinitions());
-                    test.assertNull(schema.getDescription());
-                    test.assertNull(schema.getEnum());
-                    test.assertNull(schema.getItems());
-                    test.assertNull(schema.getRequired());
-                    test.assertNull(schema.getMinLength());
-                    test.assertEqual(Iterable.create(JSONSchema.create()), schema.getOneOf());
-                });
-            });
-
             runner.testGroup("setSchema(String)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -821,7 +821,7 @@ public interface JSONSchemaTests
 
                 runner.test("when it is null", (Test test) ->
                 {
-                    final JSONSchema schema = JSONSchema.parse(JSONObject.create().setNull("$schema")).await();
+                    final JSONSchema schema = JSONSchema.create(JSONObject.create().setNull("$schema"));
                     test.assertNull(schema.getSchema());
                     test.assertEqual(JSONObject.create().setNull("$schema"), schema.toJson());
 
@@ -833,7 +833,7 @@ public interface JSONSchemaTests
 
                 runner.test("when it is not-null", (Test test) ->
                 {
-                    final JSONSchema schema = JSONSchema.parse(JSONObject.create().setString("$schema", "hello")).await();
+                    final JSONSchema schema = JSONSchema.create(JSONObject.create().setString("$schema", "hello"));
                     test.assertEqual("hello", schema.getSchema());
                     test.assertEqual(JSONObject.create().setString("$schema", "hello"), schema.toJson());
 
@@ -938,7 +938,7 @@ public interface JSONSchemaTests
 
                 runner.test("when it is null", (Test test) ->
                 {
-                    final JSONSchema schema = JSONSchema.parse(JSONObject.create().setNull("type")).await();
+                    final JSONSchema schema = JSONSchema.create(JSONObject.create().setNull("type"));
                     test.assertNull(schema.getType());
                     test.assertEqual(JSONObject.create().setNull("type"), schema.toJson());
 
@@ -950,7 +950,7 @@ public interface JSONSchemaTests
 
                 runner.test("when it is not-null", (Test test) ->
                 {
-                    final JSONSchema schema = JSONSchema.parse(JSONObject.create().setString("type", "hello")).await();
+                    final JSONSchema schema = JSONSchema.create(JSONObject.create().setString("type", "hello"));
                     test.assertEqual("hello", schema.getType());
                     test.assertEqual(JSONObject.create().setString("type", "hello"), schema.toJson());
 
@@ -1104,7 +1104,7 @@ public interface JSONSchemaTests
                     final JSONSchema propertySchema = JSONSchema.create();
                     final JSONSchema setPropertyResult = schema.addProperty(propertyName, propertySchema);
                     test.assertSame(setPropertyResult, schema);
-                    test.assertSame(propertySchema, schema.getProperty(propertyName).await());
+                    test.assertEqual(propertySchema, schema.getProperty(propertyName).await());
                 });
             });
 
@@ -1163,7 +1163,7 @@ public interface JSONSchemaTests
 
                 runner.test("when it is null", (Test test) ->
                 {
-                    final JSONSchema schema = JSONSchema.parse(JSONObject.create().setNull("$ref")).await();
+                    final JSONSchema schema = JSONSchema.create(JSONObject.create().setNull("$ref"));
                     test.assertNull(schema.getRef());
                     test.assertEqual(JSONObject.create().setNull("$ref"), schema.toJson());
 
@@ -1175,7 +1175,7 @@ public interface JSONSchemaTests
 
                 runner.test("when it is not-null", (Test test) ->
                 {
-                    final JSONSchema schema = JSONSchema.parse(JSONObject.create().setString("$ref", "hello")).await();
+                    final JSONSchema schema = JSONSchema.create(JSONObject.create().setString("$ref", "hello"));
                     test.assertEqual("hello", schema.getRef());
                     test.assertEqual(JSONObject.create().setString("$ref", "hello"), schema.toJson());
 
@@ -1197,7 +1197,8 @@ public interface JSONSchemaTests
                     test.assertNull(schema.getAdditionalPropertiesAsBoolean());
                     test.assertNull(schema.getAdditionalPropertiesAsJSONSchema());
                     test.assertEqual(
-                        JSONObject.create(),
+                        JSONObject.create()
+                            .setNull("additionalProperties"),
                         schema.toJson());
                 });
 
@@ -1241,7 +1242,8 @@ public interface JSONSchemaTests
                     test.assertSame(null, schema.getAdditionalPropertiesAsBoolean());
                     test.assertSame(null, schema.getAdditionalPropertiesAsJSONSchema());
                     test.assertEqual(
-                        JSONObject.create(),
+                        JSONObject.create()
+                            .setNull("additionalProperties"),
                         schema.toJson());
                 });
 
@@ -1251,9 +1253,9 @@ public interface JSONSchemaTests
                     final JSONSchema additionalPropertiesSchema = JSONSchema.create();
                     final JSONSchema setAdditionalPropertiesResult = schema.setAdditionalProperties(additionalPropertiesSchema);
                     test.assertSame(schema, setAdditionalPropertiesResult);
-                    test.assertSame(additionalPropertiesSchema, schema.getAdditionalProperties());
+                    test.assertEqual(additionalPropertiesSchema, schema.getAdditionalProperties());
                     test.assertSame(null, schema.getAdditionalPropertiesAsBoolean());
-                    test.assertSame(additionalPropertiesSchema, schema.getAdditionalPropertiesAsJSONSchema());
+                    test.assertEqual(additionalPropertiesSchema, schema.getAdditionalPropertiesAsJSONSchema());
                     test.assertEqual(
                         JSONObject.create()
                             .setObject("additionalProperties", JSONObject.create()),
@@ -1266,9 +1268,9 @@ public interface JSONSchemaTests
                     final JSONSchema additionalPropertiesSchema = JSONSchema.create().setType(JSONSchemaType.String);
                     final JSONSchema setAdditionalPropertiesResult = schema.setAdditionalProperties(additionalPropertiesSchema);
                     test.assertSame(schema, setAdditionalPropertiesResult);
-                    test.assertSame(additionalPropertiesSchema, schema.getAdditionalProperties());
+                    test.assertEqual(additionalPropertiesSchema, schema.getAdditionalProperties());
                     test.assertSame(null, schema.getAdditionalPropertiesAsBoolean());
-                    test.assertSame(additionalPropertiesSchema, schema.getAdditionalPropertiesAsJSONSchema());
+                    test.assertEqual(additionalPropertiesSchema, schema.getAdditionalPropertiesAsJSONSchema());
                     test.assertEqual(
                         JSONObject.create()
                             .setObject("additionalProperties", JSONObject.create()
@@ -1293,7 +1295,7 @@ public interface JSONSchemaTests
 
                 runner.test("when it is null", (Test test) ->
                 {
-                    final JSONSchema schema = JSONSchema.parse(JSONObject.create().setNull("additionalProperties")).await();
+                    final JSONSchema schema = JSONSchema.create(JSONObject.create().setNull("additionalProperties"));
                     test.assertNull(schema.getAdditionalProperties());
                     test.assertEqual(JSONObject.create().setNull("additionalProperties"), schema.toJson());
 
@@ -1305,7 +1307,7 @@ public interface JSONSchemaTests
 
                 runner.test("when it is a boolean", (Test test) ->
                 {
-                    final JSONSchema schema = JSONSchema.parse(JSONObject.create().setBoolean("additionalProperties", false)).await();
+                    final JSONSchema schema = JSONSchema.create(JSONObject.create().setBoolean("additionalProperties", false));
                     test.assertEqual(false, schema.getAdditionalProperties());
                     test.assertEqual(JSONObject.create().setBoolean("additionalProperties", false), schema.toJson());
 
@@ -1317,7 +1319,7 @@ public interface JSONSchemaTests
 
                 runner.test("when it is a JSONSchema", (Test test) ->
                 {
-                    final JSONSchema schema = JSONSchema.parse(JSONObject.create().setObject("additionalProperties", JSONObject.create())).await();
+                    final JSONSchema schema = JSONSchema.create(JSONObject.create().setObject("additionalProperties", JSONObject.create()));
                     test.assertEqual(JSONSchema.create(), schema.getAdditionalProperties());
                     test.assertEqual(JSONObject.create().setObject("additionalProperties", JSONObject.create()), schema.toJson());
 
@@ -1344,7 +1346,7 @@ public interface JSONSchemaTests
 
                 runner.test("when it is null", (Test test) ->
                 {
-                    final JSONSchema schema = JSONSchema.parse(JSONObject.create().setNull("additionalProperties")).await();
+                    final JSONSchema schema = JSONSchema.create(JSONObject.create().setNull("additionalProperties"));
                     test.assertNull(schema.getAdditionalProperties());
                     test.assertEqual(JSONObject.create().setNull("additionalProperties"), schema.toJson());
 
@@ -1356,7 +1358,7 @@ public interface JSONSchemaTests
 
                 runner.test("when it is a boolean", (Test test) ->
                 {
-                    final JSONSchema schema = JSONSchema.parse(JSONObject.create().setBoolean("additionalProperties", false)).await();
+                    final JSONSchema schema = JSONSchema.create(JSONObject.create().setBoolean("additionalProperties", false));
                     test.assertEqual(false, schema.getAdditionalProperties());
                     test.assertEqual(JSONObject.create().setBoolean("additionalProperties", false), schema.toJson());
 
@@ -1368,7 +1370,7 @@ public interface JSONSchemaTests
 
                 runner.test("when it is a JSONSchema", (Test test) ->
                 {
-                    final JSONSchema schema = JSONSchema.parse(JSONObject.create().setObject("additionalProperties", JSONObject.create())).await();
+                    final JSONSchema schema = JSONSchema.create(JSONObject.create().setObject("additionalProperties", JSONObject.create()));
                     test.assertEqual(JSONSchema.create(), schema.getAdditionalProperties());
                     test.assertEqual(JSONObject.create().setObject("additionalProperties", JSONObject.create()), schema.toJson());
 
@@ -1395,7 +1397,7 @@ public interface JSONSchemaTests
 
                 runner.test("when it is null", (Test test) ->
                 {
-                    final JSONSchema schema = JSONSchema.parse(JSONObject.create().setNull("additionalProperties")).await();
+                    final JSONSchema schema = JSONSchema.create(JSONObject.create().setNull("additionalProperties"));
                     test.assertNull(schema.getAdditionalProperties());
                     test.assertEqual(JSONObject.create().setNull("additionalProperties"), schema.toJson());
 
@@ -1407,7 +1409,7 @@ public interface JSONSchemaTests
 
                 runner.test("when it is a boolean", (Test test) ->
                 {
-                    final JSONSchema schema = JSONSchema.parse(JSONObject.create().setBoolean("additionalProperties", false)).await();
+                    final JSONSchema schema = JSONSchema.create(JSONObject.create().setBoolean("additionalProperties", false));
                     test.assertEqual(false, schema.getAdditionalProperties());
                     test.assertEqual(JSONObject.create().setBoolean("additionalProperties", false), schema.toJson());
 
@@ -1419,7 +1421,7 @@ public interface JSONSchemaTests
 
                 runner.test("when it is a JSONSchema", (Test test) ->
                 {
-                    final JSONSchema schema = JSONSchema.parse(JSONObject.create().setObject("additionalProperties", JSONObject.create())).await();
+                    final JSONSchema schema = JSONSchema.create(JSONObject.create().setObject("additionalProperties", JSONObject.create()));
                     test.assertEqual(JSONSchema.create(), schema.getAdditionalProperties());
                     test.assertEqual(JSONObject.create().setObject("additionalProperties", JSONObject.create()), schema.toJson());
 
@@ -1573,7 +1575,7 @@ public interface JSONSchemaTests
                     final JSONSchema definitionSchema = JSONSchema.create();
                     final JSONSchema setDefinitionResult = schema.addDefinition(definitionName, definitionSchema);
                     test.assertSame(setDefinitionResult, schema);
-                    test.assertSame(definitionSchema, schema.getDefinition(definitionName).await());
+                    test.assertEqual(definitionSchema, schema.getDefinition(definitionName).await());
                 });
             });
 
@@ -1632,7 +1634,7 @@ public interface JSONSchemaTests
 
                 runner.test("when it is null", (Test test) ->
                 {
-                    final JSONSchema schema = JSONSchema.parse(JSONObject.create().setNull("description")).await();
+                    final JSONSchema schema = JSONSchema.create(JSONObject.create().setNull("description"));
                     test.assertNull(schema.getDescription());
                     test.assertEqual(JSONObject.create().setNull("description"), schema.toJson());
 
@@ -1644,7 +1646,7 @@ public interface JSONSchemaTests
 
                 runner.test("when it is not-null", (Test test) ->
                 {
-                    final JSONSchema schema = JSONSchema.parse(JSONObject.create().setString("description", "hello")).await();
+                    final JSONSchema schema = JSONSchema.create(JSONObject.create().setString("description", "hello"));
                     test.assertEqual("hello", schema.getDescription());
                     test.assertEqual(JSONObject.create().setString("description", "hello"), schema.toJson());
 
@@ -1717,7 +1719,7 @@ public interface JSONSchemaTests
                     final JSONSchema setEnumResult = schema.setEnum('m');
                     test.assertSame(schema, setEnumResult);
 
-                    test.assertEqual(Iterable.create('m'), schema.getEnum());
+                    test.assertEqual(Iterable.create("m"), schema.getEnum());
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
@@ -1745,11 +1747,11 @@ public interface JSONSchemaTests
                     final JSONSchema setEnumResult = schema.setEnum((byte)15);
                     test.assertSame(schema, setEnumResult);
 
-                    test.assertEqual(Iterable.create((byte)15), schema.getEnum());
+                    test.assertEqual(Iterable.create(15L), schema.getEnum());
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))),
+                                .add(JSONNumber.create(15))),
                         schema.toJson());
                 });
 
@@ -1759,39 +1761,39 @@ public interface JSONSchemaTests
                     final JSONSchema setEnumResult = schema.setEnum((short)15);
                     test.assertSame(schema, setEnumResult);
 
-                    test.assertEqual(Iterable.create((short)15), schema.getEnum());
+                    test.assertEqual(Iterable.create(15L), schema.getEnum());
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))),
+                                .add(JSONNumber.create(15))),
                         schema.toJson());
                 });
 
                 runner.test("with integer value", (Test test) ->
                 {
                     final JSONSchema schema = JSONSchema.create();
-                    final JSONSchema setEnumResult = schema.setEnum((int)15);
+                    final JSONSchema setEnumResult = schema.setEnum(15);
                     test.assertSame(schema, setEnumResult);
 
-                    test.assertEqual(Iterable.create((int)15), schema.getEnum());
+                    test.assertEqual(Iterable.create(15L), schema.getEnum());
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))),
+                                .add(JSONNumber.create(15))),
                         schema.toJson());
                 });
 
                 runner.test("with long value", (Test test) ->
                 {
                     final JSONSchema schema = JSONSchema.create();
-                    final JSONSchema setEnumResult = schema.setEnum((long)15);
+                    final JSONSchema setEnumResult = schema.setEnum(15L);
                     test.assertSame(schema, setEnumResult);
 
-                    test.assertEqual(Iterable.create((long)15), schema.getEnum());
+                    test.assertEqual(Iterable.create(15L), schema.getEnum());
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))),
+                                .add(JSONNumber.create(15))),
                         schema.toJson());
                 });
 
@@ -1801,11 +1803,11 @@ public interface JSONSchemaTests
                     final JSONSchema setEnumResult = schema.setEnum((float)15);
                     test.assertSame(schema, setEnumResult);
 
-                    test.assertEqual(Iterable.create((float)15), schema.getEnum());
+                    test.assertEqual(Iterable.create(15.0), schema.getEnum());
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15.0))),
+                                .add(JSONNumber.create(15.0))),
                         schema.toJson());
                 });
 
@@ -1819,7 +1821,7 @@ public interface JSONSchemaTests
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15.0))),
+                                .add(JSONNumber.create(15.0))),
                         schema.toJson());
                 });
 
@@ -1914,7 +1916,7 @@ public interface JSONSchemaTests
                     final JSONSchema setEnumResult = schema.setEnum(Iterable.create('m'));
                     test.assertSame(schema, setEnumResult);
 
-                    test.assertEqual(Iterable.create('m'), schema.getEnum());
+                    test.assertEqual(Iterable.create("m"), schema.getEnum());
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
@@ -1942,11 +1944,11 @@ public interface JSONSchemaTests
                     final JSONSchema setEnumResult = schema.setEnum(Iterable.create((byte)15));
                     test.assertSame(schema, setEnumResult);
 
-                    test.assertEqual(Iterable.create((byte)15), schema.getEnum());
+                    test.assertEqual(Iterable.create(15L), schema.getEnum());
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))),
+                                .add(JSONNumber.create(15))),
                         schema.toJson());
                 });
 
@@ -1956,39 +1958,39 @@ public interface JSONSchemaTests
                     final JSONSchema setEnumResult = schema.setEnum(Iterable.create((short)15));
                     test.assertSame(schema, setEnumResult);
 
-                    test.assertEqual(Iterable.create((short)15), schema.getEnum());
+                    test.assertEqual(Iterable.create(15L), schema.getEnum());
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))),
+                                .add(JSONNumber.create(15))),
                         schema.toJson());
                 });
 
                 runner.test("with integer value", (Test test) ->
                 {
                     final JSONSchema schema = JSONSchema.create();
-                    final JSONSchema setEnumResult = schema.setEnum(Iterable.create((int)15));
+                    final JSONSchema setEnumResult = schema.setEnum(Iterable.create(15));
                     test.assertSame(schema, setEnumResult);
 
-                    test.assertEqual(Iterable.create((int)15), schema.getEnum());
+                    test.assertEqual(Iterable.create(15L), schema.getEnum());
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))),
+                                .add(JSONNumber.create(15))),
                         schema.toJson());
                 });
 
                 runner.test("with long value", (Test test) ->
                 {
                     final JSONSchema schema = JSONSchema.create();
-                    final JSONSchema setEnumResult = schema.setEnum(Iterable.create((long)15));
+                    final JSONSchema setEnumResult = schema.setEnum(Iterable.create(15L));
                     test.assertSame(schema, setEnumResult);
 
-                    test.assertEqual(Iterable.create((long)15), schema.getEnum());
+                    test.assertEqual(Iterable.create(15L), schema.getEnum());
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))),
+                                .add(JSONNumber.create(15))),
                         schema.toJson());
                 });
 
@@ -1998,11 +2000,11 @@ public interface JSONSchemaTests
                     final JSONSchema setEnumResult = schema.setEnum(Iterable.create((float)15));
                     test.assertSame(schema, setEnumResult);
 
-                    test.assertEqual(Iterable.create((float)15), schema.getEnum());
+                    test.assertEqual(Iterable.create(15.0), schema.getEnum());
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15.0))),
+                                .add(JSONNumber.create(15.0))),
                         schema.toJson());
                 });
 
@@ -2016,7 +2018,7 @@ public interface JSONSchemaTests
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15.0))),
+                                .add(JSONNumber.create(15.0))),
                         schema.toJson());
                 });
 
@@ -2113,11 +2115,11 @@ public interface JSONSchemaTests
                     final JSONSchema setEnumResult = schema.addEnum((byte)15);
                     test.assertSame(schema, setEnumResult);
 
-                    test.assertEqual(Iterable.create((double)15), schema.getEnum());
+                    test.assertEqual(Iterable.create(15L), schema.getEnum());
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))),
+                                .add(JSONNumber.create(15))),
                         schema.toJson());
                 });
 
@@ -2127,39 +2129,39 @@ public interface JSONSchemaTests
                     final JSONSchema setEnumResult = schema.addEnum((short)15);
                     test.assertSame(schema, setEnumResult);
 
-                    test.assertEqual(Iterable.create((double)15), schema.getEnum());
+                    test.assertEqual(Iterable.create(15L), schema.getEnum());
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))),
+                                .add(JSONNumber.create(15))),
                         schema.toJson());
                 });
 
                 runner.test("with integer", (Test test) ->
                 {
                     final JSONSchema schema = JSONSchema.create();
-                    final JSONSchema setEnumResult = schema.addEnum((int)15);
+                    final JSONSchema setEnumResult = schema.addEnum(15);
                     test.assertSame(schema, setEnumResult);
 
-                    test.assertEqual(Iterable.create((double)15), schema.getEnum());
+                    test.assertEqual(Iterable.create(15L), schema.getEnum());
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))),
+                                .add(JSONNumber.create(15))),
                         schema.toJson());
                 });
 
                 runner.test("with long", (Test test) ->
                 {
                     final JSONSchema schema = JSONSchema.create();
-                    final JSONSchema setEnumResult = schema.addEnum((long)15);
+                    final JSONSchema setEnumResult = schema.addEnum(15L);
                     test.assertSame(schema, setEnumResult);
 
-                    test.assertEqual(Iterable.create((double)15.0), schema.getEnum());
+                    test.assertEqual(Iterable.create(15L), schema.getEnum());
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))),
+                                .add(JSONNumber.create(15))),
                         schema.toJson());
                 });
 
@@ -2173,7 +2175,7 @@ public interface JSONSchemaTests
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15.0))),
+                                .add(JSONNumber.create(15.0))),
                         schema.toJson());
                 });
 
@@ -2187,7 +2189,7 @@ public interface JSONSchemaTests
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15.0))),
+                                .add(JSONNumber.create(15.0))),
                         schema.toJson());
                 });
 
@@ -2213,12 +2215,12 @@ public interface JSONSchemaTests
                     schema.addEnum((byte)15);
                     schema.addEnum((short)15);
 
-                    test.assertEqual(Iterable.create((double)15, (double)15), schema.getEnum());
+                    test.assertEqual(Iterable.create(15L, 15L), schema.getEnum());
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))
-                                .add(JSONNumber.get(15))),
+                                .add(JSONNumber.create(15))
+                                .add(JSONNumber.create(15))),
                         schema.toJson());
                 });
 
@@ -2267,352 +2269,253 @@ public interface JSONSchemaTests
 
             runner.testGroup("removeEnum(Object)", () ->
             {
-                runner.test("with non-existing null", (Test test) ->
+                final Action4<JSONSchema,Object,Object,JSONObject> removeEnumTest = (JSONSchema schema, Object toRemove, Object expected, JSONObject expectedJson) ->
                 {
-                    final JSONSchema schema = JSONSchema.create();
-                    test.assertNull(schema.removeEnum(null));
+                    runner.test("with " + English.andList(schema, toRemove), (Test test) ->
+                    {
+                        final Object removeEnumResult = schema.removeEnum(toRemove);
+                        test.assertEqual(expected, removeEnumResult);
+                        test.assertEqual(expectedJson, schema.toJson());
+                    });
+                };
 
-                    test.assertNull(schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create(),
-                        schema.toJson());
-                });
+                removeEnumTest.run(
+                    JSONSchema.create(),
+                    null,
+                    null,
+                    JSONObject.create());
 
-                runner.test("with existing null", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum(null);
-                    test.assertNull(schema.removeEnum(null));
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum(null),
+                    null,
+                    null,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create()));
 
-                    test.assertEqual(Iterable.create(), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()),
-                        schema.toJson());
-                });
+                removeEnumTest.run(
+                    JSONSchema.create(),
+                    "a",
+                    null,
+                    JSONObject.create());
 
-                runner.test("with non-existing string", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create();
-                    test.assertNull(schema.removeEnum("a"));
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum("a"),
+                    "b",
+                    null,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create(
+                            JSONString.get("a"))));
 
-                    test.assertNull(schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create(),
-                        schema.toJson());
-                });
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum("a"),
+                    "a",
+                    "a",
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create()));
 
-                runner.test("with existing non-matching string", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum("a");
-                    test.assertNull(schema.removeEnum("b"));
+                removeEnumTest.run(
+                    JSONSchema.create(),
+                    'm',
+                    null,
+                    JSONObject.create());
 
-                    test.assertEqual(Iterable.create("a"), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()
-                                .add(JSONString.get("a"))),
-                        schema.toJson());
-                });
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum('a'),
+                    'b',
+                    null,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create(
+                            JSONString.get("a"))));
 
-                runner.test("with existing matching string", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum("a");
-                    test.assertEqual("a", schema.removeEnum("a"));
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum('a'),
+                    "a",
+                    "a",
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create()));
 
-                    test.assertEqual(Iterable.create(), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()),
-                        schema.toJson());
-                });
+                removeEnumTest.run(
+                    JSONSchema.create(),
+                    false,
+                    null,
+                    JSONObject.create());
 
-                runner.test("with non-existing character", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create();
-                    test.assertNull(schema.removeEnum('m'));
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum(true),
+                    false,
+                    null,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create(
+                            JSONBoolean.trueSegment)));
 
-                    test.assertNull(schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create(),
-                        schema.toJson());
-                });
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum(true),
+                    true,
+                    true,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create()));
 
-                runner.test("with existing non-matching character", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum('a');
-                    test.assertNull(schema.removeEnum('b'));
+                removeEnumTest.run(
+                    JSONSchema.create(),
+                    (byte)15,
+                    null,
+                    JSONObject.create());
 
-                    test.assertEqual(Iterable.create("a"), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()
-                                .add(JSONString.get("a"))),
-                        schema.toJson());
-                });
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum((byte)15),
+                    (byte)14,
+                    null,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create(
+                            JSONNumber.create(15))));
 
-                runner.test("with existing matching character", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum('a');
-                    test.assertEqual("a", schema.removeEnum('a'));
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum((byte)15),
+                    (byte)15,
+                    15L,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create()));
 
-                    test.assertEqual(Iterable.create(), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()),
-                        schema.toJson());
-                });
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum((byte)15),
+                    15,
+                    15L,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create()));
 
-                runner.test("with non-existing boolean", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create();
-                    test.assertNull(schema.removeEnum(false));
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum((byte)15),
+                    15L,
+                    15L,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create()));
 
-                    test.assertNull(schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create(),
-                        schema.toJson());
-                });
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum((byte)15),
+                    15f,
+                    null,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create(
+                            JSONNumber.create(15))));
 
-                runner.test("with existing non-matching boolean", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum(false);
-                    test.assertNull(schema.removeEnum(true));
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum((byte)15),
+                    15.0,
+                    null,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create(
+                            JSONNumber.create(15))));
 
-                    test.assertEqual(Iterable.create(false), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()
-                                .add(JSONBoolean.get(false))),
-                        schema.toJson());
-                });
+                removeEnumTest.run(
+                    JSONSchema.create(),
+                    15,
+                    null,
+                    JSONObject.create());
 
-                runner.test("with existing matching boolean", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum(true);
-                    test.assertEqual(true, schema.removeEnum(true));
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum(15),
+                    14,
+                    null,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create(
+                            JSONNumber.create(15))));
 
-                    test.assertEqual(Iterable.create(), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()),
-                        schema.toJson());
-                });
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum(15),
+                    15,
+                    15L,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create()));
 
-                runner.test("with non-existing byte", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create();
-                    test.assertNull(schema.removeEnum((byte)15));
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum(15),
+                    15L,
+                    15L,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create()));
 
-                    test.assertNull(schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create(),
-                        schema.toJson());
-                });
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum(15),
+                    15f,
+                    null,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create(
+                            JSONNumber.create(15))));
 
-                runner.test("with existing non-matching byte", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum(15);
-                    test.assertNull(schema.removeEnum((byte)14));
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum(15),
+                    15.0,
+                    null,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create(
+                            JSONNumber.create(15))));
 
-                    test.assertEqual(Iterable.create((double)15), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))),
-                        schema.toJson());
-                });
+                removeEnumTest.run(
+                    JSONSchema.create(),
+                    15.0,
+                    null,
+                    JSONObject.create());
 
-                runner.test("with existing matching byte", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum(15);
-                    test.assertEqual(15.0, schema.removeEnum((byte)15));
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum(15.0),
+                    14.0,
+                    null,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create(
+                            JSONNumber.create(15.0))));
 
-                    test.assertEqual(Iterable.create(), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()),
-                        schema.toJson());
-                });
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum(15.0),
+                    15.0,
+                    15.0,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create()));
 
-                runner.test("with non-existing short", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create();
-                    test.assertNull(schema.removeEnum((short)15));
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum(15.0),
+                    15L,
+                    null,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create(
+                            JSONNumber.create(15.0))));
 
-                    test.assertNull(schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create(),
-                        schema.toJson());
-                });
+                removeEnumTest.run( //
+                    JSONSchema.create()
+                        .addEnum(15.0),
+                    15f,
+                    15.0,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create()));
 
-                runner.test("with existing non-matching short", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum(15);
-                    test.assertNull(schema.removeEnum((short)14));
-
-                    test.assertEqual(Iterable.create((double)15), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))),
-                        schema.toJson());
-                });
-
-                runner.test("with existing matching short", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum(15);
-                    test.assertEqual(15.0, schema.removeEnum((short)15));
-
-                    test.assertEqual(Iterable.create(), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()),
-                        schema.toJson());
-                });
-
-                runner.test("with non-existing integer", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create();
-                    test.assertNull(schema.removeEnum((int)15));
-
-                    test.assertNull(schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create(),
-                        schema.toJson());
-                });
-
-                runner.test("with existing non-matching integer", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum(15);
-                    test.assertNull(schema.removeEnum((int)14));
-
-                    test.assertEqual(Iterable.create((double)15), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))),
-                        schema.toJson());
-                });
-
-                runner.test("with existing matching integer", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum(15);
-                    test.assertEqual(15.0, schema.removeEnum((int)15));
-
-                    test.assertEqual(Iterable.create(), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()),
-                        schema.toJson());
-                });
-
-                runner.test("with non-existing long", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create();
-                    test.assertNull(schema.removeEnum((long)15));
-
-                    test.assertNull(schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create(),
-                        schema.toJson());
-                });
-
-                runner.test("with existing non-matching long", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum(15);
-                    test.assertNull(schema.removeEnum((long)14));
-
-                    test.assertEqual(Iterable.create((double)15), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))),
-                        schema.toJson());
-                });
-
-                runner.test("with existing matching long", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum(15);
-                    test.assertEqual(15.0, schema.removeEnum((long)15));
-
-                    test.assertEqual(Iterable.create(), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()),
-                        schema.toJson());
-                });
-
-                runner.test("with non-existing float", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create();
-                    test.assertNull(schema.removeEnum((float)15));
-
-                    test.assertNull(schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create(),
-                        schema.toJson());
-                });
-
-                runner.test("with existing non-matching float", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum(15);
-                    test.assertNull(schema.removeEnum((float)14));
-
-                    test.assertEqual(Iterable.create((double)15), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))),
-                        schema.toJson());
-                });
-
-                runner.test("with existing matching float", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum(15);
-                    test.assertEqual(15.0, schema.removeEnum((float)15));
-
-                    test.assertEqual(Iterable.create(), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()),
-                        schema.toJson());
-                });
-
-                runner.test("with non-existing double", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create();
-                    test.assertNull(schema.removeEnum((double)15));
-
-                    test.assertNull(schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create(),
-                        schema.toJson());
-                });
-
-                runner.test("with existing non-matching double", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum(15);
-                    test.assertNull(schema.removeEnum((double)14));
-
-                    test.assertEqual(Iterable.create((double)15), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()
-                                .add(JSONNumber.get(15))),
-                        schema.toJson());
-                });
-
-                runner.test("with existing matching double", (Test test) ->
-                {
-                    final JSONSchema schema = JSONSchema.create().addEnum(15);
-                    test.assertEqual(15.0, schema.removeEnum((double)15));
-
-                    test.assertEqual(Iterable.create(), schema.getEnum());
-                    test.assertEqual(
-                        JSONObject.create()
-                            .setArray("enum", JSONArray.create()),
-                        schema.toJson());
-                });
+                removeEnumTest.run(
+                    JSONSchema.create()
+                        .addEnum(15.0),
+                    15,
+                    null,
+                    JSONObject.create()
+                        .setArray("enum", JSONArray.create(
+                            JSONNumber.create(15.0))));
 
                 runner.test("with invalid type", (Test test) ->
                 {
@@ -2654,7 +2557,7 @@ public interface JSONSchemaTests
                 runner.test("when it is non-empty", (Test test) ->
                 {
                     final JSONSchema schema = JSONSchema.create().setEnum(Iterable.create(1, 2, 3));
-                    test.assertEqual(Iterable.create(1, 2, 3), schema.removeEnum());
+                    test.assertEqual(Iterable.create(1L, 2L, 3L), schema.removeEnum());
 
                     test.assertNull(schema.getEnum());
                     test.assertEqual(

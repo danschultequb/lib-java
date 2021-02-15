@@ -203,6 +203,13 @@ public class CommandLineAction
             .setApplicationDescription(this.getDescription());
     }
 
+    public CommandLineActions createCommandLineActions()
+    {
+        return CommandLineActions.create()
+            .setApplicationName(this.getFullName())
+            .setApplicationDescription(this.getDescription());
+    }
+
     public void run(DesktopProcess process)
     {
         PreCondition.assertNotNull(process, "process");

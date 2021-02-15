@@ -58,7 +58,7 @@ public interface JSONTests
 
                 getWrongTypeExceptionMessageTest.run(JSONNull.segment, Iterable.create(JSONString.class), "hello", "Expected hello to be a JSONString, but was a JSONNull instead.");
                 getWrongTypeExceptionMessageTest.run(JSONBoolean.falseSegment, Iterable.create(JSONNumber.class, JSONObject.class), "hello", "Expected hello to be a JSONNumber or JSONObject, but was a JSONBoolean instead.");
-                getWrongTypeExceptionMessageTest.run(JSONNumber.get(7), Iterable.create(JSONBoolean.class, JSONArray.class, JSONObject.class), "hello", "Expected hello to be a JSONBoolean, JSONArray, or JSONObject, but was a JSONNumber instead.");
+                getWrongTypeExceptionMessageTest.run(JSONNumber.create(7), Iterable.create(JSONBoolean.class, JSONArray.class, JSONObject.class), "hello", "Expected hello to be a JSONBoolean, JSONArray, or JSONObject, but was a JSONNumber instead.");
             });
 
             runner.testGroup("as(JSONSegment,Class<T>,String)", () ->
@@ -87,7 +87,7 @@ public interface JSONTests
                     });
                 };
 
-                asTest.run(JSONNumber.get(50), JSONNumber.class, "foo");
+                asTest.run(JSONNumber.create(50), JSONNumber.class, "foo");
             });
 
             runner.testGroup("as(JSONSegment,Class<T>)", () ->
@@ -114,7 +114,7 @@ public interface JSONTests
                     });
                 };
 
-                asTest.run(JSONNumber.get(50), JSONNumber.class);
+                asTest.run(JSONNumber.create(50), JSONNumber.class);
             });
 
             runner.testGroup("asOrNull(JSONSegment,Class<T>,String)", () ->
@@ -142,7 +142,7 @@ public interface JSONTests
                     });
                 };
 
-                asOrNullTest.run(JSONNumber.get(50), JSONNumber.class, "foo", JSONNumber.get(50));
+                asOrNullTest.run(JSONNumber.create(50), JSONNumber.class, "foo", JSONNumber.create(50));
                 asOrNullTest.run(JSONNull.segment, JSONNumber.class, "foo", null);
             });
 
@@ -168,7 +168,7 @@ public interface JSONTests
                     });
                 };
 
-                asOrNullTest.run(JSONNumber.get(50), JSONNumber.class, JSONNumber.get(50));
+                asOrNullTest.run(JSONNumber.create(50), JSONNumber.class, JSONNumber.create(50));
                 asOrNullTest.run(JSONNull.segment, JSONNumber.class, null);
             });
 
@@ -189,7 +189,7 @@ public interface JSONTests
 
             runner.testGroup("toNumberOrNull(JSONNumber)", () ->
             {
-                final Action2<JSONNumber,Double> toNumberOrNullTest = (JSONNumber segment, Double expected) ->
+                final Action2<JSONNumber,Number> toNumberOrNullTest = (JSONNumber segment, Number expected) ->
                 {
                     runner.test("with " + segment, (Test test) ->
                     {
@@ -197,8 +197,11 @@ public interface JSONTests
                     });
                 };
 
-                toNumberOrNullTest.run(JSONNumber.get(3), 3.0);
-                toNumberOrNullTest.run(JSONNumber.get(10.5), 10.5);
+                toNumberOrNullTest.run(JSONNumber.create(3), 3L);
+                toNumberOrNullTest.run(JSONNumber.create(3L), 3L);
+                toNumberOrNullTest.run(JSONNumber.create(3f), 3.0);
+                toNumberOrNullTest.run(JSONNumber.create(3.0), 3.0);
+                toNumberOrNullTest.run(JSONNumber.create(10.5), 10.5);
                 toNumberOrNullTest.run(null, null);
             });
 
@@ -349,7 +352,7 @@ public interface JSONTests
                 parseTest.run("null", JSONNull.segment);
                 parseTest.run("false", JSONBoolean.falseSegment);
                 parseTest.run("true", JSONBoolean.trueSegment);
-                parseTest.run("123", JSONNumber.get("123"));
+                parseTest.run("123", JSONNumber.create("123"));
                 parseTest.run("\"hello\"", JSONString.get("hello"));
                 parseTest.run("[]", JSONArray.create());
                 parseTest.run("{}", JSONObject.create());
@@ -575,16 +578,16 @@ public interface JSONTests
                     JSONObject.create(
                         JSONProperty.create("b",
                             JSONArray.create(
-                                JSONNumber.get(1),
-                                JSONNumber.get(2),
-                                JSONNumber.get(3)))));
+                                JSONNumber.create(1),
+                                JSONNumber.create(2),
+                                JSONNumber.create(3)))));
                 parseObjectTest.run("{\"c\":{}}",
                     JSONObject.create(
                         JSONProperty.create("c", JSONObject.create())));
                 parseObjectTest.run("{\"c\":{},\"d\":50.2}",
                     JSONObject.create(
                         JSONProperty.create("c", JSONObject.create()),
-                        JSONProperty.create("d", JSONNumber.get(50.2))));
+                        JSONProperty.create("d", JSONNumber.create(50.2))));
             });
 
             runner.testGroup("parseObject(Iterable<Character>)", () ->

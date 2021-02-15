@@ -24,12 +24,12 @@ public class JSONProperty implements MapEntry<String,JSONSegment>
 
     public static JSONProperty create(String name, long value)
     {
-        return JSONProperty.create(name, JSONNumber.get(value));
+        return JSONProperty.create(name, JSONNumber.create(value));
     }
 
     public static JSONProperty create(String name, double value)
     {
-        return JSONProperty.create(name, JSONNumber.get(value));
+        return JSONProperty.create(name, JSONNumber.create(value));
     }
 
     public static JSONProperty create(String name, String value)
@@ -116,14 +116,44 @@ public class JSONProperty implements MapEntry<String,JSONSegment>
         return this.getValueAs(JSONNumber.class);
     }
 
-    public Result<Double> getNumberValue()
+    public Result<Number> getNumberValue()
     {
-        return this.getNumberValueSegment().then(JSONNumber::getValue);
+        return this.getNumberValueSegment().then(JSONNumber::getNumberValue);
     }
 
-    public Result<Double> getNumberOrNullValue()
+    public Result<Number> getNumberOrNullValue()
     {
         return this.getValueAsOrNull(JSONNumber.class).then(JSON::toNumberOrNull);
+    }
+
+    public Result<Double> getDoubleValue()
+    {
+        return this.getNumberValueSegment().then(JSONNumber::getDoubleValue);
+    }
+
+    public Result<Double> getDoubleOrNullValue()
+    {
+        return this.getValueAsOrNull(JSONNumber.class).then(JSON::toDoubleOrNull);
+    }
+
+    public Result<Long> getLongValue()
+    {
+        return this.getNumberValueSegment().then((JSONNumber jsonNumber) -> jsonNumber.getLongValue().await());
+    }
+
+    public Result<Long> getLongOrNullValue()
+    {
+        return this.getValueAsOrNull(JSONNumber.class).then((JSONNumber jsonNumber) -> JSON.toLongOrNull(jsonNumber).await());
+    }
+
+    public Result<Integer> getIntegerValue()
+    {
+        return this.getNumberValueSegment().then((JSONNumber jsonNumber) -> jsonNumber.getIntegerValue().await());
+    }
+
+    public Result<Integer> getIntegerOrNullValue()
+    {
+        return this.getValueAsOrNull(JSONNumber.class).then((JSONNumber jsonNumber) -> JSON.toIntegerOrNull(jsonNumber).await());
     }
 
     public Result<JSONString> getStringValueSegment()
