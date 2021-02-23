@@ -213,7 +213,7 @@ public interface CommandLineActionsTests
                 });
             });
 
-            runner.testGroup("addAction(String,Function1<FakeDesktopProcess,Integer>)", () ->
+            runner.testGroup("addAction(String,Function1<DesktopProcess,Integer>)", () ->
             {
                 runner.test("with null actionName", (Test test) ->
                 {
@@ -266,7 +266,7 @@ public interface CommandLineActionsTests
                 });
             });
 
-            runner.testGroup("run(FakeDesktopProcess)", () ->
+            runner.testGroup("run(DesktopProcess)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {

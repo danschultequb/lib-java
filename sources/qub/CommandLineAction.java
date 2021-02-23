@@ -186,6 +186,13 @@ public class CommandLineAction
         return this;
     }
 
+    public CommandLineParameters createCommandLineParameters()
+    {
+        PreCondition.assertNotNull(this.getProcess(), "this.getProcess()");
+
+        return this.createCommandLineParameters(this.getProcess());
+    }
+
     public CommandLineParameters createCommandLineParameters(DesktopProcess process)
     {
         PreCondition.assertNotNull(process, "process");
@@ -205,9 +212,32 @@ public class CommandLineAction
 
     public CommandLineActions createCommandLineActions()
     {
-        return CommandLineActions.create()
+        final CommandLineActions result = CommandLineActions.create()
             .setApplicationName(this.getFullName())
             .setApplicationDescription(this.getDescription());
+        final DesktopProcess process = this.getProcess();
+        if (process != null)
+        {
+            result.setProcess(process);
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    public DesktopProcess getProcess()
+    {
+        return this.parentActions == null
+            ? null
+            : this.parentActions.getProcess();
+    }
+
+    public void run()
+    {
+        PreCondition.assertNotNull(this.getProcess(), "this.getProcess()");
+
+        this.run(this.getProcess());
     }
 
     public void run(DesktopProcess process)
