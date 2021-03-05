@@ -1903,9 +1903,11 @@ public interface TestTests
                             new NullPointerException()));
                 });
 
-                runner.test("with action that throws the same error", (Test test) ->
+                runner.test("with action that throws the same error type", (Test test) ->
                 {
-                    test.assertThrows(() -> { throw new NotFoundException("blah"); }, NotFoundException.class);
+                    final NotFoundException error = new NotFoundException("blah");
+                    final NotFoundException thrown = test.assertThrows(() -> { throw error; }, NotFoundException.class);
+                    test.assertSame(error, thrown);
                 });
 
                 runner.test("with action that throws an error derived from the expected error", (Test test) ->
@@ -1923,27 +1925,37 @@ public interface TestTests
 
                 runner.test("with action that throws the same error but is wrapped in a RuntimeException", (Test test) ->
                 {
-                    test.assertThrows(() -> { throw new RuntimeException(new NotFoundException("blah")); }, NotFoundException.class);
+                    final NotFoundException error = new NotFoundException("blah");
+                    final NotFoundException thrown = test.assertThrows(() -> { throw new RuntimeException(error); }, NotFoundException.class);
+                    test.assertSame(error, thrown);
                 });
 
                 runner.test("with action that throws the same error but is wrapped in two RuntimeExceptions", (Test test) ->
                 {
-                    test.assertThrows(() -> { throw new RuntimeException(new RuntimeException(new NotFoundException("blah"))); }, NotFoundException.class);
+                    final NotFoundException error = new NotFoundException("blah");
+                    final NotFoundException thrown = test.assertThrows(() -> { throw new RuntimeException(new RuntimeException(error)); }, NotFoundException.class);
+                    test.assertSame(error, thrown);
                 });
 
                 runner.test("with action that throws the same error but is wrapped in an AwaitException", (Test test) ->
                 {
-                    test.assertThrows(() -> { throw new AwaitException(new NotFoundException("blah")); }, NotFoundException.class);
+                    final NotFoundException error = new NotFoundException("blah");
+                    final NotFoundException thrown = test.assertThrows(() -> { throw new AwaitException(error); }, NotFoundException.class);
+                    test.assertSame(error, thrown);
                 });
 
                 runner.test("with action that throws the same error but is wrapped in two AwaitExceptions", (Test test) ->
                 {
-                    test.assertThrows(() -> { throw new AwaitException(new AwaitException(new NotFoundException("blah"))); }, NotFoundException.class);
+                    final NotFoundException error = new NotFoundException("blah");
+                    final NotFoundException thrown = test.assertThrows(() -> { throw new AwaitException(new AwaitException(error)); }, NotFoundException.class);
+                    test.assertSame(error, thrown);
                 });
 
                 runner.test("with action that throws the same error but is wrapped in a RuntimeException and an AwaitException", (Test test) ->
                 {
-                    test.assertThrows(() -> { throw new RuntimeException(new AwaitException(new NotFoundException("blah"))); }, NotFoundException.class);
+                    final NotFoundException error = new NotFoundException("blah");
+                    final NotFoundException thrown = test.assertThrows(() -> { throw new RuntimeException(new AwaitException(error)); }, NotFoundException.class);
+                    test.assertSame(error, thrown);
                 });
             });
 

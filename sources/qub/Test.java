@@ -1119,7 +1119,7 @@ public class Test
      */
     public void assertThrows(Throwable expectedException, Action0 action)
     {
-        assertThrows(action, expectedException);
+        this.assertThrows(action, expectedException);
     }
 
     /**
@@ -1146,14 +1146,14 @@ public class Test
         if (exceptionThrown == null)
         {
             throw new TestError(
-                getFullName(),
+                this.getFullName(),
                 "Expected a " + Types.getFullTypeName(expectedException) + " to be thrown with " + (Strings.isNullOrEmpty(expectedException.getMessage()) ? "no message" : "the message \"" + expectedException.getMessage() + "\"") + ".");
         }
         else if (!Comparer.equal(expectedException, exceptionThrown, Exceptions.defaultErrorTypesToGoPast))
         {
             throw new TestError(
-                getFullName(),
-                getMessageLines("Incorrect exception thrown", expectedException, exceptionThrown),
+                this.getFullName(),
+                Test.getMessageLines("Incorrect exception thrown", expectedException, exceptionThrown),
                 exceptionThrown);
         }
     }
@@ -1164,9 +1164,9 @@ public class Test
      * @param expectedExceptionType The expected exception type.
      * @param action The action to run.
      */
-    public void assertThrows(Class<? extends Throwable> expectedExceptionType, Action0 action)
+    public <TError extends Throwable> TError assertThrows(Class<TError> expectedExceptionType, Action0 action)
     {
-        assertThrows(action, expectedExceptionType);
+        return this.assertThrows(action, expectedExceptionType);
     }
 
     /**
@@ -1175,7 +1175,7 @@ public class Test
      * @param action The action to run.
      * @param expectedExceptionType The expected exception type.
      */
-    public void assertThrows(Action0 action, Class<? extends Throwable> expectedExceptionType)
+    public <TError extends Throwable> TError assertThrows(Action0 action, Class<TError> expectedExceptionType)
     {
         PreCondition.assertNotNull(action, "action");
         PreCondition.assertNotNull(expectedExceptionType, "expectedExceptionType");
@@ -1193,16 +1193,24 @@ public class Test
         if (exceptionThrown == null)
         {
             throw new TestError(
-                getFullName(),
+                this.getFullName(),
                 "Expected a " + Types.getFullTypeName(expectedExceptionType) + " to be thrown.");
         }
-        else if (!Comparer.equal(expectedExceptionType, exceptionThrown, Exceptions.defaultErrorTypesToGoPast))
+
+        final Throwable unwrappedException = Exceptions.unwrap(exceptionThrown);
+        if (!expectedExceptionType.equals(Types.getType(unwrappedException)))
         {
             throw new TestError(
-                getFullName(),
-                getMessageLines("Incorrect exception thrown", expectedExceptionType, exceptionThrown),
+                this.getFullName(),
+                Test.getMessageLines("Incorrect exception thrown", expectedExceptionType, exceptionThrown),
                 exceptionThrown);
         }
+
+        final TError result = Types.as(unwrappedException, expectedExceptionType);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     /**
