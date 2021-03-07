@@ -158,4 +158,15 @@ public interface Bytes
 
         return result;
     }
+
+    /**
+     * Get the bit at the provided bitIndex in the provided value.
+     * @param value The int value.
+     * @param bitIndex The bitIndex (where 0 is the most significant bit digit).
+     * @return The bit at the provided bitIndex.
+     */
+    static int getBit(byte value, int bitIndex)
+    {
+        return Bits.getBit(value, bitIndex);
+    }
 }

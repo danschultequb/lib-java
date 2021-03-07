@@ -51,7 +51,6 @@ public class BasicBinaryTree<T> implements BinaryTree<T>
      * @param <T> The type of value stored in this
      * @return The new BinaryTree.
      */
-    @SuppressWarnings("unchecked")
     public static <T extends java.lang.Comparable<T>> BasicBinaryTree<T> create(Iterable<T> values)
     {
         return BasicBinaryTree.<T>create(Comparer::compare).addAll(values);

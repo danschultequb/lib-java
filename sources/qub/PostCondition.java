@@ -177,6 +177,16 @@ public class PostCondition
         }
     }
 
+    public static <T> void assertOneOf(T value, Iterable<T> allowedValues, String variableName)
+    {
+        PreCondition.assertNotNull(allowedValues, "allowedValues");
+
+        if (!allowedValues.contains(value))
+        {
+            throw new PostConditionFailure(AssertionMessages.oneOf(value, allowedValues, variableName));
+        }
+    }
+
     /**
      * Assert that value is greater than or equal to lowerBound.
      * @param value The value to ensure is greater than or equal to lowerBound.

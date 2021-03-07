@@ -148,6 +148,53 @@ public interface BytesTests
                     toHexCharTest.run(i, (char)('A' + i - 10));
                 }
             });
+
+            runner.testGroup("getBit(byte,int)", () ->
+            {
+                final Action3<Byte,Integer,Throwable> getBitErrorTest = (Byte value, Integer bitIndex, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(value + " (" + Bytes.toHexString(value, true) + ")", bitIndex), (Test test) ->
+                    {
+                        test.assertThrows(() -> Bytes.getBit(value, bitIndex), expected);
+                    });
+                };
+
+                getBitErrorTest.run((byte)55, -1, new PreConditionFailure("bitIndex (-1) must be between 0 and 7."));
+                getBitErrorTest.run((byte)55, 8, new PreConditionFailure("bitIndex (8) must be between 0 and 7."));
+
+                final Action3<Byte,Integer,Integer> getBitTest = (Byte value, Integer bitIndex, Integer expected) ->
+                {
+                    runner.test("with " + English.andList(value + " (" + Bytes.toHexString(value, true) + ")", bitIndex), (Test test) ->
+                    {
+                        test.assertEqual(expected, Bytes.getBit(value, bitIndex));
+                    });
+                };
+
+                for (int i = 0; i < Bytes.bitCount; ++i)
+                {
+                    getBitTest.run((byte)0x00, i, 0);
+                }
+
+                for (int i = 0; i < Bytes.bitCount; ++i)
+                {
+                    getBitTest.run((byte)0x01, i, (i == 7 ? 1 : 0));
+                }
+
+                for (int i = 0; i < Bytes.bitCount; ++i)
+                {
+                    getBitTest.run((byte)0x02, i, (i == 6 ? 1 : 0));
+                }
+
+                for (int i = 0; i < Bytes.bitCount; ++i)
+                {
+                    getBitTest.run((byte)0x80, i, (i == 0 ? 1 : 0));
+                }
+
+                for (int i = 0; i < Bytes.bitCount; ++i)
+                {
+                    getBitTest.run((byte)0xFF, i, 1);
+                }
+            });
         });
     }
 }
