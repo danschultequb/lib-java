@@ -248,6 +248,11 @@ public class TestResources implements Disposable
         return this.process.getQubFolder().await();
     }
 
+    public Network getNetwork()
+    {
+        return this.process.getNetwork();
+    }
+
     @Override
     public boolean isDisposed()
     {
