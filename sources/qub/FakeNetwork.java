@@ -9,16 +9,21 @@ public class FakeNetwork implements Network
     private final MutableMap<IPv4Address,MutableMap<Integer,FakeTCPServer>> boundTCPServers;
     private final MutableMap<InMemoryByteStream,Integer> streamReferenceCounts;
 
-    public FakeNetwork(Clock clock)
+    private FakeNetwork(Clock clock)
     {
         PreCondition.assertNotNull(clock, "clock");
 
         this.clock = clock;
-        mutex = new SpinMutex(clock);
-        boundTCPServerAvailable = mutex.createCondition();
-        boundTCPClients = Map.create();
-        boundTCPServers = Map.create();
-        streamReferenceCounts = Map.create();
+        this.mutex = SpinMutex.create(clock);
+        this.boundTCPServerAvailable = mutex.createCondition();
+        this.boundTCPClients = Map.create();
+        this.boundTCPServers = Map.create();
+        this.streamReferenceCounts = Map.create();
+    }
+
+    public static FakeNetwork create(Clock clock)
+    {
+        return new FakeNetwork(clock);
     }
 
     @Override
@@ -27,7 +32,7 @@ public class FakeNetwork implements Network
         Network.validateRemoteIPAddress(remoteIPAddress);
         Network.validateRemotePort(remotePort);
 
-        return createTCPClientInner(remoteIPAddress, remotePort, null);
+        return this.createTCPClientInner(remoteIPAddress, remotePort, null);
     }
 
     @Override
@@ -37,8 +42,8 @@ public class FakeNetwork implements Network
         Network.validateRemotePort(remotePort);
         Network.validateTimeout(timeout);
 
-        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(timeout);
-        return createTCPClient(remoteIPAddress, remotePort, dateTimeTimeout);
+        final DateTime dateTimeTimeout = this.clock.getCurrentDateTime().plus(timeout);
+        return this.createTCPClient(remoteIPAddress, remotePort, dateTimeTimeout);
     }
 
     @Override
@@ -48,7 +53,7 @@ public class FakeNetwork implements Network
         Network.validateRemotePort(remotePort);
         Network.validateTimeout(timeout);
 
-        return createTCPClientInner(remoteIPAddress, remotePort, timeout);
+        return this.createTCPClientInner(remoteIPAddress, remotePort, timeout);
     }
 
     private Result<FakeTCPClient> createTCPClientInner(IPv4Address remoteIPAddress, int remotePort, DateTime dateTimeTimeout)
@@ -60,7 +65,7 @@ public class FakeNetwork implements Network
         final Function0<Result<FakeTCPClient>> function = () ->
         {
             Result<FakeTCPClient> result;
-            if (dateTimeTimeout != null && clock.getCurrentDateTime().greaterThanOrEqualTo(dateTimeTimeout))
+            if (dateTimeTimeout != null && this.clock.getCurrentDateTime().greaterThanOrEqualTo(dateTimeTimeout))
             {
                 result = Result.error(new TimeoutException());
             }
@@ -74,15 +79,15 @@ public class FakeNetwork implements Network
                     {
                         if (dateTimeTimeout == null)
                         {
-                            mutex.acquire().await();
+                            this.mutex.acquire().await();
                         }
                         else
                         {
-                            mutex.acquire(dateTimeTimeout).await();
+                            this.mutex.acquire(dateTimeTimeout).await();
                         }
                         try
                         {
-                            remoteTCPServer = boundTCPServers.get(remoteIPAddress)
+                            remoteTCPServer = this.boundTCPServers.get(remoteIPAddress)
                                 .then((MutableMap<Integer,FakeTCPServer> remoteTCPServers) -> remoteTCPServers.get(remotePort).await())
                                 .catchError(NotFoundException.class)
                                 .await();
@@ -94,13 +99,13 @@ public class FakeNetwork implements Network
                                 }
                                 else
                                 {
-                                    boundTCPServerAvailable.watch(dateTimeTimeout).await();
+                                    this.boundTCPServerAvailable.watch(dateTimeTimeout).await();
                                 }
                             }
                         }
                         finally
                         {
-                            mutex.release().await();
+                            this.mutex.release().await();
                         }
                     }
 
@@ -148,14 +153,14 @@ public class FakeNetwork implements Network
         };
 
         return dateTimeTimeout != null
-            ? mutex.criticalSection(dateTimeTimeout, () -> function.run().await())
-            : mutex.criticalSection(() -> function.run().await());
+            ? this.mutex.criticalSection(dateTimeTimeout, () -> function.run().await())
+            : this.mutex.criticalSection(() -> function.run().await());
     }
 
     private InMemoryByteStream createNetworkStream()
     {
         final InMemoryByteStream networkStream = InMemoryByteStream.create();
-        streamReferenceCounts.set(networkStream, 2);
+        this.streamReferenceCounts.set(networkStream, 2);
         return networkStream;
     }
 
@@ -163,15 +168,15 @@ public class FakeNetwork implements Network
     {
         PreCondition.assertNotNull(networkStream, "networkStream");
 
-        final int currentStreamReferenceCount = streamReferenceCounts.get(networkStream).await();
+        final int currentStreamReferenceCount = this.streamReferenceCounts.get(networkStream).await();
         if (currentStreamReferenceCount == 1)
         {
             networkStream.dispose();
-            streamReferenceCounts.remove(networkStream);
+            this.streamReferenceCounts.remove(networkStream);
         }
         else
         {
-            streamReferenceCounts.set(networkStream, currentStreamReferenceCount - 1);
+            this.streamReferenceCounts.set(networkStream, currentStreamReferenceCount - 1);
         }
     }
 
@@ -179,9 +184,9 @@ public class FakeNetwork implements Network
     {
         PreCondition.assertNotNull(tcpClient, "tcpClient");
 
-        mutex.criticalSection(() ->
+        this.mutex.criticalSection(() ->
         {
-            boundTCPClients.getOrSet(tcpClient.getLocalIPAddress(), Map::create)
+            this.boundTCPClients.getOrSet(tcpClient.getLocalIPAddress(), Map::create)
                 .await()
                 .set(tcpClient.getLocalPort(), tcpClient);
         }).await();
@@ -192,7 +197,7 @@ public class FakeNetwork implements Network
     {
         Network.validateLocalPort(localPort);
 
-        return createTCPServer(IPv4Address.localhost, localPort);
+        return this.createTCPServer(IPv4Address.localhost, localPort);
     }
 
     @Override
@@ -201,7 +206,7 @@ public class FakeNetwork implements Network
         Network.validateLocalIPAddress(localIPAddress);
         Network.validateLocalPort(localPort);
 
-        return mutex.criticalSection(() ->
+        return this.mutex.criticalSection(() ->
         {
             if (!this.isAvailable(localIPAddress, localPort))
             {
@@ -210,9 +215,9 @@ public class FakeNetwork implements Network
 
             final FakeTCPServer tcpServer = new FakeTCPServer(localIPAddress, localPort, this, clock);
 
-            boundTCPServers.getOrSet(localIPAddress, Map::create).await()
+            this.boundTCPServers.getOrSet(localIPAddress, Map::create).await()
                 .set(localPort, tcpServer);
-            boundTCPServerAvailable.signalAll();
+            this.boundTCPServerAvailable.signalAll();
 
             return tcpServer;
         });
@@ -223,9 +228,9 @@ public class FakeNetwork implements Network
         Network.validateIPAddress(ipAddress, "ipAddress");
         Network.validatePort(port, "port");
 
-        mutex.criticalSection(() ->
+        this.mutex.criticalSection(() ->
         {
-            boundTCPServers.get(ipAddress)
+            this.boundTCPServers.get(ipAddress)
                 .await()
                 .remove(port);
         });
@@ -235,11 +240,11 @@ public class FakeNetwork implements Network
     {
         PreCondition.assertNotNull(tcpClient, "tcpClient");
 
-        mutex.criticalSection(() ->
+        this.mutex.criticalSection(() ->
         {
-            decrementNetworkStream((InMemoryByteStream)tcpClient.getReadStream());
-            decrementNetworkStream((InMemoryByteStream)tcpClient.getWriteStream());
-            boundTCPClients.get(tcpClient.getLocalIPAddress())
+            this.decrementNetworkStream((InMemoryByteStream)tcpClient.getReadStream());
+            this.decrementNetworkStream((InMemoryByteStream)tcpClient.getWriteStream());
+            this.boundTCPClients.get(tcpClient.getLocalIPAddress())
                 .await()
                 .remove(tcpClient.getLocalPort());
         }).await();
@@ -250,11 +255,11 @@ public class FakeNetwork implements Network
         Network.validateIPAddress(ipAddress, "ipAddress");
         Network.validatePort(port, "port");
 
-        return mutex.criticalSection(() ->
+        return this.mutex.criticalSection(() ->
         {
             boolean result = true;
 
-            final Map<Integer,FakeTCPClient> localTCPClients = boundTCPClients.get(ipAddress)
+            final Map<Integer,FakeTCPClient> localTCPClients = this.boundTCPClients.get(ipAddress)
                 .catchError(NotFoundException.class)
                 .await();
             if (localTCPClients != null && localTCPClients.containsKey(port))
@@ -263,7 +268,7 @@ public class FakeNetwork implements Network
             }
             else
             {
-                final Map<Integer,FakeTCPServer> localTCPServers = boundTCPServers.get(ipAddress)
+                final Map<Integer,FakeTCPServer> localTCPServers = this.boundTCPServers.get(ipAddress)
                     .catchError(NotFoundException.class)
                     .await();
                 if (localTCPServers != null && localTCPServers.containsKey(port))

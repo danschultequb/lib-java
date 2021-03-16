@@ -2,7 +2,7 @@ package qub;
 
 public interface AWTUIElementTests
 {
-    static void test(TestRunner runner, Function1<Test,? extends AWTUIElement> creator)
+    static void test(TestRunner runner, Function1<FakeDesktopProcess,? extends AWTUIElement> creator)
     {
         PreCondition.assertNotNull(runner, "runner");
         PreCondition.assertNotNull(creator, "creator");
@@ -15,9 +15,12 @@ public interface AWTUIElementTests
             {
                 runner.test("returns AWTUIElement", (Test test) ->
                 {
-                    final AWTUIElement uiElement = creator.run(test);
-                    final AWTUIElement setWidthResult = uiElement.setWidth(Distance.inches(2));
-                    test.assertSame(uiElement, setWidthResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final AWTUIElement uiElement = creator.run(process);
+                        final AWTUIElement setWidthResult = uiElement.setWidth(Distance.inches(2));
+                        test.assertSame(uiElement, setWidthResult);
+                    }
                 });
             });
 
@@ -25,9 +28,12 @@ public interface AWTUIElementTests
             {
                 runner.test("returns AWTUIElement", (Test test) ->
                 {
-                    final AWTUIElement uiElement = creator.run(test);
-                    final AWTUIElement setWidthInPixelsResult = uiElement.setWidthInPixels(2);
-                    test.assertSame(uiElement, setWidthInPixelsResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final AWTUIElement uiElement = creator.run(process);
+                        final AWTUIElement setWidthInPixelsResult = uiElement.setWidthInPixels(2);
+                        test.assertSame(uiElement, setWidthInPixelsResult);
+                    }
                 });
             });
 
@@ -35,9 +41,12 @@ public interface AWTUIElementTests
             {
                 runner.test("returns AWTUIElement", (Test test) ->
                 {
-                    final AWTUIElement uiElement = creator.run(test);
-                    final AWTUIElement setHeightResult = uiElement.setHeight(Distance.inches(3));
-                    test.assertSame(uiElement, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final AWTUIElement uiElement = creator.run(process);
+                        final AWTUIElement setHeightResult = uiElement.setHeight(Distance.inches(3));
+                        test.assertSame(uiElement, setHeightResult);
+                    }
                 });
             });
 
@@ -45,9 +54,12 @@ public interface AWTUIElementTests
             {
                 runner.test("returns AWTUIElement", (Test test) ->
                 {
-                    final AWTUIElement uiElement = creator.run(test);
-                    final AWTUIElement setHeightInPixelsResult = uiElement.setHeightInPixels(2);
-                    test.assertSame(uiElement, setHeightInPixelsResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final AWTUIElement uiElement = creator.run(process);
+                        final AWTUIElement setHeightInPixelsResult = uiElement.setHeightInPixels(2);
+                        test.assertSame(uiElement, setHeightInPixelsResult);
+                    }
                 });
             });
 
@@ -55,9 +67,12 @@ public interface AWTUIElementTests
             {
                 runner.test("returns AWTUIElement", (Test test) ->
                 {
-                    final AWTUIElement uiElement = creator.run(test);
-                    final AWTUIElement setSizeResult = uiElement.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
-                    test.assertSame(uiElement, setSizeResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final AWTUIElement uiElement = creator.run(process);
+                        final AWTUIElement setSizeResult = uiElement.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
+                        test.assertSame(uiElement, setSizeResult);
+                    }
                 });
             });
 
@@ -65,9 +80,12 @@ public interface AWTUIElementTests
             {
                 runner.test("returns AWTUIElement", (Test test) ->
                 {
-                    final AWTUIElement uiElement = creator.run(test);
-                    final AWTUIElement setSizeResult = uiElement.setSize(Distance.inches(2), Distance.inches(3));
-                    test.assertSame(uiElement, setSizeResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final AWTUIElement uiElement = creator.run(process);
+                        final AWTUIElement setSizeResult = uiElement.setSize(Distance.inches(2), Distance.inches(3));
+                        test.assertSame(uiElement, setSizeResult);
+                    }
                 });
             });
 
@@ -75,9 +93,12 @@ public interface AWTUIElementTests
             {
                 runner.test("returns AWTUIElement", (Test test) ->
                 {
-                    final AWTUIElement uiElement = creator.run(test);
-                    final AWTUIElement setSizeInPixelsResult = uiElement.setSizeInPixels(2, 3);
-                    test.assertSame(uiElement, setSizeInPixelsResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final AWTUIElement uiElement = creator.run(process);
+                        final AWTUIElement setSizeInPixelsResult = uiElement.setSizeInPixels(2, 3);
+                        test.assertSame(uiElement, setSizeInPixelsResult);
+                    }
                 });
             });
 
@@ -85,9 +106,12 @@ public interface AWTUIElementTests
             {
                 runner.test("returns AWTUIElement", (Test test) ->
                 {
-                    final AWTUIElement uiElement = creator.run(test);
-                    final AWTUIElement setPaddingResult = uiElement.setPadding(UIPadding.zero);
-                    test.assertSame(uiElement, setPaddingResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final AWTUIElement uiElement = creator.run(process);
+                        final AWTUIElement setPaddingResult = uiElement.setPadding(UIPadding.zero);
+                        test.assertSame(uiElement, setPaddingResult);
+                    }
                 });
             });
 
@@ -95,18 +119,24 @@ public interface AWTUIElementTests
             {
                 runner.test("returns AWTUIElement", (Test test) ->
                 {
-                    final AWTUIElement uiElement = creator.run(test);
-                    final AWTUIElement setBackgroundColorResult = uiElement.setBackgroundColor(Color.blue);
-                    test.assertSame(uiElement, setBackgroundColorResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final AWTUIElement uiElement = creator.run(process);
+                        final AWTUIElement setBackgroundColorResult = uiElement.setBackgroundColor(Color.blue);
+                        test.assertSame(uiElement, setBackgroundColorResult);
+                    }
                 });
             });
 
             runner.test("getComponent()", (Test test) ->
             {
-                final AWTUIElement uiElement = creator.run(test);
-                final java.awt.Component component = uiElement.getComponent();
-                test.assertNotNull(component);
-                test.assertSame(component, uiElement.getComponent());
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                {
+                    final AWTUIElement uiElement = creator.run(process);
+                    final java.awt.Component component = uiElement.getComponent();
+                    test.assertNotNull(component);
+                    test.assertSame(component, uiElement.getComponent());
+                }
             });
         });
     }

@@ -6,13 +6,18 @@ public class TestGroup implements TestParent
     private final TestParent parent;
     private final Skip skip;
 
-    public TestGroup(String name, TestParent parent, Skip skip)
+    private TestGroup(String name, TestParent parent, Skip skip)
     {
         PreCondition.assertNotNullAndNotEmpty(name, "name");
 
         this.name = name;
         this.parent = parent;
         this.skip = skip;
+    }
+
+    public static TestGroup create(String name, TestParent parent, Skip skip)
+    {
+        return new TestGroup(name, parent, skip);
     }
 
     @Override

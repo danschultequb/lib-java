@@ -141,7 +141,7 @@ public class SpinGate implements Gate
     public Result<Void> passThrough(DateTime timeout, Action0 onWait)
     {
         PreCondition.assertNotNull(timeout, "timeout");
-        PreCondition.assertNotNull(this.getClock(), "getClock()");
+        PreCondition.assertNotNull(this.getClock(), "this.getClock()");
         PreCondition.assertNotNull(onWait, "onWait");
 
         final Clock clock = this.getClock();

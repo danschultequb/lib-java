@@ -115,7 +115,7 @@ public interface FakeTypeLoaderTests
                         }
                         else
                         {
-                            final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                            final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                             fileSystem.createRoot(typeContainerPath.getRoot().await()).await();
                             typeContainer = fileSystem.getFile(typeContainerPath).await();
                         }
@@ -135,7 +135,7 @@ public interface FakeTypeLoaderTests
                     {
                         final FakeTypeLoader typeLoader = FakeTypeLoader.create();
 
-                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                         fileSystem.createRoot(typeContainerPath.getRoot().await()).await();
                         final File typeContainer = fileSystem.getFile(typeContainerPath).await();
 
@@ -164,7 +164,7 @@ public interface FakeTypeLoaderTests
                         }
                         else
                         {
-                            final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                            final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                             fileSystem.createRoot(typeContainerPath.getRoot().await()).await();
                             typeContainer = fileSystem.getFolder(typeContainerPath).await();
                         }
@@ -184,7 +184,7 @@ public interface FakeTypeLoaderTests
                     {
                         final FakeTypeLoader typeLoader = FakeTypeLoader.create();
 
-                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                         fileSystem.createRoot(typeContainerPath.getRoot().await()).await();
                         final Folder typeContainer = fileSystem.getFolder(typeContainerPath).await();
 
@@ -277,7 +277,7 @@ public interface FakeTypeLoaderTests
                         }
                         else
                         {
-                            final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                            final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                             fileSystem.createRoot(typeContainerPath.getRoot().await()).await();
                             typeContainer = fileSystem.getFile(typeContainerPath).await();
                         }
@@ -296,7 +296,7 @@ public interface FakeTypeLoaderTests
                     {
                         final FakeTypeLoader typeLoader = FakeTypeLoader.create();
 
-                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                         fileSystem.createRoot(typeContainerPath.getRoot().await()).await();
                         final File typeContainer = fileSystem.getFile(typeContainerPath).await();
 
@@ -325,7 +325,7 @@ public interface FakeTypeLoaderTests
                         }
                         else
                         {
-                            final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                            final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                             fileSystem.createRoot(typeContainerPath.getRoot().await()).await();
                             typeContainer = fileSystem.getFolder(typeContainerPath).await();
                         }
@@ -344,7 +344,7 @@ public interface FakeTypeLoaderTests
                     {
                         final FakeTypeLoader typeLoader = FakeTypeLoader.create();
 
-                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                         fileSystem.createRoot(typeContainerPath.getRoot().await()).await();
                         final Folder typeContainer = fileSystem.getFolder(typeContainerPath).await();
 

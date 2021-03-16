@@ -83,7 +83,7 @@ public interface FolderAlreadyExistsExceptionTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
-                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                         fileSystem.createRoot("/").await();
                         final FolderAlreadyExistsException exception = new FolderAlreadyExistsException(fileSystem.getFolder(folderPath).await());
                         test.assertNotNull(exception, "exception");

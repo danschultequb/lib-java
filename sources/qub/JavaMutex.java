@@ -5,33 +5,38 @@ public class JavaMutex implements Mutex
     private final java.util.concurrent.locks.ReentrantLock lock;
     private final Clock clock;
 
-    public JavaMutex()
-    {
-        this(null);
-    }
-
-    public JavaMutex(Clock clock)
+    private JavaMutex(Clock clock)
     {
         this.lock = new java.util.concurrent.locks.ReentrantLock();
         this.clock = clock;
     }
 
+    public static JavaMutex create()
+    {
+        return new JavaMutex(null);
+    }
+
+    public static JavaMutex create(Clock clock)
+    {
+        return new JavaMutex(clock);
+    }
+
     @Override
     public boolean isAcquired()
     {
-        return lock.isLocked();
+        return this.lock.isLocked();
     }
 
     @Override
     public boolean isAcquiredByCurrentThread()
     {
-        return lock.isHeldByCurrentThread();
+        return this.lock.isHeldByCurrentThread();
     }
 
     @Override
     public Result<Void> acquire()
     {
-        lock.lock();
+        this.lock.lock();
         return Result.success();
     }
 
@@ -55,7 +60,7 @@ public class JavaMutex implements Mutex
         {
             while (true)
             {
-                if (clock.getCurrentDateTime().greaterThanOrEqualTo(dateTimeTimeout))
+                if (this.clock.getCurrentDateTime().greaterThanOrEqualTo(dateTimeTimeout))
                 {
                     throw new TimeoutException();
                 }
@@ -70,19 +75,28 @@ public class JavaMutex implements Mutex
     @Override
     public Result<Boolean> tryAcquire()
     {
-        return Result.create(() -> lock.tryLock());
+        return Result.create(() -> this.lock.tryLock());
     }
 
     @Override
     public Result<Void> release()
     {
-        return Result.create(lock::unlock);
+        return Result.create(() ->
+        {
+            try
+            {
+                this.lock.unlock();
+            }
+            catch (java.lang.IllegalMonitorStateException e)
+            {
+            }
+        });
     }
 
     @Override
     public JavaMutexCondition createCondition()
     {
-        return new JavaMutexCondition(this, clock, lock.newCondition(), null);
+        return JavaMutexCondition.create(this, this.clock, this.lock.newCondition());
     }
 
     @Override
@@ -90,6 +104,6 @@ public class JavaMutex implements Mutex
     {
         PreCondition.assertNotNull(condition, "condition");
 
-        return new JavaMutexCondition(this, clock, lock.newCondition(), condition);
+        return JavaMutexCondition.create(this, this.clock, this.lock.newCondition(), condition);
     }
 }

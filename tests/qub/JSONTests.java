@@ -230,7 +230,7 @@ public interface JSONTests
 
                 runner.test("with non-existing file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final File file = fileSystem.getFile("/file.json").await();
                     test.assertThrows(() -> JSON.parse(file).await(),
@@ -239,7 +239,7 @@ public interface JSONTests
 
                 runner.test("with empty file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final File file = fileSystem.setFileContentsAsString("/file.json", "").await();
                     test.assertThrows(() -> JSON.parse(file).await(),
@@ -248,7 +248,7 @@ public interface JSONTests
 
                 runner.test("with empty JSONObject", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final File file = fileSystem.setFileContentsAsString("/file.json", "{}").await();
                     test.assertEqual(JSONObject.create(), JSON.parse(file).await());
@@ -429,7 +429,7 @@ public interface JSONTests
 
                 runner.test("with non-existing file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final File file = fileSystem.getFile("/file.json").await();
                     test.assertThrows(() -> JSON.parseObject(file).await(),
@@ -438,7 +438,7 @@ public interface JSONTests
 
                 runner.test("with empty file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final File file = fileSystem.setFileContentsAsString("/file.json", "").await();
                     test.assertThrows(() -> JSON.parseObject(file).await(),
@@ -447,7 +447,7 @@ public interface JSONTests
 
                 runner.test("with empty JSONObject", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final File file = fileSystem.setFileContentsAsString("/file.json", "{}").await();
                     test.assertEqual(JSONObject.create(), JSON.parseObject(file).await());
@@ -702,7 +702,7 @@ public interface JSONTests
 
                 runner.test("with non-existing file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final File file = fileSystem.getFile("/file.json").await();
                     test.assertThrows(() -> JSON.parseArray(file).await(),
@@ -711,7 +711,7 @@ public interface JSONTests
 
                 runner.test("with empty file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final File file = fileSystem.setFileContentsAsString("/file.json", "").await();
                     test.assertThrows(() -> JSON.parseArray(file).await(),
@@ -720,7 +720,7 @@ public interface JSONTests
 
                 runner.test("with empty JSONArray", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final File file = fileSystem.setFileContentsAsString("/file.json", "[]").await();
                     test.assertEqual(JSONArray.create(), JSON.parseArray(file).await());

@@ -5,6 +5,15 @@ package qub;
  */
 public class JavaFileSystem implements FileSystem
 {
+    private JavaFileSystem()
+    {
+    }
+
+    public static JavaFileSystem create()
+    {
+        return new JavaFileSystem();
+    }
+
     @Override
     public Result<Iterable<Root>> getRoots()
     {

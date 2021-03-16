@@ -18,7 +18,7 @@ public interface Disposable extends java.lang.AutoCloseable
      */
     static Disposable create(Action0 onDispose)
     {
-        return BasicDisposable.create(onDispose);
+        return DisposableAction.create(onDispose);
     }
 
     @Override

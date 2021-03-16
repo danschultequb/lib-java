@@ -6,67 +6,51 @@ public interface TestTests
     {
         runner.testGroup(Test.class, () ->
         {
-            runner.testGroup("constructor", () ->
+            runner.testGroup("create(String,TestParent,Skip)", () ->
             {
                 runner.test("with null name", (Test test) ->
                 {
-                    test.assertThrows(() -> new Test(null, null, null, test.getProcess()),
+                    test.assertThrows(() -> Test.create(null, null, null),
                         new PreConditionFailure("name cannot be null."));
                 });
 
                 runner.test("with empty name", (Test test) ->
                 {
-                    test.assertThrows(() -> new Test("", null, null, test.getProcess()),
+                    test.assertThrows(() -> Test.create("", null, null),
                         new PreConditionFailure("name cannot be empty."));
                 });
 
-                runner.test("with null process", (Test test) ->
+                runner.test("with non-empty name", (Test test) ->
                 {
-                    test.assertThrows(() -> new Test("my fake test", null, null, null),
-                        new PreConditionFailure("process cannot be null."));
-                });
-
-                runner.test("with non-empty name and non-null process", (Test test) ->
-                {
-                    final Test t = new Test("my fake test", null, null, test.getProcess());
+                    final Test t = Test.create("my fake test", null, null);
                     test.assertEqual("my fake test", t.getName());
                     test.assertEqual("my fake test", t.getFullName());
                     test.assertNull(t.getParent());
                     test.assertFalse(t.shouldSkip());
                     test.assertNull(t.getSkipMessage());
-                    test.assertNotNull(t.getMainAsyncRunner());
-                    test.assertNotNull(t.getParallelAsyncRunner());
-                    test.assertNotNull(t.getNetwork());
-                    test.assertNotNull(t.getFileSystem());
-                    test.assertNotNull(t.getClock());
-                    test.assertNotNull(t.getDisplays());
                 });
 
                 runner.test("with non-null test group parent", (Test test) ->
                 {
-                    final TestGroup tg = new TestGroup("my fake test group", null, null);
-                    final Test t = new Test("my fake test", tg, null, test.getProcess());
+                    final TestGroup tg = TestGroup.create("my fake test group", null, null);
+                    final Test t = Test.create("my fake test", tg, null);
                     test.assertEqual("my fake test", t.getName());
                     test.assertEqual("my fake test group my fake test", t.getFullName());
                     test.assertSame(tg, t.getParent());
                     test.assertFalse(t.shouldSkip());
                     test.assertNull(t.getSkipMessage());
-                    test.assertNotNull(t.getMainAsyncRunner());
-                    test.assertNotNull(t.getParallelAsyncRunner());
                 });
 
                 runner.test("with non-null test group grandparent", (Test test) ->
                 {
-                    final TestGroup tg1 = new TestGroup("apples", null, null);
-                    final TestGroup tg2 = new TestGroup("my fake test group", tg1, null);
-                    final Test t = new Test("my fake test", tg2, null, test.getProcess());
+                    final TestGroup tg1 = TestGroup.create("apples", null, null);
+                    final TestGroup tg2 = TestGroup.create("my fake test group", tg1, null);
+                    final Test t = Test.create("my fake test", tg2, null);
                     test.assertEqual("my fake test", t.getName());
                     test.assertEqual("apples my fake test group my fake test", t.getFullName());
                     test.assertSame(tg2, t.getParent());
                     test.assertFalse(t.shouldSkip());
                     test.assertNull(t.getSkipMessage());
-                    test.assertNotNull(t.getMainAsyncRunner());
-                    test.assertNotNull(t.getParallelAsyncRunner());
                 });
             });
 
@@ -74,29 +58,29 @@ public interface TestTests
             {
                 runner.test("with null parent", (Test test) ->
                 {
-                    final Test t = new Test("apples", null, null, test.getProcess());
+                    final Test t = Test.create("apples", null, null);
                     test.assertEqual("apples", t.getFullName());
                 });
 
                 runner.test("with TestClassParent parent", (Test test) ->
                 {
                     final TestClass parent = new TestClass(TestTests.class);
-                    final Test t = new Test("apples", parent, null, test.getProcess());
+                    final Test t = Test.create("apples", parent, null);
                     test.assertEqual("qub.TestTests apples", t.getFullName());
                 });
 
                 runner.test("with TestGroup parent with no grandparent", (Test test) ->
                 {
-                    final TestGroup parent = new TestGroup("bananas", null, null);
-                    final Test t = new Test("apples", parent, null, test.getProcess());
+                    final TestGroup parent = TestGroup.create("bananas", null, null);
+                    final Test t = Test.create("apples", parent, null);
                     test.assertEqual("bananas apples", t.getFullName());
                 });
 
                 runner.test("with TestGroup parent with TestClass grandparent", (Test test) ->
                 {
                     final TestClass grandparent = new TestClass(TestTests.class);
-                    final TestGroup parent = new TestGroup("bananas", grandparent, null);
-                    final Test t = new Test("apples", parent, null, test.getProcess());
+                    final TestGroup parent = TestGroup.create("bananas", grandparent, null);
+                    final Test t = Test.create("apples", parent, null);
                     test.assertEqual("qub.TestTests bananas apples", t.getFullName());
                 });
             });
@@ -105,30 +89,30 @@ public interface TestTests
             {
                 runner.test("with no parent", (Test test) ->
                 {
-                    final Test t = new Test("apples", null, null, test.getProcess());
+                    final Test t = Test.create("apples", null, null);
                     test.assertNull(t.getTestClass());
                 });
 
                 runner.test("with no TestClass ancestor", (Test test) ->
                 {
-                    final TestGroup grandparent = new TestGroup("grandparent", null, null);
-                    final TestGroup parent = new TestGroup("parent", grandparent, null);
-                    final Test t = new Test("apples", parent, null, test.getProcess());
+                    final TestGroup grandparent = TestGroup.create("grandparent", null, null);
+                    final TestGroup parent = TestGroup.create("parent", grandparent, null);
+                    final Test t = Test.create("apples", parent, null);
                     test.assertNull(t.getTestClass());
                 });
 
                 runner.test("with TestClass parent", (Test test) ->
                 {
                     final TestClass parent = new TestClass(TestTests.class);
-                    final Test t = new Test("apples", parent, null, test.getProcess());
+                    final Test t = Test.create("apples", parent, null);
                     test.assertSame(parent, t.getTestClass());
                 });
 
                 runner.test("with TestClass grandparent", (Test test) ->
                 {
                     final TestClass grandparent = new TestClass(TestTests.class);
-                    final TestGroup parent = new TestGroup("parent", grandparent, null);
-                    final Test t = new Test("apples", parent, null, test.getProcess());
+                    final TestGroup parent = TestGroup.create("parent", grandparent, null);
+                    final Test t = Test.create("apples", parent, null);
                     test.assertSame(grandparent, t.getTestClass());
                 });
             });
@@ -142,43 +126,43 @@ public interface TestTests
 
                 runner.test("with pattern that doesn't match test name or full name", (Test test) ->
                 {
-                    final Test t = new Test("apples", null, null, test.getProcess());
+                    final Test t = Test.create("apples", null, null);
                     test.assertFalse(t.matches(PathPattern.parse("bananas")));
                 });
 
                 runner.test("with pattern that matches test name", (Test test) ->
                 {
-                    final Test t = new Test("apples", null, null, test.getProcess());
+                    final Test t = Test.create("apples", null, null);
                     test.assertTrue(t.matches(PathPattern.parse("apples")));
                 });
 
                 runner.test("with pattern that matches test full name", (Test test) ->
                 {
-                    final TestGroup tg = new TestGroup("apples and", null, null);
-                    final Test t = new Test("bananas", tg, null, test.getProcess());
+                    final TestGroup tg = TestGroup.create("apples and", null, null);
+                    final Test t = Test.create("bananas", tg, null);
                     test.assertTrue(t.matches(PathPattern.parse("apples*bananas")));
                 });
 
                 runner.test("with pattern that matches parent name", (Test test) ->
                 {
-                    final TestGroup tg = new TestGroup("apples and", null, null);
-                    final Test t = new Test("bananas", tg, null, test.getProcess());
+                    final TestGroup tg = TestGroup.create("apples and", null, null);
+                    final Test t = Test.create("bananas", tg, null);
                     test.assertTrue(t.matches(PathPattern.parse("apples*d")));
                 });
 
                 runner.test("with pattern that matches parent full name", (Test test) ->
                 {
-                    final TestGroup tg2 = new TestGroup("oranges and ", null, null);
-                    final TestGroup tg = new TestGroup("apples and", tg2, null);
-                    final Test t = new Test("bananas", tg, null, test.getProcess());
+                    final TestGroup tg2 = TestGroup.create("oranges and ", null, null);
+                    final TestGroup tg = TestGroup.create("apples and", tg2, null);
+                    final Test t = Test.create("bananas", tg, null);
                     test.assertTrue(t.matches(PathPattern.parse("oranges*apples*d")));
                 });
 
                 runner.test("with pattern that doesn't match parent", (Test test) ->
                 {
-                    final TestGroup tg2 = new TestGroup("oranges and ", null, null);
-                    final TestGroup tg = new TestGroup("apples and", tg2, null);
-                    final Test t = new Test("bananas", tg, null, test.getProcess());
+                    final TestGroup tg2 = TestGroup.create("oranges and ", null, null);
+                    final TestGroup tg = TestGroup.create("apples and", tg2, null);
+                    final Test t = Test.create("bananas", tg, null);
                     test.assertFalse(t.matches(PathPattern.parse("spando")));
                 });
             });
@@ -187,86 +171,86 @@ public interface TestTests
             {
                 runner.test("with null skip and null parentTestGroup", (Test test) ->
                 {
-                    final Test t = new Test("abc", null, null, test.getProcess());
+                    final Test t = Test.create("abc", null, null);
                     test.assertFalse(t.shouldSkip());
                 });
 
                 runner.test("with non-null skip with no arguments and null parentTestGroup", (Test test) ->
                 {
-                    final Test t = new Test("abc", null, runner.skip(), test.getProcess());
+                    final Test t = Test.create("abc", null, runner.skip());
                     test.assertTrue(t.shouldSkip());
                 });
 
                 runner.test("with non-null skip with false and null parentTestGroup", (Test test) ->
                 {
-                    final Test t = new Test("abc", null, runner.skip(false), test.getProcess());
+                    final Test t = Test.create("abc", null, runner.skip(false));
                     test.assertFalse(t.shouldSkip());
                 });
 
                 runner.test("with non-null skip with false and message and null parentTestGroup", (Test test) ->
                 {
-                    final Test t = new Test("abc", null, runner.skip(false, "xyz"), test.getProcess());
+                    final Test t = Test.create("abc", null, runner.skip(false, "xyz"));
                     test.assertFalse(t.shouldSkip());
                 });
 
                 runner.test("with non-null skip with true and null parentTestGroup", (Test test) ->
                 {
-                    final Test t = new Test("abc", null, runner.skip(true), test.getProcess());
+                    final Test t = Test.create("abc", null, runner.skip(true));
                     test.assertTrue(t.shouldSkip());
                 });
 
                 runner.test("with non-null skip with false and message and null parentTestGroup", (Test test) ->
                 {
-                    final Test t = new Test("abc", null, runner.skip(true, "xyz"), test.getProcess());
+                    final Test t = Test.create("abc", null, runner.skip(true, "xyz"));
                     test.assertTrue(t.shouldSkip());
                 });
 
                 runner.test("with null skip and non-null parentTestGroup with null skip", (Test test) ->
                 {
-                    final TestGroup tg = new TestGroup("my", null, null);
-                    final Test t = new Test("abc", tg, null, test.getProcess());
+                    final TestGroup tg = TestGroup.create("my", null, null);
+                    final Test t = Test.create("abc", tg, null);
                     test.assertFalse(t.shouldSkip());
                 });
 
                 runner.test("with non-null skip with no arguments and non-null parentTestGroup with null skip", (Test test) ->
                 {
-                    final TestGroup tg = new TestGroup("my", null, null);
-                    final Test t = new Test("abc", tg, runner.skip(), test.getProcess());
+                    final TestGroup tg = TestGroup.create("my", null, null);
+                    final Test t = Test.create("abc", tg, runner.skip());
                     test.assertTrue(t.shouldSkip());
                 });
 
                 runner.test("with non-null skip with false and non-null parentTestGroup with null skip", (Test test) ->
                 {
-                    final TestGroup tg = new TestGroup("my", null, null);
-                    final Test t = new Test("abc", tg, runner.skip(false), test.getProcess());
+                    final TestGroup tg = TestGroup.create("my", null, null);
+                    final Test t = Test.create("abc", tg, runner.skip(false));
                     test.assertFalse(t.shouldSkip());
                 });
 
                 runner.test("with non-null skip with false and message and non-null parentTestGroup with null skip", (Test test) ->
                 {
-                    final TestGroup tg = new TestGroup("my", null, null);
-                    final Test t = new Test("abc", tg, runner.skip(false, "xyz"), test.getProcess());
+                    final TestGroup tg = TestGroup.create("my", null, null);
+                    final Test t = Test.create("abc", tg, runner.skip(false, "xyz"));
                     test.assertFalse(t.shouldSkip());
                 });
 
                 runner.test("with non-null skip with true and non-null parentTestGroup with null skip", (Test test) ->
                 {
-                    final TestGroup tg = new TestGroup("my", null, null);
-                    final Test t = new Test("abc", tg, runner.skip(true), test.getProcess());
+                    final TestGroup tg = TestGroup.create("my", null, null);
+                    final Test t = Test.create("abc", tg, runner.skip(true));
                     test.assertTrue(t.shouldSkip());
                 });
 
                 runner.test("with non-null skip with false and message and non-null parentTestGroup with null skip", (Test test) ->
                 {
-                    final TestGroup tg = new TestGroup("my", null, null);
-                    final Test t = new Test("abc", tg, runner.skip(true, "xyz"), test.getProcess());
+                    final TestGroup tg = TestGroup.create("my", null, null);
+                    final Test t = Test.create("abc", tg, runner.skip(true, "xyz"));
                     test.assertTrue(t.shouldSkip());
                 });
 
                 runner.test("with non-null skip with false and non-null parentTestGroup with non-null skip with true", (Test test) ->
                 {
-                    final TestGroup tg = new TestGroup("my", null, runner.skip(true));
-                    final Test t = new Test("abc", tg, runner.skip(false), test.getProcess());
+                    final TestGroup tg = TestGroup.create("my", null, runner.skip(true));
+                    final Test t = Test.create("abc", tg, runner.skip(false));
                     test.assertTrue(t.shouldSkip());
                 });
             });
@@ -275,102 +259,46 @@ public interface TestTests
             {
                 runner.test("with null skip and null parentTestGroup", (Test test) ->
                 {
-                    final Test t = new Test("abc", null, null, test.getProcess());
+                    final Test t = Test.create("abc", null, null);
                     test.assertEqual(null, t.getSkipMessage());
                 });
 
                 runner.test("with non-null skip with no arguments and null parentTestGroup", (Test test) ->
                 {
-                    final Test t = new Test("abc", null, runner.skip(), test.getProcess());
+                    final Test t = Test.create("abc", null, runner.skip());
                     test.assertEqual(null, t.getSkipMessage());
                 });
 
                 runner.test("with non-null skip with false and null parentTestGroup", (Test test) ->
                 {
-                    final Test t = new Test("abc", null, runner.skip(false), test.getProcess());
+                    final Test t = Test.create("abc", null, runner.skip(false));
                     test.assertEqual(null, t.getSkipMessage());
                 });
 
                 runner.test("with non-null skip with false and message and null parentTestGroup", (Test test) ->
                 {
-                    final Test t = new Test("abc", null, runner.skip(false, "xyz"), test.getProcess());
+                    final Test t = Test.create("abc", null, runner.skip(false, "xyz"));
                     test.assertEqual(null, t.getSkipMessage());
                 });
 
                 runner.test("with non-null skip with true and null parentTestGroup", (Test test) ->
                 {
-                    final Test t = new Test("abc", null, runner.skip(true), test.getProcess());
+                    final Test t = Test.create("abc", null, runner.skip(true));
                     test.assertEqual(null, t.getSkipMessage());
                 });
 
                 runner.test("with non-null skip with true and message and null parentTestGroup", (Test test) ->
                 {
-                    final Test t = new Test("abc", null, runner.skip(true, "xyz"), test.getProcess());
+                    final Test t = Test.create("abc", null, runner.skip(true, "xyz"));
                     test.assertEqual("xyz", t.getSkipMessage());
                 });
-            });
-
-            runner.test("getProcess()", (Test test) ->
-            {
-                final Process process = test.getProcess();
-                final Test t = createTest("abc", test);
-                test.assertSame(process, t.getProcess());
-                test.assertSame(process, t.getProcess());
-            });
-
-            runner.test("getMainAsyncRunner()", (Test test) ->
-            {
-                final AsyncScheduler asyncRunner = test.getMainAsyncRunner();
-                final Test t = createTest("abc", test);
-                test.assertSame(asyncRunner, t.getMainAsyncRunner());
-                test.assertSame(asyncRunner, t.getMainAsyncRunner());
-            });
-
-            runner.test("getParallelAsyncRunner()", (Test test) ->
-            {
-                final AsyncScheduler asyncRunner = test.getParallelAsyncRunner();
-                final Test t = createTest("abc", test);
-                test.assertSame(asyncRunner, t.getParallelAsyncRunner());
-                test.assertSame(asyncRunner, t.getParallelAsyncRunner());
-            });
-
-            runner.test("getNetwork()", (Test test) ->
-            {
-                final Network network = test.getNetwork();
-                final Test t = createTest("abc", test);
-                test.assertSame(network, t.getNetwork());
-                test.assertSame(network, t.getNetwork());
-            });
-
-            runner.test("getFileSystem()", (Test test) ->
-            {
-                final FileSystem fileSystem = test.getFileSystem();
-                final Test t = createTest("abc", test);
-                test.assertSame(fileSystem, t.getFileSystem());
-                test.assertSame(fileSystem, t.getFileSystem());
-            });
-
-            runner.test("getClock()", (Test test) ->
-            {
-                final Clock clock = test.getClock();
-                final Test t = createTest("abc", test);
-                test.assertSame(clock, t.getClock());
-                test.assertSame(clock, t.getClock());
-            });
-
-            runner.test("getDisplays()", (Test test) ->
-            {
-                final Iterable<Display> displays = test.getDisplays();
-                final Test t = createTest("abc", test);
-                test.assertSame(displays, t.getDisplays());
-                test.assertSame(displays, t.getDisplays());
             });
 
             runner.testGroup("assertTrue(boolean)", () ->
             {
                 runner.test("with false", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertTrue(false),
                         new TestError("abc", Iterable.create(
                             "Expected: true",
@@ -387,7 +315,7 @@ public interface TestTests
             {
                 runner.test("with false and null", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertTrue(false, null),
                         new TestError("abc", Iterable.create(
                             "Expected: true",
@@ -396,7 +324,7 @@ public interface TestTests
 
                 runner.test("with false and empty", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertTrue(false, ""),
                         new TestError("abc", Iterable.create(
                             "Expected: true",
@@ -405,7 +333,7 @@ public interface TestTests
 
                 runner.test("with false and non-empty", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertTrue(false, "blah"),
                         new TestError("abc", Iterable.create(
                             "Message:  blah",
@@ -433,7 +361,7 @@ public interface TestTests
             {
                 runner.test("with true", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertFalse(true),
                         new TestError("abc", Iterable.create(
                             "Expected: false",
@@ -450,7 +378,7 @@ public interface TestTests
             {
                 runner.test("with true and null", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertFalse(true, (String)null),
                         new TestError("abc", Iterable.create(
                             "Expected: false",
@@ -459,7 +387,7 @@ public interface TestTests
 
                 runner.test("with true and empty", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertFalse(true, ""),
                         new TestError("abc", Iterable.create(
                             "Expected: false",
@@ -468,7 +396,7 @@ public interface TestTests
 
                 runner.test("with true and non-empty", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertFalse(true, "blah"),
                         new TestError("abc", Iterable.create(
                             "Message:  blah",
@@ -496,7 +424,7 @@ public interface TestTests
             {
                 runner.test("with true and null", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertFalse(true, (Function0<String>)null),
                         new TestError("abc", Iterable.create(
                             "Expected: false",
@@ -505,7 +433,7 @@ public interface TestTests
 
                 runner.test("with true and function that returns null", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertFalse(true, () -> null),
                         new TestError("abc", Iterable.create(
                             "Expected: false",
@@ -514,7 +442,7 @@ public interface TestTests
 
                 runner.test("with true and function that returns empty", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertFalse(true, () -> ""),
                         new TestError("abc", Iterable.create(
                             "Expected: false",
@@ -523,7 +451,7 @@ public interface TestTests
 
                 runner.test("with true and function that returns non-empty", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertFalse(true, () -> "blah"),
                         new TestError("abc", Iterable.create(
                             "Message:  blah",
@@ -561,7 +489,7 @@ public interface TestTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNull("Hello"),
                         new TestError("abc", Iterable.create(
                             "Expected: null",
@@ -588,7 +516,7 @@ public interface TestTests
 
                 runner.test("with non-null and null message", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNull("Hello", null),
                         new TestError("abc", Iterable.create(
                             "Expected: null",
@@ -597,7 +525,7 @@ public interface TestTests
 
                 runner.test("with non-null and empty message", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNull("Hello", ""),
                         new TestError("abc", Iterable.create(
                             "Expected: null",
@@ -606,7 +534,7 @@ public interface TestTests
 
                 runner.test("with non-null and non-empty message", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNull("Hello", "blah"),
                         new TestError("abc", Iterable.create(
                             "Message:  blah",
@@ -619,7 +547,7 @@ public interface TestTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNull(null),
                         new TestError("abc", Iterable.create(
                             "Expected: \"not null\"",
@@ -628,7 +556,7 @@ public interface TestTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     t.assertNotNull("Hello");
                 });
             });
@@ -637,7 +565,7 @@ public interface TestTests
             {
                 runner.test("with null and null message", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNull(null),
                         new TestError("abc", Iterable.create(
                             "Expected: \"not null\"",
@@ -646,7 +574,7 @@ public interface TestTests
 
                 runner.test("with null and empty message", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNull(null, ""),
                         new TestError("abc", Iterable.create(
                             "Expected: \"not null\"",
@@ -655,7 +583,7 @@ public interface TestTests
 
                 runner.test("with null and non-empty message", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNull(null, "blah"),
                         new TestError("abc", Iterable.create(
                             "Message:  blah",
@@ -665,19 +593,19 @@ public interface TestTests
 
                 runner.test("with non-null and null message", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     t.assertNotNull("Hello", null);
                 });
 
                 runner.test("with non-null and empty message", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     t.assertNotNull("Hello", "");
                 });
 
                 runner.test("with non-null and non-empty message", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     t.assertNotNull("Hello", "blah");
                 });
             });
@@ -686,7 +614,7 @@ public interface TestTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty((String)null),
                         new TestError("abc", Iterable.create(
                             "Expected: \"not null and not empty\"",
@@ -695,7 +623,7 @@ public interface TestTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty(""),
                         new TestError("abc", Iterable.create(
                             "Expected: \"not null and not empty\"",
@@ -704,7 +632,7 @@ public interface TestTests
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     t.assertNotNullAndNotEmpty("Hello");
                 });
             });
@@ -713,7 +641,7 @@ public interface TestTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty((String)null, "hello"),
                         new TestError("abc", Iterable.create(
                             "Message:  hello",
@@ -723,7 +651,7 @@ public interface TestTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty("", "hello"),
                         new TestError("abc", Iterable.create(
                             "Message:  hello",
@@ -733,7 +661,7 @@ public interface TestTests
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     t.assertNotNullAndNotEmpty("Hello", "there");
                 });
             });
@@ -742,7 +670,7 @@ public interface TestTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty((Iterable<Integer>)null),
                         new TestError("abc", Iterable.create(
                             "Expected: \"not null\"",
@@ -751,7 +679,7 @@ public interface TestTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty(Iterable.create()),
                         new TestError("abc", Iterable.create(
                             "Expected: \"not null and not empty\"",
@@ -760,7 +688,7 @@ public interface TestTests
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     t.assertNotNullAndNotEmpty(Iterable.create(1, 2, 3));
                 });
             });
@@ -769,7 +697,7 @@ public interface TestTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty((Iterable<Integer>)null, "hello"),
                         new TestError("abc", Iterable.create(
                             "Message:  hello",
@@ -779,7 +707,7 @@ public interface TestTests
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty(Iterable.create(), "hello"),
                         new TestError("abc", Iterable.create(
                             "Message:  hello",
@@ -789,7 +717,7 @@ public interface TestTests
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     t.assertNotNullAndNotEmpty(Iterable.create("Hello"), "there");
                 });
             });
@@ -798,13 +726,13 @@ public interface TestTests
             {
                 runner.test("with null and null", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     t.assertEqual((Integer)null, (Integer)null);
                 });
 
                 runner.test("with null and not-null", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertEqual(null, "hello"),
                         new TestError("abc", Iterable.create(
                             "Expected: null",
@@ -813,7 +741,7 @@ public interface TestTests
 
                 runner.test("with not-null and null", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertEqual("there", null),
                         new TestError("abc", Iterable.create(
                             "Expected: \"there\"",
@@ -822,20 +750,20 @@ public interface TestTests
 
                 runner.test("with same object", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     final String value = "fifty";
                     t.assertEqual(value, value);
                 });
 
                 runner.test("with equal objects", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     t.assertEqual(Distance.meters(1), Distance.centimeters(100));
                 });
 
                 runner.test("with not equal objects", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertEqual(Distance.meters(10), Distance.centimeters(100)),
                         new TestError("abc", Iterable.create(
                             "Expected: 10.0 Meters",
@@ -849,7 +777,7 @@ public interface TestTests
                 {
                     runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs.byteValue(), rhs);
@@ -876,7 +804,7 @@ public interface TestTests
                 {
                     runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs.intValue(), rhs);
@@ -903,7 +831,7 @@ public interface TestTests
                 {
                     runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs.charValue(), rhs);
@@ -930,7 +858,7 @@ public interface TestTests
                 {
                     runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs, rhs.charValue());
@@ -957,7 +885,7 @@ public interface TestTests
                 {
                     runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs.shortValue(), rhs.shortValue());
@@ -981,7 +909,7 @@ public interface TestTests
                 {
                     runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs.shortValue(), rhs);
@@ -1008,7 +936,7 @@ public interface TestTests
                 {
                     runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs, rhs.shortValue());
@@ -1035,7 +963,7 @@ public interface TestTests
                 {
                     runner.test("with " + lhs + " and " + rhs, (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs.intValue(), rhs.intValue());
@@ -1059,7 +987,7 @@ public interface TestTests
                 {
                     runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs.intValue(), rhs);
@@ -1086,7 +1014,7 @@ public interface TestTests
                 {
                     runner.test("with " + Objects.toString(lhs) + " and " + rhs, (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs, rhs.intValue());
@@ -1113,7 +1041,7 @@ public interface TestTests
                 {
                     runner.test("with " + lhs + " and " + rhs, (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs.longValue(), rhs.longValue());
@@ -1137,7 +1065,7 @@ public interface TestTests
                 {
                     runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs.longValue(), rhs);
@@ -1164,7 +1092,7 @@ public interface TestTests
                 {
                     runner.test("with " + Objects.toString(lhs) + " and " + rhs, (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs, rhs.longValue());
@@ -1191,7 +1119,7 @@ public interface TestTests
                 {
                     runner.test("with " + lhs + " and " + rhs, (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs.floatValue(), rhs.floatValue());
@@ -1215,7 +1143,7 @@ public interface TestTests
                 {
                     runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs.floatValue(), rhs);
@@ -1242,7 +1170,7 @@ public interface TestTests
                 {
                     runner.test("with " + Objects.toString(lhs) + " and " + rhs, (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs, rhs.floatValue());
@@ -1269,7 +1197,7 @@ public interface TestTests
                 {
                     runner.test("with " + lhs + " and " + rhs, (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs.doubleValue(), rhs.doubleValue());
@@ -1293,7 +1221,7 @@ public interface TestTests
                 {
                     runner.test("with " + lhs + " and " + rhs + " (+-" + marginOfError + ")", (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs.doubleValue(), rhs.doubleValue(), marginOfError.doubleValue());
@@ -1332,7 +1260,7 @@ public interface TestTests
                 {
                     runner.test("with " + lhs + " and " + Objects.toString(rhs), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs.doubleValue(), rhs);
@@ -1359,7 +1287,7 @@ public interface TestTests
                 {
                     runner.test("with " + Objects.toString(lhs) + " and " + rhs, (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError == null)
                         {
                             t.assertEqual(lhs, rhs.doubleValue());
@@ -1384,13 +1312,13 @@ public interface TestTests
             {
                 runner.test("with null and null", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     t.assertEqual((Throwable)null, (Throwable)null);
                 });
 
                 runner.test("with null and NullPointerException", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertEqual(null, new NullPointerException("abc")),
                         new TestError("abc", Iterable.create(
                             "Expected: null",
@@ -1399,7 +1327,7 @@ public interface TestTests
 
                 runner.test("with NullPointerException and null", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertEqual(new NullPointerException("abc"), null),
                         new TestError("abc", Iterable.create(
                             "Expected: java.lang.NullPointerException: abc",
@@ -1408,7 +1336,7 @@ public interface TestTests
 
                 runner.test("with NullPointerException(a) and NullPointerException(b)", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertEqual(new NullPointerException("a"), new NullPointerException("b")),
                         new TestError("abc", Iterable.create(
                             "Expected: java.lang.NullPointerException: a",
@@ -1417,7 +1345,7 @@ public interface TestTests
 
                 runner.test("with NullPointerException(a) and NullPointerException(a)", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     t.assertEqual(new NullPointerException("a"), new NullPointerException("a"));
                 });
             });
@@ -1428,7 +1356,7 @@ public interface TestTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(expected) + " and " + Strings.escapeAndQuote(actual), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError != null)
                         {
                             test.assertThrows(() -> t.assertNotEqual(expected, actual), expectedError);
@@ -1457,7 +1385,7 @@ public interface TestTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(expected) + " and " + Strings.escapeAndQuote(actual), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError != null)
                         {
                             test.assertThrows(() -> t.assertSame(expected, actual), expectedError);
@@ -1491,7 +1419,7 @@ public interface TestTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(expected) + " and " + Strings.escapeAndQuote(actual), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError != null)
                         {
                             test.assertThrows(() -> t.assertNotSame(expected, actual), expectedError);
@@ -1521,7 +1449,7 @@ public interface TestTests
                 {
                     runner.test("with " + Objects.toString(value) + " and " + Objects.toString(upperBound), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError != null)
                         {
                             test.assertThrows(() -> t.assertLessThan(value, upperBound), expectedError);
@@ -1555,7 +1483,7 @@ public interface TestTests
                 {
                     runner.test("with " + Objects.toString(value) + " and " + Objects.toString(upperBound), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError != null)
                         {
                             test.assertThrows(() -> t.assertLessThanOrEqualTo(value, upperBound), expectedError);
@@ -1585,7 +1513,7 @@ public interface TestTests
                 {
                     runner.test("with " + Objects.toString(value) + " and " + Objects.toString(upperBound), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError != null)
                         {
                             test.assertThrows(() -> t.assertGreaterThanOrEqualTo(value, upperBound), expectedError);
@@ -1615,7 +1543,7 @@ public interface TestTests
                 {
                     runner.test("with " + Objects.toString(value) + " and " + Objects.toString(upperBound), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError != null)
                         {
                             test.assertThrows(() -> t.assertGreaterThanOrEqualTo(value.doubleValue(), upperBound.doubleValue()), expectedError);
@@ -1640,7 +1568,7 @@ public interface TestTests
                 {
                     runner.test("with " + Objects.toString(value) + " and " + Objects.toString(upperBound), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError != null)
                         {
                             test.assertThrows(() -> t.assertGreaterThan(value, upperBound), expectedError);
@@ -1674,7 +1602,7 @@ public interface TestTests
                 {
                     runner.test("with " + Objects.toString(lowerBound) + ", " + Objects.toString(value) + ", and " + Objects.toString(upperBound), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError != null)
                         {
                             test.assertThrows(() -> t.assertBetween(lowerBound, value, upperBound), expectedError);
@@ -1723,35 +1651,35 @@ public interface TestTests
             {
                 runner.test("with null action", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertThrows(null, new EndOfStreamException()),
                         new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with null error", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertThrows(() -> {}, (Throwable)null),
                         new PreConditionFailure("expectedException cannot be null."));
                 });
 
                 runner.test("with action that doesn't throw and expected error with no message", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertThrows(() -> {}, new EndOfStreamException()),
                         new TestError("abc", "Expected a qub.EndOfStreamException to be thrown with no message."));
                 });
 
                 runner.test("with action that doesn't throw and expected error with message", (Test test) ->
                 {
-                    final Test t = createTest("abcd", test);
+                    final Test t = TestTests.createTest("abcd");
                     test.assertThrows(() -> t.assertThrows(() -> {}, new NotFoundException("blah")),
                         new TestError("abcd", "Expected a qub.NotFoundException to be thrown with the message \"blah\"."));
                 });
 
                 runner.test("with action that throws a different error", (Test test) ->
                 {
-                    final Test t = createTest("abcd", test);
+                    final Test t = TestTests.createTest("abcd");
                     test.assertThrows(() -> t.assertThrows(() -> { throw new NullPointerException(); }, new NotFoundException("blah")),
                         new TestError(
                             "abcd",
@@ -1769,7 +1697,7 @@ public interface TestTests
 
                 runner.test("with action that throws the same error with a different message", (Test test) ->
                 {
-                    final Test t = createTest("abcd", test);
+                    final Test t = TestTests.createTest("abcd");
                     test.assertThrows(() -> t.assertThrows(() -> { throw new NotFoundException("grapes"); }, new NotFoundException("blah")),
                         new TestError(
                             "abcd",
@@ -1782,7 +1710,7 @@ public interface TestTests
 
                 runner.test("with action that throws an error derived from the expected error", (Test test) ->
                 {
-                    final Test t = createTest("abcd", test);
+                    final Test t = TestTests.createTest("abcd");
                     test.assertThrows(() -> t.assertThrows(() -> { throw new NotFoundException("blah"); }, new RuntimeException("blah")),
                         new TestError(
                             "abcd",
@@ -1795,7 +1723,7 @@ public interface TestTests
 
                 runner.test("with action that throws an error derived from the expected error with a different message", (Test test) ->
                 {
-                    final Test t = createTest("abcd", test);
+                    final Test t = TestTests.createTest("abcd");
                     test.assertThrows(() -> t.assertThrows(() -> { throw new NotFoundException("blah"); }, new RuntimeException("blah2")),
                         new TestError(
                             "abcd",
@@ -1818,7 +1746,7 @@ public interface TestTests
 
                 runner.test("with action that throws the same error with different message and is wrapped in a RuntimeException", (Test test) ->
                 {
-                    final Test t = createTest("abcd", test);
+                    final Test t = TestTests.createTest("abcd");
                     test.assertThrows(() -> t.assertThrows(() -> { throw new RuntimeException(new NotFoundException("grapes")); }, new NotFoundException("blah")),
                         new TestError(
                             "abcd",
@@ -1847,7 +1775,7 @@ public interface TestTests
 
                 runner.test("with action that throws the same error with different message and is wrapped in an AwaitException", (Test test) ->
                 {
-                    final Test t = createTest("abcd", test);
+                    final Test t = TestTests.createTest("abcd");
                     test.assertThrows(() -> t.assertThrows(() -> { throw new AwaitException(new NotFoundException("grapes")); }, new NotFoundException("blah")),
                         new TestError(
                             "abcd",
@@ -1864,35 +1792,35 @@ public interface TestTests
             {
                 runner.test("with null action", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertThrows(null, EndOfStreamException.class),
                         new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with null error", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertThrows(() -> {}, (Class<? extends Throwable>)null),
                         new PreConditionFailure("expectedExceptionType cannot be null."));
                 });
 
                 runner.test("with action that doesn't throw and expected error with no message", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertThrows(() -> {}, EndOfStreamException.class),
                         new TestError("abc", "Expected a qub.EndOfStreamException to be thrown."));
                 });
 
                 runner.test("with action that doesn't throw and expected error with message", (Test test) ->
                 {
-                    final Test t = createTest("abcd", test);
+                    final Test t = TestTests.createTest("abcd");
                     test.assertThrows(() -> t.assertThrows(() -> {}, NotFoundException.class),
                         new TestError("abcd", "Expected a qub.NotFoundException to be thrown."));
                 });
 
                 runner.test("with action that throws a different error", (Test test) ->
                 {
-                    final Test t = createTest("abcd", test);
+                    final Test t = TestTests.createTest("abcd");
                     test.assertThrows(() -> t.assertThrows(() -> { throw new NullPointerException(); }, NotFoundException.class),
                         new TestError(
                             "abcd",
@@ -1912,7 +1840,7 @@ public interface TestTests
 
                 runner.test("with action that throws an error derived from the expected error", (Test test) ->
                 {
-                    final Test t = createTest("abcd", test);
+                    final Test t = TestTests.createTest("abcd");
                     test.assertThrows(() -> t.assertThrows(() -> { throw new NotFoundException("blah"); }, RuntimeException.class),
                         new TestError(
                             "abcd",
@@ -1965,7 +1893,7 @@ public interface TestTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(value) + " and " + Strings.escapeAndQuote(prefix), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError != null)
                         {
                             test.assertThrows(() -> t.assertStartsWith(value, prefix), expectedError);
@@ -2006,7 +1934,7 @@ public interface TestTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(value) + " and " + Strings.escapeAndQuote(prefix), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError != null)
                         {
                             test.assertThrows(() -> t.assertStartsWith(value, prefix, comparer), expectedError);
@@ -2052,7 +1980,7 @@ public interface TestTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(value) + " and " + Strings.escapeAndQuote(prefix), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError != null)
                         {
                             test.assertThrows(() -> t.assertEndsWith(value, prefix), expectedError);
@@ -2086,7 +2014,7 @@ public interface TestTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(value) + " and " + Strings.escapeAndQuote(prefix), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError != null)
                         {
                             test.assertThrows(() -> t.assertEndsWith(value, prefix, "hello"), expectedError);
@@ -2123,7 +2051,7 @@ public interface TestTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(value) + " and " + Strings.escapeAndQuote(prefix), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError != null)
                         {
                             test.assertThrows(() -> t.assertContains(value, prefix), expectedError);
@@ -2164,7 +2092,7 @@ public interface TestTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(value) + " and " + Strings.escapeAndQuote(prefix), (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError != null)
                         {
                             test.assertThrows(() -> t.assertContains(value, prefix, "hello"), expectedError);
@@ -2215,7 +2143,7 @@ public interface TestTests
                 {
                     runner.test("with " + Objects.toString(possibleValues) + " and " + value, (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError != null)
                         {
                             test.assertThrows(() -> t.assertOneOf(possibleValues, value), expectedError);
@@ -2259,7 +2187,7 @@ public interface TestTests
                 {
                     runner.test("with " + Objects.toString(possibleValues) + " and " + value, (Test test) ->
                     {
-                        final Test t = createTest("abc", test);
+                        final Test t = TestTests.createTest("abc");
                         if (expectedError != null)
                         {
                             test.assertThrows(() -> t.assertOneOf(possibleValues, value), expectedError);
@@ -2301,19 +2229,19 @@ public interface TestTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.fail((String)null), new PreConditionFailure("message cannot be null."));
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.fail(""), new PreConditionFailure("message cannot be empty."));
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.fail("hello"), new TestError("abc", "hello"));
                 });
             });
@@ -2322,28 +2250,28 @@ public interface TestTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.fail((Throwable)null),
                         new PreConditionFailure("e cannot be null."));
                 });
 
                 runner.test("with null message", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.fail(new RuntimeException((String)null)),
                         new TestError("abc", "RuntimeException"));
                 });
 
                 runner.test("with empty message", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.fail(new RuntimeException("")),
                         new TestError("abc", "RuntimeException"));
                 });
 
                 runner.test("with non-empty message", (Test test) ->
                 {
-                    final Test t = createTest("abc", test);
+                    final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.fail(new RuntimeException("hello")),
                         new TestError("abc", "RuntimeException: hello"));
                 });
@@ -2351,8 +2279,8 @@ public interface TestTests
         });
     }
 
-    static Test createTest(String testName, Test test)
+    static Test createTest(String testName)
     {
-        return new Test(testName, null, null, test.getProcess());
+        return Test.create(testName, null, null);
     }
 }

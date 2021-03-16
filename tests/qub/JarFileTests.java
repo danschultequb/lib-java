@@ -16,18 +16,22 @@ public interface JarFileTests
                         new PreConditionFailure("file cannot be null."));
                 });
 
-                runner.test("with non-existing file", (Test test) ->
+                runner.test("with non-existing file",
+                    (TestResources resources) -> Tuple.create(resources.getCurrentFolder()),
+                    (Test test, Folder currentFolder) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder();
-                    final File fakeFile = currentFolder.getFile("fake.jar").await();
+                    final File fakeFile = currentFolder.getFile("fakeFile.txt").await();
                     test.assertThrows(() -> JarFile.open(fakeFile).await(),
                         new FileNotFoundException(fakeFile));
                 });
 
-                runner.test("with existing file", (Test test) ->
+                runner.test("with existing file",
+                    (TestResources resources) -> Tuple.create(resources.getQubFolder()),
+                    (Test test, QubFolder qubFolder) ->
                 {
-                    final FileSystem fileSystem = test.getProcess().getFileSystem();
-                    final File file = fileSystem.getFile(jarFilePath).await();
+                    final File file = qubFolder.getProjectFolder("qub", "lib-java").await()
+                        .getLatestProjectVersionFolder().await()
+                        .getCompiledSourcesFile().await();
                     try (final JarFile jarFile = JarFile.open(file).await())
                     {
                         test.assertNotNull(jarFile);
@@ -36,22 +40,27 @@ public interface JarFileTests
                     }
                 });
 
-                runner.test("with existing non-jar file", (Test test) ->
+                runner.test("with existing non-jar file",
+                    (TestResources resources) -> Tuple.create(resources.getCurrentFolder()),
+                    (Test test, Folder currentFolder) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder();
                     final File projectJsonFile = currentFolder.getFile("project.json").await();
                     test.assertThrows(() -> JarFile.open(projectJsonFile).await(),
                         new java.util.zip.ZipException("zip END header not found"));
                 });
 
-                runner.test("with existing jar file with different extension", (Test test) ->
+                runner.test("with existing jar file with different extension",
+                    (TestResources resources) -> Tuple.create(resources.getQubFolder()),
+                    (Test test, QubFolder qubFolder) ->
                 {
-                    final FileSystem fileSystem = test.getProcess().getFileSystem();
-                    final File file = fileSystem.getFile(jarFilePath).await();
-                    final File fooFile = fileSystem.getFile(file.getPath().changeFileExtension(".foo")).await();
-                    file.copyTo(fooFile).await();
-                    try
+                    final File file = qubFolder.getProjectFolder("qub", "lib-java").await()
+                        .getLatestProjectVersionFolder().await()
+                        .getCompiledSourcesFile().await();
+                    final Path fooFilePath = file.getPath().changeFileExtension(".foo");
+                    try (final TemporaryFile fooFile = TemporaryFile.get(file.getFileSystem().getFile(fooFilePath).await()))
                     {
+                        file.copyTo(fooFile).await();
+
                         try (final JarFile jarFile = JarFile.open(fooFile).await())
                         {
                             test.assertNotNull(jarFile);
@@ -59,19 +68,16 @@ public interface JarFileTests
                             test.assertEqual(fooFile.getPath(), jarFile.getPath());
                         }
                     }
-                    finally
-                    {
-                        fooFile.delete()
-                            .catchError()
-                            .await();
-                    }
                 });
             });
 
-            runner.test("dispose()", (Test test) ->
+            runner.test("dispose()",
+                (TestResources resources) -> Tuple.create(resources.getQubFolder()),
+                (Test test, QubFolder qubFolder) ->
             {
-                final FileSystem fileSystem = test.getProcess().getFileSystem();
-                final File file = fileSystem.getFile(jarFilePath).await();
+                final File file = qubFolder.getProjectFolder("qub", "lib-java").await()
+                    .getLatestProjectVersionFolder().await()
+                    .getCompiledSourcesFile().await();
                 try (final JarFile jarFile = JarFile.open(file).await())
                 {
                     test.assertTrue(jarFile.dispose().await());
@@ -82,10 +88,11 @@ public interface JarFileTests
                 }
             });
 
-            runner.test("getEntries()", (Test test) ->
+            runner.test("getEntries()",
+                (TestResources resources) -> Tuple.create(resources.getQubFolder()),
+                (Test test, QubFolder qubFolder) ->
             {
-                final FileSystem fileSystem = test.getProcess().getFileSystem();
-                final File file = fileSystem.getFile(jarFilePath).await();
+                final File file = qubFolder.getCompiledSourcesFile("qub", "pack-java", "20").await();
                 try (final JarFile jarFile = JarFile.open(file).await())
                 {
                     final Iterable<JarFileEntry> entries = jarFile.getEntries();
@@ -105,10 +112,11 @@ public interface JarFileTests
                 }
             });
 
-            runner.test("getClassFileEntries()", (Test test) ->
+            runner.test("getClassFileEntries()",
+                (TestResources resources) -> Tuple.create(resources.getQubFolder()),
+                (Test test, QubFolder qubFolder) ->
             {
-                final FileSystem fileSystem = test.getProcess().getFileSystem();
-                final File file = fileSystem.getFile(jarFilePath).await();
+                final File file = qubFolder.getCompiledSourcesFile("qub", "pack-java", "20").await();
                 try (final JarFile jarFile = JarFile.open(file).await())
                 {
                     final Iterable<JarFileEntry> entries = jarFile.getClassFileEntries();

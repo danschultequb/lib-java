@@ -12,14 +12,14 @@ public interface FileTests
             {
                 runner.test("with file at root", (Test test) ->
                 {
-                    final FileSystem fileSystem = getFileSystem(test);
+                    final FileSystem fileSystem = FileTests.getFileSystem();
                     final File file = fileSystem.getFile("/file.txt").await();
                     test.assertEqual("/", file.getParentFolder().await().toString());
                 });
 
                 runner.test("with file in folder", (Test test) ->
                 {
-                    final FileSystem fileSystem = getFileSystem(test);
+                    final FileSystem fileSystem = FileTests.getFileSystem();
                     final File file = fileSystem.getFile("/folder/file.txt").await();
                     test.assertEqual("/folder/", file.getParentFolder().await().toString());
                 });
@@ -27,7 +27,7 @@ public interface FileTests
 
             runner.test("getFileExtension()", (Test test) ->
             {
-                final FileSystem fileSystem = getFileSystem(test);
+                final FileSystem fileSystem = FileTests.getFileSystem();
 
                 final File fileWithoutExtension = fileSystem.getFile("/folder/file").await();
                 test.assertNull(fileWithoutExtension.getFileExtension());
@@ -42,7 +42,7 @@ public interface FileTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(filePath), (Test test) ->
                     {
-                        final FileSystem fileSystem = getFileSystem(test);
+                        final FileSystem fileSystem = FileTests.getFileSystem();
                         test.assertEqual(expectedNameWithoutFileExtension, fileSystem.getFile(filePath).await().getNameWithoutFileExtension());
                     });
                 };
@@ -53,7 +53,7 @@ public interface FileTests
             
             runner.test("create()", (Test test) ->
             {
-                final File file = FileTests.getFile(test);
+                final File file = FileTests.getFile();
 
                 test.assertEqual(file, file.create().await());
 
@@ -71,13 +71,13 @@ public interface FileTests
             {
                 runner.test("when file doesn't exist", (Test test) ->
                 {
-                    final File file = FileTests.getFile(test);
+                    final File file = FileTests.getFile();
                     test.assertFalse(file.exists().await());
                 });
 
                 runner.test("when file does exist", (Test test) ->
                 {
-                    final File file = FileTests.getFile(test);
+                    final File file = FileTests.getFile();
                     file.create();
                     test.assertTrue(file.exists().await());
                 });
@@ -87,14 +87,14 @@ public interface FileTests
             {
                 runner.test("when file doesn't exist", (Test test) ->
                 {
-                    final File file = FileTests.getFile(test);
+                    final File file = FileTests.getFile();
                     test.assertThrows(() -> file.delete().await(), new FileNotFoundException(file.toString()));
                     test.assertFalse(file.exists().await());
                 });
 
                 runner.test("when file does exist", (Test test) ->
                 {
-                    final File file = FileTests.getFile(test);
+                    final File file = FileTests.getFile();
                     test.assertEqual(file, file.create().await());
 
                     test.assertNull(file.delete().await());
@@ -106,25 +106,25 @@ public interface FileTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final File file = FileTests.getFile(test);
+                    final File file = FileTests.getFile();
                     test.assertFalse(file.equals(null));
                 });
 
                 runner.test("with String", (Test test) ->
                 {
-                    final File file = FileTests.getFile(test);
+                    final File file = FileTests.getFile();
                     test.assertFalse(file.equals(file.getPath().toString()));
                 });
 
                 runner.test("with Path", (Test test) ->
                 {
-                    final File file = FileTests.getFile(test);
+                    final File file = FileTests.getFile();
                     test.assertFalse(file.equals(file.getPath()));
                 });
 
                 runner.test("with different file create same file system", (Test test) ->
                 {
-                    final FileSystem fileSystem = getFileSystem(test);
+                    final FileSystem fileSystem = FileTests.getFileSystem();
                     final File lhs = getFile(fileSystem, "/a/path.txt");
                     final File rhs = getFile(fileSystem, "/not/the/same/path.txt");
                     test.assertFalse(lhs.equals(rhs));
@@ -132,13 +132,13 @@ public interface FileTests
 
                 runner.test("with same", (Test test) ->
                 {
-                    final File file = FileTests.getFile(test);
+                    final File file = FileTests.getFile();
                     test.assertTrue(file.equals(file));
                 });
 
                 runner.test("with equal path and same file system", (Test test) ->
                 {
-                    final FileSystem fileSystem = getFileSystem(test);
+                    final FileSystem fileSystem = FileTests.getFileSystem();
                     final File lhs = getFile(fileSystem);
                     final File rhs = getFile(fileSystem);
                     test.assertTrue(lhs.equals(rhs));
@@ -149,21 +149,21 @@ public interface FileTests
             {
                 runner.test("when file doesn't exist", (Test test) ->
                 {
-                    final File file = FileTests.getFile(test);
+                    final File file = FileTests.getFile();
                     test.assertThrows(() -> file.getContentsDataSize().await(),
                         new FileNotFoundException(file.getPath()));
                 });
 
                 runner.test("when file is empty", (Test test) ->
                 {
-                    final File file = FileTests.getFile(test);
+                    final File file = FileTests.getFile();
                     file.setContentsAsString("").await();
                     test.assertEqual(DataSize.zero, file.getContentsDataSize().await());
                 });
 
                 runner.test("when file is not empty", (Test test) ->
                 {
-                    final File file = FileTests.getFile(test);
+                    final File file = FileTests.getFile();
                     file.setContentsAsString("hello there").await();
                     test.assertEqual(DataSize.bytes(11), file.getContentsDataSize().await());
                 });
@@ -173,13 +173,13 @@ public interface FileTests
             {
                 runner.test("with non-existing file", (Test test) ->
                 {
-                    final File file = FileTests.getFile(test);
+                    final File file = FileTests.getFile();
                     test.assertThrows(() -> file.getContents().await(), new FileNotFoundException("/A"));
                 });
 
                 runner.test("with existing file with no contents", (Test test) ->
                 {
-                    final File file = FileTests.getFile(test);
+                    final File file = FileTests.getFile();
                     test.assertEqual(file, file.create().await());
                     test.assertEqual(new byte[0], file.getContents().await());
                 });
@@ -189,7 +189,7 @@ public interface FileTests
             {
                 runner.test("with non-existing file", (Test test) ->
                 {
-                    final File file = FileTests.getFile(test);
+                    final File file = FileTests.getFile();
                     test.assertThrows(() -> file.getContentsReadStream().await(),
                         new FileNotFoundException("/A"));
                 });
@@ -199,14 +199,14 @@ public interface FileTests
             {
                 runner.test("with null destinationFilePath", (Test test) ->
                 {
-                    final File file = FileTests.getFile(test);
+                    final File file = FileTests.getFile();
                     test.assertThrows(new PreConditionFailure("destinationFilePath cannot be null."),
                         () -> file.copyTo((Path)null));
                 });
 
                 runner.test("with non-existing source file", (Test test) ->
                 {
-                    final FileSystem fileSystem = getFileSystem(test);
+                    final FileSystem fileSystem = FileTests.getFileSystem();
                     final File sourceFile = getFile(fileSystem, "/A");
                     final Path destinationFilePath = Path.parse("/B");
                     test.assertThrows(new FileNotFoundException("/A"),
@@ -215,7 +215,7 @@ public interface FileTests
 
                 runner.test("with non-existing destination file", (Test test) ->
                 {
-                    final FileSystem fileSystem = getFileSystem(test);
+                    final FileSystem fileSystem = FileTests.getFileSystem();
                     final File sourceFile = getFile(fileSystem, "/A");
                     sourceFile.setContentsAsString("hello").await();
                     final Path destinationFilePath = Path.parse("/B");
@@ -226,7 +226,7 @@ public interface FileTests
 
                 runner.test("with existing destination file", (Test test) ->
                 {
-                    final FileSystem fileSystem = getFileSystem(test);
+                    final FileSystem fileSystem = FileTests.getFileSystem();
                     final File sourceFile = getFile(fileSystem, "/A");
                     sourceFile.setContentsAsString("hello").await();
                     final Path destinationFilePath = Path.parse("/B");
@@ -241,14 +241,14 @@ public interface FileTests
             {
                 runner.test("with null destinationFile", (Test test) ->
                 {
-                    final File file = FileTests.getFile(test);
+                    final File file = FileTests.getFile();
                     test.assertThrows(new PreConditionFailure("destinationFile cannot be null."),
                         () -> file.copyTo((File)null));
                 });
 
                 runner.test("with non-existing source file", (Test test) ->
                 {
-                    final FileSystem fileSystem = getFileSystem(test);
+                    final FileSystem fileSystem = FileTests.getFileSystem();
                     final File sourceFile = getFile(fileSystem, "/A");
                     final File destinationFile = getFile(fileSystem, "/B");
                     test.assertThrows(new FileNotFoundException("/A"),
@@ -257,7 +257,7 @@ public interface FileTests
 
                 runner.test("with non-existing destination file", (Test test) ->
                 {
-                    final FileSystem fileSystem = getFileSystem(test);
+                    final FileSystem fileSystem = FileTests.getFileSystem();
                     final File sourceFile = getFile(fileSystem, "/A");
                     sourceFile.setContentsAsString("hello").await();
                     final File destinationFile = getFile(fileSystem, "/B");
@@ -268,7 +268,7 @@ public interface FileTests
 
                 runner.test("with existing destination file", (Test test) ->
                 {
-                    final FileSystem fileSystem = getFileSystem(test);
+                    final FileSystem fileSystem = FileTests.getFileSystem();
                     final File sourceFile = getFile(fileSystem, "/A");
                     sourceFile.setContentsAsString("hello").await();
                     final File destinationFile = getFile(fileSystem, "/B");
@@ -283,14 +283,14 @@ public interface FileTests
             {
                 runner.test("with null destinationFolderPath", (Test test) ->
                 {
-                    final File file = FileTests.getFile(test);
+                    final File file = FileTests.getFile();
                     test.assertThrows(new PreConditionFailure("destinationFolderPath cannot be null."),
                         () -> file.copyToFolder((Path)null));
                 });
 
                 runner.test("with non-existing source file", (Test test) ->
                 {
-                    final FileSystem fileSystem = getFileSystem(test);
+                    final FileSystem fileSystem = FileTests.getFileSystem();
                     final File sourceFile = getFile(fileSystem, "/A");
                     final Path destinationFolderPath = Path.parse("/B/");
                     test.assertThrows(new FileNotFoundException("/A"),
@@ -299,7 +299,7 @@ public interface FileTests
 
                 runner.test("with non-existing destination folder", (Test test) ->
                 {
-                    final FileSystem fileSystem = getFileSystem(test);
+                    final FileSystem fileSystem = FileTests.getFileSystem();
                     final File sourceFile = getFile(fileSystem, "/A");
                     sourceFile.setContentsAsString("hello").await();
                     final Path destinationFolderPath = Path.parse("/B/");
@@ -310,7 +310,7 @@ public interface FileTests
 
                 runner.test("with non-existing destination file", (Test test) ->
                 {
-                    final FileSystem fileSystem = getFileSystem(test);
+                    final FileSystem fileSystem = FileTests.getFileSystem();
                     final File sourceFile = getFile(fileSystem, "/A");
                     sourceFile.setContentsAsString("hello").await();
                     final Path destinationFolderPath = Path.parse("/B");
@@ -322,7 +322,7 @@ public interface FileTests
 
                 runner.test("with existing destination file", (Test test) ->
                 {
-                    final FileSystem fileSystem = getFileSystem(test);
+                    final FileSystem fileSystem = FileTests.getFileSystem();
                     final File sourceFile = getFile(fileSystem, "/A");
                     sourceFile.setContentsAsString("hello").await();
                     fileSystem.setFileContentsAsString("/B", "there").await();
@@ -336,14 +336,14 @@ public interface FileTests
             {
                 runner.test("with null destinationFolder", (Test test) ->
                 {
-                    final File file = FileTests.getFile(test);
+                    final File file = FileTests.getFile();
                     test.assertThrows(new PreConditionFailure("destinationFolder cannot be null."),
                         () -> file.copyToFolder((Folder)null));
                 });
 
                 runner.test("with non-existing source file", (Test test) ->
                 {
-                    final FileSystem fileSystem = getFileSystem(test);
+                    final FileSystem fileSystem = FileTests.getFileSystem();
                     final File sourceFile = getFile(fileSystem, "/A");
                     final Folder destinationFolder = fileSystem.getFolder("/B").await();
                     test.assertThrows(new FileNotFoundException("/A"),
@@ -352,7 +352,7 @@ public interface FileTests
 
                 runner.test("with non-existing destination folder", (Test test) ->
                 {
-                    final FileSystem fileSystem = getFileSystem(test);
+                    final FileSystem fileSystem = FileTests.getFileSystem();
                     final File sourceFile = getFile(fileSystem, "/A");
                     sourceFile.setContentsAsString("hello").await();
                     final Folder destinationFolder = fileSystem.getFolder("/B/").await();
@@ -363,7 +363,7 @@ public interface FileTests
 
                 runner.test("with non-existing destination file", (Test test) ->
                 {
-                    final FileSystem fileSystem = getFileSystem(test);
+                    final FileSystem fileSystem = FileTests.getFileSystem();
                     final File sourceFile = getFile(fileSystem, "/A");
                     sourceFile.setContentsAsString("hello").await();
                     final Folder destinationFolder = fileSystem.getFolder("/B").await();
@@ -375,7 +375,7 @@ public interface FileTests
 
                 runner.test("with existing destination file", (Test test) ->
                 {
-                    final FileSystem fileSystem = getFileSystem(test);
+                    final FileSystem fileSystem = FileTests.getFileSystem();
                     final File sourceFile = getFile(fileSystem, "/A");
                     sourceFile.setContentsAsString("hello").await();
                     final Folder destinationFolder = fileSystem.getFolder("/B").await();
@@ -389,16 +389,16 @@ public interface FileTests
         });
     }
 
-    static FileSystem getFileSystem(Test test)
+    static FileSystem getFileSystem()
     {
-        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
         fileSystem.createRoot("/").await();
         return fileSystem;
     }
 
-    static File getFile(Test test)
+    static File getFile()
     {
-        final FileSystem fileSystem = getFileSystem(test);
+        final FileSystem fileSystem = FileTests.getFileSystem();
         return FileTests.getFile(fileSystem);
     }
 

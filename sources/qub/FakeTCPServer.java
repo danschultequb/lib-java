@@ -22,21 +22,21 @@ public class FakeTCPServer implements TCPServer
         this.localIPAddress = localIPAddress;
         this.localPort = localPort;
         this.network = network;
-        clientsToAccept = List.create();
-        mutex = new SpinMutex(clock);
-        hasClientsToAccept = mutex.createCondition(() -> isDisposed() || clientsToAccept.any());
+        this.clientsToAccept = List.create();
+        this.mutex = SpinMutex.create(clock);
+        this.hasClientsToAccept = this.mutex.createCondition(() -> this.isDisposed() || this.clientsToAccept.any());
     }
 
     @Override
     public IPv4Address getLocalIPAddress()
     {
-        return localIPAddress;
+        return this.localIPAddress;
     }
 
     @Override
     public int getLocalPort()
     {
-        return localPort;
+        return this.localPort;
     }
 
     @Override
@@ -44,15 +44,15 @@ public class FakeTCPServer implements TCPServer
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        return mutex.criticalSection(() ->
+        return this.mutex.criticalSection(() ->
         {
-            hasClientsToAccept.watch().await();
+            this.hasClientsToAccept.watch().await();
 
             if (this.isDisposed())
             {
                 throw new IllegalStateException("this.isDisposed() cannot be true.");
             }
-            return clientsToAccept.removeFirst();
+            return this.clientsToAccept.removeFirst();
         });
     }
 
@@ -63,8 +63,8 @@ public class FakeTCPServer implements TCPServer
         PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
         PreCondition.assertNotDisposed(this, "this");
 
-        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(timeout);
-        return accept(dateTimeTimeout);
+        final DateTime dateTimeTimeout = this.clock.getCurrentDateTime().plus(timeout);
+        return this.accept(dateTimeTimeout);
     }
 
     @Override
@@ -73,34 +73,34 @@ public class FakeTCPServer implements TCPServer
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertNotDisposed(this, "this");
 
-        return mutex.criticalSection(timeout, () ->
+        return this.mutex.criticalSection(timeout, () ->
         {
-            hasClientsToAccept.watch(timeout).await();
+            this.hasClientsToAccept.watch(timeout).await();
 
             if (this.isDisposed())
             {
                 throw new IllegalStateException("this.isDisposed() cannot be true.");
             }
-            return clientsToAccept.removeFirst();
+            return this.clientsToAccept.removeFirst();
         });
     }
 
     @Override
     public boolean isDisposed()
     {
-        return mutex.criticalSection(() -> disposed).await();
+        return this.mutex.criticalSection(() -> this.disposed).await();
     }
 
     @Override
     public Result<Boolean> dispose()
     {
-        return mutex.criticalSection(() ->
+        return this.mutex.criticalSection(() ->
         {
-            final boolean result = !disposed;
+            final boolean result = !this.disposed;
             if (result)
             {
-                disposed = true;
-                network.serverDisposed(getLocalIPAddress(), getLocalPort());
+                this.disposed = true;
+                this.network.serverDisposed(this.getLocalIPAddress(), this.getLocalPort());
             }
             return result;
         });
@@ -110,10 +110,10 @@ public class FakeTCPServer implements TCPServer
     {
         PreCondition.assertNotNull(incomingClient, "incomingClient");
 
-        mutex.criticalSection(() ->
+        this.mutex.criticalSection(() ->
         {
-            clientsToAccept.add(incomingClient);
-            hasClientsToAccept.signalAll();
+            this.clientsToAccept.add(incomingClient);
+            this.hasClientsToAccept.signalAll();
         }).await();
     }
 }

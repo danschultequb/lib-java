@@ -15,7 +15,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
         PreCondition.assertNotNull(bytes, "bytes");
 
         this.bytes = ByteList.createFromBytes(bytes);
-        this.mutex = new SpinMutex();
+        this.mutex = SpinMutex.create();
         this.bytesAvailable = this.mutex.createCondition(() -> isDisposed() || this.endOfStream || this.bytes.any());
 
         this.disposedEvent = Event0.create();

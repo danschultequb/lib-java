@@ -2,14 +2,11 @@ package qub;
 
 public interface SwingUIWindowTests
 {
-    static SwingUIBuilder createUIBuilder(Test test)
+    static SwingUIBuilder createUIBuilder(FakeDesktopProcess process)
     {
-        PreCondition.assertNotNull(test, "test");
+        PreCondition.assertNotNull(process, "process");
         
-        final Display display = new Display(1000, 1000, 100, 100);
-        final AsyncRunner mainAsyncRunner = test.getMainAsyncRunner();
-        final AsyncScheduler parallelAsyncRunner = test.getParallelAsyncRunner();
-        final AWTUIBase uiBase = AWTUIBase.create(display, mainAsyncRunner, parallelAsyncRunner);
+        final AWTUIBase uiBase = AWTUIBase.create(process.getDisplays().first(), process.getMainAsyncRunner(), process.getParallelAsyncRunner());
         final SwingUIBuilder result = SwingUIBuilder.create(uiBase);
         
         PostCondition.assertNotNull(result, "result");
@@ -17,11 +14,11 @@ public interface SwingUIWindowTests
         return result;
     }
     
-    static SwingUIWindow createUIWindow(Test test)
+    static SwingUIWindow createUIWindow(FakeDesktopProcess process)
     {
-        PreCondition.assertNotNull(test, "test");
+        PreCondition.assertNotNull(process, "process");
         
-        final SwingUIBuilder uiBuilder = SwingUIWindowTests.createUIBuilder(test);
+        final SwingUIBuilder uiBuilder = SwingUIWindowTests.createUIBuilder(process);
         final SwingUIWindow result = SwingUIWindowTests.createUIWindow(uiBuilder);
         
         PostCondition.assertNotNull(result, "result");
@@ -50,10 +47,13 @@ public interface SwingUIWindowTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(title), (Test test) ->
                     {
-                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                         {
-                            test.assertThrows(() -> window.setTitle(title), expected);
-                            test.assertEqual("", window.getTitle());
+                            try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                            {
+                                test.assertThrows(() -> window.setTitle(title), expected);
+                                test.assertEqual("", window.getTitle());
+                            }
                         }
                     });
                 };
@@ -64,11 +64,14 @@ public interface SwingUIWindowTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(title), (Test test) ->
                     {
-                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                         {
-                            final SwingUIWindow setTitleResult = window.setTitle(title);
-                            test.assertSame(window, setTitleResult);
-                            test.assertEqual(title, window.getTitle());
+                            try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                            {
+                                final SwingUIWindow setTitleResult = window.setTitle(title);
+                                test.assertSame(window, setTitleResult);
+                                test.assertEqual(title, window.getTitle());
+                            }
                         }
                     });
                 };
@@ -82,78 +85,99 @@ public interface SwingUIWindowTests
             {
                 runner.test("with false when not visible", (Test test) ->
                 {
-                    try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final SwingUIWindow setVisibleResult = window.setVisible(false);
-                        test.assertSame(window, setVisibleResult);
-                        test.assertFalse(window.isVisible());
+                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                        {
+                            final SwingUIWindow setVisibleResult = window.setVisible(false);
+                            test.assertSame(window, setVisibleResult);
+                            test.assertFalse(window.isVisible());
+                        }
                     }
                 });
 
                 runner.test("with true when not visible", (Test test) ->
                 {
-                    try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final SwingUIWindow setVisibleResult = window.setVisible(true);
-                        test.assertSame(window, setVisibleResult);
-                        test.assertTrue(window.isVisible());
+                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                        {
+                            final SwingUIWindow setVisibleResult = window.setVisible(true);
+                            test.assertSame(window, setVisibleResult);
+                            test.assertTrue(window.isVisible());
+                        }
                     }
                 });
 
                 runner.test("with false when visible", (Test test) ->
                 {
-                    try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final SwingUIWindow setVisibleResult = window.setVisible(false);
-                        test.assertSame(window, setVisibleResult);
-                        test.assertFalse(window.isVisible());
+                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                        {
+                            final SwingUIWindow setVisibleResult = window.setVisible(false);
+                            test.assertSame(window, setVisibleResult);
+                            test.assertFalse(window.isVisible());
+                        }
                     }
                 });
 
                 runner.test("with true when visible", (Test test) ->
                 {
-                    try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final SwingUIWindow setVisibleResult = window.setVisible(true);
-                        test.assertSame(window, setVisibleResult);
-                        test.assertTrue(window.isVisible());
+                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                        {
+                            final SwingUIWindow setVisibleResult = window.setVisible(true);
+                            test.assertSame(window, setVisibleResult);
+                            test.assertTrue(window.isVisible());
+                        }
                     }
                 });
 
                 runner.test("with false when disposed", (Test test) ->
                 {
-                    try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        window.dispose().await();
+                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                        {
+                            window.dispose().await();
 
-                        test.assertThrows(() -> window.setVisible(false),
+                            test.assertThrows(() -> window.setVisible(false),
                                 new PreConditionFailure("this.isDisposed() cannot be true."));
+                        }
                     }
                 });
 
                 runner.test("with true when disposed", (Test test) ->
                 {
-                    try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        window.dispose().await();
+                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                        {
+                            window.dispose().await();
 
-                        test.assertThrows(() -> window.setVisible(true),
+                            test.assertThrows(() -> window.setVisible(true),
                                 new PreConditionFailure("this.isDisposed() cannot be true."));
+                        }
                     }
                 });
             });
 
             runner.test("dispose()", (Test test) ->
             {
-                try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                 {
-                    test.assertFalse(window.isDisposed());
+                    try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                    {
+                        test.assertFalse(window.isDisposed());
 
-                    test.assertTrue(window.dispose().await());
-                    test.assertTrue(window.isDisposed());
+                        test.assertTrue(window.dispose().await());
+                        test.assertTrue(window.isDisposed());
 
-                    test.assertFalse(window.dispose().await());
-                    test.assertTrue(window.isDisposed());
+                        test.assertFalse(window.dispose().await());
+                        test.assertTrue(window.isDisposed());
+                    }
                 }
             });
 
@@ -161,44 +185,40 @@ public interface SwingUIWindowTests
             {
                 runner.test("when not visible", (Test test) ->
                 {
-                    try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        test.assertThrows(() -> window.await(),
+                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                        {
+                            test.assertThrows(() -> window.await(),
                                 new PreConditionFailure("this.isVisible() cannot be false."));
-                        test.assertFalse(window.isVisible());
-                        test.assertFalse(window.isDisposed());
+                            test.assertFalse(window.isVisible());
+                            test.assertFalse(window.isDisposed());
+                        }
                     }
                 });
 
                 runner.test("when visible", runner.skip(), (Test test) ->
                 {
-                    final SwingUIBuilder uiBuilder = SwingUIBuilder.create(test.getProcess());
-                    try (final SwingUIWindow window = uiBuilder.createSwingUIWindow().await())
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        window.setTitle(test.getFullName());
-                        window.setSize(Distance.inches(4), Distance.inches(4));
+                        final SwingUIBuilder uiBuilder = SwingUIWindowTests.createUIBuilder(process);
+                        try (final SwingUIWindow window = uiBuilder.createSwingUIWindow().await())
+                        {
+                            window.setTitle(test.getFullName());
+                            window.setSize(Distance.inches(4), Distance.inches(4));
 
-                        final UITextBox textBox = uiBuilder.createUITextBox().await()
-                            .setFontSize(Distance.inches(0.5))
-                            .setSize(Distance.inches(2), Distance.inches(0.75));
+                            window.setContent(uiBuilder.createUIText().await()
+                                .setFontSize(Distance.inches(0.5))
+                                .setText("Close me, please."));
 
-                        final UIText text = uiBuilder.createUIText().await()
-                            .setFontSize(Distance.inches(0.5));
+                            window.setVisible(true);
 
-                        textBox.onTextChanged(text::setText);
+                            window.await();
 
-                        window.setContent(uiBuilder.createUIVerticalLayout().await()
-                            .add(textBox)
-                            .add(text));
-
-                        window.setVisible(true);
-
-                        window.await();
-
-                        test.assertFalse(window.isVisible());
-                        test.assertTrue(window.isDisposed());
+                            test.assertFalse(window.isVisible());
+                            test.assertTrue(window.isDisposed());
+                        }
                     }
-                    test.fail();
                 });
             });
 
@@ -206,42 +226,51 @@ public interface SwingUIWindowTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        test.assertThrows(() -> window.setContent((UIElement)null),
+                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                        {
+                            test.assertThrows(() -> window.setContent((UIElement)null),
                                 new PreConditionFailure("content cannot be null."));
-                        test.assertNull(window.getContent());
+                            test.assertNull(window.getContent());
+                        }
                     }
                 });
 
                 runner.test("with non-null when no content exists", (Test test) ->
                 {
-                    final SwingUIBuilder uiBuilder = SwingUIWindowTests.createUIBuilder(test);
-                    try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(uiBuilder))
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final SwingUIButton content = uiBuilder.create(SwingUIButton.class).await()
-                            .setText("Hello World!");
-                        final SwingUIWindow setContentResult = window.setContent((UIElement)content);
-                        test.assertSame(window, setContentResult);
-                        test.assertSame(content, window.getContent());
+                        final SwingUIBuilder uiBuilder = SwingUIWindowTests.createUIBuilder(process);
+                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(uiBuilder))
+                        {
+                            final SwingUIButton content = uiBuilder.create(SwingUIButton.class).await()
+                                .setText("Hello World!");
+                            final SwingUIWindow setContentResult = window.setContent((UIElement)content);
+                            test.assertSame(window, setContentResult);
+                            test.assertSame(content, window.getContent());
+                        }
                     }
                 });
 
                 runner.test("with non-null when content exists", (Test test) ->
                 {
-                    final SwingUIBuilder uiBuilder = SwingUIWindowTests.createUIBuilder(test);
-                    try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(uiBuilder))
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final SwingUIButton content1 = uiBuilder.create(SwingUIButton.class).await()
-                            .setText("First Content");
-                        window.setContent((UIElement)content1);
-                        test.assertSame(content1, window.getContent());
+                        final SwingUIBuilder uiBuilder = SwingUIWindowTests.createUIBuilder(process);
+                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(uiBuilder))
+                        {
+                            final SwingUIButton content1 = uiBuilder.create(SwingUIButton.class).await()
+                                .setText("First Content");
+                            window.setContent((UIElement)content1);
+                            test.assertSame(content1, window.getContent());
 
-                        final SwingUIButton content2 = uiBuilder.create(SwingUIButton.class).await()
-                            .setText("Hello World!");
-                        final SwingUIWindow setContentResult = window.setContent((UIElement)content2);
-                        test.assertSame(window, setContentResult);
-                        test.assertSame(content2, window.getContent());
+                            final SwingUIButton content2 = uiBuilder.create(SwingUIButton.class).await()
+                                .setText("Hello World!");
+                            final SwingUIWindow setContentResult = window.setContent((UIElement)content2);
+                            test.assertSame(window, setContentResult);
+                            test.assertSame(content2, window.getContent());
+                        }
                     }
                 });
             });
@@ -250,42 +279,51 @@ public interface SwingUIWindowTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        test.assertThrows(() -> window.setContent((AWTUIElement)null),
+                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                        {
+                            test.assertThrows(() -> window.setContent((AWTUIElement)null),
                                 new PreConditionFailure("content cannot be null."));
-                        test.assertNull(window.getContent());
+                            test.assertNull(window.getContent());
+                        }
                     }
                 });
 
                 runner.test("with non-null when no content exists", (Test test) ->
                 {
-                    final SwingUIBuilder uiBuilder = SwingUIWindowTests.createUIBuilder(test);
-                    try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(uiBuilder))
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final SwingUIButton content = uiBuilder.create(SwingUIButton.class).await()
-                            .setText("Hello World!");
-                        final SwingUIWindow setContentResult = window.setContent((AWTUIElement)content);
-                        test.assertSame(window, setContentResult);
-                        test.assertSame(content, window.getContent());
+                        final SwingUIBuilder uiBuilder = SwingUIWindowTests.createUIBuilder(process);
+                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(uiBuilder))
+                        {
+                            final SwingUIButton content = uiBuilder.create(SwingUIButton.class).await()
+                                .setText("Hello World!");
+                            final SwingUIWindow setContentResult = window.setContent((AWTUIElement)content);
+                            test.assertSame(window, setContentResult);
+                            test.assertSame(content, window.getContent());
+                        }
                     }
                 });
 
                 runner.test("with non-null when content exists", (Test test) ->
                 {
-                    final SwingUIBuilder uiBuilder = SwingUIWindowTests.createUIBuilder(test);
-                    try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(uiBuilder))
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final SwingUIButton content1 = uiBuilder.create(SwingUIButton.class).await()
-                            .setText("First Content");
-                        window.setContent((AWTUIElement)content1);
-                        test.assertSame(content1, window.getContent());
+                        final SwingUIBuilder uiBuilder = SwingUIWindowTests.createUIBuilder(process);
+                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(uiBuilder))
+                        {
+                            final SwingUIButton content1 = uiBuilder.create(SwingUIButton.class).await()
+                                .setText("First Content");
+                            window.setContent((AWTUIElement)content1);
+                            test.assertSame(content1, window.getContent());
 
-                        final SwingUIButton content2 = uiBuilder.create(SwingUIButton.class).await()
-                            .setText("Hello World!");
-                        final SwingUIWindow setContentResult = window.setContent((AWTUIElement)content2);
-                        test.assertSame(window, setContentResult);
-                        test.assertSame(content2, window.getContent());
+                            final SwingUIButton content2 = uiBuilder.create(SwingUIButton.class).await()
+                                .setText("Hello World!");
+                            final SwingUIWindow setContentResult = window.setContent((AWTUIElement)content2);
+                            test.assertSame(window, setContentResult);
+                            test.assertSame(content2, window.getContent());
+                        }
                     }
                 });
             });
@@ -296,9 +334,12 @@ public interface SwingUIWindowTests
                 {
                     runner.test("with " + width, (Test test) ->
                     {
-                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                         {
-                            test.assertThrows(() -> window.setWidth(width), expected);
+                            try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                            {
+                                test.assertThrows(() -> window.setWidth(width), expected);
+                            }
                         }
                     });
                 };
@@ -310,11 +351,14 @@ public interface SwingUIWindowTests
                 {
                     runner.test("with " + width, (Test test) ->
                     {
-                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                         {
-                            final SwingUIWindow setWidthResult = window.setWidth(width);
-                            test.assertSame(window, setWidthResult);
-                            test.assertOneOf(expectedWidths, window.getWidth());
+                            try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                            {
+                                final SwingUIWindow setWidthResult = window.setWidth(width);
+                                test.assertSame(window, setWidthResult);
+                                test.assertOneOf(expectedWidths, window.getWidth());
+                            }
                         }
                     });
                 };
@@ -337,25 +381,28 @@ public interface SwingUIWindowTests
 
             runner.test("getDynamicWidth()", (Test test) ->
             {
-                try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                 {
-                    try (final DynamicDistance dynamicWidth = window.getDynamicWidth())
+                    try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
                     {
-                        test.assertNotNull(dynamicWidth);
-                        test.assertEqual(window.getWidth(), dynamicWidth.get());
-
-                        final IntegerValue counter = IntegerValue.create(0);
-                        final SpinGate gate = SpinGate.create(test.getClock());
-                        dynamicWidth.onChanged(() ->
+                        try (final DynamicDistance dynamicWidth = window.getDynamicWidth())
                         {
-                            counter.increment();
-                            gate.open();
-                        });
+                            test.assertNotNull(dynamicWidth);
+                            test.assertEqual(window.getWidth(), dynamicWidth.get());
 
-                        window.setWidth(Distance.inches(4));
-                        gate.passThrough(Duration.seconds(1), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
-                        test.assertEqual(Distance.inches(4), dynamicWidth.get());
-                        test.assertEqual(1, counter.get());
+                            final IntegerValue counter = IntegerValue.create(0);
+                            final SpinGate gate = SpinGate.create();
+                            dynamicWidth.onChanged(() ->
+                            {
+                                counter.increment();
+                                gate.open();
+                            });
+
+                            window.setWidth(Distance.inches(4));
+                            gate.passThrough(() -> process.getMainAsyncRunner().schedule(Action0.empty).await()).await();
+                            test.assertEqual(Distance.inches(4), dynamicWidth.get());
+                            test.assertEqual(1, counter.get());
+                        }
                     }
                 }
             });
@@ -366,9 +413,12 @@ public interface SwingUIWindowTests
                 {
                     runner.test("with " + height, (Test test) ->
                     {
-                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                         {
-                            test.assertThrows(() -> window.setHeight(height), expected);
+                            try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                            {
+                                test.assertThrows(() -> window.setHeight(height), expected);
+                            }
                         }
                     });
                 };
@@ -380,11 +430,14 @@ public interface SwingUIWindowTests
                 {
                     runner.test("with " + height, (Test test) ->
                     {
-                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                         {
-                            final SwingUIWindow setHeightResult = window.setHeight(height);
-                            test.assertSame(window, setHeightResult);
-                            test.assertOneOf(expectedHeights, window.getHeight());
+                            try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                            {
+                                final SwingUIWindow setHeightResult = window.setHeight(height);
+                                test.assertSame(window, setHeightResult);
+                                test.assertOneOf(expectedHeights, window.getHeight());
+                            }
                         }
                     });
                 };
@@ -408,25 +461,28 @@ public interface SwingUIWindowTests
 
             runner.test("getDynamicHeight()", (Test test) ->
             {
-                try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                 {
-                    try (final DynamicDistance dynamicHeight = window.getDynamicHeight())
+                    try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
                     {
-                        test.assertNotNull(dynamicHeight);
-                        test.assertEqual(window.getHeight(), dynamicHeight.get());
-
-                        final IntegerValue counter = IntegerValue.create(0);
-                        final SpinGate gate = SpinGate.create(test.getClock());
-                        dynamicHeight.onChanged(() ->
+                        try (final DynamicDistance dynamicHeight = window.getDynamicHeight())
                         {
-                            counter.increment();
-                            gate.open();
-                        });
+                            test.assertNotNull(dynamicHeight);
+                            test.assertEqual(window.getHeight(), dynamicHeight.get());
 
-                        window.setHeight(Distance.inches(4));
-                        gate.passThrough(Duration.seconds(1), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
-                        test.assertEqual(Distance.inches(4), dynamicHeight.get());
-                        test.assertEqual(1, counter.get());
+                            final IntegerValue counter = IntegerValue.create(0);
+                            final SpinGate gate = SpinGate.create();
+                            dynamicHeight.onChanged(() ->
+                            {
+                                counter.increment();
+                                gate.open();
+                            });
+
+                            window.setHeight(Distance.inches(4));
+                            gate.passThrough(() -> process.getMainAsyncRunner().schedule(Action0.empty).await()).await();
+                            test.assertEqual(Distance.inches(4), dynamicHeight.get());
+                            test.assertEqual(1, counter.get());
+                        }
                     }
                 }
             });
@@ -437,9 +493,12 @@ public interface SwingUIWindowTests
                 {
                     runner.test("with " + size, (Test test) ->
                     {
-                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                         {
-                            test.assertThrows(() -> window.setSize(size), expected);
+                            try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                            {
+                                test.assertThrows(() -> window.setSize(size), expected);
+                            }
                         }
                     });
                 };
@@ -450,11 +509,14 @@ public interface SwingUIWindowTests
                 {
                     runner.test("with " + size, (Test test) ->
                     {
-                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                         {
-                            final SwingUIWindow setSizeResult = window.setSize(size);
-                            test.assertSame(window, setSizeResult);
-                            test.assertOneOf(expectedSizes, window.getSize());
+                            try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                            {
+                                final SwingUIWindow setSizeResult = window.setSize(size);
+                                test.assertSame(window, setSizeResult);
+                                test.assertOneOf(expectedSizes, window.getSize());
+                            }
                         }
                     });
                 };
@@ -490,9 +552,12 @@ public interface SwingUIWindowTests
                 {
                     runner.test("with " + English.andList(width, height), (Test test) ->
                     {
-                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                         {
-                            test.assertThrows(() -> window.setSize(width, height), expected);
+                            try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                            {
+                                test.assertThrows(() -> window.setSize(width, height), expected);
+                            }
                         }
                     });
                 };
@@ -506,11 +571,14 @@ public interface SwingUIWindowTests
                 {
                     runner.test("with " + size, (Test test) ->
                     {
-                        try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                         {
-                            final SwingUIWindow setHeightResult = window.setSize(size.getWidth(), size.getHeight());
-                            test.assertSame(window, setHeightResult);
-                            test.assertOneOf(expectedSizes, window.getSize());
+                            try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
+                            {
+                                final SwingUIWindow setHeightResult = window.setSize(size.getWidth(), size.getHeight());
+                                test.assertSame(window, setHeightResult);
+                                test.assertOneOf(expectedSizes, window.getSize());
+                            }
                         }
                     });
                 };
@@ -538,50 +606,56 @@ public interface SwingUIWindowTests
 
             runner.test("getDynamicContentSpaceWidth()", (Test test) ->
             {
-                try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                 {
-                    try (final DynamicDistance dynamicContentSpaceWidth = window.getDynamicContentSpaceWidth())
+                    try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
                     {
-                        test.assertNotNull(dynamicContentSpaceWidth);
-                        test.assertEqual(window.getContentSpaceWidth(), dynamicContentSpaceWidth.get());
-
-                        final IntegerValue counter = IntegerValue.create(0);
-                        final SpinGate gate = SpinGate.create(test.getClock());
-                        dynamicContentSpaceWidth.onChanged(() ->
+                        try (final DynamicDistance dynamicContentSpaceWidth = window.getDynamicContentSpaceWidth())
                         {
-                            counter.increment();
-                            gate.open();
-                        });
+                            test.assertNotNull(dynamicContentSpaceWidth);
+                            test.assertEqual(window.getContentSpaceWidth(), dynamicContentSpaceWidth.get());
 
-                        window.setWidth(Distance.inches(4));
-                        gate.passThrough(Duration.seconds(1), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
-                        test.assertEqual(window.getContentSpaceWidth(), dynamicContentSpaceWidth.get());
-                        test.assertEqual(1, counter.get());
+                            final IntegerValue counter = IntegerValue.create(0);
+                            final SpinGate gate = SpinGate.create();
+                            dynamicContentSpaceWidth.onChanged(() ->
+                            {
+                                counter.increment();
+                                gate.open();
+                            });
+
+                            window.setWidth(Distance.inches(4));
+                            gate.passThrough(() -> process.getMainAsyncRunner().schedule(Action0.empty).await()).await();
+                            test.assertEqual(window.getContentSpaceWidth(), dynamicContentSpaceWidth.get());
+                            test.assertEqual(1, counter.get());
+                        }
                     }
                 }
             });
 
             runner.test("getDynamicContentSpaceHeight()", (Test test) ->
             {
-                try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(test))
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                 {
-                    try (final DynamicDistance dynamicContentSpaceHeight = window.getDynamicContentSpaceHeight())
+                    try (final SwingUIWindow window = SwingUIWindowTests.createUIWindow(process))
                     {
-                        test.assertNotNull(dynamicContentSpaceHeight);
-                        test.assertEqual(window.getContentSpaceHeight(), dynamicContentSpaceHeight.get());
-
-                        final IntegerValue counter = IntegerValue.create(0);
-                        final SpinGate gate = SpinGate.create(test.getClock());
-                        dynamicContentSpaceHeight.onChanged(() ->
+                        try (final DynamicDistance dynamicContentSpaceHeight = window.getDynamicContentSpaceHeight())
                         {
-                            counter.increment();
-                            gate.open();
-                        });
+                            test.assertNotNull(dynamicContentSpaceHeight);
+                            test.assertEqual(window.getContentSpaceHeight(), dynamicContentSpaceHeight.get());
 
-                        window.setHeight(Distance.inches(4));
-                        gate.passThrough(Duration.seconds(1), () -> test.getMainAsyncRunner().schedule(Action0.empty).await()).await();
-                        test.assertEqual(window.getContentSpaceHeight(), dynamicContentSpaceHeight.get());
-                        test.assertEqual(1, counter.get());
+                            final IntegerValue counter = IntegerValue.create(0);
+                            final SpinGate gate = SpinGate.create();
+                            dynamicContentSpaceHeight.onChanged(() ->
+                            {
+                                counter.increment();
+                                gate.open();
+                            });
+
+                            window.setHeight(Distance.inches(4));
+                            gate.passThrough(() -> process.getMainAsyncRunner().schedule(Action0.empty).await()).await();
+                            test.assertEqual(window.getContentSpaceHeight(), dynamicContentSpaceHeight.get());
+                            test.assertEqual(1, counter.get());
+                        }
                     }
                 }
             });

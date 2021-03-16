@@ -6,7 +6,7 @@ public interface JavaNetworkTests
     {
         runner.testGroup(JavaNetwork.class, () ->
         {
-            NetworkTests.test(runner, (Test test) -> JavaNetwork.create(test.getClock()));
+            NetworkTests.test(runner, JavaNetwork::create);
         });
     }
 }

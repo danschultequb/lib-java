@@ -4,7 +4,7 @@ public final class BasicTestRunner implements TestRunner
 {
     private static final Skip noMessageSkip = new Skip(null);
 
-    private final Process process;
+    private final DesktopProcess process;
 
     private int passedTestCount;
     private int failedTestCount;
@@ -34,12 +34,28 @@ public final class BasicTestRunner implements TestRunner
      * @param process The Process that is running the tests.
      * @param testPattern The pattern that tests must match in order to be run.
      */
+    @Deprecated
     public BasicTestRunner(Process process, PathPattern testPattern)
+    {
+        this((DesktopProcess)process, testPattern);
+    }
+
+    /**
+     * Create a new BasicTestRunner object.
+     * @param process The Process that is running the tests.
+     * @param testPattern The pattern that tests must match in order to be run.
+     */
+    private BasicTestRunner(DesktopProcess process, PathPattern testPattern)
     {
         PreCondition.assertNotNull(process, "process");
 
         this.process = process;
         this.testPattern = testPattern;
+    }
+
+    public static BasicTestRunner create(DesktopProcess process, PathPattern testPattern)
+    {
+        return new BasicTestRunner(process, testPattern);
     }
 
     @Override
@@ -156,7 +172,7 @@ public final class BasicTestRunner implements TestRunner
         try
         {
             final TestParent parent = currentTestGroup == null ? currentTestClass : currentTestGroup;
-            currentTestGroup = new TestGroup(testGroupName, parent, skip);
+            currentTestGroup = TestGroup.create(testGroupName, parent, skip);
 
             if (beforeTestGroupAction != null)
             {
@@ -185,14 +201,14 @@ public final class BasicTestRunner implements TestRunner
             }
         }
 
-        if (afterTestGroupAction != null)
+        if (this.afterTestGroupAction != null)
         {
-            afterTestGroupAction.run(currentTestGroup);
+            this.afterTestGroupAction.run(this.currentTestGroup);
         }
 
-        beforeTestAction = beforeTestActionBackup;
-        afterTestAction = afterTestActionBackup;
-        currentTestGroup = Types.as(currentTestGroup.getParent(), TestGroup.class);
+        this.beforeTestAction = beforeTestActionBackup;
+        this.afterTestAction = afterTestActionBackup;
+        this.currentTestGroup = Types.as(this.currentTestGroup.getParent(), TestGroup.class);
     }
 
     @Override
@@ -202,12 +218,30 @@ public final class BasicTestRunner implements TestRunner
     }
 
     @Override
+    public <T1> void test(String testName, Function1<TestResources, Tuple1<T1>> resourcesFunction, Action2<Test, T1> testAction)
+    {
+        this.test(testName, null, resourcesFunction, testAction);
+    }
+
+    @Override
+    public <T1, T2> void test(String testName, Function1<TestResources, Tuple2<T1, T2>> resourcesFunction, Action3<Test, T1, T2> testAction)
+    {
+        this.test(testName, null, resourcesFunction, testAction);
+    }
+
+    @Override
+    public <T1, T2, T3> void test(String testName, Function1<TestResources, Tuple3<T1, T2, T3>> resourcesFunction, Action4<Test, T1, T2, T3> testAction)
+    {
+        this.test(testName, null, resourcesFunction, testAction);
+    }
+
+    @Override
     public void test(String testName, Skip skip, Action1<Test> testAction)
     {
         PreCondition.assertNotNullAndNotEmpty(testName, "testName");
         PreCondition.assertNotNull(testAction, "testAction");
 
-        final Test test = new Test(testName, this.currentTestGroup, skip, this.process);
+        final Test test = Test.create(testName, this.currentTestGroup, skip);
         if (test.matches(this.testPattern))
         {
             final AsyncScheduler currentThreadAsyncScheduler = CurrentThread.getAsyncRunner().await();
@@ -272,6 +306,57 @@ public final class BasicTestRunner implements TestRunner
                 CurrentThread.setAsyncRunner(currentThreadAsyncScheduler);
             }
         }
+    }
+
+    @Override
+    public <T1> void test(String testName, Skip skip, Function1<TestResources, Tuple1<T1>> resourcesFunction, Action2<Test, T1> testAction)
+    {
+        PreCondition.assertNotNullAndNotEmpty(testName, "testName");
+        PreCondition.assertNotNull(resourcesFunction, "resourcesFunction");
+        PreCondition.assertNotNull(testAction, "testAction");
+
+        this.test(testName, skip, (Test test) ->
+        {
+            try (final TestResources resources = TestResources.create(this.process))
+            {
+                final Tuple1<T1> requestedResources = resourcesFunction.run(resources);
+                testAction.run(test, requestedResources.getValue1());
+            }
+        });
+    }
+
+    @Override
+    public <T1, T2> void test(String testName, Skip skip, Function1<TestResources, Tuple2<T1, T2>> resourcesFunction, Action3<Test, T1, T2> testAction)
+    {
+        PreCondition.assertNotNullAndNotEmpty(testName, "testName");
+        PreCondition.assertNotNull(resourcesFunction, "resourcesFunction");
+        PreCondition.assertNotNull(testAction, "testAction");
+
+        this.test(testName, skip, (Test test) ->
+        {
+            try (final TestResources resources = TestResources.create(this.process))
+            {
+                final Tuple2<T1, T2> requestedResources = resourcesFunction.run(resources);
+                testAction.run(test, requestedResources.getValue1(), requestedResources.getValue2());
+            }
+        });
+    }
+
+    @Override
+    public <T1, T2, T3> void test(String testName, Skip skip, Function1<TestResources, Tuple3<T1, T2, T3>> resourcesFunction, Action4<Test, T1, T2, T3> testAction)
+    {
+        PreCondition.assertNotNullAndNotEmpty(testName, "testName");
+        PreCondition.assertNotNull(resourcesFunction, "resourcesFunction");
+        PreCondition.assertNotNull(testAction, "testAction");
+
+        this.test(testName, skip, (Test test) ->
+        {
+            try (final TestResources resources = TestResources.create(this.process))
+            {
+                final Tuple3<T1, T2, T3> requestedResources = resourcesFunction.run(resources);
+                testAction.run(test, requestedResources.getValue1(), requestedResources.getValue2(), requestedResources.getValue3());
+            }
+        });
     }
 
     @Override

@@ -9,21 +9,7 @@ public class Locked<T>
     private final T value;
     private final Mutex mutex;
 
-    /**
-     * Create a new Locked wrapper around the provided value.
-     * @param value The value to lock.
-     */
-    public Locked(T value)
-    {
-        this(value, new SpinMutex());
-    }
-
-    /**
-     * Create a new Locked wrapper around the provided value.
-     * @param value The value to lock.
-     * @param mutex The mutex that will be used to lock access to the value.
-     */
-    public Locked(T value, Mutex mutex)
+    private Locked(T value, Mutex mutex)
     {
         PreCondition.assertNotNull(mutex, "mutex");
 
@@ -37,7 +23,7 @@ public class Locked<T>
      */
     public static <T> Locked<T> create(T value)
     {
-        return new Locked<>(value);
+        return new Locked<>(value, SpinMutex.create());
     }
 
     /**
@@ -47,6 +33,8 @@ public class Locked<T>
      */
     public static <T> Locked<T> create(T value, Mutex mutex)
     {
+        PreCondition.assertNotNull(mutex, "mutex");
+
         return new Locked<>(value, mutex);
     }
 
@@ -59,7 +47,7 @@ public class Locked<T>
     {
         PreCondition.assertNotNull(action, "action");
 
-        mutex.criticalSection(() -> action.run(value));
+        this.mutex.criticalSection(() -> action.run(this.value));
     }
 
     /**
@@ -71,6 +59,6 @@ public class Locked<T>
     {
         PreCondition.assertNotNull(function, "function");
 
-        return mutex.criticalSection(() -> function.run(value)).await();
+        return this.mutex.criticalSection(() -> function.run(this.value)).await();
     }
 }

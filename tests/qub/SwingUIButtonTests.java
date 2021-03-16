@@ -2,23 +2,22 @@ package qub;
 
 public interface SwingUIButtonTests
 {
-    static AWTUIBase createUIBase(Test test)
+    static AWTUIBase createUIBase(FakeDesktopProcess process)
     {
-        PreCondition.assertNotNull(test, "test");
+        PreCondition.assertNotNull(process, "process");
 
-        final Display display = new Display(1000, 1000, 100, 100);
-        final AWTUIBase result = AWTUIBase.create(display, test.getMainAsyncRunner(), test.getParallelAsyncRunner());
+        final AWTUIBase result = AWTUIBase.create(process.getDisplays().first(), process.getMainAsyncRunner(), process.getParallelAsyncRunner());
 
         PostCondition.assertNotNull(result, "result");
 
         return result;
     }
 
-    static SwingUIBuilder createUIBuilder(Test test)
+    static SwingUIBuilder createUIBuilder(FakeDesktopProcess process)
     {
-        PreCondition.assertNotNull(test, "test");
+        PreCondition.assertNotNull(process, "process");
 
-        final AWTUIBase uiBase = SwingUIButtonTests.createUIBase(test);
+        final AWTUIBase uiBase = SwingUIButtonTests.createUIBase(process);
         final SwingUIBuilder result = SwingUIBuilder.create(uiBase);
 
         PostCondition.assertNotNull(result, "result");
@@ -26,9 +25,9 @@ public interface SwingUIButtonTests
         return result;
     }
 
-    static SwingUIButton createUIButton(Test test)
+    static SwingUIButton createUIButton(FakeDesktopProcess process)
     {
-        final SwingUIBuilder uiBuilder = SwingUIButtonTests.createUIBuilder(test);
+        final SwingUIBuilder uiBuilder = SwingUIButtonTests.createUIBuilder(process);
         final SwingUIButton result = uiBuilder.create(SwingUIButton.class).await();
 
         PostCondition.assertNotNull(result, "result");
@@ -53,21 +52,24 @@ public interface SwingUIButtonTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final AWTUIBase uiBase = SwingUIButtonTests.createUIBase(test);
-                    final SwingUIButton uiButton = SwingUIButton.create(uiBase);
-                    test.assertNotNull(uiButton);
-                    test.assertEqual(Distance.inches(0.34), uiButton.getWidth());
-                    test.assertEqual(Distance.inches(0.1), uiButton.getHeight());
-                    test.assertEqual("", uiButton.getText());
-                    test.assertEqual(Distance.fontPoints(12), uiButton.getFontSize());
-                    test.assertEqual(UIPaddingInPixels.create(17, 5, 17, 5), uiButton.getPaddingInPixels());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final AWTUIBase uiBase = SwingUIButtonTests.createUIBase(process);
+                        final SwingUIButton uiButton = SwingUIButton.create(uiBase);
+                        test.assertNotNull(uiButton);
+                        test.assertEqual(Distance.inches(0.34), uiButton.getWidth());
+                        test.assertEqual(Distance.inches(0.1), uiButton.getHeight());
+                        test.assertEqual("", uiButton.getText());
+                        test.assertEqual(Distance.fontPoints(12), uiButton.getFontSize());
+                        test.assertEqual(UIPaddingInPixels.create(17, 5, 17, 5), uiButton.getPaddingInPixels());
 
-                    final javax.swing.JButton component = uiButton.getComponent();
-                    test.assertNotNull(component);
+                        final javax.swing.JButton component = uiButton.getComponent();
+                        test.assertNotNull(component);
 
-                    final javax.swing.JButton jComponent = uiButton.getJComponent();
-                    test.assertNotNull(jComponent);
-                    test.assertSame(component, jComponent);
+                        final javax.swing.JButton jComponent = uiButton.getJComponent();
+                        test.assertNotNull(jComponent);
+                        test.assertSame(component, jComponent);
+                    }
                 });
             });
 
@@ -75,9 +77,12 @@ public interface SwingUIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
-                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
-                    final SwingUIButton setWidthResult = button.setWidth(Distance.inches(1));
-                    test.assertSame(button, setWidthResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIButton button = SwingUIButtonTests.createUIButton(process);
+                        final SwingUIButton setWidthResult = button.setWidth(Distance.inches(1));
+                        test.assertSame(button, setWidthResult);
+                    }
                 });
             });
 
@@ -85,9 +90,12 @@ public interface SwingUIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
-                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
-                    final SwingUIButton setWidthResult = button.setWidthInPixels(1);
-                    test.assertSame(button, setWidthResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIButton button = SwingUIButtonTests.createUIButton(process);
+                        final SwingUIButton setWidthResult = button.setWidthInPixels(1);
+                        test.assertSame(button, setWidthResult);
+                    }
                 });
             });
 
@@ -95,9 +103,12 @@ public interface SwingUIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
-                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
-                    final SwingUIButton setHeightResult = button.setHeight(Distance.inches(1));
-                    test.assertSame(button, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIButton button = SwingUIButtonTests.createUIButton(process);
+                        final SwingUIButton setHeightResult = button.setHeight(Distance.inches(1));
+                        test.assertSame(button, setHeightResult);
+                    }
                 });
             });
 
@@ -105,9 +116,12 @@ public interface SwingUIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
-                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
-                    final SwingUIButton setHeightInPixelsResult = button.setHeightInPixels(1);
-                    test.assertSame(button, setHeightInPixelsResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIButton button = SwingUIButtonTests.createUIButton(process);
+                        final SwingUIButton setHeightInPixelsResult = button.setHeightInPixels(1);
+                        test.assertSame(button, setHeightInPixelsResult);
+                    }
                 });
             });
 
@@ -115,9 +129,12 @@ public interface SwingUIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
-                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
-                    final SwingUIButton setSizeResult = button.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
-                    test.assertSame(button, setSizeResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIButton button = SwingUIButtonTests.createUIButton(process);
+                        final SwingUIButton setSizeResult = button.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
+                        test.assertSame(button, setSizeResult);
+                    }
                 });
             });
 
@@ -125,9 +142,12 @@ public interface SwingUIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
-                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
-                    final SwingUIButton setSizeResult = button.setSize(Distance.inches(2), Distance.inches(3));
-                    test.assertSame(button, setSizeResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIButton button = SwingUIButtonTests.createUIButton(process);
+                        final SwingUIButton setSizeResult = button.setSize(Distance.inches(2), Distance.inches(3));
+                        test.assertSame(button, setSizeResult);
+                    }
                 });
             });
 
@@ -135,9 +155,12 @@ public interface SwingUIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
-                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
-                    final SwingUIButton setSizeInPixelsResult = button.setSizeInPixels(2, 3);
-                    test.assertSame(button, setSizeInPixelsResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIButton button = SwingUIButtonTests.createUIButton(process);
+                        final SwingUIButton setSizeInPixelsResult = button.setSizeInPixels(2, 3);
+                        test.assertSame(button, setSizeInPixelsResult);
+                    }
                 });
             });
 
@@ -145,9 +168,12 @@ public interface SwingUIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
-                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
-                    final SwingUIButton setHeightResult = button.setText("hello");
-                    test.assertSame(button, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIButton button = SwingUIButtonTests.createUIButton(process);
+                        final SwingUIButton setHeightResult = button.setText("hello");
+                        test.assertSame(button, setHeightResult);
+                    }
                 });
             });
 
@@ -155,9 +181,12 @@ public interface SwingUIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
-                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
-                    final SwingUIButton setFontSizeResult = button.setFontSize(Distance.inches(1));
-                    test.assertSame(button, setFontSizeResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIButton button = SwingUIButtonTests.createUIButton(process);
+                        final SwingUIButton setFontSizeResult = button.setFontSize(Distance.inches(1));
+                        test.assertSame(button, setFontSizeResult);
+                    }
                 });
             });
 
@@ -165,58 +194,65 @@ public interface SwingUIButtonTests
             {
                 runner.test("with callback that throws an exception", (Test test) ->
                 {
-                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
-                    final IntegerValue value = IntegerValue.create(0);
-
-                    final Disposable subscription = button.onClick(() ->
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        value.increment();
-                        throw new RuntimeException("hello");
-                    });
-                    test.assertNotNull(subscription);
+                        final SwingUIButton button = SwingUIButtonTests.createUIButton(process);
+                        final IntegerValue value = IntegerValue.create(0);
 
-                    test.assertThrows(() -> button.click(),
-                        new RuntimeException("hello"));
-                    test.assertEqual(1, value.get());
+                        final Disposable subscription = button.onClick(() ->
+                        {
+                            value.increment();
+                            throw new RuntimeException("hello");
+                        });
+                        test.assertNotNull(subscription);
 
-                    test.assertTrue(subscription.dispose().await());
+                        test.assertThrows(() -> button.click(),
+                            new RuntimeException("hello"));
+                        test.assertEqual(1, value.get());
 
-                    // Nothing should happen.
-                    button.click();
-                    test.assertEqual(1, value.get());
+                        test.assertTrue(subscription.dispose().await());
+
+                        // Nothing should happen.
+                        button.click();
+                        test.assertEqual(1, value.get());
+                    }
                 });
 
                 runner.test("with callback that doesn't throw an exception", (Test test) ->
                 {
-                    final SwingUIButton button = SwingUIButtonTests.createUIButton(test);
-
-                    final AsyncRunner mainAsyncRunner = test.getMainAsyncRunner();
-                    final IntegerValue value = IntegerValue.create(0);
-                    final SpinGate gate = SpinGate.create(test.getClock());
-                    final Disposable subscription = button.onClick(() ->
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        value.increment();
-                        gate.open();
-                    });
-                    test.assertNotNull(subscription);
+                        final SwingUIButton button = SwingUIButtonTests.createUIButton(process);
 
-                    button.click();
-                    gate.passThrough(Duration.seconds(1), () -> mainAsyncRunner.schedule(Action0.empty).await());
-                    test.assertEqual(1, value.getAsInt());
+                        final AsyncRunner mainAsyncRunner = process.getMainAsyncRunner();
+                        final IntegerValue value = IntegerValue.create(0);
+                        final SpinGate gate = SpinGate.create();
+                        final Disposable subscription = button.onClick(() ->
+                        {
+                            value.increment();
+                            gate.open();
+                        });
+                        test.assertNotNull(subscription);
 
-                    gate.close();
+                        button.click();
+                        gate.passThrough(() -> mainAsyncRunner.schedule(Action0.empty).await()).await();
+                        test.assertEqual(1, value.getAsInt());
 
-                    button.click();
-                    gate.passThrough(Duration.seconds(1), () -> mainAsyncRunner.schedule(Action0.empty).await());
-                    test.assertEqual(2, value.getAsInt());
+                        gate.close();
 
-                    test.assertTrue(subscription.dispose().await());
+                        button.click();
+                        gate.passThrough(() -> mainAsyncRunner.schedule(Action0.empty).await()).await();
+                        test.assertEqual(2, value.getAsInt());
 
-                    gate.close();
+                        test.assertTrue(subscription.dispose().await());
 
-                    button.click();
-                    gate.passThrough(Duration.seconds(1), () -> mainAsyncRunner.schedule(Action0.empty).await());
-                    test.assertEqual(2, value.getAsInt());
+                        gate.close();
+
+                        button.click();
+                        mainAsyncRunner.schedule(Action0.empty).await();
+                        test.assertFalse(gate.isOpen());
+                        test.assertEqual(2, value.getAsInt());
+                    }
                 });
             });
         });

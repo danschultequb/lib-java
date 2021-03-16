@@ -6,44 +6,47 @@ public interface RealDefaultApplicationLauncherTests
     {
         runner.testGroup(RealDefaultApplicationLauncher.class, () ->
         {
-            DefaultApplicationLauncherTests.test(runner, (Test test) -> RealDefaultApplicationLauncher.create());
+            DefaultApplicationLauncherTests.test(runner, (DesktopProcess process) -> RealDefaultApplicationLauncher.create());
 
             runner.testGroup("openFileWithDefaultApplication(File)", () ->
             {
-                runner.test("with file that doesn't have a registered default application", runner.skip("opens default application dialog launcher"), (Test test) ->
-                {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder();
-                    final File file = currentFolder.getFile("fake-file.iml").await();
-                    test.assertFalse(file.exists().await());
-                    try
+                runner.test("with file that doesn't have a registered default application",
+                    runner.skip("opens default application dialog launcher"),
+                    (TestResources resources) -> Tuple.create(resources.getTemporaryFile("fake-file.iml", true)),
+                    (Test test, File file) ->
                     {
-                        file.create().await();
-
                         final RealDefaultApplicationLauncher launcher = RealDefaultApplicationLauncher.create();
                         test.assertNull(launcher.openFileWithDefaultApplication(file).await());
-                    }
-                    finally
+                    });
+
+                runner.test("with file that has a registered default application",
+                    runner.skip("opens default application"),
+                    (TestResources resources) -> Tuple.create(resources.getTemporaryFile("fake-file.txt", true)),
+                    (Test test, File file) ->
                     {
-                        file.delete().catchError().await();
-                    }
+                        final RealDefaultApplicationLauncher launcher = RealDefaultApplicationLauncher.create();
+                        test.assertNull(launcher.openFileWithDefaultApplication(file).await());
+                    });
+            });
+
+            runner.testGroup("openFolderWithDefaultApplication(Folder)", () ->
+            {
+                runner.test("with non-existing folder",
+                    (TestResources resources) -> Tuple.create(resources.getTemporaryFolder(false)),
+                    (Test test, Folder folder) ->
+                {
+                    final RealDefaultApplicationLauncher launcher = RealDefaultApplicationLauncher.create();
+                    test.assertThrows(() -> launcher.openFolderWithDefaultApplication(folder).await(),
+                        new FolderNotFoundException(folder));
                 });
 
-                runner.test("with file that has a registered default application", runner.skip("opens default application"), (Test test) ->
+                runner.test("with existing folder",
+                    runner.skip("opens default application"),
+                    (TestResources resources) -> Tuple.create(resources.getTemporaryFolder(true)),
+                    (Test test, Folder folder) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder();
-                    final File file = currentFolder.getFile("fake-file.txt").await();
-                    test.assertFalse(file.exists().await());
-                    try
-                    {
-                        file.create().await();
-
-                        final RealDefaultApplicationLauncher launcher = RealDefaultApplicationLauncher.create();
-                        test.assertNull(launcher.openFileWithDefaultApplication(file).await());
-                    }
-                    finally
-                    {
-                        file.delete().catchError().await();
-                    }
+                    final RealDefaultApplicationLauncher launcher = RealDefaultApplicationLauncher.create();
+                    test.assertNull(launcher.openFolderWithDefaultApplication(folder).await());
                 });
             });
         });

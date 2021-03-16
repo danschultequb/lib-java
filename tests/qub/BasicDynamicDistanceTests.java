@@ -8,10 +8,9 @@ public interface BasicDynamicDistanceTests
 
         runner.testGroup(BasicDynamicDistance.class, () ->
         {
-            DynamicDistanceTests.test(runner, (Test test) ->
+            DynamicDistanceTests.test(runner, (FakeDesktopProcess process) ->
             {
-                final Display fakeDisplay = new Display(1000, 1000, 100, 100);
-                final AWTUIBase uiBase = AWTUIBase.create(fakeDisplay, test.getMainAsyncRunner(), test.getParallelAsyncRunner());
+                final AWTUIBase uiBase = AWTUIBase.create(process.getDisplays().first(), process.getMainAsyncRunner(), process.getParallelAsyncRunner());
                 final SwingUIBuilder uiBuilder = SwingUIBuilder.create(uiBase);
                 final UIButton uiButton = uiBuilder.createUIButton().await();
                 return BasicDynamicDistance.create(uiButton::getWidth, uiButton::onSizeChanged);

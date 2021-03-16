@@ -11,47 +11,49 @@ public class SpinMutex implements Mutex
     private final LongValue acquiredCount;
     private final Clock clock;
 
-    public SpinMutex()
+    private SpinMutex(Clock clock)
     {
-        this(null);
+        this.acquiredByThreadId = LongValue.create(-1);
+        this.acquiredCount = LongValue.create(0);
+        this.clock = clock;
     }
 
-    /**
-     * Create a new SpinMutex that is ready to be acquired.
-     */
-    public SpinMutex(Clock clock)
+    public static SpinMutex create()
     {
-        acquiredByThreadId = LongValue.create(-1);
-        acquiredCount = LongValue.create(0);
-        this.clock = clock;
+        return new SpinMutex(null);
+    }
+
+    public static SpinMutex create(Clock clock)
+    {
+        return new SpinMutex(clock);
     }
 
     @Override
     public boolean isAcquired()
     {
-        return acquiredByThreadId.get() != -1;
+        return this.acquiredByThreadId.get() != -1;
     }
 
     @Override
     public boolean isAcquiredByCurrentThread()
     {
-        return acquiredByThreadId.get() == Thread.currentThread().getId();
+        return this.acquiredByThreadId.get() == Thread.currentThread().getId();
     }
 
     @Override
     public Result<Void> acquire()
     {
         final long threadId = Thread.currentThread().getId();
-        if (acquiredByThreadId.get() != threadId)
+        if (this.acquiredByThreadId.get() != threadId)
         {
-            while (!acquiredByThreadId.compareAndSet(-1, threadId))
+            while (!this.acquiredByThreadId.compareAndSet(-1, threadId))
             {
                 while (this.isAcquired())
                 {
                 }
             }
         }
-        acquiredCount.increment();
+        this.acquiredCount.increment();
 
         return Result.success();
     }
@@ -92,10 +94,10 @@ public class SpinMutex implements Mutex
     public Result<Boolean> tryAcquire()
     {
         final long threadId = Thread.currentThread().getId();
-        final boolean acquired = acquiredByThreadId.get() == threadId || acquiredByThreadId.compareAndSet(-1, threadId);
+        final boolean acquired = this.acquiredByThreadId.get() == threadId || this.acquiredByThreadId.compareAndSet(-1, threadId);
         if (acquired)
         {
-            acquiredCount.increment();
+            this.acquiredCount.increment();
         }
         return Result.success(acquired);
     }
@@ -104,11 +106,11 @@ public class SpinMutex implements Mutex
     public Result<Void> release()
     {
         final long threadId = Thread.currentThread().getId();
-        if (acquiredByThreadId.get() == threadId)
+        if (this.acquiredByThreadId.get() == threadId)
         {
-            if (acquiredCount.decrement().get() == 0)
+            if (this.acquiredCount.decrement().get() == 0)
             {
-                acquiredByThreadId.set(-1);
+                this.acquiredByThreadId.set(-1);
             }
         }
         return Result.success();
@@ -117,7 +119,7 @@ public class SpinMutex implements Mutex
     @Override
     public SpinMutexCondition createCondition()
     {
-        return new SpinMutexCondition(this, clock, null);
+        return SpinMutexCondition.create(this, this.clock);
     }
 
     @Override
@@ -125,6 +127,6 @@ public class SpinMutex implements Mutex
     {
         PreCondition.assertNotNull(condition, "condition");
 
-        return new SpinMutexCondition(this, clock, condition);
+        return SpinMutexCondition.create(this, this.clock, condition);
     }
 }

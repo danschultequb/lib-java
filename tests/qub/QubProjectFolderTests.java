@@ -6,7 +6,7 @@ public interface QubProjectFolderTests
     {
         PreCondition.assertNotNull(runner, "runner");
 
-        runner.testGroup(QubPublisherFolder.class, () ->
+        runner.testGroup(QubProjectFolder.class, () ->
         {
             runner.testGroup("get(Folder)", () ->
             {
@@ -18,14 +18,14 @@ public interface QubProjectFolderTests
 
                 runner.test("with root folder", (Test test) ->
                 {
-                    final Folder folder = QubProjectFolderTests.getFolder(test, "/");
+                    final Folder folder = QubProjectFolderTests.getFolder("/");
                     test.assertThrows(() -> QubProjectFolder.get(folder),
                         new PreConditionFailure("projectFolder.getPath().getSegments().getCount() (1) must be greater than or equal to 3."));
                 });
 
                 runner.test("with folder that doesn't exist", (Test test) ->
                 {
-                    final Folder folder = QubProjectFolderTests.getFolder(test, "/qub/me/project/");
+                    final Folder folder = QubProjectFolderTests.getFolder("/qub/me/project/");
                     final QubProjectFolder projectFolder = QubProjectFolder.get(folder);
                     test.assertEqual(folder.getPath(), projectFolder.getPath());
                     test.assertFalse(projectFolder.exists().await());
@@ -33,7 +33,7 @@ public interface QubProjectFolderTests
 
                 runner.test("with folder that exists", (Test test) ->
                 {
-                    final Folder folder = QubProjectFolderTests.createFolder(test, "/qub/me/project/");
+                    final Folder folder = QubProjectFolderTests.createFolder("/qub/me/project/");
                     final QubProjectFolder projectFolder = QubProjectFolder.get(folder);
                     test.assertEqual(folder.getPath(), projectFolder.getPath());
                     test.assertTrue(projectFolder.exists().await());
@@ -44,7 +44,7 @@ public interface QubProjectFolderTests
             {
                 final String publisherName = "a";
                 final String projectName = "b";
-                final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                 test.assertEqual("/qub/", projectFolder.getQubFolder().await().toString());
             });
 
@@ -52,7 +52,7 @@ public interface QubProjectFolderTests
             {
                 final String publisherName = "a";
                 final String projectName = "b";
-                final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                 test.assertEqual("/qub/" + publisherName + "/", projectFolder.getPublisherFolder().await().toString());
             });
 
@@ -60,7 +60,7 @@ public interface QubProjectFolderTests
             {
                 final String publisherName = "a";
                 final String projectName = "b";
-                final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                 test.assertEqual(publisherName, projectFolder.getPublisherName().await());
             });
 
@@ -70,7 +70,7 @@ public interface QubProjectFolderTests
                 {
                     final String publisherName = "a";
                     final String projectName = "b";
-                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                     test.assertEqual(Iterable.create(), projectFolder.getProjectVersionFolders().await());
                 });
 
@@ -78,7 +78,7 @@ public interface QubProjectFolderTests
                 {
                     final String publisherName = "a";
                     final String projectName = "b";
-                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                     projectFolder.getQubFolder().await().create().await();
                     test.assertEqual(Iterable.create(), projectFolder.getProjectVersionFolders().await());
                 });
@@ -87,7 +87,7 @@ public interface QubProjectFolderTests
                 {
                     final String publisherName = "a";
                     final String projectName = "b";
-                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                     projectFolder.getPublisherFolder().await().create().await();
                     test.assertEqual(Iterable.create(), projectFolder.getProjectVersionFolders().await());
                 });
@@ -96,7 +96,7 @@ public interface QubProjectFolderTests
                 {
                     final String publisherName = "a";
                     final String projectName = "b";
-                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                     projectFolder.create().await();
                     test.assertEqual(Iterable.create(), projectFolder.getProjectVersionFolders().await());
                 });
@@ -105,7 +105,7 @@ public interface QubProjectFolderTests
                 {
                     final String publisherName = "a";
                     final String projectName = "b";
-                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                     projectFolder.createFolder("versions/1").await();
                     test.assertEqual(
                         Iterable.create(
@@ -120,7 +120,7 @@ public interface QubProjectFolderTests
                 {
                     final String publisherName = "a";
                     final String projectName = "b";
-                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                     test.assertThrows(() -> projectFolder.getLatestProjectVersionFolder().await(),
                         new NotFoundException("No project named a/b has been published."));
                 });
@@ -129,7 +129,7 @@ public interface QubProjectFolderTests
                 {
                     final String publisherName = "a";
                     final String projectName = "b";
-                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                     projectFolder.getQubFolder().await().create().await();
                     test.assertThrows(() -> projectFolder.getLatestProjectVersionFolder().await(),
                         new NotFoundException("No project named a/b has been published."));
@@ -139,7 +139,7 @@ public interface QubProjectFolderTests
                 {
                     final String publisherName = "a";
                     final String projectName = "b";
-                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                     projectFolder.getPublisherFolder().await().create().await();
                     test.assertThrows(() -> projectFolder.getLatestProjectVersionFolder().await(),
                         new NotFoundException("No project named a/b has been published."));
@@ -149,7 +149,7 @@ public interface QubProjectFolderTests
                 {
                     final String publisherName = "a";
                     final String projectName = "b";
-                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                     projectFolder.create().await();
                     test.assertThrows(() -> projectFolder.getLatestProjectVersionFolder().await(),
                         new NotFoundException("No project named a/b has been published."));
@@ -159,7 +159,7 @@ public interface QubProjectFolderTests
                 {
                     final String publisherName = "a";
                     final String projectName = "b";
-                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                     projectFolder.getProjectVersionsFolder().await().create().await();
                     test.assertThrows(() -> projectFolder.getLatestProjectVersionFolder().await(),
                         new NotFoundException("No project named a/b has been published."));
@@ -169,7 +169,7 @@ public interface QubProjectFolderTests
                 {
                     final String publisherName = "a";
                     final String projectName = "b";
-                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                     projectFolder.getProjectVersionFolder("1").await().create().await();
                     test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/1/", projectFolder.getLatestProjectVersionFolder().await().toString());
                 });
@@ -178,7 +178,7 @@ public interface QubProjectFolderTests
                 {
                     final String publisherName = "a";
                     final String projectName = "b";
-                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                     projectFolder.getProjectVersionFolder("2").await().create().await();
                     projectFolder.getProjectVersionFolder("3").await().create().await();
                     test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/3/", projectFolder.getLatestProjectVersionFolder().await().toString());
@@ -188,7 +188,7 @@ public interface QubProjectFolderTests
                 {
                     final String publisherName = "a";
                     final String projectName = "b";
-                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                     projectFolder.getProjectVersionFolder("2").await().create().await();
                     projectFolder.getProjectVersionFolder("30").await().create().await();
                     projectFolder.getProjectVersionFolder("13").await().create().await();
@@ -199,7 +199,7 @@ public interface QubProjectFolderTests
                 {
                     final String publisherName = "a";
                     final String projectName = "b";
-                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                    final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                     projectFolder.getProjectVersionFolder("2").await().create().await();
                     projectFolder.getProjectVersionFolder("3.0.3").await().create().await();
                     projectFolder.getProjectVersionFolder("1.3").await().create().await();
@@ -211,7 +211,7 @@ public interface QubProjectFolderTests
             {
                 final String publisherName = "a";
                 final String projectName = "b";
-                final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                 test.assertEqual("/qub/" + publisherName + "/" + projectName + "/data/", projectFolder.getProjectDataFolder().await().toString());
             });
 
@@ -219,7 +219,7 @@ public interface QubProjectFolderTests
             {
                 final String publisherName = "a";
                 final String projectName = "b";
-                final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                 test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/", projectFolder.getProjectVersionsFolder().await().toString());
             });
 
@@ -229,7 +229,7 @@ public interface QubProjectFolderTests
                 {
                     runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
                     {
-                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                         test.assertThrows(() -> projectFolder.getProjectJSONFile(version), expected);
                     });
                 };
@@ -241,7 +241,7 @@ public interface QubProjectFolderTests
                 {
                     runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
                     {
-                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                         test.assertEqual(
                             projectFolder.getFile("versions/" + version + "/project.json").await(),
                             projectFolder.getProjectJSONFile(version).await());
@@ -257,7 +257,7 @@ public interface QubProjectFolderTests
                 {
                     runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
                     {
-                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                         test.assertThrows(() -> projectFolder.getCompiledSourcesFile(version), expected);
                     });
                 };
@@ -269,7 +269,7 @@ public interface QubProjectFolderTests
                 {
                     runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
                     {
-                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                         test.assertEqual(
                             projectFolder.getFile("versions/" + version + "/" + projectName + ".jar").await(),
                             projectFolder.getCompiledSourcesFile(version).await());
@@ -285,7 +285,7 @@ public interface QubProjectFolderTests
                 {
                     runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
                     {
-                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                         test.assertThrows(() -> projectFolder.getSourcesFile(version), expected);
                     });
                 };
@@ -297,7 +297,7 @@ public interface QubProjectFolderTests
                 {
                     runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
                     {
-                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                         test.assertEqual(
                             projectFolder.getFile("versions/" + version + "/" + projectName + ".sources.jar").await(),
                             projectFolder.getSourcesFile(version).await());
@@ -313,7 +313,7 @@ public interface QubProjectFolderTests
                 {
                     runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
                     {
-                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                         test.assertThrows(() -> projectFolder.getCompiledTestsFile(version), expected);
                     });
                 };
@@ -325,7 +325,7 @@ public interface QubProjectFolderTests
                 {
                     runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
                     {
-                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/" + publisherName + "/" + projectName + "/");
+                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
                         test.assertEqual(
                             projectFolder.getFile("versions/" + version + "/" + projectName + ".tests.jar").await(),
                             projectFolder.getCompiledTestsFile(version).await());
@@ -339,7 +339,7 @@ public interface QubProjectFolderTests
             {
                 runner.test("with /qub/me/grapes/ and null", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = QubPublisherFolderTests.createFileSystem(test);
+                    final InMemoryFileSystem fileSystem = QubProjectFolderTests.createFileSystem();
                     final Folder folder = fileSystem.getFolder("/qub/me/grapes/").await();
                     final QubProjectFolder projectFolder = QubProjectFolder.get(folder);
                     test.assertEqual(false, projectFolder.equals((Object)null));
@@ -347,7 +347,7 @@ public interface QubProjectFolderTests
 
                 runner.test("with /qub/me/grapes/ and \"hello world\"", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = QubPublisherFolderTests.createFileSystem(test);
+                    final InMemoryFileSystem fileSystem = QubProjectFolderTests.createFileSystem();
                     final Folder folder = fileSystem.getFolder("/qub/me/grapes/").await();
                     final QubProjectFolder projectFolder = QubProjectFolder.get(folder);
                     test.assertEqual(false, projectFolder.equals((Object)"hello world"));
@@ -355,7 +355,7 @@ public interface QubProjectFolderTests
 
                 runner.test("with /qub/me/a/ and /other/thing/b/", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = QubPublisherFolderTests.createFileSystem(test);
+                    final InMemoryFileSystem fileSystem = QubProjectFolderTests.createFileSystem();
 
                     final Folder folder = fileSystem.getFolder("/qub/me/a/").await();
                     final QubProjectFolder projectFolder = QubProjectFolder.get(folder);
@@ -368,7 +368,7 @@ public interface QubProjectFolderTests
 
                 runner.test("with /qub/me/c/ and /qub/me/c/", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = QubPublisherFolderTests.createFileSystem(test);
+                    final InMemoryFileSystem fileSystem = QubProjectFolderTests.createFileSystem();
 
                     final Folder folder = fileSystem.getFolder("/qub/me/c/").await();
                     final QubProjectFolder projectFolder = QubProjectFolder.get(folder);
@@ -384,7 +384,7 @@ public interface QubProjectFolderTests
             {
                 runner.test("with /qub/me/spam and null", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = QubPublisherFolderTests.createFileSystem(test);
+                    final InMemoryFileSystem fileSystem = QubProjectFolderTests.createFileSystem();
                     final Folder folder = fileSystem.getFolder("/qub/me/spam/").await();
                     final QubProjectFolder projectFolder = QubProjectFolder.get(folder);
                     test.assertEqual(false, projectFolder.equals((QubProjectFolder)null));
@@ -392,7 +392,7 @@ public interface QubProjectFolderTests
 
                 runner.test("with /qub/me/project1 and /other/thing/project2", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = QubPublisherFolderTests.createFileSystem(test);
+                    final InMemoryFileSystem fileSystem = QubProjectFolderTests.createFileSystem();
 
                     final Folder folder = fileSystem.getFolder("/qub/me/project1").await();
                     final QubProjectFolder projectFolder = QubProjectFolder.get(folder);
@@ -405,7 +405,7 @@ public interface QubProjectFolderTests
 
                 runner.test("with /qub/me/proj/ and /qub/me/proj/", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = QubPublisherFolderTests.createFileSystem(test);
+                    final InMemoryFileSystem fileSystem = QubProjectFolderTests.createFileSystem();
 
                     final Folder folder = fileSystem.getFolder("/qub/me/proj/").await();
                     final QubProjectFolder projectFolder = QubProjectFolder.get(folder);
@@ -419,44 +419,42 @@ public interface QubProjectFolderTests
 
             runner.test("toString()", (Test test) ->
             {
-                final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder(test, "/qub/me/proj/");
+                final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/me/proj/");
                 test.assertEqual("/qub/me/proj/", projectFolder.toString());
             });
         });
     }
 
-    static InMemoryFileSystem createFileSystem(Test test)
+    static InMemoryFileSystem createFileSystem()
     {
-        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
         fileSystem.createRoot("/").await();
         return fileSystem;
     }
 
-    static Folder getFolder(Test test, String folderPath)
+    static Folder getFolder(String folderPath)
     {
-        PreCondition.assertNotNull(test, "test");
         PreCondition.assertNotNullAndNotEmpty(folderPath, "folderPath");
 
-        final InMemoryFileSystem fileSystem = QubProjectFolderTests.createFileSystem(test);
+        final InMemoryFileSystem fileSystem = QubProjectFolderTests.createFileSystem();
         return fileSystem.getFolder(folderPath).await();
     }
 
-    static Folder createFolder(Test test, String folderPath)
+    static Folder createFolder(String folderPath)
     {
-        PreCondition.assertNotNull(test, "test");
         PreCondition.assertNotNullAndNotEmpty(folderPath, "folderPath");
 
-        final InMemoryFileSystem fileSystem = QubProjectFolderTests.createFileSystem(test);
+        final InMemoryFileSystem fileSystem = QubProjectFolderTests.createFileSystem();
         return fileSystem.createFolder(folderPath).await();
     }
 
-    static QubProjectFolder getQubProjectFolder(Test test, String folderPath)
+    static QubProjectFolder getQubProjectFolder(String folderPath)
     {
-        return QubProjectFolder.get(QubPublisherFolderTests.getFolder(test, folderPath));
+        return QubProjectFolder.get(QubProjectFolderTests.getFolder(folderPath));
     }
 
-    static QubProjectFolder createQubProjectFolder(Test test, String folderPath)
+    static QubProjectFolder createQubProjectFolder(String folderPath)
     {
-        return QubProjectFolder.get(QubPublisherFolderTests.createFolder(test, folderPath));
+        return QubProjectFolder.get(QubProjectFolderTests.createFolder(folderPath));
     }
 }

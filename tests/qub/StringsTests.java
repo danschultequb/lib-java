@@ -528,6 +528,7 @@ public interface StringsTests
                 getWordsTest.run("a", Iterable.create("a"));
                 getWordsTest.run("abc", Iterable.create("abc"));
                 getWordsTest.run("a.a", Iterable.create("a"));
+                getWordsTest.run("Disposable.create()", Iterable.create("Disposable", "create"));
                 getWordsTest.run("a a", Iterable.create("a"));
                 getWordsTest.run("a b", Iterable.create("a", "b"));
                 getWordsTest.run("a1 b", Iterable.create("a1", "b"));

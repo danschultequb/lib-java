@@ -6,32 +6,27 @@ public interface FakeDefaultApplicationLauncherTests
     {
         runner.testGroup(FakeDefaultApplicationLauncher.class, () ->
         {
-            DefaultApplicationLauncherTests.test(runner, (Test test) ->
+            DefaultApplicationLauncherTests.test(runner, (DesktopProcess process) ->
             {
-                return FakeDefaultApplicationLauncher.create(test.getFileSystem());
+                return FakeDefaultApplicationLauncher.create(process.getFileSystem());
             });
 
             runner.testGroup("openFileWithDefaultApplication(String)", () ->
             {
                 runner.test("with file that exists", (Test test) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder();
-                    final File file = currentFolder.getFile("fake-file.txt").await();
-                    test.assertFalse(file.exists().await());
-                    try
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        file.create().await();
-
-                        final FakeDefaultApplicationLauncher launcher = FakeDefaultApplicationLauncher.create(file.getFileSystem());
-                        test.assertNull(launcher.openFileWithDefaultApplication(file).await());
-                        test.assertEqual(
-                            Iterable.create(
-                                file.getPath()),
-                            launcher.getPathsOpened());
-                    }
-                    finally
-                    {
-                        file.delete().await();
+                        final Folder currentFolder = process.getCurrentFolder();
+                        try (final TemporaryFile file = TemporaryFile.get(currentFolder.createFile("fake-file.txt").await()))
+                        {
+                            final FakeDefaultApplicationLauncher launcher = FakeDefaultApplicationLauncher.create(file.getFileSystem());
+                            test.assertNull(launcher.openFileWithDefaultApplication(file).await());
+                            test.assertEqual(
+                                Iterable.create(
+                                    file.getPath()),
+                                launcher.getPathsOpened());
+                        }
                     }
                 });
             });
@@ -40,23 +35,18 @@ public interface FakeDefaultApplicationLauncherTests
             {
                 runner.test("with file that exists", (Test test) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder();
-                    final Folder folder = currentFolder.getFolder("fake-folder").await();
-                    test.assertFalse(folder.exists().await());
-                    try
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        folder.create().await();
-
-                        final FakeDefaultApplicationLauncher launcher = FakeDefaultApplicationLauncher.create(folder.getFileSystem());
-                        test.assertNull(launcher.openFolderWithDefaultApplication(folder).await());
-                        test.assertEqual(
-                            Iterable.create(
-                                folder.getPath()),
-                            launcher.getPathsOpened());
-                    }
-                    finally
-                    {
-                        folder.delete().await();
+                        final Folder currentFolder = process.getCurrentFolder();
+                        try (final TemporaryFolder folder = TemporaryFolder.get(currentFolder.createFolder("fake-folder").await()))
+                        {
+                            final FakeDefaultApplicationLauncher launcher = FakeDefaultApplicationLauncher.create(folder.getFileSystem());
+                            test.assertNull(launcher.openFolderWithDefaultApplication(folder).await());
+                            test.assertEqual(
+                                Iterable.create(
+                                    folder.getPath()),
+                                launcher.getPathsOpened());
+                        }
                     }
                 });
             });

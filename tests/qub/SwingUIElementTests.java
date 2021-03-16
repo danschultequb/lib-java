@@ -2,7 +2,7 @@ package qub;
 
 public interface SwingUIElementTests
 {
-    static void test(TestRunner runner, Function1<Test,? extends SwingUIElement> creator)
+    static void test(TestRunner runner, Function1<FakeDesktopProcess,? extends SwingUIElement> creator)
     {
         PreCondition.assertNotNull(runner, "runner");
         PreCondition.assertNotNull(creator, "creator");
@@ -15,9 +15,12 @@ public interface SwingUIElementTests
             {
                 runner.test("returns SwingUIElement", (Test test) ->
                 {
-                    final SwingUIElement uiElement = creator.run(test);
-                    final SwingUIElement setWidthResult = uiElement.setWidth(Distance.inches(2));
-                    test.assertSame(uiElement, setWidthResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIElement uiElement = creator.run(process);
+                        final SwingUIElement setWidthResult = uiElement.setWidth(Distance.inches(2));
+                        test.assertSame(uiElement, setWidthResult);
+                    }
                 });
             });
 
@@ -25,9 +28,12 @@ public interface SwingUIElementTests
             {
                 runner.test("returns SwingUIElement", (Test test) ->
                 {
-                    final SwingUIElement uiElement = creator.run(test);
-                    final SwingUIElement setWidthInPixelsResult = uiElement.setWidthInPixels(2);
-                    test.assertSame(uiElement, setWidthInPixelsResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIElement uiElement = creator.run(process);
+                        final SwingUIElement setWidthInPixelsResult = uiElement.setWidthInPixels(2);
+                        test.assertSame(uiElement, setWidthInPixelsResult);
+                    }
                 });
             });
 
@@ -35,9 +41,12 @@ public interface SwingUIElementTests
             {
                 runner.test("returns SwingUIElement", (Test test) ->
                 {
-                    final SwingUIElement uiElement = creator.run(test);
-                    final SwingUIElement setHeightResult = uiElement.setHeight(Distance.inches(3));
-                    test.assertSame(uiElement, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIElement uiElement = creator.run(process);
+                        final SwingUIElement setHeightResult = uiElement.setHeight(Distance.inches(3));
+                        test.assertSame(uiElement, setHeightResult);
+                    }
                 });
             });
 
@@ -45,9 +54,12 @@ public interface SwingUIElementTests
             {
                 runner.test("returns SwingUIElement", (Test test) ->
                 {
-                    final SwingUIElement uiElement = creator.run(test);
-                    final SwingUIElement setHeightInPixelsResult = uiElement.setHeightInPixels(2);
-                    test.assertSame(uiElement, setHeightInPixelsResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIElement uiElement = creator.run(process);
+                        final SwingUIElement setHeightInPixelsResult = uiElement.setHeightInPixels(2);
+                        test.assertSame(uiElement, setHeightInPixelsResult);
+                    }
                 });
             });
 
@@ -55,9 +67,12 @@ public interface SwingUIElementTests
             {
                 runner.test("returns SwingUIElement", (Test test) ->
                 {
-                    final SwingUIElement uiElement = creator.run(test);
-                    final SwingUIElement setWidthResult = uiElement.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
-                    test.assertSame(uiElement, setWidthResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIElement uiElement = creator.run(process);
+                        final SwingUIElement setWidthResult = uiElement.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
+                        test.assertSame(uiElement, setWidthResult);
+                    }
                 });
             });
 
@@ -65,9 +80,12 @@ public interface SwingUIElementTests
             {
                 runner.test("returns SwingUIElement", (Test test) ->
                 {
-                    final SwingUIElement uiElement = creator.run(test);
-                    final SwingUIElement setWidthResult = uiElement.setSize(Distance.inches(2), Distance.inches(3));
-                    test.assertSame(uiElement, setWidthResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIElement uiElement = creator.run(process);
+                        final SwingUIElement setWidthResult = uiElement.setSize(Distance.inches(2), Distance.inches(3));
+                        test.assertSame(uiElement, setWidthResult);
+                    }
                 });
             });
 
@@ -75,9 +93,12 @@ public interface SwingUIElementTests
             {
                 runner.test("returns SwingUIElement", (Test test) ->
                 {
-                    final SwingUIElement uiElement = creator.run(test);
-                    final SwingUIElement setPaddingResult = uiElement.setPadding(UIPadding.zero);
-                    test.assertSame(uiElement, setPaddingResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIElement uiElement = creator.run(process);
+                        final SwingUIElement setPaddingResult = uiElement.setPadding(UIPadding.zero);
+                        test.assertSame(uiElement, setPaddingResult);
+                    }
                 });
             });
 
@@ -85,27 +106,36 @@ public interface SwingUIElementTests
             {
                 runner.test("returns SwingUIElement", (Test test) ->
                 {
-                    final SwingUIElement uiElement = creator.run(test);
-                    final SwingUIElement setBackgroundColorResult = uiElement.setBackgroundColor(Color.blue);
-                    test.assertSame(uiElement, setBackgroundColorResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIElement uiElement = creator.run(process);
+                        final SwingUIElement setBackgroundColorResult = uiElement.setBackgroundColor(Color.blue);
+                        test.assertSame(uiElement, setBackgroundColorResult);
+                    }
                 });
             });
 
             runner.test("getComponent()", (Test test) ->
             {
-                final SwingUIElement uiElement = creator.run(test);
-                final javax.swing.JComponent component = uiElement.getComponent();
-                test.assertNotNull(component);
-                test.assertSame(component, uiElement.getComponent());
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                {
+                    final SwingUIElement uiElement = creator.run(process);
+                    final javax.swing.JComponent component = uiElement.getComponent();
+                    test.assertNotNull(component);
+                    test.assertSame(component, uiElement.getComponent());
+                }
             });
 
             runner.test("getJComponent()", (Test test) ->
             {
-                final SwingUIElement uiElement = creator.run(test);
-                final javax.swing.JComponent jComponent = uiElement.getJComponent();
-                test.assertNotNull(jComponent);
-                test.assertSame(jComponent, uiElement.getJComponent());
-                test.assertSame(jComponent, uiElement.getComponent());
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                {
+                    final SwingUIElement uiElement = creator.run(process);
+                    final javax.swing.JComponent jComponent = uiElement.getJComponent();
+                    test.assertNotNull(jComponent);
+                    test.assertSame(jComponent, uiElement.getJComponent());
+                    test.assertSame(jComponent, uiElement.getComponent());
+                }
             });
         });
     }

@@ -72,7 +72,7 @@ public class RealDefaultApplicationLauncher implements DefaultApplicationLaunche
                     throw Exceptions.asRuntime(e);
                 }
             }
-            catch (java.io.IOException e)
+            catch (Throwable e)
             {
                 throw Exceptions.asRuntime(e);
             }

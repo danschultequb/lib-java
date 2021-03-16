@@ -90,11 +90,59 @@ public interface TestRunner
     void test(String testName, Action1<Test> testAction);
 
     /**
+     * Run the test with the provided name and action.
+     * @param testName The name of the test.
+     * @param resourcesFunction The function that decides which resources this test will require.
+     * @param testAction The action for the test.
+     */
+    <T1> void test(String testName, Function1<TestResources,Tuple1<T1>> resourcesFunction, Action2<Test,T1> testAction);
+
+    /**
+     * Run the test with the provided name and action.
+     * @param testName The name of the test.
+     * @param resourcesFunction The function that decides which resources this test will require.
+     * @param testAction The action for the test.
+     */
+    <T1,T2> void test(String testName, Function1<TestResources,Tuple2<T1,T2>> resourcesFunction, Action3<Test,T1,T2> testAction);
+
+    /**
+     * Run the test with the provided name and action.
+     * @param testName The name of the test.
+     * @param resourcesFunction The function that decides which resources this test will require.
+     * @param testAction The action for the test.
+     */
+    <T1,T2,T3> void test(String testName, Function1<TestResources,Tuple3<T1,T2,T3>> resourcesFunction, Action4<Test,T1,T2,T3> testAction);
+
+    /**
      * Skip the test with the provided name and action.
      * @param testName The name of the test.
      * @param testAction The action for the test.
      */
     void test(String testName, Skip skip, Action1<Test> testAction);
+
+    /**
+     * Run the test with the provided name and action.
+     * @param testName The name of the test.
+     * @param resourcesFunction The function that decides which resources this test will require.
+     * @param testAction The action for the test.
+     */
+    <T1> void test(String testName, Skip skip, Function1<TestResources,Tuple1<T1>> resourcesFunction, Action2<Test,T1> testAction);
+
+    /**
+     * Run the test with the provided name and action.
+     * @param testName The name of the test.
+     * @param resourcesFunction The function that decides which resources this test will require.
+     * @param testAction The action for the test.
+     */
+    <T1,T2> void test(String testName, Skip skip, Function1<TestResources,Tuple2<T1,T2>> resourcesFunction, Action3<Test,T1,T2> testAction);
+
+    /**
+     * Run the test with the provided name and action.
+     * @param testName The name of the test.
+     * @param resourcesFunction The function that decides which resources this test will require.
+     * @param testAction The action for the test.
+     */
+    <T1,T2,T3> void test(String testName, Skip skip, Function1<TestResources,Tuple3<T1,T2,T3>> resourcesFunction, Action4<Test,T1,T2,T3> testAction);
 
     /**
      * Run the provided test and assert that it runs within the provided maximum duration.

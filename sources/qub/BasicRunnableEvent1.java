@@ -29,7 +29,7 @@ public class BasicRunnableEvent1<T> implements RunnableEvent1<T>
         PreCondition.assertNotNull(callback, "callback");
 
         this.callbacks.add(callback);
-        final Disposable result = BasicDisposable.create(() -> this.callbacks.remove(callback));
+        final Disposable result = DisposableAction.create(() -> this.callbacks.remove(callback));
 
         PostCondition.assertNotNull(result, "result");
 

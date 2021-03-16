@@ -2,7 +2,7 @@ package qub;
 
 public interface UIButtonTests
 {
-    static void test(TestRunner runner, Function1<Test,? extends UIButton> creator)
+    static void test(TestRunner runner, Function1<FakeDesktopProcess,? extends UIButton> creator)
     {
         PreCondition.assertNotNull(runner, "runner");
         PreCondition.assertNotNull(creator, "creator");
@@ -13,9 +13,12 @@ public interface UIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(UIButton.class), (Test test) ->
                 {
-                    final UIButton button = creator.run(test);
-                    final UIButton setWidthResult = button.setWidth(Distance.inches(1));
-                    test.assertSame(button, setWidthResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIButton button = creator.run(process);
+                        final UIButton setWidthResult = button.setWidth(Distance.inches(1));
+                        test.assertSame(button, setWidthResult);
+                    }
                 });
             });
 
@@ -23,9 +26,12 @@ public interface UIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(UIButton.class), (Test test) ->
                 {
-                    final UIButton button = creator.run(test);
-                    final UIButton setHeightResult = button.setHeight(Distance.inches(1));
-                    test.assertSame(button, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIButton button = creator.run(process);
+                        final UIButton setHeightResult = button.setHeight(Distance.inches(1));
+                        test.assertSame(button, setHeightResult);
+                    }
                 });
             });
 
@@ -33,9 +39,12 @@ public interface UIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(UIButton.class), (Test test) ->
                 {
-                    final UIButton button = creator.run(test);
-                    final UIButton setHeightResult = button.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
-                    test.assertSame(button, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIButton button = creator.run(process);
+                        final UIButton setHeightResult = button.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
+                        test.assertSame(button, setHeightResult);
+                    }
                 });
             });
 
@@ -43,9 +52,12 @@ public interface UIButtonTests
             {
                 runner.test("should return " + Types.getTypeName(UIButton.class), (Test test) ->
                 {
-                    final UIButton button = creator.run(test);
-                    final UIButton setHeightResult = button.setSize(Distance.inches(2), Distance.inches(3));
-                    test.assertSame(button, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIButton button = creator.run(process);
+                        final UIButton setHeightResult = button.setSize(Distance.inches(2), Distance.inches(3));
+                        test.assertSame(button, setHeightResult);
+                    }
                 });
             });
 
@@ -53,32 +65,41 @@ public interface UIButtonTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final UIButton button = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIButton button = creator.run(process);
 
-                    test.assertThrows(() -> button.setText(null),
-                        new PreConditionFailure("text cannot be null."));
+                        test.assertThrows(() -> button.setText(null),
+                            new PreConditionFailure("text cannot be null."));
 
-                    test.assertEqual("", button.getText());
+                        test.assertEqual("", button.getText());
+                    }
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final UIButton button = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIButton button = creator.run(process);
 
-                    final UIButton setTextResult = button.setText("");
-                    test.assertSame(button, setTextResult);
+                        final UIButton setTextResult = button.setText("");
+                        test.assertSame(button, setTextResult);
 
-                    test.assertEqual("", button.getText());
+                        test.assertEqual("", button.getText());
+                    }
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final UIButton button = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIButton button = creator.run(process);
 
-                    final UIButton setTextResult = button.setText("hello");
-                    test.assertSame(button, setTextResult);
+                        final UIButton setTextResult = button.setText("hello");
+                        test.assertSame(button, setTextResult);
 
-                    test.assertEqual("hello", button.getText());
+                        test.assertEqual("hello", button.getText());
+                    }
                 });
             });
 
@@ -88,8 +109,11 @@ public interface UIButtonTests
                 {
                     runner.test("with " + fontSize, (Test test) ->
                     {
-                        final UIButton button = creator.run(test);
-                        test.assertThrows(() -> button.setFontSize(fontSize), expected);
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIButton button = creator.run(process);
+                            test.assertThrows(() -> button.setFontSize(fontSize), expected);
+                        }
                     });
                 };
 
@@ -100,10 +124,13 @@ public interface UIButtonTests
                 {
                     runner.test("with " + fontSize, (Test test) ->
                     {
-                        final UIButton button = creator.run(test);
-                        final UIButton setFontSizeResult = button.setFontSize(fontSize);
-                        test.assertSame(button, setFontSizeResult);
-                        test.assertEqual(fontSize, button.getFontSize());
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIButton button = creator.run(process);
+                            final UIButton setFontSizeResult = button.setFontSize(fontSize);
+                            test.assertSame(button, setFontSizeResult);
+                            test.assertEqual(fontSize, button.getFontSize());
+                        }
                     });
                 };
 
@@ -116,30 +143,42 @@ public interface UIButtonTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final UIButton button = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIButton button = creator.run(process);
 
-                    test.assertThrows(() -> button.onClick(null),
-                        new PreConditionFailure("callback cannot be null."));
+                        test.assertThrows(() -> button.onClick(null),
+                            new PreConditionFailure("callback cannot be null."));
+                    }
                 });
 
                 runner.test("with callback that throws an exception", (Test test) ->
                 {
-                    final UIButton button = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIButton button = creator.run(process);
 
-                    final Disposable subscription = button.onClick(() -> { throw new RuntimeException("hello"); });
-                    test.assertNotNull(subscription);
+                        final Disposable subscription = button.onClick(() ->
+                        {
+                            throw new RuntimeException("hello");
+                        });
+                        test.assertNotNull(subscription);
 
-                    test.assertTrue(subscription.dispose().await());
+                        test.assertTrue(subscription.dispose().await());
+                    }
                 });
 
                 runner.test("with callback that doesn't throw an exception", (Test test) ->
                 {
-                    final UIButton button = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIButton button = creator.run(process);
 
-                    final Disposable subscription = button.onClick(() -> {});
-                    test.assertNotNull(subscription);
+                        final Disposable subscription = button.onClick(() -> {});
+                        test.assertNotNull(subscription);
 
-                    test.assertTrue(subscription.dispose().await());
+                        test.assertTrue(subscription.dispose().await());
+                    }
                 });
             });
         });

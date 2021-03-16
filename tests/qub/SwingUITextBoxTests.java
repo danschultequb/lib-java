@@ -2,10 +2,9 @@ package qub;
 
 public interface SwingUITextBoxTests
 {
-    static SwingUITextBox createUITextBox(Test test)
+    static SwingUITextBox createUITextBox(FakeDesktopProcess process)
     {
-        final Display display = new Display(1000, 1000, 100, 100);
-        final AWTUIBase uiBase = AWTUIBase.create(display, test.getMainAsyncRunner(), test.getParallelAsyncRunner());
+        final AWTUIBase uiBase = AWTUIBase.create(process.getDisplays().first(), process.getMainAsyncRunner(), process.getParallelAsyncRunner());
         final SwingUIBuilder uiBuilder = SwingUIBuilder.create(uiBase);
         return uiBuilder.create(SwingUITextBox.class).await();
     }
@@ -17,7 +16,7 @@ public interface SwingUITextBoxTests
             UITextBoxTests.test(runner, SwingUITextBoxTests::createUITextBox);
             SwingUIElementTests.test(runner, SwingUITextBoxTests::createUITextBox);
 
-            runner.testGroup("create(SwingUIBase)", () ->
+            runner.testGroup("create(AWTUIBase)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
@@ -27,21 +26,24 @@ public interface SwingUITextBoxTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(test);
-                    test.assertNotNull(textBox);
-                    test.assertEqual(Distance.inches(0.05), textBox.getWidth());
-                    test.assertEqual(Distance.inches(0.2), textBox.getHeight());
-                    test.assertEqual(Size2D.create(Distance.inches(0.05), Distance.inches(0.2)), textBox.getSize());
-                    test.assertEqual(Distance.fontPoints(12), textBox.getFontSize());
-                    test.assertEqual("", textBox.getText());
-                    test.assertEqual(UIPaddingInPixels.create(2), textBox.getPaddingInPixels());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(process);
+                        test.assertNotNull(textBox);
+                        test.assertEqual(Distance.inches(0.05), textBox.getWidth());
+                        test.assertEqual(Distance.inches(0.2), textBox.getHeight());
+                        test.assertEqual(Size2D.create(Distance.inches(0.05), Distance.inches(0.2)), textBox.getSize());
+                        test.assertEqual(Distance.fontPoints(12), textBox.getFontSize());
+                        test.assertEqual("", textBox.getText());
+                        test.assertEqual(UIPaddingInPixels.create(2), textBox.getPaddingInPixels());
 
-                    final javax.swing.JTextField component = textBox.getComponent();
-                    test.assertNotNull(component);
+                        final javax.swing.JTextField component = textBox.getComponent();
+                        test.assertNotNull(component);
 
-                    final javax.swing.JTextField jComponent = textBox.getJComponent();
-                    test.assertNotNull(jComponent);
-                    test.assertSame(component, jComponent);
+                        final javax.swing.JTextField jComponent = textBox.getJComponent();
+                        test.assertNotNull(jComponent);
+                        test.assertSame(component, jComponent);
+                    }
                 });
             });
 
@@ -49,9 +51,12 @@ public interface SwingUITextBoxTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUITextBox.class), (Test test) ->
                 {
-                    final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(test);
-                    final SwingUITextBox setWidthResult = textBox.setWidth(Distance.inches(1));
-                    test.assertSame(textBox, setWidthResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(process);
+                        final SwingUITextBox setWidthResult = textBox.setWidth(Distance.inches(1));
+                        test.assertSame(textBox, setWidthResult);
+                    }
                 });
             });
 
@@ -59,9 +64,12 @@ public interface SwingUITextBoxTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUITextBox.class), (Test test) ->
                 {
-                    final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(test);
-                    final SwingUITextBox setWidthInPixelsResult = textBox.setWidthInPixels(1);
-                    test.assertSame(textBox, setWidthInPixelsResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(process);
+                        final SwingUITextBox setWidthInPixelsResult = textBox.setWidthInPixels(1);
+                        test.assertSame(textBox, setWidthInPixelsResult);
+                    }
                 });
             });
 
@@ -69,9 +77,12 @@ public interface SwingUITextBoxTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUITextBox.class), (Test test) ->
                 {
-                    final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(test);
-                    final SwingUITextBox setHeightResult = textBox.setHeight(Distance.inches(1));
-                    test.assertSame(textBox, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(process);
+                        final SwingUITextBox setHeightResult = textBox.setHeight(Distance.inches(1));
+                        test.assertSame(textBox, setHeightResult);
+                    }
                 });
             });
 
@@ -79,9 +90,12 @@ public interface SwingUITextBoxTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUITextBox.class), (Test test) ->
                 {
-                    final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(test);
-                    final SwingUITextBox setHeightInPixelsResult = textBox.setHeightInPixels(1);
-                    test.assertSame(textBox, setHeightInPixelsResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(process);
+                        final SwingUITextBox setHeightInPixelsResult = textBox.setHeightInPixels(1);
+                        test.assertSame(textBox, setHeightInPixelsResult);
+                    }
                 });
             });
 
@@ -89,9 +103,12 @@ public interface SwingUITextBoxTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUITextBox.class), (Test test) ->
                 {
-                    final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(test);
-                    final SwingUITextBox setSizeResult = textBox.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
-                    test.assertSame(textBox, setSizeResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(process);
+                        final SwingUITextBox setSizeResult = textBox.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
+                        test.assertSame(textBox, setSizeResult);
+                    }
                 });
             });
 
@@ -99,9 +116,12 @@ public interface SwingUITextBoxTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUITextBox.class), (Test test) ->
                 {
-                    final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(test);
-                    final SwingUITextBox setSizeResult = textBox.setSize(Distance.inches(2), Distance.inches(3));
-                    test.assertSame(textBox, setSizeResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(process);
+                        final SwingUITextBox setSizeResult = textBox.setSize(Distance.inches(2), Distance.inches(3));
+                        test.assertSame(textBox, setSizeResult);
+                    }
                 });
             });
 
@@ -109,9 +129,12 @@ public interface SwingUITextBoxTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUITextBox.class), (Test test) ->
                 {
-                    final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(test);
-                    final SwingUITextBox setSizeInPixelsResult = textBox.setSizeInPixels(2, 3);
-                    test.assertSame(textBox, setSizeInPixelsResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(process);
+                        final SwingUITextBox setSizeInPixelsResult = textBox.setSizeInPixels(2, 3);
+                        test.assertSame(textBox, setSizeInPixelsResult);
+                    }
                 });
             });
 
@@ -119,9 +142,12 @@ public interface SwingUITextBoxTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUITextBox.class), (Test test) ->
                 {
-                    final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(test);
-                    final SwingUITextBox setHeightResult = textBox.setText("hello");
-                    test.assertSame(textBox, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(process);
+                        final SwingUITextBox setHeightResult = textBox.setText("hello");
+                        test.assertSame(textBox, setHeightResult);
+                    }
                 });
             });
 
@@ -129,9 +155,12 @@ public interface SwingUITextBoxTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUITextBox.class), (Test test) ->
                 {
-                    final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(test);
-                    final SwingUITextBox setFontSizeResult = textBox.setFontSize(Distance.inches(1));
-                    test.assertSame(textBox, setFontSizeResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUITextBox textBox = SwingUITextBoxTests.createUITextBox(process);
+                        final SwingUITextBox setFontSizeResult = textBox.setFontSize(Distance.inches(1));
+                        test.assertSame(textBox, setFontSizeResult);
+                    }
                 });
             });
         });

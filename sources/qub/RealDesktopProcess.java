@@ -106,7 +106,7 @@ public class RealDesktopProcess extends DesktopProcessBase
     @Override
     protected FileSystem createDefaultFileSystem()
     {
-        return new JavaFileSystem();
+        return JavaFileSystem.create();
     }
 
     @Override
@@ -142,7 +142,7 @@ public class RealDesktopProcess extends DesktopProcessBase
     @Override
     protected Clock createDefaultClock()
     {
-        return new JavaClock(this.getParallelAsyncRunner());
+        return JavaClock.create(this.getParallelAsyncRunner());
     }
 
     @Override

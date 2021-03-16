@@ -21,10 +21,10 @@ public interface JavaFileSystemTests
 
         runner.testGroup(JavaFileSystem.class, () ->
         {
-            FileSystemTests.test(runner, (Test test) ->
+            FileSystemTests.test(runner, (Clock clock) ->
             {
                 final Path testFolderPath = tempFolderPath.concatenateSegment(testNumber.increment().toString());
-                folderFileSystem.set(FolderFileSystem.get(new JavaFileSystem(), testFolderPath));
+                folderFileSystem.set(FolderFileSystem.get(JavaFileSystem.create(), testFolderPath));
                 if (folderFileSystem.get().exists().await())
                 {
                     folderFileSystem.get().delete().await();
@@ -35,7 +35,7 @@ public interface JavaFileSystemTests
 
             runner.test("getRoots()", (Test test) ->
             {
-                final JavaFileSystem fileSystem = new JavaFileSystem();
+                final JavaFileSystem fileSystem = JavaFileSystem.create();
                 final Iterable<Root> roots = fileSystem.getRoots().await();
                 test.assertNotNullAndNotEmpty(roots);
 
@@ -47,14 +47,14 @@ public interface JavaFileSystemTests
             {
                 runner.test("with non-existing root path", (Test test) ->
                 {
-                    final JavaFileSystem fileSystem = new JavaFileSystem();
+                    final JavaFileSystem fileSystem = JavaFileSystem.create();
                     test.assertThrows(() -> fileSystem.getRootTotalDataSize(Path.parse("p:/")).await(),
                         new RootNotFoundException("p:/"));
                 });
 
                 runner.test("with existing root path", (Test test) ->
                 {
-                    final JavaFileSystem fileSystem = new JavaFileSystem();
+                    final JavaFileSystem fileSystem = JavaFileSystem.create();
                     final Root root = fileSystem.getRoots().await().first();
                     final DataSize rootTotalDataSize = fileSystem.getRootTotalDataSize(root.getPath()).await();
                     test.assertNotNull(rootTotalDataSize);
@@ -67,14 +67,14 @@ public interface JavaFileSystemTests
             {
                 runner.test("with non-existing root path", (Test test) ->
                 {
-                    final JavaFileSystem fileSystem = new JavaFileSystem();
+                    final JavaFileSystem fileSystem = JavaFileSystem.create();
                     test.assertThrows(() -> fileSystem.getRootUnusedDataSize(Path.parse("p:/")).await(),
                         new RootNotFoundException("p:/"));
                 });
 
                 runner.test("with existing root path", (Test test) ->
                 {
-                    final JavaFileSystem fileSystem = new JavaFileSystem();
+                    final JavaFileSystem fileSystem = JavaFileSystem.create();
                     final Root root = fileSystem.getRoots().await().first();
                     final DataSize rootUnusedDataSize = fileSystem.getRootUnusedDataSize(root.getPath()).await();
                     test.assertNotNull(rootUnusedDataSize);
@@ -87,14 +87,14 @@ public interface JavaFileSystemTests
             {
                 runner.test("with non-existing root path", (Test test) ->
                 {
-                    final JavaFileSystem fileSystem = new JavaFileSystem();
+                    final JavaFileSystem fileSystem = JavaFileSystem.create();
                     test.assertThrows(() -> fileSystem.getRootUsedDataSize(Path.parse("p:/")).await(),
                         new RootNotFoundException("p:/"));
                 });
 
                 runner.test("with existing root path", (Test test) ->
                 {
-                    final JavaFileSystem fileSystem = new JavaFileSystem();
+                    final JavaFileSystem fileSystem = JavaFileSystem.create();
                     final Root root = fileSystem.getRoots().await().first();
                     final DataSize rootUnusedDataSize = fileSystem.getRootUsedDataSize(root.getPath()).await();
                     test.assertNotNull(rootUnusedDataSize);

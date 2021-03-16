@@ -8,12 +8,13 @@ public interface TCPEchoServerTests
 
         runner.testGroup(TCPEchoServer.class, () ->
         {
-            runner.test("echo()", (Test test) ->
+            runner.test("echo()",
+                (TestResources resources) -> Tuple.create(resources.getClock(), resources.getParallelAsyncRunner()),
+                (Test test, Clock clock, AsyncRunner parallelAsyncRunner) ->
             {
-                final Network network = JavaNetwork.create(test.getClock());
+                final Network network = JavaNetwork.create(clock);
                 try (final TCPEchoServer echoServer = TCPEchoServer.create(network, port.increment().getAsInt()).await())
                 {
-                    final AsyncRunner parallelAsyncRunner = test.getParallelAsyncRunner();
                     final Result<Void> serverTask = parallelAsyncRunner.schedule((() -> echoServer.echo().await()));
 
                     final Result<Void> clientTask = parallelAsyncRunner.schedule(() ->

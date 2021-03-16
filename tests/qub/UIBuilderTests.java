@@ -2,7 +2,7 @@ package qub;
 
 public interface UIBuilderTests
 {
-    static void test(TestRunner runner, Function1<Test,? extends UIBuilder> creator)
+    static void test(TestRunner runner, Function1<FakeDesktopProcess,? extends UIBuilder> creator)
     {
         runner.testGroup(UIBuilder.class, () ->
         {
@@ -10,16 +10,22 @@ public interface UIBuilderTests
             {
                 runner.test("with null uiElementType", (Test test) ->
                 {
-                    final UIBuilder uiBuilder = creator.run(test);
-                    test.assertThrows(() -> uiBuilder.setCreator((Class<UIElement>)null, () -> null),
-                        new PreConditionFailure("uiElementType cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIBuilder uiBuilder = creator.run(process);
+                        test.assertThrows(() -> uiBuilder.setCreator((Class<UIElement>)null, () -> null),
+                            new PreConditionFailure("uiElementType cannot be null."));
+                    }
                 });
 
                 runner.test("with null uiElementCreator", (Test test) ->
                 {
-                    final UIBuilder uiBuilder = creator.run(test);
-                    test.assertThrows(() -> uiBuilder.setCreator(UIElement.class, null),
-                        new PreConditionFailure("uiElementCreator cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIBuilder uiBuilder = creator.run(process);
+                        test.assertThrows(() -> uiBuilder.setCreator(UIElement.class, null),
+                            new PreConditionFailure("uiElementCreator cannot be null."));
+                    }
                 });
             });
 
@@ -27,16 +33,22 @@ public interface UIBuilderTests
             {
                 runner.test("with null uiElementTypes", (Test test) ->
                 {
-                    final UIBuilder uiBuilder = creator.run(test);
-                    test.assertThrows(() -> uiBuilder.setCreator((Iterable<Class<? extends UIText>>)null, () -> null),
-                        new PreConditionFailure("uiElementTypes cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIBuilder uiBuilder = creator.run(process);
+                        test.assertThrows(() -> uiBuilder.setCreator((Iterable<Class<? extends UIText>>)null, () -> null),
+                            new PreConditionFailure("uiElementTypes cannot be null."));
+                    }
                 });
 
                 runner.test("with null uiElementCreator", (Test test) ->
                 {
-                    final UIBuilder uiBuilder = creator.run(test);
-                    test.assertThrows(() -> uiBuilder.setCreator(Iterable.create(UIElement.class), null),
-                        new PreConditionFailure("uiElementCreator cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIBuilder uiBuilder = creator.run(process);
+                        test.assertThrows(() -> uiBuilder.setCreator(Iterable.create(UIElement.class), null),
+                            new PreConditionFailure("uiElementCreator cannot be null."));
+                    }
                 });
             });
 
@@ -46,8 +58,11 @@ public interface UIBuilderTests
                 {
                     runner.test("with " + Types.getTypeName(uiType), (Test test) ->
                     {
-                        final UIBuilder uiBuilder = creator.run(test);
-                        test.assertThrows(() -> uiBuilder.create(uiType).await(), expected);
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIBuilder uiBuilder = creator.run(process);
+                            test.assertThrows(() -> uiBuilder.create(uiType).await(), expected);
+                        }
                     });
                 };
 
@@ -56,79 +71,109 @@ public interface UIBuilderTests
 
                 runner.test("with UIButton", (Test test) ->
                 {
-                    final UIBuilder uiBuilder = creator.run(test);
-                    final UIButton uiButton = uiBuilder.create(UIButton.class).await();
-                    test.assertNotNull(uiButton);
-                    test.assertEqual("", uiButton.getText());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIBuilder uiBuilder = creator.run(process);
+                        final UIButton uiButton = uiBuilder.create(UIButton.class).await();
+                        test.assertNotNull(uiButton);
+                        test.assertEqual("", uiButton.getText());
+                    }
                 });
 
                 runner.test("with UIText", (Test test) ->
                 {
-                    final UIBuilder uiBuilder = creator.run(test);
-                    final UIText text = uiBuilder.create(UIText.class).await();
-                    test.assertNotNull(text);
-                    test.assertEqual("", text.getText());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIBuilder uiBuilder = creator.run(process);
+                        final UIText text = uiBuilder.create(UIText.class).await();
+                        test.assertNotNull(text);
+                        test.assertEqual("", text.getText());
+                    }
                 });
 
                 runner.test("with UITextBox", (Test test) ->
                 {
-                    final UIBuilder uiBuilder = creator.run(test);
-                    final UITextBox textBox = uiBuilder.create(UITextBox.class).await();
-                    test.assertNotNull(textBox);
-                    test.assertEqual("", textBox.getText());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIBuilder uiBuilder = creator.run(process);
+                        final UITextBox textBox = uiBuilder.create(UITextBox.class).await();
+                        test.assertNotNull(textBox);
+                        test.assertEqual("", textBox.getText());
+                    }
                 });
 
                 runner.test("with UIVerticalLayout", (Test test) ->
                 {
-                    final UIBuilder uiBuilder = creator.run(test);
-                    final UIVerticalLayout verticalLayout = uiBuilder.create(UIVerticalLayout.class).await();
-                    test.assertNotNull(verticalLayout);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIBuilder uiBuilder = creator.run(process);
+                        final UIVerticalLayout verticalLayout = uiBuilder.create(UIVerticalLayout.class).await();
+                        test.assertNotNull(verticalLayout);
+                    }
                 });
 
                 runner.test("with UIHorizontalLayout", (Test test) ->
                 {
-                    final UIBuilder uiBuilder = creator.run(test);
-                    final UIHorizontalLayout horizontalLayout = uiBuilder.create(UIHorizontalLayout.class).await();
-                    test.assertNotNull(horizontalLayout);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIBuilder uiBuilder = creator.run(process);
+                        final UIHorizontalLayout horizontalLayout = uiBuilder.create(UIHorizontalLayout.class).await();
+                        test.assertNotNull(horizontalLayout);
+                    }
                 });
             });
 
             runner.test("createUIButton()", (Test test) ->
             {
-                final UIBuilder uiBuilder = creator.run(test);
-                final UIButton button = uiBuilder.createUIButton().await();
-                test.assertNotNull(button);
-                test.assertEqual("", button.getText());
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                {
+                    final UIBuilder uiBuilder = creator.run(process);
+                    final UIButton button = uiBuilder.createUIButton().await();
+                    test.assertNotNull(button);
+                    test.assertEqual("", button.getText());
+                }
             });
 
             runner.test("createUIText()", (Test test) ->
             {
-                final UIBuilder uiBuilder = creator.run(test);
-                final UIText text = uiBuilder.createUIText().await();
-                test.assertNotNull(text);
-                test.assertEqual("", text.getText());
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                {
+                    final UIBuilder uiBuilder = creator.run(process);
+                    final UIText text = uiBuilder.createUIText().await();
+                    test.assertNotNull(text);
+                    test.assertEqual("", text.getText());
+                }
             });
 
             runner.test("createUITextBox()", (Test test) ->
             {
-                final UIBuilder uiBuilder = creator.run(test);
-                final UITextBox textBox = uiBuilder.createUITextBox().await();
-                test.assertNotNull(textBox);
-                test.assertEqual("", textBox.getText());
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                {
+                    final UIBuilder uiBuilder = creator.run(process);
+                    final UITextBox textBox = uiBuilder.createUITextBox().await();
+                    test.assertNotNull(textBox);
+                    test.assertEqual("", textBox.getText());
+                }
             });
 
             runner.test("createUIVerticalLayout()", (Test test) ->
             {
-                final UIBuilder uiBuilder = creator.run(test);
-                final UIVerticalLayout verticalLayout = uiBuilder.createUIVerticalLayout().await();
-                test.assertNotNull(verticalLayout);
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                {
+                    final UIBuilder uiBuilder = creator.run(process);
+                    final UIVerticalLayout verticalLayout = uiBuilder.createUIVerticalLayout().await();
+                    test.assertNotNull(verticalLayout);
+                }
             });
 
             runner.test("createUIHorizontalLayout()", (Test test) ->
             {
-                final UIBuilder uiBuilder = creator.run(test);
-                final UIHorizontalLayout horizontalLayout = uiBuilder.createUIHorizontalLayout().await();
-                test.assertNotNull(horizontalLayout);
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                {
+                    final UIBuilder uiBuilder = creator.run(process);
+                    final UIHorizontalLayout horizontalLayout = uiBuilder.createUIHorizontalLayout().await();
+                    test.assertNotNull(horizontalLayout);
+                }
             });
         });
     }

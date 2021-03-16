@@ -550,20 +550,21 @@ public interface Strings
 
         if (!Strings.isNullOrEmpty(value))
         {
-            final StringBuilder builder = new StringBuilder();
-            for (char character : value.toCharArray())
+            final CharacterList builder = CharacterList.create();
+            for (final char character : value.toCharArray())
             {
                 if (Characters.isLetterOrDigit(character))
                 {
-                    builder.append(character);
+                    builder.add(character);
                 }
-                else if (builder.length() > 0)
+                else if (builder.any())
                 {
                     result.add(builder.toString());
-                    builder.setLength(0);
+                    builder.clear();
                 }
             }
-            if (builder.length() > 0)
+
+            if (builder.any())
             {
                 result.add(builder.toString());
             }

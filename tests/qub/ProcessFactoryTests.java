@@ -2,46 +2,61 @@ package qub;
 
 public interface ProcessFactoryTests
 {
-    static void test(TestRunner runner, Function1<Test,ProcessFactory> creator)
+    static void test(TestRunner runner, Function1<Process,ProcessFactory> creator)
     {
         runner.testGroup(ProcessFactory.class, () ->
         {
             runner.test("getWorkingFolderPath()", (Test test) ->
             {
-                final ProcessFactory factory = creator.run(test);
-                test.assertNotNull(factory.getWorkingFolderPath());
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                {
+                    final ProcessFactory factory = creator.run(process);
+                    test.assertNotNull(factory.getWorkingFolderPath());
+                }
             });
 
             runner.testGroup("getProcessBuilder(String)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final ProcessFactory factory = creator.run(test);
-                    test.assertThrows(() -> factory.getProcessBuilder((String)null),
-                        new PreConditionFailure("executablePath cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final ProcessFactory factory = creator.run(process);
+                        test.assertThrows(() -> factory.getProcessBuilder((String)null),
+                            new PreConditionFailure("executablePath cannot be null."));
+                    }
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final ProcessFactory factory = creator.run(test);
-                    test.assertThrows(() -> factory.getProcessBuilder(""),
-                        new PreConditionFailure("executablePath cannot be empty."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final ProcessFactory factory = creator.run(process);
+                        test.assertThrows(() -> factory.getProcessBuilder(""),
+                            new PreConditionFailure("executablePath cannot be empty."));
+                    }
                 });
 
                 runner.test("with \"javac\"", (Test test) ->
                 {
-                    final ProcessFactory factory = creator.run(test);
-                    final ProcessBuilder processBuilder = factory.getProcessBuilder("javac").await();
-                    test.assertNotNull(processBuilder);
-                    test.assertEqual(Path.parse("javac"), processBuilder.getExecutablePath());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final ProcessFactory factory = creator.run(process);
+                        final ProcessBuilder processBuilder = factory.getProcessBuilder("javac").await();
+                        test.assertNotNull(processBuilder);
+                        test.assertEqual(Path.parse("javac"), processBuilder.getExecutablePath());
+                    }
                 });
 
                 runner.test("with \"doesntExist\"", (Test test) ->
                 {
-                    final ProcessFactory factory = creator.run(test);
-                    final ProcessBuilder processBuilder = factory.getProcessBuilder("doesntExist").await();
-                    test.assertNotNull(processBuilder);
-                    test.assertEqual(Path.parse("doesntExist"), processBuilder.getExecutablePath());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final ProcessFactory factory = creator.run(process);
+                        final ProcessBuilder processBuilder = factory.getProcessBuilder("doesntExist").await();
+                        test.assertNotNull(processBuilder);
+                        test.assertEqual(Path.parse("doesntExist"), processBuilder.getExecutablePath());
+                    }
                 });
             });
 
@@ -49,25 +64,34 @@ public interface ProcessFactoryTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final ProcessFactory factory = creator.run(test);
-                    test.assertThrows(() -> factory.getProcessBuilder((Path)null),
-                        new PreConditionFailure("executablePath cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final ProcessFactory factory = creator.run(process);
+                        test.assertThrows(() -> factory.getProcessBuilder((Path)null),
+                            new PreConditionFailure("executablePath cannot be null."));
+                    }
                 });
 
                 runner.test("with \"javac\"", (Test test) ->
                 {
-                    final ProcessFactory factory = creator.run(test);
-                    final ProcessBuilder processBuilder = factory.getProcessBuilder(Path.parse("javac")).await();
-                    test.assertNotNull(processBuilder);
-                    test.assertEqual(Path.parse("javac"), processBuilder.getExecutablePath());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final ProcessFactory factory = creator.run(process);
+                        final ProcessBuilder processBuilder = factory.getProcessBuilder(Path.parse("javac")).await();
+                        test.assertNotNull(processBuilder);
+                        test.assertEqual(Path.parse("javac"), processBuilder.getExecutablePath());
+                    }
                 });
 
                 runner.test("with \"doesntExist\"", (Test test) ->
                 {
-                    final ProcessFactory factory = creator.run(test);
-                    final ProcessBuilder processBuilder = factory.getProcessBuilder(Path.parse("doesntExist")).await();
-                    test.assertNotNull(processBuilder);
-                    test.assertEqual(Path.parse("doesntExist"), processBuilder.getExecutablePath());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final ProcessFactory factory = creator.run(process);
+                        final ProcessBuilder processBuilder = factory.getProcessBuilder(Path.parse("doesntExist")).await();
+                        test.assertNotNull(processBuilder);
+                        test.assertEqual(Path.parse("doesntExist"), processBuilder.getExecutablePath());
+                    }
                 });
             });
 
@@ -75,20 +99,25 @@ public interface ProcessFactoryTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final ProcessFactory factory = creator.run(test);
-                    test.assertThrows(() -> factory.getProcessBuilder((File)null),
-                        new PreConditionFailure("executableFile cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final ProcessFactory factory = creator.run(process);
+                        test.assertThrows(() -> factory.getProcessBuilder((File)null),
+                            new PreConditionFailure("executableFile cannot be null."));
+                    }
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
-                    fileSystem.createRoot("/").await();
-                    final File file = fileSystem.createFile("/folder/file").await();
-                    final ProcessFactory factory = creator.run(test);
-                    final ProcessBuilder processBuilder = factory.getProcessBuilder(file).await();
-                    test.assertNotNull(processBuilder);
-                    test.assertEqual(file.getPath(), processBuilder.getExecutablePath());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final InMemoryFileSystem fileSystem = process.getFileSystem();
+                        final File file = fileSystem.createFile("/folder/file").await();
+                        final ProcessFactory factory = creator.run(process);
+                        final ProcessBuilder processBuilder = factory.getProcessBuilder(file).await();
+                        test.assertNotNull(processBuilder);
+                        test.assertEqual(file.getPath(), processBuilder.getExecutablePath());
+                    }
                 });
             });
 
@@ -96,28 +125,39 @@ public interface ProcessFactoryTests
             {
                 runner.test("with null executablePath", (Test test) ->
                 {
-                    final ProcessFactory factory = creator.run(test);
-                    test.assertThrows(() -> factory.run(null, Iterable.create("a", "b"), Path.parse("/working/folder/"), null, null, null, null),
-                        new PreConditionFailure("executablePath cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final ProcessFactory factory = creator.run(process);
+                        test.assertThrows(() -> factory.run(null, Iterable.create("a", "b"), Path.parse("/working/folder/"), null, null, null, null),
+                            new PreConditionFailure("executablePath cannot be null."));
+                    }
                 });
 
                 runner.test("with null arguments", (Test test) ->
                 {
-                    final ProcessFactory factory = creator.run(test);
-                    test.assertThrows(() -> factory.run(Path.parse("javac"), null, Path.parse("/working/folder/"), null, null, null, null),
-                        new PreConditionFailure("arguments cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final ProcessFactory factory = creator.run(process);
+                        test.assertThrows(() -> factory.run(Path.parse("javac"), null, Path.parse("/working/folder/"), null, null, null, null),
+                            new PreConditionFailure("arguments cannot be null."));
+                    }
                 });
 
                 runner.test("with null workingFolderPath", (Test test) ->
                 {
-                    final ProcessFactory factory = creator.run(test);
-                    test.assertThrows(() -> factory.run(Path.parse("javac"), Iterable.create(), null, null, null, null, null),
-                        new PreConditionFailure("workingFolderPath cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final ProcessFactory factory = creator.run(process);
+                        test.assertThrows(() -> factory.run(Path.parse("javac"), Iterable.create(), null, null, null, null, null),
+                            new PreConditionFailure("workingFolderPath cannot be null."));
+                    }
                 });
 
-                runner.test("with valid arguments", (Test test) ->
+                runner.test("with valid arguments",
+                    (TestResources resources) -> Tuple.create(resources.getProcess()),
+                    (Test test, Process process) ->
                 {
-                    final ProcessFactory factory = creator.run(test);
+                    final ProcessFactory factory = creator.run(process);
                     final Integer runResult = factory.run(Path.parse("javac"), Iterable.create(), factory.getWorkingFolderPath(), null, null, null, null).await();
                     test.assertEqual(2, runResult);
                 });
@@ -127,28 +167,39 @@ public interface ProcessFactoryTests
             {
                 runner.test("with null executablePath", (Test test) ->
                 {
-                    final ProcessFactory factory = creator.run(test);
-                    test.assertThrows(() -> factory.start(null, Iterable.create("a", "b"), Path.parse("/working/folder/"), null, null, null, null),
-                        new PreConditionFailure("executablePath cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final ProcessFactory factory = creator.run(process);
+                        test.assertThrows(() -> factory.start(null, Iterable.create("a", "b"), Path.parse("/working/folder/"), null, null, null, null),
+                            new PreConditionFailure("executablePath cannot be null."));
+                    }
                 });
 
                 runner.test("with null arguments", (Test test) ->
                 {
-                    final ProcessFactory factory = creator.run(test);
-                    test.assertThrows(() -> factory.start(Path.parse("javac"), null, Path.parse("/working/folder/"), null, null, null, null),
-                        new PreConditionFailure("arguments cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final ProcessFactory factory = creator.run(process);
+                        test.assertThrows(() -> factory.start(Path.parse("javac"), null, Path.parse("/working/folder/"), null, null, null, null),
+                            new PreConditionFailure("arguments cannot be null."));
+                    }
                 });
 
                 runner.test("with null workingFolderPath", (Test test) ->
                 {
-                    final ProcessFactory factory = creator.run(test);
-                    test.assertThrows(() -> factory.start(Path.parse("javac"), Iterable.create(), null, null, null, null, null),
-                        new PreConditionFailure("workingFolderPath cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final ProcessFactory factory = creator.run(process);
+                        test.assertThrows(() -> factory.start(Path.parse("javac"), Iterable.create(), null, null, null, null, null),
+                            new PreConditionFailure("workingFolderPath cannot be null."));
+                    }
                 });
 
-                runner.test("with valid arguments", (Test test) ->
+                runner.test("with valid arguments",
+                    (TestResources resources) -> Tuple.create(resources.getProcess()),
+                    (Test test, Process process) ->
                 {
-                    final ProcessFactory factory = creator.run(test);
+                    final ProcessFactory factory = creator.run(process);
                     final ChildProcess runResult = factory.start(Path.parse("javac"), Iterable.create(), factory.getWorkingFolderPath(), null, null, null, null).await();
                     test.assertNotNull(runResult);
                     test.assertEqual(ProcessState.Running, runResult.getState());
@@ -158,14 +209,16 @@ public interface ProcessFactoryTests
                     test.assertEqual(ProcessState.NotRunning, runResult.getState());
                 });
 
-                runner.test("with delay before awaiting", (Test test) ->
+                runner.test("with delay before awaiting",
+                    (TestResources resources) -> Tuple.create(resources.getProcess()),
+                    (Test test, Process process) ->
                 {
-                    final ProcessFactory factory = creator.run(test);
+                    final ProcessFactory factory = creator.run(process);
                     final ChildProcess runResult = factory.start(Path.parse("javac"), Iterable.create(), factory.getWorkingFolderPath(), null, null, null, null).await();
                     test.assertNotNull(runResult);
                     test.assertEqual(ProcessState.Running, runResult.getState());
 
-                    final Clock clock = test.getClock();
+                    final Clock clock = process.getClock();
                     final DateTime startWaitTime = clock.getCurrentDateTime();
                     while (runResult.getState() == ProcessState.Running &&
                            clock.getCurrentDateTime().minus(startWaitTime).lessThan(Duration.seconds(5)))

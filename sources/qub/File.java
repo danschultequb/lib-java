@@ -2,12 +2,12 @@ package qub;
 
 public class File extends FileSystemEntry
 {
-    File(FileSystem fileSystem, String path)
+    public File(FileSystem fileSystem, String path)
     {
         this(fileSystem, Path.parse(path));
     }
 
-    File(FileSystem fileSystem, Path path)
+    public File(FileSystem fileSystem, Path path)
     {
         super(fileSystem, path);
     }

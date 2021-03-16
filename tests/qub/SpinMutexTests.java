@@ -6,7 +6,7 @@ public class SpinMutexTests
     {
         runner.testGroup(SpinMutex.class, () ->
         {
-            MutexTests.test(runner, SpinMutex::new);
+            MutexTests.test(runner, SpinMutex::create);
         });
     }
 }

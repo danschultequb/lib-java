@@ -254,7 +254,7 @@ public class TypesTests
                 runner.test("with Test", (Test test) ->
                 {
                     final Iterable<String> actual = Types.getMemberVariables(test).map(java.lang.reflect.Field::getName).where(value -> !value.equals("$jacocoData"));
-                    final Iterable<String> expected = Iterable.create("name", "parent", "skip", "process");
+                    final Iterable<String> expected = Iterable.create("name", "parent", "skip");
                     test.assertEqual(expected, actual);
                 });
             });
@@ -297,14 +297,14 @@ public class TypesTests
                 runner.test("with Test.getClass()", (Test test) ->
                 {
                     final Iterable<String> actual = Types.getMemberVariables(test.getClass()).map(java.lang.reflect.Field::getName).where(value -> !value.equals("$jacocoData"));
-                    final Iterable<String> expected = Iterable.create("name", "parent", "skip", "process");
+                    final Iterable<String> expected = Iterable.create("name", "parent", "skip");
                     test.assertEqual(expected, actual);
                 });
 
                 runner.test("with Test.class", (Test test) ->
                 {
                     final Iterable<String> actual = Types.getMemberVariables(Test.class).map(java.lang.reflect.Field::getName).where(value -> !value.equals("$jacocoData"));
-                    final Iterable<String> expected = Iterable.create("name", "parent", "skip", "process");
+                    final Iterable<String> expected = Iterable.create("name", "parent", "skip");
                     test.assertEqual(expected, actual);
                 });
             });

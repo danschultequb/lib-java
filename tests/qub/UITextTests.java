@@ -2,7 +2,7 @@ package qub;
 
 public interface UITextTests
 {
-    static void test(TestRunner runner, Function1<Test,? extends UIText> creator)
+    static void test(TestRunner runner, Function1<FakeDesktopProcess,? extends UIText> creator)
     {
         PreCondition.assertNotNull(runner, "runner");
         PreCondition.assertNotNull(creator, "creator");
@@ -13,9 +13,12 @@ public interface UITextTests
             {
                 runner.test("should return " + Types.getTypeName(UIText.class), (Test test) ->
                 {
-                    final UIText text = creator.run(test);
-                    final UIText setWidthResult = text.setWidth(Distance.inches(1));
-                    test.assertSame(text, setWidthResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIText text = creator.run(process);
+                        final UIText setWidthResult = text.setWidth(Distance.inches(1));
+                        test.assertSame(text, setWidthResult);
+                    }
                 });
             });
 
@@ -23,9 +26,12 @@ public interface UITextTests
             {
                 runner.test("should return " + Types.getTypeName(UIText.class), (Test test) ->
                 {
-                    final UIText text = creator.run(test);
-                    final UIText setHeightResult = text.setHeight(Distance.inches(1));
-                    test.assertSame(text, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIText text = creator.run(process);
+                        final UIText setHeightResult = text.setHeight(Distance.inches(1));
+                        test.assertSame(text, setHeightResult);
+                    }
                 });
             });
 
@@ -33,9 +39,12 @@ public interface UITextTests
             {
                 runner.test("should return " + Types.getTypeName(UIText.class), (Test test) ->
                 {
-                    final UIText text = creator.run(test);
-                    final UIText setHeightResult = text.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
-                    test.assertSame(text, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIText text = creator.run(process);
+                        final UIText setHeightResult = text.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
+                        test.assertSame(text, setHeightResult);
+                    }
                 });
             });
 
@@ -43,9 +52,12 @@ public interface UITextTests
             {
                 runner.test("should return " + Types.getTypeName(UIText.class), (Test test) ->
                 {
-                    final UIText text = creator.run(test);
-                    final UIText setHeightResult = text.setSize(Distance.inches(2), Distance.inches(3));
-                    test.assertSame(text, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIText text = creator.run(process);
+                        final UIText setHeightResult = text.setSize(Distance.inches(2), Distance.inches(3));
+                        test.assertSame(text, setHeightResult);
+                    }
                 });
             });
 
@@ -53,32 +65,41 @@ public interface UITextTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final UIText text = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIText text = creator.run(process);
 
-                    test.assertThrows(() -> text.setText(null),
-                        new PreConditionFailure("text cannot be null."));
+                        test.assertThrows(() -> text.setText(null),
+                            new PreConditionFailure("text cannot be null."));
 
-                    test.assertEqual("", text.getText());
+                        test.assertEqual("", text.getText());
+                    }
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final UIText text = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIText text = creator.run(process);
 
-                    final UIText setTextResult = text.setText("");
-                    test.assertSame(text, setTextResult);
+                        final UIText setTextResult = text.setText("");
+                        test.assertSame(text, setTextResult);
 
-                    test.assertEqual("", text.getText());
+                        test.assertEqual("", text.getText());
+                    }
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final UIText text = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIText text = creator.run(process);
 
-                    final UIText setTextResult = text.setText("hello");
-                    test.assertSame(text, setTextResult);
+                        final UIText setTextResult = text.setText("hello");
+                        test.assertSame(text, setTextResult);
 
-                    test.assertEqual("hello", text.getText());
+                        test.assertEqual("hello", text.getText());
+                    }
                 });
             });
 
@@ -88,8 +109,11 @@ public interface UITextTests
                 {
                     runner.test("with " + fontSize, (Test test) ->
                     {
-                        final UIText text = creator.run(test);
-                        test.assertThrows(() -> text.setFontSize(fontSize), expected);
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIText text = creator.run(process);
+                            test.assertThrows(() -> text.setFontSize(fontSize), expected);
+                        }
                     });
                 };
 
@@ -100,10 +124,13 @@ public interface UITextTests
                 {
                     runner.test("with " + fontSize, (Test test) ->
                     {
-                        final UIText text = creator.run(test);
-                        final UIText setFontSizeResult = text.setFontSize(fontSize);
-                        test.assertSame(text, setFontSizeResult);
-                        test.assertEqual(fontSize, text.getFontSize());
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIText text = creator.run(process);
+                            final UIText setFontSizeResult = text.setFontSize(fontSize);
+                            test.assertSame(text, setFontSizeResult);
+                            test.assertEqual(fontSize, text.getFontSize());
+                        }
                     });
                 };
 

@@ -2,7 +2,7 @@ package qub;
 
 public interface DefaultApplicationLauncherTests
 {
-    static void test(TestRunner runner, Function1<Test,? extends DefaultApplicationLauncher> creator)
+    static void test(TestRunner runner, Function1<DesktopProcess,? extends DefaultApplicationLauncher> creator)
     {
         PreCondition.assertNotNull(runner, "runner");
         PreCondition.assertNotNull(creator, "creator");
@@ -15,9 +15,12 @@ public interface DefaultApplicationLauncherTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(pathToOpen), (Test test) ->
                     {
-                        final DefaultApplicationLauncher launcher = creator.run(test);
-                        test.assertThrows(() -> launcher.openWithDefaultApplication(pathToOpen).await(),
-                            expected);
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final DefaultApplicationLauncher launcher = creator.run(process);
+                            test.assertThrows(() -> launcher.openWithDefaultApplication(pathToOpen).await(),
+                                expected);
+                        }
                     });
                 };
 
@@ -37,9 +40,12 @@ public interface DefaultApplicationLauncherTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(pathToOpen), (Test test) ->
                     {
-                        final DefaultApplicationLauncher launcher = creator.run(test);
-                        test.assertThrows(() -> launcher.openWithDefaultApplication(pathToOpen).await(),
-                            expected);
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final DefaultApplicationLauncher launcher = creator.run(process);
+                            test.assertThrows(() -> launcher.openWithDefaultApplication(pathToOpen).await(),
+                                expected);
+                        }
                     });
                 };
 
@@ -56,22 +62,28 @@ public interface DefaultApplicationLauncherTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final DefaultApplicationLauncher launcher = creator.run(test);
-                    test.assertThrows(() -> launcher.openFileWithDefaultApplication((File)null),
-                        new PreConditionFailure("fileToOpen cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final DefaultApplicationLauncher launcher = creator.run(process);
+                        test.assertThrows(() -> launcher.openFileWithDefaultApplication((File)null),
+                            new PreConditionFailure("fileToOpen cannot be null."));
+                    }
                 });
 
                 runner.test("with non-existing file", (Test test) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder();
-                    final File file = currentFolder.getFile("fake-file.txt").await();
-                    test.assertFalse(file.exists().await());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final Folder currentFolder = process.getCurrentFolder();
+                        final File file = currentFolder.getFile("fake-file.txt").await();
+                        test.assertFalse(file.exists().await());
 
-                    final DefaultApplicationLauncher launcher = creator.run(test);
-                    test.assertThrows(() -> launcher.openFileWithDefaultApplication(file).await(),
-                        new FileNotFoundException(file));
+                        final DefaultApplicationLauncher launcher = creator.run(process);
+                        test.assertThrows(() -> launcher.openFileWithDefaultApplication(file).await(),
+                            new FileNotFoundException(file));
 
-                    test.assertFalse(file.exists().await());
+                        test.assertFalse(file.exists().await());
+                    }
                 });
             });
 
@@ -79,22 +91,28 @@ public interface DefaultApplicationLauncherTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final DefaultApplicationLauncher launcher = creator.run(test);
-                    test.assertThrows(() -> launcher.openFolderWithDefaultApplication((Folder)null),
-                        new PreConditionFailure("folderToOpen cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final DefaultApplicationLauncher launcher = creator.run(process);
+                        test.assertThrows(() -> launcher.openFolderWithDefaultApplication((Folder)null),
+                            new PreConditionFailure("folderToOpen cannot be null."));
+                    }
                 });
 
                 runner.test("with non-existing folder", (Test test) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder();
-                    final Folder folder = currentFolder.getFolder("fake-folder").await();
-                    test.assertFalse(folder.exists().await());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final Folder currentFolder = process.getCurrentFolder();
+                        final Folder folder = currentFolder.getFolder("fake-folder").await();
+                        test.assertFalse(folder.exists().await());
 
-                    final DefaultApplicationLauncher launcher = creator.run(test);
-                    test.assertThrows(() -> launcher.openFolderWithDefaultApplication(folder).await(),
-                        new FolderNotFoundException(folder));
+                        final DefaultApplicationLauncher launcher = creator.run(process);
+                        test.assertThrows(() -> launcher.openFolderWithDefaultApplication(folder).await(),
+                            new FolderNotFoundException(folder));
 
-                    test.assertFalse(folder.exists().await());
+                        test.assertFalse(folder.exists().await());
+                    }
                 });
             });
         });

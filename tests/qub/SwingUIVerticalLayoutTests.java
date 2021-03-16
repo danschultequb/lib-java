@@ -2,21 +2,20 @@ package qub;
 
 public interface SwingUIVerticalLayoutTests
 {
-    static AWTUIBase createUIBase(Test test)
+    static AWTUIBase createUIBase(FakeDesktopProcess process)
     {
-        final Display display = new Display(1000, 1000, 100, 100);
-        return AWTUIBase.create(display, test.getMainAsyncRunner(), test.getParallelAsyncRunner());
+        return AWTUIBase.create(process.getDisplays().first(), process.getMainAsyncRunner(), process.getParallelAsyncRunner());
     }
 
-    static SwingUIBuilder createUIBuilder(Test test)
+    static SwingUIBuilder createUIBuilder(FakeDesktopProcess process)
     {
-        final AWTUIBase uiBase = SwingUIVerticalLayoutTests.createUIBase(test);
+        final AWTUIBase uiBase = SwingUIVerticalLayoutTests.createUIBase(process);
         return SwingUIBuilder.create(uiBase);
     }
 
-    static SwingUIVerticalLayout createUIVerticalLayout(Test test)
+    static SwingUIVerticalLayout createUIVerticalLayout(FakeDesktopProcess process)
     {
-        final SwingUIBuilder uiBuilder = SwingUIVerticalLayoutTests.createUIBuilder(test);
+        final SwingUIBuilder uiBuilder = SwingUIVerticalLayoutTests.createUIBuilder(process);
         return uiBuilder.create(SwingUIVerticalLayout.class).await();
     }
 
@@ -37,19 +36,22 @@ public interface SwingUIVerticalLayoutTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final AWTUIBase uiBase = SwingUIVerticalLayoutTests.createUIBase(test);
-                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayout.create(uiBase);
-                    test.assertNotNull(verticalLayout);
-                    test.assertEqual(Distance.zero, verticalLayout.getWidth());
-                    test.assertEqual(Distance.zero, verticalLayout.getHeight());
-                    test.assertEqual(UIPaddingInPixels.create(), verticalLayout.getPaddingInPixels());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final AWTUIBase uiBase = SwingUIVerticalLayoutTests.createUIBase(process);
+                        final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayout.create(uiBase);
+                        test.assertNotNull(verticalLayout);
+                        test.assertEqual(Distance.zero, verticalLayout.getWidth());
+                        test.assertEqual(Distance.zero, verticalLayout.getHeight());
+                        test.assertEqual(UIPaddingInPixels.create(), verticalLayout.getPaddingInPixels());
 
-                    final javax.swing.JPanel component = verticalLayout.getComponent();
-                    test.assertNotNull(component);
+                        final javax.swing.JPanel component = verticalLayout.getComponent();
+                        test.assertNotNull(component);
 
-                    final javax.swing.JPanel jComponent = verticalLayout.getJComponent();
-                    test.assertNotNull(jComponent);
-                    test.assertSame(component, jComponent);
+                        final javax.swing.JPanel jComponent = verticalLayout.getJComponent();
+                        test.assertNotNull(jComponent);
+                        test.assertSame(component, jComponent);
+                    }
                 });
             });
 
@@ -57,9 +59,12 @@ public interface SwingUIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
                 {
-                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
-                    final SwingUIVerticalLayout setWidthResult = verticalLayout.setWidth(Distance.inches(1));
-                    test.assertSame(verticalLayout, setWidthResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(process);
+                        final SwingUIVerticalLayout setWidthResult = verticalLayout.setWidth(Distance.inches(1));
+                        test.assertSame(verticalLayout, setWidthResult);
+                    }
                 });
             });
 
@@ -67,9 +72,12 @@ public interface SwingUIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
                 {
-                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
-                    final SwingUIVerticalLayout setWidthInPixelsResult = verticalLayout.setWidthInPixels(1);
-                    test.assertSame(verticalLayout, setWidthInPixelsResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(process);
+                        final SwingUIVerticalLayout setWidthInPixelsResult = verticalLayout.setWidthInPixels(1);
+                        test.assertSame(verticalLayout, setWidthInPixelsResult);
+                    }
                 });
             });
 
@@ -77,9 +85,12 @@ public interface SwingUIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
                 {
-                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
-                    final SwingUIVerticalLayout setHeightResult = verticalLayout.setHeight(Distance.inches(1));
-                    test.assertSame(verticalLayout, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(process);
+                        final SwingUIVerticalLayout setHeightResult = verticalLayout.setHeight(Distance.inches(1));
+                        test.assertSame(verticalLayout, setHeightResult);
+                    }
                 });
             });
 
@@ -87,9 +98,12 @@ public interface SwingUIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
                 {
-                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
-                    final SwingUIVerticalLayout setHeightInPixelsResult = verticalLayout.setHeightInPixels(1);
-                    test.assertSame(verticalLayout, setHeightInPixelsResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(process);
+                        final SwingUIVerticalLayout setHeightInPixelsResult = verticalLayout.setHeightInPixels(1);
+                        test.assertSame(verticalLayout, setHeightInPixelsResult);
+                    }
                 });
             });
 
@@ -97,9 +111,12 @@ public interface SwingUIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
                 {
-                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
-                    final SwingUIVerticalLayout setSizeResult = verticalLayout.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
-                    test.assertSame(verticalLayout, setSizeResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(process);
+                        final SwingUIVerticalLayout setSizeResult = verticalLayout.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
+                        test.assertSame(verticalLayout, setSizeResult);
+                    }
                 });
             });
 
@@ -107,9 +124,12 @@ public interface SwingUIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
                 {
-                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
-                    final SwingUIVerticalLayout setSizeResult = verticalLayout.setSize(Distance.inches(2), Distance.inches(3));
-                    test.assertSame(verticalLayout, setSizeResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(process);
+                        final SwingUIVerticalLayout setSizeResult = verticalLayout.setSize(Distance.inches(2), Distance.inches(3));
+                        test.assertSame(verticalLayout, setSizeResult);
+                    }
                 });
             });
 
@@ -117,9 +137,12 @@ public interface SwingUIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
                 {
-                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
-                    final SwingUIVerticalLayout setSizeInPixelsResult = verticalLayout.setSizeInPixels(2, 3);
-                    test.assertSame(verticalLayout, setSizeInPixelsResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(process);
+                        final SwingUIVerticalLayout setSizeInPixelsResult = verticalLayout.setSizeInPixels(2, 3);
+                        test.assertSame(verticalLayout, setSizeInPixelsResult);
+                    }
                 });
             });
 
@@ -127,152 +150,173 @@ public interface SwingUIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
                 {
-                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
-                    final SwingUIVerticalLayout element = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(process);
+                        final SwingUIVerticalLayout element = SwingUIVerticalLayoutTests.createUIVerticalLayout(process);
 
-                    final SwingUIVerticalLayout addResult = verticalLayout.add(element);
-                    test.assertSame(verticalLayout, addResult);
-                    test.assertEqual(
-                        Map.<AWTUIElement,Point2D>create()
-                            .set(element, Point2D.zero),
-                        verticalLayout.getElementPositions());
-                    test.assertEqual(Point2D.zero, verticalLayout.getElementPosition(element).await());
-                    test.assertEqual(Size2D.zero, verticalLayout.getSize());
-                    test.assertEqual(Size2D.zero, element.getSize());
+                        final SwingUIVerticalLayout addResult = verticalLayout.add(element);
+                        test.assertSame(verticalLayout, addResult);
+                        test.assertEqual(
+                            Map.<AWTUIElement, Point2D>create()
+                                .set(element, Point2D.zero),
+                            verticalLayout.getElementPositions());
+                        test.assertEqual(Point2D.zero, verticalLayout.getElementPosition(element).await());
+                        test.assertEqual(Size2D.zero, verticalLayout.getSize());
+                        test.assertEqual(Size2D.zero, element.getSize());
+                    }
                 });
 
                 runner.test("with one non-empty sized element with left horizontal alignment", (Test test) ->
                 {
-                    final SwingUIBuilder uiBuilder = SwingUIVerticalLayoutTests.createUIBuilder(test);
-                    final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await()
-                        .setElementHorizontalAlignment(HorizontalAlignment.Left);
-                    final SwingUIButton uiButton = uiBuilder.create(SwingUIButton.class).await()
-                        .setText("Hello!");
-                    verticalLayout.add(uiButton);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIBuilder uiBuilder = SwingUIVerticalLayoutTests.createUIBuilder(process);
+                        final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await()
+                            .setElementHorizontalAlignment(HorizontalAlignment.Left);
+                        final SwingUIButton uiButton = uiBuilder.create(SwingUIButton.class).await()
+                            .setText("Hello!");
+                        verticalLayout.add(uiButton);
 
-                    test.assertEqual(Size2D.create(Distance.inches(0.65), Distance.inches(0.26)), verticalLayout.getSize());
-                    test.assertEqual(Point2D.zero, verticalLayout.getElementPosition(uiButton).await());
-                    test.assertEqual(
-                        Map.<AWTUIElement,Point2D>create()
-                            .set(uiButton, Point2D.zero),
-                        verticalLayout.getElementPositions());
-                    test.assertEqual(Size2D.create(Distance.inches(0.65), Distance.inches(0.26)), uiButton.getSize());
+                        test.assertEqual(Size2D.create(Distance.inches(0.65), Distance.inches(0.26)), verticalLayout.getSize());
+                        test.assertEqual(Point2D.zero, verticalLayout.getElementPosition(uiButton).await());
+                        test.assertEqual(
+                            Map.<AWTUIElement, Point2D>create()
+                                .set(uiButton, Point2D.zero),
+                            verticalLayout.getElementPositions());
+                        test.assertEqual(Size2D.create(Distance.inches(0.65), Distance.inches(0.26)), uiButton.getSize());
+                    }
                 });
 
                 runner.test("with one non-empty sized element with center horizontal alignment", (Test test) ->
                 {
-                    final SwingUIBuilder uiBuilder = SwingUIVerticalLayoutTests.createUIBuilder(test);
-                    final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await()
-                        .setElementHorizontalAlignment(HorizontalAlignment.Center);
-                    final SwingUIButton uiButton = uiBuilder.create(SwingUIButton.class).await()
-                        .setText("Hello!");
-                    verticalLayout.add(uiButton);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIBuilder uiBuilder = SwingUIVerticalLayoutTests.createUIBuilder(process);
+                        final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await()
+                            .setElementHorizontalAlignment(HorizontalAlignment.Center);
+                        final SwingUIButton uiButton = uiBuilder.create(SwingUIButton.class).await()
+                            .setText("Hello!");
+                        verticalLayout.add(uiButton);
 
-                    test.assertEqual(Size2D.create(Distance.inches(0.65), Distance.inches(0.26)), verticalLayout.getSize());
-                    test.assertEqual(Point2D.zero, verticalLayout.getElementPosition(uiButton).await());
-                    test.assertEqual(
-                        Map.<AWTUIElement,Point2D>create()
-                            .set(uiButton, Point2D.zero),
-                        verticalLayout.getElementPositions());
-                    test.assertEqual(Size2D.create(Distance.inches(0.65), Distance.inches(0.26)), uiButton.getSize());
+                        test.assertEqual(Size2D.create(Distance.inches(0.65), Distance.inches(0.26)), verticalLayout.getSize());
+                        test.assertEqual(Point2D.zero, verticalLayout.getElementPosition(uiButton).await());
+                        test.assertEqual(
+                            Map.<AWTUIElement, Point2D>create()
+                                .set(uiButton, Point2D.zero),
+                            verticalLayout.getElementPositions());
+                        test.assertEqual(Size2D.create(Distance.inches(0.65), Distance.inches(0.26)), uiButton.getSize());
+                    }
                 });
 
                 runner.test("with one non-empty sized element with right horizontal alignment", (Test test) ->
                 {
-                    final SwingUIBuilder uiBuilder = SwingUIVerticalLayoutTests.createUIBuilder(test);
-                    final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await()
-                        .setElementHorizontalAlignment(HorizontalAlignment.Right);
-                    final SwingUIButton uiButton = uiBuilder.create(SwingUIButton.class).await()
-                        .setText("Hello!");
-                    verticalLayout.add(uiButton);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIBuilder uiBuilder = SwingUIVerticalLayoutTests.createUIBuilder(process);
+                        final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await()
+                            .setElementHorizontalAlignment(HorizontalAlignment.Right);
+                        final SwingUIButton uiButton = uiBuilder.create(SwingUIButton.class).await()
+                            .setText("Hello!");
+                        verticalLayout.add(uiButton);
 
-                    test.assertEqual(Size2D.create(Distance.inches(0.65), Distance.inches(0.26)), verticalLayout.getSize());
-                    test.assertEqual(Point2D.zero, verticalLayout.getElementPosition(uiButton).await());
-                    test.assertEqual(
-                        Map.<AWTUIElement,Point2D>create()
-                            .set(uiButton, Point2D.zero),
-                        verticalLayout.getElementPositions());
-                    test.assertEqual(Size2D.create(Distance.inches(0.65), Distance.inches(0.26)), uiButton.getSize());
+                        test.assertEqual(Size2D.create(Distance.inches(0.65), Distance.inches(0.26)), verticalLayout.getSize());
+                        test.assertEqual(Point2D.zero, verticalLayout.getElementPosition(uiButton).await());
+                        test.assertEqual(
+                            Map.<AWTUIElement, Point2D>create()
+                                .set(uiButton, Point2D.zero),
+                            verticalLayout.getElementPositions());
+                        test.assertEqual(Size2D.create(Distance.inches(0.65), Distance.inches(0.26)), uiButton.getSize());
+                    }
                 });
 
 
 
                 runner.test("with two non-empty sized elements with left horizontal alignment", (Test test) ->
                 {
-                    final SwingUIBuilder uiBuilder = SwingUIVerticalLayoutTests.createUIBuilder(test);
-                    final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await()
-                        .setElementHorizontalAlignment(HorizontalAlignment.Left);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIBuilder uiBuilder = SwingUIVerticalLayoutTests.createUIBuilder(process);
+                        final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await()
+                            .setElementHorizontalAlignment(HorizontalAlignment.Left);
 
-                    final SwingUIButton uiButton1 = uiBuilder.create(SwingUIButton.class).await()
-                        .setText("Hello!");
-                    verticalLayout.add(uiButton1);
+                        final SwingUIButton uiButton1 = uiBuilder.create(SwingUIButton.class).await()
+                            .setText("Hello!");
+                        verticalLayout.add(uiButton1);
 
-                    final SwingUIButton uiButton2 = uiBuilder.create(SwingUIButton.class).await()
-                        .setText("I'm a button!");
-                    verticalLayout.add(uiButton2);
+                        final SwingUIButton uiButton2 = uiBuilder.create(SwingUIButton.class).await()
+                            .setText("I'm a button!");
+                        verticalLayout.add(uiButton2);
 
-                    test.assertEqual(Size2D.create(Distance.inches(1.03), Distance.inches(0.52)), verticalLayout.getSize());
-                    test.assertEqual(Point2D.zero, verticalLayout.getElementPosition(uiButton1).await());
-                    test.assertEqual(Point2D.create(Distance.zero, Distance.inches(0.26)), verticalLayout.getElementPosition(uiButton2).await());
-                    test.assertEqual(
-                        Map.<AWTUIElement,Point2D>create()
-                            .set(uiButton1, Point2D.zero)
-                            .set(uiButton2, Point2D.create(Distance.zero, Distance.inches(0.26))),
-                        verticalLayout.getElementPositions());
-                    test.assertEqual(Size2D.create(Distance.inches(0.65), Distance.inches(0.26)), uiButton1.getSize());
-                    test.assertEqual(Size2D.create(Distance.inches(1.03), Distance.inches(0.26)), uiButton2.getSize());
+                        test.assertEqual(Size2D.create(Distance.inches(1.03), Distance.inches(0.52)), verticalLayout.getSize());
+                        test.assertEqual(Point2D.zero, verticalLayout.getElementPosition(uiButton1).await());
+                        test.assertEqual(Point2D.create(Distance.zero, Distance.inches(0.26)), verticalLayout.getElementPosition(uiButton2).await());
+                        test.assertEqual(
+                            Map.<AWTUIElement, Point2D>create()
+                                .set(uiButton1, Point2D.zero)
+                                .set(uiButton2, Point2D.create(Distance.zero, Distance.inches(0.26))),
+                            verticalLayout.getElementPositions());
+                        test.assertEqual(Size2D.create(Distance.inches(0.65), Distance.inches(0.26)), uiButton1.getSize());
+                        test.assertEqual(Size2D.create(Distance.inches(1.03), Distance.inches(0.26)), uiButton2.getSize());
+                    }
                 });
 
                 runner.test("with one non-empty sized element with center horizontal alignment", (Test test) ->
                 {
-                    final SwingUIBuilder uiBuilder = SwingUIVerticalLayoutTests.createUIBuilder(test);
-                    final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await()
-                        .setElementHorizontalAlignment(HorizontalAlignment.Center);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIBuilder uiBuilder = SwingUIVerticalLayoutTests.createUIBuilder(process);
+                        final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await()
+                            .setElementHorizontalAlignment(HorizontalAlignment.Center);
 
-                    final SwingUIButton uiButton1 = uiBuilder.create(SwingUIButton.class).await()
-                        .setText("Hello!");
-                    verticalLayout.add(uiButton1);
+                        final SwingUIButton uiButton1 = uiBuilder.create(SwingUIButton.class).await()
+                            .setText("Hello!");
+                        verticalLayout.add(uiButton1);
 
-                    final SwingUIButton uiButton2 = uiBuilder.create(SwingUIButton.class).await()
-                        .setText("I'm a button!");
-                    verticalLayout.add(uiButton2);
+                        final SwingUIButton uiButton2 = uiBuilder.create(SwingUIButton.class).await()
+                            .setText("I'm a button!");
+                        verticalLayout.add(uiButton2);
 
-                    test.assertEqual(Size2D.create(Distance.inches(1.03), Distance.inches(0.52)), verticalLayout.getSize());
-                    test.assertEqual(Point2D.create(Distance.inches(0.19), Distance.zero), verticalLayout.getElementPosition(uiButton1).await());
-                    test.assertEqual(Point2D.create(Distance.zero, Distance.inches(0.26)), verticalLayout.getElementPosition(uiButton2).await());
-                    test.assertEqual(
-                        Map.<AWTUIElement,Point2D>create()
-                            .set(uiButton1, Point2D.create(Distance.inches(0.19), Distance.zero))
-                            .set(uiButton2, Point2D.create(Distance.zero, Distance.inches(0.26))),
-                        verticalLayout.getElementPositions());
-                    test.assertEqual(Size2D.create(Distance.inches(0.65), Distance.inches(0.26)), uiButton1.getSize());
-                    test.assertEqual(Size2D.create(Distance.inches(1.03), Distance.inches(0.26)), uiButton2.getSize());
+                        test.assertEqual(Size2D.create(Distance.inches(1.03), Distance.inches(0.52)), verticalLayout.getSize());
+                        test.assertEqual(Point2D.create(Distance.inches(0.19), Distance.zero), verticalLayout.getElementPosition(uiButton1).await());
+                        test.assertEqual(Point2D.create(Distance.zero, Distance.inches(0.26)), verticalLayout.getElementPosition(uiButton2).await());
+                        test.assertEqual(
+                            Map.<AWTUIElement, Point2D>create()
+                                .set(uiButton1, Point2D.create(Distance.inches(0.19), Distance.zero))
+                                .set(uiButton2, Point2D.create(Distance.zero, Distance.inches(0.26))),
+                            verticalLayout.getElementPositions());
+                        test.assertEqual(Size2D.create(Distance.inches(0.65), Distance.inches(0.26)), uiButton1.getSize());
+                        test.assertEqual(Size2D.create(Distance.inches(1.03), Distance.inches(0.26)), uiButton2.getSize());
+                    }
                 });
 
                 runner.test("with one non-empty sized element with right horizontal alignment", (Test test) ->
                 {
-                    final SwingUIBuilder uiBuilder = SwingUIVerticalLayoutTests.createUIBuilder(test);
-                    final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await()
-                        .setElementHorizontalAlignment(HorizontalAlignment.Right);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIBuilder uiBuilder = SwingUIVerticalLayoutTests.createUIBuilder(process);
+                        final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await()
+                            .setElementHorizontalAlignment(HorizontalAlignment.Right);
 
-                    final SwingUIButton uiButton1 = uiBuilder.create(SwingUIButton.class).await()
-                        .setText("Hello!");
-                    verticalLayout.add(uiButton1);
+                        final SwingUIButton uiButton1 = uiBuilder.create(SwingUIButton.class).await()
+                            .setText("Hello!");
+                        verticalLayout.add(uiButton1);
 
-                    final SwingUIButton uiButton2 = uiBuilder.create(SwingUIButton.class).await()
-                        .setText("I'm a button!");
-                    verticalLayout.add(uiButton2);
+                        final SwingUIButton uiButton2 = uiBuilder.create(SwingUIButton.class).await()
+                            .setText("I'm a button!");
+                        verticalLayout.add(uiButton2);
 
-                    test.assertEqual(Size2D.create(Distance.inches(1.03), Distance.inches(0.52)), verticalLayout.getSize());
-                    test.assertEqual(Point2D.create(Distance.inches(0.38), Distance.zero), verticalLayout.getElementPosition(uiButton1).await());
-                    test.assertEqual(Point2D.create(Distance.zero, Distance.inches(0.26)), verticalLayout.getElementPosition(uiButton2).await());
-                    test.assertEqual(
-                        Map.<AWTUIElement,Point2D>create()
-                            .set(uiButton1, Point2D.create(Distance.inches(0.38), Distance.zero))
-                            .set(uiButton2, Point2D.create(Distance.zero, Distance.inches(0.26))),
-                        verticalLayout.getElementPositions());
-                    test.assertEqual(Size2D.create(Distance.inches(0.65), Distance.inches(0.26)), uiButton1.getSize());
-                    test.assertEqual(Size2D.create(Distance.inches(1.03), Distance.inches(0.26)), uiButton2.getSize());
+                        test.assertEqual(Size2D.create(Distance.inches(1.03), Distance.inches(0.52)), verticalLayout.getSize());
+                        test.assertEqual(Point2D.create(Distance.inches(0.38), Distance.zero), verticalLayout.getElementPosition(uiButton1).await());
+                        test.assertEqual(Point2D.create(Distance.zero, Distance.inches(0.26)), verticalLayout.getElementPosition(uiButton2).await());
+                        test.assertEqual(
+                            Map.<AWTUIElement, Point2D>create()
+                                .set(uiButton1, Point2D.create(Distance.inches(0.38), Distance.zero))
+                                .set(uiButton2, Point2D.create(Distance.zero, Distance.inches(0.26))),
+                            verticalLayout.getElementPositions());
+                        test.assertEqual(Size2D.create(Distance.inches(0.65), Distance.inches(0.26)), uiButton1.getSize());
+                        test.assertEqual(Size2D.create(Distance.inches(1.03), Distance.inches(0.26)), uiButton2.getSize());
+                    }
                 });
             });
 
@@ -280,10 +324,13 @@ public interface SwingUIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
                 {
-                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(process);
 
-                    final SwingUIVerticalLayout addAllResult = verticalLayout.addAll();
-                    test.assertSame(verticalLayout, addAllResult);
+                        final SwingUIVerticalLayout addAllResult = verticalLayout.addAll();
+                        test.assertSame(verticalLayout, addAllResult);
+                    }
                 });
             });
 
@@ -291,11 +338,14 @@ public interface SwingUIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
                 {
-                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(process);
 
-                    final SwingUIVerticalLayout addResult = verticalLayout.addAll(Iterable.create());
-                    test.assertSame(verticalLayout, addResult);
-                    test.assertEqual(Map.create(), verticalLayout.getElementPositions());
+                        final SwingUIVerticalLayout addResult = verticalLayout.addAll(Iterable.create());
+                        test.assertSame(verticalLayout, addResult);
+                        test.assertEqual(Map.create(), verticalLayout.getElementPositions());
+                    }
                 });
             });
 
@@ -303,16 +353,22 @@ public interface SwingUIVerticalLayoutTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
-                    test.assertThrows(() -> verticalLayout.getElementPosition(null),
-                        new PreConditionFailure("awtUiElement cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(process);
+                        test.assertThrows(() -> verticalLayout.getElementPosition(null),
+                            new PreConditionFailure("awtUiElement cannot be null."));
+                    }
                 });
 
                 runner.test("with not found UIElement", (Test test) ->
                 {
-                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
-                    test.assertThrows(() -> verticalLayout.getElementPosition(verticalLayout).await(),
-                        new NotFoundException(verticalLayout + " doesn't contain " + verticalLayout + ", so it can't get it's relative position."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(process);
+                        test.assertThrows(() -> verticalLayout.getElementPosition(verticalLayout).await(),
+                            new NotFoundException(verticalLayout + " doesn't contain " + verticalLayout + ", so it can't get it's relative position."));
+                    }
                 });
             });
 
@@ -320,10 +376,13 @@ public interface SwingUIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
                 {
-                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
-                    final SwingUIVerticalLayout setElementHorizontalAlignmentResult = verticalLayout.setElementHorizontalAlignment(HorizontalAlignment.Center);
-                    test.assertSame(verticalLayout, setElementHorizontalAlignmentResult);
-                    test.assertEqual(HorizontalAlignment.Center, verticalLayout.getElementHorizontalAlignment());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(process);
+                        final SwingUIVerticalLayout setElementHorizontalAlignmentResult = verticalLayout.setElementHorizontalAlignment(HorizontalAlignment.Center);
+                        test.assertSame(verticalLayout, setElementHorizontalAlignmentResult);
+                        test.assertEqual(HorizontalAlignment.Center, verticalLayout.getElementHorizontalAlignment());
+                    }
                 });
             });
 
@@ -331,10 +390,13 @@ public interface SwingUIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIVerticalLayout.class), (Test test) ->
                 {
-                    final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(test);
-                    final SwingUIVerticalLayout setElementVerticalAlignmentResult = verticalLayout.setElementVerticalAlignment(VerticalAlignment.Center);
-                    test.assertSame(verticalLayout, setElementVerticalAlignmentResult);
-                    test.assertEqual(VerticalAlignment.Center, verticalLayout.getElementVerticalAlignment());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIVerticalLayout verticalLayout = SwingUIVerticalLayoutTests.createUIVerticalLayout(process);
+                        final SwingUIVerticalLayout setElementVerticalAlignmentResult = verticalLayout.setElementVerticalAlignment(VerticalAlignment.Center);
+                        test.assertSame(verticalLayout, setElementVerticalAlignmentResult);
+                        test.assertEqual(VerticalAlignment.Center, verticalLayout.getElementVerticalAlignment());
+                    }
                 });
             });
 
@@ -342,120 +404,126 @@ public interface SwingUIVerticalLayoutTests
             {
                 runner.test("with labels", runner.skip(), (Test test) ->
                 {
-                    final SwingUIBuilder uiBuilder = SwingUIBuilder.create(test.getProcess());
-                    try (final SwingUIWindow window = uiBuilder.createSwingUIWindow().await())
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        window.setTitle(test.getFullName());
-                        window.setContentSpaceSize(Distance.inches(1), Distance.inches(3));
-
-                        final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await();
-                        for (int i = 1; i <= 3; ++i)
+                        final SwingUIBuilder uiBuilder = SwingUIVerticalLayoutTests.createUIBuilder(process);
+                        try (final SwingUIWindow window = uiBuilder.createSwingUIWindow().await())
                         {
-                            verticalLayout.add(uiBuilder.createUIText().await()
-                                .setFontSize(Distance.inches(0.5))
-                                .setText(Integers.toString(i))
-                                .setSize(Distance.inches(1), Distance.inches(1)));
-                        }
-                        window.setContent(verticalLayout);
+                            window.setTitle(test.getFullName());
+                            window.setContentSpaceSize(Distance.inches(1), Distance.inches(3));
 
-                        window.setVisible(true);
-                        window.await();
+                            final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await();
+                            for (int i = 1; i <= 3; ++i)
+                            {
+                                verticalLayout.add(uiBuilder.createUIText().await()
+                                    .setFontSize(Distance.inches(0.5))
+                                    .setText(Integers.toString(i))
+                                    .setSize(Distance.inches(1), Distance.inches(1)));
+                            }
+                            window.setContent(verticalLayout);
+
+                            window.setVisible(true);
+                            window.await();
+                        }
                     }
-                    test.fail();
                 });
 
                 runner.test("with alignment", runner.skip(), (Test test) ->
                 {
-                    final SwingUIBuilder uiBuilder = SwingUIBuilder.create(test.getProcess());
-                    try (final SwingUIWindow window = uiBuilder.createSwingUIWindow().await())
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        window.setTitle(test.getFullName());
-                        window.setContentSpaceSize(Distance.inches(3), Distance.inches(3));
-
-                        final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await();
-
-                        final SwingUIHorizontalLayout horizontalAlignmentLayout = uiBuilder.create(SwingUIHorizontalLayout.class).await();
-                        for (final HorizontalAlignment horizontalAlignment : HorizontalAlignment.values())
+                        final SwingUIBuilder uiBuilder = SwingUIVerticalLayoutTests.createUIBuilder(process);
+                        try (final SwingUIWindow window = uiBuilder.createSwingUIWindow().await())
                         {
-                            final SwingUIButton button = uiBuilder.create(SwingUIButton.class).await()
-                                .setText(horizontalAlignment.toString())
-                                .setWidth(Distance.inches(1));
-                            button.onClick(() ->
+                            window.setTitle(test.getFullName());
+                            window.setContentSpaceSize(Distance.inches(3), Distance.inches(3));
+
+                            final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await();
+
+                            final SwingUIHorizontalLayout horizontalAlignmentLayout = uiBuilder.create(SwingUIHorizontalLayout.class).await();
+                            for (final HorizontalAlignment horizontalAlignment : HorizontalAlignment.values())
                             {
-                                verticalLayout.setElementHorizontalAlignment(horizontalAlignment);
-                            });
-                            horizontalAlignmentLayout.add(button);
-                        }
-                        verticalLayout.add(horizontalAlignmentLayout);
+                                final SwingUIButton button = uiBuilder.create(SwingUIButton.class).await()
+                                    .setText(horizontalAlignment.toString())
+                                    .setWidth(Distance.inches(1));
+                                button.onClick(() ->
+                                {
+                                    verticalLayout.setElementHorizontalAlignment(horizontalAlignment);
+                                });
+                                horizontalAlignmentLayout.add(button);
+                            }
+                            verticalLayout.add(horizontalAlignmentLayout);
 
-                        final SwingUIHorizontalLayout verticalAlignmentLayout = uiBuilder.create(SwingUIHorizontalLayout.class).await();
-                        for (final VerticalAlignment verticalAlignment : VerticalAlignment.values())
-                        {
-                            final SwingUIButton button = uiBuilder.create(SwingUIButton.class).await()
-                                .setText(verticalAlignment.toString())
-                                .setWidth(Distance.inches(1));
-                            button.onClick(() ->
+                            final SwingUIHorizontalLayout verticalAlignmentLayout = uiBuilder.create(SwingUIHorizontalLayout.class).await();
+                            for (final VerticalAlignment verticalAlignment : VerticalAlignment.values())
                             {
-                                verticalLayout.setElementVerticalAlignment(verticalAlignment);
-                            });
-                            verticalAlignmentLayout.add(button);
+                                final SwingUIButton button = uiBuilder.create(SwingUIButton.class).await()
+                                    .setText(verticalAlignment.toString())
+                                    .setWidth(Distance.inches(1));
+                                button.onClick(() ->
+                                {
+                                    verticalLayout.setElementVerticalAlignment(verticalAlignment);
+                                });
+                                verticalAlignmentLayout.add(button);
+                            }
+                            verticalLayout.add(verticalAlignmentLayout);
+
+                            for (int i = 1; i <= 3; ++i)
+                            {
+                                verticalLayout.add(uiBuilder.createUIText().await()
+                                    .setFontSize(Distance.inches(0.5))
+                                    .setText(Integers.toString(i))
+                                    .setSize(Distance.inches(1), Distance.inches(1)));
+                            }
+
+                            window.setContent(verticalLayout);
+
+                            window.setVisible(true);
+                            window.await();
                         }
-                        verticalLayout.add(verticalAlignmentLayout);
-
-                        for (int i = 1; i <= 3; ++i)
-                        {
-                            verticalLayout.add(uiBuilder.createUIText().await()
-                                .setFontSize(Distance.inches(0.5))
-                                .setText(Integers.toString(i))
-                                .setSize(Distance.inches(1), Distance.inches(1)));
-                        }
-
-                        window.setContent(verticalLayout);
-
-                        window.setVisible(true);
-                        window.await();
                     }
-                    test.fail();
                 });
 
                 runner.test("with dynamic width", runner.skip(), (Test test) ->
                 {
-                    final SwingUIBuilder uiBuilder = SwingUIBuilder.create(test.getProcess());
-                    try (final SwingUIWindow window = uiBuilder.createSwingUIWindow().await())
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        window.setTitle(test.getFullName());
-                        window.setContentSpaceSize(Distance.inches(5), Distance.inches(3));
+                        final SwingUIBuilder uiBuilder = SwingUIVerticalLayoutTests.createUIBuilder(process);
+                        try (final SwingUIWindow window = uiBuilder.createSwingUIWindow().await())
+                        {
+                            window.setTitle(test.getFullName());
+                            window.setContentSpaceSize(Distance.inches(5), Distance.inches(3));
 
-                        final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await()
-                            .setPadding(UIPadding.create(Distance.inches(0.25)))
-                            .setWidth(Distance.inches(4))
-                            .setHeight(Distance.inches(2))
-                            .setBackgroundColor(Color.create(20, 120, 220));
+                            final SwingUIVerticalLayout verticalLayout = uiBuilder.create(SwingUIVerticalLayout.class).await()
+                                .setPadding(UIPadding.create(Distance.inches(0.25)))
+                                .setWidth(Distance.inches(4))
+                                .setHeight(Distance.inches(2))
+                                .setBackgroundColor(Color.create(20, 120, 220));
 
-                        verticalLayout.add(uiBuilder.createUIText().await()
-                            .setText("2 Inches")
-                            .setWidth(Distance.inches(2))
-                            .setHeight(Distance.inches(0.5))
-                            .setBackgroundColor(Color.red));
+                            verticalLayout.add(uiBuilder.createUIText().await()
+                                .setText("2 Inches")
+                                .setWidth(Distance.inches(2))
+                                .setHeight(Distance.inches(0.5))
+                                .setBackgroundColor(Color.red));
 
-                        verticalLayout.add(uiBuilder.createUIText().await()
-                            .setText("Dynamic Width")
-                            .setDynamicWidth(verticalLayout.getDynamicWidth())
-                            .setHeight(Distance.inches(0.5))
-                            .setBackgroundColor(Color.blue));
+                            verticalLayout.add(uiBuilder.createUIText().await()
+                                .setText("Dynamic Width")
+                                .setDynamicWidth(verticalLayout.getDynamicWidth())
+                                .setHeight(Distance.inches(0.5))
+                                .setBackgroundColor(Color.blue));
 
-                        verticalLayout.add(uiBuilder.createUIText().await()
-                            .setText("Dynamic Content Space Width")
-                            .setDynamicWidth(verticalLayout.getDynamicContentSpaceWidth())
-                            .setHeight(Distance.inches(0.5))
-                            .setBackgroundColor(Color.green));
+                            verticalLayout.add(uiBuilder.createUIText().await()
+                                .setText("Dynamic Content Space Width")
+                                .setDynamicWidth(verticalLayout.getDynamicContentSpaceWidth())
+                                .setHeight(Distance.inches(0.5))
+                                .setBackgroundColor(Color.green));
 
-                        window.setContent(verticalLayout);
+                            window.setContent(verticalLayout);
 
-                        window.setVisible(true);
-                        window.await();
+                            window.setVisible(true);
+                            window.await();
+                        }
                     }
-                    test.fail();
                 });
             });
         });

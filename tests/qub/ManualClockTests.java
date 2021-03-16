@@ -16,14 +16,20 @@ public interface ManualClockTests
 
                 runner.test("with null DateTime.epoch", (Test test) ->
                 {
-                    test.assertThrows(() -> ManualClock.create(null, test.getMainAsyncRunner()),
-                        new PreConditionFailure("currentDateTime cannot be null."));
+                    CurrentThread.withManualAsyncScheduler((ManualAsyncRunner asyncRunner) ->
+                    {
+                        test.assertThrows(() -> ManualClock.create(null, asyncRunner),
+                            new PreConditionFailure("currentDateTime cannot be null."));
+                    });
                 });
 
                 runner.test("with non-null DateTime.epoch", (Test test) ->
                 {
-                    final ManualClock clock = ManualClock.create(DateTime.epoch, test.getMainAsyncRunner());
-                    test.assertEqual(DateTime.epoch, clock.getCurrentDateTime());
+                    CurrentThread.withManualAsyncScheduler((ManualAsyncRunner asyncRunner) ->
+                    {
+                        final ManualClock clock = ManualClock.create(DateTime.epoch, asyncRunner);
+                        test.assertEqual(DateTime.epoch, clock.getCurrentDateTime());
+                    });
                 });
             });
 
@@ -34,7 +40,8 @@ public interface ManualClockTests
                     CurrentThread.withManualAsyncScheduler((ManualAsyncRunner asyncRunner) ->
                     {
                         final ManualClock clock = createClock(asyncRunner);
-                        test.assertThrows(() -> clock.advance((Duration)null), new PreConditionFailure("duration cannot be null."));
+                        test.assertThrows(() -> clock.advance((Duration)null),
+                            new PreConditionFailure("duration cannot be null."));
                     });
                 });
 
@@ -198,7 +205,8 @@ public interface ManualClockTests
                     CurrentThread.withManualAsyncScheduler((ManualAsyncRunner asyncRunner) ->
                     {
                         final ManualClock clock = createClock(asyncRunner);
-                        test.assertThrows(() -> clock.scheduleAt(null, () -> {}), new PreConditionFailure("dateTime cannot be null."));
+                        test.assertThrows(() -> clock.scheduleAt(null, () -> {}),
+                            new PreConditionFailure("dateTime cannot be null."));
                     });
                 });
 

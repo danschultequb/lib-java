@@ -2,21 +2,20 @@ package qub;
 
 public interface SwingUITextTests
 {
-    static AWTUIBase createUIBase(Test test)
+    static AWTUIBase createUIBase(FakeDesktopProcess process)
     {
-        final Display display = new Display(1000, 1000, 100, 100);
-        return AWTUIBase.create(display, test.getMainAsyncRunner(), test.getParallelAsyncRunner());
+        return AWTUIBase.create(process.getDisplays().first(), process.getMainAsyncRunner(), process.getParallelAsyncRunner());
     }
 
-    static SwingUIBuilder createUIBuilder(Test test)
+    static SwingUIBuilder createUIBuilder(FakeDesktopProcess process)
     {
-        final AWTUIBase uiBase = SwingUITextTests.createUIBase(test);
+        final AWTUIBase uiBase = SwingUITextTests.createUIBase(process);
         return SwingUIBuilder.create(uiBase);
     }
     
-    static SwingUIText createUIText(Test test)
+    static SwingUIText createUIText(FakeDesktopProcess process)
     {
-        final SwingUIBuilder uiBuilder = SwingUITextTests.createUIBuilder(test);
+        final SwingUIBuilder uiBuilder = SwingUITextTests.createUIBuilder(process);
         return uiBuilder.create(SwingUIText.class).await();
     }
     
@@ -37,22 +36,25 @@ public interface SwingUITextTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final AWTUIBase uiBase = SwingUITextTests.createUIBase(test);
-                    final SwingUIText text = SwingUIText.create(uiBase);
-                    test.assertNotNull(text);
-                    test.assertEqual(Distance.zero, text.getWidth());
-                    test.assertEqual(Distance.zero, text.getHeight());
-                    test.assertEqual(Size2D.create(Distance.zero, Distance.zero), text.getSize());
-                    test.assertEqual(Distance.fontPoints(12), text.getFontSize());
-                    test.assertEqual("", text.getText());
-                    test.assertEqual(UIPaddingInPixels.create(), text.getPaddingInPixels());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final AWTUIBase uiBase = SwingUITextTests.createUIBase(process);
+                        final SwingUIText text = SwingUIText.create(uiBase);
+                        test.assertNotNull(text);
+                        test.assertEqual(Distance.zero, text.getWidth());
+                        test.assertEqual(Distance.zero, text.getHeight());
+                        test.assertEqual(Size2D.create(Distance.zero, Distance.zero), text.getSize());
+                        test.assertEqual(Distance.fontPoints(12), text.getFontSize());
+                        test.assertEqual("", text.getText());
+                        test.assertEqual(UIPaddingInPixels.create(), text.getPaddingInPixels());
 
-                    final javax.swing.JLabel component = text.getComponent();
-                    test.assertNotNull(component);
+                        final javax.swing.JLabel component = text.getComponent();
+                        test.assertNotNull(component);
 
-                    final javax.swing.JLabel jComponent = text.getJComponent();
-                    test.assertNotNull(jComponent);
-                    test.assertSame(component, jComponent);
+                        final javax.swing.JLabel jComponent = text.getJComponent();
+                        test.assertNotNull(jComponent);
+                        test.assertSame(component, jComponent);
+                    }
                 });
             });
             
@@ -60,9 +62,12 @@ public interface SwingUITextTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIText.class), (Test test) ->
                 {
-                    final SwingUIText text = SwingUITextTests.createUIText(test);
-                    final SwingUIText setWidthResult = text.setWidth(Distance.inches(1));
-                    test.assertSame(text, setWidthResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIText text = SwingUITextTests.createUIText(process);
+                        final SwingUIText setWidthResult = text.setWidth(Distance.inches(1));
+                        test.assertSame(text, setWidthResult);
+                    }
                 });
             });
 
@@ -70,9 +75,12 @@ public interface SwingUITextTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
-                    final SwingUIText text = SwingUITextTests.createUIText(test);
-                    final SwingUIText setWidthInPixelsResult = text.setWidthInPixels(1);
-                    test.assertSame(text, setWidthInPixelsResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIText text = SwingUITextTests.createUIText(process);
+                        final SwingUIText setWidthInPixelsResult = text.setWidthInPixels(1);
+                        test.assertSame(text, setWidthInPixelsResult);
+                    }
                 });
             });
 
@@ -80,9 +88,12 @@ public interface SwingUITextTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIText.class), (Test test) ->
                 {
-                    final SwingUIText text = SwingUITextTests.createUIText(test);
-                    final SwingUIText setHeightResult = text.setHeight(Distance.inches(1));
-                    test.assertSame(text, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIText text = SwingUITextTests.createUIText(process);
+                        final SwingUIText setHeightResult = text.setHeight(Distance.inches(1));
+                        test.assertSame(text, setHeightResult);
+                    }
                 });
             });
 
@@ -90,9 +101,12 @@ public interface SwingUITextTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIText.class), (Test test) ->
                 {
-                    final SwingUIText text = SwingUITextTests.createUIText(test);
-                    final SwingUIText setHeightInPixelsResult = text.setHeightInPixels(1);
-                    test.assertSame(text, setHeightInPixelsResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIText text = SwingUITextTests.createUIText(process);
+                        final SwingUIText setHeightInPixelsResult = text.setHeightInPixels(1);
+                        test.assertSame(text, setHeightInPixelsResult);
+                    }
                 });
             });
 
@@ -100,9 +114,12 @@ public interface SwingUITextTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIText.class), (Test test) ->
                 {
-                    final SwingUIText text = SwingUITextTests.createUIText(test);
-                    final SwingUIText setSizeResult = text.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
-                    test.assertSame(text, setSizeResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIText text = SwingUITextTests.createUIText(process);
+                        final SwingUIText setSizeResult = text.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
+                        test.assertSame(text, setSizeResult);
+                    }
                 });
             });
 
@@ -110,9 +127,12 @@ public interface SwingUITextTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIText.class), (Test test) ->
                 {
-                    final SwingUIText text = SwingUITextTests.createUIText(test);
-                    final SwingUIText setSizeResult = text.setSize(Distance.inches(2), Distance.inches(3));
-                    test.assertSame(text, setSizeResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIText text = SwingUITextTests.createUIText(process);
+                        final SwingUIText setSizeResult = text.setSize(Distance.inches(2), Distance.inches(3));
+                        test.assertSame(text, setSizeResult);
+                    }
                 });
             });
 
@@ -120,9 +140,12 @@ public interface SwingUITextTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIText.class), (Test test) ->
                 {
-                    final SwingUIText text = SwingUITextTests.createUIText(test);
-                    final SwingUIText setSizeInPixelsResult = text.setSizeInPixels(2, 3);
-                    test.assertSame(text, setSizeInPixelsResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIText text = SwingUITextTests.createUIText(process);
+                        final SwingUIText setSizeInPixelsResult = text.setSizeInPixels(2, 3);
+                        test.assertSame(text, setSizeInPixelsResult);
+                    }
                 });
             });
 
@@ -130,14 +153,17 @@ public interface SwingUITextTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIText.class), (Test test) ->
                 {
-                    final SwingUIText text = SwingUITextTests.createUIText(test);
-                    final SwingUIText setHeightResult = text.setText("hello");
-                    test.assertSame(text, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIText text = SwingUITextTests.createUIText(process);
+                        final SwingUIText setHeightResult = text.setText("hello");
+                        test.assertSame(text, setHeightResult);
 
-                    test.assertEqual(Distance.inches(0.27), text.getWidth());
-                    test.assertEqual(Distance.inches(0.16), text.getHeight());
-                    test.assertEqual(Size2D.create(Distance.inches(0.27), Distance.inches(0.16)), text.getSize());
-                    test.assertEqual("hello", text.getText());
+                        test.assertEqual(Distance.inches(0.27), text.getWidth());
+                        test.assertEqual(Distance.inches(0.16), text.getHeight());
+                        test.assertEqual(Size2D.create(Distance.inches(0.27), Distance.inches(0.16)), text.getSize());
+                        test.assertEqual("hello", text.getText());
+                    }
                 });
             });
 
@@ -145,14 +171,17 @@ public interface SwingUITextTests
             {
                 runner.test("should return " + Types.getTypeName(SwingUIButton.class), (Test test) ->
                 {
-                    final SwingUIText text = SwingUITextTests.createUIText(test);
-                    final SwingUIText setFontSizeResult = text.setFontSize(Distance.inches(1));
-                    test.assertSame(text, setFontSizeResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final SwingUIText text = SwingUITextTests.createUIText(process);
+                        final SwingUIText setFontSizeResult = text.setFontSize(Distance.inches(1));
+                        test.assertSame(text, setFontSizeResult);
 
-                    test.assertEqual(Distance.zero, text.getWidth());
-                    test.assertEqual(Distance.zero, text.getHeight());
-                    test.assertEqual(Size2D.create(Distance.zero, Distance.zero), text.getSize());
-                    test.assertEqual(Distance.inches(1), text.getFontSize());
+                        test.assertEqual(Distance.zero, text.getWidth());
+                        test.assertEqual(Distance.zero, text.getHeight());
+                        test.assertEqual(Size2D.create(Distance.zero, Distance.zero), text.getSize());
+                        test.assertEqual(Distance.inches(1), text.getFontSize());
+                    }
                 });
             });
         });

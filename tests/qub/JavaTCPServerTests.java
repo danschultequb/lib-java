@@ -12,13 +12,13 @@ public interface JavaTCPServerTests
             {
                 runner.test("with -1 port", (Test test) ->
                 {
-                    test.assertThrows(() -> JavaTCPServer.create(-1, test.getClock()),
+                    test.assertThrows(() -> JavaTCPServer.create(-1, ManualClock.create()),
                         new PreConditionFailure("localPort (-1) must be between 1 and 65535."));
                 });
 
                 runner.test("with 0 port", (Test test) ->
                 {
-                    test.assertThrows(() -> JavaTCPServer.create(0, test.getClock()),
+                    test.assertThrows(() -> JavaTCPServer.create(0, ManualClock.create()),
                         new PreConditionFailure("localPort (0) must be between 1 and 65535."));
                 });
 
@@ -30,19 +30,17 @@ public interface JavaTCPServerTests
 
                 runner.test("with " + port.incrementAndGet() + " port", (Test test) ->
                 {
-                    final TCPServer tcpServer = JavaTCPServer.create(port.get(), test.getClock()).await();
+                    final TCPServer tcpServer = JavaTCPServer.create(port.get(), ManualClock.create()).await();
                     test.assertNotNull(tcpServer);
                     test.assertTrue(tcpServer.dispose().await());
                 });
 
                 runner.test("with " + port.incrementAndGet() + " port when a different TCPServer is already bound to " + port, (Test test) ->
                 {
-                    final TCPServer tcpServer1 = JavaTCPServer.create(port.get(), test.getClock()).await();
-                    test.assertNotNull(tcpServer1);
-
+                    final TCPServer tcpServer1 = JavaTCPServer.create(port.get(), ManualClock.create()).await();
                     try
                     {
-                        test.assertThrows(() -> JavaTCPServer.create(port.get(), test.getClock()).await(),
+                        test.assertThrows(() -> JavaTCPServer.create(port.get(), ManualClock.create()).await(),
                             new RuntimeException(new java.net.BindException("Address already in use: bind")));
                     }
                     finally
@@ -58,7 +56,7 @@ public interface JavaTCPServerTests
                 {
                     runner.test("with " + English.andList(localIPAddress, localPort), (Test test) ->
                     {
-                        test.assertThrows(() -> JavaTCPServer.create(localIPAddress, localPort, test.getClock()).await(),
+                        test.assertThrows(() -> JavaTCPServer.create(localIPAddress, localPort, ManualClock.create()).await(),
                             expected);
                     });
                 };
@@ -75,7 +73,7 @@ public interface JavaTCPServerTests
 
                 runner.test("with " + English.andList(IPv4Address.localhost, port.incrementAndGet(), "non-null clock"), (Test test) ->
                 {
-                    final TCPServer tcpServer = JavaTCPServer.create(IPv4Address.localhost, port.get(), test.getClock()).await();
+                    final TCPServer tcpServer = JavaTCPServer.create(IPv4Address.localhost, port.get(), ManualClock.create()).await();
                     try
                     {
                         test.assertNotNull(tcpServer);
@@ -88,11 +86,10 @@ public interface JavaTCPServerTests
 
                 runner.test("with 127.0.0.1 and " + port.incrementAndGet() + " port when a different TCPServer is already bound to 127.0.0.1 and " + port, (Test test) ->
                 {
-                    final TCPServer tcpServer1 = JavaTCPServer.create(IPv4Address.localhost, port.get(), test.getClock()).await();
-                    test.assertNotNull(tcpServer1);
+                    final TCPServer tcpServer1 = JavaTCPServer.create(IPv4Address.localhost, port.get(), ManualClock.create()).await();
                     try
                     {
-                        test.assertThrows(() -> JavaTCPServer.create(IPv4Address.localhost, port.get(), test.getClock()).await(),
+                        test.assertThrows(() -> JavaTCPServer.create(IPv4Address.localhost, port.get(), ManualClock.create()).await(),
                             new java.net.BindException("Address already in use: bind"));
                     }
                     finally
@@ -104,14 +101,16 @@ public interface JavaTCPServerTests
 
             runner.testGroup("accept()", () ->
             {
-                runner.test("with connection while accepting on port " + port.incrementAndGet(), (Test test) ->
+                runner.test("with connection while accepting on port " + port.incrementAndGet(),
+                    (TestResources resources) -> Tuple.create(resources.getClock(), resources.getParallelAsyncRunner()),
+                    (Test test, Clock clock, AsyncRunner parallelAsyncRunner) ->
                 {
                     final IPv4Address ipAddress = IPv4Address.localhost;
                     final byte[] bytes = new byte[] { 1, 2, 3, 4, 5, 6 };
 
-                    final Network network = JavaNetwork.create(test.getClock());
+                    final Network network = JavaNetwork.create(clock);
                     final Value<byte[]> clientReadBytes = Value.create();
-                    final Result<Void> clientTask = test.getParallelAsyncRunner().schedule(() ->
+                    final Result<Void> clientTask = parallelAsyncRunner.schedule(() ->
                     {
                         try (final TCPClient tcpClient = network.createTCPClient(ipAddress, port.get()).await())
                         {
@@ -141,7 +140,7 @@ public interface JavaTCPServerTests
 
                 runner.test("when disposed", (Test test) ->
                 {
-                    final TCPServer tcpServer = JavaTCPServer.create(port.incrementAndGet(), test.getClock()).await();
+                    final TCPServer tcpServer = JavaTCPServer.create(port.incrementAndGet(), ManualClock.create()).await();
                     test.assertNotNull(tcpServer);
                     test.assertTrue(tcpServer.dispose().await());
 
@@ -149,13 +148,14 @@ public interface JavaTCPServerTests
                         new RuntimeException(new java.net.SocketException("Socket is closed")));
                 });
 
-                runner.test("on ParallelAsyncRunner, with connection while accepting on port " + port.incrementAndGet(), (Test test) ->
+                runner.test("on ParallelAsyncRunner, with connection while accepting on port " + port.incrementAndGet(),
+                    (TestResources resources) -> Tuple.create(resources.getClock(), resources.getParallelAsyncRunner()),
+                    (Test test, Clock clock, AsyncRunner parallelAsyncRunner) ->
                 {
                     final IPv4Address ipAddress = IPv4Address.localhost;
                     final byte[] bytes = new byte[] { 1, 2, 3, 4, 5, 6 };
-                    final Network network = JavaNetwork.create(test.getClock());
+                    final Network network = JavaNetwork.create(clock);
                     final Value<byte[]> clientReadBytes = Value.create();
-                    final AsyncRunner parallelAsyncRunner = test.getParallelAsyncRunner();
 
                     try (final TCPServer tcpServer = network.createTCPServer(ipAddress, port.get()).await())
                     {
@@ -187,7 +187,7 @@ public interface JavaTCPServerTests
             {
                 runner.test("multiple times", (Test test) ->
                 {
-                    final TCPServer tcpServer = JavaTCPServer.create(port.incrementAndGet(), test.getClock()).await();
+                    final TCPServer tcpServer = JavaTCPServer.create(port.incrementAndGet(), ManualClock.create()).await();
                     test.assertTrue(tcpServer.dispose().await());
                     test.assertFalse(tcpServer.dispose().await());
                 });

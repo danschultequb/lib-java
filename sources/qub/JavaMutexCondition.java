@@ -7,7 +7,7 @@ public class JavaMutexCondition implements MutexCondition
     private final java.util.concurrent.locks.Condition conditionVariable;
     private final Function0<Boolean> conditionFunction;
 
-    public JavaMutexCondition(JavaMutex mutex, Clock clock, java.util.concurrent.locks.Condition conditionVariable, Function0<Boolean> conditionFunction)
+    private JavaMutexCondition(JavaMutex mutex, Clock clock, java.util.concurrent.locks.Condition conditionVariable, Function0<Boolean> conditionFunction)
     {
         PreCondition.assertNotNull(mutex, "mutex");
         PreCondition.assertNotNull(conditionVariable, "conditionVariable");
@@ -18,23 +18,40 @@ public class JavaMutexCondition implements MutexCondition
         this.conditionFunction = conditionFunction;
     }
 
+    public static JavaMutexCondition create(JavaMutex mutex, Clock clock, java.util.concurrent.locks.Condition conditionVariable)
+    {
+        PreCondition.assertNotNull(mutex, "mutex");
+        PreCondition.assertNotNull(conditionVariable, "conditionVariable");
+
+        return new JavaMutexCondition(mutex, clock, conditionVariable, null);
+    }
+
+    public static JavaMutexCondition create(JavaMutex mutex, Clock clock, java.util.concurrent.locks.Condition conditionVariable, Function0<Boolean> conditionFunction)
+    {
+        PreCondition.assertNotNull(mutex, "mutex");
+        PreCondition.assertNotNull(conditionVariable, "conditionVariable");
+        PreCondition.assertNotNull(conditionFunction, "conditionFunction");
+
+        return new JavaMutexCondition(mutex, clock, conditionVariable, conditionFunction);
+    }
+
     @Override
     public Result<Void> watch()
     {
-        PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
+        PreCondition.assertTrue(this.mutex.isAcquiredByCurrentThread(), "this.mutex.isAcquiredByCurrentThread()");
 
         Result<Void> result = null;
         while (result == null)
         {
             try
             {
-                if (conditionFunction != null && conditionFunction.run())
+                if (this.conditionFunction != null && this.conditionFunction.run())
                 {
                     result = Result.success();
                 }
                 else
                 {
-                    conditionVariable.await();
+                    this.conditionVariable.await();
                     if (conditionFunction == null)
                     {
                         result = Result.success();
@@ -57,28 +74,28 @@ public class JavaMutexCondition implements MutexCondition
     {
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
-        PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
-        PreCondition.assertNotNull(clock, "clock");
+        PreCondition.assertTrue(this.mutex.isAcquiredByCurrentThread(), "this.mutex.isAcquiredByCurrentThread()");
+        PreCondition.assertNotNull(this.clock, "this.clock");
 
-        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(timeout);
-        return watch(dateTimeTimeout);
+        final DateTime dateTimeTimeout = this.clock.getCurrentDateTime().plus(timeout);
+        return this.watch(dateTimeTimeout);
     }
 
     @Override
     public Result<Void> watch(DateTime timeout)
     {
         PreCondition.assertNotNull(timeout, "timeout");
-        PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
-        PreCondition.assertNotNull(clock, "clock");
+        PreCondition.assertTrue(this.mutex.isAcquiredByCurrentThread(), "this.mutex.isAcquiredByCurrentThread()");
+        PreCondition.assertNotNull(this.clock, "this.clock");
 
         Result<Void> result = null;
         while (result == null)
         {
-            if (clock.getCurrentDateTime().greaterThanOrEqualTo(timeout))
+            if (this.clock.getCurrentDateTime().greaterThanOrEqualTo(timeout))
             {
                 result = Result.error(new TimeoutException());
             }
-            else if (conditionFunction != null && conditionFunction.run())
+            else if (this.conditionFunction != null && this.conditionFunction.run())
             {
                 result = Result.success();
             }
@@ -86,7 +103,7 @@ public class JavaMutexCondition implements MutexCondition
             {
                 try
                 {
-                    if (conditionVariable.await(1, java.util.concurrent.TimeUnit.MILLISECONDS) && conditionFunction == null)
+                    if (this.conditionVariable.await(1, java.util.concurrent.TimeUnit.MILLISECONDS) && this.conditionFunction == null)
                     {
                         result = Result.success();
                     }
@@ -103,8 +120,8 @@ public class JavaMutexCondition implements MutexCondition
     @Override
     public void signalAll()
     {
-        PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
+        PreCondition.assertTrue(this.mutex.isAcquiredByCurrentThread(), "this.mutex.isAcquiredByCurrentThread()");
 
-        conditionVariable.signalAll();
+        this.conditionVariable.signalAll();
     }
 }

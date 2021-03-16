@@ -2,7 +2,7 @@ package qub;
 
 public interface UIVerticalLayoutTests
 {
-    static void test(TestRunner runner, Function1<Test,? extends UIVerticalLayout> creator)
+    static void test(TestRunner runner, Function1<FakeDesktopProcess,? extends UIVerticalLayout> creator)
     {
         PreCondition.assertNotNull(runner, "runner");
         PreCondition.assertNotNull(creator, "creator");
@@ -13,9 +13,12 @@ public interface UIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(UIVerticalLayout.class), (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    final UIVerticalLayout setWidthResult = verticalLayout.setWidth(Distance.inches(1));
-                    test.assertSame(verticalLayout, setWidthResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
+                        final UIVerticalLayout setWidthResult = verticalLayout.setWidth(Distance.inches(1));
+                        test.assertSame(verticalLayout, setWidthResult);
+                    }
                 });
             });
 
@@ -23,9 +26,12 @@ public interface UIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(UIVerticalLayout.class), (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    final UIVerticalLayout setHeightResult = verticalLayout.setHeight(Distance.inches(1));
-                    test.assertSame(verticalLayout, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
+                        final UIVerticalLayout setHeightResult = verticalLayout.setHeight(Distance.inches(1));
+                        test.assertSame(verticalLayout, setHeightResult);
+                    }
                 });
             });
 
@@ -33,9 +39,12 @@ public interface UIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(UIVerticalLayout.class), (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    final UIVerticalLayout setHeightResult = verticalLayout.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
-                    test.assertSame(verticalLayout, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
+                        final UIVerticalLayout setHeightResult = verticalLayout.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
+                        test.assertSame(verticalLayout, setHeightResult);
+                    }
                 });
             });
 
@@ -43,9 +52,12 @@ public interface UIVerticalLayoutTests
             {
                 runner.test("should return " + Types.getTypeName(UIVerticalLayout.class), (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    final UIVerticalLayout setHeightResult = verticalLayout.setSize(Distance.inches(2), Distance.inches(3));
-                    test.assertSame(verticalLayout, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
+                        final UIVerticalLayout setHeightResult = verticalLayout.setSize(Distance.inches(2), Distance.inches(3));
+                        test.assertSame(verticalLayout, setHeightResult);
+                    }
                 });
             });
 
@@ -53,18 +65,24 @@ public interface UIVerticalLayoutTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    test.assertThrows(() -> verticalLayout.add((UIElement)null),
-                        new PreConditionFailure("uiElement cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
+                        test.assertThrows(() -> verticalLayout.add((UIElement)null),
+                            new PreConditionFailure("uiElement cannot be null."));
+                    }
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    final UIElement element = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
+                        final UIElement element = creator.run(process);
 
-                    final UIVerticalLayout addResult = verticalLayout.add(element);
-                    test.assertSame(verticalLayout, addResult);
+                        final UIVerticalLayout addResult = verticalLayout.add(element);
+                        test.assertSame(verticalLayout, addResult);
+                    }
                 });
             });
 
@@ -72,72 +90,96 @@ public interface UIVerticalLayoutTests
             {
                 runner.test("with null element", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
 
-                    test.assertThrows(() -> verticalLayout.addAll((UIElement)null),
-                        new PreConditionFailure("uiElement cannot be null."));
+                        test.assertThrows(() -> verticalLayout.addAll((UIElement)null),
+                            new PreConditionFailure("uiElement cannot be null."));
+                    }
                 });
 
                 runner.test("with no arguments", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
 
-                    final UIVerticalLayout addResult = verticalLayout.addAll();
-                    test.assertSame(verticalLayout, addResult);
+                        final UIVerticalLayout addResult = verticalLayout.addAll();
+                        test.assertSame(verticalLayout, addResult);
+                    }
                 });
 
                 runner.test("with one argument", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    final UIElement element = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
+                        final UIElement element = creator.run(process);
 
-                    final UIVerticalLayout addResult = verticalLayout.addAll(element);
-                    test.assertSame(verticalLayout, addResult);
+                        final UIVerticalLayout addResult = verticalLayout.addAll(element);
+                        test.assertSame(verticalLayout, addResult);
+                    }
                 });
 
                 runner.test("with multiple arguments", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    final UIElement element1 = creator.run(test);
-                    final UIElement element2 = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
+                        final UIElement element1 = creator.run(process);
+                        final UIElement element2 = creator.run(process);
 
-                    final UIVerticalLayout addResult = verticalLayout.addAll(element1, element2);
-                    test.assertSame(verticalLayout, addResult);
+                        final UIVerticalLayout addResult = verticalLayout.addAll(element1, element2);
+                        test.assertSame(verticalLayout, addResult);
+                    }
                 });
 
                 runner.test("with null array", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
 
-                    test.assertThrows(() -> verticalLayout.addAll((UIElement[])null),
-                        new PreConditionFailure("uiElements cannot be null."));
+                        test.assertThrows(() -> verticalLayout.addAll((UIElement[])null),
+                            new PreConditionFailure("uiElements cannot be null."));
+                    }
                 });
 
                 runner.test("with empty array", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
 
-                    final UIVerticalLayout addResult = verticalLayout.addAll(new UIElement[0]);
-                    test.assertSame(verticalLayout, addResult);
+                        final UIVerticalLayout addResult = verticalLayout.addAll(new UIElement[0]);
+                        test.assertSame(verticalLayout, addResult);
+                    }
                 });
 
                 runner.test("with one element array", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    final UIElement element = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
+                        final UIElement element = creator.run(process);
 
-                    final UIVerticalLayout addResult = verticalLayout.addAll(new UIElement[] { element });
-                    test.assertSame(verticalLayout, addResult);
+                        final UIVerticalLayout addResult = verticalLayout.addAll(new UIElement[]{ element });
+                        test.assertSame(verticalLayout, addResult);
+                    }
                 });
 
                 runner.test("with multiple element array", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    final UIElement element1 = creator.run(test);
-                    final UIElement element2 = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
+                        final UIElement element1 = creator.run(process);
+                        final UIElement element2 = creator.run(process);
 
-                    final UIVerticalLayout addResult = verticalLayout.addAll(new UIElement[] { element1, element2 });
-                    test.assertSame(verticalLayout, addResult);
+                        final UIVerticalLayout addResult = verticalLayout.addAll(new UIElement[]{ element1, element2 });
+                        test.assertSame(verticalLayout, addResult);
+                    }
                 });
             });
 
@@ -145,37 +187,49 @@ public interface UIVerticalLayoutTests
             {
                 runner.test("with null Iterable", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
 
-                    test.assertThrows(() -> verticalLayout.addAll((Iterable<UIElement>)null),
-                        new PreConditionFailure("uiElements cannot be null."));
+                        test.assertThrows(() -> verticalLayout.addAll((Iterable<UIElement>)null),
+                            new PreConditionFailure("uiElements cannot be null."));
+                    }
                 });
 
                 runner.test("with empty Iterable", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
 
-                    final UIVerticalLayout addResult = verticalLayout.addAll(Iterable.create());
-                    test.assertSame(verticalLayout, addResult);
+                        final UIVerticalLayout addResult = verticalLayout.addAll(Iterable.create());
+                        test.assertSame(verticalLayout, addResult);
+                    }
                 });
 
                 runner.test("with one element Iterable", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    final UIElement element = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
+                        final UIElement element = creator.run(process);
 
-                    final UIVerticalLayout addResult = verticalLayout.addAll(Iterable.create(element));
-                    test.assertSame(verticalLayout, addResult);
+                        final UIVerticalLayout addResult = verticalLayout.addAll(Iterable.create(element));
+                        test.assertSame(verticalLayout, addResult);
+                    }
                 });
 
                 runner.test("with multiple element Iterable", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    final UIElement element1 = creator.run(test);
-                    final UIElement element2 = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
+                        final UIElement element1 = creator.run(process);
+                        final UIElement element2 = creator.run(process);
 
-                    final UIVerticalLayout addResult = verticalLayout.addAll(Iterable.create(element1, element2));
-                    test.assertSame(verticalLayout, addResult);
+                        final UIVerticalLayout addResult = verticalLayout.addAll(Iterable.create(element1, element2));
+                        test.assertSame(verticalLayout, addResult);
+                    }
                 });
             });
 
@@ -183,20 +237,26 @@ public interface UIVerticalLayoutTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    test.assertThrows(() -> verticalLayout.setElementHorizontalAlignment(null),
-                        new PreConditionFailure("elementHorizontalAlignment cannot be null."));
-                    test.assertEqual(HorizontalAlignment.Left, verticalLayout.getElementHorizontalAlignment());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
+                        test.assertThrows(() -> verticalLayout.setElementHorizontalAlignment(null),
+                            new PreConditionFailure("elementHorizontalAlignment cannot be null."));
+                        test.assertEqual(HorizontalAlignment.Left, verticalLayout.getElementHorizontalAlignment());
+                    }
                 });
 
                 final Action1<HorizontalAlignment> setElementHorizontalAlignmentTest = (HorizontalAlignment elementHorizontalAlignment) ->
                 {
                     runner.test("with " + elementHorizontalAlignment, (Test test) ->
                     {
-                        final UIVerticalLayout verticalLayout = creator.run(test);
-                        final UIVerticalLayout setElementHorizontalAlignmentResult = verticalLayout.setElementHorizontalAlignment(elementHorizontalAlignment);
-                        test.assertSame(verticalLayout, setElementHorizontalAlignmentResult);
-                        test.assertEqual(elementHorizontalAlignment, verticalLayout.getElementHorizontalAlignment());
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIVerticalLayout verticalLayout = creator.run(process);
+                            final UIVerticalLayout setElementHorizontalAlignmentResult = verticalLayout.setElementHorizontalAlignment(elementHorizontalAlignment);
+                            test.assertSame(verticalLayout, setElementHorizontalAlignmentResult);
+                            test.assertEqual(elementHorizontalAlignment, verticalLayout.getElementHorizontalAlignment());
+                        }
                     });
                 };
 
@@ -209,20 +269,26 @@ public interface UIVerticalLayoutTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final UIVerticalLayout verticalLayout = creator.run(test);
-                    test.assertThrows(() -> verticalLayout.setElementVerticalAlignment(null),
-                        new PreConditionFailure("elementVerticalAlignment cannot be null."));
-                    test.assertEqual(VerticalAlignment.Top, verticalLayout.getElementVerticalAlignment());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIVerticalLayout verticalLayout = creator.run(process);
+                        test.assertThrows(() -> verticalLayout.setElementVerticalAlignment(null),
+                            new PreConditionFailure("elementVerticalAlignment cannot be null."));
+                        test.assertEqual(VerticalAlignment.Top, verticalLayout.getElementVerticalAlignment());
+                    }
                 });
 
                 final Action1<VerticalAlignment> setElementVerticalAlignmentTest = (VerticalAlignment elementVerticalAlignment) ->
                 {
                     runner.test("with " + elementVerticalAlignment, (Test test) ->
                     {
-                        final UIVerticalLayout verticalLayout = creator.run(test);
-                        final UIVerticalLayout setElementVerticalAlignmentResult = verticalLayout.setElementVerticalAlignment(elementVerticalAlignment);
-                        test.assertSame(verticalLayout, setElementVerticalAlignmentResult);
-                        test.assertEqual(elementVerticalAlignment, verticalLayout.getElementVerticalAlignment());
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIVerticalLayout verticalLayout = creator.run(process);
+                            final UIVerticalLayout setElementVerticalAlignmentResult = verticalLayout.setElementVerticalAlignment(elementVerticalAlignment);
+                            test.assertSame(verticalLayout, setElementVerticalAlignmentResult);
+                            test.assertEqual(elementVerticalAlignment, verticalLayout.getElementVerticalAlignment());
+                        }
                     });
                 };
 

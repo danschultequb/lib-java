@@ -2,7 +2,7 @@ package qub;
 
 public interface NetworkTests
 {
-    static void test(TestRunner runner, Function1<Test,Network> creator)
+    static void test(TestRunner runner, Function1<Clock,Network> creator)
     {
         runner.testGroup(Network.class, () ->
         {
@@ -10,43 +10,45 @@ public interface NetworkTests
             {
                 runner.test("with null remoteIPAddress", (Test test) ->
                 {
-                    final Network network = creator.run(test);
+                    final Network network = creator.run(ManualClock.create());
                     test.assertThrows(() -> network.createTCPClient(null, 80),
                         new PreConditionFailure("remoteIPAddress cannot be null."));
                 });
 
                 runner.test("with -1 remotePort", (Test test) ->
                 {
-                    final Network network = creator.run(test);
+                    final Network network = creator.run(ManualClock.create());
                     test.assertThrows(() -> network.createTCPClient(IPv4Address.localhost, -1),
                         new PreConditionFailure("remotePort (-1) must be between 1 and 65535."));
                 });
 
                 runner.test("with 0 remotePort", (Test test) ->
                 {
-                    final Network network = creator.run(test);
+                    final Network network = creator.run(ManualClock.create());
                     test.assertThrows(() -> network.createTCPClient(IPv4Address.localhost, 0),
                         new PreConditionFailure("remotePort (0) must be between 1 and 65535."));
                 });
 
                 runner.test("with valid arguments but no server listening", (Test test) ->
                 {
-                    final Network network = creator.run(test);
+                    final Network network = creator.run(ManualClock.create());
                     test.assertThrows(() -> network.createTCPClient(IPv4Address.localhost, 38827).await(),
                         new java.net.ConnectException("Connection refused: connect"));
                 });
 
-                runner.test("with valid arguments and server listening", runner.skip("flaky test for FakeNetwork"), (Test test) ->
+                runner.test("with valid arguments and server listening",
+                    runner.skip("flaky test for FakeNetwork"),
+                    (TestResources resources) -> Tuple.create(resources.getParallelAsyncRunner(), resources.getClock()),
+                    (Test test, AsyncRunner parallelAsyncRunner, Clock clock) ->
                 {
-                    final AsyncRunner asyncRunner = test.getParallelAsyncRunner();
-                    final Network network = creator.run(test);
+                    final Network network = creator.run(clock);
 
                     final byte[] bytes = new byte[] { 1, 2, 3, 4, 5 };
 
                     final int port = 8088;
-                    final DateTime timeout = test.getClock().getCurrentDateTime().plus(Duration.seconds(5));
+                    final DateTime timeout = clock.getCurrentDateTime().plus(Duration.seconds(5));
 
-                    final Result<Void> serverTask = asyncRunner.schedule(() ->
+                    final Result<Void> serverTask = parallelAsyncRunner.schedule(() ->
                     {
                         try (final TCPServer tcpServer = network.createTCPServer(IPv4Address.localhost, port).await())
                         {
@@ -60,7 +62,7 @@ public interface NetworkTests
                         }
                     });
 
-                    final Result<Void> clientTask = asyncRunner.schedule(() ->
+                    final Result<Void> clientTask = parallelAsyncRunner.schedule(() ->
                     {
                         try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port, timeout).await())
                         {
@@ -81,19 +83,21 @@ public interface NetworkTests
             {
                 runner.test("with -1 localPort", (Test test) ->
                 {
-                    final Network network = creator.run(test);
-                    test.assertThrows(() -> network.createTCPServer(-1), new PreConditionFailure("localPort (-1) must be between 1 and 65535."));
+                    final Network network = creator.run(ManualClock.create());
+                    test.assertThrows(() -> network.createTCPServer(-1),
+                        new PreConditionFailure("localPort (-1) must be between 1 and 65535."));
                 });
 
                 runner.test("with 0 localPort", (Test test) ->
                 {
-                    final Network network = creator.run(test);
-                    test.assertThrows(() -> network.createTCPServer(0), new PreConditionFailure("localPort (0) must be between 1 and 65535."));
+                    final Network network = creator.run(ManualClock.create());
+                    test.assertThrows(() -> network.createTCPServer(0),
+                        new PreConditionFailure("localPort (0) must be between 1 and 65535."));
                 });
 
                 runner.test("with 8088 localPort", (Test test) ->
                 {
-                    final Network network = creator.run(test);
+                    final Network network = creator.run(ManualClock.create());
                     final TCPServer tcpServer = network.createTCPServer(8088).await();
                     test.assertTrue(tcpServer.dispose().await());
                 });

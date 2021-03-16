@@ -1,15 +1,15 @@
 package qub;
 
-public interface BasicDisposableTests
+public interface DisposableActionTests
 {
     static void test(TestRunner runner)
     {
-        runner.testGroup(BasicDisposable.class, () ->
+        runner.testGroup(DisposableAction.class, () ->
         {
             runner.test("dispose()", (Test test) ->
             {
                 final Value<Integer> value = Value.create(0);
-                final BasicDisposable disposable = BasicDisposable.create(() -> value.set(value.get() + 1));
+                final DisposableAction disposable = DisposableAction.create(() -> value.set(value.get() + 1));
                 test.assertFalse(disposable.isDisposed());
                 test.assertEqual(0, value.get());
 

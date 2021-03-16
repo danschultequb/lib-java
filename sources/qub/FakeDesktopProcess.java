@@ -7,6 +7,16 @@ public class FakeDesktopProcess extends DesktopProcessBase
 
     /**
      * Create a new JavaProcess object with the provided command line arguments.
+     */
+    public static FakeDesktopProcess create(AsyncScheduler mainAsyncRunner)
+    {
+        PreCondition.assertNotNull(mainAsyncRunner, "mainAsyncRunner");
+
+        return FakeDesktopProcess.create(CommandLineArguments.create(), mainAsyncRunner);
+    }
+
+    /**
+     * Create a new JavaProcess object with the provided command line arguments.
      * @param commandLineArgumentStrings The command line arguments provided to the new JavaProcess.
      */
     public static FakeDesktopProcess create(String... commandLineArgumentStrings)
@@ -193,7 +203,7 @@ public class FakeDesktopProcess extends DesktopProcessBase
     @Override
     protected FakeNetwork createDefaultNetwork()
     {
-        return new FakeNetwork(this.getClock());
+        return FakeNetwork.create(this.getClock());
     }
 
     @Override

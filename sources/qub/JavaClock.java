@@ -7,9 +7,16 @@ public class JavaClock implements Clock
 {
     private final AsyncRunner parallelAsyncRunner;
 
-    public JavaClock(AsyncRunner parallelAsyncRunner)
+    private JavaClock(AsyncRunner parallelAsyncRunner)
     {
+        PreCondition.assertNotNull(parallelAsyncRunner, "parallelAsyncRunner");
+
         this.parallelAsyncRunner = parallelAsyncRunner;
+    }
+
+    public static JavaClock create(AsyncRunner parallelAsyncRunner)
+    {
+        return new JavaClock(parallelAsyncRunner);
     }
 
     @Override
@@ -36,9 +43,9 @@ public class JavaClock implements Clock
 
         return Result.create(() ->
         {
-            if (getCurrentDateTime().lessThan(dateTime))
+            if (this.getCurrentDateTime().lessThan(dateTime))
             {
-                parallelAsyncRunner.schedule(() ->
+                this.parallelAsyncRunner.schedule(() ->
                 {
                     while (this.getCurrentDateTime().lessThan(dateTime))
                     {

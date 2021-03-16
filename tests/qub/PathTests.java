@@ -489,7 +489,7 @@ public interface PathTests
                     {
                         final Path path = Path.parse(pathString);
 
-                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                         final Folder folder = basePathString == null ? null : fileSystem.getFolder(basePathString).await();
                         test.assertThrows(() -> path.relativeTo(folder),
                             expectedError);
@@ -507,7 +507,7 @@ public interface PathTests
                     {
                         final Path path = Path.parse(pathString);
 
-                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                         final Folder folder = fileSystem.getFolder(basePathString).await();
                         test.assertEqual(Path.parse(expectedPathString), path.relativeTo(folder));
                     });

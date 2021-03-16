@@ -13,7 +13,7 @@ public class ManualAsyncRunner implements AsyncScheduler
 
     public ManualAsyncRunner()
     {
-        this.scheduledTasks = new Locked<>(List.create());
+        this.scheduledTasks = Locked.create(List.create());
     }
 
     /**

@@ -19,7 +19,7 @@ public interface RuntimeClassLoaderTests
 
                 runner.test("with Folder and Jar file arguments", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     final Folder classFolder = fileSystem.getFolder("/class/source/").await();
                     final File jarFile = fileSystem.getFile("/example.jar").await();
                     try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(classFolder, jarFile))
@@ -62,10 +62,10 @@ public interface RuntimeClassLoaderTests
 
             runner.testGroup("loadClass()", () ->
             {
-                runner.test("with null", (Test test) ->
+                runner.test("with null",
+                    (TestResources resources) -> Tuple.create(resources.getTemporaryFolder()),
+                    (Test test, Folder nonExistingFolder) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder();
-                    final Folder nonExistingFolder = currentFolder.getFolder("idontexist").await();
                     try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(nonExistingFolder))
                     {
                         test.assertThrows(() -> classLoader.loadClass(null),
@@ -73,10 +73,10 @@ public interface RuntimeClassLoaderTests
                     }
                 });
 
-                runner.test("with empty", (Test test) ->
+                runner.test("with empty",
+                    (TestResources resources) -> Tuple.create(resources.getTemporaryFolder()),
+                    (Test test, Folder nonExistingFolder) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder();
-                    final Folder nonExistingFolder = currentFolder.getFolder("idontexist").await();
                     try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(nonExistingFolder))
                     {
                         test.assertThrows(() -> classLoader.loadClass(""),
@@ -84,10 +84,10 @@ public interface RuntimeClassLoaderTests
                     }
                 });
 
-                runner.test("when folder doesn't exist", (Test test) ->
+                runner.test("when folder doesn't exist",
+                    (TestResources resources) -> Tuple.create(resources.getTemporaryFolder()),
+                    (Test test, Folder nonExistingFolder) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder();
-                    final Folder nonExistingFolder = currentFolder.getFolder("idontexist").await();
                     try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(nonExistingFolder))
                     {
                         test.assertThrows(() -> classLoader.loadClass("not.a.FakeClass"),
@@ -95,21 +95,22 @@ public interface RuntimeClassLoaderTests
                     }
                 });
 
-                runner.test("when folder does exist, but the class file doesn't exist", (Test test) ->
+                runner.test("when folder does exist, but the class file doesn't exist",
+                    (TestResources resources) -> Tuple.create(resources.getTemporaryFolder(true)),
+                    (Test test, Folder existingFolder) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder();
-                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(currentFolder))
+                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(existingFolder))
                     {
                         test.assertThrows(() -> classLoader.loadClass("not.a.FakeClass"),
-                            new ClassNotFoundException("Could not load a class with the name \"not.a.FakeClass\" from [" + currentFolder + "]."));
+                            new ClassNotFoundException("Could not load a class with the name \"not.a.FakeClass\" from [" + existingFolder + "]."));
                     }
                 });
 
-                runner.test("when folder and class file exists", (Test test) ->
+                runner.test("when folder and class file exists",
+                    (TestResources resources) -> Tuple.create(resources.getCurrentFolder().getFolder("outputs").await()),
+                    (Test test, Folder outputsFolder) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder();
-                    final Folder outputFolder = currentFolder.getFolder("outputs").await();
-                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(outputFolder))
+                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(outputsFolder))
                     {
                         final Class<?> loadedClass = classLoader.loadClass("qub.RuntimeClassLoaderTests");
                         test.assertNotNull(loadedClass);
@@ -118,14 +119,15 @@ public interface RuntimeClassLoaderTests
                     }
                 });
 
-                runner.test("when disposed", (Test test) ->
+                runner.test("when disposed",
+                    (TestResources resources) -> Tuple.create(resources.getCurrentFolder().getFolder("outputs").await()),
+                    (Test test, Folder outputsFolder) ->
                 {
-                    final Folder currentFolder = test.getProcess().getCurrentFolder();
-                    final Folder outputFolder = currentFolder.getFolder("outputs").await();
-                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(outputFolder))
+                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(outputsFolder))
                     {
                         test.assertTrue(classLoader.dispose().await());
                         test.assertTrue(classLoader.isDisposed());
+
                         test.assertFalse(classLoader.dispose().await());
                         test.assertTrue(classLoader.isDisposed());
 

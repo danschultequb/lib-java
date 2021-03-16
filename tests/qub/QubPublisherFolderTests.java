@@ -446,7 +446,7 @@ public interface QubPublisherFolderTests
 
     static InMemoryFileSystem createFileSystem(Test test)
     {
-        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
         fileSystem.createRoot("/").await();
         return fileSystem;
     }

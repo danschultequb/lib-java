@@ -23,7 +23,7 @@ public class RuntimeClassLoader extends java.net.URLClassLoader implements Dispo
      */
     public RuntimeClassLoader(Iterable<FileSystemEntry> classSources)
     {
-        this(classSources, ClassLoader.getSystemClassLoader());
+        this(classSources, java.lang.ClassLoader.getSystemClassLoader());
     }
 
     /**
@@ -34,7 +34,7 @@ public class RuntimeClassLoader extends java.net.URLClassLoader implements Dispo
      */
     public RuntimeClassLoader(Iterable<FileSystemEntry> classSources, java.lang.ClassLoader parentClassLoader)
     {
-        super(getJavaURLsFromClassSources(classSources), parentClassLoader);
+        super(RuntimeClassLoader.getJavaURLsFromClassSources(classSources), parentClassLoader);
 
         PreCondition.assertNotNull(classSources, "classSources");
         PreCondition.assertNotNull(parentClassLoader, "parentClassLoader");
@@ -52,7 +52,7 @@ public class RuntimeClassLoader extends java.net.URLClassLoader implements Dispo
         PreCondition.assertNotNull(classSource, "classSource");
 
         String classSourceURLString = "file://" + classSource;
-        if (classSource instanceof Folder)
+        if (classSource instanceof Folder && !classSourceURLString.endsWith("/"))
         {
             classSourceURLString += "/";
         }
@@ -84,7 +84,7 @@ public class RuntimeClassLoader extends java.net.URLClassLoader implements Dispo
         int index = 0;
         for (final FileSystemEntry classSource : classSources)
         {
-            result[index] = getJavaURLFromClassSource(classSource);
+            result[index] = RuntimeClassLoader.getJavaURLFromClassSource(classSource);
             ++index;
         }
 
@@ -99,7 +99,7 @@ public class RuntimeClassLoader extends java.net.URLClassLoader implements Dispo
      */
     public Iterable<FileSystemEntry> getClassSources()
     {
-        return classSources;
+        return this.classSources;
     }
 
     /**
@@ -118,9 +118,9 @@ public class RuntimeClassLoader extends java.net.URLClassLoader implements Dispo
         {
             result = super.loadClass(fullClassName);
         }
-        catch (ClassNotFoundException e)
+        catch (java.lang.ClassNotFoundException e)
         {
-            throw new RuntimeException(new ClassNotFoundException("Could not load a class with the name " + Strings.escapeAndQuote(fullClassName) + " from " + classSources + "."));
+            throw Exceptions.asRuntime(new java.lang.ClassNotFoundException("Could not load a class with the name " + Strings.escapeAndQuote(fullClassName) + " from " + this.classSources + "."));
         }
 
         PostCondition.assertNotNull(result, "result");
@@ -137,14 +137,14 @@ public class RuntimeClassLoader extends java.net.URLClassLoader implements Dispo
     @Override
     public boolean isDisposed()
     {
-        return isDisposed;
+        return this.isDisposed;
     }
 
     @Override
     public Result<Boolean> dispose()
     {
         Result<Boolean> result;
-        if (isDisposed)
+        if (this.isDisposed)
         {
             result = Result.successFalse();
         }
@@ -153,7 +153,7 @@ public class RuntimeClassLoader extends java.net.URLClassLoader implements Dispo
             try
             {
                 super.close();
-                isDisposed = true;
+                this.isDisposed = true;
                 result = Result.successTrue();
             }
             catch (java.io.IOException e)

@@ -2,7 +2,7 @@ package qub;
 
 public interface UIElementTests
 {
-    static void test(TestRunner runner, Function1<Test,? extends UIElement> creator)
+    static void test(TestRunner runner, Function1<FakeDesktopProcess,? extends UIElement> creator)
     {
         PreCondition.assertNotNull(runner, "runner");
         PreCondition.assertNotNull(creator, "creator");
@@ -15,8 +15,11 @@ public interface UIElementTests
                 {
                     runner.test("with " + width, (Test test) ->
                     {
-                        final UIElement uiElement = creator.run(test);
-                        test.assertThrows(() -> uiElement.setWidth(width), expected);
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIElement uiElement = creator.run(process);
+                            test.assertThrows(() -> uiElement.setWidth(width), expected);
+                        }
                     });
                 };
     
@@ -27,12 +30,15 @@ public interface UIElementTests
                 {
                     runner.test("with " + width, (Test test) ->
                     {
-                        final UIElement uiElement = creator.run(test);
-    
-                        final UIElement setWidthResult = uiElement.setWidth(width);
-                        test.assertSame(uiElement, setWidthResult);
-    
-                        test.assertEqual(width, uiElement.getWidth());
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIElement uiElement = creator.run(process);
+
+                            final UIElement setWidthResult = uiElement.setWidth(width);
+                            test.assertSame(uiElement, setWidthResult);
+
+                            test.assertEqual(width, uiElement.getWidth());
+                        }
                     });
                 };
     
@@ -46,8 +52,11 @@ public interface UIElementTests
                 {
                     runner.test("with " + widthInPixels, (Test test) ->
                     {
-                        final UIElement uiElement = creator.run(test);
-                        test.assertThrows(() -> uiElement.setWidthInPixels(widthInPixels), expected);
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIElement uiElement = creator.run(process);
+                            test.assertThrows(() -> uiElement.setWidthInPixels(widthInPixels), expected);
+                        }
                     });
                 };
 
@@ -57,12 +66,15 @@ public interface UIElementTests
                 {
                     runner.test("with " + widthInPixels, (Test test) ->
                     {
-                        final UIElement uiElement = creator.run(test);
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIElement uiElement = creator.run(process);
 
-                        final UIElement setWidthResult = uiElement.setWidthInPixels(widthInPixels);
-                        test.assertSame(uiElement, setWidthResult);
+                            final UIElement setWidthResult = uiElement.setWidthInPixels(widthInPixels);
+                            test.assertSame(uiElement, setWidthResult);
 
-                        test.assertEqual(widthInPixels, uiElement.getWidthInPixels());
+                            test.assertEqual(widthInPixels, uiElement.getWidthInPixels());
+                        }
                     });
                 };
 
@@ -73,25 +85,28 @@ public interface UIElementTests
 
             runner.test("getDynamicWidth()", (Test test) ->
             {
-                final UIElement uiElement = creator.run(test);
-
-                try (final DynamicDistance dynamicWidth = uiElement.getDynamicWidth())
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                 {
-                    test.assertNotNull(dynamicWidth);
-                    test.assertEqual(uiElement.getWidth(), dynamicWidth.get());
+                    final UIElement uiElement = creator.run(process);
 
-                    final IntegerValue counter = IntegerValue.create(0);
-                    final SpinGate gate = SpinGate.create(test.getClock());
-                    dynamicWidth.onChanged(() ->
+                    try (final DynamicDistance dynamicWidth = uiElement.getDynamicWidth())
                     {
-                        counter.increment();
-                        gate.open();
-                    });
+                        test.assertNotNull(dynamicWidth);
+                        test.assertEqual(uiElement.getWidth(), dynamicWidth.get());
 
-                    uiElement.setWidth(Distance.inches(4));
-                    gate.passThrough(() -> test.getMainAsyncRunner().schedule(Action0.empty).await());
-                    test.assertEqual(Distance.inches(4), dynamicWidth.get());
-                    test.assertEqual(1, counter.get());
+                        final IntegerValue counter = IntegerValue.create(0);
+                        final SpinGate gate = SpinGate.create(process.getClock());
+                        dynamicWidth.onChanged(() ->
+                        {
+                            counter.increment();
+                            gate.open();
+                        });
+
+                        uiElement.setWidth(Distance.inches(4));
+                        gate.passThrough(() -> process.getMainAsyncRunner().schedule(Action0.empty).await());
+                        test.assertEqual(Distance.inches(4), dynamicWidth.get());
+                        test.assertEqual(1, counter.get());
+                    }
                 }
             });
     
@@ -101,8 +116,11 @@ public interface UIElementTests
                 {
                     runner.test("with " + height, (Test test) ->
                     {
-                        final UIElement uiElement = creator.run(test);
-                        test.assertThrows(() -> uiElement.setHeight(height), expected);
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIElement uiElement = creator.run(process);
+                            test.assertThrows(() -> uiElement.setHeight(height), expected);
+                        }
                     });
                 };
     
@@ -113,12 +131,15 @@ public interface UIElementTests
                 {
                     runner.test("with " + height, (Test test) ->
                     {
-                        final UIElement uiElement = creator.run(test);
-    
-                        final UIElement setHeightResult = uiElement.setHeight(height);
-                        test.assertSame(uiElement, setHeightResult);
-    
-                        test.assertEqual(height, uiElement.getHeight());
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIElement uiElement = creator.run(process);
+
+                            final UIElement setHeightResult = uiElement.setHeight(height);
+                            test.assertSame(uiElement, setHeightResult);
+
+                            test.assertEqual(height, uiElement.getHeight());
+                        }
                     });
                 };
     
@@ -132,8 +153,11 @@ public interface UIElementTests
                 {
                     runner.test("with " + heightInPixels, (Test test) ->
                     {
-                        final UIElement uiElement = creator.run(test);
-                        test.assertThrows(() -> uiElement.setHeightInPixels(heightInPixels), expected);
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIElement uiElement = creator.run(process);
+                            test.assertThrows(() -> uiElement.setHeightInPixels(heightInPixels), expected);
+                        }
                     });
                 };
 
@@ -143,12 +167,15 @@ public interface UIElementTests
                 {
                     runner.test("with " + heightInPixels, (Test test) ->
                     {
-                        final UIElement uiElement = creator.run(test);
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIElement uiElement = creator.run(process);
 
-                        final UIElement setHeightInPixelsResult = uiElement.setHeightInPixels(heightInPixels);
-                        test.assertSame(uiElement, setHeightInPixelsResult);
+                            final UIElement setHeightInPixelsResult = uiElement.setHeightInPixels(heightInPixels);
+                            test.assertSame(uiElement, setHeightInPixelsResult);
 
-                        test.assertEqual(heightInPixels, uiElement.getHeightInPixels());
+                            test.assertEqual(heightInPixels, uiElement.getHeightInPixels());
+                        }
                     });
                 };
 
@@ -159,24 +186,27 @@ public interface UIElementTests
 
             runner.test("getDynamicHeight()", (Test test) ->
             {
-                final UIElement uiElement = creator.run(test);
-
-                final DynamicDistance dynamicHeight = uiElement.getDynamicHeight();
-                test.assertNotNull(dynamicHeight);
-                test.assertEqual(uiElement.getHeight(), dynamicHeight.get());
-
-                final IntegerValue counter = IntegerValue.create(0);
-                final SpinGate gate = SpinGate.create(test.getClock());
-                dynamicHeight.onChanged(() ->
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                 {
-                    counter.increment();
-                    gate.open();
-                });
+                    final UIElement uiElement = creator.run(process);
 
-                uiElement.setHeight(Distance.inches(4));
-                gate.passThrough(() -> test.getMainAsyncRunner().schedule(Action0.empty).await());
-                test.assertEqual(Distance.inches(4), dynamicHeight.get());
-                test.assertEqual(1, counter.get());
+                    final DynamicDistance dynamicHeight = uiElement.getDynamicHeight();
+                    test.assertNotNull(dynamicHeight);
+                    test.assertEqual(uiElement.getHeight(), dynamicHeight.get());
+
+                    final IntegerValue counter = IntegerValue.create(0);
+                    final SpinGate gate = SpinGate.create(process.getClock());
+                    dynamicHeight.onChanged(() ->
+                    {
+                        counter.increment();
+                        gate.open();
+                    });
+
+                    uiElement.setHeight(Distance.inches(4));
+                    gate.passThrough(() -> process.getMainAsyncRunner().schedule(Action0.empty).await());
+                    test.assertEqual(Distance.inches(4), dynamicHeight.get());
+                    test.assertEqual(1, counter.get());
+                }
             });
     
             runner.testGroup("setSize(Size2D)", () ->
@@ -185,8 +215,11 @@ public interface UIElementTests
                 {
                     runner.test("with " + size, (Test test) ->
                     {
-                        final UIElement uiElement = creator.run(test);
-                        test.assertThrows(() -> uiElement.setSize(size), expected);
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIElement uiElement = creator.run(process);
+                            test.assertThrows(() -> uiElement.setSize(size), expected);
+                        }
                     });
                 };
     
@@ -196,10 +229,13 @@ public interface UIElementTests
                 {
                     runner.test("with " + size, (Test test) ->
                     {
-                        final UIElement uiElement = creator.run(test);
-                        final UIElement setSizeResult = uiElement.setSize(size);
-                        test.assertSame(uiElement, setSizeResult);
-                        test.assertEqual(size, uiElement.getSize());
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIElement uiElement = creator.run(process);
+                            final UIElement setSizeResult = uiElement.setSize(size);
+                            test.assertSame(uiElement, setSizeResult);
+                            test.assertEqual(size, uiElement.getSize());
+                        }
                     });
                 };
     
@@ -215,8 +251,11 @@ public interface UIElementTests
                 {
                     runner.test("with " + English.andList(width, height), (Test test) ->
                     {
-                        final UIElement uiElement = creator.run(test);
-                        test.assertThrows(() -> uiElement.setSize(width, height), expected);
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIElement uiElement = creator.run(process);
+                            test.assertThrows(() -> uiElement.setSize(width, height), expected);
+                        }
                     });
                 };
     
@@ -229,11 +268,14 @@ public interface UIElementTests
                 {
                     runner.test("with " + English.andList(width, height), (Test test) ->
                     {
-                        final UIElement uiElement = creator.run(test);
-                        final UIElement setSizeResult = uiElement.setSize(width, height);
-                        test.assertSame(uiElement, setSizeResult);
-                        test.assertEqual(width, uiElement.getWidth());
-                        test.assertEqual(height, uiElement.getHeight());
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIElement uiElement = creator.run(process);
+                            final UIElement setSizeResult = uiElement.setSize(width, height);
+                            test.assertSame(uiElement, setSizeResult);
+                            test.assertEqual(width, uiElement.getWidth());
+                            test.assertEqual(height, uiElement.getHeight());
+                        }
                     });
                 };
     
@@ -249,8 +291,11 @@ public interface UIElementTests
                 {
                     runner.test("with " + English.andList(widthInPixels, heightInPixels), (Test test) ->
                     {
-                        final UIElement uiElement = creator.run(test);
-                        test.assertThrows(() -> uiElement.setSizeInPixels(widthInPixels, heightInPixels), expected);
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIElement uiElement = creator.run(process);
+                            test.assertThrows(() -> uiElement.setSizeInPixels(widthInPixels, heightInPixels), expected);
+                        }
                     });
                 };
 
@@ -261,11 +306,14 @@ public interface UIElementTests
                 {
                     runner.test("with " + English.andList(widthInPixels, heightInPixels), (Test test) ->
                     {
-                        final UIElement uiElement = creator.run(test);
-                        final UIElement setSizeResult = uiElement.setSizeInPixels(widthInPixels, heightInPixels);
-                        test.assertSame(uiElement, setSizeResult);
-                        test.assertEqual(widthInPixels, uiElement.getWidthInPixels());
-                        test.assertEqual(heightInPixels, uiElement.getHeightInPixels());
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UIElement uiElement = creator.run(process);
+                            final UIElement setSizeResult = uiElement.setSizeInPixels(widthInPixels, heightInPixels);
+                            test.assertSame(uiElement, setSizeResult);
+                            test.assertEqual(widthInPixels, uiElement.getWidthInPixels());
+                            test.assertEqual(heightInPixels, uiElement.getHeightInPixels());
+                        }
                     });
                 };
 
@@ -279,72 +327,87 @@ public interface UIElementTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    test.assertThrows(() -> uiElement.onSizeChanged(null),
-                        new PreConditionFailure("callback cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        test.assertThrows(() -> uiElement.onSizeChanged(null),
+                            new PreConditionFailure("callback cannot be null."));
+                    }
                 });
 
                 runner.test("with non-null", runner.skip(false), (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    final long currentThreadId = CurrentThread.getId();
-                    final LongValue eventThreadId = LongValue.create();
-
-                    final IntegerValue value = IntegerValue.create(0);
-                    final Disposable subscription = uiElement.onSizeChanged(() ->
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        eventThreadId.set(CurrentThread.getId());
-                        value.increment();
-                    });
-                    test.assertNotNull(subscription);
-                    test.assertFalse(subscription.isDisposed());
-                    test.assertFalse(eventThreadId.hasValue());
-                    test.assertEqual(0, value.get());
+                        final UIElement uiElement = creator.run(process);
+                        final long currentThreadId = CurrentThread.getId();
+                        final LongValue eventThreadId = LongValue.create();
 
-                    uiElement.setSize(Distance.inches(10), Distance.inches(12));
+                        final IntegerValue value = IntegerValue.create(0);
+                        final Disposable subscription = uiElement.onSizeChanged(() ->
+                        {
+                            eventThreadId.set(CurrentThread.getId());
+                            value.increment();
+                        });
+                        test.assertNotNull(subscription);
+                        test.assertFalse(subscription.isDisposed());
+                        test.assertFalse(eventThreadId.hasValue());
+                        test.assertEqual(0, value.get());
 
-                    test.assertEqual(currentThreadId, eventThreadId.get());
-                    test.assertEqual(1, value.get());
+                        uiElement.setSize(Distance.inches(10), Distance.inches(12));
 
-                    test.assertTrue(subscription.dispose().await());
-                    test.assertEqual(1, value.get());
+                        test.assertEqual(currentThreadId, eventThreadId.get());
+                        test.assertEqual(1, value.get());
 
-                    eventThreadId.clear();
-                    value.set(0);
+                        test.assertTrue(subscription.dispose().await());
+                        test.assertEqual(1, value.get());
 
-                    uiElement.setSize(Distance.inches(9), Distance.inches(11));
+                        eventThreadId.clear();
+                        value.set(0);
 
-                    test.assertFalse(eventThreadId.hasValue());
-                    test.assertEqual(0, value.get());
+                        uiElement.setSize(Distance.inches(9), Distance.inches(11));
+
+                        test.assertFalse(eventThreadId.hasValue());
+                        test.assertEqual(0, value.get());
+                    }
                 });
             });
 
             runner.test("getPadding()", (Test test) ->
             {
-                final UIElement uiElement = creator.run(test);
-                final UIPadding padding = uiElement.getPadding();
-                test.assertNotNull(padding);
-                test.assertEqual(padding, uiElement.getPadding());
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                {
+                    final UIElement uiElement = creator.run(process);
+                    final UIPadding padding = uiElement.getPadding();
+                    test.assertNotNull(padding);
+                    test.assertEqual(padding, uiElement.getPadding());
+                }
             });
 
             runner.testGroup("setPadding(UIPadding)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    final UIPadding padding = uiElement.getPadding();
-                    test.assertThrows(() -> uiElement.setPadding(null),
-                        new PreConditionFailure("padding cannot be null."));
-                    test.assertEqual(padding, uiElement.getPadding());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        final UIPadding padding = uiElement.getPadding();
+                        test.assertThrows(() -> uiElement.setPadding(null),
+                            new PreConditionFailure("padding cannot be null."));
+                        test.assertEqual(padding, uiElement.getPadding());
+                    }
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    final UIPadding padding = UIPadding.create(Distance.inches(1), Distance.inches(2), Distance.inches(3), Distance.inches(4));
-                    final UIElement setPaddingResult = uiElement.setPadding(padding);
-                    test.assertSame(uiElement, setPaddingResult);
-                    test.assertEqual(padding, uiElement.getPadding());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        final UIPadding padding = UIPadding.create(Distance.inches(1), Distance.inches(2), Distance.inches(3), Distance.inches(4));
+                        final UIElement setPaddingResult = uiElement.setPadding(padding);
+                        test.assertSame(uiElement, setPaddingResult);
+                        test.assertEqual(padding, uiElement.getPadding());
+                    }
                 });
             });
 
@@ -352,20 +415,26 @@ public interface UIElementTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    final UIPaddingInPixels padding = uiElement.getPaddingInPixels();
-                    test.assertThrows(() -> uiElement.setPaddingInPixels(null),
-                        new PreConditionFailure("padding cannot be null."));
-                    test.assertEqual(padding, uiElement.getPaddingInPixels());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        final UIPaddingInPixels padding = uiElement.getPaddingInPixels();
+                        test.assertThrows(() -> uiElement.setPaddingInPixels(null),
+                            new PreConditionFailure("padding cannot be null."));
+                        test.assertEqual(padding, uiElement.getPaddingInPixels());
+                    }
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    final UIPaddingInPixels padding = UIPaddingInPixels.create(1, 2, 3, 4);
-                    final UIElement setPaddingResult = uiElement.setPaddingInPixels(padding);
-                    test.assertSame(uiElement, setPaddingResult);
-                    test.assertEqual(padding, uiElement.getPaddingInPixels());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        final UIPaddingInPixels padding = UIPaddingInPixels.create(1, 2, 3, 4);
+                        final UIElement setPaddingResult = uiElement.setPaddingInPixels(padding);
+                        test.assertSame(uiElement, setPaddingResult);
+                        test.assertEqual(padding, uiElement.getPaddingInPixels());
+                    }
                 });
             });
 
@@ -373,31 +442,40 @@ public interface UIElementTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    test.assertThrows(() -> uiElement.onPaddingChanged((Action0)null),
-                        new PreConditionFailure("callback cannot be null."));
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        test.assertThrows(() -> uiElement.onPaddingChanged((Action0)null),
+                            new PreConditionFailure("callback cannot be null."));
+                    }
                 });
 
                 runner.test("when padding set to equal padding", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    final IntegerValue changes = IntegerValue.create(0);
-                    uiElement.onPaddingChanged(changes::increment);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        final IntegerValue changes = IntegerValue.create(0);
+                        uiElement.onPaddingChanged(changes::increment);
 
-                    uiElement.setPadding(uiElement.getPadding());
+                        uiElement.setPadding(uiElement.getPadding());
 
-                    test.assertEqual(0, changes.get());
+                        test.assertEqual(0, changes.get());
+                    }
                 });
 
                 runner.test("when padding set to different padding", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    final IntegerValue changes = IntegerValue.create(0);
-                    uiElement.onPaddingChanged(changes::increment);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        final IntegerValue changes = IntegerValue.create(0);
+                        uiElement.onPaddingChanged(changes::increment);
 
-                    uiElement.setPadding(UIPadding.create(Distance.inches(1)));
+                        uiElement.setPadding(UIPadding.create(Distance.inches(1)));
 
-                    test.assertEqual(1, changes.get());
+                        test.assertEqual(1, changes.get());
+                    }
                 });
             });
 
@@ -405,27 +483,33 @@ public interface UIElementTests
             {
                 runner.test("with no padding", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    uiElement.setPadding(UIPadding.zero);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        uiElement.setPadding(UIPadding.zero);
 
-                    final Size2D contentSpaceSize = uiElement.getContentSpaceSize();
-                    final Size2D size = uiElement.getSize();
-                    test.assertEqual(size, contentSpaceSize);
+                        final Size2D contentSpaceSize = uiElement.getContentSpaceSize();
+                        final Size2D size = uiElement.getSize();
+                        test.assertEqual(size, contentSpaceSize);
+                    }
                 });
 
                 runner.test("with padding", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    final UIPadding padding = UIPadding.create(Distance.inches(0.01));
-                    uiElement.setPadding(padding);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        final UIPadding padding = UIPadding.create(Distance.inches(0.01));
+                        uiElement.setPadding(padding);
 
-                    final Size2D contentSpaceSize = uiElement.getContentSpaceSize();
-                    final Distance width = uiElement.getWidth();
-                    final Distance expectedWidth = width.greaterThan(padding.getWidth()) ? width.minus(padding.getWidth()) : Distance.zero;
-                    final Distance height = uiElement.getHeight();
-                    final Distance expectedHeight = height.greaterThan(padding.getHeight()) ? height.minus(padding.getHeight()) : Distance.zero;
-                    final Size2D expectedSize = Size2D.create(expectedWidth, expectedHeight);
-                    test.assertEqual(expectedSize, contentSpaceSize, Size2D.create(Distance.inches(0.00001), Distance.inches(0.00001)));
+                        final Size2D contentSpaceSize = uiElement.getContentSpaceSize();
+                        final Distance width = uiElement.getWidth();
+                        final Distance expectedWidth = width.greaterThan(padding.getWidth()) ? width.minus(padding.getWidth()) : Distance.zero;
+                        final Distance height = uiElement.getHeight();
+                        final Distance expectedHeight = height.greaterThan(padding.getHeight()) ? height.minus(padding.getHeight()) : Distance.zero;
+                        final Size2D expectedSize = Size2D.create(expectedWidth, expectedHeight);
+                        test.assertEqual(expectedSize, contentSpaceSize, Size2D.create(Distance.inches(0.00001), Distance.inches(0.00001)));
+                    }
                 });
             });
 
@@ -433,57 +517,66 @@ public interface UIElementTests
             {
                 runner.test("with no padding", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    uiElement.setPadding(UIPadding.zero);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        uiElement.setPadding(UIPadding.zero);
 
-                    final Distance contentSpaceWidth = uiElement.getContentSpaceWidth();
-                    final Distance width = uiElement.getWidth();
-                    test.assertEqual(width, contentSpaceWidth);
+                        final Distance contentSpaceWidth = uiElement.getContentSpaceWidth();
+                        final Distance width = uiElement.getWidth();
+                        test.assertEqual(width, contentSpaceWidth);
+                    }
                 });
 
                 runner.test("with padding", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    final UIPadding padding = UIPadding.create(Distance.inches(0.01));
-                    uiElement.setPadding(padding);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        final UIPadding padding = UIPadding.create(Distance.inches(0.01));
+                        uiElement.setPadding(padding);
 
-                    final Distance contentSpaceWidth = uiElement.getContentSpaceWidth();
-                    final Distance width = uiElement.getWidth();
-                    final Distance expectedWidth = width.greaterThan(padding.getWidth()) ? width.minus(padding.getWidth()) : Distance.zero;
-                    test.assertEqual(expectedWidth, contentSpaceWidth, Distance.inches(0.00001));
+                        final Distance contentSpaceWidth = uiElement.getContentSpaceWidth();
+                        final Distance width = uiElement.getWidth();
+                        final Distance expectedWidth = width.greaterThan(padding.getWidth()) ? width.minus(padding.getWidth()) : Distance.zero;
+                        test.assertEqual(expectedWidth, contentSpaceWidth, Distance.inches(0.00001));
+                    }
                 });
             });
 
             runner.test("getDynamicContentSpaceWidth()", (Test test) ->
             {
-                final UIElement uiElement = creator.run(test);
-                uiElement.setWidth(Distance.inches(2));
-                uiElement.setPadding(UIPadding.zero);
-
-                try (final DynamicDistance dynamicContentSpaceWidth = uiElement.getDynamicContentSpaceWidth())
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                 {
-                    test.assertNotNull(dynamicContentSpaceWidth);
-                    test.assertEqual(uiElement.getContentSpaceWidth(), dynamicContentSpaceWidth.get());
+                    final UIElement uiElement = creator.run(process);
+                    uiElement.setWidth(Distance.inches(2));
+                    uiElement.setPadding(UIPadding.zero);
 
-                    final IntegerValue counter = IntegerValue.create(0);
-                    final SpinGate gate = SpinGate.create(test.getClock());
-                    dynamicContentSpaceWidth.onChanged(() ->
+                    try (final DynamicDistance dynamicContentSpaceWidth = uiElement.getDynamicContentSpaceWidth())
                     {
-                        counter.increment();
-                        gate.open();
-                    });
+                        test.assertNotNull(dynamicContentSpaceWidth);
+                        test.assertEqual(uiElement.getContentSpaceWidth(), dynamicContentSpaceWidth.get());
 
-                    uiElement.setWidth(Distance.inches(2.5));
-                    gate.passThrough(() -> test.getMainAsyncRunner().schedule(Action0.empty).await());
-                    test.assertEqual(Distance.inches(2.5), dynamicContentSpaceWidth.get());
-                    test.assertEqual(1, counter.get());
+                        final IntegerValue counter = IntegerValue.create(0);
+                        final SpinGate gate = SpinGate.create(process.getClock());
+                        dynamicContentSpaceWidth.onChanged(() ->
+                        {
+                            counter.increment();
+                            gate.open();
+                        });
 
-                    gate.close();
+                        uiElement.setWidth(Distance.inches(2.5));
+                        gate.passThrough(() -> process.getMainAsyncRunner().schedule(Action0.empty).await());
+                        test.assertEqual(Distance.inches(2.5), dynamicContentSpaceWidth.get());
+                        test.assertEqual(1, counter.get());
 
-                    uiElement.setPadding(UIPadding.create(Distance.inches(0.25)));
-                    gate.passThrough(() -> test.getMainAsyncRunner().schedule(Action0.empty).await());
-                    test.assertEqual(Distance.inches(2), dynamicContentSpaceWidth.get());
-                    test.assertEqual(2, counter.get());
+                        gate.close();
+
+                        uiElement.setPadding(UIPadding.create(Distance.inches(0.25)));
+                        gate.passThrough(() -> process.getMainAsyncRunner().schedule(Action0.empty).await());
+                        test.assertEqual(Distance.inches(2), dynamicContentSpaceWidth.get());
+                        test.assertEqual(2, counter.get());
+                    }
                 }
             });
 
@@ -491,24 +584,30 @@ public interface UIElementTests
             {
                 runner.test("with no padding", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    uiElement.setPadding(UIPadding.zero);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        uiElement.setPadding(UIPadding.zero);
 
-                    final int contentSpaceWidth = uiElement.getContentSpaceWidthInPixels();
-                    final int width = uiElement.getWidthInPixels();
-                    test.assertEqual(width, contentSpaceWidth);
+                        final int contentSpaceWidth = uiElement.getContentSpaceWidthInPixels();
+                        final int width = uiElement.getWidthInPixels();
+                        test.assertEqual(width, contentSpaceWidth);
+                    }
                 });
 
                 runner.test("with padding", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    final UIPaddingInPixels padding = UIPaddingInPixels.create(2);
-                    uiElement.setPaddingInPixels(padding);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        final UIPaddingInPixels padding = UIPaddingInPixels.create(2);
+                        uiElement.setPaddingInPixels(padding);
 
-                    final int contentSpaceWidth = uiElement.getContentSpaceWidthInPixels();
-                    final int width = uiElement.getWidthInPixels();
-                    final int expectedWidth = padding.getWidth() < width ? width - padding.getWidth() : 0;
-                    test.assertEqual(expectedWidth, contentSpaceWidth);
+                        final int contentSpaceWidth = uiElement.getContentSpaceWidthInPixels();
+                        final int width = uiElement.getWidthInPixels();
+                        final int expectedWidth = padding.getWidth() < width ? width - padding.getWidth() : 0;
+                        test.assertEqual(expectedWidth, contentSpaceWidth);
+                    }
                 });
             });
 
@@ -516,57 +615,66 @@ public interface UIElementTests
             {
                 runner.test("with no padding", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    uiElement.setPadding(UIPadding.zero);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        uiElement.setPadding(UIPadding.zero);
 
-                    final Distance contentSpaceHeight = uiElement.getContentSpaceHeight();
-                    final Distance width = uiElement.getHeight();
-                    test.assertEqual(width, contentSpaceHeight);
+                        final Distance contentSpaceHeight = uiElement.getContentSpaceHeight();
+                        final Distance width = uiElement.getHeight();
+                        test.assertEqual(width, contentSpaceHeight);
+                    }
                 });
 
                 runner.test("with padding", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    final UIPadding padding = UIPadding.create(Distance.inches(0.01));
-                    uiElement.setPadding(padding);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        final UIPadding padding = UIPadding.create(Distance.inches(0.01));
+                        uiElement.setPadding(padding);
 
-                    final Distance contentSpaceHeight = uiElement.getContentSpaceHeight();
-                    final Distance height = uiElement.getHeight();
-                    final Distance expectedHeight = height.greaterThan(padding.getHeight()) ? height.minus(padding.getHeight()) : Distance.zero;
-                    test.assertEqual(expectedHeight, contentSpaceHeight, Distance.inches(0.00001));
+                        final Distance contentSpaceHeight = uiElement.getContentSpaceHeight();
+                        final Distance height = uiElement.getHeight();
+                        final Distance expectedHeight = height.greaterThan(padding.getHeight()) ? height.minus(padding.getHeight()) : Distance.zero;
+                        test.assertEqual(expectedHeight, contentSpaceHeight, Distance.inches(0.00001));
+                    }
                 });
             });
 
             runner.test("getDynamicContentSpaceHeight()", (Test test) ->
             {
-                final UIElement uiElement = creator.run(test);
-                uiElement.setHeight(Distance.inches(2));
-                uiElement.setPadding(UIPadding.zero);
-
-                try (final DynamicDistance dynamicContentSpaceHeight = uiElement.getDynamicContentSpaceHeight())
+                try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                 {
-                    test.assertNotNull(dynamicContentSpaceHeight);
-                    test.assertEqual(uiElement.getContentSpaceHeight(), dynamicContentSpaceHeight.get());
+                    final UIElement uiElement = creator.run(process);
+                    uiElement.setHeight(Distance.inches(2));
+                    uiElement.setPadding(UIPadding.zero);
 
-                    final IntegerValue counter = IntegerValue.create(0);
-                    final SpinGate gate = SpinGate.create(test.getClock());
-                    dynamicContentSpaceHeight.onChanged(() ->
+                    try (final DynamicDistance dynamicContentSpaceHeight = uiElement.getDynamicContentSpaceHeight())
                     {
-                        counter.increment();
-                        gate.open();
-                    });
+                        test.assertNotNull(dynamicContentSpaceHeight);
+                        test.assertEqual(uiElement.getContentSpaceHeight(), dynamicContentSpaceHeight.get());
 
-                    uiElement.setHeight(Distance.inches(2.5));
-                    gate.passThrough(() -> test.getMainAsyncRunner().schedule(Action0.empty).await());
-                    test.assertEqual(Distance.inches(2.5), dynamicContentSpaceHeight.get());
-                    test.assertEqual(1, counter.get());
+                        final IntegerValue counter = IntegerValue.create(0);
+                        final SpinGate gate = SpinGate.create(process.getClock());
+                        dynamicContentSpaceHeight.onChanged(() ->
+                        {
+                            counter.increment();
+                            gate.open();
+                        });
 
-                    gate.close();
+                        uiElement.setHeight(Distance.inches(2.5));
+                        gate.passThrough(() -> process.getMainAsyncRunner().schedule(Action0.empty).await());
+                        test.assertEqual(Distance.inches(2.5), dynamicContentSpaceHeight.get());
+                        test.assertEqual(1, counter.get());
 
-                    uiElement.setPadding(UIPadding.create(Distance.inches(0.25)));
-                    gate.passThrough(() -> test.getMainAsyncRunner().schedule(Action0.empty).await());
-                    test.assertEqual(Distance.inches(2), dynamicContentSpaceHeight.get());
-                    test.assertEqual(2, counter.get());
+                        gate.close();
+
+                        uiElement.setPadding(UIPadding.create(Distance.inches(0.25)));
+                        gate.passThrough(() -> process.getMainAsyncRunner().schedule(Action0.empty).await());
+                        test.assertEqual(Distance.inches(2), dynamicContentSpaceHeight.get());
+                        test.assertEqual(2, counter.get());
+                    }
                 }
             });
 
@@ -574,24 +682,30 @@ public interface UIElementTests
             {
                 runner.test("with no padding", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    uiElement.setPadding(UIPadding.zero);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        uiElement.setPadding(UIPadding.zero);
 
-                    final int contentSpaceHeight = uiElement.getContentSpaceHeightInPixels();
-                    final int width = uiElement.getHeightInPixels();
-                    test.assertEqual(width, contentSpaceHeight);
+                        final int contentSpaceHeight = uiElement.getContentSpaceHeightInPixels();
+                        final int width = uiElement.getHeightInPixels();
+                        test.assertEqual(width, contentSpaceHeight);
+                    }
                 });
 
                 runner.test("with padding", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    final UIPaddingInPixels padding = UIPaddingInPixels.create(2);
-                    uiElement.setPaddingInPixels(padding);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        final UIPaddingInPixels padding = UIPaddingInPixels.create(2);
+                        uiElement.setPaddingInPixels(padding);
 
-                    final int contentSpaceHeight = uiElement.getContentSpaceHeightInPixels();
-                    final int height = uiElement.getHeightInPixels();
-                    final int expectedHeight = padding.getHeight() < height ? height - padding.getHeight() : 0;
-                    test.assertEqual(expectedHeight, contentSpaceHeight);
+                        final int contentSpaceHeight = uiElement.getContentSpaceHeightInPixels();
+                        final int height = uiElement.getHeightInPixels();
+                        final int expectedHeight = padding.getHeight() < height ? height - padding.getHeight() : 0;
+                        test.assertEqual(expectedHeight, contentSpaceHeight);
+                    }
                 });
             });
 
@@ -599,19 +713,25 @@ public interface UIElementTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    final Color initialColor = uiElement.getBackgroundColor();
-                    test.assertThrows(() -> uiElement.setBackgroundColor(null),
-                        new PreConditionFailure("backgroundColor cannot be null."));
-                    test.assertEqual(initialColor, uiElement.getBackgroundColor());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        final Color initialColor = uiElement.getBackgroundColor();
+                        test.assertThrows(() -> uiElement.setBackgroundColor(null),
+                            new PreConditionFailure("backgroundColor cannot be null."));
+                        test.assertEqual(initialColor, uiElement.getBackgroundColor());
+                    }
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final UIElement uiElement = creator.run(test);
-                    final UIElement setBackgroundColorResult = uiElement.setBackgroundColor(Color.blue);
-                    test.assertSame(uiElement, setBackgroundColorResult);
-                    test.assertEqual(Color.blue, uiElement.getBackgroundColor());
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UIElement uiElement = creator.run(process);
+                        final UIElement setBackgroundColorResult = uiElement.setBackgroundColor(Color.blue);
+                        test.assertSame(uiElement, setBackgroundColorResult);
+                        test.assertEqual(Color.blue, uiElement.getBackgroundColor());
+                    }
                 });
             });
         });

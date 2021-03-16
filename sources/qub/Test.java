@@ -8,17 +8,19 @@ public class Test
     private final String name;
     private final TestParent parent;
     private final Skip skip;
-    private final Process process;
 
-    public Test(String name, TestParent parent, Skip skip, Process process)
+    private Test(String name, TestParent parent, Skip skip)
     {
         PreCondition.assertNotNullAndNotEmpty(name, "name");
-        PreCondition.assertNotNull(process, "process");
 
         this.name = name;
         this.parent = parent;
         this.skip = skip;
-        this.process = process;
+    }
+
+    public static Test create(String name, TestParent parent, Skip skip)
+    {
+        return new Test(name, parent, skip);
     }
 
     public String getName()
@@ -66,53 +68,6 @@ public class Test
     public String getSkipMessage()
     {
         return skip == null ? null : skip.getMessage();
-    }
-
-    public Process getProcess()
-    {
-        return process;
-    }
-
-    public AsyncScheduler getMainAsyncRunner()
-    {
-        return process.getMainAsyncRunner();
-    }
-
-    public AsyncScheduler getParallelAsyncRunner()
-    {
-        return process.getParallelAsyncRunner();
-    }
-
-    /**
-     * Get the Network that has been assigned to this Test.
-     * @return The Network that has been assigned to this Test.
-     */
-    public Network getNetwork()
-    {
-        return process.getNetwork();
-    }
-
-    public FileSystem getFileSystem()
-    {
-        return process.getFileSystem();
-    }
-
-    /**
-     * Get the Clock that has been assigned to this Test.
-     * @return The Clock that has been assigned to this Test.
-     */
-    public Clock getClock()
-    {
-        return process.getClock();
-    }
-
-    /**
-     * Get the Displays that have been assigned to this Test.
-     * @return The Displays that have been assigned to this Test.
-     */
-    public Iterable<Display> getDisplays()
-    {
-        return process.getDisplays();
     }
 
     /**

@@ -80,7 +80,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     final File file = fileSystem.getFile("/testFile2.exe").await();
                     final FakeProcessRun fakeProcessRun = FakeProcessRun.get(file);
                     test.assertInstanceOf(fakeProcessRun, BasicFakeProcessRun.class);
@@ -284,7 +284,7 @@ public interface FakeProcessRunTests
 
                 runner.test("with non-null", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     final Folder folder = fileSystem.getFolder("/folder").await();
                     final FakeProcessRun fakeProcessRun = creator.run("exe");
                     test.assertSame(fakeProcessRun, fakeProcessRun.setWorkingFolder(folder));

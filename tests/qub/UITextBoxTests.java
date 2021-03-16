@@ -2,7 +2,7 @@ package qub;
 
 public interface UITextBoxTests
 {
-    static void test(TestRunner runner, Function1<Test,? extends UITextBox> creator)
+    static void test(TestRunner runner, Function1<FakeDesktopProcess,? extends UITextBox> creator)
     {
         PreCondition.assertNotNull(runner, "runner");
         PreCondition.assertNotNull(creator, "creator");
@@ -13,9 +13,12 @@ public interface UITextBoxTests
             {
                 runner.test("should return " + Types.getTypeName(UITextBox.class), (Test test) ->
                 {
-                    final UITextBox textBox = creator.run(test);
-                    final UITextBox setWidthResult = textBox.setWidth(Distance.inches(1));
-                    test.assertSame(textBox, setWidthResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UITextBox textBox = creator.run(process);
+                        final UITextBox setWidthResult = textBox.setWidth(Distance.inches(1));
+                        test.assertSame(textBox, setWidthResult);
+                    }
                 });
             });
 
@@ -23,9 +26,12 @@ public interface UITextBoxTests
             {
                 runner.test("should return " + Types.getTypeName(UITextBox.class), (Test test) ->
                 {
-                    final UITextBox textBox = creator.run(test);
-                    final UITextBox setHeightResult = textBox.setHeight(Distance.inches(1));
-                    test.assertSame(textBox, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UITextBox textBox = creator.run(process);
+                        final UITextBox setHeightResult = textBox.setHeight(Distance.inches(1));
+                        test.assertSame(textBox, setHeightResult);
+                    }
                 });
             });
 
@@ -33,9 +39,12 @@ public interface UITextBoxTests
             {
                 runner.test("should return " + Types.getTypeName(UITextBox.class), (Test test) ->
                 {
-                    final UITextBox textBox = creator.run(test);
-                    final UITextBox setHeightResult = textBox.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
-                    test.assertSame(textBox, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UITextBox textBox = creator.run(process);
+                        final UITextBox setHeightResult = textBox.setSize(Size2D.create(Distance.inches(2), Distance.inches(3)));
+                        test.assertSame(textBox, setHeightResult);
+                    }
                 });
             });
 
@@ -43,9 +52,12 @@ public interface UITextBoxTests
             {
                 runner.test("should return " + Types.getTypeName(UITextBox.class), (Test test) ->
                 {
-                    final UITextBox textBox = creator.run(test);
-                    final UITextBox setHeightResult = textBox.setSize(Distance.inches(2), Distance.inches(3));
-                    test.assertSame(textBox, setHeightResult);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UITextBox textBox = creator.run(process);
+                        final UITextBox setHeightResult = textBox.setSize(Distance.inches(2), Distance.inches(3));
+                        test.assertSame(textBox, setHeightResult);
+                    }
                 });
             });
 
@@ -53,32 +65,41 @@ public interface UITextBoxTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final UITextBox textBox = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UITextBox textBox = creator.run(process);
 
-                    test.assertThrows(() -> textBox.setText(null),
-                        new PreConditionFailure("text cannot be null."));
+                        test.assertThrows(() -> textBox.setText(null),
+                            new PreConditionFailure("text cannot be null."));
 
-                    test.assertEqual("", textBox.getText());
+                        test.assertEqual("", textBox.getText());
+                    }
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final UITextBox textBox = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UITextBox textBox = creator.run(process);
 
-                    final UITextBox setTextResult = textBox.setText("");
-                    test.assertSame(textBox, setTextResult);
+                        final UITextBox setTextResult = textBox.setText("");
+                        test.assertSame(textBox, setTextResult);
 
-                    test.assertEqual("", textBox.getText());
+                        test.assertEqual("", textBox.getText());
+                    }
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final UITextBox textBox = creator.run(test);
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final UITextBox textBox = creator.run(process);
 
-                    final UITextBox setTextResult = textBox.setText("hello");
-                    test.assertSame(textBox, setTextResult);
+                        final UITextBox setTextResult = textBox.setText("hello");
+                        test.assertSame(textBox, setTextResult);
 
-                    test.assertEqual("hello", textBox.getText());
+                        test.assertEqual("hello", textBox.getText());
+                    }
                 });
             });
 
@@ -88,8 +109,11 @@ public interface UITextBoxTests
                 {
                     runner.test("with " + fontSize, (Test test) ->
                     {
-                        final UITextBox textBox = creator.run(test);
-                        test.assertThrows(() -> textBox.setFontSize(fontSize), expected);
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UITextBox textBox = creator.run(process);
+                            test.assertThrows(() -> textBox.setFontSize(fontSize), expected);
+                        }
                     });
                 };
 
@@ -100,10 +124,13 @@ public interface UITextBoxTests
                 {
                     runner.test("with " + fontSize, (Test test) ->
                     {
-                        final UITextBox textBox = creator.run(test);
-                        final UITextBox setFontSizeResult = textBox.setFontSize(fontSize);
-                        test.assertSame(textBox, setFontSizeResult);
-                        test.assertEqual(fontSize, textBox.getFontSize());
+                        try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                        {
+                            final UITextBox textBox = creator.run(process);
+                            final UITextBox setFontSizeResult = textBox.setFontSize(fontSize);
+                            test.assertSame(textBox, setFontSizeResult);
+                            test.assertEqual(fontSize, textBox.getFontSize());
+                        }
                     });
                 };
 

@@ -6,11 +6,11 @@ public interface LockedTests
     {
         runner.testGroup(Locked.class, () ->
         {
-            runner.testGroup("constructor(T)", () ->
+            runner.testGroup("create(T)", () ->
             {
                 runner.test("with null value", (Test test) ->
                 {
-                    final Locked<IntegerValue> value = new Locked<>(null);
+                    final Locked<IntegerValue> value = Locked.create(null);
                     value.get((IntegerValue intValue) ->
                     {
                         test.assertNull(intValue);
@@ -19,7 +19,7 @@ public interface LockedTests
 
                 runner.test("with non-null value", (Test test) ->
                 {
-                    final Locked<IntegerValue> value = new Locked<>(Value.create(5));
+                    final Locked<IntegerValue> value = Locked.create(Value.create(5));
                     value.get((IntegerValue intValue) ->
                     {
                         test.assertEqual(5, intValue.get());
@@ -31,14 +31,14 @@ public interface LockedTests
             {
                 runner.test("with null Mutex", (Test test) ->
                 {
-                    test.assertThrows(new PreConditionFailure("mutex cannot be null."),
-                        () -> new Locked<>(5, null));
+                    test.assertThrows(() -> Locked.create(5, null),
+                        new PreConditionFailure("mutex cannot be null."));
                 });
 
                 runner.test("with null value", (Test test) ->
                 {
-                    final Mutex mutex = new SpinMutex();
-                    final Locked<IntegerValue> value = new Locked<>(null, mutex);
+                    final Mutex mutex = SpinMutex.create();
+                    final Locked<IntegerValue> value = Locked.create(null, mutex);
                     test.assertFalse(mutex.isAcquired());
                     value.get((IntegerValue intValue) ->
                     {
@@ -51,8 +51,8 @@ public interface LockedTests
 
                 runner.test("with non-null value", (Test test) ->
                 {
-                    final Mutex mutex = new SpinMutex();
-                    final Locked<IntegerValue> value = new Locked<>(Value.create(5), mutex);
+                    final Mutex mutex = SpinMutex.create();
+                    final Locked<IntegerValue> value = Locked.create(Value.create(5), mutex);
                     test.assertFalse(mutex.isAcquired());
                     value.get((IntegerValue intValue) ->
                     {
@@ -89,13 +89,13 @@ public interface LockedTests
             {
                 runner.test("with null Mutex", (Test test) ->
                 {
-                    test.assertThrows(new PreConditionFailure("mutex cannot be null."),
-                        () -> Locked.create(5, null));
+                    test.assertThrows(() -> Locked.create(5, null),
+                        new PreConditionFailure("mutex cannot be null."));
                 });
 
                 runner.test("with null value", (Test test) ->
                 {
-                    final Mutex mutex = new SpinMutex();
+                    final Mutex mutex = SpinMutex.create();
                     final Locked<IntegerValue> value = Locked.create(null, mutex);
                     test.assertFalse(mutex.isAcquired());
                     value.get((IntegerValue intValue) ->
@@ -109,7 +109,7 @@ public interface LockedTests
 
                 runner.test("with non-null value", (Test test) ->
                 {
-                    final Mutex mutex = new SpinMutex();
+                    final Mutex mutex = SpinMutex.create();
                     final Locked<IntegerValue> value = Locked.create(Value.create(5), mutex);
                     test.assertFalse(mutex.isAcquired());
                     value.get((IntegerValue intValue) ->
@@ -126,23 +126,25 @@ public interface LockedTests
             {
                 runner.test("with null action", (Test test) ->
                 {
-                    final Mutex mutex = new SpinMutex();
-                    final Locked<IntegerValue> lockedValue = new Locked<>(IntegerValue.create(5), mutex);
+                    final Mutex mutex = SpinMutex.create();
+                    final Locked<IntegerValue> lockedValue = Locked.create(IntegerValue.create(5), mutex);
                     test.assertThrows(new PreConditionFailure("action cannot be null."),
                         () -> lockedValue.get((Action1<IntegerValue>)null));
                     test.assertFalse(mutex.isAcquired());
                 });
 
-                runner.test("with multiple threads", (Test test) ->
+                runner.test("with multiple threads",
+                    (TestResources resources) -> Tuple.create(resources.getParallelAsyncRunner()),
+                    (Test test, AsyncRunner parallelAsyncRunner) ->
                 {
-                    final Mutex mutex = new SpinMutex();
-                    final Locked<IntegerValue> lockedValue = new Locked<>(IntegerValue.create(0), mutex);
-                    final List<AsyncTask<Void>> tasks = List.create();
+                    final Mutex mutex = SpinMutex.create();
+                    final Locked<IntegerValue> lockedValue = Locked.create(IntegerValue.create(0), mutex);
+                    final List<Result<Void>> tasks = List.create();
                     final int taskCount = 1000;
 
                     for (int i = 0; i < taskCount; ++i)
                     {
-                        tasks.add(test.getParallelAsyncRunner().schedule(() ->
+                        tasks.add(parallelAsyncRunner.schedule(() ->
                         {
                             lockedValue.get((IntegerValue value) ->
                             {
@@ -164,23 +166,25 @@ public interface LockedTests
             {
                 runner.test("with null function", (Test test) ->
                 {
-                    final Mutex mutex = new SpinMutex();
-                    final Locked<IntegerValue> lockedValue = new Locked<>(IntegerValue.create(5), mutex);
+                    final Mutex mutex = SpinMutex.create();
+                    final Locked<IntegerValue> lockedValue = Locked.create(IntegerValue.create(5), mutex);
                     test.assertThrows(new PreConditionFailure("function cannot be null."),
                         () -> lockedValue.get((Function1<IntegerValue,Integer>)null));
                     test.assertFalse(mutex.isAcquired());
                 });
 
-                runner.test("with multiple threads", (Test test) ->
+                runner.test("with multiple threads",
+                    (TestResources resources) -> Tuple.create(resources.getParallelAsyncRunner()),
+                    (Test test, AsyncRunner parallelAsyncRunner) ->
                 {
-                    final Mutex mutex = new SpinMutex();
-                    final Locked<IntegerValue> lockedValue = new Locked<>(IntegerValue.create(0), mutex);
+                    final Mutex mutex = SpinMutex.create();
+                    final Locked<IntegerValue> lockedValue = Locked.create(IntegerValue.create(0), mutex);
                     final List<Result<Integer>> tasks = List.create();
                     final int taskCount = 1000;
 
                     for (int i = 0; i < taskCount; ++i)
                     {
-                        tasks.add(test.getParallelAsyncRunner().schedule(() ->
+                        tasks.add(parallelAsyncRunner.schedule(() ->
                         {
                             return lockedValue.get((IntegerValue value) ->
                             {

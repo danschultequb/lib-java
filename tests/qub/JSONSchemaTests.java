@@ -560,7 +560,7 @@ public interface JSONSchemaTests
 
                 runner.test("with non-existing file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final File file = fileSystem.getFile("/schema.json").await();
                     test.assertThrows(() -> JSONSchema.parse(file).await(),
@@ -569,7 +569,7 @@ public interface JSONSchemaTests
 
                 runner.test("with existing empty file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final File file = fileSystem.createFile("/schema.json").await();
                     test.assertThrows(() -> JSONSchema.parse(file).await(),
@@ -578,7 +578,7 @@ public interface JSONSchemaTests
 
                 runner.test("with existing non-json file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final File file = fileSystem.createFile("/schema.json").await();
                     file.setContentsAsString("hello there!").await();
@@ -588,7 +588,7 @@ public interface JSONSchemaTests
 
                 runner.test("with existing empty JSON object file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final File file = fileSystem.createFile("/schema.json").await();
                     file.setContentsAsString("{}").await();
@@ -597,7 +597,7 @@ public interface JSONSchemaTests
 
                 runner.test("with existing non-empty JSON object file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final File file = fileSystem.createFile("/schema.json").await();
                     file.setContentsAsString("{\"$schema\":\"hello there\"}").await();

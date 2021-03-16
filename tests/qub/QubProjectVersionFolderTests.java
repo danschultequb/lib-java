@@ -16,7 +16,7 @@ public interface QubProjectVersionFolderTests
 
                 runner.test("with root folder", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final Folder rootFolder = fileSystem.getFolder("/").await();
 
@@ -26,7 +26,7 @@ public interface QubProjectVersionFolderTests
 
                 runner.test("with qub folder", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final Folder qubFolder = fileSystem.getFolder("/").await();
 
@@ -36,7 +36,7 @@ public interface QubProjectVersionFolderTests
 
                 runner.test("with publisher folder", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final Folder publisherFolder = fileSystem.createFolder("/fake-publisher/").await();
 
@@ -46,7 +46,7 @@ public interface QubProjectVersionFolderTests
 
                 runner.test("with project folder", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final Folder projectVersionFolder = fileSystem.createFolder("/fake-publisher/fake-project/").await();
 
@@ -56,7 +56,7 @@ public interface QubProjectVersionFolderTests
 
                 runner.test("with versions folder", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final Folder projectVersionFolder = fileSystem.createFolder("/fake-publisher/fake-project/versions/").await();
 
@@ -66,7 +66,7 @@ public interface QubProjectVersionFolderTests
 
                 runner.test("with version folder", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     fileSystem.createRoot("/").await();
                     final Folder versionFolder = fileSystem.createFolder("/fake-publisher/fake-project/versions/fake-version/").await();
 
@@ -375,7 +375,7 @@ public interface QubProjectVersionFolderTests
 
     static InMemoryFileSystem createFileSystem(Test test)
     {
-        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
         fileSystem.createRoot("/").await();
         return fileSystem;
     }

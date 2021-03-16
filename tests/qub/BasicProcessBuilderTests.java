@@ -1,14 +1,14 @@
 package qub;
 
-public interface ProcessBuilderTests
+public interface BasicProcessBuilderTests
 {
-    static BasicProcessBuilder createBuilder(Test test)
+    static BasicProcessBuilder createBuilder(FakeDesktopProcess process)
     {
-        final ManualClock clock = ManualClock.create();
-        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(clock);
-        fileSystem.createRoot("/").await();
+        PreCondition.assertNotNull(process, "process");
+        
+        final InMemoryFileSystem fileSystem = process.getFileSystem();
         final Folder workingFolder = fileSystem.createFolder("/working/folder/").await();
-        final ProcessFactory factory = FakeProcessFactory.create(test.getParallelAsyncRunner(), workingFolder)
+        final ProcessFactory factory = FakeProcessFactory.create(process.getParallelAsyncRunner(), workingFolder)
             .add(FakeProcessRun.get("/files/executable.exe")
                 .setFunction((ByteWriteStream output, ByteWriteStream error) ->
                 {
@@ -34,9 +34,11 @@ public interface ProcessBuilderTests
     {
         runner.testGroup(BasicProcessBuilder.class, () ->
         {
-            runner.test("constructor()", (Test test) ->
+            runner.test("constructor()",
+                (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                (Test test, FakeDesktopProcess process) ->
             {
-                final BasicProcessBuilder builder = ProcessBuilderTests.createBuilder(test);
+                final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                 test.assertEqual(Path.parse("/files/executable.exe"), builder.getExecutablePath());
                 test.assertEqual(Iterable.create(), builder.getArguments());
                 test.assertEqual(Path.parse("/working/"), builder.getWorkingFolderPath());
@@ -45,27 +47,33 @@ public interface ProcessBuilderTests
 
             runner.testGroup("addArgument(String)", () ->
             {
-                runner.test("with null", (Test test) ->
+                runner.test("with null",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     test.assertThrows(() -> builder.addArgument(null),
                         new PreConditionFailure("argument cannot be null."));
                     test.assertEqual(Iterable.create(), builder.getArguments());
                     test.assertEqual("/working/: /files/executable.exe", builder.getCommand());
                 });
 
-                runner.test("with empty", (Test test) ->
+                runner.test("with empty",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     test.assertThrows(() -> builder.addArgument(""),
                         new PreConditionFailure("argument cannot be empty."));
                     test.assertEqual(Iterable.create(), builder.getArguments());
                     test.assertEqual("/working/: /files/executable.exe", builder.getCommand());
                 });
 
-                runner.test("with non-empty", (Test test) ->
+                runner.test("with non-empty",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     final BasicProcessBuilder addArgumentResult = builder.addArgument("test");
                     test.assertSame(builder, addArgumentResult);
                     test.assertEqual(Iterable.create("test"), builder.getArguments());
@@ -75,45 +83,55 @@ public interface ProcessBuilderTests
 
             runner.testGroup("addArguments(String...)", () ->
             {
-                runner.test("with no arguments", (Test test) ->
+                runner.test("with no arguments",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     final BasicProcessBuilder addArgumentsResult = builder.addArguments();
                     test.assertSame(builder, addArgumentsResult);
                     test.assertEqual(Iterable.create(), builder.getArguments());
                     test.assertEqual("/working/: /files/executable.exe", builder.getCommand());
                 });
 
-                runner.test("with one null value", (Test test) ->
+                runner.test("with one null value",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     test.assertThrows(() -> builder.addArguments((String)null),
                         new PreConditionFailure("argument cannot be null."));
                     test.assertEqual(Iterable.create(), builder.getArguments());
                     test.assertEqual("/working/: /files/executable.exe", builder.getCommand());
                 });
 
-                runner.test("with one empty value", (Test test) ->
+                runner.test("with one empty value",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     test.assertThrows(() -> builder.addArguments(""),
                         new PreConditionFailure("argument cannot be empty."));
                     test.assertEqual(Iterable.create(), builder.getArguments());
                     test.assertEqual("/working/: /files/executable.exe", builder.getCommand());
                 });
 
-                runner.test("with one non-empty value", (Test test) ->
+                runner.test("with one non-empty value",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     final BasicProcessBuilder addArgumentsResult = builder.addArguments("test");
                     test.assertSame(builder, addArgumentsResult);
                     test.assertEqual(Iterable.create("test"), builder.getArguments());
                     test.assertEqual("/working/: /files/executable.exe test", builder.getCommand());
                 });
 
-                runner.test("with multiple non-empty value", (Test test) ->
+                runner.test("with multiple non-empty value",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     final BasicProcessBuilder addArgumentsResult = builder.addArguments("test", "ing", "stuff");
                     test.assertSame(builder, addArgumentsResult);
                     test.assertEqual(Iterable.create("test", "ing", "stuff"), builder.getArguments());
@@ -123,54 +141,66 @@ public interface ProcessBuilderTests
 
             runner.testGroup("addArguments(Iterable<String>)", () ->
             {
-                runner.test("with null", (Test test) ->
+                runner.test("with null",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     test.assertThrows(() -> builder.addArguments((Iterable<String>)null),
                         new PreConditionFailure("arguments cannot be null."));
                     test.assertEqual(Iterable.create(), builder.getArguments());
                     test.assertEqual("/working/: /files/executable.exe", builder.getCommand());
                 });
 
-                runner.test("with no arguments", (Test test) ->
+                runner.test("with no arguments",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     final BasicProcessBuilder addArgumentsResult = builder.addArguments(Iterable.create());
                     test.assertSame(builder, addArgumentsResult);
                     test.assertEqual(Iterable.create(), builder.getArguments());
                     test.assertEqual("/working/: /files/executable.exe", builder.getCommand());
                 });
 
-                runner.test("with one null value", (Test test) ->
+                runner.test("with one null value",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     test.assertThrows(() -> builder.addArguments(Iterable.create((String)null)),
                         new PreConditionFailure("argument cannot be null."));
                     test.assertEqual(Iterable.create(), builder.getArguments());
                     test.assertEqual("/working/: /files/executable.exe", builder.getCommand());
                 });
 
-                runner.test("with one empty value", (Test test) ->
+                runner.test("with one empty value",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     test.assertThrows(() -> builder.addArguments(Iterable.create("")),
                         new PreConditionFailure("argument cannot be empty."));
                     test.assertEqual(Iterable.create(), builder.getArguments());
                     test.assertEqual("/working/: /files/executable.exe", builder.getCommand());
                 });
 
-                runner.test("with one non-empty value", (Test test) ->
+                runner.test("with one non-empty value",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     final BasicProcessBuilder addArgumentsResult = builder.addArguments(Iterable.create("test"));
                     test.assertSame(builder, addArgumentsResult);
                     test.assertEqual(Iterable.create("test"), builder.getArguments());
                     test.assertEqual("/working/: /files/executable.exe test", builder.getCommand());
                 });
 
-                runner.test("with multiple non-empty value", (Test test) ->
+                runner.test("with multiple non-empty value",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     final BasicProcessBuilder addArgumentsResult = builder.addArguments(Iterable.create("test", "ing", "stuff"));
                     test.assertSame(builder, addArgumentsResult);
                     test.assertEqual(Iterable.create("test", "ing", "stuff"), builder.getArguments());
@@ -180,9 +210,11 @@ public interface ProcessBuilderTests
 
             runner.testGroup("setWorkingFolder(String)", () ->
             {
-                runner.test("with null", (Test test) ->
+                runner.test("with null",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = ProcessBuilderTests.createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     final Path workingFolderPath = builder.getWorkingFolderPath();
                     test.assertThrows(() -> builder.setWorkingFolder((String)null),
                         new PreConditionFailure("workingFolderPath cannot be null."));
@@ -190,9 +222,11 @@ public interface ProcessBuilderTests
                     test.assertEqual("/working/: /files/executable.exe", builder.getCommand());
                 });
 
-                runner.test("with empty", (Test test) ->
+                runner.test("with empty",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = ProcessBuilderTests.createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     final Path workingFolderPath = builder.getWorkingFolderPath();
                     test.assertThrows(() -> builder.setWorkingFolder(""),
                         new PreConditionFailure("workingFolderPath cannot be empty."));
@@ -200,9 +234,11 @@ public interface ProcessBuilderTests
                     test.assertEqual("/working/: /files/executable.exe", builder.getCommand());
                 });
 
-                runner.test("with relative", (Test test) ->
+                runner.test("with relative",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = ProcessBuilderTests.createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     final Path workingFolderPath = builder.getWorkingFolderPath();
                     test.assertThrows(() -> builder.setWorkingFolder("hello"),
                         new PreConditionFailure("workingFolderPath.isRooted() cannot be false."));
@@ -210,9 +246,11 @@ public interface ProcessBuilderTests
                     test.assertEqual("/working/: /files/executable.exe", builder.getCommand());
                 });
 
-                runner.test("with rooted", (Test test) ->
+                runner.test("with rooted",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = ProcessBuilderTests.createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     final BasicProcessBuilder setWorkingFolderResult = builder.setWorkingFolder("/hello");
                     test.assertSame(builder, setWorkingFolderResult);
                     test.assertEqual(Path.parse("/hello"), builder.getWorkingFolderPath());
@@ -222,9 +260,11 @@ public interface ProcessBuilderTests
 
             runner.testGroup("setWorkingFolder(Path)", () ->
             {
-                runner.test("with null", (Test test) ->
+                runner.test("with null",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = ProcessBuilderTests.createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     final Path workingFolderPath = builder.getWorkingFolderPath();
                     test.assertThrows(() -> builder.setWorkingFolder((Path)null),
                         new PreConditionFailure("workingFolderPath cannot be null."));
@@ -232,9 +272,11 @@ public interface ProcessBuilderTests
                     test.assertEqual("/working/: /files/executable.exe", builder.getCommand());
                 });
 
-                runner.test("with relative", (Test test) ->
+                runner.test("with relative",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = ProcessBuilderTests.createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     final Path workingFolderPath = builder.getWorkingFolderPath();
                     test.assertThrows(() -> builder.setWorkingFolder(Path.parse("hello")),
                         new PreConditionFailure("workingFolderPath.isRooted() cannot be false."));
@@ -242,9 +284,11 @@ public interface ProcessBuilderTests
                     test.assertEqual("/working/: /files/executable.exe", builder.getCommand());
                 });
 
-                runner.test("with rooted", (Test test) ->
+                runner.test("with rooted",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = ProcessBuilderTests.createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     final BasicProcessBuilder setWorkingFolderResult = builder.setWorkingFolder(Path.parse("/hello"));
                     test.assertSame(builder, setWorkingFolderResult);
                     test.assertEqual(Path.parse("/hello"), builder.getWorkingFolderPath());
@@ -254,25 +298,31 @@ public interface ProcessBuilderTests
 
             runner.testGroup("redirectOutputLines(Action1<String>)", () ->
             {
-                runner.test("with null action", (Test test) ->
+                runner.test("with null action",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = ProcessBuilderTests.createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     test.assertThrows(() -> builder.redirectOutputLines(null),
                         new PreConditionFailure("onLineAction cannot be null."));
                     test.assertEqual(0, builder.run().await());
                 });
 
-                runner.test("with empty action", (Test test) ->
+                runner.test("with empty action",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = ProcessBuilderTests.createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     final BasicProcessBuilder redirectOutputLinesResult = builder.redirectOutputLines((String outputLine) -> {});
                     test.assertSame(builder, redirectOutputLinesResult);
                     test.assertEqual(0, builder.run().await());
                 });
 
-                runner.test("with non-empty action", (Test test) ->
+                runner.test("with non-empty action",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = ProcessBuilderTests.createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     final List<String> outputLines = List.create();
                     final BasicProcessBuilder redirectOutputLinesResult = builder.redirectOutputLines(outputLines::add);
                     test.assertSame(builder, redirectOutputLinesResult);
@@ -289,25 +339,31 @@ public interface ProcessBuilderTests
 
             runner.testGroup("redirectErrorLines(Action1<String>)", () ->
             {
-                runner.test("with null action", (Test test) ->
+                runner.test("with null action",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = ProcessBuilderTests.createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     test.assertThrows(() -> builder.redirectErrorLines(null),
                         new PreConditionFailure("onLineAction cannot be null."));
                     test.assertEqual(0, builder.run().await());
                 });
 
-                runner.test("with empty action", (Test test) ->
+                runner.test("with empty action",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = ProcessBuilderTests.createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     final BasicProcessBuilder redirectErrorLinesResult = builder.redirectErrorLines((String outputLine) -> {});
                     test.assertSame(builder, redirectErrorLinesResult);
                     test.assertEqual(0, builder.run().await());
                 });
 
-                runner.test("with non-empty action", (Test test) ->
+                runner.test("with non-empty action",
+                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
                 {
-                    final BasicProcessBuilder builder = ProcessBuilderTests.createBuilder(test);
+                    final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     final List<String> outputLines = List.create();
                     final BasicProcessBuilder redirectErrorLinesResult = builder.redirectErrorLines(outputLines::add);
                     test.assertSame(builder, redirectErrorLinesResult);

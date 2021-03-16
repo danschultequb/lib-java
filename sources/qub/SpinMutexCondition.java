@@ -7,12 +7,7 @@ public class SpinMutexCondition implements MutexCondition
     private final SpinGate gate;
     private final Function0<Boolean> condition;
 
-    public SpinMutexCondition(SpinMutex mutex, Clock clock)
-    {
-        this(mutex, clock, () -> true);
-    }
-
-    public SpinMutexCondition(SpinMutex mutex, Clock clock, Function0<Boolean> condition)
+    private SpinMutexCondition(SpinMutex mutex, Clock clock, Function0<Boolean> condition)
     {
         PreCondition.assertNotNull(mutex, "mutex");
 
@@ -22,25 +17,40 @@ public class SpinMutexCondition implements MutexCondition
         this.condition = condition;
     }
 
+    public static SpinMutexCondition create(SpinMutex mutex, Clock clock)
+    {
+        PreCondition.assertNotNull(mutex, "mutex");
+
+        return new SpinMutexCondition(mutex, clock, null);
+    }
+
+    public static SpinMutexCondition create(SpinMutex mutex, Clock clock, Function0<Boolean> condition)
+    {
+        PreCondition.assertNotNull(mutex, "mutex");
+        PreCondition.assertNotNull(condition, "condition");
+
+        return new SpinMutexCondition(mutex, clock, condition);
+    }
+
     @Override
     public Result<Void> watch()
     {
-        PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
+        PreCondition.assertTrue(this.mutex.isAcquiredByCurrentThread(), "this.mutex.isAcquiredByCurrentThread()");
 
         return SyncResult.create(() ->
         {
-            boolean done = (condition != null && condition.run());
+            boolean done = (this.condition != null && this.condition.run());
             while (!done)
             {
-                gate.close();
+                this.gate.close();
 
-                mutex.release().await();
+                this.mutex.release().await();
 
-                gate.passThrough().await();
+                this.gate.passThrough().await();
 
-                mutex.acquire().await();
+                this.mutex.acquire().await();
 
-                done = (condition == null || condition.run());
+                done = (this.condition == null || this.condition.run());
             }
         });
     }
@@ -50,34 +60,34 @@ public class SpinMutexCondition implements MutexCondition
     {
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
-        PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
-        PreCondition.assertNotNull(clock, "clock");
+        PreCondition.assertTrue(this.mutex.isAcquiredByCurrentThread(), "this.mutex.isAcquiredByCurrentThread()");
+        PreCondition.assertNotNull(this.clock, "this.clock");
 
-        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(timeout);
-        return watch(dateTimeTimeout);
+        final DateTime dateTimeTimeout = this.clock.getCurrentDateTime().plus(timeout);
+        return this.watch(dateTimeTimeout);
     }
 
     @Override
     public Result<Void> watch(DateTime timeout)
     {
         PreCondition.assertNotNull(timeout, "timeout");
-        PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
-        PreCondition.assertNotNull(clock, "clock");
+        PreCondition.assertTrue(this.mutex.isAcquiredByCurrentThread(), "this.mutex.isAcquiredByCurrentThread()");
+        PreCondition.assertNotNull(this.clock, "this.clock");
 
         return SyncResult.create(() ->
         {
-            boolean done = (condition != null && condition.run());
+            boolean done = (this.condition != null && this.condition.run());
             while (!done)
             {
-                gate.close();
+                this.gate.close();
 
-                mutex.release().await();
+                this.mutex.release().await();
 
-                gate.passThrough(timeout).await();
+                this.gate.passThrough(timeout).await();
 
-                mutex.acquire(timeout).await();
+                this.mutex.acquire(timeout).await();
 
-                done = (condition == null || condition.run());
+                done = (this.condition == null || this.condition.run());
             }
         });
     }
@@ -85,8 +95,8 @@ public class SpinMutexCondition implements MutexCondition
     @Override
     public void signalAll()
     {
-        PreCondition.assertTrue(mutex.isAcquiredByCurrentThread(), "mutex.isAcquiredByCurrentThread()");
+        PreCondition.assertTrue(this.mutex.isAcquiredByCurrentThread(), "this.mutex.isAcquiredByCurrentThread()");
 
-        gate.open();
+        this.gate.open();
     }
 }

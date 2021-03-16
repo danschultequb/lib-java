@@ -12,63 +12,63 @@ public interface FolderTests
             {
                 runner.test("with " + Strings.escapeAndQuote("/"), (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test, "/");
+                    final Folder folder = FolderTests.getFolder("/");
                     test.assertThrows(() -> folder.getParentFolder().await(),
                         new NotFoundException("The path \"/\" doesn't have a parent folder."));
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("\\"), (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test, "\\");
+                    final Folder folder = FolderTests.getFolder("\\");
                     test.assertThrows(() -> folder.getParentFolder().await(),
                         new NotFoundException("The path \"/\" doesn't have a parent folder."));
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("D:"), (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test, "D:");
+                    final Folder folder = FolderTests.getFolder("D:");
                     test.assertThrows(() -> folder.getParentFolder().await(),
                         new NotFoundException("The path \"D:/\" doesn't have a parent folder."));
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("E:/"), (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test, "E:/");
+                    final Folder folder = FolderTests.getFolder("E:/");
                     test.assertThrows(() -> folder.getParentFolder().await(),
                         new NotFoundException("The path \"E:/\" doesn't have a parent folder."));
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("F:\\"), (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test, "F:\\");
+                    final Folder folder = FolderTests.getFolder("F:\\");
                     test.assertThrows(() -> folder.getParentFolder().await(),
                         new NotFoundException("The path \"F:/\" doesn't have a parent folder."));
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("/apples"), (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test, "/apples");
+                    final Folder folder = FolderTests.getFolder("/apples");
                     final Folder parentFolder = folder.getParentFolder().await();
                     test.assertEqual("/", parentFolder.toString());
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("/apples/"), (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test, "/apples/");
+                    final Folder folder = FolderTests.getFolder("/apples/");
                     final Folder parentFolder = folder.getParentFolder().await();
                     test.assertEqual("/", parentFolder.toString());
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("/apples/dates"), (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test, "/apples/dates");
+                    final Folder folder = FolderTests.getFolder("/apples/dates");
                     final Folder parentFolder = folder.getParentFolder().await();
                     test.assertEqual("/apples/", parentFolder.toString());
                 });
 
                 runner.test("with " + Strings.escapeAndQuote("/apples/dates/"), (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test, "/apples/dates/");
+                    final Folder folder = FolderTests.getFolder("/apples/dates/");
                     final Folder parentFolder = folder.getParentFolder().await();
                     test.assertEqual("/apples/", parentFolder.toString());
                 });
@@ -80,7 +80,7 @@ public interface FolderTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(path) + " and " + Strings.escapeAndQuote(basePath), (Test test) ->
                     {
-                        final Folder folder = FolderTests.getFolder(test, path);
+                        final Folder folder = FolderTests.getFolder(path);
                         test.assertThrows(() -> folder.relativeTo(basePath), expectedError);
                     });
                 };
@@ -92,7 +92,7 @@ public interface FolderTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(path) + " and " + Strings.escapeAndQuote(basePath), (Test test) ->
                     {
-                        final Folder folder = FolderTests.getFolder(test, path);
+                        final Folder folder = FolderTests.getFolder(path);
                         test.assertEqual(expectedPath, folder.relativeTo(basePath).toString());
                     });
                 };
@@ -111,7 +111,7 @@ public interface FolderTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(path) + " and " + Strings.escapeAndQuote(basePath), (Test test) ->
                     {
-                        final Folder folder = FolderTests.getFolder(test, path);
+                        final Folder folder = FolderTests.getFolder(path);
                         test.assertThrows(() -> folder.relativeTo(Path.parse(basePath)), expectedError);
                     });
                 };
@@ -123,7 +123,7 @@ public interface FolderTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(path) + " and " + Strings.escapeAndQuote(basePath), (Test test) ->
                     {
-                        final Folder folder = FolderTests.getFolder(test, path);
+                        final Folder folder = FolderTests.getFolder(path);
                         test.assertEqual(expectedPath, folder.relativeTo(Path.parse(basePath)).toString());
                     });
                 };
@@ -142,7 +142,7 @@ public interface FolderTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(path) + " and " + Strings.escapeAndQuote(basePath), (Test test) ->
                     {
-                        final Folder folder = FolderTests.getFolder(test, path);
+                        final Folder folder = FolderTests.getFolder(path);
                         final FileSystem fileSystem = folder.getFileSystem();
                         final Folder baseFolder = fileSystem.getFolder(basePath).await();
                         test.assertThrows(() -> folder.relativeTo(baseFolder), expectedError);
@@ -156,7 +156,7 @@ public interface FolderTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(path) + " and " + Strings.escapeAndQuote(basePath), (Test test) ->
                     {
-                        final Folder folder = FolderTests.getFolder(test, path);
+                        final Folder folder = FolderTests.getFolder(path);
                         final FileSystem fileSystem = folder.getFileSystem();
                         final Folder baseFolder = fileSystem.getFolder(basePath).await();
                         test.assertEqual(expectedPath, folder.relativeTo(baseFolder).toString());
@@ -177,7 +177,7 @@ public interface FolderTests
                 {
                     runner.test("with " + Strings.escapeAndQuote(path) + " and " + Strings.escapeAndQuote(basePath), (Test test) ->
                     {
-                        final Folder folder = FolderTests.getFolder(test, path);
+                        final Folder folder = FolderTests.getFolder(path);
                         final Root root = folder.getFileSystem().getRoot(basePath).await();
                         test.assertEqual(expectedPath, folder.relativeTo(root).toString());
                     });
@@ -190,13 +190,13 @@ public interface FolderTests
             {
                 runner.test("when folder doesn't exist", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertFalse(folder.exists().await());
                 });
 
                 runner.test("with folder exists", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     folder.create().await();
                     test.assertTrue(folder.exists().await());
                 });
@@ -206,14 +206,14 @@ public interface FolderTests
             {
                 runner.test("when folder doesn't exist", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertThrows(() -> folder.delete().await(),
                         new FolderNotFoundException("/test/folder/"));
                 });
 
                 runner.test("when folder exists", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     folder.create().await();
 
                     test.assertNull(folder.delete().await());
@@ -225,7 +225,7 @@ public interface FolderTests
             {
                 runner.test("when folder doesn't exist", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertFalse(folder.exists().await());
 
                     test.assertNull(folder.create().await());
@@ -234,7 +234,7 @@ public interface FolderTests
 
                 runner.test("when folder exists", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     folder.create().await();
 
                     test.assertThrows(() -> folder.create().await(),
@@ -247,21 +247,21 @@ public interface FolderTests
             {
                 runner.test("with null path", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertThrows(() -> folder.createFolder((String)null),
                         new PreConditionFailure("folderRelativePath cannot be null."));
                 });
 
                 runner.test("with empty path", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertThrows(() -> folder.createFolder(""),
                         new PreConditionFailure("folderRelativePath cannot be empty."));
                 });
 
                 runner.test("with non-existing relative path", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
 
                     final Folder createdFolder = folder.createFolder("thing").await();
                     test.assertEqual("/test/folder/thing/", createdFolder.toString());
@@ -275,13 +275,13 @@ public interface FolderTests
             {
                 runner.test("with null path", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertThrows(() -> folder.createFolder((Path)null), new PreConditionFailure("relativeFolderPath cannot be null."));
                 });
 
                 runner.test("with non-existing relative path", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
 
                     final Folder createdFolder = folder.createFolder("place").await();
                     test.assertEqual("/test/folder/place/", createdFolder.toString());
@@ -295,19 +295,19 @@ public interface FolderTests
             {
                 runner.test("with null path", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertThrows(() -> folder.createFile((String)null), new PreConditionFailure("fileRelativePath cannot be null."));
                 });
 
                 runner.test("with empty path", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertThrows(() -> folder.createFile(""), new PreConditionFailure("fileRelativePath cannot be empty."));
                 });
 
                 runner.test("with non-existing relative path", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
 
                     final File file = folder.createFile("file.xml").await();
                     test.assertEqual("/test/folder/file.xml", file.toString());
@@ -318,7 +318,7 @@ public interface FolderTests
 
                 runner.test("with non-existing relative path in subfolder with backslash separator", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
 
                     final File file = folder.createFile("subfolder\\file.xml").await();
                     test.assertEqual("/test/folder/subfolder/file.xml", file.toString());
@@ -330,7 +330,7 @@ public interface FolderTests
 
                 runner.test("with non-existing relative path in subfolder with forward slash separator", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
 
                     final File file = folder.createFile("subfolder/file.xml").await();
                     test.assertEqual("/test/folder/subfolder/file.xml", file.toString());
@@ -345,7 +345,7 @@ public interface FolderTests
             {
                 runner.test("with non-existing relative path", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
 
                     final File file = folder.createFile(Path.parse("file.xml")).await();
                     test.assertEqual("/test/folder/file.xml", file.toString());
@@ -355,7 +355,7 @@ public interface FolderTests
 
                 runner.test("with non-existing subfolder relative path with backslash separator", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
 
                     final File file = folder.createFile(Path.parse("subfolder\\file.xml")).await();
                     test.assertEqual("/test/folder/subfolder/file.xml", file.toString());
@@ -366,7 +366,7 @@ public interface FolderTests
 
                 runner.test("with non-existing subfolder relative path with forward slash separator", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
 
                     final File file = folder.createFile(Path.parse("subfolder/file.xml")).await();
                     test.assertEqual("/test/folder/subfolder/file.xml", file.toString());
@@ -378,7 +378,7 @@ public interface FolderTests
 
             runner.test("getFolders()", (Test test) ->
             {
-                final Folder folder = FolderTests.getFolder(test);
+                final Folder folder = FolderTests.getFolder();
                 test.assertFalse(folder.exists().await());
                 test.assertThrows(() -> folder.getFolders().await(),
                     new FolderNotFoundException("/test/folder/"));
@@ -400,14 +400,14 @@ public interface FolderTests
             {
                 runner.test("when folder doesn't exist", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertFalse(folder.exists().await());
                     test.assertThrows(() -> folder.getFiles().await(), new FolderNotFoundException("/test/folder/"));
                 });
 
                 runner.test("when folder exists but is empty", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertNull(folder.create().await());
                     test.assertTrue(folder.exists().await());
                     test.assertEqual(Iterable.create(), folder.getFiles().await());
@@ -415,7 +415,7 @@ public interface FolderTests
 
                 runner.test("when folder exists and has one file", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertNull(folder.create().await());
                     test.assertTrue(folder.exists().await());
                     test.assertEqual("/test/folder/data.txt", folder.createFile("data.txt").await().toString());
@@ -424,7 +424,7 @@ public interface FolderTests
 
                 runner.test("when folder exists and has one grandchild file", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertNull(folder.create().await());
                     test.assertTrue(folder.exists().await());
                     test.assertEqual("/test/folder/subfolder/data.txt", folder.createFile("subfolder/data.txt").await().toString());
@@ -436,7 +436,7 @@ public interface FolderTests
             {
                 runner.test("when folder doesn't exist", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertFalse(folder.exists().await());
                     test.assertThrows(() -> folder.getFilesAndFolders().await(),
                         new FolderNotFoundException("/test/folder/"));
@@ -444,14 +444,14 @@ public interface FolderTests
 
                 runner.test("when folder exists but is empty", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertNull(folder.create().await());
                     test.assertEqual(Iterable.create(), folder.getFilesAndFolders().await());
                 });
 
                 runner.test("when folder exists and has one child folder", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertNull(folder.create().await());
                     test.assertEqual("/test/folder/subfolder/", folder.createFolder("subfolder").await().toString());
                     test.assertEqual(Iterable.create("/test/folder/subfolder/"), folder.getFilesAndFolders().await().map(FileSystemEntry::toString));
@@ -459,7 +459,7 @@ public interface FolderTests
 
                 runner.test("when folder exists and has one child file", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertNull(folder.create().await());
                     folder.createFile("file.java").await();
                     test.assertEqual(Iterable.create("/test/folder/file.java"), folder.getFilesAndFolders().await().map(FileSystemEntry::toString));
@@ -467,7 +467,7 @@ public interface FolderTests
 
                 runner.test("when folder exists and has one child file and one child folder", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertNull(folder.create().await());
                     folder.createFile("file.java").await();
                     folder.createFolder("childfolder").await();
@@ -483,13 +483,13 @@ public interface FolderTests
             {
                 runner.test("when file doesn't exist", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertFalse(folder.fileExists("test.txt").await());
                 });
 
                 runner.test("when file exists", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     folder.createFile("test.txt").await();
                     test.assertTrue(folder.fileExists("test.txt").await());
                 });
@@ -499,13 +499,13 @@ public interface FolderTests
             {
                 runner.test("when folder doesn't exist", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     test.assertFalse(folder.folderExists("test").await());
                 });
 
                 runner.test("when folder does exist", (Test test) ->
                 {
-                    final Folder folder = FolderTests.getFolder(test);
+                    final Folder folder = FolderTests.getFolder();
                     folder.createFolder("test").await();
                     test.assertTrue(folder.folderExists("test").await());
                 });
@@ -513,16 +513,15 @@ public interface FolderTests
         });
     }
 
-    static Folder getFolder(Test test)
+    static Folder getFolder()
     {
-        return FolderTests.getFolder(test, "/test/folder");
+        return FolderTests.getFolder("/test/folder");
     }
 
-    static Folder getFolder(Test test, String folderPath)
+    static Folder getFolder(String folderPath)
     {
-        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
         fileSystem.createRoot("/").await();
-
         return fileSystem.getFolder(folderPath).await();
     }
 }

@@ -6,11 +6,11 @@ public interface JavaMutexTests
     {
         runner.testGroup(JavaMutex.class, () ->
         {
-            MutexTests.test(runner, JavaMutex::new);
+            MutexTests.test(runner, JavaMutex::create);
 
-            runner.test("constructor()", (Test test) ->
+            runner.test("create()", (Test test) ->
             {
-                final JavaMutex mutex = new JavaMutex();
+                final JavaMutex mutex = JavaMutex.create();
                 test.assertFalse(mutex.isAcquired());
             });
         });

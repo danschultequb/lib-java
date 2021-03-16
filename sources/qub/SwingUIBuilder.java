@@ -35,13 +35,6 @@ public class SwingUIBuilder extends BasicUIBuilder
         return new SwingUIBuilder(uiBase);
     }
 
-    public static SwingUIBuilder create(Process process)
-    {
-        PreCondition.assertNotNull(process, "process");
-
-        return SwingUIBuilder.create(AWTUIBase.create(process));
-    }
-
     /**
      * Set the creator function that will be used when an object of the type U is requested.
      * @param uiType The type that will invoke the provided uiElementCreator when it is requested.

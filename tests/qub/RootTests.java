@@ -16,21 +16,21 @@ public interface RootTests
 
                 runner.test("with null path", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     test.assertThrows(() -> new Root(fileSystem, null),
                         new PreConditionFailure("rootPath cannot be null."));
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     test.assertThrows(() -> new Root(fileSystem, Path.parse("hello")),
                         new PreConditionFailure("rootPath.isRooted() cannot be false."));
                 });
 
                 runner.test("with valid arguments", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     final Path path = Path.parse("/path/to/root/");
                     final Root root = new Root(fileSystem, path);
                     test.assertNotNull(root);
@@ -79,7 +79,7 @@ public interface RootTests
             {
                 runner.test("when root doesn't exist", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     final Root root = fileSystem.getRoot("/").await();
                     test.assertThrows(() -> root.getTotalDataSize().await(),
                         new RootNotFoundException("/"));
@@ -87,7 +87,7 @@ public interface RootTests
 
                 runner.test("when root exists", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     final Root root = fileSystem.createRoot("/", DataSize.gigabytes(256)).await();
                     test.assertEqual(DataSize.gigabytes(256), root.getTotalDataSize().await());
                 });
@@ -97,7 +97,7 @@ public interface RootTests
             {
                 runner.test("when root doesn't exist", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     final Root root = fileSystem.getRoot("/").await();
                     test.assertThrows(() -> root.getUnusedDataSize().await(),
                         new RootNotFoundException("/"));
@@ -105,14 +105,14 @@ public interface RootTests
 
                 runner.test("when root exists but is empty", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     final Root root = fileSystem.createRoot("/", DataSize.gigabytes(256)).await();
                     test.assertEqual(DataSize.gigabytes(256), root.getUnusedDataSize().await());
                 });
 
                 runner.test("when root exists but has a file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     final Root root = fileSystem.createRoot("/", DataSize.kilobytes(1)).await();
                     root.createFile("hello.txt").await().setContentsAsString("hello").await();
                     test.assertEqual(DataSize.bytes(995), root.getUnusedDataSize().await());
@@ -120,7 +120,7 @@ public interface RootTests
 
                 runner.test("when root exists but has a file in a subfolder", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     final Root root = fileSystem.createRoot("/", DataSize.kilobytes(1)).await();
                     root.createFolder("folder").await()
                         .createFile("hello.txt").await()
@@ -133,7 +133,7 @@ public interface RootTests
             {
                 runner.test("when root doesn't exist", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     final Root root = fileSystem.getRoot("/").await();
                     test.assertThrows(() -> root.getUsedDataSize().await(),
                         new RootNotFoundException("/"));
@@ -141,14 +141,14 @@ public interface RootTests
 
                 runner.test("when root exists but is empty", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     final Root root = fileSystem.createRoot("/", DataSize.gigabytes(256)).await();
                     test.assertEqual(DataSize.zero, root.getUsedDataSize().await());
                 });
 
                 runner.test("when root exists but has a file", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     final Root root = fileSystem.createRoot("/", DataSize.kilobytes(1)).await();
                     root.createFile("hello.txt").await().setContentsAsString("hello").await();
                     test.assertEqual(DataSize.bytes(5), root.getUsedDataSize().await(), DataSize.bytes(0.0001));
@@ -156,7 +156,7 @@ public interface RootTests
 
                 runner.test("when root exists but has a file in a subfolder", (Test test) ->
                 {
-                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     final Root root = fileSystem.createRoot("/", DataSize.kilobytes(1)).await();
                     root.createFolder("folder").await()
                         .createFile("hello.txt").await()
@@ -688,7 +688,7 @@ public interface RootTests
 
     static InMemoryFileSystem getFileSystem(Test test)
     {
-        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create(test.getClock());
+        final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
         fileSystem.createRoot("/").await();
         return fileSystem;
     }
