@@ -28,36 +28,79 @@ public interface ProcessTests
                 }
             });
 
-            runner.test("getOutputWriteStream()", (Test test) ->
+            runner.testGroup("getOutputWriteStream()", () ->
             {
-                try (final Process process = creator.run(test))
+                runner.test("when not disposed", (Test test) ->
                 {
-                    final CharacterToByteWriteStream writeStream = process.getOutputWriteStream();
-                    test.assertNotNull(writeStream);
-                }
-            });
+                    try (final Process process = creator.run(test))
+                    {
+                        final CharacterToByteWriteStream writeStream = process.getOutputWriteStream();
+                        test.assertNotNull(writeStream);
+                        test.assertFalse(writeStream.isDisposed());
+                    }
+                });
 
-            runner.test("getErrorWriteStream()", (Test test) ->
-            {
-                try (final Process process = creator.run(test))
+                runner.test("when disposed", (Test test) ->
                 {
-                    final ByteWriteStream writeStream = process.getErrorWriteStream();
-                    test.assertNotNull(writeStream);
-                }
+                    try (final Process process = creator.run(test))
+                    {
+                        test.assertTrue(process.dispose().await());
+                        test.assertTrue(process.isDisposed());
+
+                        test.assertThrows(() -> process.getOutputWriteStream(),
+                            new PreConditionFailure("this.isDisposed() cannot be true."));
+                    }
+                });
             });
 
-            runner.test("getInputByteWriteStream()", (Test test) ->
+            runner.testGroup("getErrorWriteStream()", () ->
             {
-                final Process process = creator.run(test);
-                final ByteReadStream readStream = process.getInputReadStream();
-                test.assertNotNull(readStream);
+                runner.test("when not disposed", (Test test) ->
+                {
+                    try (final Process process = creator.run(test))
+                    {
+                        final CharacterToByteWriteStream writeStream = process.getErrorWriteStream();
+                        test.assertNotNull(writeStream);
+                        test.assertFalse(writeStream.isDisposed());
+                    }
+                });
+
+                runner.test("when disposed", (Test test) ->
+                {
+                    try (final Process process = creator.run(test))
+                    {
+                        test.assertTrue(process.dispose().await());
+                        test.assertTrue(process.isDisposed());
+
+                        test.assertThrows(() -> process.getErrorWriteStream(),
+                            new PreConditionFailure("this.isDisposed() cannot be true."));
+                    }
+                });
             });
 
-            runner.test("getInputReadStream()", (Test test) ->
+            runner.testGroup("getInputReadStream()", () ->
             {
-                final Process process = creator.run(test);
-                final CharacterToByteReadStream readStream = process.getInputReadStream();
-                test.assertNotNull(readStream);
+                runner.test("when not disposed", (Test test) ->
+                {
+                    try (final Process process = creator.run(test))
+                    {
+                        final CharacterToByteReadStream readStream = process.getInputReadStream();
+                        test.assertNotNull(readStream);
+                        test.assertFalse(readStream.isDisposed());
+                    }
+                });
+
+                runner.test("when disposed", (Test test) ->
+                {
+                    try (final Process process = creator.run(test))
+                    {
+                        test.assertTrue(process.dispose().await());
+                        test.assertTrue(process.isDisposed());
+
+                        test.assertThrows(() -> process.getInputReadStream(),
+                            new PreConditionFailure("this.isDisposed() cannot be true."));
+                    }
+                });
             });
 
             runner.test("getRandom()", (Test test) ->

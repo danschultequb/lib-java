@@ -86,15 +86,33 @@ public class RealDesktopProcess extends DesktopProcessBase
     }
 
     @Override
+    public RealDesktopProcess setShouldDisposeOutputWriteStream(boolean shouldDisposeOutputWriteStream)
+    {
+        return (RealDesktopProcess)super.setShouldDisposeOutputWriteStream(shouldDisposeOutputWriteStream);
+    }
+
+    @Override
     protected CharacterToByteWriteStream createDefaultErrorWriteStream()
     {
         return CharacterWriteStream.create(new OutputStreamToByteWriteStream(System.err));
     }
 
     @Override
+    public RealDesktopProcess setShouldDisposeErrorWriteStream(boolean shouldDisposeErrorWriteStream)
+    {
+        return (RealDesktopProcess)super.setShouldDisposeErrorWriteStream(shouldDisposeErrorWriteStream);
+    }
+
+    @Override
     protected CharacterToByteReadStream createDefaultInputReadStream()
     {
         return CharacterToByteReadStream.create(new InputStreamToByteReadStream(System.in));
+    }
+
+    @Override
+    public RealDesktopProcess setShouldDisposeInputReadStream(boolean shouldDisposeInputReadStream)
+    {
+        return (RealDesktopProcess)super.setShouldDisposeInputReadStream(shouldDisposeInputReadStream);
     }
 
     @Override

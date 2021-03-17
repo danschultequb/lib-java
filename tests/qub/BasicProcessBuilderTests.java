@@ -35,7 +35,7 @@ public interface BasicProcessBuilderTests
         runner.testGroup(BasicProcessBuilder.class, () ->
         {
             runner.test("constructor()",
-                (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                 (Test test, FakeDesktopProcess process) ->
             {
                 final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -48,7 +48,7 @@ public interface BasicProcessBuilderTests
             runner.testGroup("addArgument(String)", () ->
             {
                 runner.test("with null",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -59,7 +59,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with empty",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -70,7 +70,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with non-empty",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -84,7 +84,7 @@ public interface BasicProcessBuilderTests
             runner.testGroup("addArguments(String...)", () ->
             {
                 runner.test("with no arguments",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -95,7 +95,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with one null value",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -106,7 +106,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with one empty value",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -117,7 +117,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with one non-empty value",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -128,7 +128,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with multiple non-empty value",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -142,7 +142,7 @@ public interface BasicProcessBuilderTests
             runner.testGroup("addArguments(Iterable<String>)", () ->
             {
                 runner.test("with null",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -153,7 +153,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with no arguments",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -164,7 +164,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with one null value",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -175,7 +175,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with one empty value",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -186,7 +186,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with one non-empty value",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -197,7 +197,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with multiple non-empty value",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -211,7 +211,7 @@ public interface BasicProcessBuilderTests
             runner.testGroup("setWorkingFolder(String)", () ->
             {
                 runner.test("with null",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -223,7 +223,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with empty",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -235,7 +235,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with relative",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -247,7 +247,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with rooted",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -261,7 +261,7 @@ public interface BasicProcessBuilderTests
             runner.testGroup("setWorkingFolder(Path)", () ->
             {
                 runner.test("with null",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -273,7 +273,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with relative",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -285,7 +285,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with rooted",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -299,7 +299,7 @@ public interface BasicProcessBuilderTests
             runner.testGroup("redirectOutputLines(Action1<String>)", () ->
             {
                 runner.test("with null action",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -309,7 +309,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with empty action",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -319,7 +319,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with non-empty action",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -340,7 +340,7 @@ public interface BasicProcessBuilderTests
             runner.testGroup("redirectErrorLines(Action1<String>)", () ->
             {
                 runner.test("with null action",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -350,7 +350,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with empty action",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
@@ -360,7 +360,7 @@ public interface BasicProcessBuilderTests
                 });
 
                 runner.test("with non-empty action",
-                    (TestResources resources) -> Tuple.create(resources.getFakeDesktopProcess()),
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);

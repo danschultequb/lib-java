@@ -6,7 +6,10 @@ public interface RealDesktopProcessTests
     {
         runner.testGroup(RealDesktopProcess.class, () ->
         {
-            DesktopProcessTests.test(runner, RealDesktopProcess::create);
+            DesktopProcessTests.test(runner, () -> RealDesktopProcess.create()
+                .setShouldDisposeOutputWriteStream(false)
+                .setShouldDisposeErrorWriteStream(false)
+                .setShouldDisposeInputReadStream(false));
 
             runner.testGroup("create(String...)", () ->
             {

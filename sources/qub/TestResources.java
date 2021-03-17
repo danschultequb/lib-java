@@ -21,8 +21,10 @@ public class TestResources implements Disposable
         return new TestResources(process);
     }
 
-    public FakeDesktopProcess getFakeDesktopProcess()
+    public FakeDesktopProcess createFakeDesktopProcess()
     {
+        PreCondition.assertNotDisposed(this, "this");
+
         final FakeDesktopProcess result = FakeDesktopProcess.create();
         this.toDispose.add(result);
 
@@ -34,78 +36,88 @@ public class TestResources implements Disposable
 
     public Process getProcess()
     {
+        PreCondition.assertNotDisposed(this, "this");
+
         return this.process;
-    }
-
-    public Iterable<Display> getDisplays()
-    {
-        return this.process.getDisplays();
-    }
-
-    public Clock getClock()
-    {
-        return this.process.getClock();
     }
 
     public AsyncScheduler getMainAsyncRunner()
     {
+        PreCondition.assertNotDisposed(this, "this");
+
         return this.process.getMainAsyncRunner();
     }
 
     public AsyncScheduler getParallelAsyncRunner()
     {
+        PreCondition.assertNotDisposed(this, "this");
+
         return this.process.getParallelAsyncRunner();
     }
 
-    public EnvironmentVariables getEnvironmentVariables()
+    public Random getRandom()
     {
-        return this.process.getEnvironmentVariables();
+        PreCondition.assertNotDisposed(this, "this");
+
+        return this.process.getRandom();
     }
 
     public FileSystem getFileSystem()
     {
+        PreCondition.assertNotDisposed(this, "this");
+
         return this.process.getFileSystem();
     }
 
     public Folder getCurrentFolder()
     {
+        PreCondition.assertNotDisposed(this, "this");
+
         return this.process.getCurrentFolder();
     }
 
-    public Folder getTemporaryFolder()
+    public TemporaryFolder getTemporaryFolder()
     {
+        PreCondition.assertNotDisposed(this, "this");
+
         return this.getTemporaryFolderInner(null, false);
     }
 
-    public Folder getTemporaryFolder(boolean ensureFolderExists)
+    public TemporaryFolder getTemporaryFolder(boolean ensureFolderExists)
     {
+        PreCondition.assertNotDisposed(this, "this");
+
         return this.getTemporaryFolderInner(null, ensureFolderExists);
     }
 
-    public Folder getTemporaryFolder(String path)
+    public TemporaryFolder getTemporaryFolder(String path)
     {
         PreCondition.assertNotNullAndNotEmpty(path, "path");
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.getTemporaryFolder(Path.parse(path));
     }
 
-    public Folder getTemporaryFolder(String path, boolean ensureFolderExists)
+    public TemporaryFolder getTemporaryFolder(String path, boolean ensureFolderExists)
     {
         PreCondition.assertNotNullAndNotEmpty(path, "path");
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.getTemporaryFolder(Path.parse(path), ensureFolderExists);
     }
 
-    public Folder getTemporaryFolder(Path path)
+    public TemporaryFolder getTemporaryFolder(Path path)
     {
         PreCondition.assertNotNull(path, "path");
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.getTemporaryFolderInner(path, false);
     }
 
-    public Folder getTemporaryFolder(Path path, boolean ensureFolderExists)
+    public TemporaryFolder getTemporaryFolder(Path path, boolean ensureFolderExists)
     {
         PreCondition.assertNotNull(path, "path");
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.getTemporaryFolderInner(path, ensureFolderExists);
     }
@@ -132,7 +144,7 @@ public class TestResources implements Disposable
         return result;
     }
 
-    private Folder getTemporaryFolderInner(Path path, boolean ensureFolderExists)
+    private TemporaryFolder getTemporaryFolderInner(Path path, boolean ensureFolderExists)
     {
         TemporaryFolder result;
 
@@ -168,45 +180,53 @@ public class TestResources implements Disposable
         return result;
     }
 
-    public File getTemporaryFile()
+    public TemporaryFile getTemporaryFile()
     {
+        PreCondition.assertNotDisposed(this, "this");
+
         return this.getTemporaryFile(false);
     }
 
-    public File getTemporaryFile(boolean ensureFileExists)
+    public TemporaryFile getTemporaryFile(boolean ensureFileExists)
     {
+        PreCondition.assertNotDisposed(this, "this");
+
         return this.getTemporaryFileInner(null, ensureFileExists);
     }
 
-    public File getTemporaryFile(String path)
+    public TemporaryFile getTemporaryFile(String path)
     {
         PreCondition.assertNotNullAndNotEmpty(path, "path");
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.getTemporaryFile(Path.parse(path), false);
     }
 
-    public File getTemporaryFile(String path, boolean ensureFileExists)
+    public TemporaryFile getTemporaryFile(String path, boolean ensureFileExists)
     {
         PreCondition.assertNotNullAndNotEmpty(path, "path");
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.getTemporaryFile(Path.parse(path), ensureFileExists);
     }
 
-    public File getTemporaryFile(Path path)
+    public TemporaryFile getTemporaryFile(Path path)
     {
         PreCondition.assertNotNull(path, "path");
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.getTemporaryFileInner(path, false);
     }
 
-    public File getTemporaryFile(Path path, boolean ensureFileExists)
+    public TemporaryFile getTemporaryFile(Path path, boolean ensureFileExists)
     {
         PreCondition.assertNotNull(path, "path");
+        PreCondition.assertNotDisposed(this, "this");
 
         return this.getTemporaryFileInner(path, ensureFileExists);
     }
 
-    private File getTemporaryFileInner(Path path, boolean ensureFileExists)
+    private TemporaryFile getTemporaryFileInner(Path path, boolean ensureFileExists)
     {
         TemporaryFile result;
 
@@ -245,12 +265,51 @@ public class TestResources implements Disposable
 
     public QubFolder getQubFolder()
     {
+        PreCondition.assertNotDisposed(this, "this");
+
         return this.process.getQubFolder().await();
     }
 
     public Network getNetwork()
     {
+        PreCondition.assertNotDisposed(this, "this");
+
         return this.process.getNetwork();
+    }
+
+    public EnvironmentVariables getEnvironmentVariables()
+    {
+        PreCondition.assertNotDisposed(this, "this");
+
+        return this.process.getEnvironmentVariables();
+    }
+
+    public Clock getClock()
+    {
+        PreCondition.assertNotDisposed(this, "this");
+
+        return this.process.getClock();
+    }
+
+    public Iterable<Display> getDisplays()
+    {
+        PreCondition.assertNotDisposed(this, "this");
+
+        return this.process.getDisplays();
+    }
+
+    public Map<String,String> getSystemProperties()
+    {
+        PreCondition.assertNotDisposed(this, "this");
+
+        return this.process.getSystemProperties();
+    }
+
+    public TypeLoader getTypeLoader()
+    {
+        PreCondition.assertNotDisposed(this, "this");
+
+        return this.process.getTypeLoader();
     }
 
     @Override
@@ -273,6 +332,7 @@ public class TestResources implements Disposable
                 {
                     disposable.dispose().await();
                 }
+                this.toDispose.clear();
             }
             return result;
         });
