@@ -246,12 +246,20 @@ public interface TestResourcesTests
 
                 runner.test("when not disposed", (Test test) ->
                 {
-                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    final String tempPath = "/temp/";
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create()
+                        .setEnvironmentVariable("temp", tempPath))
                     {
                         try (final TestResources resources = TestResources.create(process))
                         {
-                            final TemporaryFolder tempFolder = resources.getTemporaryFolder();
-                            test.assertNotNull(tempFolder);
+                            final TemporaryFolder tempFolder1 = resources.getTemporaryFolder();
+                            test.assertNotNull(tempFolder1);
+                            test.assertTrue(tempFolder1.isDescendantOf(tempPath).await());
+
+                            final TemporaryFolder tempFolder2 = resources.getTemporaryFolder();
+                            test.assertNotNull(tempFolder2);
+                            test.assertTrue(tempFolder2.isDescendantOf(tempPath).await());
+                            test.assertNotEqual(tempFolder1, tempFolder2);
                         }
                     }
                 });

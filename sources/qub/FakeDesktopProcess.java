@@ -140,15 +140,15 @@ public class FakeDesktopProcess extends DesktopProcessBase
     }
 
     @Override
-    public FixedRandom getRandom()
+    public Random getRandom()
     {
-        return (FixedRandom)super.getRandom();
+        return super.getRandom();
     }
 
     @Override
-    protected FixedRandom createDefaultRandom()
+    protected Random createDefaultRandom()
     {
-        return new FixedRandom(1);
+        return new JavaRandom();
     }
 
     @Override
@@ -272,6 +272,13 @@ public class FakeDesktopProcess extends DesktopProcessBase
     protected MutableEnvironmentVariables createDefaultEnvironmentVariables()
     {
         return EnvironmentVariables.create();
+    }
+
+    public FakeDesktopProcess setEnvironmentVariable(String variableName, String variableValue)
+    {
+        this.getEnvironmentVariables().set(variableName, variableValue);
+
+        return this;
     }
 
     @Override
