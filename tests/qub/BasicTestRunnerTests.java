@@ -22,7 +22,8 @@ public interface BasicTestRunnerTests
                     final BasicTestRunner btr = BasicTestRunner.create(process, null);
                     final Skip skip = btr.skip();
                     test.assertNotNull(skip);
-                    test.assertSame(skip, btr.skip());
+                    test.assertEqual("", skip.getMessage());
+                    test.assertNotSame(skip, btr.skip());
                 }
             });
 
@@ -42,10 +43,20 @@ public interface BasicTestRunnerTests
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
                         final BasicTestRunner btr = BasicTestRunner.create(process, null);
-                        final Skip skip = btr.skip(true);
-                        test.assertNotNull(skip);
-                        test.assertSame(skip, btr.skip());
-                        test.assertSame(skip, btr.skip(true));
+
+                        final Skip skip1 = btr.skip(true);
+                        test.assertNotNull(skip1);
+
+                        final Skip skip2 = btr.skip();
+                        test.assertNotNull(skip2);
+                        test.assertNotSame(skip1, skip2);
+                        test.assertEqual(skip1.getMessage(), skip2.getMessage());
+
+                        final Skip skip3 = btr.skip(true);
+                        test.assertNotNull(skip3);
+                        test.assertNotSame(skip1, skip3);
+                        test.assertNotSame(skip2, skip3);
+                        test.assertEqual(skip1.getMessage(), skip3.getMessage());
                     }
                 });
             });

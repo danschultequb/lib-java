@@ -10,26 +10,10 @@ public interface TestRunner
      * a Test.
      * @return The Skip marker.
      */
-    Skip skip();
-
-    /**
-     * A method that returns a Skip if the provided boolean is true, and returns null if the
-     * provided boolean is false. This method is really used as a flag to skip at TestGroup or a
-     * Test.
-     * @param toSkip Whether or not to skip.
-     * @return A Skip if toSkip is true or null if toSkip is false.
-     */
-    Skip skip(boolean toSkip);
-
-    /**
-     * A method that returns a Skip if the provided boolean is true, and returns null if the
-     * provided boolean is false. This method is really used as a flag to skip at TestGroup or a
-     * Test.
-     * @param toSkip Whether or not to skip.
-     * @param message The message to display for why the test or test group is being skipped.
-     * @return A Skip if toSkip is true or null if toSkip is false.
-     */
-    Skip skip(boolean toSkip, String message);
+    default Skip skip()
+    {
+        return Skip.create();
+    }
 
     /**
      * A method that returns a Skip. This method is really used as a flag to skip a TestGroup or
@@ -37,7 +21,39 @@ public interface TestRunner
      * @param message The message to display for why the test or test group is being skipped.
      * @return The Skip marker.
      */
-    Skip skip(String message);
+    default Skip skip(String message)
+    {
+        PreCondition.assertNotNullAndNotEmpty(message, "message");
+
+        return Skip.create(message);
+    }
+
+    /**
+     * A method that returns a Skip if the provided boolean is true, and returns null if the
+     * provided boolean is false. This method is really used as a flag to skip at TestGroup or a
+     * Test.
+     * @param toSkip Whether or not to skip.
+     * @return A Skip if toSkip is true or null if toSkip is false.
+     */
+    default Skip skip(boolean toSkip)
+    {
+        return toSkip ? this.skip() : null;
+    }
+
+    /**
+     * A method that returns a Skip if the provided boolean is true, and returns null if the
+     * provided boolean is false. This method is really used as a flag to skip at TestGroup or a
+     * Test.
+     * @param toSkip Whether or not to skip.
+     * @param message The message to display for why the test or test group is being skipped.
+     * @return A Skip if toSkip is true or null if toSkip is false.
+     */
+    default Skip skip(boolean toSkip, String message)
+    {
+        PreCondition.assertNotNullAndNotEmpty(message, "message");
+
+        return toSkip ? this.skip(message) : null;
+    }
 
     /**
      * Attempt to run the tests that are found in the Class associated with the provided
@@ -53,18 +69,152 @@ public interface TestRunner
     Result<Void> testClass(Class<?> testClass);
 
     /**
-     * Create a new test group with the provided name and action.
-     * @param testGroupName The name of the test group.
-     * @param testGroupAction The action that should be run to run the tests of the test group.
-     */
-    void testGroup(String testGroupName, Action0 testGroupAction);
-
-    /**
      * Create a new test group with the name of the provided class and the provided action.
      * @param testClass The class that this test group will be testing.
      * @param testGroupAction The action that should be run to run the tests of the test group.
      */
-    void testGroup(Class<?> testClass, Action0 testGroupAction);
+    default void testGroup(Class<?> testClass, Action0 testGroupAction)
+    {
+        PreCondition.assertNotNull(testClass, "testClass");
+        PreCondition.assertNotNull(testGroupAction, "testGroupAction");
+
+        this.testGroup(Types.getTypeName(testClass), testGroupAction);
+    }
+
+    /**
+     * Create a new test group with the name of the provided class and the provided action.
+     * @param testClass The class that this test group will be testing.
+     * @param resourcesFunction The function that decides which resources this test group will require.
+     * @param testGroupAction The action that should be run to run the tests of the test group.
+     */
+    default <T1> void testGroup(Class<?> testClass, Function1<TestResources,Tuple1<T1>> resourcesFunction, Action1<T1> testGroupAction)
+    {
+        this.testGroup(Types.getTypeName(testClass), resourcesFunction, testGroupAction);
+    }
+
+    /**
+     * Create a new test group with the name of the provided class and the provided action.
+     * @param testClass The class that this test group will be testing.
+     * @param resourcesFunction The function that decides which resources this test group will require.
+     * @param testGroupAction The action that should be run to run the tests of the test group.
+     */
+    default <T1,T2> void testGroup(Class<?> testClass, Function1<TestResources,Tuple2<T1,T2>> resourcesFunction, Action2<T1,T2> testGroupAction)
+    {
+        this.testGroup(Types.getTypeName(testClass), resourcesFunction, testGroupAction);
+    }
+
+    /**
+     * Create a new test group with the name of the provided class and the provided action.
+     * @param testClass The class that this test group will be testing.
+     * @param resourcesFunction The function that decides which resources this test group will require.
+     * @param testGroupAction The action that should be run to run the tests of the test group.
+     */
+    default <T1,T2,T3> void testGroup(Class<?> testClass, Function1<TestResources,Tuple3<T1,T2,T3>> resourcesFunction, Action3<T1,T2,T3> testGroupAction)
+    {
+        this.testGroup(Types.getTypeName(testClass), resourcesFunction, testGroupAction);
+    }
+
+    /**
+     * Create a new test group with the name of the provided class and the provided action that will
+     * be skipped during execution..
+     * @param testClass The class that this test group will be testing.
+     * @param testGroupAction The action that should be run to run the tests of the test group.
+     */
+    default void testGroup(Class<?> testClass, Skip skip, Action0 testGroupAction)
+    {
+        PreCondition.assertNotNull(testClass, "testClass");
+        PreCondition.assertNotNull(testGroupAction, "testGroupAction");
+
+        this.testGroup(Types.getTypeName(testClass), skip, testGroupAction);
+    }
+
+    /**
+     * Create a new test group with the name of the provided class and the provided action that will
+     * be skipped during execution..
+     * @param testClass The class that this test group will be testing.
+     * @param testGroupAction The action that should be run to run the tests of the test group.
+     */
+    default <T1> void testGroup(Class<?> testClass, Skip skip, Function1<TestResources,Tuple1<T1>> resourcesFunction, Action1<T1> testGroupAction)
+    {
+        PreCondition.assertNotNull(testClass, "testClass");
+        PreCondition.assertNotNull(testGroupAction, "testGroupAction");
+
+        this.testGroup(Types.getTypeName(testClass), skip, resourcesFunction, testGroupAction);
+    }
+
+    /**
+     * Create a new test group with the name of the provided class and the provided action that will
+     * be skipped during execution..
+     * @param testClass The class that this test group will be testing.
+     * @param testGroupAction The action that should be run to run the tests of the test group.
+     */
+    default <T1,T2> void testGroup(Class<?> testClass, Skip skip, Function1<TestResources,Tuple2<T1,T2>> resourcesFunction, Action2<T1,T2> testGroupAction)
+    {
+        PreCondition.assertNotNull(testClass, "testClass");
+        PreCondition.assertNotNull(testGroupAction, "testGroupAction");
+
+        this.testGroup(Types.getTypeName(testClass), skip, resourcesFunction, testGroupAction);
+    }
+
+    /**
+     * Create a new test group with the name of the provided class and the provided action that will
+     * be skipped during execution..
+     * @param testClass The class that this test group will be testing.
+     * @param testGroupAction The action that should be run to run the tests of the test group.
+     */
+    default <T1,T2,T3> void testGroup(Class<?> testClass, Skip skip, Function1<TestResources,Tuple3<T1,T2,T3>> resourcesFunction, Action3<T1,T2,T3> testGroupAction)
+    {
+        PreCondition.assertNotNull(testClass, "testClass");
+        PreCondition.assertNotNull(testGroupAction, "testGroupAction");
+
+        this.testGroup(Types.getTypeName(testClass), skip, resourcesFunction, testGroupAction);
+    }
+
+    /**
+     * Create a new test group with the provided name and action.
+     * @param testGroupName The name of the test group.
+     * @param testGroupAction The action that should be run to run the tests of the test group.
+     */
+    default void testGroup(String testGroupName, Action0 testGroupAction)
+    {
+        PreCondition.assertNotNullAndNotEmpty(testGroupName, "testGroupName");
+        PreCondition.assertNotNull(testGroupAction, "testGroupAction");
+
+        this.testGroup(testGroupName, null, testGroupAction);
+    }
+
+    /**
+     * Create a new test group with the provided name and action.
+     * @param testGroupName The name of the test group.
+     * @param resourcesFunction The function that decides which resources this test group will require.
+     * @param testGroupAction The action that should be run to run the tests of the test group.
+     */
+    default <T1> void testGroup(String testGroupName, Function1<TestResources,Tuple1<T1>> resourcesFunction, Action1<T1> testGroupAction)
+    {
+        this.testGroup(testGroupName, null, resourcesFunction, testGroupAction);
+    }
+
+    /**
+     * Create a new test group with the provided name and action.
+     * @param testGroupName The name of the test group.
+     * @param resourcesFunction The function that decides which resources this test group will require.
+     * @param testGroupAction The action that should be run to run the tests of the test group.
+     */
+    default <T1,T2> void testGroup(String testGroupName, Function1<TestResources,Tuple2<T1,T2>> resourcesFunction, Action2<T1,T2> testGroupAction)
+    {
+        this.testGroup(testGroupName, null, resourcesFunction, testGroupAction);
+    }
+
+    /**
+     * Create a new test group with the provided name and action.
+     * @param testGroupName The name of the test group.
+     * @param resourcesFunction The function that decides which resources this test group will require.
+     * @param testGroupAction The action that should be run to run the tests of the test group.
+     */
+    default <T1,T2,T3> void testGroup(String testGroupName, Function1<TestResources,Tuple3<T1,T2,T3>> resourcesFunction, Action3<T1,T2,T3> testGroupAction)
+    {
+        this.testGroup(testGroupName, null, resourcesFunction, testGroupAction);
+    }
 
     /**
      * Create a new test group with the provided name and action that will be skipped during
@@ -75,19 +225,41 @@ public interface TestRunner
     void testGroup(String testGroupName, Skip skip, Action0 testGroupAction);
 
     /**
-     * Create a new test group with the name of the provided class and the provided action that will
-     * be skipped during execution..
-     * @param testClass The class that this test group will be testing.
+     * Create a new test group with the provided name and action that will be skipped during
+     * execution.
+     * @param testGroupName The name of the test group.
+     * @param resourcesFunction The function that decides which resources this test group will require.
      * @param testGroupAction The action that should be run to run the tests of the test group.
      */
-    void testGroup(Class<?> testClass, Skip skip, Action0 testGroupAction);
+    <T1> void testGroup(String testGroupName, Skip skip, Function1<TestResources,Tuple1<T1>> resourcesFunction, Action1<T1> testGroupAction);
+
+    /**
+     * Create a new test group with the provided name and action that will be skipped during
+     * execution.
+     * @param testGroupName The name of the test group.
+     * @param resourcesFunction The function that decides which resources this test group will require.
+     * @param testGroupAction The action that should be run to run the tests of the test group.
+     */
+    <T1,T2> void testGroup(String testGroupName, Skip skip, Function1<TestResources,Tuple2<T1,T2>> resourcesFunction, Action2<T1,T2> testGroupAction);
+
+    /**
+     * Create a new test group with the provided name and action that will be skipped during
+     * execution.
+     * @param testGroupName The name of the test group.
+     * @param resourcesFunction The function that decides which resources this test group will require.
+     * @param testGroupAction The action that should be run to run the tests of the test group.
+     */
+    <T1,T2,T3> void testGroup(String testGroupName, Skip skip, Function1<TestResources,Tuple3<T1,T2,T3>> resourcesFunction, Action3<T1,T2,T3> testGroupAction);
 
     /**
      * Run the test with the provided name and action.
      * @param testName The name of the test.
      * @param testAction The action for the test.
      */
-    void test(String testName, Action1<Test> testAction);
+    default void test(String testName, Action1<Test> testAction)
+    {
+        this.test(testName, null, testAction);
+    }
 
     /**
      * Run the test with the provided name and action.
@@ -95,7 +267,10 @@ public interface TestRunner
      * @param resourcesFunction The function that decides which resources this test will require.
      * @param testAction The action for the test.
      */
-    <T1> void test(String testName, Function1<TestResources,Tuple1<T1>> resourcesFunction, Action2<Test,T1> testAction);
+    default <T1> void test(String testName, Function1<TestResources,Tuple1<T1>> resourcesFunction, Action2<Test,T1> testAction)
+    {
+        this.test(testName, null, resourcesFunction, testAction);
+    }
 
     /**
      * Run the test with the provided name and action.
@@ -103,7 +278,10 @@ public interface TestRunner
      * @param resourcesFunction The function that decides which resources this test will require.
      * @param testAction The action for the test.
      */
-    <T1,T2> void test(String testName, Function1<TestResources,Tuple2<T1,T2>> resourcesFunction, Action3<Test,T1,T2> testAction);
+    default <T1,T2> void test(String testName, Function1<TestResources,Tuple2<T1,T2>> resourcesFunction, Action3<Test,T1,T2> testAction)
+    {
+        this.test(testName, null, resourcesFunction, testAction);
+    }
 
     /**
      * Run the test with the provided name and action.
@@ -111,7 +289,10 @@ public interface TestRunner
      * @param resourcesFunction The function that decides which resources this test will require.
      * @param testAction The action for the test.
      */
-    <T1,T2,T3> void test(String testName, Function1<TestResources,Tuple3<T1,T2,T3>> resourcesFunction, Action4<Test,T1,T2,T3> testAction);
+    default <T1,T2,T3> void test(String testName, Function1<TestResources,Tuple3<T1,T2,T3>> resourcesFunction, Action4<Test,T1,T2,T3> testAction)
+    {
+        this.test(testName, null, resourcesFunction, testAction);
+    }
 
     /**
      * Skip the test with the provided name and action.

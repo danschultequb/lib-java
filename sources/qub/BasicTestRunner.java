@@ -2,8 +2,6 @@ package qub;
 
 public final class BasicTestRunner implements TestRunner
 {
-    private static final Skip noMessageSkip = new Skip(null);
-
     private final DesktopProcess process;
 
     private int passedTestCount;
@@ -59,34 +57,6 @@ public final class BasicTestRunner implements TestRunner
     }
 
     @Override
-    public Skip skip()
-    {
-        return noMessageSkip;
-    }
-
-    @Override
-    public Skip skip(boolean toSkip)
-    {
-        return toSkip ? skip() : null;
-    }
-
-    @Override
-    public Skip skip(boolean toSkip, String message)
-    {
-        PreCondition.assertNotNullAndNotEmpty(message, "message");
-
-        return toSkip ? skip(message) : null;
-    }
-
-    @Override
-    public Skip skip(String message)
-    {
-        PreCondition.assertNotNullAndNotEmpty(message, "message");
-
-        return new Skip(message);
-    }
-
-    @Override
     public Result<Void> testClass(String fullClassName)
     {
         PreCondition.assertNotNullAndNotEmpty(fullClassName, "fullClassName");
@@ -106,12 +76,12 @@ public final class BasicTestRunner implements TestRunner
 
         return Result.create(() ->
         {
-            currentTestClass = new TestClass(testClass);
+            this.currentTestClass = new TestClass(testClass);
             try
             {
-                if (beforeTestClassAction != null)
+                if (this.beforeTestClassAction != null)
                 {
-                    beforeTestClassAction.run(currentTestClass);
+                    this.beforeTestClassAction.run(this.currentTestClass);
                 }
 
                 try
@@ -121,44 +91,17 @@ public final class BasicTestRunner implements TestRunner
                 }
                 finally
                 {
-                    if (afterTestClassAction != null)
+                    if (this.afterTestClassAction != null)
                     {
-                        afterTestClassAction.run(currentTestClass);
+                        this.afterTestClassAction.run(this.currentTestClass);
                     }
                 }
             }
             finally
             {
-                currentTestClass = null;
+                this.currentTestClass = null;
             }
         });
-    }
-
-    @Override
-    public void testGroup(Class<?> testClass, Action0 testGroupAction)
-    {
-        PreCondition.assertNotNull(testClass, "testClass");
-        PreCondition.assertNotNull(testGroupAction, "testGroupAction");
-
-        testGroup(Types.getTypeName(testClass), null, testGroupAction);
-    }
-
-    @Override
-    public void testGroup(String testGroupName, Action0 testGroupAction)
-    {
-        PreCondition.assertNotNullAndNotEmpty(testGroupName, "testGroupName");
-        PreCondition.assertNotNull(testGroupAction, "testGroupAction");
-
-        testGroup(testGroupName, null, testGroupAction);
-    }
-
-    @Override
-    public void testGroup(Class<?> testClass, Skip skip, Action0 testGroupAction)
-    {
-        PreCondition.assertNotNull(testClass, "testClass");
-        PreCondition.assertNotNull(testGroupAction, "testGroupAction");
-
-        testGroup(testClass.getSimpleName(), skip, testGroupAction);
     }
 
     @Override
@@ -167,37 +110,37 @@ public final class BasicTestRunner implements TestRunner
         PreCondition.assertNotNullAndNotEmpty(testGroupName, "testGroupName");
         PreCondition.assertNotNull(testGroupAction, "testGroupAction");
 
-        final Action1<Test> beforeTestActionBackup = beforeTestAction;
-        final Action1<Test> afterTestActionBackup = afterTestAction;
+        final Action1<Test> beforeTestActionBackup = this.beforeTestAction;
+        final Action1<Test> afterTestActionBackup = this.afterTestAction;
         try
         {
-            final TestParent parent = currentTestGroup == null ? currentTestClass : currentTestGroup;
-            currentTestGroup = TestGroup.create(testGroupName, parent, skip);
+            final TestParent parent = this.currentTestGroup == null ? this.currentTestClass : this.currentTestGroup;
+            this.currentTestGroup = TestGroup.create(testGroupName, parent, skip);
 
-            if (beforeTestGroupAction != null)
+            if (this.beforeTestGroupAction != null)
             {
-                beforeTestGroupAction.run(currentTestGroup);
+                this.beforeTestGroupAction.run(this.currentTestGroup);
             }
 
             testGroupAction.run();
 
-            if (currentTestGroup.shouldSkip())
+            if (this.currentTestGroup.shouldSkip())
             {
-                if (afterTestGroupSkippedAction != null)
+                if (this.afterTestGroupSkippedAction != null)
                 {
-                    afterTestGroupSkippedAction.run(currentTestGroup);
+                    this.afterTestGroupSkippedAction.run(this.currentTestGroup);
                 }
             }
         }
         catch (Throwable error)
         {
-            final String testGroupFullName = currentTestGroup.getFullName();
+            final String testGroupFullName = this.currentTestGroup.getFullName();
             final TestError testError = new TestError(testGroupFullName, "An unexpected error occurred during " + Strings.escapeAndQuote(testGroupFullName) + ".", error);
             addFailedTest(testError);
 
-            if (afterTestGroupFailureAction != null)
+            if (this.afterTestGroupFailureAction != null)
             {
-                afterTestGroupFailureAction.run(currentTestGroup, testError);
+                this.afterTestGroupFailureAction.run(this.currentTestGroup, testError);
             }
         }
 
@@ -212,27 +155,42 @@ public final class BasicTestRunner implements TestRunner
     }
 
     @Override
-    public void test(String testName, Action1<Test> testAction)
+    public <T1> void testGroup(String testGroupName, Skip skip, Function1<TestResources, Tuple1<T1>> resourcesFunction, Action1<T1> testGroupAction)
     {
-        this.test(testName, null, testAction);
+        this.testGroup(testGroupName, skip, () ->
+        {
+            try (final TestResources resources = TestResources.create(this.process))
+            {
+                final Tuple1<T1> requestedResources = resourcesFunction.run(resources);
+                testGroupAction.run(requestedResources.getValue1());
+            }
+        });
     }
 
     @Override
-    public <T1> void test(String testName, Function1<TestResources, Tuple1<T1>> resourcesFunction, Action2<Test, T1> testAction)
+    public <T1, T2> void testGroup(String testGroupName, Skip skip, Function1<TestResources, Tuple2<T1, T2>> resourcesFunction, Action2<T1, T2> testGroupAction)
     {
-        this.test(testName, null, resourcesFunction, testAction);
+        this.testGroup(testGroupName, skip, () ->
+        {
+            try (final TestResources resources = TestResources.create(this.process))
+            {
+                final Tuple2<T1,T2> requestedResources = resourcesFunction.run(resources);
+                testGroupAction.run(requestedResources.getValue1(), requestedResources.getValue2());
+            }
+        });
     }
 
     @Override
-    public <T1, T2> void test(String testName, Function1<TestResources, Tuple2<T1, T2>> resourcesFunction, Action3<Test, T1, T2> testAction)
+    public <T1, T2, T3> void testGroup(String testGroupName, Skip skip, Function1<TestResources, Tuple3<T1, T2, T3>> resourcesFunction, Action3<T1, T2, T3> testGroupAction)
     {
-        this.test(testName, null, resourcesFunction, testAction);
-    }
-
-    @Override
-    public <T1, T2, T3> void test(String testName, Function1<TestResources, Tuple3<T1, T2, T3>> resourcesFunction, Action4<Test, T1, T2, T3> testAction)
-    {
-        this.test(testName, null, resourcesFunction, testAction);
+        this.testGroup(testGroupName, skip, () ->
+        {
+            try (final TestResources resources = TestResources.create(this.process))
+            {
+                final Tuple3<T1,T2,T3> requestedResources = resourcesFunction.run(resources);
+                testGroupAction.run(requestedResources.getValue1(), requestedResources.getValue2(), requestedResources.getValue3());
+            }
+        });
     }
 
     @Override
@@ -256,10 +214,10 @@ public final class BasicTestRunner implements TestRunner
 
                     if (test.shouldSkip())
                     {
-                        addSkippedTest(test);
-                        if (afterTestSkippedAction != null)
+                        this.addSkippedTest(test);
+                        if (this.afterTestSkippedAction != null)
                         {
-                            afterTestSkippedAction.run(test);
+                            this.afterTestSkippedAction.run(test);
                         }
                     }
                     else
@@ -268,18 +226,18 @@ public final class BasicTestRunner implements TestRunner
                         {
                             testAction.run(test);
 
-                            incrementPassedTestCount();
-                            if (afterTestSuccessAction != null)
+                            this.incrementPassedTestCount();
+                            if (this.afterTestSuccessAction != null)
                             {
-                                afterTestSuccessAction.run(test);
+                                this.afterTestSuccessAction.run(test);
                             }
                         }
                         catch (TestError failure)
                         {
-                            addFailedTest(failure);
-                            if (afterTestFailureAction != null)
+                            this.addFailedTest(failure);
+                            if (this.afterTestFailureAction != null)
                             {
-                                afterTestFailureAction.run(test, failure);
+                                this.afterTestFailureAction.run(test, failure);
                             }
                         }
                     }
@@ -290,15 +248,15 @@ public final class BasicTestRunner implements TestRunner
                     final TestError testError = new TestError(testFullName, "An unexpected error occurred during " + Strings.escapeAndQuote(testFullName) + ".", error);
                     addFailedTest(testError);
 
-                    if (afterTestFailureAction != null)
+                    if (this.afterTestFailureAction != null)
                     {
-                        afterTestFailureAction.run(test, testError);
+                        this.afterTestFailureAction.run(test, testError);
                     }
                 }
 
-                if (afterTestAction != null)
+                if (this.afterTestAction != null)
                 {
-                    afterTestAction.run(test);
+                    this.afterTestAction.run(test);
                 }
             }
             finally
@@ -362,9 +320,9 @@ public final class BasicTestRunner implements TestRunner
     @Override
     public void speedTest(String testName, Duration maximumDuration, Action1<Test> testAction)
     {
-        test(testName, (Test test) ->
+        this.test(testName, (Test test) ->
         {
-            final Clock clock = process.getClock();
+            final Clock clock = this.process.getClock();
             final List<Duration> failedDurations = List.create();
             final int maximumAttempts = 3;
             for (int i = 0; i < maximumAttempts; ++i)
@@ -485,15 +443,15 @@ public final class BasicTestRunner implements TestRunner
      */
     public int getFinishedTestCount()
     {
-        return getPassedTestCount() + getFailedTestCount() + getSkippedTestCount();
+        return this.getPassedTestCount() + this.getFailedTestCount() + this.getSkippedTestCount();
     }
 
     private void incrementPassedTestCount()
     {
-        ++passedTestCount;
-        if (currentTestClass != null)
+        ++this.passedTestCount;
+        if (this.currentTestClass != null)
         {
-            currentTestClass.incrementPassedTestCount();
+            this.currentTestClass.incrementPassedTestCount();
         }
     }
 
@@ -503,18 +461,18 @@ public final class BasicTestRunner implements TestRunner
      */
     public int getPassedTestCount()
     {
-        return passedTestCount;
+        return this.passedTestCount;
     }
 
     private void addFailedTest(TestError error)
     {
         PreCondition.assertNotNull(error, "error");
 
-        testFailures.add(error);
-        ++failedTestCount;
-        if (currentTestClass != null)
+        this.testFailures.add(error);
+        ++this.failedTestCount;
+        if (this.currentTestClass != null)
         {
-            currentTestClass.incrementFailedTestCount();
+            this.currentTestClass.incrementFailedTestCount();
         }
     }
 
@@ -524,7 +482,7 @@ public final class BasicTestRunner implements TestRunner
      */
     public int getFailedTestCount()
     {
-        return failedTestCount;
+        return this.failedTestCount;
     }
 
     /**
@@ -533,18 +491,18 @@ public final class BasicTestRunner implements TestRunner
      */
     public Iterable<TestError> getTestFailures()
     {
-        return testFailures;
+        return this.testFailures;
     }
 
     private void addSkippedTest(Test test)
     {
         PreCondition.assertNotNull(test, "test");
 
-        skippedTests.add(test);
-        ++skippedTestCount;
-        if (currentTestClass != null)
+        this.skippedTests.add(test);
+        ++this.skippedTestCount;
+        if (this.currentTestClass != null)
         {
-            currentTestClass.incrementSkippedTestCount();
+            this.currentTestClass.incrementSkippedTestCount();
         }
     }
 
@@ -554,11 +512,11 @@ public final class BasicTestRunner implements TestRunner
      */
     public int getSkippedTestCount()
     {
-        return skippedTestCount;
+        return this.skippedTestCount;
     }
 
     public Iterable<Test> getSkippedTests()
     {
-        return skippedTests;
+        return this.skippedTests;
     }
 }

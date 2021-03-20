@@ -266,7 +266,7 @@ public interface TestTests
                 runner.test("with non-null skip with no arguments and null parentTestGroup", (Test test) ->
                 {
                     final Test t = Test.create("abc", null, runner.skip());
-                    test.assertEqual(null, t.getSkipMessage());
+                    test.assertEqual("", t.getSkipMessage());
                 });
 
                 runner.test("with non-null skip with false and null parentTestGroup", (Test test) ->
@@ -284,7 +284,7 @@ public interface TestTests
                 runner.test("with non-null skip with true and null parentTestGroup", (Test test) ->
                 {
                     final Test t = Test.create("abc", null, runner.skip(true));
-                    test.assertEqual(null, t.getSkipMessage());
+                    test.assertEqual("", t.getSkipMessage());
                 });
 
                 runner.test("with non-null skip with true and message and null parentTestGroup", (Test test) ->

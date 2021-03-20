@@ -312,6 +312,13 @@ public class TestResources implements Disposable
         return this.process.getTypeLoader();
     }
 
+    public ProcessFactory getProcessFactory()
+    {
+        PreCondition.assertNotDisposed(this, "this");
+
+        return this.process.getProcessFactory();
+    }
+
     @Override
     public boolean isDisposed()
     {

@@ -264,6 +264,161 @@ public interface TestResourcesTests
                     }
                 });
             });
+
+            runner.testGroup("getNetwork()", () ->
+            {
+                runner.test("when disposed", (Test test) ->
+                {
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        try (final TestResources resources = TestResources.create(process))
+                        {
+                            test.assertTrue(resources.dispose().await());
+
+                            test.assertThrows(() -> resources.getNetwork(),
+                                new PreConditionFailure("this.isDisposed() cannot be true."));
+                        }
+                    }
+                });
+
+                runner.test("when not disposed", (Test test) ->
+                {
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        try (final TestResources resources = TestResources.create(process))
+                        {
+                            final Network network = resources.getNetwork();
+                            test.assertNotNull(network);
+                            test.assertSame(process.getNetwork(), network);
+                            test.assertSame(network, resources.getNetwork());
+                        }
+                    }
+                });
+            });
+
+            runner.testGroup("getDisplays()", () ->
+            {
+                runner.test("when disposed", (Test test) ->
+                {
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        try (final TestResources resources = TestResources.create(process))
+                        {
+                            test.assertTrue(resources.dispose().await());
+
+                            test.assertThrows(() -> resources.getDisplays(),
+                                new PreConditionFailure("this.isDisposed() cannot be true."));
+                        }
+                    }
+                });
+
+                runner.test("when not disposed", (Test test) ->
+                {
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        try (final TestResources resources = TestResources.create(process))
+                        {
+                            final Iterable<Display> displays = resources.getDisplays();
+                            test.assertNotNull(displays);
+                            test.assertSame(process.getDisplays(), displays);
+                            test.assertSame(displays, resources.getDisplays());
+                        }
+                    }
+                });
+            });
+
+            runner.testGroup("getSystemProperties()", () ->
+            {
+                runner.test("when disposed", (Test test) ->
+                {
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        try (final TestResources resources = TestResources.create(process))
+                        {
+                            test.assertTrue(resources.dispose().await());
+
+                            test.assertThrows(() -> resources.getSystemProperties(),
+                                new PreConditionFailure("this.isDisposed() cannot be true."));
+                        }
+                    }
+                });
+
+                runner.test("when not disposed", (Test test) ->
+                {
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        try (final TestResources resources = TestResources.create(process))
+                        {
+                            final Map<String,String> systemProperties = resources.getSystemProperties();
+                            test.assertNotNull(systemProperties);
+                            test.assertSame(process.getSystemProperties(), systemProperties);
+                            test.assertSame(systemProperties, resources.getSystemProperties());
+                        }
+                    }
+                });
+            });
+
+            runner.testGroup("getTypeLoader()", () ->
+            {
+                runner.test("when disposed", (Test test) ->
+                {
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        try (final TestResources resources = TestResources.create(process))
+                        {
+                            test.assertTrue(resources.dispose().await());
+
+                            test.assertThrows(() -> resources.getTypeLoader(),
+                                new PreConditionFailure("this.isDisposed() cannot be true."));
+                        }
+                    }
+                });
+
+                runner.test("when not disposed", (Test test) ->
+                {
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        try (final TestResources resources = TestResources.create(process))
+                        {
+                            final TypeLoader typeLoader = resources.getTypeLoader();
+                            test.assertNotNull(typeLoader);
+                            test.assertSame(process.getTypeLoader(), typeLoader);
+                            test.assertSame(typeLoader, resources.getTypeLoader());
+                        }
+                    }
+                });
+            });
+
+            runner.testGroup("getProcessFactory()", () ->
+            {
+                runner.test("when disposed", (Test test) ->
+                {
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        try (final TestResources resources = TestResources.create(process))
+                        {
+                            test.assertTrue(resources.dispose().await());
+
+                            test.assertThrows(() -> resources.getProcessFactory(),
+                                new PreConditionFailure("this.isDisposed() cannot be true."));
+                        }
+                    }
+                });
+
+                runner.test("when not disposed", (Test test) ->
+                {
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        try (final TestResources resources = TestResources.create(process))
+                        {
+                            final ProcessFactory processFactory = resources.getProcessFactory();
+                            test.assertNotNull(processFactory);
+                            test.assertSame(process.getProcessFactory(), processFactory);
+                            test.assertSame(processFactory, resources.getProcessFactory());
+                        }
+                    }
+                });
+            });
         });
     }
 }

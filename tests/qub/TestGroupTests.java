@@ -180,7 +180,7 @@ public class TestGroupTests
                 runner.test("with non-null skip with no arguments and null parentTestGroup", (Test test) ->
                 {
                     final TestGroup tg = TestGroup.create("ab", null, runner.skip());
-                    test.assertEqual(null, tg.getSkipMessage());
+                    test.assertEqual("", tg.getSkipMessage());
                 });
 
                 runner.test("with non-null skip with false and null parentTestGroup", (Test test) ->
@@ -198,7 +198,7 @@ public class TestGroupTests
                 runner.test("with non-null skip with true and null parentTestGroup", (Test test) ->
                 {
                     final TestGroup tg = TestGroup.create("ab", null, runner.skip(true));
-                    test.assertEqual(null, tg.getSkipMessage());
+                    test.assertEqual("", tg.getSkipMessage());
                 });
 
                 runner.test("with non-null skip with false and message and null parentTestGroup", (Test test) ->
@@ -225,40 +225,40 @@ public class TestGroupTests
 
                 runner.test("with no parent but skip with null message", (Test test) ->
                 {
-                    final TestGroup tg = TestGroup.create("B", null, new Skip(null));
+                    final TestGroup tg = TestGroup.create("B", null, Skip.create());
                     test.assertEqual("B (Skipped)", tg.toString());
                 });
 
                 runner.test("with parent and skip with null message", (Test test) ->
                 {
                     final TestGroup tgParent = TestGroup.create("A", null, null);
-                    final TestGroup tg = TestGroup.create("B", tgParent, new Skip(null));
+                    final TestGroup tg = TestGroup.create("B", tgParent, Skip.create());
                     test.assertEqual("A B (Skipped)", tg.toString());
                 });
 
                 runner.test("with no parent but skip with empty message", (Test test) ->
                 {
-                    final TestGroup tg = TestGroup.create("B", null, new Skip(""));
+                    final TestGroup tg = TestGroup.create("B", null, Skip.create(""));
                     test.assertEqual("B (Skipped)", tg.toString());
                 });
 
                 runner.test("with parent and skip with empty message", (Test test) ->
                 {
                     final TestGroup tgParent = TestGroup.create("A", null, null);
-                    final TestGroup tg = TestGroup.create("B", tgParent, new Skip(""));
+                    final TestGroup tg = TestGroup.create("B", tgParent, Skip.create(""));
                     test.assertEqual("A B (Skipped)", tg.toString());
                 });
 
                 runner.test("with no parent but skip with non-empty message", (Test test) ->
                 {
-                    final TestGroup tg = TestGroup.create("B", null, new Skip("oops"));
+                    final TestGroup tg = TestGroup.create("B", null, Skip.create("oops"));
                     test.assertEqual("B (Skipped: oops)", tg.toString());
                 });
 
                 runner.test("with parent and skip with non-empty message", (Test test) ->
                 {
                     final TestGroup tgParent = TestGroup.create("A", null, null);
-                    final TestGroup tg = TestGroup.create("B", tgParent, new Skip("oops!"));
+                    final TestGroup tg = TestGroup.create("B", tgParent, Skip.create("oops!"));
                     test.assertEqual("A B (Skipped: oops!)", tg.toString());
                 });
             });
@@ -292,7 +292,7 @@ public class TestGroupTests
                 runner.test("with different skip", (Test test) ->
                 {
                     final TestGroup tg = TestGroup.create("B", null, null);
-                    test.assertFalse(tg.equals((Object)TestGroup.create("B", null, new Skip(null))));
+                    test.assertFalse(tg.equals((Object)TestGroup.create("B", null, Skip.create())));
                 });
 
                 runner.test("with same", (Test test) ->

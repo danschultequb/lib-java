@@ -39,14 +39,14 @@ public class FakeTCPServer implements TCPServer
         return this.localPort;
     }
 
-    @Override
-    public Result<TCPClient> accept()
+    private Result<TCPClient> accept(Action0 watchAction)
     {
+        PreCondition.assertNotNull(watchAction, "watchAction");
         PreCondition.assertNotDisposed(this, "this");
 
         return this.mutex.criticalSection(() ->
         {
-            this.hasClientsToAccept.watch().await();
+            watchAction.run();
 
             if (this.isDisposed())
             {
@@ -54,6 +54,14 @@ public class FakeTCPServer implements TCPServer
             }
             return this.clientsToAccept.removeFirst();
         });
+    }
+
+    @Override
+    public Result<TCPClient> accept()
+    {
+        PreCondition.assertNotDisposed(this, "this");
+
+        return this.accept(() -> this.hasClientsToAccept.watch().await());
     }
 
     @Override
@@ -73,16 +81,7 @@ public class FakeTCPServer implements TCPServer
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertNotDisposed(this, "this");
 
-        return this.mutex.criticalSection(timeout, () ->
-        {
-            this.hasClientsToAccept.watch(timeout).await();
-
-            if (this.isDisposed())
-            {
-                throw new IllegalStateException("this.isDisposed() cannot be true.");
-            }
-            return this.clientsToAccept.removeFirst();
-        });
+        return this.accept(() -> this.hasClientsToAccept.watch(timeout).await());
     }
 
     @Override
@@ -101,6 +100,7 @@ public class FakeTCPServer implements TCPServer
             {
                 this.disposed = true;
                 this.network.serverDisposed(this.getLocalIPAddress(), this.getLocalPort());
+                this.hasClientsToAccept.signalAll();
             }
             return result;
         });

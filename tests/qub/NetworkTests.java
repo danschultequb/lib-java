@@ -37,7 +37,7 @@ public interface NetworkTests
                 });
 
                 runner.test("with valid arguments and server listening",
-                    runner.skip("flaky test for FakeNetwork"),
+                    // runner.skip("flaky test for FakeNetwork"),
                     (TestResources resources) -> Tuple.create(resources.getParallelAsyncRunner(), resources.getClock()),
                     (Test test, AsyncRunner parallelAsyncRunner, Clock clock) ->
                 {
@@ -100,6 +100,107 @@ public interface NetworkTests
                     final Network network = creator.run(ManualClock.create());
                     final TCPServer tcpServer = network.createTCPServer(8088).await();
                     test.assertTrue(tcpServer.dispose().await());
+                });
+
+                runner.test("with client and server on parallel threads",
+                    (TestResources resources) -> Tuple.create(resources.getClock(), resources.getParallelAsyncRunner()),
+                    (Test test, Clock clock, AsyncRunner parallelAsyncRunner) ->
+                {
+                    final Network network = creator.run(clock);
+
+                    final IPv4Address address = IPv4Address.localhost;
+                    final int port = 8089;
+
+                    try (final TCPServer tcpServer = network.createTCPServer(address, port).await())
+                    {
+                        try (final TCPClient tcpClient = network.createTCPClient(address, port).await())
+                        {
+                            final Result<Void> serverTask = parallelAsyncRunner.schedule(() ->
+                            {
+                                try (final TCPClient acceptedClient = tcpServer.accept().await())
+                                {
+                                    final CharacterReadStream readStream = CharacterReadStream.create(acceptedClient);
+                                    final CharacterWriteStream writeStream = CharacterWriteStream.create(acceptedClient);
+
+                                    test.assertEqual('a', readStream.readCharacter().await());
+                                    test.assertEqual('b', readStream.readCharacter().await());
+
+                                    test.assertEqual(1, writeStream.write('c').await());
+
+                                    test.assertEqual('e', readStream.readCharacter().await());
+
+                                    test.assertEqual(1, writeStream.write('g').await());
+
+                                    test.assertEqual('f', readStream.readCharacter().await());
+                                }
+                            });
+
+                            final Result<Void> clientTask = parallelAsyncRunner.schedule(() ->
+                            {
+                                final CharacterReadStream readStream = CharacterReadStream.create(tcpClient);
+                                final CharacterWriteStream writeStream = CharacterWriteStream.create(tcpClient);
+
+                                test.assertEqual(2, writeStream.write("ab").await());
+
+                                test.assertEqual('c', readStream.readCharacter().await());
+
+                                test.assertEqual(2, writeStream.write("ef").await());
+
+                                test.assertEqual('g', readStream.readCharacter().await());
+                            });
+
+                            Result.await(serverTask, clientTask);
+                        }
+                    }
+                });
+
+                runner.test("with client on main thread and server on parallel thread",
+                    (TestResources resources) -> Tuple.create(resources.getClock(), resources.getParallelAsyncRunner()),
+                    (Test test, Clock clock, AsyncRunner parallelAsyncRunner) ->
+                {
+                    final Network network = creator.run(clock);
+
+                    final IPv4Address address = IPv4Address.localhost;
+                    final int port = 8089;
+
+                    try (final TCPServer tcpServer = network.createTCPServer(address, port).await())
+                    {
+                        try (final TCPClient tcpClient = network.createTCPClient(address, port).await())
+                        {
+                            final Result<Void> serverTask = parallelAsyncRunner.schedule(() ->
+                            {
+                                try (final TCPClient acceptedClient = tcpServer.accept().await())
+                                {
+                                    final CharacterReadStream readStream = CharacterReadStream.create(acceptedClient);
+                                    final CharacterWriteStream writeStream = CharacterWriteStream.create(acceptedClient);
+
+                                    test.assertEqual('a', readStream.readCharacter().await());
+                                    test.assertEqual('b', readStream.readCharacter().await());
+
+                                    test.assertEqual(1, writeStream.write('c').await());
+
+                                    test.assertEqual('e', readStream.readCharacter().await());
+
+                                    test.assertEqual(1, writeStream.write('g').await());
+
+                                    test.assertEqual('f', readStream.readCharacter().await());
+                                }
+                            });
+
+                            final CharacterReadStream readStream = CharacterReadStream.create(tcpClient);
+                            final CharacterWriteStream writeStream = CharacterWriteStream.create(tcpClient);
+
+                            test.assertEqual(2, writeStream.write("ab").await());
+
+                            test.assertEqual('c', readStream.readCharacter().await());
+
+                            test.assertEqual(2, writeStream.write("ef").await());
+
+                            test.assertEqual('g', readStream.readCharacter().await());
+
+                            Result.await(serverTask);
+                        }
+                    }
                 });
             });
         });
