@@ -8,7 +8,7 @@ public class NotFoundException extends RuntimeException
 {
     /**
      * Create a new NotFoundException with the provided message.
-     * @param message A message explaning the cause of this error.
+     * @param message A message explaining the cause of this error.
      */
     public NotFoundException(String message)
     {
@@ -17,7 +17,7 @@ public class NotFoundException extends RuntimeException
 
     /**
      * Create a new NotFoundException with the provided message.
-     * @param message A message explaning the cause of this error.
+     * @param message A message explaining the cause of this error.
      * @param innerException The exception that caused the NotFoundException.
      */
     public NotFoundException(String message, Throwable innerException)

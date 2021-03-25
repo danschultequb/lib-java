@@ -25,6 +25,8 @@ public class SpinMutex implements Mutex
 
     public static SpinMutex create(Clock clock)
     {
+        PreCondition.assertNotNull(clock, "clock");
+
         return new SpinMutex(clock);
     }
 

@@ -11,20 +11,38 @@ public class FakeTCPServer implements TCPServer
     private final List<FakeTCPClient> clientsToAccept;
     private volatile boolean disposed;
 
-    public FakeTCPServer(IPv4Address localIPAddress, int localPort, FakeNetwork network, Clock clock)
+    private FakeTCPServer(IPv4Address localIPAddress, int localPort, FakeNetwork network, Clock clock)
     {
         PreCondition.assertNotNull(localIPAddress, "localIPAddress");
-        PreCondition.assertBetween(1, localPort, 65535, "localPort");
+        Network.validateLocalPort(localPort);
         PreCondition.assertNotNull(network, "network");
-        PreCondition.assertNotNull(clock, "clock");
 
         this.clock = clock;
         this.localIPAddress = localIPAddress;
         this.localPort = localPort;
         this.network = network;
         this.clientsToAccept = List.create();
-        this.mutex = SpinMutex.create(clock);
+        this.mutex = (clock == null ? SpinMutex.create() : SpinMutex.create(clock));
         this.hasClientsToAccept = this.mutex.createCondition(() -> this.isDisposed() || this.clientsToAccept.any());
+    }
+
+    public static FakeTCPServer create(IPv4Address localIPAddress, int localPort, FakeNetwork network)
+    {
+        PreCondition.assertNotNull(localIPAddress, "localIPAddress");
+        Network.validateLocalPort(localPort);
+        PreCondition.assertNotNull(network, "network");
+
+        return new FakeTCPServer(localIPAddress, localPort, network, null);
+    }
+
+    public static FakeTCPServer create(IPv4Address localIPAddress, int localPort, FakeNetwork network, Clock clock)
+    {
+        PreCondition.assertNotNull(localIPAddress, "localIPAddress");
+        Network.validateLocalPort(localPort);
+        PreCondition.assertNotNull(network, "network");
+        PreCondition.assertNotNull(clock, "clock");
+
+        return new FakeTCPServer(localIPAddress, localPort, network, clock);
     }
 
     @Override
@@ -42,7 +60,6 @@ public class FakeTCPServer implements TCPServer
     private Result<TCPClient> accept(Action0 watchAction)
     {
         PreCondition.assertNotNull(watchAction, "watchAction");
-        PreCondition.assertNotDisposed(this, "this");
 
         return this.mutex.criticalSection(() ->
         {
@@ -50,7 +67,7 @@ public class FakeTCPServer implements TCPServer
 
             if (this.isDisposed())
             {
-                throw new IllegalStateException("this.isDisposed() cannot be true.");
+                throw new SocketClosedException(new java.net.SocketException("Socket is closed"));
             }
             return this.clientsToAccept.removeFirst();
         });
@@ -59,8 +76,6 @@ public class FakeTCPServer implements TCPServer
     @Override
     public Result<TCPClient> accept()
     {
-        PreCondition.assertNotDisposed(this, "this");
-
         return this.accept(() -> this.hasClientsToAccept.watch().await());
     }
 
@@ -69,7 +84,7 @@ public class FakeTCPServer implements TCPServer
     {
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
-        PreCondition.assertNotDisposed(this, "this");
+        PreCondition.assertNotNull(this.clock, "this.clock");
 
         final DateTime dateTimeTimeout = this.clock.getCurrentDateTime().plus(timeout);
         return this.accept(dateTimeTimeout);
@@ -79,7 +94,7 @@ public class FakeTCPServer implements TCPServer
     public Result<TCPClient> accept(DateTime timeout)
     {
         PreCondition.assertNotNull(timeout, "timeout");
-        PreCondition.assertNotDisposed(this, "this");
+        PreCondition.assertNotNull(this.clock, "this.clock");
 
         return this.accept(() -> this.hasClientsToAccept.watch(timeout).await());
     }
@@ -109,6 +124,7 @@ public class FakeTCPServer implements TCPServer
     public void addIncomingClient(FakeTCPClient incomingClient)
     {
         PreCondition.assertNotNull(incomingClient, "incomingClient");
+        PreCondition.assertNotDisposed(incomingClient, "incomingClient");
 
         this.mutex.criticalSection(() ->
         {

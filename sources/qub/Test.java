@@ -1114,6 +1114,15 @@ public class Test
     }
 
     /**
+     * Assert that when the provided action is run it throws an exception.
+     * @param action The action to run.
+     */
+    public Throwable assertThrows(Action0 action)
+    {
+        return this.assertThrows(Throwable.class, action);
+    }
+
+    /**
      * Assert that when the provided action is run it throws an exception that is equal to the
      * provided exception.
      * @param expectedExceptionType The expected exception type.

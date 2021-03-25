@@ -11,10 +11,8 @@ public class FakeNetwork implements Network
 
     private FakeNetwork(Clock clock)
     {
-        PreCondition.assertNotNull(clock, "clock");
-
         this.clock = clock;
-        this.mutex = SpinMutex.create(clock);
+        this.mutex = (clock == null ? SpinMutex.create() : SpinMutex.create(clock));
         this.boundTCPServerAvailable = mutex.createCondition();
         this.boundTCPClients = Map.create();
         this.boundTCPServers = Map.create();
@@ -41,6 +39,7 @@ public class FakeNetwork implements Network
         Network.validateRemoteIPAddress(remoteIPAddress);
         Network.validateRemotePort(remotePort);
         Network.validateTimeout(timeout);
+        PreCondition.assertNotNull(this.clock, "this.clock");
 
         final DateTime dateTimeTimeout = this.clock.getCurrentDateTime().plus(timeout);
         return this.createTCPClient(remoteIPAddress, remotePort, dateTimeTimeout);
@@ -61,6 +60,7 @@ public class FakeNetwork implements Network
         PreCondition.assertNotNull(remoteIPAddress, "remoteIPAddress");
         Network.validateRemoteIPAddress(remoteIPAddress);
         Network.validateRemotePort(remotePort);
+        PreCondition.assertNotNull(this.clock, "this.clock");
 
         final Function0<Result<FakeTCPClient>> function = () ->
         {
@@ -213,7 +213,7 @@ public class FakeNetwork implements Network
                 throw Exceptions.asRuntime(new java.io.IOException("IPAddress (" + localIPAddress + ") and port (" + localPort + ") are already bound."));
             }
 
-            final FakeTCPServer tcpServer = new FakeTCPServer(localIPAddress, localPort, this, clock);
+            final FakeTCPServer tcpServer = FakeTCPServer.create(localIPAddress, localPort, this, this.clock);
 
             this.boundTCPServers.getOrSet(localIPAddress, Map::create).await()
                 .set(localPort, tcpServer);

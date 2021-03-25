@@ -18,6 +18,8 @@ public class JavaMutex implements Mutex
 
     public static JavaMutex create(Clock clock)
     {
+        PreCondition.assertNotNull(clock, "clock");
+
         return new JavaMutex(clock);
     }
 

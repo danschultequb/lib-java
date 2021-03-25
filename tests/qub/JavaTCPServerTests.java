@@ -6,7 +6,15 @@ public interface JavaTCPServerTests
     {
         runner.testGroup(JavaTCPServer.class, () ->
         {
-            final IntegerValue port = IntegerValue.create(20138);
+            final IntegerValue port = IntegerValue.create(20158);
+
+            TCPServerTests.test(runner, (Clock clock) ->
+            {
+                final int serverPort = port.incrementAndGet();
+                return clock == null
+                    ? JavaTCPServer.create(serverPort).await()
+                    : JavaTCPServer.create(serverPort, clock).await();
+            });
 
             runner.testGroup("create(int,Clock)", () ->
             {
@@ -101,7 +109,7 @@ public interface JavaTCPServerTests
 
             runner.testGroup("accept()", () ->
             {
-                runner.test("with connection while accepting on port " + port.incrementAndGet(),
+                runner.test("with connection while accepting on port " + port.incrementAndGet() + " on main thread",
                     (TestResources resources) -> Tuple.create(resources.getClock(), resources.getParallelAsyncRunner()),
                     (Test test, Clock clock, AsyncRunner parallelAsyncRunner) ->
                 {
@@ -138,17 +146,7 @@ public interface JavaTCPServerTests
                     test.assertEqual(bytes, clientReadBytes.get());
                 });
 
-                runner.test("when disposed", (Test test) ->
-                {
-                    final TCPServer tcpServer = JavaTCPServer.create(port.incrementAndGet(), ManualClock.create()).await();
-                    test.assertNotNull(tcpServer);
-                    test.assertTrue(tcpServer.dispose().await());
-
-                    test.assertThrows(() -> tcpServer.accept().await(),
-                        new RuntimeException(new java.net.SocketException("Socket is closed")));
-                });
-
-                runner.test("on ParallelAsyncRunner, with connection while accepting on port " + port.incrementAndGet(),
+                runner.test("with connection while accepting on port " + port.incrementAndGet() + " on parallel thread",
                     (TestResources resources) -> Tuple.create(resources.getClock(), resources.getParallelAsyncRunner()),
                     (Test test, Clock clock, AsyncRunner parallelAsyncRunner) ->
                 {
@@ -180,16 +178,6 @@ public interface JavaTCPServerTests
 
                         test.assertEqual(bytes, clientReadBytes.get());
                     }
-                });
-            });
-
-            runner.testGroup("dispose()", () ->
-            {
-                runner.test("multiple times", (Test test) ->
-                {
-                    final TCPServer tcpServer = JavaTCPServer.create(port.incrementAndGet(), ManualClock.create()).await();
-                    test.assertTrue(tcpServer.dispose().await());
-                    test.assertFalse(tcpServer.dispose().await());
                 });
             });
         });

@@ -10,10 +10,26 @@ class JavaTCPServer implements TCPServer
     private JavaTCPServer(java.net.ServerSocket serverSocket, Clock clock)
     {
         PreCondition.assertNotNull(serverSocket, "serverSocket");
-        PreCondition.assertNotNull(clock, "clock");
 
         this.serverSocket = serverSocket;
         this.clock = clock;
+    }
+
+    static Result<TCPServer> create(int localPort)
+    {
+        Network.validateLocalPort(localPort);
+
+        Result<TCPServer> result;
+        try
+        {
+            final java.net.ServerSocket serverSocket = new java.net.ServerSocket(localPort, JavaTCPServer.tcpClientBacklog);
+            result = Result.success(new JavaTCPServer(serverSocket, null));
+        }
+        catch (Throwable error)
+        {
+            result = Result.error(error);
+        }
+        return result;
     }
 
     static Result<TCPServer> create(int localPort, Clock clock)
@@ -24,8 +40,28 @@ class JavaTCPServer implements TCPServer
         Result<TCPServer> result;
         try
         {
-            final java.net.ServerSocket serverSocket = new java.net.ServerSocket(localPort, tcpClientBacklog);
+            final java.net.ServerSocket serverSocket = new java.net.ServerSocket(localPort, JavaTCPServer.tcpClientBacklog);
             result = Result.success(new JavaTCPServer(serverSocket, clock));
+        }
+        catch (Throwable error)
+        {
+            result = Result.error(error);
+        }
+        return result;
+    }
+
+    static Result<TCPServer> create(IPv4Address localIPAddress, int localPort)
+    {
+        Network.validateLocalIPAddress(localIPAddress);
+        Network.validateLocalPort(localPort);
+
+        Result<TCPServer> result;
+        try
+        {
+            final byte[] localIPAddressBytes = localIPAddress.toBytes();
+            final java.net.InetAddress localInetAddress = java.net.InetAddress.getByAddress(localIPAddressBytes);
+            final java.net.ServerSocket serverSocket = new java.net.ServerSocket(localPort, tcpClientBacklog, localInetAddress);
+            result = Result.success(new JavaTCPServer(serverSocket, null));
         }
         catch (Throwable error)
         {
@@ -58,7 +94,7 @@ class JavaTCPServer implements TCPServer
     @Override
     public IPv4Address getLocalIPAddress()
     {
-        String inetAddressString = serverSocket.getInetAddress().toString();
+        String inetAddressString = this.serverSocket.getInetAddress().toString();
         if (inetAddressString.startsWith("/")) {
             inetAddressString = inetAddressString.substring(1);
         }
@@ -68,7 +104,7 @@ class JavaTCPServer implements TCPServer
     @Override
     public int getLocalPort()
     {
-        return serverSocket.getLocalPort();
+        return this.serverSocket.getLocalPort();
     }
 
     @Override
@@ -77,12 +113,20 @@ class JavaTCPServer implements TCPServer
         Result<TCPClient> result;
         try
         {
-            final java.net.Socket socket = serverSocket.accept();
+            this.serverSocket.setSoTimeout(0);
+            final java.net.Socket socket = this.serverSocket.accept();
             result = JavaTCPClient.create(socket);
         }
         catch (java.io.IOException e)
         {
-            result = Result.error(e);
+            if (Strings.equal(e.getMessage(), "Socket is closed"))
+            {
+                result = Result.error(new SocketClosedException(e));
+            }
+            else
+            {
+                result = Result.error(e);
+            }
         }
         return result;
     }
@@ -91,42 +135,53 @@ class JavaTCPServer implements TCPServer
     public Result<TCPClient> accept(Duration timeout)
     {
         PreCondition.assertNotNull(timeout, "timeout");
-        PreCondition.assertGreaterThan(timeout, Duration.zero, "timeout");
-        PreCondition.assertNotDisposed(this, "this");
+        PreCondition.assertNotNull(this.clock, "this.clock");
 
-        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(timeout);
-        return accept(dateTimeTimeout);
+        Result<TCPClient> result;
+        try
+        {
+            this.serverSocket.setSoTimeout((int)timeout.toMilliseconds().getValue());
+            final java.net.Socket socket = this.serverSocket.accept();
+            result = JavaTCPClient.create(socket);
+        }
+        catch (java.net.SocketTimeoutException e)
+        {
+            result = Result.error(new TimeoutException());
+        }
+        catch (java.io.IOException e)
+        {
+            if (Strings.equal(e.getMessage(), "Socket is closed"))
+            {
+                result = Result.error(new SocketClosedException(e));
+            }
+            else
+            {
+                result = Result.error(e);
+            }
+        }
+        return result;
     }
 
     @Override
     public Result<TCPClient> accept(DateTime timeout)
     {
         PreCondition.assertNotNull(timeout, "timeout");
+        PreCondition.assertNotNull(this.clock, "this.clock");
 
-        Result<TCPClient> result;
-        try
-        {
-            final java.net.Socket socket = serverSocket.accept();
-            result = JavaTCPClient.create(socket);
-        }
-        catch (java.io.IOException e)
-        {
-            result = Result.error(e);
-        }
-        return result;
+        return this.accept(timeout.minus(this.clock.getCurrentDateTime()));
     }
 
     @Override
     public boolean isDisposed()
     {
-        return serverSocket.isClosed();
+        return this.serverSocket.isClosed();
     }
 
     @Override
     public Result<Boolean> dispose()
     {
         Result<Boolean> result;
-        if (isDisposed())
+        if (this.isDisposed())
         {
             result = Result.successFalse();
         }
@@ -134,7 +189,7 @@ class JavaTCPServer implements TCPServer
         {
             try
             {
-                serverSocket.close();
+                this.serverSocket.close();
                 result = Result.successTrue();
             }
             catch (java.io.IOException e)

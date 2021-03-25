@@ -928,6 +928,23 @@ public class PreCondition
     }
 
     /**
+     * Assert that the provided value is greater than or equal to the provided lowerBound and is
+     * less than or equal to the provided upper bound.
+     * @param lowerBound The lower bound.
+     * @param value The value to compare.
+     * @param upperBound The upper bound.
+     * @param variableName The name of variable that produced the value.
+     * @postCondition lowerBound <= value <= upperBound
+     */
+    public static <T extends Comparable<T>> void assertBetween(T lowerBound, T value, T upperBound, String variableName)
+    {
+        if (!Comparer.between(lowerBound, value, upperBound))
+        {
+            throw new PreConditionFailure(AssertionMessages.between(lowerBound, value, upperBound, variableName));
+        }
+    }
+
+    /**
      * Assert that the provided value starts with the provided prefix.
      * @param value The value to check.
      * @param prefix The prefix to look for at the beginning of the provided value.
