@@ -81,12 +81,12 @@ public interface CommandLineParameterHelpTests
 
                         test.assertTrue(helpParameter.showApplicationHelpLines(process).await());
 
-                        test.assertEqual(
+                        test.assertLinesEqual(
                             Iterable.create(
                                 "Usage: fake-application-name [--help]",
                                 "  fake-application-description",
                                 "  --help(?): Show the help message for this application."),
-                            Strings.getLines(process.getOutputWriteStream().getText().await()));
+                            process.getOutputWriteStream());
                         test.assertEqual(-1, process.getExitCode());
                     }
                 });
@@ -102,12 +102,12 @@ public interface CommandLineParameterHelpTests
 
                         test.assertTrue(helpParameter.showApplicationHelpLines(process).await());
 
-                        test.assertEqual(
+                        test.assertLinesEqual(
                             Iterable.create(
                                 "Usage: fake-application-name [--help]",
                                 "  fake-application-description",
                                 "  --help(?): Show the help message for this application."),
-                            Strings.getLines(process.getOutputWriteStream().getText().await()));
+                            process.getOutputWriteStream());
                         test.assertEqual(-1, process.getExitCode());
                     }
                 });
@@ -125,12 +125,12 @@ public interface CommandLineParameterHelpTests
 
                         test.assertTrue(helpParameter.showApplicationHelpLines(process).await());
 
-                        test.assertEqual(
+                        test.assertLinesEqual(
                             Iterable.create(
                                 "Usage: fake-application-name [--help]",
                                 "  fake-application-description",
                                 "  --help(?): Show the help message for this application."),
-                            Strings.getLines(process.getOutputWriteStream().getText().await()));
+                            process.getOutputWriteStream());
                         test.assertEqual(-1, process.getExitCode());
                     }
                 });

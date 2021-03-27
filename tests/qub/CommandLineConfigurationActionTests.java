@@ -105,13 +105,13 @@ public interface CommandLineConfigurationActionTests
                         final CommandLineConfigurationActionParameters getParametersResult = CommandLineConfigurationAction.getParameters(process, action, parameters);
                         test.assertNull(getParametersResult);
 
-                        test.assertEqual(
+                        test.assertLinesEqual(
                             Iterable.create(
                                 "Usage: my-application config [--help]",
                                 "  Open the configuration file for this application.",
                                 "  --help(?): Show the help message for this application."
                             ),
-                            Strings.getLines(process.getOutputWriteStream().getText().await()));
+                            process.getOutputWriteStream());
                     }
                 });
 

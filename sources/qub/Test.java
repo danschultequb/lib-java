@@ -865,6 +865,37 @@ public class Test
     }
 
     /**
+     * Assert that the lines in the provided stream are equal to the provided expected lines. If
+     * they are not equal, then a TestError will be thrown.
+     * @param expected The expected lines.
+     * @param stream The stream that contains the actual text.
+     */
+    public void assertLinesEqual(Iterable<String> expected, InMemoryCharacterStream stream)
+    {
+        PreCondition.assertNotNull(expected, "expected");
+        PreCondition.assertNotNull(stream, "stream");
+        PreCondition.assertNotDisposed(stream, "stream");
+
+        this.assertEqual(expected, Strings.getLines(stream.getText().await()));
+    }
+
+    /**
+     * Assert that the lines in the provided stream are equal to the provided expected lines. If
+     * they are not equal, then a TestError will be thrown.
+     * @param expected The expected lines.
+     * @param stream The stream that contains the actual text.
+     * @param message The message to show if the values are not equal.
+     */
+    public void assertLinesEqual(Iterable<String> expected, InMemoryCharacterStream stream, String message)
+    {
+        PreCondition.assertNotNull(expected, "expected");
+        PreCondition.assertNotNull(stream, "stream");
+        PreCondition.assertNotDisposed(stream, "stream");
+
+        this.assertEqual(expected, Strings.getLines(stream.getText().await()), message);
+    }
+
+    /**
      * Assert that the provided values are not equal. If they are equal, then a TestError
      * will be thrown.
      * @param expected The first value to compare.

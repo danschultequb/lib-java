@@ -259,7 +259,7 @@ public interface DesktopProcessTests
                         builder.setWorkingFolder(workingFolder);
                         test.assertEqual(2, builder.run().await());
 
-                        test.assertEqual(
+                        test.assertLinesEqual(
                             Iterable.create(
                                 "Usage: javac <options> <source files>",
                                 "where possible options include:",
@@ -329,10 +329,10 @@ public interface DesktopProcessTests
                                 "  --version, -version          Version information",
                                 "  -Werror                      Terminate compilation if warnings occur",
                                 ""),
-                            Strings.getLines(output.getText().await()));
-                        test.assertEqual(
+                            output);
+                        test.assertLinesEqual(
                             Iterable.create(),
-                            Strings.getLines(error.getText().await()));
+                            error);
                     }
                 });
 
@@ -353,15 +353,15 @@ public interface DesktopProcessTests
 
                             test.assertEqual(2, builder.run().await());
 
-                            test.assertEqual(
+                            test.assertLinesEqual(
                                 Iterable.create(),
-                                Strings.getLines(output.getText().await()));
-                            test.assertEqual(
+                                output);
+                            test.assertLinesEqual(
                                 Iterable.create(
                                     "error: file not found: notfound.java",
                                     "Usage: javac <options> <source files>",
                                     "use --help for a list of possible options"),
-                                Strings.getLines(error.getText().await()));
+                                error);
                         }
                     }
                 });

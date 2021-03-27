@@ -285,13 +285,13 @@ public interface CommandLineActionsTests
 
                         actions.run(process);
 
-                        test.assertEqual(
+                        test.assertLinesEqual(
                             Iterable.create(
                                 "Usage: hello [--action=]<action-name> [--help]",
                                 "  there",
                                 "  --action(a): The name of the action to invoke.",
                                 "  --help(?):   Show the help message for this application."),
-                            Strings.getLines(process.getOutputWriteStream().getText().await()));
+                            process.getOutputWriteStream());
                         test.assertEqual(-1, process.getExitCode());
                     }
                 });
@@ -306,13 +306,13 @@ public interface CommandLineActionsTests
 
                         actions.run(process);
 
-                        test.assertEqual(
+                        test.assertLinesEqual(
                             Iterable.create(
                                 "Usage: hello [--action=]<action-name> [--help]",
                                 "  there",
                                 "  --action(a): The name of the action to invoke.",
                                 "  --help(?):   Show the help message for this application."),
-                            Strings.getLines(process.getOutputWriteStream().getText().await()));
+                            process.getOutputWriteStream());
                         test.assertEqual(-1, process.getExitCode());
                     }
                 });
@@ -327,7 +327,7 @@ public interface CommandLineActionsTests
 
                         actions.run(process);
 
-                        test.assertEqual(
+                        test.assertLinesEqual(
                             Iterable.create(
                                 "Unrecognized action: \"stuff\"",
                                 "",
@@ -335,7 +335,7 @@ public interface CommandLineActionsTests
                                 "  there",
                                 "  --action(a): The name of the action to invoke.",
                                 "  --help(?):   Show the help message for this application."),
-                            Strings.getLines(process.getOutputWriteStream().getText().await()));
+                            process.getOutputWriteStream());
                         test.assertEqual(-1, process.getExitCode());
                     }
                 });
@@ -352,7 +352,7 @@ public interface CommandLineActionsTests
 
                         actions.run(process);
 
-                        test.assertEqual(
+                        test.assertLinesEqual(
                             Iterable.create(
                                 "Usage: hello [--action=]<action-name> [--help]",
                                 "  there",
@@ -361,7 +361,7 @@ public interface CommandLineActionsTests
                                 "",
                                 "Actions:",
                                 "  update: Perform the update action"),
-                            Strings.getLines(process.getOutputWriteStream().getText().await()));
+                            process.getOutputWriteStream());
                         test.assertEqual(-1, process.getExitCode());
                     }
                 });
@@ -378,7 +378,7 @@ public interface CommandLineActionsTests
 
                         actions.run(process);
 
-                        test.assertEqual(
+                        test.assertLinesEqual(
                             Iterable.create(
                                 "Usage: hello [--action=]<action-name> [--help]",
                                 "  there",
@@ -387,7 +387,7 @@ public interface CommandLineActionsTests
                                 "",
                                 "Actions:",
                                 "  update: Update the thing."),
-                            Strings.getLines(process.getOutputWriteStream().getText().await()));
+                            process.getOutputWriteStream());
                         test.assertEqual(-1, process.getExitCode());
                     }
                 });
@@ -403,7 +403,7 @@ public interface CommandLineActionsTests
 
                         actions.run(process);
 
-                        test.assertEqual(
+                        test.assertLinesEqual(
                             Iterable.create(
                                 "Unrecognized action: \"foo\"",
                                 "",
@@ -414,7 +414,7 @@ public interface CommandLineActionsTests
                                 "",
                                 "Actions:",
                                 "  update: (No description provided)"),
-                            Strings.getLines(process.getOutputWriteStream().getText().await()));
+                            process.getOutputWriteStream());
                         test.assertEqual(-1, process.getExitCode());
                     }
                 });
@@ -432,7 +432,7 @@ public interface CommandLineActionsTests
 
                         actions.run(process);
 
-                        test.assertEqual(
+                        test.assertLinesEqual(
                             Iterable.create(
                                 "Unrecognized action: \"foo\"",
                                 "",
@@ -444,7 +444,7 @@ public interface CommandLineActionsTests
                                 "Actions:",
                                 "  list:   Do the list action.",
                                 "  update: (No description provided)"),
-                            Strings.getLines(process.getOutputWriteStream().getText().await()));
+                            process.getOutputWriteStream());
                         test.assertEqual(-1, process.getExitCode());
                     }
                 });
@@ -462,9 +462,12 @@ public interface CommandLineActionsTests
 
                     actions.run(process);
 
-                        test.assertEqual(
+                        test.assertLinesEqual(
                             Iterable.create(),
-                            Strings.getLines(process.getOutputWriteStream().getText().await()));
+                            process.getOutputWriteStream());
+                        test.assertLinesEqual(
+                            Iterable.create(),
+                            process.getErrorWriteStream());
                         test.assertEqual(0, process.getExitCode());
                     }
                 });
@@ -481,9 +484,9 @@ public interface CommandLineActionsTests
 
                         actions.run(process);
 
-                        test.assertEqual(
+                        test.assertLinesEqual(
                             Iterable.create(),
-                            Strings.getLines(process.getOutputWriteStream().getText().await()));
+                            process.getOutputWriteStream());
                         test.assertEqual(0, process.getExitCode());
                         test.assertEqual(1, value.get());
                     }
@@ -500,12 +503,11 @@ public interface CommandLineActionsTests
                         actions.addAction("update", (DesktopProcess desktopProcess) -> { value.increment(); })
                             .addAlias("u");
 
-
                         actions.run(process);
 
-                        test.assertEqual(
+                        test.assertLinesEqual(
                             Iterable.create(),
-                            Strings.getLines(process.getOutputWriteStream().getText().await()));
+                            process.getOutputWriteStream());
                         test.assertEqual(0, process.getExitCode());
                         test.assertEqual(1, value.get());
                     }

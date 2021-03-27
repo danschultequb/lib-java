@@ -1350,6 +1350,162 @@ public interface TestTests
                 });
             });
 
+            runner.testGroup("assertLinesEqual(Iterable<String>,InMemoryCharacterStream)", () ->
+            {
+                final Action3<Iterable<String>,InMemoryCharacterStream,Throwable> assertLinesEqualErrorTest = (Iterable<String> expectedLines, InMemoryCharacterStream stream, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(expectedLines, Strings.escapeAndQuote(stream == null ? null : stream.getText().await())), (Test test) ->
+                    {
+                        final Test t = TestTests.createTest("abc");
+                        test.assertThrows(() -> t.assertLinesEqual(expectedLines, stream), expected);
+                    });
+                };
+
+                assertLinesEqualErrorTest.run(null, InMemoryCharacterStream.create(), new PreConditionFailure("expected cannot be null."));
+                assertLinesEqualErrorTest.run(Iterable.create(), null, new PreConditionFailure("stream cannot be null."));
+
+                final InMemoryCharacterStream disposedStream = InMemoryCharacterStream.create();
+                disposedStream.dispose().await();
+                assertLinesEqualErrorTest.run(Iterable.create(), disposedStream, new PreConditionFailure("stream.isDisposed() cannot be true."));
+
+                assertLinesEqualErrorTest.run(
+                    Iterable.create(),
+                    InMemoryCharacterStream.create("a").endOfStream(),
+                    new TestError("abc", Iterable.create(
+                        "Expected: []",
+                        "Actual:   [a]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create("a"),
+                    InMemoryCharacterStream.create("b").endOfStream(),
+                    new TestError("abc", Iterable.create(
+                        "Expected: [a]",
+                        "Actual:   [b]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create("a", "b", "c"),
+                    InMemoryCharacterStream.create("a\nb\nc\nd").endOfStream(),
+                    new TestError("abc", Iterable.create(
+                        "Expected: [a,b,c]",
+                        "Actual:   [a,b,c,d]")));
+
+                final Action2<Iterable<String>,InMemoryCharacterStream> assertLinesEqualNoErrorTest = (Iterable<String> expected, InMemoryCharacterStream stream) ->
+                {
+                    runner.test("with " + English.andList(expected, Strings.escapeAndQuote(stream == null ? null : stream.getText().await())), (Test test) ->
+                    {
+                        final Test t = TestTests.createTest("abc");
+                        t.assertLinesEqual(expected, stream);
+                    });
+                };
+
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create(),
+                    InMemoryCharacterStream.create().endOfStream());
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create("abc"),
+                    InMemoryCharacterStream.create("abc").endOfStream());
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create("a", "b", "c"),
+                    InMemoryCharacterStream.create("a\nb\nc").endOfStream());
+            });
+
+            runner.testGroup("assertLinesEqual(Iterable<String>,InMemoryCharacterStream,String)", () ->
+            {
+                final Action4<Iterable<String>,InMemoryCharacterStream,String,Throwable> assertLinesEqualErrorTest = (Iterable<String> expectedLines, InMemoryCharacterStream stream, String message, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(expectedLines, Strings.escapeAndQuote(stream == null ? null : stream.getText().await()), Strings.escapeAndQuote(message)), (Test test) ->
+                    {
+                        final Test t = TestTests.createTest("abc");
+                        test.assertThrows(() -> t.assertLinesEqual(expectedLines, stream, message), expected);
+                    });
+                };
+
+                assertLinesEqualErrorTest.run(null, InMemoryCharacterStream.create(), null, new PreConditionFailure("expected cannot be null."));
+                assertLinesEqualErrorTest.run(Iterable.create(), null, null, new PreConditionFailure("stream cannot be null."));
+
+                final InMemoryCharacterStream disposedStream = InMemoryCharacterStream.create();
+                disposedStream.dispose().await();
+                assertLinesEqualErrorTest.run(Iterable.create(), disposedStream, null, new PreConditionFailure("stream.isDisposed() cannot be true."));
+
+                assertLinesEqualErrorTest.run(
+                    Iterable.create(),
+                    InMemoryCharacterStream.create("a").endOfStream(),
+                    null,
+                    new TestError("abc", Iterable.create(
+                        "Expected: []",
+                        "Actual:   [a]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create(),
+                    InMemoryCharacterStream.create("a").endOfStream(),
+                    "hello",
+                    new TestError("abc", Iterable.create(
+                        "Message:  hello",
+                        "Expected: []",
+                        "Actual:   [a]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create("a"),
+                    InMemoryCharacterStream.create("b").endOfStream(),
+                    null,
+                    new TestError("abc", Iterable.create(
+                        "Expected: [a]",
+                        "Actual:   [b]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create("a"),
+                    InMemoryCharacterStream.create("b").endOfStream(),
+                    "hello",
+                    new TestError("abc", Iterable.create(
+                        "Message:  hello",
+                        "Expected: [a]",
+                        "Actual:   [b]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create("a", "b", "c"),
+                    InMemoryCharacterStream.create("a\nb\nc\nd").endOfStream(),
+                    null,
+                    new TestError("abc", Iterable.create(
+                        "Expected: [a,b,c]",
+                        "Actual:   [a,b,c,d]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create("a", "b", "c"),
+                    InMemoryCharacterStream.create("a\nb\nc\nd").endOfStream(),
+                    "hello",
+                    new TestError("abc", Iterable.create(
+                        "Message:  hello",
+                        "Expected: [a,b,c]",
+                        "Actual:   [a,b,c,d]")));
+
+                final Action3<Iterable<String>,InMemoryCharacterStream,String> assertLinesEqualNoErrorTest = (Iterable<String> expected, InMemoryCharacterStream stream, String message) ->
+                {
+                    runner.test("with " + English.andList(expected, Strings.escapeAndQuote(stream == null ? null : stream.getText().await()), Strings.escapeAndQuote(message)), (Test test) ->
+                    {
+                        final Test t = TestTests.createTest("abc");
+                        t.assertLinesEqual(expected, stream);
+                    });
+                };
+
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create(),
+                    InMemoryCharacterStream.create().endOfStream(),
+                    null);
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create("abc"),
+                    InMemoryCharacterStream.create("abc").endOfStream(),
+                    null);
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create("a", "b", "c"),
+                    InMemoryCharacterStream.create("a\nb\nc").endOfStream(),
+                    null);
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create(),
+                    InMemoryCharacterStream.create().endOfStream(),
+                    "hello");
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create("abc"),
+                    InMemoryCharacterStream.create("abc").endOfStream(),
+                    "hello");
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create("a", "b", "c"),
+                    InMemoryCharacterStream.create("a\nb\nc").endOfStream(),
+                    "hello");
+            });
+
             runner.testGroup("assertNotEqual(T,T)", () ->
             {
                 Action3<String,String,Throwable> assertNotEqualTest = (String expected, String actual, Throwable expectedError) ->
