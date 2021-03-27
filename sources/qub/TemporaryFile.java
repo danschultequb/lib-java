@@ -2,8 +2,7 @@ package qub;
 
 public class TemporaryFile extends File implements Disposable
 {
-    private final RunnableEvent0 onDisposed;
-    private final DisposableAction disposable;
+    private final Disposable disposable;
 
     private TemporaryFile(FileSystem fileSystem, Path path)
     {
@@ -13,13 +12,11 @@ public class TemporaryFile extends File implements Disposable
         PreCondition.assertNotNull(path, "path");
         PreCondition.assertTrue(path.isRooted(), "path.isRooted()");
 
-        this.onDisposed = Event0.create();
-        this.disposable = DisposableAction.create(() ->
+        this.disposable = Disposable.create(() ->
         {
             fileSystem.deleteFile(path)
                 .catchError(NotFoundException.class)
                 .await();
-            this.onDisposed.run();
         });
     }
 
@@ -57,17 +54,5 @@ public class TemporaryFile extends File implements Disposable
     public Result<Boolean> dispose()
     {
         return this.disposable.dispose();
-    }
-
-    /**
-     * Subscribe the provided callback to be invoked when this TemporaryFile is disposed.
-     * @param callback The action to invoke when this TemporaryFile is disposed.
-     * @return The Disposable to dispose to unsubscribe the provided callback.
-     */
-    public Disposable onDisposed(Action0 callback)
-    {
-        PreCondition.assertNotNull(callback, "callback");
-
-        return this.onDisposed.subscribe(callback);
     }
 }

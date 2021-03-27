@@ -60,7 +60,7 @@ class JavaTCPServer implements TCPServer
         {
             final byte[] localIPAddressBytes = localIPAddress.toBytes();
             final java.net.InetAddress localInetAddress = java.net.InetAddress.getByAddress(localIPAddressBytes);
-            final java.net.ServerSocket serverSocket = new java.net.ServerSocket(localPort, tcpClientBacklog, localInetAddress);
+            final java.net.ServerSocket serverSocket = new java.net.ServerSocket(localPort, JavaTCPServer.tcpClientBacklog, localInetAddress);
             result = Result.success(new JavaTCPServer(serverSocket, null));
         }
         catch (Throwable error)
@@ -81,7 +81,7 @@ class JavaTCPServer implements TCPServer
         {
             final byte[] localIPAddressBytes = localIPAddress.toBytes();
             final java.net.InetAddress localInetAddress = java.net.InetAddress.getByAddress(localIPAddressBytes);
-            final java.net.ServerSocket serverSocket = new java.net.ServerSocket(localPort, tcpClientBacklog, localInetAddress);
+            final java.net.ServerSocket serverSocket = new java.net.ServerSocket(localPort, JavaTCPServer.tcpClientBacklog, localInetAddress);
             result = Result.success(new JavaTCPServer(serverSocket, clock));
         }
         catch (Throwable error)
@@ -180,23 +180,21 @@ class JavaTCPServer implements TCPServer
     @Override
     public Result<Boolean> dispose()
     {
-        Result<Boolean> result;
-        if (this.isDisposed())
+        return Result.create(() ->
         {
-            result = Result.successFalse();
-        }
-        else
-        {
-            try
+            final boolean result = !this.isDisposed();
+            if (result)
             {
-                this.serverSocket.close();
-                result = Result.successTrue();
+                try
+                {
+                    this.serverSocket.close();
+                }
+                catch (java.io.IOException e)
+                {
+                    throw Exceptions.asRuntime(e);
+                }
             }
-            catch (java.io.IOException e)
-            {
-                result = Result.error(e);
-            }
-        }
-        return result;
+            return result;
+        });
     }
 }

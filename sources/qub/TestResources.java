@@ -1,9 +1,8 @@
 package qub;
 
-public class TestResources implements Disposable
+public class TestResources extends BasicDisposable
 {
     private final DesktopProcess process;
-    private boolean isDisposed;
     private final List<Disposable> toDispose;
 
     private TestResources(DesktopProcess process)
@@ -19,6 +18,23 @@ public class TestResources implements Disposable
         PreCondition.assertNotNull(process, "process");
 
         return new TestResources(process);
+    }
+
+    @Override
+    public Result<Boolean> dispose()
+    {
+        return Result.create(() ->
+        {
+            final boolean result = super.dispose().await();
+            if (result)
+            {
+                for (final Disposable disposable : this.toDispose)
+                {
+                    disposable.dispose().await();
+                }
+            }
+            return result;
+        });
     }
 
     public FakeDesktopProcess createFakeDesktopProcess()
@@ -164,7 +180,12 @@ public class TestResources implements Disposable
             }
 
             result = TemporaryFolder.get(testTempFolder.getFolder(path).await());
-            result.onDisposed(() -> testTempFolder.delete().await());
+            this.toDispose.add(Disposable.create(() ->
+            {
+                testTempFolder.delete()
+                    .catchError(FolderNotFoundException.class)
+                    .await();
+            }));
         }
 
         if (ensureFolderExists)
@@ -247,7 +268,12 @@ public class TestResources implements Disposable
             }
 
             result = TemporaryFile.get(testTempFolder.getFile(path).await());
-            result.onDisposed(() -> testTempFolder.delete().await());
+            this.toDispose.add(Disposable.create(() ->
+            {
+                testTempFolder.delete()
+                    .catchError(FolderNotFoundException.class)
+                    .await();
+            }));
         }
 
         if (ensureFileExists)
@@ -317,31 +343,5 @@ public class TestResources implements Disposable
         PreCondition.assertNotDisposed(this, "this");
 
         return this.process.getProcessFactory();
-    }
-
-    @Override
-    public boolean isDisposed()
-    {
-        return this.isDisposed;
-    }
-
-    @Override
-    public Result<Boolean> dispose()
-    {
-        return Result.create(() ->
-        {
-            final boolean result = !this.isDisposed;
-            if (result)
-            {
-                this.isDisposed = true;
-
-                for (final Disposable disposable : this.toDispose)
-                {
-                    disposable.dispose().await();
-                }
-                this.toDispose.clear();
-            }
-            return result;
-        });
     }
 }

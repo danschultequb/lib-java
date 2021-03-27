@@ -6,11 +6,11 @@ public interface RuntimeClassLoaderTests
     {
         runner.testGroup(RuntimeClassLoader.class, () ->
         {
-            runner.testGroup("constructor()", () ->
+            runner.testGroup("create()", () ->
             {
                 runner.test("with no arguments", (Test test) ->
                 {
-                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader())
+                    try (final RuntimeClassLoader classLoader = RuntimeClassLoader.create())
                     {
                         test.assertFalse(classLoader.isDisposed());
                         test.assertEqual(Iterable.create(), classLoader.getClassSources());
@@ -22,7 +22,7 @@ public interface RuntimeClassLoaderTests
                     final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     final Folder classFolder = fileSystem.getFolder("/class/source/").await();
                     final File jarFile = fileSystem.getFile("/example.jar").await();
-                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(classFolder, jarFile))
+                    try (final RuntimeClassLoader classLoader = RuntimeClassLoader.create(classFolder, jarFile))
                     {
                         test.assertFalse(classLoader.isDisposed());
                         test.assertEqual(Iterable.create(classFolder, jarFile), classLoader.getClassSources());
@@ -31,31 +31,31 @@ public interface RuntimeClassLoaderTests
 
                 runner.test("with null class sources array", (Test test) ->
                 {
-                    test.assertThrows(() -> new RuntimeClassLoader((FileSystemEntry[])null),
+                    test.assertThrows(() -> RuntimeClassLoader.create((FileSystemEntry[])null),
                         new PreConditionFailure("values cannot be null."));
                 });
 
                 runner.test("with null class source", (Test test) ->
                 {
-                    test.assertThrows(() -> new RuntimeClassLoader((FileSystemEntry)null),
+                    test.assertThrows(() -> RuntimeClassLoader.create((FileSystemEntry)null),
                         new PreConditionFailure("classSource cannot be null."));
                 });
 
                 runner.test("with null class sources Iterable", (Test test) ->
                 {
-                    test.assertThrows(() -> new RuntimeClassLoader((Iterable<FileSystemEntry>)null),
+                    test.assertThrows(() -> RuntimeClassLoader.create((Iterable<FileSystemEntry>)null),
                         new PreConditionFailure("classSources cannot be null."));
                 });
 
                 runner.test("with Iterable with null class source", (Test test) ->
                 {
-                    test.assertThrows(() -> new RuntimeClassLoader(Iterable.create((FileSystemEntry)null)),
+                    test.assertThrows(() -> RuntimeClassLoader.create(Iterable.create((FileSystemEntry)null)),
                         new PreConditionFailure("classSource cannot be null."));
                 });
 
                 runner.test("with null parentClassLoader", (Test test) ->
                 {
-                    test.assertThrows(() -> new RuntimeClassLoader(Iterable.create(), null),
+                    test.assertThrows(() -> RuntimeClassLoader.create(Iterable.create(), null),
                         new PreConditionFailure("parentClassLoader cannot be null."));
                 });
             });
@@ -66,7 +66,7 @@ public interface RuntimeClassLoaderTests
                     (TestResources resources) -> Tuple.create(resources.getTemporaryFolder()),
                     (Test test, Folder nonExistingFolder) ->
                 {
-                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(nonExistingFolder))
+                    try (final RuntimeClassLoader classLoader = RuntimeClassLoader.create(nonExistingFolder))
                     {
                         test.assertThrows(() -> classLoader.loadClass(null),
                             new PreConditionFailure("fullClassName cannot be null."));
@@ -77,7 +77,7 @@ public interface RuntimeClassLoaderTests
                     (TestResources resources) -> Tuple.create(resources.getTemporaryFolder()),
                     (Test test, Folder nonExistingFolder) ->
                 {
-                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(nonExistingFolder))
+                    try (final RuntimeClassLoader classLoader = RuntimeClassLoader.create(nonExistingFolder))
                     {
                         test.assertThrows(() -> classLoader.loadClass(""),
                             new PreConditionFailure("fullClassName cannot be empty."));
@@ -88,7 +88,7 @@ public interface RuntimeClassLoaderTests
                     (TestResources resources) -> Tuple.create(resources.getTemporaryFolder()),
                     (Test test, Folder nonExistingFolder) ->
                 {
-                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(nonExistingFolder))
+                    try (final RuntimeClassLoader classLoader = RuntimeClassLoader.create(nonExistingFolder))
                     {
                         test.assertThrows(() -> classLoader.loadClass("not.a.FakeClass"),
                             new ClassNotFoundException("Could not load a class with the name \"not.a.FakeClass\" from [" + nonExistingFolder + "]."));
@@ -99,7 +99,7 @@ public interface RuntimeClassLoaderTests
                     (TestResources resources) -> Tuple.create(resources.getTemporaryFolder(true)),
                     (Test test, Folder existingFolder) ->
                 {
-                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(existingFolder))
+                    try (final RuntimeClassLoader classLoader = RuntimeClassLoader.create(existingFolder))
                     {
                         test.assertThrows(() -> classLoader.loadClass("not.a.FakeClass"),
                             new ClassNotFoundException("Could not load a class with the name \"not.a.FakeClass\" from [" + existingFolder + "]."));
@@ -110,7 +110,7 @@ public interface RuntimeClassLoaderTests
                     (TestResources resources) -> Tuple.create(resources.getCurrentFolder().getFolder("outputs").await()),
                     (Test test, Folder outputsFolder) ->
                 {
-                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(outputsFolder))
+                    try (final RuntimeClassLoader classLoader = RuntimeClassLoader.create(outputsFolder))
                     {
                         final Class<?> loadedClass = classLoader.loadClass("qub.RuntimeClassLoaderTests");
                         test.assertNotNull(loadedClass);
@@ -123,7 +123,7 @@ public interface RuntimeClassLoaderTests
                     (TestResources resources) -> Tuple.create(resources.getCurrentFolder().getFolder("outputs").await()),
                     (Test test, Folder outputsFolder) ->
                 {
-                    try (final RuntimeClassLoader classLoader = new RuntimeClassLoader(outputsFolder))
+                    try (final RuntimeClassLoader classLoader = RuntimeClassLoader.create(outputsFolder))
                     {
                         test.assertTrue(classLoader.dispose().await());
                         test.assertTrue(classLoader.isDisposed());

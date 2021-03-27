@@ -20,7 +20,7 @@ public class TCPEchoServer implements Disposable
 
     public Result<Void> echo()
     {
-        return tcpServer.accept()
+        return this.tcpServer.accept()
             .then((TCPClient tcpClient) ->
             {
                 try
@@ -37,12 +37,12 @@ public class TCPEchoServer implements Disposable
     @Override
     public boolean isDisposed()
     {
-        return tcpServer.isDisposed();
+        return this.tcpServer.isDisposed();
     }
 
     @Override
     public Result<Boolean> dispose()
     {
-        return tcpServer.dispose();
+        return this.tcpServer.dispose();
     }
 }

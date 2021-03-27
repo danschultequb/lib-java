@@ -1,22 +1,26 @@
 package qub;
 
-public class OutputStreamToByteWriteStream implements ByteWriteStream
+public class OutputStreamToByteWriteStream extends BasicDisposable implements ByteWriteStream
 {
     private final java.io.OutputStream outputStream;
-    private boolean disposed;
     private final boolean autoFlush;
 
-    public OutputStreamToByteWriteStream(java.io.OutputStream outputStream)
-    {
-        this(outputStream, true);
-    }
-
-    public OutputStreamToByteWriteStream(java.io.OutputStream outputStream, boolean autoFlush)
+    private OutputStreamToByteWriteStream(java.io.OutputStream outputStream, boolean autoFlush)
     {
         PreCondition.assertNotNull(outputStream, "outputStream");
 
         this.outputStream = outputStream;
         this.autoFlush = autoFlush;
+    }
+
+    public static OutputStreamToByteWriteStream create(java.io.OutputStream outputStream)
+    {
+        return OutputStreamToByteWriteStream.create(outputStream, true);
+    }
+
+    public static OutputStreamToByteWriteStream create(java.io.OutputStream outputStream, boolean autoFlush)
+    {
+        return new OutputStreamToByteWriteStream(outputStream, autoFlush);
     }
 
     public Result<Void> flush()
@@ -112,32 +116,23 @@ public class OutputStreamToByteWriteStream implements ByteWriteStream
     }
 
     @Override
-    public boolean isDisposed()
-    {
-        return this.disposed;
-    }
-
-    @Override
     public Result<Boolean> dispose()
     {
-        Result<Boolean> result;
-        if (this.disposed)
+        return Result.create(() ->
         {
-            result = Result.successFalse();
-        }
-        else
-        {
-            this.disposed = true;
-            try
+            final boolean result = super.dispose().await();
+            if (result)
             {
-                this.outputStream.close();
-                result = Result.successTrue();
+                try
+                {
+                    this.outputStream.close();
+                }
+                catch (java.io.IOException e)
+                {
+                    throw Exceptions.asRuntime(e);
+                }
             }
-            catch (java.io.IOException e)
-            {
-                result = Result.error(e);
-            }
-        }
-        return result;
+            return result;
+        });
     }
 }

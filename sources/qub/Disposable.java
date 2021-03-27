@@ -3,22 +3,47 @@ package qub;
 public interface Disposable extends java.lang.AutoCloseable
 {
     /**
-     * Create a new DisposableList that will wrap around the provided disposables.
-     * @return The new DisposableList.
+     * Create a new Disposable that will dispose of the provided disposables when it is disposed.
+     * @return The new Disposable.
      */
-    static DisposableList create(Disposable... disposables)
+    static Disposable create(Disposable... disposables)
     {
-        return DisposableList.create(disposables);
+        PreCondition.assertNotNull(disposables, "disposables");
+
+        return Disposable.create(Iterable.create(disposables));
+    }
+
+    /**
+     * Create a new Disposable that will dispose of the provided disposables when it is disposed.
+     * @return The new Disposable.
+     */
+    static Disposable create(Iterable<Disposable> disposables)
+    {
+        PreCondition.assertNotNull(disposables, "disposables");
+
+        return Disposable.create(() ->
+        {
+            for (final Disposable disposable : disposables)
+            {
+                disposable.dispose().await();
+            }
+        });
     }
 
     /**
      * Create a new Disposable that will invoke the provided action when it is disposed.
-     * @param onDispose The action to invoke when the returned Disposable is disposed.
+     * @param action The action to invoke when the Disposable is disposed.
      * @return The new Disposable.
      */
-    static Disposable create(Action0 onDispose)
+    static Disposable create(Action0 action)
     {
-        return DisposableAction.create(onDispose);
+        PreCondition.assertNotNull(action, "action");
+
+        final Disposable result = DisposableAction.create(action);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     @Override

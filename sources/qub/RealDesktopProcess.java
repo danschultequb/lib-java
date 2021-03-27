@@ -82,7 +82,7 @@ public class RealDesktopProcess extends DesktopProcessBase
     @Override
     protected CharacterToByteWriteStream createDefaultOutputWriteStream()
     {
-        return CharacterWriteStream.create(new OutputStreamToByteWriteStream(System.out));
+        return CharacterWriteStream.create(OutputStreamToByteWriteStream.create(java.lang.System.out));
     }
 
     @Override
@@ -94,7 +94,7 @@ public class RealDesktopProcess extends DesktopProcessBase
     @Override
     protected CharacterToByteWriteStream createDefaultErrorWriteStream()
     {
-        return CharacterWriteStream.create(new OutputStreamToByteWriteStream(System.err));
+        return CharacterWriteStream.create(OutputStreamToByteWriteStream.create(java.lang.System.err));
     }
 
     @Override
@@ -106,7 +106,7 @@ public class RealDesktopProcess extends DesktopProcessBase
     @Override
     protected CharacterToByteReadStream createDefaultInputReadStream()
     {
-        return CharacterToByteReadStream.create(new InputStreamToByteReadStream(System.in));
+        return CharacterToByteReadStream.create(new InputStreamToByteReadStream(java.lang.System.in));
     }
 
     @Override

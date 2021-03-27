@@ -104,7 +104,7 @@ public class RealProcessFactory implements ProcessFactory
                 {
                     this.parallelAsyncRunner.schedule(() ->
                     {
-                        final OutputStreamToByteWriteStream processInputStream = new OutputStreamToByteWriteStream(childProcess.getOutputStream(), true);
+                        final OutputStreamToByteWriteStream processInputStream = OutputStreamToByteWriteStream.create(childProcess.getOutputStream(), true);
                         processInputStream.writeAll(redirectedInputStream).catchError().await();
                     });
                 }

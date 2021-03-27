@@ -18,53 +18,54 @@ class JavaTCPClient implements TCPClient
         PreCondition.assertNotNull(socket, "socket");
         PreCondition.assertFalse(socket.isClosed(), "socket.isClosed()");
 
-        Result<TCPClient> result;
-        try
+        return Result.create(() ->
         {
-            final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream());
-            final ByteWriteStream socketWriteStream = new OutputStreamToByteWriteStream(socket.getOutputStream());
-            result = Result.success(new JavaTCPClient(socket, socketReadStream, socketWriteStream));
-        }
-        catch (Throwable e)
-        {
-            result = Result.error(e);
-        }
-        return result;
+            TCPClient result;
+            try
+            {
+                final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream());
+                final ByteWriteStream socketWriteStream = OutputStreamToByteWriteStream.create(socket.getOutputStream());
+                result = new JavaTCPClient(socket, socketReadStream, socketWriteStream);
+            }
+            catch (Throwable e)
+            {
+                throw Exceptions.asRuntime(e);
+            }
+            return result;
+        });
     }
 
     @Override
     public boolean isDisposed()
     {
-        return socket.isClosed();
+        return this.socket.isClosed();
     }
 
     @Override
     public Result<Boolean> dispose()
     {
-        Result<Boolean> result;
-        if (isDisposed())
+        return Result.create(() ->
         {
-            result = Result.successFalse();
-        }
-        else
-        {
-            try
+            final boolean result = !this.isDisposed();
+            if (result)
             {
-                socket.close();
-                result = Result.successTrue();
+                try
+                {
+                    this.socket.close();
+                }
+                catch (java.io.IOException e)
+                {
+                    throw Exceptions.asRuntime(e);
+                }
             }
-            catch (java.io.IOException e)
-            {
-                result = Result.error(e);
-            }
-        }
-        return result;
+            return result;
+        });
     }
 
     @Override
     public IPv4Address getLocalIPAddress()
     {
-        String localInetAddressString = socket.getLocalAddress().toString();
+        String localInetAddressString = this.socket.getLocalAddress().toString();
         if (localInetAddressString.startsWith("/")) {
             localInetAddressString = localInetAddressString.substring(1);
         }
@@ -74,13 +75,13 @@ class JavaTCPClient implements TCPClient
     @Override
     public int getLocalPort()
     {
-        return socket.getLocalPort();
+        return this.socket.getLocalPort();
     }
 
     @Override
     public IPv4Address getRemoteIPAddress()
     {
-        final java.net.InetSocketAddress remoteInetSocketAddress = (java.net.InetSocketAddress)socket.getRemoteSocketAddress();
+        final java.net.InetSocketAddress remoteInetSocketAddress = (java.net.InetSocketAddress)this.socket.getRemoteSocketAddress();
         String remoteInetAddressString = remoteInetSocketAddress.getAddress().toString();
         if (remoteInetAddressString.startsWith("/")) {
             remoteInetAddressString = remoteInetAddressString.substring(1);
@@ -91,7 +92,7 @@ class JavaTCPClient implements TCPClient
     @Override
     public int getRemotePort()
     {
-        final java.net.InetSocketAddress remoteInetSocketAddress = (java.net.InetSocketAddress)socket.getRemoteSocketAddress();
+        final java.net.InetSocketAddress remoteInetSocketAddress = (java.net.InetSocketAddress)this.socket.getRemoteSocketAddress();
         return remoteInetSocketAddress.getPort();
     }
 

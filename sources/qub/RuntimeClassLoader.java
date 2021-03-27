@@ -5,25 +5,25 @@ package qub;
  */
 public class RuntimeClassLoader extends java.net.URLClassLoader implements Disposable
 {
-    private boolean isDisposed;
+    private final Disposable disposable;
     private final Iterable<FileSystemEntry> classSources;
 
     /**
      * Create a new RuntimeClassLoader.
      * @param classSources The sources that classes will be loaded from.
      */
-    public RuntimeClassLoader(FileSystemEntry... classSources)
+    public static RuntimeClassLoader create(FileSystemEntry... classSources)
     {
-        this(Iterable.create(classSources));
+        return RuntimeClassLoader.create(Iterable.create(classSources));
     }
 
     /**
      * Create a new RuntimeClassLoader.
      * @param classSources The sources that classes will be loaded from.
      */
-    public RuntimeClassLoader(Iterable<FileSystemEntry> classSources)
+    public static RuntimeClassLoader create(Iterable<FileSystemEntry> classSources)
     {
-        this(classSources, java.lang.ClassLoader.getSystemClassLoader());
+        return new RuntimeClassLoader(classSources, java.lang.ClassLoader.getSystemClassLoader());
     }
 
     /**
@@ -32,7 +32,18 @@ public class RuntimeClassLoader extends java.net.URLClassLoader implements Dispo
      * @param parentClassLoader The parent ClassLoader that will be searched for the requested class
      *                          before this RuntimeClassLoader is searched.
      */
-    public RuntimeClassLoader(Iterable<FileSystemEntry> classSources, java.lang.ClassLoader parentClassLoader)
+    public static RuntimeClassLoader create(Iterable<FileSystemEntry> classSources, java.lang.ClassLoader parentClassLoader)
+    {
+        return new RuntimeClassLoader(classSources, parentClassLoader);
+    }
+
+    /**
+     * Create a new RuntimeClassLoader with the provided parentClassLoader.
+     * @param classSources The sources that classes will be loaded from.
+     * @param parentClassLoader The parent ClassLoader that will be searched for the requested class
+     *                          before this RuntimeClassLoader is searched.
+     */
+    private RuntimeClassLoader(Iterable<FileSystemEntry> classSources, java.lang.ClassLoader parentClassLoader)
     {
         super(RuntimeClassLoader.getJavaURLsFromClassSources(classSources), parentClassLoader);
 
@@ -40,6 +51,17 @@ public class RuntimeClassLoader extends java.net.URLClassLoader implements Dispo
         PreCondition.assertNotNull(parentClassLoader, "parentClassLoader");
 
         this.classSources = classSources;
+        this.disposable = Disposable.create(() ->
+        {
+            try
+            {
+                super.close();
+            }
+            catch (java.io.IOException e)
+            {
+                throw Exceptions.asRuntime(e);
+            }
+        });
     }
 
     /**
@@ -137,34 +159,12 @@ public class RuntimeClassLoader extends java.net.URLClassLoader implements Dispo
     @Override
     public boolean isDisposed()
     {
-        return this.isDisposed;
+        return this.disposable.isDisposed();
     }
 
     @Override
     public Result<Boolean> dispose()
     {
-        Result<Boolean> result;
-        if (this.isDisposed)
-        {
-            result = Result.successFalse();
-        }
-        else
-        {
-            try
-            {
-                super.close();
-                this.isDisposed = true;
-                result = Result.successTrue();
-            }
-            catch (java.io.IOException e)
-            {
-                result = Result.error(e);
-            }
-
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return this.disposable.dispose();
     }
 }

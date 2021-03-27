@@ -1,13 +1,11 @@
 package qub;
 
-import java.awt.event.ComponentEvent;
-
 public class SwingUIWindow implements UIWindow
 {
     private final AWTUIElementBase uiElementBase;
     private final javax.swing.JFrame jFrame;
     private final PausedAsyncTask<Void> disposedTask;
-    private boolean isDisposed;
+    private final Disposable disposable;
     private AWTUIElement content;
 
     private SwingUIWindow(AWTUIBase uiBase)
@@ -58,6 +56,11 @@ public class SwingUIWindow implements UIWindow
         });
         this.uiElementBase = new AWTUIElementBase(uiBase, this.jFrame);
         this.disposedTask = uiBase.createPausedAsyncTask();
+        this.disposable = Disposable.create(() ->
+        {
+            this.jFrame.dispose();
+            this.disposedTask.schedule();
+        });
     }
 
     public static SwingUIWindow create(AWTUIBase base)
@@ -144,23 +147,13 @@ public class SwingUIWindow implements UIWindow
     @Override
     public boolean isDisposed()
     {
-        return this.isDisposed;
+        return this.disposable.isDisposed();
     }
 
     @Override
     public Result<Boolean> dispose()
     {
-        return Result.create(() ->
-        {
-            boolean result = !this.isDisposed;
-            if (result)
-            {
-                this.isDisposed = true;
-                this.jFrame.dispose();
-                this.disposedTask.schedule();
-            }
-            return result;
-        });
+        return this.disposable.dispose();
     }
 
     /**

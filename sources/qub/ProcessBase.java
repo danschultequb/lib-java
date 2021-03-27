@@ -23,7 +23,7 @@ public abstract class ProcessBase implements Process
     private final AsyncScheduler mainAsyncRunner;
     private final AsyncScheduler parallelAsyncRunner;
 
-    private volatile boolean disposed;
+    private final Disposable disposable;
 
     protected ProcessBase(AsyncScheduler mainAsyncRunner)
     {
@@ -52,6 +52,24 @@ public abstract class ProcessBase implements Process
         CurrentThread.setAsyncRunner(mainAsyncRunner);
 
         this.parallelAsyncRunner = new ParallelAsyncRunner();
+
+        this.disposable = Disposable.create(() ->
+        {
+            if (this.shouldDisposeInputReadStream() && this.inputReadStream.hasValue())
+            {
+                this.inputReadStream.get().dispose().await();
+            }
+
+            if (this.shouldDisposeOutputWriteStream() && this.outputWriteStream.hasValue())
+            {
+                this.outputWriteStream.get().dispose().await();
+            }
+
+            if (this.shouldDisposeErrorWriteStream() && this.errorWriteStream.hasValue())
+            {
+                this.errorWriteStream.get().dispose().await();
+            }
+        });
     }
 
     @Override
@@ -270,35 +288,12 @@ public abstract class ProcessBase implements Process
     @Override
     public boolean isDisposed()
     {
-        return this.disposed;
+        return this.disposable.isDisposed();
     }
 
     @Override
     public Result<Boolean> dispose()
     {
-        return Result.create(() ->
-        {
-            final boolean result = !this.disposed;
-            if (result)
-            {
-                this.disposed = true;
-
-                if (this.shouldDisposeInputReadStream() && this.inputReadStream.hasValue())
-                {
-                    this.inputReadStream.get().dispose().await();
-                }
-
-                if (this.shouldDisposeOutputWriteStream() && this.outputWriteStream.hasValue())
-                {
-                    this.outputWriteStream.get().dispose().await();
-                }
-
-                if (this.shouldDisposeErrorWriteStream() && this.errorWriteStream.hasValue())
-                {
-                    this.errorWriteStream.get().dispose().await();
-                }
-            }
-            return result;
-        });
+        return this.disposable.dispose();
     }
 }

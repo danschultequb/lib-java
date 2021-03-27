@@ -57,9 +57,7 @@ public class BasicIndentedCharacterWriteStream implements IndentedCharacterWrite
     {
         PreCondition.assertNotNull(currentIndent, "currentIndent");
 
-        this.setCurrentIndent(() -> currentIndent);
-
-        return this;
+        return this.setCurrentIndent(() -> currentIndent);
     }
 
     /**
@@ -70,7 +68,7 @@ public class BasicIndentedCharacterWriteStream implements IndentedCharacterWrite
      */
     public String getSingleIndent()
     {
-        return singleIndent;
+        return this.singleIndent;
     }
 
     /**
@@ -150,12 +148,12 @@ public class BasicIndentedCharacterWriteStream implements IndentedCharacterWrite
     @Override
     public boolean isDisposed()
     {
-        return innerStream.isDisposed();
+        return this.innerStream.isDisposed();
     }
 
     @Override
     public Result<Boolean> dispose()
     {
-        return innerStream.dispose();
+        return this.innerStream.dispose();
     }
 }

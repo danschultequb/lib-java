@@ -6,9 +6,9 @@ public interface OutputStreamToByteWriteStreamTests
     {
         runner.testGroup(OutputStreamToByteWriteStream.class, () ->
         {
-            runner.test("constructor()", test ->
+            runner.test("create(java.io.OutputStream)", test ->
             {
-                final OutputStreamToByteWriteStream writeStream = new OutputStreamToByteWriteStream(getOutputStream());
+                final OutputStreamToByteWriteStream writeStream = OutputStreamToByteWriteStream.create(OutputStreamToByteWriteStreamTests.getOutputStream());
                 test.assertFalse(writeStream.isDisposed());
             });
 
@@ -16,14 +16,14 @@ public interface OutputStreamToByteWriteStreamTests
             {
                 runner.test("with no exception", (Test test) ->
                 {
-                    final OutputStreamToByteWriteStream writeStream = getWriteStream(new java.io.ByteArrayOutputStream());
+                    final OutputStreamToByteWriteStream writeStream = OutputStreamToByteWriteStream.create(new java.io.ByteArrayOutputStream());
                     writeStream.close();
                     test.assertTrue(writeStream.isDisposed());
                 });
 
                 runner.test("with exception", (Test test) ->
                 {
-                    final OutputStreamToByteWriteStream writeStream = getWriteStream(new TestStubOutputStream());
+                    final OutputStreamToByteWriteStream writeStream = OutputStreamToByteWriteStream.create(new TestStubOutputStream());
                     test.assertThrows(writeStream::close,
                         new RuntimeException(new java.io.IOException()));
                     test.assertTrue(writeStream.isDisposed());
@@ -31,7 +31,7 @@ public interface OutputStreamToByteWriteStreamTests
 
                 runner.test("when already disposed", (Test test) ->
                 {
-                    final OutputStreamToByteWriteStream writeStream = getWriteStream(new java.io.ByteArrayOutputStream());
+                    final OutputStreamToByteWriteStream writeStream = OutputStreamToByteWriteStream.create(new java.io.ByteArrayOutputStream());
                     test.assertTrue(writeStream.dispose().await());
                     test.assertTrue(writeStream.isDisposed());
 
@@ -46,7 +46,7 @@ public interface OutputStreamToByteWriteStreamTests
                 {
                     runner.test("with " + outputStream.getClass().getSimpleName() + " and " + toWrite, test ->
                     {
-                        final OutputStreamToByteWriteStream writeStream = getWriteStream(outputStream);
+                        final OutputStreamToByteWriteStream writeStream = OutputStreamToByteWriteStream.create(outputStream);
                         final Result<Integer> writeResult = writeStream.write(toWrite);
                         if (expectedWriteResult)
                         {
@@ -76,7 +76,7 @@ public interface OutputStreamToByteWriteStreamTests
                 {
                     runner.test("with " + outputStream.getClass().getSimpleName() + " and " + Array.toString(toWrite), test ->
                     {
-                        final OutputStreamToByteWriteStream writeStream = getWriteStream(outputStream);
+                        final OutputStreamToByteWriteStream writeStream = OutputStreamToByteWriteStream.create(outputStream);
 
                         if (expectedError != null)
                         {
@@ -109,7 +109,7 @@ public interface OutputStreamToByteWriteStreamTests
                 {
                     runner.test("with " + Types.getTypeName(outputStream) + ", " + Array.toString(toWrite) + ", " + startIndex + ", and " + length, test ->
                     {
-                        final OutputStreamToByteWriteStream writeStream = getWriteStream(outputStream);
+                        final OutputStreamToByteWriteStream writeStream = OutputStreamToByteWriteStream.create(outputStream);
 
                         if (expectedError == null)
                         {
@@ -144,10 +144,5 @@ public interface OutputStreamToByteWriteStreamTests
     static java.io.ByteArrayOutputStream getOutputStream()
     {
         return new java.io.ByteArrayOutputStream();
-    }
-
-    static OutputStreamToByteWriteStream getWriteStream(java.io.OutputStream outputStream)
-    {
-        return new OutputStreamToByteWriteStream(outputStream);
     }
 }

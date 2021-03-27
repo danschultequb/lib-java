@@ -93,7 +93,7 @@ public class VerboseCharacterToByteWriteStream implements LinePrefixCharacterToB
     public Result<Integer> write(char toWrite)
     {
         return this.isVerbose
-            ? innerStream.write(toWrite)
+            ? this.innerStream.write(toWrite)
             : Result.successZero();
     }
 
@@ -101,7 +101,7 @@ public class VerboseCharacterToByteWriteStream implements LinePrefixCharacterToB
     public Result<Integer> write(char[] toWrite, int startIndex, int length)
     {
         return this.isVerbose
-            ? innerStream.write(toWrite, startIndex, length)
+            ? this.innerStream.write(toWrite, startIndex, length)
             : Result.successZero();
     }
 
@@ -109,7 +109,7 @@ public class VerboseCharacterToByteWriteStream implements LinePrefixCharacterToB
     public Result<Integer> write(String toWrite, Object... formattedStringArguments)
     {
         return this.isVerbose
-            ? innerStream.write(toWrite, formattedStringArguments)
+            ? this.innerStream.write(toWrite, formattedStringArguments)
             : Result.successZero();
     }
 
@@ -117,20 +117,20 @@ public class VerboseCharacterToByteWriteStream implements LinePrefixCharacterToB
     public Result<Integer> writeLine()
     {
         return this.isVerbose
-            ? innerStream.writeLine()
+            ? this.innerStream.writeLine()
             : Result.successZero();
     }
 
     @Override
     public boolean isDisposed()
     {
-        return innerStream.isDisposed();
+        return this.innerStream.isDisposed();
     }
 
     @Override
     public Result<Boolean> dispose()
     {
-        return innerStream.dispose();
+        return this.innerStream.dispose();
     }
 
     @Override

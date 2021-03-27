@@ -366,8 +366,8 @@ public class JavaFileSystem implements FileSystem
             };
             try
             {
-                result = ByteWriteStream.buffer(
-                            new OutputStreamToByteWriteStream(
+                result = BufferedByteWriteStream.create(
+                            OutputStreamToByteWriteStream.create(
                                 java.nio.file.Files.newOutputStream(
                                     java.nio.file.Paths.get(rootedFilePath.toString()),
                                     openWriteOptions)));
@@ -377,8 +377,8 @@ public class JavaFileSystem implements FileSystem
                 try
                 {
                     this.createFolder(rootedFilePath.getParent().await()).await();
-                    result = ByteWriteStream.buffer(
-                                new OutputStreamToByteWriteStream(
+                    result = BufferedByteWriteStream.create(
+                                OutputStreamToByteWriteStream.create(
                                     java.nio.file.Files.newOutputStream(
                                         java.nio.file.Paths.get(rootedFilePath.toString()),
                                         openWriteOptions)));

@@ -38,7 +38,7 @@ public class BasicCharacterToByteReadStream implements CharacterToByteReadStream
     @Override
     public CharacterEncoding getCharacterEncoding()
     {
-        return characterEncoding;
+        return this.characterEncoding;
     }
 
     @Override
@@ -54,13 +54,13 @@ public class BasicCharacterToByteReadStream implements CharacterToByteReadStream
     @Override
     public boolean isDisposed()
     {
-        return byteReadStream.isDisposed();
+        return this.byteReadStream.isDisposed();
     }
 
     @Override
     public Result<Boolean> dispose()
     {
-        return byteReadStream.dispose();
+        return this.byteReadStream.dispose();
     }
 
     @Override

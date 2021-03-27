@@ -2,7 +2,6 @@ package qub;
 
 public class TemporaryFolder extends Folder implements Disposable
 {
-    private final RunnableEvent0 onDisposed;
     private final Disposable disposable;
 
     private TemporaryFolder(FileSystem fileSystem, Path folderPath)
@@ -13,13 +12,11 @@ public class TemporaryFolder extends Folder implements Disposable
         PreCondition.assertNotNull(folderPath, "folderPath");
         PreCondition.assertTrue(folderPath.isRooted(), "folderPath.isRooted()");
 
-        this.onDisposed = Event0.create();
         this.disposable = Disposable.create(() ->
         {
             fileSystem.deleteFolder(folderPath)
                 .catchError(NotFoundException.class)
                 .await();
-            this.onDisposed.run();
         });
     }
 
@@ -57,17 +54,5 @@ public class TemporaryFolder extends Folder implements Disposable
     public Result<Boolean> dispose()
     {
         return this.disposable.dispose();
-    }
-
-    /**
-     * Subscribe the provided callback to be invoked when this TemporaryFolder is disposed.
-     * @param callback The action to invoke when this TemporaryFolder is disposed.
-     * @return The Disposable to dispose to unsubscribe the provided callback.
-     */
-    public Disposable onDisposed(Action0 callback)
-    {
-        PreCondition.assertNotNull(callback, "callback");
-
-        return this.onDisposed.subscribe(callback);
     }
 }

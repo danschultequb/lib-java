@@ -212,11 +212,7 @@ public interface UIElement
         {
             final Disposable sizeChangedSubscription = this.onSizeChanged(callback);
             final Disposable paddingChangedSubscription = this.onPaddingChanged(callback);
-            return Disposable.create(() ->
-            {
-                sizeChangedSubscription.dispose().await();
-                paddingChangedSubscription.dispose().await();
-            });
+            return Disposable.create(sizeChangedSubscription, paddingChangedSubscription);
         });
     }
 

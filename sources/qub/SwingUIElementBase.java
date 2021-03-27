@@ -316,7 +316,11 @@ public class SwingUIElementBase extends AWTUIElementBase
             }
         };
         jTextComponent.getDocument().addDocumentListener(documentListener);
-        return Disposable.create(() -> jTextComponent.getDocument().removeDocumentListener(documentListener));
+        final Disposable result = Disposable.create(() -> jTextComponent.getDocument().removeDocumentListener(documentListener));
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     @Override
