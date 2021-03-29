@@ -37,11 +37,12 @@ public class TestResources extends BasicDisposable
         });
     }
 
-    public FakeDesktopProcess createFakeDesktopProcess()
+    public FakeDesktopProcess createFakeDesktopProcess(String... arguments)
     {
+        PreCondition.assertNotNull(arguments, "arguments");
         PreCondition.assertNotDisposed(this, "this");
 
-        final FakeDesktopProcess result = FakeDesktopProcess.create();
+        final FakeDesktopProcess result = FakeDesktopProcess.create(arguments);
         this.toDispose.add(result);
 
         PostCondition.assertNotNull(result, "result");

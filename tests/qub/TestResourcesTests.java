@@ -30,7 +30,7 @@ public interface TestResourcesTests
                 });
             });
 
-            runner.test("createFakeDesktopProcess()", (Test test) ->
+            runner.test("createFakeDesktopProcess(String...)", (Test test) ->
             {
                 try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                 {
