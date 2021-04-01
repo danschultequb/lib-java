@@ -2,7 +2,7 @@ package qub;
 
 public class CommandLineParameterVerbose extends CommandLineParameterBoolean
 {
-    private CharacterToByteWriteStream writeStream;
+    private final CharacterToByteWriteStream writeStream;
 
     public CommandLineParameterVerbose(CharacterToByteWriteStream writeStream)
     {
@@ -24,77 +24,66 @@ public class CommandLineParameterVerbose extends CommandLineParameterBoolean
     @Override
     public CommandLineParameterVerbose setDescription(String description)
     {
-        super.setDescription(description);
-        return this;
+        return (CommandLineParameterVerbose)super.setDescription(description);
     }
 
     @Override
     public CommandLineParameterVerbose setAliases(Iterable<String> aliases)
     {
-        super.setAliases(aliases);
-        return this;
+        return (CommandLineParameterVerbose)super.setAliases(aliases);
     }
 
     @Override
     public CommandLineParameterVerbose setAliases(String... aliases)
     {
-        super.setAliases(aliases);
-        return this;
+        return (CommandLineParameterVerbose)super.setAliases(aliases);
     }
 
     @Override
     public CommandLineParameterVerbose addAlias(String alias)
     {
-        super.addAlias(alias);
-        return this;
+        return (CommandLineParameterVerbose)super.addAlias(alias);
     }
 
     @Override
     public CommandLineParameterVerbose addAliases(String... aliases)
     {
-        super.addAliases(aliases);
-        return this;
+        return (CommandLineParameterVerbose)super.addAliases(aliases);
     }
 
     @Override
     public CommandLineParameterVerbose addAliases(Iterable<String> aliases)
     {
-        super.addAliases(aliases);
-        return this;
+        return (CommandLineParameterVerbose)super.addAliases(aliases);
     }
 
     @Override
     public CommandLineParameterVerbose setValueName(String valueName)
     {
-        super.setValueName(valueName);
-        return this;
+        return (CommandLineParameterVerbose)super.setValueName(valueName);
     }
 
     @Override
     public CommandLineParameterVerbose setRequired(boolean required)
     {
-        super.setRequired(required);
-        return this;
+        return (CommandLineParameterVerbose)super.setRequired(required);
     }
 
     @Override
     public CommandLineParameterVerbose setValueRequired(boolean valueRequired)
     {
-        super.setValueRequired(valueRequired);
-        return this;
+        return (CommandLineParameterVerbose)super.setValueRequired(valueRequired);
     }
 
     @Override
     public CommandLineParameterVerbose setArguments(CommandLineArguments arguments)
     {
-        super.setArguments(arguments);
-        return this;
+        return (CommandLineParameterVerbose)super.setArguments(arguments);
     }
 
-    public CommandLineParameterVerbose setWriteStream(CharacterToByteWriteStream writeStream)
+    public boolean isVerbose()
     {
-        this.writeStream = writeStream;
-        return this;
+        return this.getValue().await();
     }
 
     public Result<VerboseCharacterToByteWriteStream> getVerboseCharacterToByteWriteStream()
@@ -102,22 +91,7 @@ public class CommandLineParameterVerbose extends CommandLineParameterBoolean
         return Result.create(() ->
         {
             return VerboseCharacterToByteWriteStream.create(this.writeStream)
-                .setIsVerbose(this.getValue().await());
-        });
-    }
-
-    public Result<Void> writeLine(String message)
-    {
-        PreCondition.assertNotNull(message, "message");
-        PreCondition.assertNotNull(writeStream, "writeStream");
-        PreCondition.assertNotDisposed(writeStream, "writeStream");
-
-        return Result.create(() ->
-        {
-            if (getValue().await())
-            {
-                writeStream.writeLine("VERBOSE: " + message).await();
-            }
+                .setIsVerbose(this.isVerbose());
         });
     }
 }
