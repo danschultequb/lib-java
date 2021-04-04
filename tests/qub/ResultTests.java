@@ -21,14 +21,14 @@ public interface ResultTests
 
             runner.test("successFalse()", (Test test) ->
             {
-                final SyncResult<Boolean> result = Result.successFalse();
+                final Result<Boolean> result = Result.successFalse();
                 test.assertFalse(result.await());
                 test.assertSame(result, Result.successFalse());
             });
 
             runner.test("successTrue()", (Test test) ->
             {
-                final SyncResult<Boolean> result = Result.successTrue();
+                final Result<Boolean> result = Result.successTrue();
                 test.assertTrue(result.await());
                 test.assertSame(result, Result.successTrue());
             });

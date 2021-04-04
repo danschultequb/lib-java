@@ -1,6 +1,6 @@
 package qub;
 
-public class LogStreams
+public class LogStreams implements Disposable
 {
     private final File logFile;
     private final CharacterToByteWriteStream logStream;
@@ -48,5 +48,17 @@ public class LogStreams
     public VerboseCharacterToByteWriteStream getVerbose()
     {
         return this.verbose;
+    }
+
+    @Override
+    public boolean isDisposed()
+    {
+        return this.logStream.isDisposed();
+    }
+
+    @Override
+    public Result<Boolean> dispose()
+    {
+        return this.logStream.dispose();
     }
 }

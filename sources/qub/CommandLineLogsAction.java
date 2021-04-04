@@ -121,13 +121,27 @@ public interface CommandLineLogsAction
     }
 
     /**
+     * Combine the streams from the provided process with a log stream so that any characters that
+     * are written to the provided streams will also be written to log stream.
+     * @param process The process running application/project.
+     */
+    static LogStreams getLogStreamsFromDesktopProcess(DesktopProcess process, VerboseCharacterToByteWriteStream verbose)
+    {
+        PreCondition.assertNotNull(process, "process");
+        PreCondition.assertNotNull(verbose, "verbose");
+
+        final Folder dataFolder = process.getQubProjectDataFolder().await();
+        return CommandLineLogsAction.getLogStreamsFromDataFolder(dataFolder, process.getOutputWriteStream(), process.getErrorWriteStream(), verbose);
+    }
+
+    /**
      * Combine the provided streams with a log stream so that any characters that are written to
      * the provided streams will also be written to log stream.
      * @param projectDataFolder The data folder for the running application/project.
      */
-    static LogStreams addLogStreamFromDataFolder(Folder projectDataFolder, CharacterToByteWriteStream output, VerboseCharacterToByteWriteStream verbose)
+    static LogStreams getLogStreamsFromDataFolder(Folder projectDataFolder, CharacterToByteWriteStream output, VerboseCharacterToByteWriteStream verbose)
     {
-        return CommandLineLogsAction.addLogStreamFromDataFolder(projectDataFolder, output, null, verbose);
+        return CommandLineLogsAction.getLogStreamsFromDataFolder(projectDataFolder, output, null, verbose);
     }
 
     /**
@@ -135,12 +149,12 @@ public interface CommandLineLogsAction
      * the provided streams will also be written to log stream.
      * @param dataFolder The data folder for the running application/project.
      */
-    static LogStreams addLogStreamFromDataFolder(Folder dataFolder, CharacterToByteWriteStream output, CharacterToByteWriteStream error, VerboseCharacterToByteWriteStream verbose)
+    static LogStreams getLogStreamsFromDataFolder(Folder dataFolder, CharacterToByteWriteStream output, CharacterToByteWriteStream error, VerboseCharacterToByteWriteStream verbose)
     {
         PreCondition.assertNotNull(dataFolder, "projectDataFolder");
 
         final Folder logsFolder = CommandLineLogsAction.getLogsFolderFromDataFolder(dataFolder);
-        return CommandLineLogsAction.addLogStreamFromLogsFolder(logsFolder, output, error, verbose);
+        return CommandLineLogsAction.getLogStreamsFromLogsFolder(logsFolder, output, error, verbose);
     }
 
     /**
@@ -148,9 +162,9 @@ public interface CommandLineLogsAction
      * the provided streams will also be written to log stream.
      * @param logsFolder The logs folder for the running application/project.
      */
-    static LogStreams addLogStreamFromLogsFolder(Folder logsFolder, CharacterToByteWriteStream output, VerboseCharacterToByteWriteStream verbose)
+    static LogStreams getLogStreamsFromLogsFolder(Folder logsFolder, CharacterToByteWriteStream output, VerboseCharacterToByteWriteStream verbose)
     {
-        return CommandLineLogsAction.addLogStreamFromLogsFolder(logsFolder, output, null, verbose);
+        return CommandLineLogsAction.getLogStreamsFromLogsFolder(logsFolder, output, null, verbose);
     }
 
     /**
@@ -158,12 +172,12 @@ public interface CommandLineLogsAction
      * the provided streams will also be written to log stream.
      * @param logsFolder The logs folder for the running application/project.
      */
-    static LogStreams addLogStreamFromLogsFolder(Folder logsFolder, CharacterToByteWriteStream output, CharacterToByteWriteStream error, VerboseCharacterToByteWriteStream verbose)
+    static LogStreams getLogStreamsFromLogsFolder(Folder logsFolder, CharacterToByteWriteStream output, CharacterToByteWriteStream error, VerboseCharacterToByteWriteStream verbose)
     {
         PreCondition.assertNotNull(logsFolder, "logsFolder");
 
         final File logFile = CommandLineLogsAction.getLogFileFromLogsFolder(logsFolder);
-        return CommandLineLogsAction.addLogStreamFromLogFile(logFile, output, error, verbose);
+        return CommandLineLogsAction.getLogStreamsFromLogFile(logFile, output, error, verbose);
     }
 
     /**
@@ -171,9 +185,9 @@ public interface CommandLineLogsAction
      * the provided streams will also be written to log stream.
      * @param logFile The file that the combined streams will log to.
      */
-    static LogStreams addLogStreamFromLogFile(File logFile, CharacterToByteWriteStream output, VerboseCharacterToByteWriteStream verbose)
+    static LogStreams getLogStreamsFromLogFile(File logFile, CharacterToByteWriteStream output, VerboseCharacterToByteWriteStream verbose)
     {
-        return CommandLineLogsAction.addLogStreamFromLogFile(logFile, output, null, verbose);
+        return CommandLineLogsAction.getLogStreamsFromLogFile(logFile, output, null, verbose);
     }
 
     /**
@@ -181,7 +195,7 @@ public interface CommandLineLogsAction
      * the provided streams will also be written to log stream.
      * @param logFile The file that the combined streams will log to.
      */
-    static LogStreams addLogStreamFromLogFile(File logFile, CharacterToByteWriteStream output, CharacterToByteWriteStream error, VerboseCharacterToByteWriteStream verbose)
+    static LogStreams getLogStreamsFromLogFile(File logFile, CharacterToByteWriteStream output, CharacterToByteWriteStream error, VerboseCharacterToByteWriteStream verbose)
     {
         PreCondition.assertNotNull(logFile, "logFile");
 

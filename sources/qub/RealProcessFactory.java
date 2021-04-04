@@ -1,7 +1,5 @@
 package qub;
 
-import java.io.IOException;
-
 /**
  * A ProcessFactory implementation that invokes external processes.
  */

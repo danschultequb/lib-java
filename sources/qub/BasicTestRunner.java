@@ -32,17 +32,6 @@ public final class BasicTestRunner implements TestRunner
      * @param process The Process that is running the tests.
      * @param testPattern The pattern that tests must match in order to be run.
      */
-    @Deprecated
-    public BasicTestRunner(Process process, PathPattern testPattern)
-    {
-        this((DesktopProcess)process, testPattern);
-    }
-
-    /**
-     * Create a new BasicTestRunner object.
-     * @param process The Process that is running the tests.
-     * @param testPattern The pattern that tests must match in order to be run.
-     */
     private BasicTestRunner(DesktopProcess process, PathPattern testPattern)
     {
         PreCondition.assertNotNull(process, "process");

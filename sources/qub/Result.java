@@ -390,7 +390,7 @@ public interface Result<T>
      * Create a new empty successful Result.
      * @param <U> The type of value the Result should contain.
      */
-    static <U> SyncResult<U> success()
+    static <U> Result<U> success()
     {
         return SyncResult.success();
     }
@@ -398,7 +398,7 @@ public interface Result<T>
     /**
      * Get a successful Result that contains a 0 Integer value.
      */
-    static SyncResult<Integer> successZero()
+    static Result<Integer> successZero()
     {
         return SyncResult.successZero();
     }
@@ -406,7 +406,7 @@ public interface Result<T>
     /**
      * Get a successful Result that contains a 1 Integer value.
      */
-    static SyncResult<Integer> successOne()
+    static Result<Integer> successOne()
     {
         return SyncResult.successOne();
     }
@@ -414,7 +414,7 @@ public interface Result<T>
     /**
      * Get a successful Result that contains a true boolean value.
      */
-    static SyncResult<Boolean> successTrue()
+    static Result<Boolean> successTrue()
     {
         return SyncResult.successTrue();
     }
@@ -422,7 +422,7 @@ public interface Result<T>
     /**
      * Get a successful Result that contains a true boolean value.
      */
-    static SyncResult<Boolean> successFalse()
+    static Result<Boolean> successFalse()
     {
         return SyncResult.successFalse();
     }
@@ -432,7 +432,7 @@ public interface Result<T>
      * @param value The value the Result should contain.
      * @param <U> The type of the value.
      */
-    static <U> SyncResult<U> success(U value)
+    static <U> Result<U> success(U value)
     {
         return SyncResult.success(value);
     }
@@ -441,7 +441,7 @@ public interface Result<T>
      * Create a new Result by synchronously running the provided Action and returning the result.
      * @param action The action to run.
      */
-    static SyncResult<Void> create(Action0 action)
+    static Result<Void> create(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
@@ -453,7 +453,7 @@ public interface Result<T>
      * @param function The function to run.
      * @param <U> The type of value the function will return.
      */
-    static <U> SyncResult<U> create(Function0<U> function)
+    static <U> Result<U> create(Function0<U> function)
     {
         PreCondition.assertNotNull(function, "function");
 
@@ -575,7 +575,7 @@ public interface Result<T>
      * @param error The error that the Result should contain.
      * @param <U> The type of value the Result can contain.
      */
-    static <U> SyncResult<U> error(Throwable error)
+    static <U> Result<U> error(Throwable error)
     {
         PreCondition.assertNotNull(error, "error");
 
@@ -587,7 +587,7 @@ public interface Result<T>
      * @param <U> The type of value that the Result can contain.
      * @return A Result that contains an end of stream error.
      */
-    static <U> SyncResult<U> endOfStream()
+    static <U> Result<U> endOfStream()
     {
         return SyncResult.endOfStream();
     }

@@ -213,6 +213,6 @@ public class SyncResult<T> implements Result<T>
      */
     public static <U> SyncResult<U> endOfStream()
     {
-        return Result.error(new EndOfStreamException());
+        return SyncResult.error(new EndOfStreamException());
     }
 }
