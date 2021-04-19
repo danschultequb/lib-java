@@ -60,7 +60,7 @@ public interface List<T> extends MutableIndexable<T>
      */
     default List<T> add(T value)
     {
-        return this.insert(getCount(), value);
+        return this.insert(this.getCount(), value);
     }
 
     /**
@@ -69,6 +69,40 @@ public interface List<T> extends MutableIndexable<T>
      * @param value The value to insert into the List.
      */
     List<T> insert(int insertIndex, T value);
+
+    /**
+     * Insert the provided values into this List at the provided insertIndex.
+     * @param insertIndex The insertIndex to insert the provided values at.
+     * @param values The values to insert into the List.
+     * @return This object for method chaining.
+     */
+    default List<T> insertAll(int insertIndex, Iterable<T> values)
+    {
+        PreCondition.assertBetween(0, insertIndex, this.getCount(), "insertIndex");
+        PreCondition.assertNotNull(values, "values");
+
+        return this.insertAll(insertIndex, values.iterate());
+    }
+
+    /**
+     * Insert the provided values into this List at the provided insertIndex.
+     * @param insertIndex The insertIndex to insert the provided values at.
+     * @param values The values to insert into the List.
+     * @return This object for method chaining.
+     */
+    default List<T> insertAll(int insertIndex, Iterator<T> values)
+    {
+        PreCondition.assertBetween(0, insertIndex, this.getCount(), "insertIndex");
+        PreCondition.assertNotNull(values, "values");
+
+        int insertOffset = 0;
+        for (final T value : values)
+        {
+            this.insert(insertIndex + insertOffset++, value);
+        }
+
+        return this;
+    }
 
     /**
      * Add the provided values at the end of this List.

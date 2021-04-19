@@ -228,9 +228,11 @@ public class BasicBinaryTree<T> implements BinaryTree<T>
     }
 
     @Override
-    public Iterator<T> iterate()
+    public Iterator<T> iterate(Traversal<Node2<T>, T> traversal)
     {
-        return this.root == null ? Iterator.create() : BinaryTreeIterator.create(this.root);
+        PreCondition.assertNotNull(traversal, "traversal");
+
+        return traversal.iterate(this.root);
     }
 
     @Override

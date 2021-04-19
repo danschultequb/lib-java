@@ -97,6 +97,19 @@ public class Stack<T>
     }
 
     /**
+     * Push each of the provided values on top of this Stack. The last value in the Iterator will be
+     * the new top of this Stack.
+     * @param values The values to push on top of this Stack.
+     */
+    public Stack<T> pushAll(Iterator<T> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        this.values.addAll(values);
+        return this;
+    }
+
+    /**
      * Remove and return the most recently pushed value. If the Stack is empty, then null will be
      * returned.
      * @return The most recently pushed value.

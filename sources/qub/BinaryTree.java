@@ -1,6 +1,6 @@
 package qub;
 
-public interface BinaryTree<T> extends Iterable<T>
+public interface BinaryTree<T> extends Iterable<T>, Traversable<Node2<T>,T>
 {
     /**
      * Create a new BinaryTree using the provided comparer.
@@ -96,4 +96,10 @@ public interface BinaryTree<T> extends Iterable<T>
      * @return Whether or not a value in this BinaryTree was found and removed.
      */
     boolean remove(T value);
+
+    @Override
+    default Iterator<T> iterate()
+    {
+        return this.iterate(Traversal.createDepthFirstSearch(Node2::inOrderTraversal));
+    }
 }

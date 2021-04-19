@@ -81,4 +81,44 @@ public class Node2<T>
         this.node2 = node2;
         return this;
     }
+
+    public static <T> void preOrderTraversal(TraversalActions<Node2<T>,T> actions, Node2<T> currentNode)
+    {
+        PreCondition.assertNotNull(actions, "actions");
+
+        if (currentNode != null)
+        {
+            actions.returnValue(currentNode.getValue());
+
+            actions.visitNode(currentNode.getNode1());
+            actions.visitNode(currentNode.getNode2());
+        }
+    }
+
+    public static <T> void postOrderTraversal(TraversalActions<Node2<T>,T> actions, Node2<T> currentNode)
+    {
+        PreCondition.assertNotNull(actions, "actions");
+
+        if (currentNode != null)
+        {
+            actions.visitNode(currentNode.getNode1());
+            actions.visitNode(currentNode.getNode2());
+
+            actions.returnValue(currentNode.getValue());
+        }
+    }
+
+    public static <T> void inOrderTraversal(TraversalActions<Node2<T>,T> actions, Node2<T> currentNode)
+    {
+        PreCondition.assertNotNull(actions, "actions");
+
+        if (currentNode != null)
+        {
+            actions.visitNode(currentNode.getNode1());
+
+            actions.returnValue(currentNode.getValue());
+
+            actions.visitNode(currentNode.getNode2());
+        }
+    }
 }
