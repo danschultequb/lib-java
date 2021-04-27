@@ -164,9 +164,9 @@ public class RealProcessFactory implements ProcessFactory
 
                 final Path folderPath = executableFilePath.getParent().await();
                 final Folder folder = fileSystem.getFolder(folderPath).await();
-                final Iterable<File> files = folder.getFiles()
-                    .catchError(FolderNotFoundException.class, () -> Iterable.create())
-                    .await();
+                final Iterable<File> files = folder.iterateFiles()
+                    .catchError(FolderNotFoundException.class)
+                    .toList();
 
                 final Iterable<String> executableExtensions = List.create(
                     this.environmentVariables.get("PATHEXT").await()

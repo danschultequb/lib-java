@@ -265,34 +265,98 @@ public class Folder extends FileSystemEntry
         return fileSystem.createFile(childFilePath);
     }
 
-    public Result<Iterable<Folder>> getFolders()
+    /**
+     * Get an iterator that iterates through the entries (files and folders) of this folder.
+     * @return An iterator that iterates through the entries (files and folders) of this folder.
+     */
+    public Iterator<FileSystemEntry> iterateEntries()
     {
-        return this.getFileSystem().getFolders(getPath());
+        return this.getFileSystem().iterateEntries(this.getPath());
     }
 
-    public Result<Iterable<Folder>> getFoldersRecursively()
+    /**
+     * Get an iterator that iterates through the files of this folder.
+     * @return An iterator that iterates through the files of this folder.
+     */
+    public Iterator<File> iterateFiles()
     {
-        return this.getFileSystem().getFoldersRecursively(getPath());
+        return this.getFileSystem().iterateFiles(this.getPath());
     }
 
-    public Result<Iterable<File>> getFiles()
+    /**
+     * Get an iterator that iterates through the folders of this folder.
+     * @return An iterator that iterates through the folders of this folder.
+     */
+    public Iterator<Folder> iterateFolders()
     {
-        return this.getFileSystem().getFiles(getPath());
+        return this.getFileSystem().iterateFolders(this.getPath());
     }
 
-    public Result<Iterable<File>> getFilesRecursively()
+    /**
+     * Get an iterator that iterates through the entries (files and folders) of this folder
+     * recursively.
+     * @return An iterator that iterates through the entries (files and folders) of this folder
+     * recursively.
+     */
+    public Iterator<FileSystemEntry> iterateEntriesRecursively()
     {
-        return this.getFileSystem().getFilesRecursively(getPath());
+        return this.getFileSystem().iterateEntriesRecursively(this.getPath());
     }
 
-    public Result<Iterable<FileSystemEntry>> getFilesAndFolders()
+    /**
+     * Get an iterator that iterates through the files of this folder recursively.
+     * @return An iterator that iterates through the files of this folder recursively.
+     */
+    public Iterator<File> iterateFilesRecursively()
     {
-        return this.getFileSystem().getFilesAndFolders(getPath());
+        return this.getFileSystem().iterateFilesRecursively(this.getPath());
     }
 
-    public Result<Iterable<FileSystemEntry>> getFilesAndFoldersRecursively()
+    /**
+     * Get an iterator that iterates through the folders of this folder recursively.
+     * @return An iterator that iterates through the folders of this folder recursively.
+     */
+    public Iterator<Folder> iterateFoldersRecursively()
     {
-        return this.getFileSystem().getFilesAndFoldersRecursively(getPath());
+        return this.getFileSystem().iterateFoldersRecursively(this.getPath());
+    }
+
+    /**
+     * Get an iterator that iterates through the entries (files and folders) of this folder using
+     * the provided Traversal.
+     * @param traversal The Traversal to use to iterate through the entries (files and folders) of
+     *                  this folder.
+     * @return An iterator that iterates through the entries (files and folders) of this folder.
+     */
+    public Iterator<FileSystemEntry> iterateEntries(Traversal<Folder,FileSystemEntry> traversal)
+    {
+        PreCondition.assertNotNull(traversal, "traversal");
+
+        return this.getFileSystem().iterateEntries(this.getPath(), traversal);
+    }
+
+    /**
+     * Get an iterator that iterates through the files of this folder using the provided Traversal.
+     * @param traversal The Traversal to use to iterate through the files of this folder.
+     * @return An iterator that iterates through the files of this folder.
+     */
+    public Iterator<File> iterateFiles(Traversal<Folder,File> traversal)
+    {
+        PreCondition.assertNotNull(traversal, "traversal");
+
+        return this.getFileSystem().iterateFiles(this.getPath(), traversal);
+    }
+
+    /**
+     * Get an iterator that iterates through the folders of this folder using the provided Traversal.
+     * @param traversal The Traversal to use to iterate through the folders of this folder.
+     * @return An iterator that iterates through the folders of this folder.
+     */
+    public Iterator<Folder> iterateFolders(Traversal<Folder,Folder> traversal)
+    {
+        PreCondition.assertNotNull(traversal, "traversal");
+
+        return this.getFileSystem().iterateFolders(this.getPath(), traversal);
     }
 
     /**

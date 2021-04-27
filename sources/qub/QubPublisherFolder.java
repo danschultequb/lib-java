@@ -18,7 +18,7 @@ public class QubPublisherFolder extends Folder
     public Result<QubFolder> getQubFolder()
     {
         return this.getParentFolder()
-            .then((Folder parentFolder) -> QubFolder.get(parentFolder));
+            .then(QubFolder::get);
     }
 
     public String getPublisherName()
@@ -30,11 +30,11 @@ public class QubPublisherFolder extends Folder
      * Get the project folders that are present in this QubPublisherFolder.
      * @return The project folders that are present in this QubPublisherFolder.
      */
-    public Result<Iterable<QubProjectFolder>> getProjectFolders()
+    public Iterator<QubProjectFolder> iterateProjectFolders()
     {
-        return this.getFolders()
-            .catchError(FolderNotFoundException.class, () -> Iterable.create())
-            .then((Iterable<Folder> folders) -> folders.map(QubProjectFolder::get));
+        return this.iterateFolders()
+            .catchError(FolderNotFoundException.class)
+            .map(QubProjectFolder::get);
     }
 
     /**
@@ -47,7 +47,7 @@ public class QubPublisherFolder extends Folder
         PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
 
         return this.getFolder(projectName)
-            .then((Folder folder) -> QubProjectFolder.get(folder));
+            .then(QubProjectFolder::get);
     }
 
     public Result<Folder> getProjectDataFolder(String projectName)
@@ -58,12 +58,15 @@ public class QubPublisherFolder extends Folder
             .then((QubProjectFolder projectFolder) -> projectFolder.getProjectDataFolder().await());
     }
 
-    public Result<Iterable<QubProjectVersionFolder>> getProjectVersionFolders(String projectName)
+    public Iterator<QubProjectVersionFolder> iterateProjectVersionFolders(String projectName)
     {
         PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
 
-        return this.getProjectFolder(projectName)
-            .then((QubProjectFolder projectFolder) -> projectFolder.getProjectVersionFolders().await());
+        return LazyIterator.create(() ->
+        {
+            final QubProjectFolder projectFolder = this.getProjectFolder(projectName).await();
+            return projectFolder.iterateProjectVersionFolders();
+        });
     }
 
     public Result<QubProjectVersionFolder> getProjectVersionFolder(String projectName, String version)

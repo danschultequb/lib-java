@@ -180,21 +180,22 @@ public interface FileSystemTests
                 getRootUsedDataSizeErrorTest.run(Path.parse("p:/"), new RootNotFoundException("p:/"));
             });
 
-            runner.testGroup("getFilesAndFolders(String)", () ->
+            runner.testGroup("iterateEntries(String)", () ->
             {
-                final Action2<String,Throwable> getFilesAndFoldersFailureTest = (String folderPath, Throwable expectedError) ->
+                final Action2<String,Throwable> iterateEntriesFailureTest = (String folderPath, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
                         final FileSystem fileSystem = creator.run(null);
-                        test.assertThrows(() -> fileSystem.getFilesAndFolders(folderPath), expectedError);
+                        test.assertThrows(() -> fileSystem.iterateEntries(folderPath).toList(), expectedError);
                     });
                 };
 
-                getFilesAndFoldersFailureTest.run(null, new PreConditionFailure("rootedFolderPath cannot be null."));
-                getFilesAndFoldersFailureTest.run("", new PreConditionFailure("rootedFolderPath cannot be empty."));
+                iterateEntriesFailureTest.run(null, new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateEntriesFailureTest.run("", new PreConditionFailure("rootedFolderPath cannot be empty."));
+                iterateEntriesFailureTest.run("/..", new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
 
-                final Action4<String, Action1<FileSystem>, String[], Throwable> getFilesAndFoldersTest = (String folderPath, Action1<FileSystem> setup, String[] expectedEntryPaths, Throwable expectedError) ->
+                final Action3<String,Action1<FileSystem>,Iterable<String>> iterateEntriesTest = (String folderPath, Action1<FileSystem> setup, Iterable<String> expected) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
@@ -203,30 +204,24 @@ public interface FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-                        final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFolders(folderPath);
+                        final Iterator<FileSystemEntry> result = fileSystem.iterateEntries(folderPath);
                         test.assertNotNull(result);
-
-                        if (expectedEntryPaths == null)
-                        {
-                            test.assertThrows(result::await, expectedError);
-                        }
-                        else
-                        {
-                            test.assertEqual(Iterable.create(expectedEntryPaths), result.await().map(FileSystemEntry::toString));
-                        }
+                        test.assertEqual(expected, result.map(FileSystemEntry::toString).toList());
                     });
                 };
 
-                getFilesAndFoldersTest.run("/", null, new String[0], null);
-                getFilesAndFoldersTest.run(
+                iterateEntriesTest.run(
+                    "/",
+                    null,
+                    Iterable.create());
+                iterateEntriesTest.run(
                     "/folderA",
                     (FileSystem fileSystem) ->
                     {
                         fileSystem.createFolder("/folderA").await();
                     },
-                    new String[0],
-                    null);
-                getFilesAndFoldersTest.run(
+                    Iterable.create());
+                iterateEntriesTest.run(
                     "/",
                     (FileSystem fileSystem) ->
                     {
@@ -234,34 +229,16 @@ public interface FileSystemTests
                         fileSystem.createFile("/file1.txt").await();
                         fileSystem.createFile("/folderA/file2.csv").await();
                     },
-                    new String[] { "/folderA/", "/file1.txt" },
-                    null);
-                getFilesAndFoldersTest.run(
-                    "/..",
-                    null,
-                    null,
-                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
-                getFilesAndFoldersTest.run(
+                    Iterable.create("/folderA/", "/file1.txt"));
+                iterateEntriesTest.run(
                     "/a/..",
                     null,
-                    new String[0],
-                    null);
+                    Iterable.create());
             });
 
-            runner.testGroup("getFilesAndFolders(Path)", () ->
+            runner.testGroup("iterateEntries(Path)", () ->
             {
-                final Action2<Path,Throwable> getFilesAndFoldersFailureTest = (Path folderPath, Throwable expectedError) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
-                    {
-                        final FileSystem fileSystem = creator.run(null);
-                        test.assertThrows(() -> fileSystem.getFilesAndFolders(folderPath), expectedError);
-                    });
-                };
-
-                getFilesAndFoldersFailureTest.run(null, new PreConditionFailure("rootedFolderPath cannot be null."));
-
-                final Action4<String, Action1<FileSystem>, String[], Throwable> getFilesAndFoldersTest = (String folderPath, Action1<FileSystem> setup, String[] expectedEntryPaths, Throwable expectedError) ->
+                final Action3<Path,Action1<FileSystem>,Throwable> iterateEntriesFailureTest = (Path folderPath, Action1<FileSystem> setup, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
@@ -270,29 +247,483 @@ public interface FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-                        final Result<Iterable<FileSystemEntry>> result = fileSystem.getFilesAndFolders(Path.parse(folderPath));
-                        test.assertNotNull(result);
-
-                        if (expectedEntryPaths == null)
-                        {
-                            test.assertThrows(result::await, expectedError);
-                        }
-                        else
-                        {
-                            test.assertEqual(Iterable.create(expectedEntryPaths), result.await().map(FileSystemEntry::toString));
-                        }
+                        test.assertThrows(() -> fileSystem.iterateEntries(folderPath).toList(), expectedError);
                     });
                 };
 
-                getFilesAndFoldersTest.run(
+                iterateEntriesFailureTest.run(
+                    null,
+                    null,
+                    new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateEntriesFailureTest.run(
+                    Path.parse("/.."),
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                iterateEntriesFailureTest.run(
+                    Path.parse("/file"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFile("/file").await();
+                    },
+                    new FolderNotFoundException("/file"));
+                iterateEntriesFailureTest.run(
+                    Path.parse("/folderThatDoesntExist/"),
+                    null,
+                    new FolderNotFoundException("/folderThatDoesntExist/"));
+
+                final Action3<Path,Action1<FileSystem>,Iterable<String>> iterateEntriesTest = (Path folderPath, Action1<FileSystem> setup, Iterable<String> expectedEntryPaths) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        final Iterator<FileSystemEntry> result = fileSystem.iterateEntries(folderPath);
+                        test.assertNotNull(result);
+                        test.assertEqual(expectedEntryPaths, result.map(FileSystemEntry::toString).toList());
+                    });
+                };
+
+                iterateEntriesTest.run(
+                    Path.parse("/folderA"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA").await();
+                    },
+                    Iterable.create());
+                iterateEntriesTest.run(
+                    Path.parse("/folderA/"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA").await();
+                    },
+                    Iterable.create());
+                iterateEntriesTest.run(
+                    Path.parse("/"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA/folderB").await();
+                        fileSystem.createFile("/file1.txt").await();
+                        fileSystem.createFile("/folderA/file2.csv").await();
+                    },
+                    Iterable.create("/folderA/", "/file1.txt"));
+                iterateEntriesTest.run(
+                    Path.parse("/a/.."),
+                    null,
+                    Iterable.create());
+            });
+
+            runner.testGroup("iterateEntriesRecursively(String)", () ->
+            {
+                final Action2<String,Throwable> iterateEntriesRecursivelyFailureTest = (String folderPath, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        test.assertThrows(() -> fileSystem.iterateEntriesRecursively(folderPath), expectedError);
+                    });
+                };
+
+                iterateEntriesRecursivelyFailureTest.run(null, new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateEntriesRecursivelyFailureTest.run("", new PreConditionFailure("rootedFolderPath cannot be empty."));
+                iterateEntriesRecursivelyFailureTest.run("/..", new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+
+                final Action3<String,Action1<FileSystem>,Iterable<String>> iterateEntriesRecursivelyTest = (String folderPath, Action1<FileSystem> setup, Iterable<String> expectedEntryPaths) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        final Iterator<FileSystemEntry> result = fileSystem.iterateEntriesRecursively(folderPath);
+                        test.assertNotNull(result);
+                        test.assertEqual(expectedEntryPaths, result.map(FileSystemEntry::toString).toList());
+                    });
+                };
+
+                iterateEntriesRecursivelyTest.run(
+                    "/",
+                    null,
+                    Iterable.create());
+                iterateEntriesRecursivelyTest.run(
                     "/folderA",
                     (FileSystem fileSystem) ->
                     {
                         fileSystem.createFolder("/folderA").await();
                     },
-                    new String[0],
-                    null);
-                getFilesAndFoldersTest.run(
+                    Iterable.create());
+                iterateEntriesRecursivelyTest.run(
+                    "/",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA/folderB").await();
+                        fileSystem.createFile("/file1.txt").await();
+                        fileSystem.createFile("/folderA/file2.csv").await();
+                        fileSystem.createFile("/folderA/folderB/file3.jpg").await();
+                    },
+                    Iterable.create("/folderA/", "/file1.txt", "/folderA/folderB/", "/folderA/file2.csv", "/folderA/folderB/file3.jpg"));
+
+                iterateEntriesRecursivelyTest.run(
+                    "/a/..",
+                    null,
+                    Iterable.create());
+            });
+
+            runner.testGroup("iterateEntriesRecursively(Path)", () ->
+            {
+                final Action3<Path,Action1<FileSystem>,Throwable> iterateEntriesRecursivelyFailureTest = (Path folderPath, Action1<FileSystem> setup, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertThrows(() -> fileSystem.iterateEntriesRecursively(folderPath).toList(), expectedError);
+                    });
+                };
+
+                iterateEntriesRecursivelyFailureTest.run(
+                    null,
+                    null,
+                    new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateEntriesRecursivelyFailureTest.run(
+                    Path.parse("/.."),
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                iterateEntriesRecursivelyFailureTest.run(
+                    Path.parse("/file"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFile("/file").await();
+                    },
+                    new FolderNotFoundException("/file/"));
+                iterateEntriesRecursivelyFailureTest.run(
+                    Path.parse("/folderThatDoesntExist/"),
+                    null,
+                    new FolderNotFoundException("/folderThatDoesntExist/"));
+
+                final Action3<Path,Action1<FileSystem>,Iterable<String>> iterateEntriesRecursivelyTest = (Path folderPath, Action1<FileSystem> setup, Iterable<String> expectedEntryPaths) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        final Iterator<FileSystemEntry> result = fileSystem.iterateEntriesRecursively(folderPath);
+                        test.assertNotNull(result);
+                        test.assertEqual(expectedEntryPaths, result.map(FileSystemEntry::toString).toList());
+                    });
+                };
+
+                iterateEntriesRecursivelyTest.run(
+                    Path.parse("/folderA"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA").await();
+                    },
+                    Iterable.create());
+                iterateEntriesRecursivelyTest.run(
+                    Path.parse("/folderA/"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA").await();
+                    },
+                    Iterable.create());
+                iterateEntriesRecursivelyTest.run(
+                    Path.parse("/"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA/folderB").await();
+                        fileSystem.createFile("/file1.txt").await();
+                        fileSystem.createFile("/folderA/file2.csv").await();
+                        fileSystem.createFile("/folderA/folderB/file3.jpg").await();
+                    },
+                    Iterable.create("/folderA/", "/file1.txt", "/folderA/folderB/", "/folderA/file2.csv", "/folderA/folderB/file3.jpg"));
+                iterateEntriesRecursivelyTest.run(
+                    Path.parse("/a/.."),
+                    null,
+                    Iterable.create());
+            });
+
+            runner.testGroup("iterateEntries(String,Traversal<Folder,FileSystemEntry>)", () ->
+            {
+                final Action5<String,String,Traversal<Folder,FileSystemEntry>,Action1<FileSystem>,Throwable> iterateEntriesErrorTest = (String testName, String path, Traversal<Folder,FileSystemEntry> traversal, Action1<FileSystem> setup, Throwable expected) ->
+                {
+                    runner.test(testName, (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertThrows(() -> fileSystem.iterateEntries(path, traversal).toList(), expected);
+                    });
+                };
+
+                iterateEntriesErrorTest.run("with null path",
+                    null,
+                    null,
+                    null,
+                    new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateEntriesErrorTest.run("with empty path",
+                    "",
+                    null,
+                    null,
+                    new PreConditionFailure("rootedFolderPath cannot be empty."));
+                iterateEntriesErrorTest.run("with null traversal",
+                    "/rooted/folder/",
+                    null,
+                    null,
+                    new PreConditionFailure("traversal cannot be null."));
+                iterateEntriesErrorTest.run("with relative path",
+                    "hello",
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderEntriesTraversal),
+                    null,
+                    new PreConditionFailure("rootedFolderPath.isRooted() cannot be false."));
+                iterateEntriesErrorTest.run("with path to non-existant folder with non-empty traversal path",
+                    "/hello/",
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderEntriesTraversal),
+                    null,
+                    new FolderNotFoundException("/hello/"));
+
+                final Action5<String,String,Traversal<Folder,FileSystemEntry>,Action1<FileSystem>,Iterable<String>> iterateEntriesTest = (String testName, String path, Traversal<Folder,FileSystemEntry> traversal, Action1<FileSystem> setup, Iterable<String> expected) ->
+                {
+                    runner.test(testName, (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertEqual(expected, fileSystem.iterateEntries(path, traversal).map(FileSystemEntry::toString).toList());
+                    });
+                };
+
+                iterateEntriesTest.run("with path to non-existant folder with empty traversal",
+                    "/hello/",
+                    Traversal.createDepthFirstSearch((TraversalActions<Folder,FileSystemEntry> actions, Folder currentFolder) ->
+                    {
+                    }),
+                    null,
+                    Iterable.create());
+                iterateEntriesTest.run("with path to empty folder with empty traversal",
+                    "/hello/",
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderEntriesTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                    },
+                    Iterable.create());
+                iterateEntriesTest.run("with path to empty folder",
+                    "/hello/",
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderEntriesTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                    },
+                    Iterable.create());
+                iterateEntriesTest.run("with file and folder tree with pre-order traversal",
+                    "/hello/",
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderEntriesTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                        fileSystem.createFile("/1.txt").await();
+                        fileSystem.createFile("/hello/there.mp3").await();
+                        fileSystem.createFolder("/hello/again/").await();
+                        fileSystem.createFolder("/hello/is/it/me/").await();
+                        fileSystem.createFile("/hello/is/it/you.txt").await();
+                    },
+                    Iterable.create(
+                        "/hello/again/",
+                        "/hello/is/",
+                        "/hello/there.mp3",
+                        "/hello/is/it/",
+                        "/hello/is/it/me/",
+                        "/hello/is/it/you.txt"));
+                iterateEntriesTest.run("with file and folder tree with post-order traversal",
+                    "/hello/",
+                    Traversal.createDepthFirstSearch(FileSystem::postOrderEntriesTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                        fileSystem.createFile("/1.txt").await();
+                        fileSystem.createFile("/hello/there.mp3").await();
+                        fileSystem.createFolder("/hello/again/").await();
+                        fileSystem.createFolder("/hello/is/it/me/").await();
+                        fileSystem.createFile("/hello/is/it/you.txt").await();
+                    },
+                    Iterable.create(
+                        "/hello/is/it/me/",
+                        "/hello/is/it/you.txt",
+                        "/hello/is/it/",
+                        "/hello/again/",
+                        "/hello/is/",
+                        "/hello/there.mp3"));
+            });
+
+            runner.testGroup("iterateEntries(Path,Traversal<Folder,FileSystemEntry>)", () ->
+            {
+                final Action5<String,Path,Traversal<Folder,FileSystemEntry>,Action1<FileSystem>,Throwable> iterateEntriesErrorTest = (String testName, Path path, Traversal<Folder,FileSystemEntry> traversal, Action1<FileSystem> setup, Throwable expected) ->
+                {
+                    runner.test(testName, (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertThrows(() -> fileSystem.iterateEntries(path, traversal).toList(), expected);
+                    });
+                };
+
+                iterateEntriesErrorTest.run("with null path",
+                    null,
+                    null,
+                    null,
+                    new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateEntriesErrorTest.run("with null traversal",
+                    Path.parse("/rooted/folder/"),
+                    null,
+                    null,
+                    new PreConditionFailure("traversal cannot be null."));
+                iterateEntriesErrorTest.run("with relative path",
+                    Path.parse("hello"),
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderEntriesTraversal),
+                    null,
+                    new PreConditionFailure("rootedFolderPath.isRooted() cannot be false."));
+                iterateEntriesErrorTest.run("with path to non-existant folder with non-empty traversal path",
+                    Path.parse("/hello/"),
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderEntriesTraversal),
+                    null,
+                    new FolderNotFoundException("/hello/"));
+
+                final Action5<String,Path,Traversal<Folder,FileSystemEntry>,Action1<FileSystem>,Iterable<String>> iterateEntriesTest = (String testName, Path path, Traversal<Folder,FileSystemEntry> traversal, Action1<FileSystem> setup, Iterable<String> expected) ->
+                {
+                    runner.test(testName, (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertEqual(expected, fileSystem.iterateEntries(path, traversal).map(FileSystemEntry::toString).toList());
+                    });
+                };
+
+                iterateEntriesTest.run("with path to non-existant folder with empty traversal",
+                    Path.parse("/hello/"),
+                    Traversal.createDepthFirstSearch((TraversalActions<Folder,FileSystemEntry> actions, Folder currentFolder) ->
+                    {
+                    }),
+                    null,
+                    Iterable.create());
+                iterateEntriesTest.run("with path to empty folder with empty traversal",
+                    Path.parse("/hello/"),
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderEntriesTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                    },
+                    Iterable.create());
+                iterateEntriesTest.run("with path to empty folder",
+                    Path.parse("/hello/"),
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderEntriesTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                    },
+                    Iterable.create());
+                iterateEntriesTest.run("with file and folder tree with pre-order traversal",
+                    Path.parse("/hello/"),
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderEntriesTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                        fileSystem.createFile("/1.txt").await();
+                        fileSystem.createFile("/hello/there.mp3").await();
+                        fileSystem.createFolder("/hello/again/").await();
+                        fileSystem.createFolder("/hello/is/it/me/").await();
+                        fileSystem.createFile("/hello/is/it/you.txt").await();
+                    },
+                    Iterable.create(
+                        "/hello/again/",
+                        "/hello/is/",
+                        "/hello/there.mp3",
+                        "/hello/is/it/",
+                        "/hello/is/it/me/",
+                        "/hello/is/it/you.txt"));
+                iterateEntriesTest.run("with file and folder tree with post-order traversal",
+                    Path.parse("/hello/"),
+                    Traversal.createDepthFirstSearch(FileSystem::postOrderEntriesTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                        fileSystem.createFile("/1.txt").await();
+                        fileSystem.createFile("/hello/there.mp3").await();
+                        fileSystem.createFolder("/hello/again/").await();
+                        fileSystem.createFolder("/hello/is/it/me/").await();
+                        fileSystem.createFile("/hello/is/it/you.txt").await();
+                    },
+                    Iterable.create(
+                        "/hello/is/it/me/",
+                        "/hello/is/it/you.txt",
+                        "/hello/is/it/",
+                        "/hello/again/",
+                        "/hello/is/",
+                        "/hello/there.mp3"));
+            });
+
+            runner.testGroup("iterateFolders(String)", () ->
+            {
+                final Action2<String,Throwable> iterateFoldersFailureTest = (String folderPath, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        test.assertThrows(() -> fileSystem.iterateFolders(folderPath).toList(), expectedError);
+                    });
+                };
+
+                iterateFoldersFailureTest.run(null, new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateFoldersFailureTest.run("", new PreConditionFailure("rootedFolderPath cannot be empty."));
+                iterateFoldersFailureTest.run("/..", new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+
+                final Action3<String,Action1<FileSystem>,Iterable<String>> iterateFoldersTest = (String folderPath, Action1<FileSystem> setup, Iterable<String> expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        final Iterator<Folder> result = fileSystem.iterateFolders(folderPath);
+                        test.assertNotNull(result);
+                        test.assertEqual(expected, result.map(FileSystemEntry::toString).toList());
+                    });
+                };
+
+                iterateFoldersTest.run(
+                    "/",
+                    null,
+                    Iterable.create());
+                iterateFoldersTest.run(
+                    "/folderA",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA").await();
+                    },
+                    Iterable.create());
+                iterateFoldersTest.run(
                     "/",
                     (FileSystem fileSystem) ->
                     {
@@ -300,58 +731,16 @@ public interface FileSystemTests
                         fileSystem.createFile("/file1.txt").await();
                         fileSystem.createFile("/folderA/file2.csv").await();
                     },
-                    new String[] { "/folderA/", "/file1.txt" },
-                    null);
-                getFilesAndFoldersTest.run(
-                    "/..",
-                    null,
-                    null,
-                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
-                getFilesAndFoldersTest.run(
+                    Iterable.create("/folderA/"));
+                iterateFoldersTest.run(
                     "/a/..",
                     null,
-                    new String[0],
-                    null);
+                    Iterable.create());
             });
 
-            runner.testGroup("getFolders(String)", () ->
+            runner.testGroup("iterateFolders(Path)", () ->
             {
-                final Action2<String,Throwable> getFoldersFailureTest = (String path, Throwable expectedError) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(path), (Test test) ->
-                    {
-                        final FileSystem fileSystem = creator.run(null);
-                        test.assertThrows(() -> fileSystem.getFolders(path), expectedError);
-                    });
-                };
-
-                getFoldersFailureTest.run(null, new PreConditionFailure("rootedFolderPath cannot be null."));
-                getFoldersFailureTest.run("", new PreConditionFailure("rootedFolderPath cannot be empty."));
-
-                runner.test("with " + Strings.escapeAndQuote("/.."), (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(null);
-                    test.assertThrows(() -> fileSystem.getFolders("/..").await(),
-                        new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
-                });
-            });
-
-            runner.testGroup("getFoldersRecursively(String)", () ->
-            {
-                final Action2<String,Throwable> getFoldersRecursivelyFailureTest = (String folderPath, Throwable expectedError) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
-                    {
-                        final FileSystem fileSystem = creator.run(null);
-                        test.assertThrows(() -> fileSystem.getFoldersRecursively(folderPath), expectedError);
-                    });
-                };
-
-                getFoldersRecursivelyFailureTest.run(null, new PreConditionFailure("rootedFolderPath cannot be null."));
-                getFoldersRecursivelyFailureTest.run("", new PreConditionFailure("rootedFolderPath cannot be empty."));
-                getFoldersRecursivelyFailureTest.run("test/folder", new PreConditionFailure("rootedFolderPath.isRooted() cannot be false."));
-
-                final Action4<String,Action1<FileSystem>,String[],Throwable> getFoldersRecursivelyTest = (String folderPath, Action1<FileSystem> setup, String[] expectedFolderPaths, Throwable expectedError) ->
+                final Action3<Path,Action1<FileSystem>,Throwable> iterateFoldersFailureTest = (Path folderPath, Action1<FileSystem> setup, Throwable expectedError) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
@@ -360,103 +749,1018 @@ public interface FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-                        final Result<Iterable<Folder>> result = fileSystem.getFoldersRecursively(folderPath);
-                        test.assertNotNull(result);
-
-                        if (expectedError != null)
-                        {
-                            test.assertThrows(result::await, expectedError);
-                        }
-                        else
-                        {
-                            final Iterable<Folder> folders = result.await();
-                            if (expectedFolderPaths == null)
-                            {
-                                test.assertNull(folders);
-                            }
-                            else
-                            {
-                                test.assertEqual(Iterable.create(expectedFolderPaths), folders.map(FileSystemEntry::toString));
-                            }
-                        }
+                        test.assertThrows(() -> fileSystem.iterateFolders(folderPath).toList(), expectedError);
                     });
                 };
 
-                getFoldersRecursivelyTest.run("F:/test/folder", null, null, new RootNotFoundException("F:"));
-                getFoldersRecursivelyTest.run("/test/folder", null, null, new FolderNotFoundException("/test/folder/"));
-                getFoldersRecursivelyTest.run(
-                    "/test/folder",
+                iterateFoldersFailureTest.run(
+                    null,
+                    null,
+                    new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateFoldersFailureTest.run(
+                    Path.parse("/.."),
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                iterateFoldersFailureTest.run(
+                    Path.parse("/file"),
                     (FileSystem fileSystem) ->
                     {
-                        fileSystem.createFolder("/test/").await();
+                        fileSystem.createFile("/file").await();
                     },
+                    new FolderNotFoundException("/file"));
+                iterateFoldersFailureTest.run(
+                    Path.parse("/folderThatDoesntExist/"),
                     null,
+                    new FolderNotFoundException("/folderThatDoesntExist/"));
+
+                final Action3<Path,Action1<FileSystem>,Iterable<String>> iterateFoldersTest = (Path folderPath, Action1<FileSystem> setup, Iterable<String> expectedEntryPaths) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        final Iterator<Folder> result = fileSystem.iterateFolders(folderPath);
+                        test.assertNotNull(result);
+                        test.assertEqual(expectedEntryPaths, result.map(FileSystemEntry::toString).toList());
+                    });
+                };
+
+                iterateFoldersTest.run(
+                    Path.parse("/folderA"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA").await();
+                    },
+                    Iterable.create());
+                iterateFoldersTest.run(
+                    Path.parse("/folderA/"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA").await();
+                    },
+                    Iterable.create());
+                iterateFoldersTest.run(
+                    Path.parse("/"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA/folderB").await();
+                        fileSystem.createFile("/file1.txt").await();
+                        fileSystem.createFile("/folderA/file2.csv").await();
+                    },
+                    Iterable.create("/folderA/"));
+                iterateFoldersTest.run(
+                    Path.parse("/a/.."),
+                    null,
+                    Iterable.create());
+            });
+
+            runner.testGroup("iterateFoldersRecursively(String)", () ->
+            {
+                final Action2<String,Throwable> iterateFoldersRecursivelyFailureTest = (String folderPath, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        test.assertThrows(() -> fileSystem.iterateFoldersRecursively(folderPath), expectedError);
+                    });
+                };
+
+                iterateFoldersRecursivelyFailureTest.run(null, new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateFoldersRecursivelyFailureTest.run("", new PreConditionFailure("rootedFolderPath cannot be empty."));
+                iterateFoldersRecursivelyFailureTest.run("/..", new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+
+                final Action3<String,Action1<FileSystem>,Iterable<String>> iterateFoldersRecursivelyTest = (String folderPath, Action1<FileSystem> setup, Iterable<String> expectedEntryPaths) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        final Iterator<Folder> result = fileSystem.iterateFoldersRecursively(folderPath);
+                        test.assertNotNull(result);
+                        test.assertEqual(expectedEntryPaths, result.map(FileSystemEntry::toString).toList());
+                    });
+                };
+
+                iterateFoldersRecursivelyTest.run(
+                    "/",
+                    null,
+                    Iterable.create());
+                iterateFoldersRecursivelyTest.run(
+                    "/folderA",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA").await();
+                    },
+                    Iterable.create());
+                iterateFoldersRecursivelyTest.run(
+                    "/",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA/folderB").await();
+                        fileSystem.createFile("/file1.txt").await();
+                        fileSystem.createFile("/folderA/file2.csv").await();
+                        fileSystem.createFile("/folderA/folderB/file3.jpg").await();
+                    },
+                    Iterable.create("/folderA/", "/folderA/folderB/"));
+
+                iterateFoldersRecursivelyTest.run(
+                    "/a/..",
+                    null,
+                    Iterable.create());
+            });
+
+            runner.testGroup("iterateFoldersRecursively(Path)", () ->
+            {
+                final Action3<Path,Action1<FileSystem>,Throwable> iterateFoldersRecursivelyFailureTest = (Path folderPath, Action1<FileSystem> setup, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertThrows(() -> fileSystem.iterateFoldersRecursively(folderPath).toList(), expectedError);
+                    });
+                };
+
+                iterateFoldersRecursivelyFailureTest.run(
+                    null,
+                    null,
+                    new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateFoldersRecursivelyFailureTest.run(
+                    Path.parse("/.."),
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                iterateFoldersRecursivelyFailureTest.run(
+                    Path.parse("/file"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFile("/file").await();
+                    },
+                    new FolderNotFoundException("/file/"));
+                iterateFoldersRecursivelyFailureTest.run(
+                    Path.parse("/folderThatDoesntExist/"),
+                    null,
+                    new FolderNotFoundException("/folderThatDoesntExist/"));
+
+                final Action3<Path,Action1<FileSystem>,Iterable<String>> iterateFoldersRecursivelyTest = (Path folderPath, Action1<FileSystem> setup, Iterable<String> expectedEntryPaths) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        final Iterator<Folder> result = fileSystem.iterateFoldersRecursively(folderPath);
+                        test.assertNotNull(result);
+                        test.assertEqual(expectedEntryPaths, result.map(FileSystemEntry::toString).toList());
+                    });
+                };
+
+                iterateFoldersRecursivelyTest.run(
+                    Path.parse("/folderA"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA").await();
+                    },
+                    Iterable.create());
+                iterateFoldersRecursivelyTest.run(
+                    Path.parse("/folderA/"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA").await();
+                    },
+                    Iterable.create());
+                iterateFoldersRecursivelyTest.run(
+                    Path.parse("/"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA/folderB").await();
+                        fileSystem.createFile("/file1.txt").await();
+                        fileSystem.createFile("/folderA/file2.csv").await();
+                        fileSystem.createFile("/folderA/folderB/file3.jpg").await();
+                    },
+                    Iterable.create("/folderA/", "/folderA/folderB/"));
+                iterateFoldersRecursivelyTest.run(
+                    Path.parse("/a/.."),
+                    null,
+                    Iterable.create());
+            });
+
+            runner.testGroup("iterateFolders(String,Traversal<Folder,Folder>)", () ->
+            {
+                final Action5<String,String,Traversal<Folder,Folder>,Action1<FileSystem>,Throwable> iterateFoldersErrorTest = (String testName, String path, Traversal<Folder,Folder> traversal, Action1<FileSystem> setup, Throwable expected) ->
+                {
+                    runner.test(testName, (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertThrows(() -> fileSystem.iterateFolders(path, traversal).toList(), expected);
+                    });
+                };
+
+                iterateFoldersErrorTest.run("with null path",
+                    null,
+                    null,
+                    null,
+                    new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateFoldersErrorTest.run("with empty path",
+                    "",
+                    null,
+                    null,
+                    new PreConditionFailure("rootedFolderPath cannot be empty."));
+                iterateFoldersErrorTest.run("with null traversal",
+                    "/rooted/folder/",
+                    null,
+                    null,
+                    new PreConditionFailure("traversal cannot be null."));
+                iterateFoldersErrorTest.run("with relative path",
+                    "hello",
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFoldersTraversal),
+                    null,
+                    new PreConditionFailure("rootedFolderPath.isRooted() cannot be false."));
+                iterateFoldersErrorTest.run("with path to non-existant folder with non-empty traversal path",
+                    "/hello/",
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFoldersTraversal),
+                    null,
+                    new FolderNotFoundException("/hello/"));
+
+                final Action5<String,String,Traversal<Folder,Folder>,Action1<FileSystem>,Iterable<String>> iterateFoldersTest = (String testName, String path, Traversal<Folder,Folder> traversal, Action1<FileSystem> setup, Iterable<String> expected) ->
+                {
+                    runner.test(testName, (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertEqual(expected, fileSystem.iterateFolders(path, traversal).map(FileSystemEntry::toString).toList());
+                    });
+                };
+
+                iterateFoldersTest.run("with path to non-existant folder with empty traversal",
+                    "/hello/",
+                    Traversal.createDepthFirstSearch((TraversalActions<Folder,Folder> actions, Folder currentFolder) ->
+                    {
+                    }),
+                    null,
+                    Iterable.create());
+                iterateFoldersTest.run("with path to empty folder with empty traversal",
+                    "/hello/",
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFoldersTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                    },
+                    Iterable.create());
+                iterateFoldersTest.run("with path to empty folder",
+                    "/hello/",
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFoldersTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                    },
+                    Iterable.create());
+                iterateFoldersTest.run("with file and folder tree with pre-order traversal",
+                    "/hello/",
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFoldersTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                        fileSystem.createFile("/1.txt").await();
+                        fileSystem.createFile("/hello/there.mp3").await();
+                        fileSystem.createFolder("/hello/again/").await();
+                        fileSystem.createFolder("/hello/is/it/me/").await();
+                        fileSystem.createFile("/hello/is/it/you.txt").await();
+                    },
+                    Iterable.create(
+                        "/hello/again/",
+                        "/hello/is/",
+                        "/hello/is/it/",
+                        "/hello/is/it/me/"));
+                iterateFoldersTest.run("with file and folder tree with post-order traversal",
+                    "/hello/",
+                    Traversal.createDepthFirstSearch(FileSystem::postOrderFoldersTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                        fileSystem.createFile("/1.txt").await();
+                        fileSystem.createFile("/hello/there.mp3").await();
+                        fileSystem.createFolder("/hello/again/").await();
+                        fileSystem.createFolder("/hello/is/it/me/").await();
+                        fileSystem.createFile("/hello/is/it/you.txt").await();
+                    },
+                    Iterable.create(
+                        "/hello/is/it/me/",
+                        "/hello/is/it/",
+                        "/hello/again/",
+                        "/hello/is/"));
+            });
+
+            runner.testGroup("iterateFolders(Path,Traversal<Folder,Folder>)", () ->
+            {
+                final Action5<String,Path,Traversal<Folder,Folder>,Action1<FileSystem>,Throwable> iterateFoldersErrorTest = (String testName, Path path, Traversal<Folder,Folder> traversal, Action1<FileSystem> setup, Throwable expected) ->
+                {
+                    runner.test(testName, (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertThrows(() -> fileSystem.iterateFolders(path, traversal).toList(), expected);
+                    });
+                };
+
+                iterateFoldersErrorTest.run("with null path",
+                    null,
+                    null,
+                    null,
+                    new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateFoldersErrorTest.run("with null traversal",
+                    Path.parse("/rooted/folder/"),
+                    null,
+                    null,
+                    new PreConditionFailure("traversal cannot be null."));
+                iterateFoldersErrorTest.run("with relative path",
+                    Path.parse("hello"),
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFoldersTraversal),
+                    null,
+                    new PreConditionFailure("rootedFolderPath.isRooted() cannot be false."));
+                iterateFoldersErrorTest.run("with path to non-existant folder with non-empty traversal path",
+                    Path.parse("/hello/"),
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFoldersTraversal),
+                    null,
+                    new FolderNotFoundException("/hello/"));
+
+                final Action5<String,Path,Traversal<Folder,Folder>,Action1<FileSystem>,Iterable<String>> iterateFoldersTest = (String testName, Path path, Traversal<Folder,Folder> traversal, Action1<FileSystem> setup, Iterable<String> expected) ->
+                {
+                    runner.test(testName, (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertEqual(expected, fileSystem.iterateFolders(path, traversal).map(FileSystemEntry::toString).toList());
+                    });
+                };
+
+                iterateFoldersTest.run("with path to non-existant folder with empty traversal",
+                    Path.parse("/hello/"),
+                    Traversal.createDepthFirstSearch((TraversalActions<Folder,Folder> actions, Folder currentFolder) ->
+                    {
+                    }),
+                    null,
+                    Iterable.create());
+                iterateFoldersTest.run("with path to empty folder with empty traversal",
+                    Path.parse("/hello/"),
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFoldersTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                    },
+                    Iterable.create());
+                iterateFoldersTest.run("with path to empty folder",
+                    Path.parse("/hello/"),
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFoldersTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                    },
+                    Iterable.create());
+                iterateFoldersTest.run("with file and folder tree with pre-order traversal",
+                    Path.parse("/hello/"),
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFoldersTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                        fileSystem.createFile("/1.txt").await();
+                        fileSystem.createFile("/hello/there.mp3").await();
+                        fileSystem.createFolder("/hello/again/").await();
+                        fileSystem.createFolder("/hello/is/it/me/").await();
+                        fileSystem.createFile("/hello/is/it/you.txt").await();
+                    },
+                    Iterable.create(
+                        "/hello/again/",
+                        "/hello/is/",
+                        "/hello/is/it/",
+                        "/hello/is/it/me/"));
+                iterateFoldersTest.run("with file and folder tree with post-order traversal",
+                    Path.parse("/hello/"),
+                    Traversal.createDepthFirstSearch(FileSystem::postOrderFoldersTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                        fileSystem.createFile("/1.txt").await();
+                        fileSystem.createFile("/hello/there.mp3").await();
+                        fileSystem.createFolder("/hello/again/").await();
+                        fileSystem.createFolder("/hello/is/it/me/").await();
+                        fileSystem.createFile("/hello/is/it/you.txt").await();
+                    },
+                    Iterable.create(
+                        "/hello/is/it/me/",
+                        "/hello/is/it/",
+                        "/hello/again/",
+                        "/hello/is/"));
+            });
+
+            runner.testGroup("iterateFiles(String)", () ->
+            {
+                final Action2<String,Throwable> iterateFilesFailureTest = (String folderPath, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        test.assertThrows(() -> fileSystem.iterateFiles(folderPath).toList(), expectedError);
+                    });
+                };
+
+                iterateFilesFailureTest.run(null, new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateFilesFailureTest.run("", new PreConditionFailure("rootedFolderPath cannot be empty."));
+                iterateFilesFailureTest.run("/..", new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+
+                final Action3<String,Action1<FileSystem>,Iterable<String>> iterateFilesTest = (String folderPath, Action1<FileSystem> setup, Iterable<String> expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        final Iterator<File> result = fileSystem.iterateFiles(folderPath);
+                        test.assertNotNull(result);
+                        test.assertEqual(expected, result.map(FileSystemEntry::toString).toList());
+                    });
+                };
+
+                iterateFilesTest.run(
+                    "/",
+                    null,
+                    Iterable.create());
+                iterateFilesTest.run(
+                    "/folderA",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA").await();
+                    },
+                    Iterable.create());
+                iterateFilesTest.run(
+                    "/",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA/folderB").await();
+                        fileSystem.createFile("/file1.txt").await();
+                        fileSystem.createFile("/folderA/file2.csv").await();
+                    },
+                    Iterable.create("/file1.txt"));
+                iterateFilesTest.run(
+                    "/a/..",
+                    null,
+                    Iterable.create());
+            });
+
+            runner.testGroup("iterateFiles(Path)", () ->
+            {
+                final Action3<Path,Action1<FileSystem>,Throwable> iterateFilesFailureTest = (Path folderPath, Action1<FileSystem> setup, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertThrows(() -> fileSystem.iterateFiles(folderPath).toList(), expectedError);
+                    });
+                };
+
+                iterateFilesFailureTest.run(
+                    null,
+                    null,
+                    new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateFilesFailureTest.run(
+                    Path.parse("/.."),
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                iterateFilesFailureTest.run(
+                    Path.parse("/file"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFile("/file").await();
+                    },
+                    new FolderNotFoundException("/file"));
+                iterateFilesFailureTest.run(
+                    Path.parse("/folderThatDoesntExist/"),
+                    null,
+                    new FolderNotFoundException("/folderThatDoesntExist/"));
+
+                final Action3<Path,Action1<FileSystem>,Iterable<String>> iterateFilesTest = (Path folderPath, Action1<FileSystem> setup, Iterable<String> expectedEntryPaths) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        final Iterator<File> result = fileSystem.iterateFiles(folderPath);
+                        test.assertNotNull(result);
+                        test.assertEqual(expectedEntryPaths, result.map(FileSystemEntry::toString).toList());
+                    });
+                };
+
+                iterateFilesTest.run(
+                    Path.parse("/folderA"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA").await();
+                    },
+                    Iterable.create());
+                iterateFilesTest.run(
+                    Path.parse("/folderA/"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA").await();
+                    },
+                    Iterable.create());
+                iterateFilesTest.run(
+                    Path.parse("/"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA/folderB").await();
+                        fileSystem.createFile("/file1.txt").await();
+                        fileSystem.createFile("/folderA/file2.csv").await();
+                    },
+                    Iterable.create("/file1.txt"));
+                iterateFilesTest.run(
+                    Path.parse("/a/.."),
+                    null,
+                    Iterable.create());
+            });
+
+            runner.testGroup("iterateFilesRecursively(String)", () ->
+            {
+                final Action2<String,Throwable> iterateFilesRecursivelyFailureTest = (String folderPath, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        test.assertThrows(() -> fileSystem.iterateFilesRecursively(folderPath), expectedError);
+                    });
+                };
+
+                iterateFilesRecursivelyFailureTest.run(null, new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateFilesRecursivelyFailureTest.run("", new PreConditionFailure("rootedFolderPath cannot be empty."));
+                iterateFilesRecursivelyFailureTest.run("/..", new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+
+                final Action3<String,Action1<FileSystem>,Iterable<String>> iterateFilesRecursivelyTest = (String folderPath, Action1<FileSystem> setup, Iterable<String> expectedEntryPaths) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        final Iterator<File> result = fileSystem.iterateFilesRecursively(folderPath);
+                        test.assertNotNull(result);
+                        test.assertEqual(expectedEntryPaths, result.map(FileSystemEntry::toString).toList());
+                    });
+                };
+
+                iterateFilesRecursivelyTest.run(
+                    "/",
+                    null,
+                    Iterable.create());
+                iterateFilesRecursivelyTest.run(
+                    "/folderA",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA").await();
+                    },
+                    Iterable.create());
+                iterateFilesRecursivelyTest.run(
+                    "/",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA/folderB").await();
+                        fileSystem.createFile("/file1.txt").await();
+                        fileSystem.createFile("/folderA/file2.csv").await();
+                        fileSystem.createFile("/folderA/folderB/file3.jpg").await();
+                    },
+                    Iterable.create(
+                        "/file1.txt",
+                        "/folderA/file2.csv",
+                        "/folderA/folderB/file3.jpg"));
+
+                iterateFilesRecursivelyTest.run(
+                    "/a/..",
+                    null,
+                    Iterable.create());
+            });
+
+            runner.testGroup("iterateFilesRecursively(Path)", () ->
+            {
+                final Action3<Path,Action1<FileSystem>,Throwable> iterateFilesRecursivelyFailureTest = (Path folderPath, Action1<FileSystem> setup, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertThrows(() -> fileSystem.iterateFilesRecursively(folderPath).toList(), expectedError);
+                    });
+                };
+
+                iterateFilesRecursivelyFailureTest.run(
+                    null,
+                    null,
+                    new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateFilesRecursivelyFailureTest.run(
+                    Path.parse("/.."),
+                    null,
+                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                iterateFilesRecursivelyFailureTest.run(
+                    Path.parse("/file"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFile("/file").await();
+                    },
+                    new FolderNotFoundException("/file/"));
+                iterateFilesRecursivelyFailureTest.run(
+                    Path.parse("/folderThatDoesntExist/"),
+                    null,
+                    new FolderNotFoundException("/folderThatDoesntExist/"));
+
+                final Action3<Path,Action1<FileSystem>,Iterable<String>> iterateFilesRecursivelyTest = (Path folderPath, Action1<FileSystem> setup, Iterable<String> expectedEntryPaths) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        final Iterator<File> result = fileSystem.iterateFilesRecursively(folderPath);
+                        test.assertNotNull(result);
+                        test.assertEqual(expectedEntryPaths, result.map(FileSystemEntry::toString).toList());
+                    });
+                };
+
+                iterateFilesRecursivelyTest.run(
+                    Path.parse("/folderA"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA").await();
+                    },
+                    Iterable.create());
+                iterateFilesRecursivelyTest.run(
+                    Path.parse("/folderA/"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA").await();
+                    },
+                    Iterable.create());
+                iterateFilesRecursivelyTest.run(
+                    Path.parse("/"),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/folderA/folderB").await();
+                        fileSystem.createFile("/file1.txt").await();
+                        fileSystem.createFile("/folderA/file2.csv").await();
+                        fileSystem.createFile("/folderA/folderB/file3.jpg").await();
+                    },
+                    Iterable.create(
+                        "/file1.txt",
+                        "/folderA/file2.csv",
+                        "/folderA/folderB/file3.jpg"));
+                iterateFilesRecursivelyTest.run(
+                    Path.parse("/a/.."),
+                    null,
+                    Iterable.create());
+            });
+
+            runner.testGroup("iterateFiles(String,Traversal<Folder,File>)", () ->
+            {
+                final Action5<String,String,Traversal<Folder,File>,Action1<FileSystem>,Throwable> iterateFilesErrorTest = (String testName, String path, Traversal<Folder,File> traversal, Action1<FileSystem> setup, Throwable expected) ->
+                {
+                    runner.test(testName, (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertThrows(() -> fileSystem.iterateFiles(path, traversal).toList(), expected);
+                    });
+                };
+
+                iterateFilesErrorTest.run("with null path",
+                    null,
+                    null,
+                    null,
+                    new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateFilesErrorTest.run("with empty path",
+                    "",
+                    null,
+                    null,
+                    new PreConditionFailure("rootedFolderPath cannot be empty."));
+                iterateFilesErrorTest.run("with null traversal",
+                    "/rooted/folder/",
+                    null,
+                    null,
+                    new PreConditionFailure("traversal cannot be null."));
+                iterateFilesErrorTest.run("with relative path",
+                    "hello",
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFilesTraversal),
+                    null,
+                    new PreConditionFailure("rootedFolderPath.isRooted() cannot be false."));
+                iterateFilesErrorTest.run("with path to non-existant folder with non-empty traversal path",
+                    "/hello/",
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFilesTraversal),
+                    null,
+                    new FolderNotFoundException("/hello/"));
+
+                final Action5<String,String,Traversal<Folder,File>,Action1<FileSystem>,Iterable<String>> iterateFilesTest = (String testName, String path, Traversal<Folder,File> traversal, Action1<FileSystem> setup, Iterable<String> expected) ->
+                {
+                    runner.test(testName, (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertEqual(expected, fileSystem.iterateFiles(path, traversal).map(FileSystemEntry::toString).toList());
+                    });
+                };
+
+                iterateFilesTest.run("with path to non-existant folder with empty traversal",
+                    "/hello/",
+                    Traversal.createDepthFirstSearch((TraversalActions<Folder,File> actions, Folder currentFolder) ->
+                    {
+                    }),
+                    null,
+                    Iterable.create());
+                iterateFilesTest.run("with path to empty folder with empty traversal",
+                    "/hello/",
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFilesTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                    },
+                    Iterable.create());
+                iterateFilesTest.run("with path to empty folder",
+                    "/hello/",
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFilesTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                    },
+                    Iterable.create());
+                iterateFilesTest.run("with file and folder tree with pre-order traversal",
+                    "/hello/",
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFilesTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                        fileSystem.createFile("/1.txt").await();
+                        fileSystem.createFile("/hello/there.mp3").await();
+                        fileSystem.createFolder("/hello/again/").await();
+                        fileSystem.createFolder("/hello/is/it/me/").await();
+                        fileSystem.createFile("/hello/is/it/you.txt").await();
+                    },
+                    Iterable.create(
+                        "/hello/there.mp3",
+                        "/hello/is/it/you.txt"));
+                iterateFilesTest.run("with file and folder tree with post-order traversal",
+                    "/hello/",
+                    Traversal.createDepthFirstSearch(FileSystem::postOrderFilesTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                        fileSystem.createFile("/1.txt").await();
+                        fileSystem.createFile("/hello/there.mp3").await();
+                        fileSystem.createFolder("/hello/again/").await();
+                        fileSystem.createFolder("/hello/is/it/me/").await();
+                        fileSystem.createFile("/hello/is/it/you.txt").await();
+                    },
+                    Iterable.create(
+                        "/hello/is/it/you.txt",
+                        "/hello/there.mp3"));
+            });
+
+            runner.testGroup("iterateFiles(Path,Traversal<Folder,File>)", () ->
+            {
+                final Action5<String,Path,Traversal<Folder,File>,Action1<FileSystem>,Throwable> iterateFilesErrorTest = (String testName, Path path, Traversal<Folder,File> traversal, Action1<FileSystem> setup, Throwable expected) ->
+                {
+                    runner.test(testName, (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertThrows(() -> fileSystem.iterateFiles(path, traversal).toList(), expected);
+                    });
+                };
+
+                iterateFilesErrorTest.run("with null path",
+                    null,
+                    null,
+                    null,
+                    new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateFilesErrorTest.run("with null traversal",
+                    Path.parse("/rooted/folder/"),
+                    null,
+                    null,
+                    new PreConditionFailure("traversal cannot be null."));
+                iterateFilesErrorTest.run("with relative path",
+                    Path.parse("hello"),
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFilesTraversal),
+                    null,
+                    new PreConditionFailure("rootedFolderPath.isRooted() cannot be false."));
+                iterateFilesErrorTest.run("with path to non-existant folder with non-empty traversal path",
+                    Path.parse("/hello/"),
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFilesTraversal),
+                    null,
+                    new FolderNotFoundException("/hello/"));
+
+                final Action5<String,Path,Traversal<Folder,File>,Action1<FileSystem>,Iterable<String>> iterateFilesTest = (String testName, Path path, Traversal<Folder,File> traversal, Action1<FileSystem> setup, Iterable<String> expected) ->
+                {
+                    runner.test(testName, (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertEqual(expected, fileSystem.iterateFiles(path, traversal).map(FileSystemEntry::toString).toList());
+                    });
+                };
+
+                iterateFilesTest.run("with path to non-existant folder with empty traversal",
+                    Path.parse("/hello/"),
+                    Traversal.createDepthFirstSearch((TraversalActions<Folder,File> actions, Folder currentFolder) ->
+                    {
+                    }),
+                    null,
+                    Iterable.create());
+                iterateFilesTest.run("with path to empty folder with empty traversal",
+                    Path.parse("/hello/"),
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFilesTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                    },
+                    Iterable.create());
+                iterateFilesTest.run("with path to empty folder",
+                    Path.parse("/hello/"),
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFilesTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                    },
+                    Iterable.create());
+                iterateFilesTest.run("with file and folder tree with pre-order traversal",
+                    Path.parse("/hello/"),
+                    Traversal.createDepthFirstSearch(FileSystem::preOrderFilesTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                        fileSystem.createFile("/1.txt").await();
+                        fileSystem.createFile("/hello/there.mp3").await();
+                        fileSystem.createFolder("/hello/again/").await();
+                        fileSystem.createFolder("/hello/is/it/me/").await();
+                        fileSystem.createFile("/hello/is/it/you.txt").await();
+                    },
+                    Iterable.create(
+                        "/hello/there.mp3",
+                        "/hello/is/it/you.txt"));
+                iterateFilesTest.run("with file and folder tree with post-order traversal",
+                    Path.parse("/hello/"),
+                    Traversal.createDepthFirstSearch(FileSystem::postOrderFilesTraversal),
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/hello/").await();
+                        fileSystem.createFile("/1.txt").await();
+                        fileSystem.createFile("/hello/there.mp3").await();
+                        fileSystem.createFolder("/hello/again/").await();
+                        fileSystem.createFolder("/hello/is/it/me/").await();
+                        fileSystem.createFile("/hello/is/it/you.txt").await();
+                    },
+                    Iterable.create(
+                        "/hello/is/it/you.txt",
+                        "/hello/there.mp3"));
+            });
+
+            runner.testGroup("iterateFiles(String)", () ->
+            {
+                final Action2<String,Throwable> iterateFilesFailureTest = (String folderPath, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        test.assertThrows(() -> fileSystem.iterateFiles(folderPath).toList(), expectedError);
+                    });
+                };
+
+                iterateFilesFailureTest.run(null, new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateFilesFailureTest.run("", new PreConditionFailure("rootedFolderPath cannot be empty."));
+                iterateFilesFailureTest.run("/..", new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+
+                final Action3<String,Action1<FileSystem>,Iterable<String>> iterateFilesTest = (String folderPath, Action1<FileSystem> setup, Iterable<String> expectedFilePaths) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertEqual(expectedFilePaths, fileSystem.iterateFiles(folderPath).map(FileSystemEntry::toString).toList());
+                    });
+                };
+
+                iterateFilesTest.run(
+                    "/a/..",
+                    null,
+                    Iterable.create());
+            });
+
+            runner.testGroup("iterateFiles(Path)", () ->
+            {
+                final Action2<Path,Throwable> iterateFilesFailureTest = (Path folderPath, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        test.assertThrows(() -> fileSystem.iterateFiles(folderPath).toList(), expectedError);
+                    });
+                };
+
+                iterateFilesFailureTest.run(null, new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateFilesFailureTest.run(Path.parse("/.."), new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+
+                final Action3<Path,Action1<FileSystem>,Iterable<String>> iterateFilesTest = (Path folderPath, Action1<FileSystem> setup, Iterable<String> expectedFilePaths) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertEqual(expectedFilePaths, fileSystem.iterateFiles(folderPath).map(File::toString).toList());
+                    });
+                };
+
+                iterateFilesTest.run(
+                    Path.parse("/a/.."),
+                    null,
+                    Iterable.create());
+            });
+
+            runner.testGroup("iterateFilesRecursively(String)", () ->
+            {
+                final Action3<String,Action1<FileSystem>,Throwable> iterateFilesRecursivelyFailureTest = (String folderPath, Action1<FileSystem> setup, Throwable expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertThrows(() -> fileSystem.iterateFilesRecursively(folderPath).toList(), expectedError);
+                    });
+                };
+
+                iterateFilesRecursivelyFailureTest.run(null, null, new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateFilesRecursivelyFailureTest.run("", null, new PreConditionFailure("rootedFolderPath cannot be empty."));
+                iterateFilesRecursivelyFailureTest.run("/..", null, new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                iterateFilesRecursivelyFailureTest.run("test/folder", null, new PreConditionFailure("rootedFolderPath.isRooted() cannot be false."));
+                iterateFilesRecursivelyFailureTest.run("F:/test/folder", null, new RootNotFoundException("F:"));
+                iterateFilesRecursivelyFailureTest.run("/test/folder", null, new FolderNotFoundException("/test/folder/"));
+                iterateFilesRecursivelyFailureTest.run("/test/folder",
+                    (FileSystem fileSystem) -> { fileSystem.createFolder("/test/").await(); },
                     new FolderNotFoundException("/test/folder/"));
-                getFoldersRecursivelyTest.run(
-                    "/test/folder/",
-                    (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolder("/test/folder").await();
-                    },
-                    new String[0],
-                    null);
-                getFoldersRecursivelyTest.run(
-                    "/test/folder",
-                    (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFile("/test/folder/1.txt").await();
-                        fileSystem.createFile("/test/folder/2.txt").await();
-                    },
-                    new String[0],
-                    null);
-                getFoldersRecursivelyTest.run(
-                    "/test/folder",
-                    (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolder("/test/folder/1.txt").await();
-                        fileSystem.createFolder("/test/folder/2.txt").await();
-                    },
-                    new String[] { "/test/folder/1.txt/", "/test/folder/2.txt/" },
-                    null);
-                getFoldersRecursivelyTest.run(
-                    "/test/folder",
-                    (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFile("/test/folder/1.txt").await();
-                        fileSystem.createFile("/test/folder/2.txt").await();
-                        fileSystem.createFile("/test/folder/A/3.csv").await();
-                        fileSystem.createFile("/test/folder/B/C/4.xml").await();
-                        fileSystem.createFile("/test/folder/A/5.png").await();
-                    },
-                    new String[] { "/test/folder/A/", "/test/folder/B/", "/test/folder/B/C/" },
-                    null);
-                getFoldersRecursivelyTest.run(
-                    "/..",
-                    null,
-                    null,
-                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
-                getFoldersRecursivelyTest.run(
-                    "/a/..",
-                    null,
-                    new String[0],
-                    null);
-            });
 
-            runner.testGroup("getFoldersRecursively(Path)", () ->
-            {
-                final Action2<Path,Throwable> getFoldersRecursivelyFailureTest = (Path folderPath, Throwable expectedError) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
-                    {
-                        final FileSystem fileSystem = creator.run(null);
-                        test.assertThrows(() -> fileSystem.getFoldersRecursively(folderPath), expectedError);
-                    });
-                };
-
-                getFoldersRecursivelyFailureTest.run(null, new PreConditionFailure("rootedFolderPath cannot be null."));
-                getFoldersRecursivelyFailureTest.run(Path.parse("test/folder"), new PreConditionFailure("rootedFolderPath.isRooted() cannot be false."));
-
-                final Action4<String,Action1<FileSystem>,String[],Throwable> getFoldersRecursivelyTest = (String folderPath, Action1<FileSystem> setup, String[] expectedFolderPaths, Throwable expectedError) ->
+                final Action3<String,Action1<FileSystem>,Iterable<String>> iterateFilesRecursivelyTest = (String folderPath, Action1<FileSystem> setup, Iterable<String> expectedFilePaths) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
                     {
@@ -465,268 +1769,15 @@ public interface FileSystemTests
                         {
                             setup.run(fileSystem);
                         }
-                        final Result<Iterable<Folder>> result = fileSystem.getFoldersRecursively(Path.parse(folderPath));
-                        test.assertNotNull(result);
-
-                        if (expectedError != null)
-                        {
-                            test.assertThrows(result::await, expectedError);
-                        }
-                        else
-                        {
-                            final Iterable<Folder> folders = result.await();
-                            if (expectedFolderPaths == null)
-                            {
-                                test.assertEqual(null, folders);
-                            }
-                            else
-                            {
-                                test.assertEqual(Iterable.create(expectedFolderPaths), folders.map(FileSystemEntry::toString));
-                            }
-                        }
+                        test.assertEqual(expectedFilePaths, fileSystem.iterateFilesRecursively(folderPath).map(File::toString).toList());
                     });
                 };
 
-                getFoldersRecursivelyTest.run(
-                    "F:/test/folder",
-                    null,
-                    null,
-                    new RootNotFoundException("F:"));
-                getFoldersRecursivelyTest.run(
-                    "/test/folder",
-                    null,
-                    null,
-                    new FolderNotFoundException("/test/folder/"));
-                getFoldersRecursivelyTest.run(
-                    "/test/folder",
-                    (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolder("/test/").await();
-                    },
-                    null,
-                    new FolderNotFoundException("/test/folder/"));
-                getFoldersRecursivelyTest.run(
-                    "/test/folder/",
-                    (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolder("/test/folder").await();
-                    },
-                    new String[0],
-                    null);
-                getFoldersRecursivelyTest.run(
-                    "/test/folder",
-                    (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFile("/test/folder/1.txt").await();
-                        fileSystem.createFile("/test/folder/2.txt").await();
-                    },
-                    new String[0],
-                    null);
-                getFoldersRecursivelyTest.run(
-                    "/test/folder",
-                    (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFolder("/test/folder/1.txt").await();
-                        fileSystem.createFolder("/test/folder/2.txt").await();
-                    },
-                    new String[] { "/test/folder/1.txt/", "/test/folder/2.txt/" },
-                    null);
-                getFoldersRecursivelyTest.run(
-                    "/test/folder",
-                    (FileSystem fileSystem) ->
-                    {
-                        fileSystem.createFile("/test/folder/1.txt").await();
-                        fileSystem.createFile("/test/folder/2.txt").await();
-                        fileSystem.createFile("/test/folder/A/3.csv").await();
-                        fileSystem.createFile("/test/folder/B/C/4.xml").await();
-                        fileSystem.createFile("/test/folder/A/5.png").await();
-                    },
-                    new String[] { "/test/folder/A/", "/test/folder/B/", "/test/folder/B/C/" },
-                    null);
-                getFoldersRecursivelyTest.run(
-                    "/..",
-                    null,
-                    null,
-                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
-                getFoldersRecursivelyTest.run(
-                    "/a/..",
-                    null,
-                    new String[0],
-                    null);
-            });
-
-            runner.testGroup("getFiles(String)", () ->
-            {
-                final Action2<String,Throwable> getFilesFailureTest = (String folderPath, Throwable expectedError) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
-                    {
-                        final FileSystem fileSystem = creator.run(null);
-                        test.assertThrows(() -> fileSystem.getFiles(folderPath), expectedError);
-                    });
-                };
-
-                getFilesFailureTest.run(null, new PreConditionFailure("rootedFolderPath cannot be null."));
-                getFilesFailureTest.run("", new PreConditionFailure("rootedFolderPath cannot be empty."));
-
-                final Action4<String,Action1<FileSystem>,String[],Throwable> getFilesTest = (String folderPath, Action1<FileSystem> setup, String[] expectedFilePaths, Throwable expectedError) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
-                    {
-                        final FileSystem fileSystem = creator.run(null);
-                        if (setup != null)
-                        {
-                            setup.run(fileSystem);
-                        }
-                        final Result<Iterable<File>> result = fileSystem.getFiles(folderPath);
-                        test.assertNotNull(result);
-
-                        if (expectedError != null)
-                        {
-                            test.assertThrows(result::await, expectedError);
-                        }
-                        else
-                        {
-                            final Iterable<File> files = result.await();
-                            if (expectedFilePaths == null)
-                            {
-                                test.assertNull(files);
-                            }
-                            else
-                            {
-                                test.assertEqual(Iterable.create(expectedFilePaths), files.map(FileSystemEntry::toString));
-                            }
-                        }
-                    });
-                };
-
-                getFilesTest.run(
-                    "/..",
-                    null,
-                    null,
-                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
-                getFilesTest.run(
-                    "/a/..",
-                    null,
-                    new String[0],
-                    null);
-            });
-
-            runner.testGroup("getFiles(Path)", () ->
-            {
-                final Action2<Path,Throwable> getFilesFailureTest = (Path folderPath, Throwable expectedError) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
-                    {
-                        final FileSystem fileSystem = creator.run(null);
-                        test.assertThrows(() -> fileSystem.getFiles(folderPath), expectedError);
-                    });
-                };
-
-                getFilesFailureTest.run(null, new PreConditionFailure("rootedFolderPath cannot be null."));
-
-                final Action4<String,Action1<FileSystem>,String[],Throwable> getFilesTest = (String folderPath, Action1<FileSystem> setup, String[] expectedFilePaths, Throwable expectedError) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
-                    {
-                        final FileSystem fileSystem = creator.run(null);
-                        if (setup != null)
-                        {
-                            setup.run(fileSystem);
-                        }
-                        final Result<Iterable<File>> result = fileSystem.getFiles(Path.parse(folderPath));
-                        test.assertNotNull(result);
-
-                        if (expectedError != null)
-                        {
-                            test.assertThrows(result::await, expectedError);
-                        }
-                        else
-                        {
-                            final Iterable<File> files = result.await();
-                            if (expectedFilePaths == null)
-                            {
-                                test.assertNull(files);
-                            }
-                            else
-                            {
-                                test.assertEqual(Iterable.create(expectedFilePaths), files.map(FileSystemEntry::toString));
-                            }
-                        }
-                    });
-                };
-
-                getFilesTest.run(
-                    "/..",
-                    null,
-                    null,
-                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
-                getFilesTest.run(
-                    "/a/..",
-                    null,
-                    new String[0],
-                    null);
-            });
-
-            runner.testGroup("getFilesRecursively(String)", () ->
-            {
-                final Action2<String,Throwable> getFilesRecursivelyFailureTest = (String folderPath, Throwable expectedError) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
-                    {
-                        final FileSystem fileSystem = creator.run(null);
-                        test.assertThrows(() -> fileSystem.getFilesRecursively(folderPath), expectedError);
-                    });
-                };
-
-                getFilesRecursivelyFailureTest.run(null, new PreConditionFailure("rootedFolderPath cannot be null."));
-                getFilesRecursivelyFailureTest.run("", new PreConditionFailure("rootedFolderPath cannot be empty."));
-                getFilesRecursivelyFailureTest.run("test/folder", new PreConditionFailure("rootedFolderPath.isRooted() cannot be false."));
-
-                final Action4<String,Action1<FileSystem>,String[],Throwable> getFilesRecursivelyTest = (String folderPath, Action1<FileSystem> setup, String[] expectedFilePaths, Throwable expectedError) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(folderPath), (Test test) ->
-                    {
-                        final FileSystem fileSystem = creator.run(null);
-                        if (setup != null)
-                        {
-                            setup.run(fileSystem);
-                        }
-                        final Result<Iterable<File>> result = fileSystem.getFilesRecursively(folderPath);
-                        test.assertNotNull(result);
-
-                        if (expectedError != null)
-                        {
-                            test.assertThrows(result::await, expectedError);
-                        }
-                        else
-                        {
-                            final Iterable<File> files = result.await();
-                            if (expectedFilePaths == null)
-                            {
-                                test.assertNull(files);
-                            }
-                            else
-                            {
-                                test.assertEqual(Iterable.create(expectedFilePaths), files.map(FileSystemEntry::toString));
-                            }
-                        }
-                    });
-                };
-
-                getFilesRecursivelyTest.run("F:/test/folder", null, null, new RootNotFoundException("F:"));
-                getFilesRecursivelyTest.run("/test/folder", null, null, new FolderNotFoundException("/test/folder/"));
-                getFilesRecursivelyTest.run(
-                    "/test/folder",
-                    (FileSystem fileSystem) -> fileSystem.createFolder("/test").await(),
-                    null,
-                    new FolderNotFoundException("/test/folder/"));
-                getFilesRecursivelyTest.run(
+                iterateFilesRecursivelyTest.run(
                     "/test/folder",
                     (FileSystem fileSystem) -> fileSystem.createFolder("/test/folder").await(),
-                    new String[0],
-                    null);
-                getFilesRecursivelyTest.run(
+                    Iterable.create());
+                iterateFilesRecursivelyTest.run(
                     "/test/folder",
                     (FileSystem fileSystem) ->
                     {
@@ -734,9 +1785,8 @@ public interface FileSystemTests
                         fileSystem.createFile("/test/folder/1.txt").await();
                         fileSystem.createFile("/test/folder/2.txt").await();
                     },
-                    new String[] { "/test/folder/1.txt", "/test/folder/2.txt" },
-                    null);
-                getFilesRecursivelyTest.run(
+                    Iterable.create("/test/folder/1.txt", "/test/folder/2.txt"));
+                iterateFilesRecursivelyTest.run(
                     "/test/folder",
                     (FileSystem fileSystem) ->
                     {
@@ -744,9 +1794,8 @@ public interface FileSystemTests
                         fileSystem.createFolder("/test/folder/1.txt").await();
                         fileSystem.createFolder("/test/folder/2.txt").await();
                     },
-                    new String[0],
-                    null);
-                getFilesRecursivelyTest.run(
+                    Iterable.create());
+                iterateFilesRecursivelyTest.run(
                     "/test/folder",
                     (FileSystem fileSystem) ->
                     {
@@ -756,25 +1805,16 @@ public interface FileSystemTests
                         fileSystem.createFile("/test/folder/B/C/4.xml").await();
                         fileSystem.createFile("/test/folder/A/5.png").await();
                     },
-                    new String[]
-                    {
+                    Iterable.create(
                         "/test/folder/1.txt",
                         "/test/folder/2.txt",
                         "/test/folder/A/3.csv",
                         "/test/folder/A/5.png",
-                        "/test/folder/B/C/4.xml"
-                    },
-                    null);
-                getFilesRecursivelyTest.run(
-                    "/..",
-                    null,
-                    null,
-                    new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
-                getFilesRecursivelyTest.run(
+                        "/test/folder/B/C/4.xml"));
+                iterateFilesRecursivelyTest.run(
                     "/a/..",
                     null,
-                    new String[0],
-                    null);
+                    Iterable.create());
             });
 
             runner.testGroup("getFolder(String)", () ->
@@ -2696,105 +3736,102 @@ public interface FileSystemTests
                 });
             });
 
-            runner.testGroup("getFilesAndFoldersRecursively(String)", () ->
+            runner.testGroup("iterateEntriesRecursively(String)", () ->
             {
-                runner.test("with null path", (Test test) ->
+                final Action4<String,String,Action1<FileSystem>,Throwable> iterateEntriesRecursivelyErrorTest = (String testName, String rootedFolderPath, Action1<FileSystem> setup, Throwable expected) ->
                 {
-                    final FileSystem fileSystem = creator.run(null);
-                    test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively((String)null), new PreConditionFailure("rootedFolderPath cannot be null."));
-                });
+                    runner.test(testName, (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertThrows(() -> fileSystem.iterateEntriesRecursively(rootedFolderPath).toList(), expected);
+                    });
+                };
 
-                runner.test("with empty path", (Test test) ->
+                iterateEntriesRecursivelyErrorTest.run("with null path",
+                    null,
+                    null,
+                    new PreConditionFailure("rootedFolderPath cannot be null."));
+                iterateEntriesRecursivelyErrorTest.run("with empty path",
+                    "",
+                    null,
+                    new PreConditionFailure("rootedFolderPath cannot be empty."));
+                iterateEntriesRecursivelyErrorTest.run("with relative path",
+                    "test/folder",
+                    null,
+                    new PreConditionFailure("rootedFolderPath.isRooted() cannot be false."));
+                iterateEntriesRecursivelyErrorTest.run("with rooted path when root doesn't exist",
+                    "F:/test/folder",
+                    null,
+                    new RootNotFoundException("F:"));
+                iterateEntriesRecursivelyErrorTest.run("with rooted path when parent folder doesn't exist",
+                    "/test/folder",
+                    null,
+                    new FolderNotFoundException("/test/folder/"));
+                iterateEntriesRecursivelyErrorTest.run("with rooted path when folder doesn't exist",
+                    "/test/folder",
+                    (FileSystem fileSystem) -> { fileSystem.createFolder("/test/").await(); },
+                    new FolderNotFoundException("/test/folder/"));
+
+                final Action4<String,String,Action1<FileSystem>,Iterable<String>> iterateEntriesRecursivelyTest = (String testName, String rootedFolderPath, Action1<FileSystem> setup, Iterable<String> expected) ->
                 {
-                    final FileSystem fileSystem = creator.run(null);
-                    test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively(""), new PreConditionFailure("rootedFolderPath cannot be empty."));
-                });
+                    runner.test(testName, (Test test) ->
+                    {
+                        final FileSystem fileSystem = creator.run(null);
+                        if (setup != null)
+                        {
+                            setup.run(fileSystem);
+                        }
+                        test.assertEqual(expected, fileSystem.iterateEntriesRecursively(rootedFolderPath).map(FileSystemEntry::toString).toList());
+                    });
+                };
 
-                runner.test("with relative path", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(null);
-                    test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively("test/folder"), new PreConditionFailure("rootedFolderPath.isRooted() cannot be false."));
-                });
-
-                runner.test("with rooted path when root doesn't exist", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(null);
-                    test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively("F:/test/folder").await(),
-                        new RootNotFoundException("F:"));
-                });
-
-                runner.test("with rooted path when parent folder doesn't exist", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(null);
-                    test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively("/test/folder").await(),
-                        new FolderNotFoundException("/test/folder/"));
-                });
-
-                runner.test("with rooted path when folder doesn't exist", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/test/").await();
-
-                    test.assertThrows(() -> fileSystem.getFilesAndFoldersRecursively("/test/folder").await(),
-                        new FolderNotFoundException("/test/folder/"));
-                });
-
-                runner.test("with rooted path when folder is empty", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/test/folder").await();
-
-                    test.assertEqual(Iterable.create(), fileSystem.getFilesAndFoldersRecursively("/test/folder").await());
-                });
-
-                runner.test("with rooted path when folder has files", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/test/folder").await();
-                    fileSystem.createFile("/test/folder/1.txt").await();
-                    fileSystem.createFile("/test/folder/2.txt").await();
-
-                    test.assertEqual(
-                        Iterable.create(
-                            fileSystem.getFile("/test/folder/1.txt").await(),
-                            fileSystem.getFile("/test/folder/2.txt").await()),
-                        fileSystem.getFilesAndFoldersRecursively("/test/folder").await());
-                });
-
-                runner.test("with rooted path when folder has folders", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFolder("/test/folder/1.txt").await();
-                    fileSystem.createFolder("/test/folder/2.txt").await();
-
-                    test.assertEqual(
-                        Iterable.create(
-                            fileSystem.getFolder("/test/folder/1.txt").await(),
-                            fileSystem.getFolder("/test/folder/2.txt").await()),
-                        fileSystem.getFilesAndFoldersRecursively("/test/folder").await());
-                });
-
-                runner.test("with rooted path when folder has grandchild files and folders", (Test test) ->
-                {
-                    final FileSystem fileSystem = creator.run(null);
-                    fileSystem.createFile("/test/folder/1.txt").await();
-                    fileSystem.createFile("/test/folder/2.txt").await();
-                    fileSystem.createFile("/test/folder/A/3.csv").await();
-                    fileSystem.createFile("/test/folder/B/C/4.xml").await();
-                    fileSystem.createFile("/test/folder/A/5.png").await();
-
-                    test.assertEqual(
-                        Iterable.create(
-                            fileSystem.getFolder("/test/folder/A").await(),
-                            fileSystem.getFolder("/test/folder/B").await(),
-                            fileSystem.getFile("/test/folder/1.txt").await(),
-                            fileSystem.getFile("/test/folder/2.txt").await(),
-                            fileSystem.getFile("/test/folder/A/3.csv").await(),
-                            fileSystem.getFile("/test/folder/A/5.png").await(),
-                            fileSystem.getFolder("/test/folder/B/C").await(),
-                            fileSystem.getFile("/test/folder/B/C/4.xml").await()),
-                        fileSystem.getFilesAndFoldersRecursively("/test/folder").await());
-                });
+                iterateEntriesRecursivelyTest.run("with rooted path when folder is empty",
+                    "/test/folder",
+                    (FileSystem fileSystem) -> { fileSystem.createFolder("/test/folder/").await(); },
+                    Iterable.create());
+                iterateEntriesRecursivelyTest.run("with rooted path when folder has files",
+                    "/test/folder",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFile("/test/folder/1.txt").await();
+                        fileSystem.createFile("/test/folder/2.txt").await();
+                    },
+                    Iterable.create(
+                        "/test/folder/1.txt",
+                        "/test/folder/2.txt"));
+                iterateEntriesRecursivelyTest.run("with rooted path when folder has folders",
+                    "/test/folder",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFolder("/test/folder/1/").await();
+                        fileSystem.createFolder("/test/folder/2/").await();
+                    },
+                    Iterable.create(
+                        "/test/folder/1/",
+                        "/test/folder/2/"));
+                iterateEntriesRecursivelyTest.run("with rooted path when folder has grandchild files and folders",
+                    "/test/folder",
+                    (FileSystem fileSystem) ->
+                    {
+                        fileSystem.createFile("/test/folder/1.txt").await();
+                        fileSystem.createFile("/test/folder/2.txt").await();
+                        fileSystem.createFile("/test/folder/A/3.csv").await();
+                        fileSystem.createFile("/test/folder/B/C/4.xml").await();
+                        fileSystem.createFile("/test/folder/A/5.png").await();
+                    },
+                    Iterable.create(
+                        "/test/folder/A/",
+                        "/test/folder/B/",
+                        "/test/folder/1.txt",
+                        "/test/folder/2.txt",
+                        "/test/folder/A/3.csv",
+                        "/test/folder/A/5.png",
+                        "/test/folder/B/C/",
+                        "/test/folder/B/C/4.xml"));
             });
 
             runner.testGroup("copyFileTo(File,File)", () ->

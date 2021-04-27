@@ -376,33 +376,40 @@ public interface FolderTests
                 });
             });
 
-            runner.test("getFolders()", (Test test) ->
+            runner.test("iterateFolders()", (Test test) ->
             {
                 final Folder folder = FolderTests.getFolder();
                 test.assertFalse(folder.exists().await());
-                test.assertThrows(() -> folder.getFolders().await(),
+                test.assertThrows(() -> folder.iterateFolders().toList(),
                     new FolderNotFoundException("/test/folder/"));
 
                 test.assertNull(folder.create().await());
                 test.assertTrue(folder.exists().await());
-                test.assertEqual(Iterable.create(), folder.getFolders().await());
+                test.assertEqual(Iterable.create(), folder.iterateFolders().toList());
 
                 final Folder childFolder = folder.createFolder("childFolder1").await();
                 test.assertEqual("/test/folder/childFolder1/", childFolder.toString());
 
-                test.assertEqual(Iterable.create("/test/folder/childFolder1/"), folder.getFolders().await().map(Folder::toString));
+                test.assertEqual(
+                    Iterable.create(
+                        "/test/folder/childFolder1/"),
+                    folder.iterateFolders().map(Folder::toString).toList());
 
                 test.assertEqual("/test/folder/childFolder1/grandchildFolder1/", childFolder.createFolder("grandchildFolder1").await().toString());
-                test.assertEqual(Iterable.create("/test/folder/childFolder1/"), folder.getFolders().await().map(Folder::toString));
+                test.assertEqual(
+                    Iterable.create(
+                        "/test/folder/childFolder1/"),
+                    folder.iterateFolders().map(Folder::toString).toList());
             });
 
-            runner.testGroup("getFiles()", () ->
+            runner.testGroup("iterateFiles()", () ->
             {
                 runner.test("when folder doesn't exist", (Test test) ->
                 {
                     final Folder folder = FolderTests.getFolder();
                     test.assertFalse(folder.exists().await());
-                    test.assertThrows(() -> folder.getFiles().await(), new FolderNotFoundException("/test/folder/"));
+                    test.assertThrows(() -> folder.iterateFiles().toList(),
+                        new FolderNotFoundException("/test/folder/"));
                 });
 
                 runner.test("when folder exists but is empty", (Test test) ->
@@ -410,7 +417,7 @@ public interface FolderTests
                     final Folder folder = FolderTests.getFolder();
                     test.assertNull(folder.create().await());
                     test.assertTrue(folder.exists().await());
-                    test.assertEqual(Iterable.create(), folder.getFiles().await());
+                    test.assertEqual(Iterable.create(), folder.iterateFiles().toList());
                 });
 
                 runner.test("when folder exists and has one file", (Test test) ->
@@ -419,7 +426,7 @@ public interface FolderTests
                     test.assertNull(folder.create().await());
                     test.assertTrue(folder.exists().await());
                     test.assertEqual("/test/folder/data.txt", folder.createFile("data.txt").await().toString());
-                    test.assertEqual(Iterable.create("/test/folder/data.txt"), folder.getFiles().await().map(File::toString));
+                    test.assertEqual(Iterable.create("/test/folder/data.txt"), folder.iterateFiles().map(File::toString).toList());
                 });
 
                 runner.test("when folder exists and has one grandchild file", (Test test) ->
@@ -428,17 +435,17 @@ public interface FolderTests
                     test.assertNull(folder.create().await());
                     test.assertTrue(folder.exists().await());
                     test.assertEqual("/test/folder/subfolder/data.txt", folder.createFile("subfolder/data.txt").await().toString());
-                    test.assertEqual(Iterable.create(), folder.getFiles().await());
+                    test.assertEqual(Iterable.create(), folder.iterateFiles().toList());
                 });
             });
 
-            runner.testGroup("getFilesAndFolders()", () ->
+            runner.testGroup("iterateEntries()", () ->
             {
                 runner.test("when folder doesn't exist", (Test test) ->
                 {
                     final Folder folder = FolderTests.getFolder();
                     test.assertFalse(folder.exists().await());
-                    test.assertThrows(() -> folder.getFilesAndFolders().await(),
+                    test.assertThrows(() -> folder.iterateEntries().toList(),
                         new FolderNotFoundException("/test/folder/"));
                 });
 
@@ -446,7 +453,7 @@ public interface FolderTests
                 {
                     final Folder folder = FolderTests.getFolder();
                     test.assertNull(folder.create().await());
-                    test.assertEqual(Iterable.create(), folder.getFilesAndFolders().await());
+                    test.assertEqual(Iterable.create(), folder.iterateEntries().toList());
                 });
 
                 runner.test("when folder exists and has one child folder", (Test test) ->
@@ -454,7 +461,7 @@ public interface FolderTests
                     final Folder folder = FolderTests.getFolder();
                     test.assertNull(folder.create().await());
                     test.assertEqual("/test/folder/subfolder/", folder.createFolder("subfolder").await().toString());
-                    test.assertEqual(Iterable.create("/test/folder/subfolder/"), folder.getFilesAndFolders().await().map(FileSystemEntry::toString));
+                    test.assertEqual(Iterable.create("/test/folder/subfolder/"), folder.iterateEntries().map(FileSystemEntry::toString).toList());
                 });
 
                 runner.test("when folder exists and has one child file", (Test test) ->
@@ -462,7 +469,7 @@ public interface FolderTests
                     final Folder folder = FolderTests.getFolder();
                     test.assertNull(folder.create().await());
                     folder.createFile("file.java").await();
-                    test.assertEqual(Iterable.create("/test/folder/file.java"), folder.getFilesAndFolders().await().map(FileSystemEntry::toString));
+                    test.assertEqual(Iterable.create("/test/folder/file.java"), folder.iterateEntries().map(FileSystemEntry::toString).toList());
                 });
 
                 runner.test("when folder exists and has one child file and one child folder", (Test test) ->
@@ -475,7 +482,7 @@ public interface FolderTests
                         Iterable.create(
                             "/test/folder/childfolder/",
                             "/test/folder/file.java"),
-                        folder.getFilesAndFolders().await().map(FileSystemEntry::toString));
+                        folder.iterateEntries().map(FileSystemEntry::toString).toList());
                 });
             });
 

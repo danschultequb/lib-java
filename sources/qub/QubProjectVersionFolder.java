@@ -49,12 +49,6 @@ public class QubProjectVersionFolder extends Folder implements Comparable<QubPro
             .then(QubProjectFolder::getProjectName);
     }
 
-    public Result<Iterable<QubProjectVersionFolder>> getProjectVersionFolders()
-    {
-        return this.getProjectFolder()
-            .then((QubProjectFolder projectFolder) -> projectFolder.getProjectVersionFolders().await());
-    }
-
     public Result<? extends VersionNumber> getVersion()
     {
         return VersionNumber.parse(this.getName());

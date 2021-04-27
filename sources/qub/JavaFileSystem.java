@@ -66,40 +66,43 @@ public class JavaFileSystem implements FileSystem
     }
 
     @Override
-    public Result<Iterable<FileSystemEntry>> getFilesAndFolders(Path rootedFolderPath)
+    public Iterator<FileSystemEntry> iterateEntries(Path rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return Result.create(() ->
+        return LazyIterator.create(() ->
         {
-            final java.io.File containerFile = new java.io.File(rootedFolderPath.toString());
-            final java.io.File[] containerEntryFiles = containerFile.listFiles();
-            if (containerEntryFiles == null)
+            final java.io.File javaFolder = new java.io.File(rootedFolderPath.toString());
+            final java.io.File[] javaFolderFiles = javaFolder.listFiles();
+            if (javaFolderFiles == null)
             {
                 throw new FolderNotFoundException(rootedFolderPath);
             }
 
             final List<Folder> folders = List.create();
             final List<File> files = List.create();
-            for (final java.io.File containerEntryFile : containerEntryFiles)
+            for (final java.io.File javaFolderFile : javaFolderFiles)
             {
-                final String containerEntryPathString = containerEntryFile.getAbsolutePath();
+                final String containerEntryPathString = javaFolderFile.getAbsolutePath();
                 final Path containerEntryPath = Path.parse(containerEntryPathString).normalize();
-                if (containerEntryFile.isFile())
+                if (javaFolderFile.isFile())
                 {
                     files.add(getFile(containerEntryPath).await());
                 }
-                else if (containerEntryFile.isDirectory())
+                else if (javaFolderFile.isDirectory())
                 {
                     folders.add(getFolder(containerEntryPath).await());
                 }
             }
 
-            final List<FileSystemEntry> result = List.create();
-            result.addAll(folders);
-            result.addAll(files);
+            final List<FileSystemEntry> entries = List.create();
+            entries.addAll(folders);
+            entries.addAll(files);
+
+            final Iterator<FileSystemEntry> result = entries.iterate();
 
             PostCondition.assertNotNull(result, "result");
+            PostCondition.assertFalse(result.hasStarted(), "result.hasStarted()");
 
             return result;
         });
@@ -158,8 +161,7 @@ public class JavaFileSystem implements FileSystem
 
         return Result.create(() ->
         {
-            final Iterable<FileSystemEntry> entries = this.getFilesAndFolders(rootedFolderPath).await();
-            for (final FileSystemEntry entry : entries)
+            for (final FileSystemEntry entry : this.iterateEntries(rootedFolderPath))
             {
                 entry.delete().await();
             }

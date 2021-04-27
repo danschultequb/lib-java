@@ -299,7 +299,7 @@ public interface CommandLineConfigurationActionTests
                         Iterable.create(
                             dataFolder.getFolder("config").await(),
                             configurationFile),
-                        dataFolder.getFilesAndFoldersRecursively().await());
+                        dataFolder.iterateEntriesRecursively().toList());
                     test.assertEqual("", configurationFile.getContentsAsString().await());
                 });
 
@@ -325,7 +325,7 @@ public interface CommandLineConfigurationActionTests
                         Iterable.create(
                             dataFolder.getFolder("config").await(),
                             configurationFile),
-                        dataFolder.getFilesAndFoldersRecursively().await());
+                        dataFolder.iterateEntriesRecursively().toList());
                     test.assertEqual(defaultConfiguration.toString(JSONFormat.pretty), configurationFile.getContentsAsString().await());
                 });
 
@@ -351,7 +351,7 @@ public interface CommandLineConfigurationActionTests
                         Iterable.create(
                             dataFolder.getFolder("config").await(),
                             configurationFile),
-                        dataFolder.getFilesAndFoldersRecursively().await());
+                        dataFolder.iterateEntriesRecursively().toList());
                     test.assertEqual("", configurationFile.getContentsAsString().await());
                 });
 
@@ -377,7 +377,7 @@ public interface CommandLineConfigurationActionTests
                         Iterable.create(
                             dataFolder.getFolder("config").await(),
                             configurationFile),
-                        dataFolder.getFilesAndFoldersRecursively().await());
+                        dataFolder.iterateEntriesRecursively().toList());
                     test.assertEqual("", configurationFile.getContentsAsString().await());
                 });
 
@@ -411,7 +411,7 @@ public interface CommandLineConfigurationActionTests
                             dataFolder.getFolder("schemas").await(),
                             configurationFile,
                             configurationSchemaFile),
-                        dataFolder.getFilesAndFoldersRecursively().await());
+                        dataFolder.iterateEntriesRecursively().toList());
                     test.assertEqual(defaultConfiguration.toString(JSONFormat.pretty), configurationFile.getContentsAsString().await());
                     test.assertEqual(configurationSchema.toString(JSONFormat.pretty), configurationSchemaFile.getContentsAsString().await());
                 });
@@ -448,7 +448,7 @@ public interface CommandLineConfigurationActionTests
                             dataFolder.getFolder("schemas").await(),
                             configurationFile,
                             configurationSchemaFile),
-                        dataFolder.getFilesAndFoldersRecursively().await());
+                        dataFolder.iterateEntriesRecursively().toList());
                     test.assertEqual("hello", configurationFile.getContentsAsString().await());
                     test.assertEqual(configurationSchema.toString(JSONFormat.pretty), configurationSchemaFile.getContentsAsString().await());
                 });
@@ -485,7 +485,7 @@ public interface CommandLineConfigurationActionTests
                             dataFolder.getFolder("schemas").await(),
                             configurationFile,
                             configurationSchemaFile),
-                        dataFolder.getFilesAndFoldersRecursively().await());
+                        dataFolder.iterateEntriesRecursively().toList());
                     test.assertEqual(defaultConfiguration.toString(JSONFormat.pretty), configurationFile.getContentsAsString().await());
                     test.assertEqual(configurationSchema.toString(JSONFormat.pretty), configurationSchemaFile.getContentsAsString().await());
                 });

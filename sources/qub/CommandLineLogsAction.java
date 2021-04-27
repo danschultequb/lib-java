@@ -244,10 +244,9 @@ public interface CommandLineLogsAction
     {
         PreCondition.assertNotNull(logsFolder, "logsFolder");
 
-        final int logFileCount = logsFolder.getFiles()
-            .then((Iterable<File> logFiles) -> logFiles.getCount())
-            .catchError(NotFoundException.class, () -> 0)
-            .await();
+        final int logFileCount = logsFolder.iterateFiles()
+            .catchError(NotFoundException.class)
+            .getCount();
         final String logFileName = (logFileCount + 1) + ".log";
         final File result = logsFolder.getFile(logFileName).await();
 

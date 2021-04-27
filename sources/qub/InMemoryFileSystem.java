@@ -165,29 +165,30 @@ public class InMemoryFileSystem implements FileSystem
     }
 
     @Override
-    public Result<Iterable<FileSystemEntry>> getFilesAndFolders(Path rootedFolderPath)
+    public Iterator<FileSystemEntry> iterateEntries(Path rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getInMemoryFolder(rootedFolderPath)
-            .then((InMemoryFolder folder) ->
-            {
-                final List<FileSystemEntry> entries = List.create();
+        return LazyIterator.create(() ->
+        {
+            final InMemoryFolder folder = this.getInMemoryFolder(rootedFolderPath).await();
 
-                entries.addAll(folder.getFolders()
-                    .order((InMemoryFolder lhs, InMemoryFolder rhs) ->
-                        Strings.lessThan(lhs.getName(), rhs.getName()))
-                    .map((InMemoryFolder childFolder) ->
-                        new Folder(this, rootedFolderPath.concatenateSegment(childFolder.getName()))));
+            final List<FileSystemEntry> entries = List.create();
 
-                entries.addAll(folder.getFiles()
-                    .order((InMemoryFile lhs, InMemoryFile rhs) ->
-                        Strings.lessThan(lhs.getName(), rhs.getName()))
-                    .map((InMemoryFile childFile) ->
-                        new File(this, rootedFolderPath.concatenateSegment(childFile.getName()))));
+            entries.addAll(folder.getFolders()
+                .order((InMemoryFolder lhs, InMemoryFolder rhs) ->
+                    Strings.lessThan(lhs.getName(), rhs.getName()))
+                .map((InMemoryFolder childFolder) ->
+                    new Folder(this, rootedFolderPath.concatenateSegment(childFolder.getName()))));
 
-                return entries;
-            });
+            entries.addAll(folder.getFiles()
+                .order((InMemoryFile lhs, InMemoryFile rhs) ->
+                    Strings.lessThan(lhs.getName(), rhs.getName()))
+                .map((InMemoryFile childFile) ->
+                    new File(this, rootedFolderPath.concatenateSegment(childFile.getName()))));
+
+            return entries.iterate();
+        });
     }
 
     @Override

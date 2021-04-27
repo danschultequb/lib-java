@@ -38,12 +38,15 @@ public class QubProjectFolder extends Folder
         return this.getName();
     }
 
-    public Result<Iterable<QubProjectVersionFolder>>  getProjectVersionFolders()
+    public Iterator<QubProjectVersionFolder> iterateProjectVersionFolders()
     {
-        final Folder versionsFolder = this.getProjectVersionsFolder().await();
-        return versionsFolder.getFolders()
-            .catchError(FolderNotFoundException.class, () -> Iterable.create())
-            .then((Iterable<Folder> folders) -> folders.map(QubProjectVersionFolder::get));
+        return LazyIterator.create(() ->
+        {
+            final Folder versionsFolder = this.getProjectVersionsFolder().await();
+            return versionsFolder.iterateFolders()
+                .catchError(FolderNotFoundException.class)
+                .map(QubProjectVersionFolder::get);
+        });
     }
 
     public Result<QubProjectVersionFolder> getProjectVersionFolder(String version)
@@ -82,15 +85,15 @@ public class QubProjectFolder extends Folder
         return Result.create(() ->
         {
             QubProjectVersionFolder result;
-            final Iterable<QubProjectVersionFolder> projectVersionFolders = this.getProjectVersionFolders().await();
-            if (Iterable.isNullOrEmpty(projectVersionFolders))
+            final Iterator<QubProjectVersionFolder> projectVersionFolders = this.iterateProjectVersionFolders();
+            if (!projectVersionFolders.any())
             {
                 throw new NotFoundException("No project named " + this.getPublisherName().await() + "/" + this.getProjectName() + " has been published.");
             }
             else
             {
-                result = projectVersionFolders.first();
-                for (final QubProjectVersionFolder projectVersionFolder : projectVersionFolders.skipFirst())
+                result = projectVersionFolders.takeCurrent();
+                for (final QubProjectVersionFolder projectVersionFolder : projectVersionFolders)
                 {
                     if (comparer.run(result, projectVersionFolder) == Comparison.LessThan)
                     {

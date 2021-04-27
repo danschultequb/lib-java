@@ -133,170 +133,235 @@ public interface FileSystem
     }
 
     /**
-     * Get the files and folders (entries) at the provided folder path.
+     * Iterate the entries (files and folders) at the provided folder path.
      * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The files and folders (entries) at the provided folder path.
+     * @return The entries (files and folders) at the provided folder path.
      */
-    default Result<Iterable<FileSystemEntry>> getFilesAndFolders(String rootedFolderPath)
+    default Iterator<FileSystemEntry> iterateEntries(String rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return this.getFilesAndFolders(Path.parse(rootedFolderPath));
+        return this.iterateEntries(Path.parse(rootedFolderPath));
     }
 
     /**
-     * Get the files and folders (entries) at the provided folder Path.
-     * @param folderPath The Path to the folder (Root or Folder).
-     * @return The files and folders (entries) at the provided folder Path.
+     * Iterate the entries (files and folders) at the provided folder path.
+     * @param rootedFolderPath The path to the folder (Root or Folder).
+     * @return The entries (files and folders) at the provided folder path.
      */
-    Result<Iterable<FileSystemEntry>> getFilesAndFolders(Path folderPath);
+    Iterator<FileSystemEntry> iterateEntries(Path rootedFolderPath);
 
     /**
-     * Get the files and folders (entries) at the provided folder path and its subfolders.
+     * Iterate the files at the provided folder path.
      * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The files and folders (entries) at the provided folder path and its subfolders.
+     * @return The files at the provided folder path.
      */
-    default Result<Iterable<FileSystemEntry>> getFilesAndFoldersRecursively(String rootedFolderPath)
+    default Iterator<File> iterateFiles(String rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return this.getFilesAndFoldersRecursively(Path.parse(rootedFolderPath));
+        return this.iterateFiles(Path.parse(rootedFolderPath));
     }
 
     /**
-     * Get the files and folders (entries) at the provided folder path and its subfolders.
+     * Iterate the files at the provided folder path.
      * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The files and folders (entries) at the provided folder path and its subfolders.
+     * @return The files at the provided folder path.
      */
-    default Result<Iterable<FileSystemEntry>> getFilesAndFoldersRecursively(Path rootedFolderPath)
+    default Iterator<File> iterateFiles(Path rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return rootedFolderPath.resolve()
-            .then((Path resolvedRootedFolderPath) -> this.getFolder(resolvedRootedFolderPath).await())
-            .then((Folder folder) ->
-            {
-                final List<FileSystemEntry> result = List.create();
-
-                final Queue<Folder> foldersToVisit = Queue.create();
-                foldersToVisit.enqueue(folder);
-
-                while (foldersToVisit.any())
-                {
-                    final Folder currentFolder = foldersToVisit.dequeue();
-                    final Iterable<FileSystemEntry> currentFolderEntries = currentFolder.getFilesAndFolders().await();
-                    for (final FileSystemEntry entry : currentFolderEntries)
-                    {
-                        result.add(entry);
-                        if (entry instanceof Folder)
-                        {
-                            foldersToVisit.enqueue((Folder)entry);
-                        }
-                    }
-                }
-
-                return result;
-            });
+        return this.iterateEntries(rootedFolderPath)
+            .instanceOf(File.class);
     }
 
     /**
-     * Get the folders at the provided folder path.
+     * Iterate the folders at the provided folder path.
      * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The folders at the provided container path.
+     * @return The folders at the provided folder path.
      */
-    default Result<Iterable<Folder>> getFolders(String rootedFolderPath)
+    default Iterator<Folder> iterateFolders(String rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return this.getFolders(Path.parse(rootedFolderPath));
+        return this.iterateFolders(Path.parse(rootedFolderPath));
     }
 
     /**
-     * Get the folders at the provided folder path.
+     * Iterate the folders at the provided folder path.
      * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The folders at the provided container path.
+     * @return The folders at the provided folder path.
      */
-    default Result<Iterable<Folder>> getFolders(Path rootedFolderPath)
+    default Iterator<Folder> iterateFolders(Path rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return this.getFilesAndFolders(rootedFolderPath)
-            .then((Iterable<FileSystemEntry> entries) -> entries.instanceOf(Folder.class));
+        return this.iterateEntries(rootedFolderPath)
+            .instanceOf(Folder.class);
     }
 
     /**
-     * Get the folders at the provided folder path and its subfolders.
+     * Iterate the entries (files and folders) at the provided folder path recursively.
      * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The folders at the provided container path and its subfolders.
+     * @return The entries (files and folders) at the provided folder path.
      */
-    default Result<Iterable<Folder>> getFoldersRecursively(String rootedFolderPath)
+    default Iterator<FileSystemEntry> iterateEntriesRecursively(String rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return this.getFoldersRecursively(Path.parse(rootedFolderPath));
+        return this.iterateEntriesRecursively(Path.parse(rootedFolderPath));
     }
 
     /**
-     * Get the folders at the provided folder path and its subfolders.
+     * Iterate the entries (files and folders) at the provided folder path recursively.
      * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The folders at the provided container path and its subfolders.
+     * @return The entries (files and folders) at the provided folder path.
      */
-    default Result<Iterable<Folder>> getFoldersRecursively(Path rootedFolderPath)
+    default Iterator<FileSystemEntry> iterateEntriesRecursively(Path rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return this.getFilesAndFoldersRecursively(rootedFolderPath)
-            .then((Iterable<FileSystemEntry> entries) -> entries.instanceOf(Folder.class));
+        return this.iterateEntries(rootedFolderPath, Traversal.createDepthFirstSearch(FileSystem::preOrderEntriesTraversal));
     }
 
     /**
-     * Get the files at the provided folder path.
+     * Iterate the files at the provided folder path recursively.
      * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The files at the provided container path.
+     * @return The files at the provided folder path.
      */
-    default Result<Iterable<File>> getFiles(String rootedFolderPath)
+    default Iterator<File> iterateFilesRecursively(String rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return this.getFiles(Path.parse(rootedFolderPath));
+        return this.iterateFilesRecursively(Path.parse(rootedFolderPath));
     }
 
     /**
-     * Get the files at the provided folder path.
+     * Iterate the files at the provided folder path recursively.
      * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The files at the provided container path.
+     * @return The files at the provided folder path.
      */
-    default Result<Iterable<File>> getFiles(Path rootedFolderPath)
+    default Iterator<File> iterateFilesRecursively(Path rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return this.getFilesAndFolders(rootedFolderPath)
-            .then((Iterable<FileSystemEntry> entries) -> entries.instanceOf(File.class));
+        return this.iterateEntriesRecursively(rootedFolderPath)
+            .instanceOf(File.class);
     }
 
     /**
-     * Get the files at the provided folder path and each of the subfolders recursively.
+     * Iterate the folders at the provided folder path recursively.
      * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The files at the provided container path and its subfolders.
+     * @return The folders at the provided folder path.
      */
-    default Result<Iterable<File>> getFilesRecursively(String rootedFolderPath)
+    default Iterator<Folder> iterateFoldersRecursively(String rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return this.getFilesRecursively(Path.parse(rootedFolderPath));
+        return this.iterateFoldersRecursively(Path.parse(rootedFolderPath));
     }
 
     /**
-     * Get the files at the provided folder path and each of the subfolders recursively.
+     * Iterate the folders at the provided folder path recursively.
      * @param rootedFolderPath The path to the folder (Root or Folder).
-     * @return The files at the provided container path and its subfolders.
+     * @return The folders at the provided folder path.
      */
-    default Result<Iterable<File>> getFilesRecursively(Path rootedFolderPath)
+    default Iterator<Folder> iterateFoldersRecursively(Path rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return this.getFilesAndFoldersRecursively(rootedFolderPath)
-            .then((Iterable<FileSystemEntry> entries) -> entries.instanceOf(File.class));
+        return this.iterateEntriesRecursively(rootedFolderPath)
+            .instanceOf(Folder.class);
+    }
+
+    /**
+     * Iterate the entries (files and folders) at the provided folder path with the provided
+     * Traversal.
+     * @param rootedFolderPath The path to the folder (Root or Folder).
+     * @param traversal The traversal to use to iterate over the entries (files and folders).
+     * @return The entries (files and folders) at the provided folder path.
+     */
+    default Iterator<FileSystemEntry> iterateEntries(String rootedFolderPath, Traversal<Folder,FileSystemEntry> traversal)
+    {
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
+        PreCondition.assertNotNull(traversal, "traversal");
+
+        return this.iterateEntries(Path.parse(rootedFolderPath), traversal);
+    }
+
+    /**
+     * Iterate the entries (files and folders) at the provided folder path with the provided
+     * Traversal.
+     * @param rootedFolderPath The path to the folder (Root or Folder).
+     * @param traversal The traversal to use to iterate over the entries (files and folders).
+     * @return The entries (files and folders) at the provided folder path.
+     */
+    default Iterator<FileSystemEntry> iterateEntries(Path rootedFolderPath, Traversal<Folder,FileSystemEntry> traversal)
+    {
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
+        PreCondition.assertNotNull(traversal, "traversal");
+
+        final Folder folder = this.getFolder(rootedFolderPath).await();
+        return traversal.iterate(folder);
+    }
+
+    /**
+     * Iterate the files at the provided folder path with the provided Traversal.
+     * @param rootedFolderPath The path to the folder (Root or Folder).
+     * @param traversal The traversal to use to iterate over the files.
+     * @return The files at the provided folder path.
+     */
+    default Iterator<File> iterateFiles(String rootedFolderPath, Traversal<Folder,File> traversal)
+    {
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
+        PreCondition.assertNotNull(traversal, "traversal");
+
+        return this.iterateFiles(Path.parse(rootedFolderPath), traversal);
+    }
+
+    /**
+     * Iterate the files at the provided folder path with the provided Traversal.
+     * @param rootedFolderPath The path to the folder (Root or Folder).
+     * @param traversal The traversal to use to iterate over the files.
+     * @return The files at the provided folder path.
+     */
+    default Iterator<File> iterateFiles(Path rootedFolderPath, Traversal<Folder,File> traversal)
+    {
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
+        PreCondition.assertNotNull(traversal, "traversal");
+
+        final Folder folder = this.getFolder(rootedFolderPath).await();
+        return traversal.iterate(folder);
+    }
+
+    /**
+     * Iterate the folders at the provided folder path with the provided Traversal.
+     * @param rootedFolderPath The path to the folder (Root or Folder).
+     * @param traversal The traversal to use to iterate over the folders.
+     * @return The folders at the provided folder path.
+     */
+    default Iterator<Folder> iterateFolders(String rootedFolderPath, Traversal<Folder,Folder> traversal)
+    {
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
+        PreCondition.assertNotNull(traversal, "traversal");
+
+        return this.iterateFolders(Path.parse(rootedFolderPath), traversal);
+    }
+
+    /**
+     * Iterate the folders at the provided folder path with the provided Traversal.
+     * @param rootedFolderPath The path to the folder (Root or Folder).
+     * @param traversal The traversal to use to iterate over the folders.
+     * @return The folders at the provided folder path.
+     */
+    default Iterator<Folder> iterateFolders(Path rootedFolderPath, Traversal<Folder,Folder> traversal)
+    {
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
+        PreCondition.assertNotNull(traversal, "traversal");
+
+        final Folder folder = this.getFolder(rootedFolderPath).await();
+        return traversal.iterate(folder);
     }
 
     /**
@@ -945,5 +1010,65 @@ public interface FileSystem
             })
             .catchError(NotFoundException.class, () -> false)
             .await();
+    }
+
+    static void preOrderEntriesTraversal(TraversalActions<Folder,FileSystemEntry> actions, Folder currentFolder)
+    {
+        PreCondition.assertNotNull(actions, "actions");
+        PreCondition.assertNotNull(currentFolder, "currentFolder");
+
+        final Iterable<FileSystemEntry> entries = currentFolder.iterateEntries().toList();
+        actions.returnValues(entries);
+        actions.visitNodes(entries.instanceOf(Folder.class));
+    }
+
+    static void postOrderEntriesTraversal(TraversalActions<Folder,FileSystemEntry> actions, Folder currentFolder)
+    {
+        PreCondition.assertNotNull(actions, "actions");
+        PreCondition.assertNotNull(currentFolder, "currentFolder");
+
+        final Iterable<FileSystemEntry> entries = currentFolder.iterateEntries().toList();
+        actions.visitNodes(entries.instanceOf(Folder.class));
+        actions.returnValues(entries);
+    }
+
+    static void preOrderFilesTraversal(TraversalActions<Folder,File> actions, Folder currentFolder)
+    {
+        PreCondition.assertNotNull(actions, "actions");
+        PreCondition.assertNotNull(currentFolder, "currentFolder");
+
+        final Iterable<FileSystemEntry> entries = currentFolder.iterateEntries().toList();
+        actions.returnValues(entries.instanceOf(File.class));
+        actions.visitNodes(entries.instanceOf(Folder.class));
+    }
+
+    static void postOrderFilesTraversal(TraversalActions<Folder,File> actions, Folder currentFolder)
+    {
+        PreCondition.assertNotNull(actions, "actions");
+        PreCondition.assertNotNull(currentFolder, "currentFolder");
+
+        final Iterable<FileSystemEntry> entries = currentFolder.iterateEntries().toList();
+        actions.visitNodes(entries.instanceOf(Folder.class));
+        actions.returnValues(entries.instanceOf(File.class));
+    }
+
+    static void preOrderFoldersTraversal(TraversalActions<Folder,Folder> actions, Folder currentFolder)
+    {
+        PreCondition.assertNotNull(actions, "actions");
+        PreCondition.assertNotNull(currentFolder, "currentFolder");
+
+        final Iterable<Folder> folders = currentFolder.iterateEntries().instanceOf(Folder.class).toList();
+        actions.returnValues(folders);
+        actions.visitNodes(folders);
+    }
+
+    static void postOrderFoldersTraversal(TraversalActions<Folder,Folder> actions, Folder currentFolder)
+    {
+        PreCondition.assertNotNull(actions, "actions");
+        PreCondition.assertNotNull(currentFolder, "currentFolder");
+
+        final Iterable<Folder> folders = currentFolder.iterateEntries().instanceOf(Folder.class).toList();
+        actions.visitNodes(folders);
+        actions.returnValues(folders);
     }
 }

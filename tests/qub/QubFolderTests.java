@@ -66,18 +66,18 @@ public interface QubFolderTests
                 getShortcutFileTest.run("qub-pack.cmd");
             });
 
-            runner.testGroup("getPublisherFolders()", () ->
+            runner.testGroup("iteratePublisherFolders()", () ->
             {
                 runner.test("with non-existing QubFolder", (Test test) ->
                 {
                     final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
-                    test.assertEqual(Iterable.create(), qubFolder.getPublisherFolders().await());
+                    test.assertEqual(Iterable.create(), qubFolder.iteratePublisherFolders().toList());
                 });
 
                 runner.test("with existing empty QubFolder", (Test test) ->
                 {
                     final QubFolder qubFolder = QubFolderTests.createQubFolder("/qub/");
-                    test.assertEqual(Iterable.create(), qubFolder.getPublisherFolders().await());
+                    test.assertEqual(Iterable.create(), qubFolder.iteratePublisherFolders().toList());
                 });
 
                 runner.test("with existing QubFolder with files", (Test test) ->
@@ -85,7 +85,7 @@ public interface QubFolderTests
                     final Folder folder = QubFolderTests.createFolder("/qub/");
                     folder.createFile("shortcut.cmd").await();
                     final QubFolder qubFolder = QubFolder.get(folder);
-                    test.assertEqual(Iterable.create(), qubFolder.getPublisherFolders().await());
+                    test.assertEqual(Iterable.create(), qubFolder.iteratePublisherFolders().toList());
                 });
 
                 runner.test("with existing QubFolder with folders", (Test test) ->
@@ -96,7 +96,7 @@ public interface QubFolderTests
                     test.assertEqual(
                         Iterable.create(
                             QubPublisherFolder.get(subFolder)),
-                        qubFolder.getPublisherFolders().await());
+                        qubFolder.iteratePublisherFolders().toList());
                 });
             });
 
@@ -136,32 +136,32 @@ public interface QubFolderTests
                 });
             });
 
-            runner.testGroup("getProjectFolders(String)", () ->
+            runner.testGroup("iterateProjectFolders(String)", () ->
             {
                 runner.test("with null publisherName", (Test test) ->
                 {
                     final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
-                    test.assertThrows(() -> qubFolder.getProjectFolders(null),
+                    test.assertThrows(() -> qubFolder.iterateProjectFolders(null),
                         new PreConditionFailure("publisherName cannot be null."));
                 });
 
                 runner.test("with empty publisherName", (Test test) ->
                 {
                     final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
-                    test.assertThrows(() -> qubFolder.getProjectFolders(""),
+                    test.assertThrows(() -> qubFolder.iterateProjectFolders(""),
                         new PreConditionFailure("publisherName cannot be empty."));
                 });
 
                 runner.test("with non-existing QubFolder", (Test test) ->
                 {
                     final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
-                    test.assertEqual(Iterable.create(), qubFolder.getProjectFolders("me").await());
+                    test.assertEqual(Iterable.create(), qubFolder.iterateProjectFolders("me").toList());
                 });
 
                 runner.test("with existing empty QubFolder", (Test test) ->
                 {
                     final QubFolder qubFolder = QubFolderTests.createQubFolder("/qub/");
-                    test.assertEqual(Iterable.create(), qubFolder.getProjectFolders("me").await());
+                    test.assertEqual(Iterable.create(), qubFolder.iterateProjectFolders("me").toList());
                 });
 
                 runner.test("with existing QubFolder with files", (Test test) ->
@@ -169,7 +169,7 @@ public interface QubFolderTests
                     final Folder folder = QubFolderTests.createFolder("/qub/");
                     folder.createFile("shortcut.cmd").await();
                     final QubFolder qubFolder = QubFolder.get(folder);
-                    test.assertEqual(Iterable.create(), qubFolder.getProjectFolders("me").await());
+                    test.assertEqual(Iterable.create(), qubFolder.iterateProjectFolders("me").toList());
                 });
 
                 runner.test("with existing empty QubPublisherFolder", (Test test) ->
@@ -177,7 +177,7 @@ public interface QubFolderTests
                     final Folder folder = QubFolderTests.createFolder("/qub/");
                     folder.createFolder("me").await();
                     final QubFolder qubFolder = QubFolder.get(folder);
-                    test.assertEqual(Iterable.create(), qubFolder.getProjectFolders("me").await());
+                    test.assertEqual(Iterable.create(), qubFolder.iterateProjectFolders("me").toList());
                 });
 
                 runner.test("with existing QubProjectFolder", (Test test) ->
@@ -188,7 +188,7 @@ public interface QubFolderTests
                     test.assertEqual(
                         Iterable.create(
                             QubProjectFolder.get(subFolder)),
-                        qubFolder.getProjectFolders("me").await());
+                        qubFolder.iterateProjectFolders("me").toList());
                 });
             });
 
@@ -253,28 +253,28 @@ public interface QubFolderTests
                 });
             });
 
-            runner.testGroup("getProjectVersionFolders(String,String)", () ->
+            runner.testGroup("iterateProjectVersionFolders(String,String)", () ->
             {
-                final Action3<String,String,Throwable> getProjectVersionFoldersErrorTest = (String publisherName, String projectName, Throwable expected) ->
+                final Action3<String,String,Throwable> iterateProjectVersionFoldersErrorTest = (String publisherName, String projectName, Throwable expected) ->
                 {
                     runner.test("with " + English.andList(Iterable.create(publisherName, projectName).map(Strings::escapeAndQuote)), (Test test) ->
                     {
                         final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
-                        test.assertThrows(() -> qubFolder.getProjectVersionFolders(publisherName, projectName), expected);
+                        test.assertThrows(() -> qubFolder.iterateProjectVersionFolders(publisherName, projectName).toList(), expected);
                     });
                 };
 
-                getProjectVersionFoldersErrorTest.run(null, null, new PreConditionFailure("publisherName cannot be null."));
-                getProjectVersionFoldersErrorTest.run("", null, new PreConditionFailure("publisherName cannot be empty."));
-                getProjectVersionFoldersErrorTest.run("a", null, new PreConditionFailure("projectName cannot be null."));
-                getProjectVersionFoldersErrorTest.run("a", "", new PreConditionFailure("projectName cannot be empty."));
+                iterateProjectVersionFoldersErrorTest.run(null, null, new PreConditionFailure("publisherName cannot be null."));
+                iterateProjectVersionFoldersErrorTest.run("", null, new PreConditionFailure("publisherName cannot be empty."));
+                iterateProjectVersionFoldersErrorTest.run("a", null, new PreConditionFailure("projectName cannot be null."));
+                iterateProjectVersionFoldersErrorTest.run("a", "", new PreConditionFailure("projectName cannot be empty."));
 
                 runner.test("with non-existing Qub folder", (Test test) ->
                 {
                     final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
                     final String publisherName = "a";
                     final String projectName = "b";
-                    test.assertEqual(Iterable.create(), qubFolder.getProjectVersionFolders(publisherName, projectName).await());
+                    test.assertEqual(Iterable.create(), qubFolder.iterateProjectVersionFolders(publisherName, projectName).toList());
                 });
 
                 runner.test("with non-existing publisher folder", (Test test) ->
@@ -283,7 +283,7 @@ public interface QubFolderTests
                     qubFolder.create().await();
                     final String publisherName = "a";
                     final String projectName = "b";
-                    test.assertEqual(Iterable.create(), qubFolder.getProjectVersionFolders(publisherName, projectName).await());
+                    test.assertEqual(Iterable.create(), qubFolder.iterateProjectVersionFolders(publisherName, projectName).toList());
                 });
 
                 runner.test("with non-existing project folder", (Test test) ->
@@ -292,7 +292,7 @@ public interface QubFolderTests
                     final String publisherName = "a";
                     qubFolder.getPublisherFolder(publisherName).await().create().await();
                     final String projectName = "b";
-                    test.assertEqual(Iterable.create(), qubFolder.getProjectVersionFolders(publisherName, projectName).await());
+                    test.assertEqual(Iterable.create(), qubFolder.iterateProjectVersionFolders(publisherName, projectName).toList());
                 });
 
                 runner.test("with empty project folder", (Test test) ->
@@ -302,7 +302,7 @@ public interface QubFolderTests
                     final String projectName = "b";
                     final QubProjectFolder projectFolder = qubFolder.getProjectFolder(publisherName, projectName).await();
                     projectFolder.create().await();
-                    test.assertEqual(Iterable.create(), qubFolder.getProjectVersionFolders(publisherName, projectName).await());
+                    test.assertEqual(Iterable.create(), qubFolder.iterateProjectVersionFolders(publisherName, projectName).toList());
                 });
 
                 runner.test("with one version folder", (Test test) ->
@@ -315,7 +315,7 @@ public interface QubFolderTests
                     test.assertEqual(
                         Iterable.create(
                             qubFolder.getProjectVersionFolder(publisherName, projectName, "1").await()),
-                        qubFolder.getProjectVersionFolders(publisherName, projectName).await());
+                        qubFolder.iterateProjectVersionFolders(publisherName, projectName).toList());
                 });
             });
 

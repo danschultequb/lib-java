@@ -136,29 +136,43 @@ public class FolderFileSystem implements FileSystem
     }
 
     @Override
-    public Result<Iterable<FileSystemEntry>> getFilesAndFolders(Path rootedFolderPath)
+    public Iterator<FileSystemEntry> iterateEntries(Path rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return this.getInnerPath(rootedFolderPath)
-            .then((Path innerPath) ->
+        final Path innerRootedFolderPath = this.getInnerPath(rootedFolderPath).await();
+        return this.innerFileSystem.iterateEntries(innerRootedFolderPath)
+            .convertError(FolderNotFoundException.class, (FolderNotFoundException error) ->
             {
-                return innerFileSystem.getFilesAndFolders(innerPath)
-                    .then((Iterable<FileSystemEntry> innerEntries) ->
-                    {
-                        return innerEntries == null ? null : innerEntries.map((FileSystemEntry innerEntry) ->
-                        {
-                            final Path outerEntryPath = this.getOuterPath(innerEntry.getPath());
-                            return innerEntry instanceof File
-                                ? new File(this, outerEntryPath)
-                                : new Folder(this, outerEntryPath);
-                        });
-                    })
-                    .convertError(FolderNotFoundException.class, (FolderNotFoundException error) ->
-                    {
-                        return new FolderNotFoundException(this.getOuterPath(error.getFolderPath()));
-                    })
-                    .await();
+                return new FolderNotFoundException(this.getOuterPath(error.getFolderPath()));
+            })
+            .map((FileSystemEntry innerEntry) ->
+            {
+                final Path outerEntryPath = this.getOuterPath(innerEntry.getPath());
+                return innerEntry instanceof File
+                    ? new File(this, outerEntryPath)
+                    : new Folder(this, outerEntryPath);
+            });
+    }
+
+    @Override
+    public Iterator<FileSystemEntry> iterateEntries(Path rootedFolderPath, Traversal<Folder,FileSystemEntry> traversal)
+    {
+        FileSystem.validateRootedFolderPath(rootedFolderPath);
+        PreCondition.assertNotNull(traversal, "traversal");
+
+        final Path innerRootedFolderPath = this.getInnerPath(rootedFolderPath).await();
+        return this.innerFileSystem.iterateEntries(innerRootedFolderPath, traversal)
+            .convertError(FolderNotFoundException.class, (FolderNotFoundException error) ->
+            {
+                return new FolderNotFoundException(this.getOuterPath(error.getFolderPath()));
+            })
+            .map((FileSystemEntry innerEntry) ->
+            {
+                final Path outerEntryPath = this.getOuterPath(innerEntry.getPath());
+                return innerEntry instanceof File
+                    ? new File(this, outerEntryPath)
+                    : new Folder(this, outerEntryPath);
             });
     }
 
