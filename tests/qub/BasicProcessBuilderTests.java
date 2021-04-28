@@ -304,7 +304,7 @@ public interface BasicProcessBuilderTests
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     test.assertThrows(() -> builder.redirectOutputLines(null),
-                        new PreConditionFailure("onLineAction cannot be null."));
+                        new PreConditionFailure("onOutputLine cannot be null."));
                     test.assertEqual(0, builder.run().await());
                 });
 
@@ -345,7 +345,7 @@ public interface BasicProcessBuilderTests
                 {
                     final BasicProcessBuilder builder = BasicProcessBuilderTests.createBuilder(process);
                     test.assertThrows(() -> builder.redirectErrorLines(null),
-                        new PreConditionFailure("onLineAction cannot be null."));
+                        new PreConditionFailure("onErrorLine cannot be null."));
                     test.assertEqual(0, builder.run().await());
                 });
 

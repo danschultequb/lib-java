@@ -32,9 +32,9 @@ public interface QueueTests
                 {
                     final Queue<Integer> queue = Queue.create(Iterable.create(1, 2, 3));
                     test.assertNotNull(queue);
-                    test.assertEqual(1, queue.dequeue());
-                    test.assertEqual(2, queue.dequeue());
-                    test.assertEqual(3, queue.dequeue());
+                    test.assertEqual(1, queue.dequeue().await());
+                    test.assertEqual(2, queue.dequeue().await());
+                    test.assertEqual(3, queue.dequeue().await());
                     test.assertEqual(0, queue.getCount());
                 });
             });
@@ -48,7 +48,8 @@ public interface QueueTests
             runner.test("enqueue()", test ->
             {
                 final Queue<Integer> queue = createQueue.run();
-                test.assertThrows(queue::dequeue, new PreConditionFailure("any() cannot be false."));
+                test.assertThrows(() -> queue.dequeue().await(),
+                    new QueueEmptyException());
                 test.assertFalse(queue.any());
 
                 queue.enqueue(0);
@@ -59,15 +60,16 @@ public interface QueueTests
                 test.assertTrue(queue.any());
                 test.assertEqual(2, queue.getCount());
 
-                test.assertEqual(0, queue.dequeue());
+                test.assertEqual(0, queue.dequeue().await());
                 test.assertTrue(queue.any());
                 test.assertEqual(1, queue.getCount());
 
-                test.assertEqual(1, queue.dequeue());
+                test.assertEqual(1, queue.dequeue().await());
                 test.assertFalse(queue.any());
                 test.assertEqual(0, queue.getCount());
 
-                test.assertThrows(queue::dequeue, new PreConditionFailure("any() cannot be false."));
+                test.assertThrows(() -> queue.dequeue().await(),
+                    new QueueEmptyException());
                 test.assertFalse(queue.any());
                 test.assertEqual(0, queue.getCount());
             });
@@ -98,7 +100,7 @@ public interface QueueTests
                     test.assertEqual(3, queue.getCount());
                     for (int i = 0; i < 3; ++i)
                     {
-                        test.assertEqual(i, queue.dequeue());
+                        test.assertEqual(i, queue.dequeue().await());
                     }
                 });
             });
@@ -115,7 +117,7 @@ public interface QueueTests
                 queue.enqueue(21);
                 test.assertEqual(20, queue.peek().await());
 
-                test.assertEqual(20, queue.dequeue());
+                test.assertEqual(20, queue.dequeue().await());
                 test.assertEqual(21, queue.peek().await());
             });
         });

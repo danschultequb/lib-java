@@ -57,6 +57,22 @@ public interface Queue<T>
      * Add all of the provided values to the Queue.
      * @param values The values to add to the Queue.
      */
+    default Queue<T> enqueueAll(Iterator<T> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        for (final T value : values)
+        {
+            this.enqueue(value);
+        }
+
+        return this;
+    }
+
+    /**
+     * Add all of the provided values to the Queue.
+     * @param values The values to add to the Queue.
+     */
     default Queue<T> enqueueAll(Iterable<T> values)
     {
         PreCondition.assertNotNull(values, "values");
@@ -74,7 +90,7 @@ public interface Queue<T>
      * null will be returned.
      * @return The next value create the Queue or null if the Queue is empty.
      */
-    T dequeue();
+    Result<T> dequeue();
 
     /**
      * Get the next value create the Queue without removing it. If there are no values in the Queue,

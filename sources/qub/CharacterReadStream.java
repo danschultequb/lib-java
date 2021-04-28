@@ -340,6 +340,36 @@ public interface CharacterReadStream extends Disposable
     }
 
     /**
+     * Get an Iterator that will iterate through each of the lines in this CharacterReadStream. The
+     * returned lines will not include the line-ending sequence (\r\n or \n).
+     * @return An Iterator that will iterate through each of the lines in this CharacterReadStream.
+     */
+    default Iterator<String> iterateLines()
+    {
+        return this.iterateLines(false);
+    }
+
+    /**
+     * Get an Iterator that will iterate through each of the lines in this CharacterReadStream.
+     * @param includeNewLines Whether or not the line-ending sequences (\r\n or \n) will be
+     *                        included in the returned lines.
+     * @return An Iterator that will iterate through each of the lines in this CharacterReadStream.
+     */
+    default Iterator<String> iterateLines(boolean includeNewLines)
+    {
+        return Iterator.create((IteratorActions<String> actions) ->
+        {
+            final String line = this.readLine(includeNewLines)
+                .catchError(EndOfStreamException.class)
+                .await();
+            if (line != null)
+            {
+                actions.returnValue(line);
+            }
+        });
+    }
+
+    /**
      * Get the CharacterEncoding that this CharacterReadStream uses to convert bytes to characters.
      * @return The CharacterEncoding that this CharacterReadStream uses to convert bytes to
      * characters.

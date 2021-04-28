@@ -353,7 +353,40 @@ public interface Iterator<T> extends java.lang.Iterable<T>
         return CustomDecorator.create(this);
     }
 
+    /**
+     * Get an Iterator that will invoke the provided action whenever a new value is iterated to.
+     * @param action The action to run when a new value is iterated to.
+     * @return An Iterator that will invoke the provided action whenever a new value is iterated
+     * to.
+     */
+    default Iterator<T> onValue(Action0 action)
+    {
+        PreCondition.assertNotNull(action, "action");
 
+        return this.onValue((T currentValue) -> { action.run(); });
+    }
+
+    /**
+     * Get an Iterator that will invoke the provided action whenever a new value is iterated to.
+     * @param action The action to run when a new value is iterated to.
+     * @return An Iterator that will invoke the provided action whenever a new value is iterated
+     * to.
+     */
+    default Iterator<T> onValue(Action1<T> action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return this.customize()
+            .setNextFunction((Iterator<T> innerIterator) ->
+            {
+                final boolean hasCurrent = innerIterator.next();
+                if (hasCurrent)
+                {
+                    action.run(innerIterator.getCurrent());
+                }
+                return hasCurrent;
+            });
+    }
 
     /**
      * Ignore any errors that occur while iterating.
@@ -608,6 +641,16 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
+     * Iterate through each of the values in this Iterator.
+     */
+    default void await()
+    {
+        while (this.next())
+        {
+        }
+    }
+
+    /**
      * Create an empty iterator.
      * @param <T> The type of values to iterate over.
      * @return The empty iterator.
@@ -674,6 +717,38 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     static <T> Iterator<T> create(T... values)
     {
         return Iterable.create(values).iterate();
+    }
+
+    /**
+     * Create an Iterator that will invoke the provided action to determine what its next value(s)
+     * should be.
+     * @param getNextValuesAction The action that will be invoked to determine what the next
+     *                            value(s) for the returned Iterator should be.
+     * @param <T> The type of values returned by the Iterator.
+     * @return An Iterator that will invoke the provided action to determine what its next value(s)
+     * should be.
+     */
+    static <T> Iterator<T> create(Action1<IteratorActions<T>> getNextValuesAction)
+    {
+        PreCondition.assertNotNull(getNextValuesAction, "getNextValuesAction");
+
+        return BasicIterator.create(getNextValuesAction);
+    }
+
+    /**
+     * Create an Iterator that will invoke the provided action to determine what its next value(s)
+     * should be.
+     * @param getNextValuesAction The action that will be invoked to determine what the next
+     *                            value(s) for the returned Iterator should be.
+     * @param <T> The type of values returned by the Iterator.
+     * @return An Iterator that will invoke the provided action to determine what its next value(s)
+     * should be.
+     */
+    static <T> Iterator<T> create(Action2<IteratorActions<T>,Getter<T>> getNextValuesAction)
+    {
+        PreCondition.assertNotNull(getNextValuesAction, "getNextValuesAction");
+
+        return BasicIterator.create(getNextValuesAction);
     }
 
     /**

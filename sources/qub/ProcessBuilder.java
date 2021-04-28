@@ -45,7 +45,17 @@ public interface ProcessBuilder
      * @param arguments The arguments to add.
      * @return This object for method chaining.
      */
-    ProcessBuilder addArguments(String... arguments);
+    default ProcessBuilder addArguments(String... arguments)
+    {
+        PreCondition.assertNotNull(arguments, "arguments");
+
+        for (final String argument : arguments)
+        {
+            this.addArgument(argument);
+        }
+
+        return this;
+    }
 
     /**
      * Add the provided arguments to the list of arguments that will be provided to the executable
@@ -53,7 +63,35 @@ public interface ProcessBuilder
      * @param arguments The arguments to add.
      * @return This object for method chaining.
      */
-    ProcessBuilder addArguments(Iterable<String> arguments);
+    default ProcessBuilder addArguments(Iterator<String> arguments)
+    {
+        PreCondition.assertNotNull(arguments, "arguments");
+
+        for (final String argument : arguments)
+        {
+            this.addArgument(argument);
+        }
+
+        return this;
+    }
+
+    /**
+     * Add the provided arguments to the list of arguments that will be provided to the executable
+     * when this ProcessBuilder is run.
+     * @param arguments The arguments to add.
+     * @return This object for method chaining.
+     */
+    default ProcessBuilder addArguments(Iterable<String> arguments)
+    {
+        PreCondition.assertNotNull(arguments, "arguments");
+
+        for (final String argument : arguments)
+        {
+            this.addArgument(argument);
+        }
+
+        return this;
+    }
 
     /**
      * Get the arguments that this ProcessBuilder will provide to the executable.
@@ -66,7 +104,12 @@ public interface ProcessBuilder
      * @param workingFolderPath The path to the folder that this process will be executed in.
      * @return This object for method chaining.
      */
-    ProcessBuilder setWorkingFolder(String workingFolderPath);
+    default ProcessBuilder setWorkingFolder(String workingFolderPath)
+    {
+        PreCondition.assertNotNullAndNotEmpty(workingFolderPath, "workingFolderPath");
+
+        return this.setWorkingFolder(Path.parse(workingFolderPath));
+    }
 
     /**
      * Set the path to the folder that this process will be executed in.
@@ -80,7 +123,12 @@ public interface ProcessBuilder
      * @param workingFolder The folder that this process will be executed in.
      * @return This object for method chaining.
      */
-    ProcessBuilder setWorkingFolder(Folder workingFolder);
+    default ProcessBuilder setWorkingFolder(Folder workingFolder)
+    {
+        PreCondition.assertNotNull(workingFolder, "workingFolder");
+
+        return this.setWorkingFolder(workingFolder.getPath());
+    }
 
     /**
      * Get the path to the folder that this ProcessBuilder will run the executable in.
@@ -109,14 +157,30 @@ public interface ProcessBuilder
      * @param redirectedOutputStream The ByteWriteStream to redirect process output to.
      * @return This object for method chaining.
      */
-    ProcessBuilder redirectOutput(ByteWriteStream redirectedOutputStream);
+    default ProcessBuilder redirectOutput(ByteWriteStream redirectedOutputStream)
+    {
+        PreCondition.assertNotNull(redirectedOutputStream, "redirectedOutputStream");
+
+        return this.redirectOutput((ByteReadStream output) -> redirectedOutputStream.writeAll(output).await());
+    }
 
     /**
      * Redirect the output stream lines create the processes that are created by this ProcessBuilder.
      * @param onOutputLine The function to call when a process writes a line to its output stream.
      * @return This object for method chaining.
      */
-    ProcessBuilder redirectOutputLines(Action1<String> onOutputLine);
+    default ProcessBuilder redirectOutputLines(Action1<String> onOutputLine)
+    {
+        PreCondition.assertNotNull(onOutputLine, "onOutputLine");
+
+        return this.redirectOutput((ByteReadStream byteReadStream) ->
+        {
+            CharacterReadStream.create(byteReadStream)
+                .iterateLines(true)
+                .onValue(onOutputLine)
+                .await();
+        });
+    }
 
     /**
      * Redirect the error stream of the invoked process to the provided action when the process is
@@ -131,14 +195,30 @@ public interface ProcessBuilder
      * @param redirectedErrorStream The ByteWriteStream to redirect process error to.
      * @return This object for method chaining.
      */
-    ProcessBuilder redirectError(ByteWriteStream redirectedErrorStream);
+    default ProcessBuilder redirectError(ByteWriteStream redirectedErrorStream)
+    {
+        PreCondition.assertNotNull(redirectedErrorStream, "redirectedErrorStream");
+
+        return this.redirectError((ByteReadStream error) -> redirectedErrorStream.writeAll(error).await());
+    }
 
     /**
      * Redirect the error stream lines create the processes that are created by this ProcessBuilder.
      * @param onErrorLine The function to call when a process writes a line to its error stream.
      * @return This object for method chaining.
      */
-    ProcessBuilder redirectErrorLines(Action1<String> onErrorLine);
+    default ProcessBuilder redirectErrorLines(Action1<String> onErrorLine)
+    {
+        PreCondition.assertNotNull(onErrorLine, "onErrorLine");
+
+        return this.redirectError((ByteReadStream byteReadStream) ->
+        {
+            CharacterReadStream.create(byteReadStream)
+                .iterateLines(true)
+                .onValue(onErrorLine)
+                .await();
+        });
+    }
 
     /**
      * Set the CharacterWriteStream that this ProcessBuilder will write verbose logs to.

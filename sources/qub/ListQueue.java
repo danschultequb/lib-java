@@ -50,16 +50,18 @@ public class ListQueue<T> implements Queue<T>
     }
 
     @Override
-    public T dequeue()
+    public Result<T> dequeue()
     {
-        PreCondition.assertTrue(any(), "any()");
-
-        return this.values.removeFirst();
+        return this.values.any()
+            ? Result.success(this.values.removeFirst())
+            : Result.error(new QueueEmptyException());
     }
 
     @Override
     public Result<T> peek()
     {
-        return this.values.any() ? Result.success(this.values.first()) : Result.error(new QueueEmptyException());
+        return this.values.any()
+            ? Result.success(this.values.first())
+            : Result.error(new QueueEmptyException());
     }
 }

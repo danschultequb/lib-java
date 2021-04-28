@@ -84,27 +84,19 @@ public class BasicProcessBuilder implements ProcessBuilder
     @Override
     public BasicProcessBuilder addArguments(String... arguments)
     {
-        PreCondition.assertNotNull(arguments, "arguments");
+        return (BasicProcessBuilder)ProcessBuilder.super.addArguments(arguments);
+    }
 
-        for (final String argument : arguments)
-        {
-            this.addArgument(argument);
-        }
-
-        return this;
+    @Override
+    public BasicProcessBuilder addArguments(Iterator<String> arguments)
+    {
+        return (BasicProcessBuilder)ProcessBuilder.super.addArguments(arguments);
     }
 
     @Override
     public BasicProcessBuilder addArguments(Iterable<String> arguments)
     {
-        PreCondition.assertNotNull(arguments, "arguments");
-
-        for (final String argument : arguments)
-        {
-            this.addArgument(argument);
-        }
-
-        return this;
+        return (BasicProcessBuilder)ProcessBuilder.super.addArguments(arguments);
     }
 
     @Override
@@ -117,9 +109,7 @@ public class BasicProcessBuilder implements ProcessBuilder
     @Override
     public BasicProcessBuilder setWorkingFolder(String workingFolderPath)
     {
-        PreCondition.assertNotNullAndNotEmpty(workingFolderPath, "workingFolderPath");
-
-        return this.setWorkingFolder(Path.parse(workingFolderPath));
+        return (BasicProcessBuilder)ProcessBuilder.super.setWorkingFolder(workingFolderPath);
     }
 
 
@@ -138,9 +128,7 @@ public class BasicProcessBuilder implements ProcessBuilder
     @Override
     public BasicProcessBuilder setWorkingFolder(Folder workingFolder)
     {
-        PreCondition.assertNotNull(workingFolder, "workingFolder");
-
-        return this.setWorkingFolder(workingFolder.getPath());
+        return (BasicProcessBuilder)ProcessBuilder.super.setWorkingFolder(workingFolder);
     }
 
 
@@ -170,14 +158,14 @@ public class BasicProcessBuilder implements ProcessBuilder
     @Override
     public BasicProcessBuilder redirectOutput(ByteWriteStream redirectedOutputStream)
     {
-        return this.redirectOutput((ByteReadStream output) -> redirectedOutputStream.writeAll(output).await());
+        return (BasicProcessBuilder)ProcessBuilder.super.redirectOutput(redirectedOutputStream);
     }
 
 
     @Override
     public BasicProcessBuilder redirectOutputLines(Action1<String> onOutputLine)
     {
-        return this.redirectOutput(BasicProcessBuilder.byteReadStreamToLineAction(onOutputLine));
+        return (BasicProcessBuilder)ProcessBuilder.super.redirectOutputLines(onOutputLine);
     }
 
 
@@ -192,41 +180,13 @@ public class BasicProcessBuilder implements ProcessBuilder
     @Override
     public BasicProcessBuilder redirectError(ByteWriteStream redirectedErrorStream)
     {
-        return this.redirectError((ByteReadStream error) -> redirectedErrorStream.writeAll(error).await());
+        return (BasicProcessBuilder)ProcessBuilder.super.redirectError(redirectedErrorStream);
     }
 
 
     @Override
     public BasicProcessBuilder redirectErrorLines(Action1<String> onErrorLine)
     {
-        return this.redirectError(BasicProcessBuilder.byteReadStreamToLineAction(onErrorLine));
-    }
-
-    /**
-     * Get a function that will take in a ByteReadStream and will invoked the provided function on
-     * each line.
-     * @param onLineAction The function to invoke for each line of the ByteReadStream.
-     * @return The function.
-     */
-    private static Action1<ByteReadStream> byteReadStreamToLineAction(Action1<String> onLineAction)
-    {
-        PreCondition.assertNotNull(onLineAction, "onLineAction");
-
-        return (ByteReadStream byteReadStream) ->
-        {
-            final CharacterReadStream characterReadStream = CharacterReadStream.create(byteReadStream);
-            String line;
-            do
-            {
-                line = characterReadStream.readLine(true)
-                    .catchError(EndOfStreamException.class)
-                    .await();
-                if (line != null)
-                {
-                    onLineAction.run(line);
-                }
-            }
-            while (line != null);
-        };
+        return (BasicProcessBuilder)ProcessBuilder.super.redirectErrorLines(onErrorLine);
     }
 }
