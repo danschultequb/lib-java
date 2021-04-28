@@ -686,4 +686,60 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     {
         return iterator == null || !iterator.any();
     }
+
+    /**
+     * Get the value in this Iterable that is the maximum based on the provided comparer function.
+     * @param comparer The function to use to compare the values in this Iterable.
+     * @return The maximum value in this Iterable based on the provided comparer function.
+     */
+    default T minimum(Function2<T,T,Comparison> comparer)
+    {
+        PreCondition.assertNotNull(comparer, "comparer");
+
+        T result = null;
+
+        this.start();
+        if (this.hasCurrent())
+        {
+            result = this.getCurrent();
+            while (this.next())
+            {
+                final T current = this.getCurrent();
+                if (comparer.run(current, result) == Comparison.LessThan)
+                {
+                    result = current;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Get the value in this Iterable that is the maximum based on the provided comparer function.
+     * @param comparer The function to use to compare the values in this Iterable.
+     * @return The maximum value in this Iterable based on the provided comparer function.
+     */
+    default T maximum(Function2<T,T,Comparison> comparer)
+    {
+        PreCondition.assertNotNull(comparer, "comparer");
+
+        T result = null;
+
+        this.start();
+        if (this.hasCurrent())
+        {
+            result = this.getCurrent();
+            while (this.next())
+            {
+                final T current = this.getCurrent();
+                if (comparer.run(current, result) == Comparison.GreaterThan)
+                {
+                    result = current;
+                }
+            }
+        }
+
+        return result;
+    }
 }

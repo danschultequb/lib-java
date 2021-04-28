@@ -317,25 +317,7 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      */
     default T minimum(Function2<T,T,Comparison> comparer)
     {
-        PreCondition.assertNotNull(comparer, "comparer");
-
-        T result = null;
-
-        final Iterator<T> iterator = iterate();
-        if (iterator.next())
-        {
-            result = iterator.takeCurrent();
-            while (iterator.hasCurrent())
-            {
-                final T current = iterator.takeCurrent();
-                if (comparer.run(current, result) == Comparison.LessThan)
-                {
-                    result = current;
-                }
-            }
-        }
-
-        return result;
+        return this.iterate().minimum(comparer);
     }
 
     /**
@@ -345,25 +327,7 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      */
     default T maximum(Function2<T,T,Comparison> comparer)
     {
-        PreCondition.assertNotNull(comparer, "comparer");
-
-        T result = null;
-
-        final Iterator<T> iterator = iterate();
-        if (iterator.next())
-        {
-            result = iterator.takeCurrent();
-            while (iterator.hasCurrent())
-            {
-                final T current = iterator.takeCurrent();
-                if (comparer.run(current, result) == Comparison.GreaterThan)
-                {
-                    result = current;
-                }
-            }
-        }
-
-        return result;
+        return this.iterate().maximum(comparer);
     }
 
     /**
