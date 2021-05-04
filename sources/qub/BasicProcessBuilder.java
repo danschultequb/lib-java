@@ -30,6 +30,7 @@ public class BasicProcessBuilder implements ProcessBuilder
     public BasicProcessBuilder setVerbose(CharacterWriteStream verbose)
     {
         this.verbose = verbose;
+
         return this;
     }
 
@@ -37,9 +38,9 @@ public class BasicProcessBuilder implements ProcessBuilder
     public Result<Integer> run()
     {
         return this.factory.run(
-            this.executablePath,
-            this.arguments,
-            this.workingFolderPath,
+            this.getExecutablePath(),
+            this.getArguments(),
+            this.getWorkingFolderPath(),
             this.redirectedInputStream,
             this.redirectOutputAction,
             this.redirectErrorAction,
@@ -50,9 +51,9 @@ public class BasicProcessBuilder implements ProcessBuilder
     public Result<? extends ChildProcess> start()
     {
         return this.factory.start(
-            this.executablePath,
-            this.arguments,
-            this.workingFolderPath,
+            this.getExecutablePath(),
+            this.getArguments(),
+            this.getWorkingFolderPath(),
             this.redirectedInputStream,
             this.redirectOutputAction,
             this.redirectErrorAction,
@@ -68,7 +69,7 @@ public class BasicProcessBuilder implements ProcessBuilder
     @Override
     public String getCommand()
     {
-        return ProcessFactory.getCommand(this.executablePath, this.arguments, this.workingFolderPath);
+        return ProcessFactory.getCommand(this.getExecutablePath(), this.getArguments(), this.getWorkingFolderPath());
     }
 
     @Override
