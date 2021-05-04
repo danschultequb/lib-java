@@ -16,15 +16,15 @@ public abstract class ProcessBuilderDecorator<T extends ProcessBuilder> implemen
     }
 
     @Override
-    public Result<Integer> run()
+    public Result<Integer> run(Iterable<String> additionalArguments)
     {
-        return this.processBuilder.run();
+        return this.processBuilder.run(additionalArguments);
     }
 
     @Override
-    public Result<? extends ChildProcess> start()
+    public Result<? extends ChildProcess> start(Iterable<String> additionalArguments)
     {
-        return this.processBuilder.start();
+        return this.processBuilder.start(additionalArguments);
     }
 
     @Override

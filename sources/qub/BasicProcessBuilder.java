@@ -35,11 +35,13 @@ public class BasicProcessBuilder implements ProcessBuilder
     }
 
     @Override
-    public Result<Integer> run()
+    public Result<Integer> run(Iterable<String> additionalArguments)
     {
+        PreCondition.assertNotNull(additionalArguments, "additionalArguments");
+
         return this.factory.run(
             this.getExecutablePath(),
-            this.getArguments(),
+            List.create(this.getArguments()).addAll(additionalArguments),
             this.getWorkingFolderPath(),
             this.redirectedInputStream,
             this.redirectOutputAction,
@@ -48,11 +50,13 @@ public class BasicProcessBuilder implements ProcessBuilder
     }
 
     @Override
-    public Result<? extends ChildProcess> start()
+    public Result<? extends ChildProcess> start(Iterable<String> additionalArguments)
     {
+        PreCondition.assertNotNull(additionalArguments, "additionalArguments");
+
         return this.factory.start(
             this.getExecutablePath(),
-            this.getArguments(),
+            List.create(this.getArguments()).addAll(additionalArguments),
             this.getWorkingFolderPath(),
             this.redirectedInputStream,
             this.redirectOutputAction,

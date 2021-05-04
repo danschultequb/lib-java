@@ -6,10 +6,20 @@ package qub;
 public interface ProcessBuilder
 {
     /**
-     * Run the executable path with the provided arguments. Return the process's exit code.
+     * Run the executable path with the configured arguments. Return the process's exit code.
      * @return The exit code from the process's execution.
      */
-    Result<Integer> run();
+    default Result<Integer> run()
+    {
+        return this.run(Iterable.create());
+    }
+
+    /**
+     * Run the executable path with the configured arguments followed by the provided additional
+     * arguments. Return the process's exit code.
+     * @return The exit code from the process's execution.
+     */
+    Result<Integer> run(Iterable<String> additionalArguments);
 
     /**
      * Start the executable path with the configured arguments. Return a ChildProcess object that
@@ -17,7 +27,18 @@ public interface ProcessBuilder
      * to complete before returning.
      * @return The ChildProcess that can be used to monitor the started process.
      */
-    Result<? extends ChildProcess> start();
+    default Result<? extends ChildProcess> start()
+    {
+        return this.start(Iterable.create());
+    }
+
+    /**
+     * Start the executable path with the configured arguments followed by the provided additional
+     * arguments. Return a ChildProcess object that can be used to monitor the started process.
+     * This process will not wait for the child process to complete before returning.
+     * @return The ChildProcess that can be used to monitor the started process.
+     */
+    Result<? extends ChildProcess> start(Iterable<String> additionalArguments);
 
     /**
      * Get the path to the executable that this ProcessBuilder will invoke.
