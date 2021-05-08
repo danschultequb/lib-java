@@ -122,24 +122,26 @@ public class FakeNetwork implements Network
                     }
 
                     int serverClientLocalPort = 65535;
-                    while (1 <= serverClientLocalPort && !isAvailable(remoteIPAddress, serverClientLocalPort))
+                    final boolean localIPAddressEqualsRemoteIPAddress = clientLocalIPAddress.equals(remoteIPAddress);
+                    while ((localIPAddressEqualsRemoteIPAddress && clientLocalPort == serverClientLocalPort) ||
+                            !isAvailable(remoteIPAddress, serverClientLocalPort))
                     {
                         --serverClientLocalPort;
-                    }
 
-                    if (serverClientLocalPort < 1)
-                    {
-                        throw new IllegalStateException("No more ports available on IP address " + remoteIPAddress);
+                        if (serverClientLocalPort <= 0)
+                        {
+                            throw new IllegalStateException("No more ports available on IP address " + remoteIPAddress);
+                        }
                     }
 
                     final InMemoryByteStream clientToServer = createNetworkStream();
                     final InMemoryByteStream serverToClient = createNetworkStream();
 
-                    final FakeTCPClient tcpClient = new FakeTCPClient(this, clientLocalIPAddress, clientLocalPort, remoteIPAddress, remotePort, serverToClient, clientToServer);
-                    addLocalTCPClient(tcpClient);
+                    final FakeTCPClient tcpClient = FakeTCPClient.create(this, clientLocalIPAddress, clientLocalPort, remoteIPAddress, remotePort, serverToClient, clientToServer);
+                    this.addLocalTCPClient(tcpClient);
 
-                    final FakeTCPClient serverTCPClient = new FakeTCPClient(this, remoteIPAddress, serverClientLocalPort, clientLocalIPAddress, clientLocalPort, clientToServer, serverToClient);
-                    addLocalTCPClient(serverTCPClient);
+                    final FakeTCPClient serverTCPClient = FakeTCPClient.create(this, remoteIPAddress, serverClientLocalPort, clientLocalIPAddress, clientLocalPort, clientToServer, serverToClient);
+                    this.addLocalTCPClient(serverTCPClient);
 
                     remoteTCPServer.addIncomingClient(serverTCPClient);
 
@@ -169,14 +171,15 @@ public class FakeNetwork implements Network
         PreCondition.assertNotNull(networkStream, "networkStream");
 
         final int currentStreamReferenceCount = this.streamReferenceCounts.get(networkStream).await();
-        if (currentStreamReferenceCount == 1)
+        if (currentStreamReferenceCount == 2)
         {
-            networkStream.dispose();
-            this.streamReferenceCounts.remove(networkStream);
+            networkStream.endOfStream();
+            this.streamReferenceCounts.set(networkStream, 1);
         }
         else
         {
-            this.streamReferenceCounts.set(networkStream, currentStreamReferenceCount - 1);
+            networkStream.dispose().await();
+            this.streamReferenceCounts.remove(networkStream);
         }
     }
 
@@ -186,8 +189,7 @@ public class FakeNetwork implements Network
 
         this.mutex.criticalSection(() ->
         {
-            this.boundTCPClients.getOrSet(tcpClient.getLocalIPAddress(), Map::create)
-                .await()
+            this.boundTCPClients.getOrSet(tcpClient.getLocalIPAddress(), Map::create).await()
                 .set(tcpClient.getLocalPort(), tcpClient);
         }).await();
     }
@@ -236,17 +238,21 @@ public class FakeNetwork implements Network
         });
     }
 
-    public void clientDisposed(FakeTCPClient tcpClient)
+    public void clientDisposed(IPv4Address localIPAddress, int localPort, InMemoryByteStream socketReadStream, InMemoryByteStream socketWriteStream)
     {
-        PreCondition.assertNotNull(tcpClient, "tcpClient");
+        Network.validateLocalIPAddress(localIPAddress);
+        Network.validateLocalPort(localPort);
+        PreCondition.assertNotNull(socketReadStream, "socketReadStream");
+        PreCondition.assertNotDisposed(socketReadStream, "socketReadStream");
+        PreCondition.assertNotNull(socketWriteStream, "socketWriteStream");
+        PreCondition.assertNotDisposed(socketWriteStream, "socketWriteStream");
 
         this.mutex.criticalSection(() ->
         {
-            this.decrementNetworkStream((InMemoryByteStream)tcpClient.getReadStream());
-            this.decrementNetworkStream((InMemoryByteStream)tcpClient.getWriteStream());
-            this.boundTCPClients.get(tcpClient.getLocalIPAddress())
-                .await()
-                .remove(tcpClient.getLocalPort());
+            this.decrementNetworkStream(socketReadStream);
+            this.decrementNetworkStream(socketWriteStream);
+            this.boundTCPClients.get(localIPAddress).await()
+                .remove(localPort).await();
         }).await();
     }
 

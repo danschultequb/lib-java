@@ -119,7 +119,7 @@ class JavaTCPServer implements TCPServer
         }
         catch (java.io.IOException e)
         {
-            if (Strings.equal(e.getMessage(), "Socket is closed"))
+            if (Strings.isOneOf(e.getMessage(), Iterable.create("Socket closed", "Socket is closed")))
             {
                 result = Result.error(new SocketClosedException(e));
             }

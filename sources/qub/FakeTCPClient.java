@@ -7,11 +7,11 @@ public class FakeTCPClient implements TCPClient
     private final int localPort;
     private final IPv4Address remoteIPAddress;
     private final int remotePort;
-    private final ByteReadStream socketReadStream;
-    private final ByteWriteStream socketWriteStream;
+    private final InMemoryByteStream socketReadStream;
+    private final InMemoryByteStream socketWriteStream;
     private boolean disposed;
 
-    FakeTCPClient(FakeNetwork network, IPv4Address localIPAddress, int localPort, IPv4Address remoteIPAddress, int remotePort, ByteReadStream socketReadStream, ByteWriteStream socketWriteStream)
+    private FakeTCPClient(FakeNetwork network, IPv4Address localIPAddress, int localPort, IPv4Address remoteIPAddress, int remotePort, InMemoryByteStream socketReadStream, InMemoryByteStream socketWriteStream)
     {
         this.network = network;
         this.localIPAddress = localIPAddress;
@@ -22,14 +22,19 @@ public class FakeTCPClient implements TCPClient
         this.socketWriteStream = socketWriteStream;
     }
 
-    public ByteReadStream getReadStream()
+    public static FakeTCPClient create(FakeNetwork network, IPv4Address localIPAddress, int localPort, IPv4Address remoteIPAddress, int remotePort, InMemoryByteStream socketReadStream, InMemoryByteStream socketWriteStream)
     {
-        return this.socketReadStream;
-    }
+        PreCondition.assertNotNull(network, "network");
+        Network.validateLocalIPAddress(localIPAddress);
+        Network.validateLocalPort(localPort);
+        Network.validateRemoteIPAddress(remoteIPAddress);
+        Network.validateRemotePort(remotePort);
+        PreCondition.assertNotNull(socketReadStream, "socketReadStream");
+        PreCondition.assertNotDisposed(socketReadStream, "socketReadStream");
+        PreCondition.assertNotNull(socketWriteStream, "socketWriteStream");
+        PreCondition.assertNotDisposed(socketWriteStream, "socketWriteStream");
 
-    public ByteWriteStream getWriteStream()
-    {
-        return this.socketWriteStream;
+        return new FakeTCPClient(network, localIPAddress, localPort, remoteIPAddress, remotePort, socketReadStream, socketWriteStream);
     }
 
     @Override
@@ -42,15 +47,15 @@ public class FakeTCPClient implements TCPClient
     public Result<Boolean> dispose()
     {
         Result<Boolean> result;
-        if (isDisposed())
+        if (this.isDisposed())
         {
             result = Result.successFalse();
         }
         else
         {
-            disposed = true;
+            this.disposed = true;
 
-            network.clientDisposed(this);
+            this.network.clientDisposed(this.localIPAddress, this.localPort, this.socketReadStream, this.socketWriteStream);
             result = Result.successTrue();
         }
         return result;
