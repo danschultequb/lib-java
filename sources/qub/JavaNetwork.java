@@ -43,9 +43,24 @@ public class JavaNetwork implements Network
         Network.validateRemoteIPAddress(remoteIPAddress);
         Network.validateRemotePort(remotePort);
         Network.validateTimeout(timeout);
+        PreCondition.assertBetween(0, timeout.toMilliseconds().getValue(), Integers.maximum, "timeout.toMilliseconds().getValue()");
 
-        final DateTime dateTimeTimeout = clock.getCurrentDateTime().plus(timeout);
-        return this.createTCPClient(remoteIPAddress, remotePort, dateTimeTimeout);
+        Result<TCPClient> result;
+        try
+        {
+            final byte[] remoteIPAddressBytes = remoteIPAddress.toBytes();
+            final java.net.InetAddress remoteInetAddress = java.net.InetAddress.getByAddress(remoteIPAddressBytes);
+            final java.net.SocketAddress socketAddress = new java.net.InetSocketAddress(remoteInetAddress, remotePort);
+            final java.net.Socket socket = new java.net.Socket();
+            socket.connect(socketAddress, (int)timeout.toMilliseconds().getValue());
+
+            result = JavaTCPClient.create(socket);
+        }
+        catch (java.io.IOException e)
+        {
+            result = Result.error(e);
+        }
+        return result;
     }
 
     @Override
@@ -55,22 +70,9 @@ public class JavaNetwork implements Network
         Network.validateRemotePort(remotePort);
         Network.validateTimeout(timeout);
 
-        Result<TCPClient> result;
-        try
-        {
-            final byte[] remoteIPAddressBytes = remoteIPAddress.toBytes();
-            final java.net.InetAddress remoteInetAddress = java.net.InetAddress.getByAddress(remoteIPAddressBytes);
-            final java.net.SocketAddress socketAddress = new java.net.InetSocketAddress(remoteInetAddress, remotePort);
-            final java.net.Socket socket = new java.net.Socket();
-            socket.connect(socketAddress);
-
-            result = JavaTCPClient.create(socket);
-        }
-        catch (java.io.IOException e)
-        {
-            result = Result.error(e);
-        }
-        return result;
+        final DateTime now = this.clock.getCurrentDateTime();
+        final Duration timeoutDuration = timeout.minus(now);
+        return this.createTCPClient(remoteIPAddress, remotePort, timeoutDuration);
     }
 
     @Override

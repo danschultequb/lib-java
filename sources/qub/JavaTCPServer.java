@@ -23,6 +23,7 @@ class JavaTCPServer implements TCPServer
         try
         {
             final java.net.ServerSocket serverSocket = new java.net.ServerSocket(localPort, JavaTCPServer.tcpClientBacklog);
+            serverSocket.setReuseAddress(true);
             result = Result.success(new JavaTCPServer(serverSocket, null));
         }
         catch (Throwable error)
@@ -41,6 +42,7 @@ class JavaTCPServer implements TCPServer
         try
         {
             final java.net.ServerSocket serverSocket = new java.net.ServerSocket(localPort, JavaTCPServer.tcpClientBacklog);
+            serverSocket.setReuseAddress(true);
             result = Result.success(new JavaTCPServer(serverSocket, clock));
         }
         catch (Throwable error)
@@ -61,6 +63,7 @@ class JavaTCPServer implements TCPServer
             final byte[] localIPAddressBytes = localIPAddress.toBytes();
             final java.net.InetAddress localInetAddress = java.net.InetAddress.getByAddress(localIPAddressBytes);
             final java.net.ServerSocket serverSocket = new java.net.ServerSocket(localPort, JavaTCPServer.tcpClientBacklog, localInetAddress);
+            serverSocket.setReuseAddress(true);
             result = Result.success(new JavaTCPServer(serverSocket, null));
         }
         catch (Throwable error)
@@ -82,6 +85,7 @@ class JavaTCPServer implements TCPServer
             final byte[] localIPAddressBytes = localIPAddress.toBytes();
             final java.net.InetAddress localInetAddress = java.net.InetAddress.getByAddress(localIPAddressBytes);
             final java.net.ServerSocket serverSocket = new java.net.ServerSocket(localPort, JavaTCPServer.tcpClientBacklog, localInetAddress);
+            serverSocket.setReuseAddress(true);
             result = Result.success(new JavaTCPServer(serverSocket, clock));
         }
         catch (Throwable error)
@@ -136,6 +140,7 @@ class JavaTCPServer implements TCPServer
     {
         PreCondition.assertNotNull(timeout, "timeout");
         PreCondition.assertNotNull(this.clock, "this.clock");
+        PreCondition.assertBetween(1, timeout.toMilliseconds().getValue(), Integers.maximum, "timeout.toMilliseconds().getValue()");
 
         Result<TCPClient> result;
         try

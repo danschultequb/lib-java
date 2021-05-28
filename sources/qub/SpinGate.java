@@ -101,7 +101,7 @@ public class SpinGate implements Gate
             while (!open.get())
             {
                 onWait.run();
-                java.lang.Thread.yield();
+                CurrentThread.yield();
             }
         });
     }
@@ -160,7 +160,7 @@ public class SpinGate implements Gate
                 else
                 {
                     onWait.run();
-                    java.lang.Thread.yield();
+                    CurrentThread.yield();
                 }
             }
         });

@@ -37,7 +37,6 @@ public interface NetworkTests
                 });
 
                 runner.test("with valid arguments and server listening",
-                    // runner.skip("flaky test for FakeNetwork"),
                     (TestResources resources) -> Tuple.create(resources.getParallelAsyncRunner(), resources.getClock()),
                     (Test test, AsyncRunner parallelAsyncRunner, Clock clock) ->
                 {
@@ -45,37 +44,37 @@ public interface NetworkTests
 
                     final byte[] bytes = new byte[] { 1, 2, 3, 4, 5 };
 
-                    final int port = 8088;
+                    final int port = 8189;
                     final DateTime timeout = clock.getCurrentDateTime().plus(Duration.seconds(5));
 
-                    final Result<Void> serverTask = parallelAsyncRunner.schedule(() ->
+                    try (final TCPServer tcpServer = network.createTCPServer(IPv4Address.localhost, port).await())
                     {
-                        try (final TCPServer tcpServer = network.createTCPServer(IPv4Address.localhost, port).await())
+                        try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port).await())
                         {
-                            test.assertEqual(IPv4Address.localhost, tcpServer.getLocalIPAddress());
-                            test.assertEqual(port, tcpServer.getLocalPort());
-                            try (final TCPClient acceptedClient = tcpServer.accept(timeout).await())
+                            final Result<Void> serverTask = parallelAsyncRunner.schedule(() ->
                             {
-                                test.assertEqual(bytes, acceptedClient.readBytes(bytes.length).await());
-                                test.assertEqual(bytes.length, acceptedClient.write(bytes).await());
-                            }
-                        }
-                    });
+                                test.assertEqual(IPv4Address.localhost, tcpServer.getLocalIPAddress());
+                                test.assertEqual(port, tcpServer.getLocalPort());
+                                try (final TCPClient acceptedClient = tcpServer.accept(timeout).await())
+                                {
+                                    test.assertEqual(bytes, acceptedClient.readBytes(bytes.length).await());
+                                    test.assertEqual(bytes.length, acceptedClient.write(bytes).await());
+                                }
+                            });
 
-                    final Result<Void> clientTask = parallelAsyncRunner.schedule(() ->
-                    {
-                        try (final TCPClient tcpClient = network.createTCPClient(IPv4Address.localhost, port, timeout).await())
-                        {
-                            test.assertEqual(IPv4Address.localhost, tcpClient.getLocalIPAddress());
-                            test.assertNotEqual(port, tcpClient.getLocalPort());
-                            test.assertEqual(IPv4Address.localhost, tcpClient.getRemoteIPAddress());
-                            test.assertEqual(port, tcpClient.getRemotePort());
-                            test.assertEqual(bytes.length, tcpClient.write(bytes).await());
-                            test.assertEqual(bytes, tcpClient.readBytes(bytes.length).await());
-                        }
-                    });
+                            final Result<Void> clientTask = parallelAsyncRunner.schedule(() ->
+                            {
+                                test.assertEqual(IPv4Address.localhost, tcpClient.getLocalIPAddress());
+                                test.assertNotEqual(port, tcpClient.getLocalPort());
+                                test.assertEqual(IPv4Address.localhost, tcpClient.getRemoteIPAddress());
+                                test.assertEqual(port, tcpClient.getRemotePort());
+                                test.assertEqual(bytes.length, tcpClient.write(bytes).await());
+                                test.assertEqual(bytes, tcpClient.readBytes(bytes.length).await());
+                            });
 
-                    Result.await(clientTask, serverTask);
+                            Result.await(serverTask, clientTask);
+                        }
+                    }
                 });
             });
 
@@ -109,7 +108,7 @@ public interface NetworkTests
                     final Network network = creator.run(clock);
 
                     final IPv4Address address = IPv4Address.localhost;
-                    final int port = 8089;
+                    final int port = 8090;
 
                     try (final TCPServer tcpServer = network.createTCPServer(address, port).await())
                     {
@@ -161,7 +160,7 @@ public interface NetworkTests
                     final Network network = creator.run(clock);
 
                     final IPv4Address address = IPv4Address.localhost;
-                    final int port = 8089;
+                    final int port = 8091;
 
                     try (final TCPServer tcpServer = network.createTCPServer(address, port).await())
                     {

@@ -613,9 +613,22 @@ public interface Result<T>
         PreCondition.assertNotNull(resultsToAwait, "resultsToAwait");
 
         final List<T> result = List.create();
+        final List<Throwable> exceptions = List.create();
         for (final Result<T> resultToAwait : resultsToAwait)
         {
-            result.add(resultToAwait.await());
+            try
+            {
+                result.add(resultToAwait.await());
+            }
+            catch (Throwable exception)
+            {
+                exceptions.add(exception);
+            }
+        }
+
+        if (exceptions.any())
+        {
+            throw Exceptions.asRuntime(exceptions.first());
         }
 
         PostCondition.assertNotNull(result, "result");

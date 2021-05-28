@@ -10,7 +10,7 @@ public class ParallelAsyncRunner implements AsyncScheduler
     {
         PreCondition.assertNotNull(action, "action");
 
-        return schedule(create(action));
+        return this.schedule(this.create(action));
     }
 
     @Override
@@ -18,7 +18,7 @@ public class ParallelAsyncRunner implements AsyncScheduler
     {
         PreCondition.assertNotNull(function, "function");
 
-        return schedule(create(function));
+        return this.schedule(this.create(function));
     }
 
     @Override
@@ -58,7 +58,7 @@ public class ParallelAsyncRunner implements AsyncScheduler
 
         while (!result.isCompleted())
         {
-            java.lang.Thread.yield();
+            CurrentThread.yield();
         }
     }
 }

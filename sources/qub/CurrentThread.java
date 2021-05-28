@@ -17,6 +17,14 @@ public final class CurrentThread
     }
 
     /**
+     * Yield the current thread's execution so that the scheduler can execute a different thread.
+     */
+    static void yield()
+    {
+        java.lang.Thread.yield();
+    }
+
+    /**
      * Set the AsyncScheduler that will be registered with the current thread.
      * @param asyncRunner The AsyncScheduler that will be registered with the current thread.
      */

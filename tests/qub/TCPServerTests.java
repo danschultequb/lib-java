@@ -117,7 +117,7 @@ public interface TCPServerTests
                     {
                         test.assertTrue(server.dispose().await());
 
-                        test.assertThrows(() -> server.accept(DateTime.epoch).await(),
+                        test.assertThrows(() -> server.accept(clock.getCurrentDateTime().plus(Duration.seconds(5))).await(),
                             new SocketClosedException(
                                 new java.net.SocketException("Socket is closed")));
                     }
@@ -131,7 +131,7 @@ public interface TCPServerTests
                     {
                         final Result<Void> serverTask = parallelAsyncRunner.schedule(() ->
                         {
-                            server.accept(DateTime.epoch).await();
+                            server.accept(clock.getCurrentDateTime().plus(Duration.seconds(5))).await();
                         });
 
                         test.assertTrue(server.dispose().await());

@@ -92,6 +92,10 @@ public class ManualAsyncRunner implements AsyncScheduler
             {
                 asyncTask.run();
             }
+            else
+            {
+                CurrentThread.yield();
+            }
         }
     }
 }
