@@ -267,7 +267,7 @@ public class CommandLineActions
             .setValueName("<action-name>");
         final CommandLineParameterHelp helpParameter = parameters.addHelp();
 
-        final String actionName = actionParameter.removeValue().await();
+        final String actionName = actionParameter.getValue().await();
 
         final CommandLineAction defaultAction = this.getDefaultAction();
         CommandLineAction actionToRun = null;
@@ -283,7 +283,11 @@ public class CommandLineActions
             actionToRun = this.getAction(actionName)
                 .catchError(NotFoundException.class)
                 .await();
-            if (actionToRun == null)
+            if (actionToRun != null)
+            {
+                actionParameter.removeValue().await();
+            }
+            else
             {
                 actionToRun = defaultAction;
 
