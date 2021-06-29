@@ -97,9 +97,9 @@ public interface CommandLineLogsActionParametersTests
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
                         final CommandLineLogsActionParameters parameters = CommandLineLogsActionParameters.create();
-                        final CommandLineLogsActionParameters setDefaultApplicationLauncherResult = parameters.setProcessFactory(process.getProcessFactory());
+                        final CommandLineLogsActionParameters setDefaultApplicationLauncherResult = parameters.setProcessFactory(process.getChildProcessRunner());
                         test.assertSame(parameters, setDefaultApplicationLauncherResult);
-                        test.assertSame(process.getProcessFactory(), parameters.getProcessFactory());
+                        test.assertSame(process.getChildProcessRunner(), parameters.getProcessFactory());
                     }
                 });
             });

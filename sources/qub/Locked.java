@@ -43,7 +43,7 @@ public class Locked<T>
      * @param action The action to perform with this Locked object's value within a critical
      *               section.
      */
-    public void get(Action1<T> action)
+    public void unlock(Action1<T> action)
     {
         PreCondition.assertNotNull(action, "action");
 
@@ -55,7 +55,7 @@ public class Locked<T>
      * @param function The function to perform with this Locked object's value within a critical
      *               section.
      */
-    public <U> U get(Function1<T,U> function)
+    public <U> U unlock(Function1<T,U> function)
     {
         PreCondition.assertNotNull(function, "function");
 

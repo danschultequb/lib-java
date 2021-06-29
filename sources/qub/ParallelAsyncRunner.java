@@ -5,6 +5,15 @@ package qub;
  */
 public class ParallelAsyncRunner implements AsyncScheduler
 {
+    private ParallelAsyncRunner()
+    {
+    }
+
+    public static ParallelAsyncRunner create()
+    {
+        return new ParallelAsyncRunner();
+    }
+
     @Override
     public AsyncTask<Void> schedule(Action0 action)
     {

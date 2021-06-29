@@ -51,7 +51,7 @@ public abstract class ProcessBase implements Process
         this.mainAsyncRunner = mainAsyncRunner;
         CurrentThread.setAsyncRunner(mainAsyncRunner);
 
-        this.parallelAsyncRunner = new ParallelAsyncRunner();
+        this.parallelAsyncRunner = ParallelAsyncRunner.create();
 
         this.disposable = Disposable.create(() ->
         {

@@ -32,7 +32,7 @@ public class RealDesktopProcess extends DesktopProcessBase
     {
         PreCondition.assertNotNull(commandLineArguments, "commandLineArguments");
 
-        return RealDesktopProcess.create(commandLineArguments, new ManualAsyncRunner());
+        return RealDesktopProcess.create(commandLineArguments, ManualAsyncRunner.create());
     }
 
     /**
@@ -59,12 +59,9 @@ public class RealDesktopProcess extends DesktopProcessBase
     }
 
     @Override
-    protected ProcessFactory createDefaultProcessFactory()
+    protected ChildProcessRunner createDefaultChildProcessRunner()
     {
-        final AsyncRunner parallelAsyncRunner = this.getParallelAsyncRunner();
-        final EnvironmentVariables environmentVariables = this.getEnvironmentVariables();
-        final Folder currentFolder = this.getCurrentFolder();
-        return new RealProcessFactory(parallelAsyncRunner, environmentVariables, currentFolder);
+        return RealChildProcessRunner.create(this);
     }
 
     @Override

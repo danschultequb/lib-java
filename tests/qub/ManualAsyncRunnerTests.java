@@ -6,11 +6,11 @@ public interface ManualAsyncRunnerTests
     {
         runner.testGroup(ManualAsyncRunner.class, () ->
         {
-            AsyncSchedulerTests.test(runner, ManualAsyncRunner::new);
+            AsyncSchedulerTests.test(runner, ManualAsyncRunner::create);
 
-            runner.test("constructor()", (Test test) ->
+            runner.test("create()", (Test test) ->
             {
-                final ManualAsyncRunner asyncRunner = new ManualAsyncRunner();
+                final ManualAsyncRunner asyncRunner = ManualAsyncRunner.create();
                 test.assertNotNull(asyncRunner);
                 test.assertEqual(Iterable.create(), asyncRunner.getScheduledTasks());
                 test.assertNotSame(asyncRunner, CurrentThread.getAsyncRunner());
@@ -66,7 +66,7 @@ public interface ManualAsyncRunnerTests
                         test.assertFalse(asyncTask.isCompleted());
                         test.assertFalse(asyncTaskThreadId.hasValue());
 
-                        final ParallelAsyncRunner parallelAsyncRunner = new ParallelAsyncRunner();
+                        final ParallelAsyncRunner parallelAsyncRunner = ParallelAsyncRunner.create();
                         parallelAsyncRunner.schedule(() -> asyncRunner.await(asyncTask)).await();
 
                         test.assertTrue(asyncTask.isCompleted());

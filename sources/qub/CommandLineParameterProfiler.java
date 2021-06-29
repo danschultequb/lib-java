@@ -99,28 +99,16 @@ public class CommandLineParameterProfiler extends CommandLineParameterBoolean
             final CharacterWriteStream output = this.process.getOutputWriteStream();
             output.write("Attaching a profiler now to " + classToAttachToName + " (" + processId + ")...").await();
 
-            final VisualVMProcessBuilder visualVMProcessBuilder = VisualVMProcessBuilder.get(this.process).await()
+            final QubFolder qubFolder = this.process.getQubFolder().await();
+            final QubProjectVersionFolder jdkProjectVersionFolder = qubFolder.getProjectFolder("openjdk", "jdk").await()
+                .getLatestProjectVersionFolder().await();
+            final VisualVMParameters parameters = VisualVMParameters.create(qubFolder).await()
                 .setOpenPid(processId)
-                .setSuppressConsoleOutput(true);
+                .setSuppressConsoleOutput(true)
+                .setJDKHome(jdkProjectVersionFolder);
 
-            final EnvironmentVariables environmentVariables = this.process.getEnvironmentVariables();
-            final String javaHomeString = environmentVariables.get("JAVA_HOME")
-                .catchError(NotFoundException.class)
-                .await();
-            if (!Strings.isNullOrEmpty(javaHomeString))
-            {
-                final String resolvedJavaHomeString = environmentVariables.resolve(javaHomeString);
-                if (!Strings.isNullOrEmpty(resolvedJavaHomeString))
-                {
-                    final Path javaHomePath = Path.parse(resolvedJavaHomeString);
-                    if (javaHomePath.isRooted())
-                    {
-                        visualVMProcessBuilder.setJDKHome(javaHomePath);
-                    }
-                }
-            }
-
-            visualVMProcessBuilder.start().await();
+            final ChildProcessRunner processRunner = this.process.getChildProcessRunner();
+            processRunner.start(parameters).await();
 
             output.writeLine(" Press enter to continue...").await();
 

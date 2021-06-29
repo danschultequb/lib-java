@@ -39,7 +39,7 @@ public interface SwingUIWindowTests
     
     static void test(TestRunner runner)
     {
-        runner.testGroup(SwingUIWindow.class, () ->
+        runner.testGroup(SwingUIWindow.class, runner.skip(), () ->
         {
             runner.testGroup("setTitle(String)", () ->
             {

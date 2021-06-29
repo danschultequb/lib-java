@@ -258,43 +258,7 @@ public interface DesktopProcess extends Process
      * Get the object that can be used to invoke external processes.
      * @return The object that can be used to invoke external processes.
      */
-    ProcessFactory getProcessFactory();
-
-    /**
-     * Get the ProcessBuilder for the provided executable path.
-     * @param executablePath The path to the executable.
-     * @return The ProcessBuilder for the provided executable path.
-     */
-    default Result<ProcessBuilder> getProcessBuilder(String executablePath)
-    {
-        PreCondition.assertNotNullAndNotEmpty(executablePath, "executablePath");
-
-        return this.getProcessFactory().getProcessBuilder(executablePath);
-    }
-
-    /**
-     * Get the ProcessBuilder for the provided executable path.
-     * @param executablePath The path to the executable.
-     * @return The ProcessBuilder for the provided executable path.
-     */
-    default Result<ProcessBuilder> getProcessBuilder(Path executablePath)
-    {
-        PreCondition.assertNotNull(executablePath, "executablePath");
-
-        return this.getProcessFactory().getProcessBuilder(executablePath);
-    }
-
-    /**
-     * Get the ProcessBuilder for the provided executable file.
-     * @param executableFile The file to executable.
-     * @return The ProcessBuilder for the provided executable file.
-     */
-    default Result<ProcessBuilder> getProcessBuilder(File executableFile)
-    {
-        PreCondition.assertNotNull(executableFile, "executableFile");
-
-        return this.getProcessFactory().getProcessBuilder(executableFile);
-    }
+    ChildProcessRunner getChildProcessRunner();
 
     /**
      * Get whether or not this application is running in a Windows environment.

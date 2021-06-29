@@ -95,12 +95,4 @@ public interface RealDesktopProcessTests
             });
         });
     }
-    
-    static void test(TestRunner runner, Function1<Test,? extends RealDesktopProcess> creator)
-    {
-        runner.testGroup(RealDesktopProcess.class, () ->
-        {
-
-        });
-    }
 }

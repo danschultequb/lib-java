@@ -411,10 +411,10 @@ public interface TestResourcesTests
                     {
                         try (final TestResources resources = TestResources.create(process))
                         {
-                            final ProcessFactory processFactory = resources.getProcessFactory();
-                            test.assertNotNull(processFactory);
-                            test.assertSame(process.getProcessFactory(), processFactory);
-                            test.assertSame(processFactory, resources.getProcessFactory());
+                            final ChildProcessRunner processRunner = resources.getProcessFactory();
+                            test.assertNotNull(processRunner);
+                            test.assertSame(process.getChildProcessRunner(), processRunner);
+                            test.assertSame(processRunner, resources.getProcessFactory());
                         }
                     }
                 });

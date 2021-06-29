@@ -51,7 +51,7 @@ public class TestResources extends BasicDisposable
         return result;
     }
 
-    public Process getProcess()
+    public DesktopProcess getProcess()
     {
         PreCondition.assertNotDisposed(this, "this");
 
@@ -339,10 +339,10 @@ public class TestResources extends BasicDisposable
         return this.process.getTypeLoader();
     }
 
-    public ProcessFactory getProcessFactory()
+    public ChildProcessRunner getProcessFactory()
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        return this.process.getProcessFactory();
+        return this.process.getChildProcessRunner();
     }
 }

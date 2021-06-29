@@ -24,14 +24,14 @@ public interface AsyncTaskTests
 
                 runner.test("with null action", (Test test) ->
                 {
-                    test.assertThrows(() -> new AsyncTask<Integer>(new ManualAsyncRunner(), (Action0)null),
+                    test.assertThrows(() -> new AsyncTask<Integer>(ManualAsyncRunner.create(), (Action0)null),
                         new PreConditionFailure("action cannot be null."));
                 });
 
                 runner.test("with non-null action", (Test test) ->
                 {
                     final Value<Integer> value = Value.create();
-                    final AsyncTask<Boolean> asyncTask = new AsyncTask<>(new ManualAsyncRunner(), () -> { value.set(5); });
+                    final AsyncTask<Boolean> asyncTask = new AsyncTask<>(ManualAsyncRunner.create(), () -> { value.set(5); });
                     test.assertNotNull(asyncTask);
                     test.assertFalse(value.hasValue());
                     test.assertEqual(Iterable.create(), asyncTask.getNextTasks());
@@ -48,7 +48,7 @@ public interface AsyncTaskTests
 
                 runner.test("with null parentResult", (Test test) ->
                 {
-                    test.assertThrows(() -> new AsyncTask<>(new ManualAsyncRunner(), null, () -> {}),
+                    test.assertThrows(() -> new AsyncTask<>(ManualAsyncRunner.create(), null, () -> {}),
                         new PreConditionFailure("parentResult cannot be null."));
                 });
 
@@ -69,14 +69,14 @@ public interface AsyncTaskTests
 
                 runner.test("with null function", (Test test) ->
                 {
-                    test.assertThrows(() -> new AsyncTask<>(new ManualAsyncRunner(), (Function0<Boolean>)null),
+                    test.assertThrows(() -> new AsyncTask<>(ManualAsyncRunner.create(), (Function0<Boolean>)null),
                         new PreConditionFailure("function cannot be null."));
                 });
 
                 runner.test("with non-null function", (Test test) ->
                 {
                     final Value<Integer> value = Value.create();
-                    final AsyncTask<Integer> asyncTask = new AsyncTask<>(new ManualAsyncRunner(), () ->
+                    final AsyncTask<Integer> asyncTask = new AsyncTask<>(ManualAsyncRunner.create(), () ->
                     {
                         value.set(5);
                         return 7;
@@ -97,13 +97,13 @@ public interface AsyncTaskTests
 
                 runner.test("with null parentResult", (Test test) ->
                 {
-                    test.assertThrows(() -> new AsyncTask<>(new ManualAsyncRunner(), null, () -> 8),
+                    test.assertThrows(() -> new AsyncTask<>(ManualAsyncRunner.create(), null, () -> 8),
                         new PreConditionFailure("parentResult cannot be null."));
                 });
 
                 runner.test("with null function", (Test test) ->
                 {
-                    test.assertThrows(() -> new AsyncTask<>(new ManualAsyncRunner(), Result.success(), (Function0<Integer>)null),
+                    test.assertThrows(() -> new AsyncTask<>(ManualAsyncRunner.create(), Result.success(), (Function0<Integer>)null),
                         new PreConditionFailure("function cannot be null."));
                 });
             });

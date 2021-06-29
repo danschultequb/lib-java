@@ -76,7 +76,7 @@ public interface CommandLineLogsAction
 
             if (result.getProcessFactory() == null)
             {
-                result.setProcessFactory(process.getProcessFactory());
+                result.setProcessFactory(process.getChildProcessRunner());
             }
 
             final Path openWith = openWithParameter.getValue().await();
@@ -100,7 +100,7 @@ public interface CommandLineLogsAction
         final Folder logsFolder = parameters.getLogsFolder();
         final CharacterWriteStream output = parameters.getOutput();
         final DefaultApplicationLauncher defaultApplicationLauncher = parameters.getDefaultApplicationLauncher();
-        final ProcessFactory processFactory = parameters.getProcessFactory();
+        final ChildProcessRunner processRunner = parameters.getProcessFactory();
         final Path openWith = parameters.getOpenWith();
 
         if (!logsFolder.exists().await())
@@ -113,10 +113,9 @@ public interface CommandLineLogsAction
         }
         else
         {
-            processFactory.getProcessBuilder(openWith).await()
-                .addArgument(logsFolder.toString())
-                .run()
-                .await();
+            final ChildProcessParameters childProcessParameters = ChildProcessParameters.create(openWith)
+                .addArgument(logsFolder.toString());
+            processRunner.run(childProcessParameters).await();
         }
     }
 

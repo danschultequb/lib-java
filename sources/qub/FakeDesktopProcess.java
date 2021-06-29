@@ -45,7 +45,7 @@ public class FakeDesktopProcess extends DesktopProcessBase
     {
         PreCondition.assertNotNull(commandLineArguments, "commandLineArguments");
 
-        return FakeDesktopProcess.create(commandLineArguments, new ManualAsyncRunner());
+        return FakeDesktopProcess.create(commandLineArguments, ManualAsyncRunner.create());
     }
 
     /**
@@ -75,15 +75,15 @@ public class FakeDesktopProcess extends DesktopProcessBase
     }
 
     @Override
-    public FakeProcessFactory getProcessFactory()
+    public FakeChildProcessRunner getChildProcessRunner()
     {
-        return (FakeProcessFactory)super.getProcessFactory();
+        return (FakeChildProcessRunner)super.getChildProcessRunner();
     }
 
     @Override
-    protected FakeProcessFactory createDefaultProcessFactory()
+    protected FakeChildProcessRunner createDefaultChildProcessRunner()
     {
-        return FakeProcessFactory.create(this);
+        return FakeChildProcessRunner.create(this);
     }
 
     @Override

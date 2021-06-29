@@ -5,7 +5,7 @@ public abstract class DesktopProcessBase extends ProcessBase implements DesktopP
     private final CommandLineArguments commandLineArguments;
     private int exitCode;
     private final LongValue processId;
-    private final Value<ProcessFactory> processFactory;
+    private final Value<ChildProcessRunner> childProcessRunner;
     private final Value<String> mainClassFullName;
 
     protected DesktopProcessBase(CommandLineArguments commandLineArguments, AsyncScheduler mainAsyncRunner)
@@ -16,7 +16,7 @@ public abstract class DesktopProcessBase extends ProcessBase implements DesktopP
 
         this.commandLineArguments = commandLineArguments;
         this.processId = LongValue.create();
-        this.processFactory = Value.create();
+        this.childProcessRunner = Value.create();
         this.mainClassFullName = Value.create();
     }
 
@@ -55,12 +55,12 @@ public abstract class DesktopProcessBase extends ProcessBase implements DesktopP
     }
 
     @Override
-    public ProcessFactory getProcessFactory()
+    public ChildProcessRunner getChildProcessRunner()
     {
-        return this.processFactory.getOrSet(this::createDefaultProcessFactory);
+        return this.childProcessRunner.getOrSet(this::createDefaultChildProcessRunner);
     }
 
-    protected abstract ProcessFactory createDefaultProcessFactory();
+    protected abstract ChildProcessRunner createDefaultChildProcessRunner();
 
     /**
      * Get the full name of the main class of this application.

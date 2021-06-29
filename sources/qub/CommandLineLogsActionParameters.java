@@ -5,7 +5,7 @@ public class CommandLineLogsActionParameters
     private Folder logsFolder;
     private CharacterWriteStream output;
     private DefaultApplicationLauncher defaultApplicationLauncher;
-    private ProcessFactory processFactory;
+    private ChildProcessRunner processRunner;
     private Path openWith;
 
     private CommandLineLogsActionParameters()
@@ -59,16 +59,16 @@ public class CommandLineLogsActionParameters
         return this;
     }
 
-    public ProcessFactory getProcessFactory()
+    public ChildProcessRunner getProcessFactory()
     {
-        return this.processFactory;
+        return this.processRunner;
     }
 
-    public CommandLineLogsActionParameters setProcessFactory(ProcessFactory processFactory)
+    public CommandLineLogsActionParameters setProcessFactory(ChildProcessRunner processRunner)
     {
-        PreCondition.assertNotNull(processFactory, "processFactory");
+        PreCondition.assertNotNull(processRunner, "processFactory");
 
-        this.processFactory = processFactory;
+        this.processRunner = processRunner;
 
         return this;
     }

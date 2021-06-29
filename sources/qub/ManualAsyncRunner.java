@@ -11,9 +11,14 @@ public class ManualAsyncRunner implements AsyncScheduler
      */
     private final Locked<List<AsyncTask<?>>> scheduledTasks;
 
-    public ManualAsyncRunner()
+    private ManualAsyncRunner()
     {
         this.scheduledTasks = Locked.create(List.create());
+    }
+
+    public static ManualAsyncRunner create()
+    {
+        return new ManualAsyncRunner();
     }
 
     /**
@@ -22,7 +27,7 @@ public class ManualAsyncRunner implements AsyncScheduler
      */
     public Iterable<AsyncTask<?>> getScheduledTasks()
     {
-        return this.scheduledTasks.get((List<AsyncTask<?>> tasks) -> tasks);
+        return this.scheduledTasks.unlock((List<AsyncTask<?>> tasks) -> tasks);
     }
 
     /**
@@ -31,7 +36,7 @@ public class ManualAsyncRunner implements AsyncScheduler
      */
     public int getScheduledTaskCount()
     {
-        return this.scheduledTasks.get((List<AsyncTask<?>> tasks) -> tasks.getCount());
+        return this.scheduledTasks.unlock((List<AsyncTask<?>> tasks) -> tasks.getCount());
     }
 
     @Override
@@ -72,7 +77,7 @@ public class ManualAsyncRunner implements AsyncScheduler
         PreCondition.assertNotNull(task, "task");
         PreCondition.assertFalse(task.isCompleted(), "task.isCompleted()");
 
-        this.scheduledTasks.get((List<AsyncTask<?>> tasks) ->
+        this.scheduledTasks.unlock((List<AsyncTask<?>> tasks) ->
         {
             tasks.add(task);
         });
@@ -87,7 +92,7 @@ public class ManualAsyncRunner implements AsyncScheduler
 
         while (!result.isCompleted())
         {
-            final AsyncTask<?> asyncTask = this.scheduledTasks.get((List<AsyncTask<?>> tasks) -> tasks.any() ? tasks.removeFirst() : null);
+            final AsyncTask<?> asyncTask = this.scheduledTasks.unlock((List<AsyncTask<?>> tasks) -> tasks.any() ? tasks.removeFirst() : null);
             if (asyncTask != null)
             {
                 asyncTask.run();

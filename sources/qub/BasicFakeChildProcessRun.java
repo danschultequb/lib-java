@@ -3,7 +3,7 @@ package qub;
 /**
  * A fake run of a process.
  */
-public class BasicFakeProcessRun implements FakeProcessRun
+public class BasicFakeChildProcessRun implements FakeChildProcessRun
 {
     private final Path executablePath;
     private final List<String> arguments;
@@ -14,12 +14,18 @@ public class BasicFakeProcessRun implements FakeProcessRun
      * Create a new FakeProcessRun from the provided executablePath.
      * @param executablePath The path to the executable.
      */
-    public BasicFakeProcessRun(Path executablePath)
+    private BasicFakeChildProcessRun(Path executablePath, Iterable<String> arguments)
     {
         PreCondition.assertNotNull(executablePath, "executableFilePath");
+        PreCondition.assertNotNull(arguments, "arguments");
 
         this.executablePath = executablePath;
-        this.arguments = List.create();
+        this.arguments = List.create(arguments);
+    }
+
+    public static BasicFakeChildProcessRun create(Path executablePath, Iterable<String> arguments)
+    {
+        return new BasicFakeChildProcessRun(executablePath, arguments);
     }
 
     /**
@@ -36,7 +42,7 @@ public class BasicFakeProcessRun implements FakeProcessRun
      * @param argument The argument to add.
      * @return This object for method chaining.
      */
-    public FakeProcessRun addArgument(String argument)
+    public FakeChildProcessRun addArgument(String argument)
     {
         PreCondition.assertNotNullAndNotEmpty(argument, "argument");
 
@@ -50,7 +56,7 @@ public class BasicFakeProcessRun implements FakeProcessRun
      * @param arguments The arguments to add.
      * @return This object for method chaining.
      */
-    public FakeProcessRun addArguments(String... arguments)
+    public FakeChildProcessRun addArguments(String... arguments)
     {
         PreCondition.assertNotNull(arguments, "arguments");
 
@@ -67,7 +73,7 @@ public class BasicFakeProcessRun implements FakeProcessRun
      * @param arguments The arguments to add.
      * @return This object for method chaining.
      */
-    public FakeProcessRun addArguments(Iterable<String> arguments)
+    public FakeChildProcessRun addArguments(Iterable<String> arguments)
     {
         PreCondition.assertNotNull(arguments, "arguments");
 
@@ -94,7 +100,7 @@ public class BasicFakeProcessRun implements FakeProcessRun
      * @param workingFolderPath The folder path that the process was run from.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setWorkingFolder(String workingFolderPath)
+    public FakeChildProcessRun setWorkingFolder(String workingFolderPath)
     {
         PreCondition.assertNullOrNotEmpty(workingFolderPath, "workingFolderPath");
 
@@ -107,7 +113,7 @@ public class BasicFakeProcessRun implements FakeProcessRun
      * @param workingFolderPath The folder path that the process was run from.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setWorkingFolder(Path workingFolderPath)
+    public FakeChildProcessRun setWorkingFolder(Path workingFolderPath)
     {
         PreCondition.assertTrue(workingFolderPath == null || workingFolderPath.isRooted(), "workingFolderPath == null || workingFolderPath.isRooted()");
 
@@ -122,7 +128,7 @@ public class BasicFakeProcessRun implements FakeProcessRun
      * @param workingFolder The folder that the process was run from.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setWorkingFolder(Folder workingFolder)
+    public FakeChildProcessRun setWorkingFolder(Folder workingFolder)
     {
         return this.setWorkingFolder(workingFolder == null ? null : workingFolder.getPath());
     }
@@ -142,7 +148,7 @@ public class BasicFakeProcessRun implements FakeProcessRun
      * @param exitCode The exit code that will be returned by the fake process.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setFunction(int exitCode)
+    public FakeChildProcessRun setFunction(int exitCode)
     {
         return this.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) -> exitCode);
     }
@@ -152,7 +158,7 @@ public class BasicFakeProcessRun implements FakeProcessRun
      * @param action The action that will be run when this FakeProcessRun is invoked.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setFunction(Action0 action)
+    public FakeChildProcessRun setFunction(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
@@ -164,7 +170,7 @@ public class BasicFakeProcessRun implements FakeProcessRun
      * @param function The action that will be run when this FakeProcessRun is invoked.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setFunction(Function0<Integer> function)
+    public FakeChildProcessRun setFunction(Function0<Integer> function)
     {
         PreCondition.assertNotNull(function, "function");
 
@@ -176,7 +182,7 @@ public class BasicFakeProcessRun implements FakeProcessRun
      * @param action The action that will be run when this FakeProcessRun is invoked.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setFunction(Action1<ByteWriteStream> action)
+    public FakeChildProcessRun setFunction(Action1<ByteWriteStream> action)
     {
         PreCondition.assertNotNull(action, "action");
 
@@ -188,7 +194,7 @@ public class BasicFakeProcessRun implements FakeProcessRun
      * @param function The action that will be run when this FakeProcessRun is invoked.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setFunction(Function1<ByteWriteStream,Integer> function)
+    public FakeChildProcessRun setFunction(Function1<ByteWriteStream,Integer> function)
     {
         PreCondition.assertNotNull(function, "function");
 
@@ -200,7 +206,7 @@ public class BasicFakeProcessRun implements FakeProcessRun
      * @param action The action that will be run when this FakeProcessRun is invoked.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setFunction(Action2<ByteWriteStream,ByteWriteStream> action)
+    public FakeChildProcessRun setFunction(Action2<ByteWriteStream,ByteWriteStream> action)
     {
         PreCondition.assertNotNull(action, "action");
 
@@ -212,7 +218,7 @@ public class BasicFakeProcessRun implements FakeProcessRun
      * @param function The action that will be run when this FakeProcessRun is invoked.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setFunction(Function2<ByteWriteStream,ByteWriteStream,Integer> function)
+    public FakeChildProcessRun setFunction(Function2<ByteWriteStream,ByteWriteStream,Integer> function)
     {
         PreCondition.assertNotNull(function, "function");
 
@@ -224,7 +230,7 @@ public class BasicFakeProcessRun implements FakeProcessRun
      * @param action The action that will be run when this FakeProcessRun is invoked.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setFunction(Action3<ByteReadStream,ByteWriteStream,ByteWriteStream> action)
+    public FakeChildProcessRun setFunction(Action3<ByteReadStream,ByteWriteStream,ByteWriteStream> action)
     {
         PreCondition.assertNotNull(action, "action");
 
@@ -240,7 +246,7 @@ public class BasicFakeProcessRun implements FakeProcessRun
      * @param function The action that will be run when this FakeProcessRun is invoked.
      * @return This object for method chaining.
      */
-    public FakeProcessRun setFunction(Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer> function)
+    public FakeChildProcessRun setFunction(Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer> function)
     {
         PreCondition.assertNotNull(function, "function");
 

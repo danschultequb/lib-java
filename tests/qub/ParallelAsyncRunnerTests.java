@@ -6,11 +6,11 @@ public interface ParallelAsyncRunnerTests
     {
         runner.testGroup(ParallelAsyncRunner.class, () ->
         {
-            AsyncSchedulerTests.test(runner, ParallelAsyncRunner::new);
+            AsyncSchedulerTests.test(runner, ParallelAsyncRunner::create);
 
             runner.test("constructor()", (Test test) ->
             {
-                final ParallelAsyncRunner asyncRunner = new ParallelAsyncRunner();
+                final ParallelAsyncRunner asyncRunner = ParallelAsyncRunner.create();
                 test.assertNotNull(asyncRunner);
             });
 

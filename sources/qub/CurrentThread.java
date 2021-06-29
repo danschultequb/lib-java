@@ -33,13 +33,13 @@ public final class CurrentThread
         final long currentThreadId = getId();
         if (asyncRunner == null)
         {
-            asyncSchedulers.remove(currentThreadId)
+            CurrentThread.asyncSchedulers.remove(currentThreadId)
                 .catchError(NotFoundException.class)
                 .await();
         }
         else
         {
-            asyncSchedulers.set(currentThreadId, asyncRunner);
+            CurrentThread.asyncSchedulers.set(currentThreadId, asyncRunner);
         }
     }
 
@@ -50,7 +50,7 @@ public final class CurrentThread
     static Result<AsyncScheduler> getAsyncRunner()
     {
         final long currentThreadId = getId();
-        return asyncSchedulers.get(currentThreadId)
+        return CurrentThread.asyncSchedulers.get(currentThreadId)
             .convertError(NotFoundException.class, () -> new NotFoundException("No AsyncRunner has been registered with thread id " + currentThreadId + "."));
     }
 
@@ -67,7 +67,7 @@ public final class CurrentThread
         PreCondition.assertNotNull(asyncScheduler, "asyncScheduler");
         PreCondition.assertNotNull(action, "action");
 
-        final AsyncScheduler backupAsyncScheduler = getAsyncRunner().catchError(NotFoundException.class).await();
+        final AsyncScheduler backupAsyncScheduler = CurrentThread.getAsyncRunner().catchError(NotFoundException.class).await();
         CurrentThread.setAsyncRunner(asyncScheduler);
         try
         {
@@ -83,14 +83,14 @@ public final class CurrentThread
     {
         PreCondition.assertNotNull(action, "action");
 
-        withAsyncScheduler(ManualAsyncRunner::new, action::run);
+        CurrentThread.withAsyncScheduler(ManualAsyncRunner::create, action::run);
     }
 
     static void withParallelAsyncScheduler(Action1<ParallelAsyncRunner> action)
     {
         PreCondition.assertNotNull(action, "action");
 
-        withAsyncScheduler(ParallelAsyncRunner::new, action::run);
+        CurrentThread.withAsyncScheduler(ParallelAsyncRunner::create, action::run);
     }
 
     static <T extends AsyncScheduler> void withAsyncScheduler(Function0<T> creator, Action1<T> action)
@@ -99,7 +99,7 @@ public final class CurrentThread
         PreCondition.assertNotNull(action, "action");
 
         final T asyncScheduler = creator.run();
-        withAsyncScheduler(asyncScheduler, () -> action.run(asyncScheduler));
+        CurrentThread.withAsyncScheduler(asyncScheduler, () -> action.run(asyncScheduler));
     }
 
     /**
@@ -111,6 +111,6 @@ public final class CurrentThread
     {
         PreCondition.assertNotNull(action, "action");
 
-        withAsyncScheduler(ManualAsyncRunner::new, action);
+        CurrentThread.withAsyncScheduler(ManualAsyncRunner::create, action);
     }
 }

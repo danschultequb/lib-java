@@ -4,21 +4,21 @@ public interface BasicFakeProcessRunTests
 {
     static void test(TestRunner runner)
     {
-        runner.testGroup(BasicFakeProcessRun.class, () ->
+        runner.testGroup(BasicFakeChildProcessRun.class, () ->
         {
-            FakeProcessRunTests.test(runner, (String executablePath) -> new BasicFakeProcessRun(Path.parse(executablePath)));
+            FakeProcessRunTests.test(runner, (String executablePath) -> BasicFakeChildProcessRun.create(Path.parse(executablePath), Iterable.create()));
 
             runner.testGroup("constructor(Path)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> new BasicFakeProcessRun((Path)null),
+                    test.assertThrows(() -> BasicFakeChildProcessRun.create((Path)null, Iterable.create()),
                         new PreConditionFailure("executableFilePath cannot be null."));
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
-                    final BasicFakeProcessRun fakeProcessRun = new BasicFakeProcessRun(Path.parse("testFile.exe"));
+                    final BasicFakeChildProcessRun fakeProcessRun = BasicFakeChildProcessRun.create(Path.parse("testFile.exe"), Iterable.create());
                     test.assertEqual(Path.parse("testFile.exe"), fakeProcessRun.getExecutablePath());
                     test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
                     test.assertNull(fakeProcessRun.getWorkingFolderPath());
@@ -27,7 +27,7 @@ public interface BasicFakeProcessRunTests
 
                 runner.test("with rooted path", (Test test) ->
                 {
-                    final BasicFakeProcessRun fakeProcessRun = new BasicFakeProcessRun(Path.parse("/testFile.exe"));
+                    final BasicFakeChildProcessRun fakeProcessRun = BasicFakeChildProcessRun.create(Path.parse("/testFile.exe"), Iterable.create());
                     test.assertEqual(Path.parse("/testFile.exe"), fakeProcessRun.getExecutablePath());
                     test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
                     test.assertNull(fakeProcessRun.getWorkingFolderPath());

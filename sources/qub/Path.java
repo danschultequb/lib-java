@@ -260,6 +260,40 @@ public class Path
     }
 
     /**
+     * Get whether or not this Path contains the provided value.
+     * @param value The value to look for in this Path.
+     * @return Whether or not this Path contains the provided value.
+     */
+    public boolean contains(char value)
+    {
+        return this.value.contains(Characters.toString(value));
+    }
+
+    /**
+     * Get whether or not this Path contains the provided value.
+     * @param value The value to look for in this Path.
+     * @return Whether or not this Path contains the provided value.
+     */
+    public boolean contains(Character value)
+    {
+        PreCondition.assertNotNull(value, "value");
+
+        return this.value.contains(Characters.toString(value));
+    }
+
+    /**
+     * Get whether or not this Path contains the provided value.
+     * @param value The value to look for in this Path.
+     * @return Whether or not this Path contains the provided value.
+     */
+    public boolean contains(String value)
+    {
+        PreCondition.assertNotNullAndNotEmpty(value, "value");
+
+        return this.value.contains(value);
+    }
+
+    /**
      * Get whether or not this Path begins with a root.
      * @return Whether or not this Path begins with a root.
      */
