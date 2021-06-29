@@ -269,12 +269,13 @@ public class CommandLineActions
 
         final String actionName = actionParameter.removeValue().await();
 
+        final CommandLineAction defaultAction = this.getDefaultAction();
         CommandLineAction actionToRun = null;
         if (Strings.isNullOrEmpty(actionName))
         {
             if (!helpParameter.getValue().await())
             {
-                actionToRun = this.getDefaultAction();
+                actionToRun = defaultAction;
             }
         }
         else
@@ -284,9 +285,14 @@ public class CommandLineActions
                 .await();
             if (actionToRun == null)
             {
-                final CharacterWriteStream output = process.getOutputWriteStream();
-                output.writeLine("Unrecognized action: " + Strings.escapeAndQuote(actionName)).await();
-                output.writeLine().await();
+                actionToRun = defaultAction;
+
+                if (actionToRun == null)
+                {
+                    final CharacterWriteStream output = process.getOutputWriteStream();
+                    output.writeLine("Unrecognized action: " + Strings.escapeAndQuote(actionName)).await();
+                    output.writeLine().await();
+                }
             }
         }
 
