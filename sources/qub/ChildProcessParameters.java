@@ -90,12 +90,23 @@ public interface ChildProcessParameters
     Iterable<String> getArguments();
 
     /**
+     * Insert the provided argument into the list of command-line arguments at the provided index.
+     * @param index The index at which to insert the provided argument.
+     * @param argument The argument to insert.
+     * @return This object for method chaining.
+     */
+    ChildProcessParameters insertArgument(int index, String argument);
+
+    /**
      * Add the provided argument to the list of command-line arguments that will be passed to the
      * executable.
      * @param argument The argument to add.
      * @return This object for method chaining.
      */
-    ChildProcessParameters addArgument(String argument);
+    default ChildProcessParameters addArgument(String argument)
+    {
+        return this.insertArgument(this.getArguments().getCount(), argument);
+    }
 
     /**
      * Add the provided arguments to the list of command-line arguments that will be passed to the executable.
@@ -239,7 +250,7 @@ public interface ChildProcessParameters
      */
     default ChildProcessParameters redirectErrorTo(ByteWriteStream errorStream)
     {
-        PreCondition.assertNotNull(errorStream, "outputStream");
+        PreCondition.assertNotNull(errorStream, "errorStream");
 
         return this.setErrorStreamHandler((ByteReadStream childProcessErrorStream) ->
         {

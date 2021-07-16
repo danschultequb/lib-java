@@ -44,6 +44,17 @@ public class BasicChildProcessParameters implements ChildProcessParameters
     }
 
     @Override
+    public BasicChildProcessParameters insertArgument(int index, String argument)
+    {
+        PreCondition.assertBetween(0, index, this.arguments.getCount(), "index");
+        PreCondition.assertNotNullAndNotEmpty(argument, "argument");
+
+        this.arguments.insert(index, argument);
+
+        return this;
+    }
+
+    @Override
     public BasicChildProcessParameters addArgument(String argument)
     {
         PreCondition.assertNotNullAndNotEmpty(argument, "argument");

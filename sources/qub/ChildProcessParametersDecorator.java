@@ -30,6 +30,15 @@ public abstract class ChildProcessParametersDecorator<T extends ChildProcessPara
 
     @Override
     @SuppressWarnings("unchecked")
+    public T insertArgument(int index, String argument)
+    {
+        this.innerParameters.insertArgument(index, argument);
+
+        return (T)this;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     public T addArgument(String argument)
     {
         this.innerParameters.addArgument(argument);
