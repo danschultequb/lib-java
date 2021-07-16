@@ -4,23 +4,31 @@ package qub;
  * A base-type that makes it easier to wrap a ChildProcessRunner for a specific executable or
  * application.
  */
-public abstract class ChildProcessRunnerWrapper<TParameters extends ChildProcessParameters>
+public abstract class ChildProcessRunnerWrapper<TWrapper, TParameters extends ChildProcessParameters>
 {
     private final ChildProcessRunner childProcessRunner;
+    private final Function1<Path,TParameters> parametersCreator;
     private Path executablePath;
 
-    protected ChildProcessRunnerWrapper(ChildProcessRunner childProcessRunner, Path executablePath)
+    protected ChildProcessRunnerWrapper(ChildProcessRunner childProcessRunner, Function1<Path,TParameters> parametersCreator, String executablePath)
+    {
+        this(childProcessRunner, parametersCreator, Path.parse(executablePath));
+    }
+
+    protected ChildProcessRunnerWrapper(ChildProcessRunner childProcessRunner, Function1<Path,TParameters> parametersCreator, Path executablePath)
     {
         PreCondition.assertNotNull(childProcessRunner, "childProcessRunner");
+        PreCondition.assertNotNull(parametersCreator, "parametersCreator");
         PreCondition.assertNotNull(executablePath, "executablePath");
 
         this.childProcessRunner = childProcessRunner;
+        this.parametersCreator = parametersCreator;
         this.executablePath = executablePath;
     }
 
     /**
      * Get the executable path that will be used to invoke the child process.
-     * @return
+     * @return The executable path that will be used to invoke the child process.
      */
     public Path getExecutablePath()
     {
@@ -32,7 +40,7 @@ public abstract class ChildProcessRunnerWrapper<TParameters extends ChildProcess
      * @param executablePath The executable path that will be used to invoke the child process.
      * @return This object for method chaining.
      */
-    public ChildProcessRunnerWrapper setExecutablePath(String executablePath)
+    public TWrapper setExecutablePath(String executablePath)
     {
         PreCondition.assertNotNullAndNotEmpty(executablePath, "executablePath");
 
@@ -44,13 +52,14 @@ public abstract class ChildProcessRunnerWrapper<TParameters extends ChildProcess
      * @param executablePath The executable path that will be used to invoke the child process.
      * @return This object for method chaining.
      */
-    public ChildProcessRunnerWrapper setExecutablePath(Path executablePath)
+    @SuppressWarnings("unchecked")
+    public TWrapper setExecutablePath(Path executablePath)
     {
         PreCondition.assertNotNull(executablePath, "executablePath");
 
         this.executablePath = executablePath;
 
-        return this;
+        return (TWrapper)this;
     }
 
     /**
@@ -58,19 +67,12 @@ public abstract class ChildProcessRunnerWrapper<TParameters extends ChildProcess
      * @param executable The executable file that will be used to invoke the child process.
      * @return This object for method chaining.
      */
-    public ChildProcessRunnerWrapper setExecutablePath(File executable)
+    public TWrapper setExecutablePath(File executable)
     {
         PreCondition.assertNotNull(executable, "executable");
 
         return this.setExecutablePath(executable.getPath());
     }
-
-    /**
-     * Create the empty parameters type for this particular child process runner wrapper.
-     * @param executablePath The path to the executable to invoke.
-     * @return The empty parameters type for this particular child process runner wrapper.
-     */
-    protected abstract TParameters createParameters(Path executablePath);
 
     /**
      * Add any default parameter values to the parameters that are created by the provided creator
@@ -105,7 +107,7 @@ public abstract class ChildProcessRunnerWrapper<TParameters extends ChildProcess
     {
         PreCondition.assertNotNull(arguments, "arguments");
 
-        return this.childProcessRunner.run(this.addParameterDefaults(this::createParameters).addArguments(arguments));
+        return this.childProcessRunner.run(this.addParameterDefaults(this.parametersCreator).addArguments(arguments));
     }
 
     public Result<Integer> run(TParameters parameters)
@@ -117,7 +119,7 @@ public abstract class ChildProcessRunnerWrapper<TParameters extends ChildProcess
 
     public Result<Integer> run(Action1<TParameters> parametersSetup)
     {
-        return this.run(this::createParameters, parametersSetup);
+        return this.run(this.parametersCreator, parametersSetup);
     }
 
     protected <T extends TParameters> Result<Integer> run(Function1<Path,T> parametersCreator, Action1<T> parametersSetup)
@@ -128,5 +130,51 @@ public abstract class ChildProcessRunnerWrapper<TParameters extends ChildProcess
         final T parameters = this.addParameterDefaults(parametersCreator);
         parametersSetup.run(parameters);
         return this.run(parameters);
+    }
+
+    /**
+     * Start the executable with the provided arguments.
+     * @param arguments The arguments to pass to the executable.
+     * @return The result of starting the executable.
+     */
+    public Result<? extends ChildProcess> start(String... arguments)
+    {
+        PreCondition.assertNotNull(arguments, "arguments");
+
+        return this.start(Iterable.create(arguments));
+    }
+
+    /**
+     * Start the executable with the provided arguments.
+     * @param arguments The arguments to pass to the executable.
+     * @return The result of running the executable.
+     */
+    public Result<? extends ChildProcess> start(Iterable<String> arguments)
+    {
+        PreCondition.assertNotNull(arguments, "arguments");
+
+        return this.childProcessRunner.start(this.addParameterDefaults(this.parametersCreator).addArguments(arguments));
+    }
+
+    public Result<? extends ChildProcess> start(TParameters parameters)
+    {
+        PreCondition.assertNotNull(parameters, "parameters");
+
+        return this.childProcessRunner.start(parameters);
+    }
+
+    public Result<? extends ChildProcess> start(Action1<TParameters> parametersSetup)
+    {
+        return this.start(this.parametersCreator, parametersSetup);
+    }
+
+    protected <T extends TParameters> Result<? extends ChildProcess> start(Function1<Path,T> parametersCreator, Action1<T> parametersSetup)
+    {
+        PreCondition.assertNotNull(parametersCreator, "parametersCreator");
+        PreCondition.assertNotNull(parametersSetup, "parametersSetup");
+
+        final T parameters = this.addParameterDefaults(parametersCreator);
+        parametersSetup.run(parameters);
+        return this.start(parameters);
     }
 }

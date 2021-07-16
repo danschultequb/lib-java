@@ -20,26 +20,6 @@ public class VisualVMParameters extends ChildProcessParametersDecorator<VisualVM
     }
 
     /**
-     * Create a new VisualVMParameters object that will use the latest installed version of Visual
-     * VM.
-     * @param qubFolder The QubFolder where Visual VM is installed.
-     * @return A new VisualVMParameters object that will use the latest installed version of Visual
-     * VM.
-     */
-    public static Result<VisualVMParameters> create(QubFolder qubFolder)
-    {
-        PreCondition.assertNotNull(qubFolder, "qubFolder");
-
-        return Result.create(() ->
-        {
-            final QubProjectFolder visualVmFolder = qubFolder.getProjectFolder("oracle", "visualvm").await();
-            final QubProjectVersionFolder visualVmVersionFolder = visualVmFolder.getLatestProjectVersionFolder().await();
-            final File visualVmExeFile = visualVmVersionFolder.getFile("bin/visualvm.exe").await();
-            return new VisualVMParameters(visualVmExeFile.getPath());
-        });
-    }
-
-    /**
      * Set the id of the process to open in VisualVM.
      * @param processId The id of the process to open in VisualVM.
      * @return This object for method chaining.

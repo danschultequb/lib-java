@@ -102,13 +102,19 @@ public class CommandLineParameterProfiler extends CommandLineParameterBoolean
             final QubFolder qubFolder = this.process.getQubFolder().await();
             final QubProjectVersionFolder jdkProjectVersionFolder = qubFolder.getProjectFolder("openjdk", "jdk").await()
                 .getLatestProjectVersionFolder().await();
-            final VisualVMParameters parameters = VisualVMParameters.create(qubFolder).await()
-                .setOpenPid(processId)
-                .setSuppressConsoleOutput(true)
-                .setJDKHome(jdkProjectVersionFolder);
+            final QubProjectVersionFolder visualVmProjectVersionFolder = qubFolder.getProjectFolder("oracle", "visualvm").await()
+                .getLatestProjectVersionFolder().await();
+            final File visualVmFile = visualVmProjectVersionFolder.getFile("bin/visualvm.exe").await();
 
-            final ChildProcessRunner processRunner = this.process.getChildProcessRunner();
-            processRunner.start(parameters).await();
+            VisualVM.create(this.process.getChildProcessRunner())
+                .setExecutablePath(visualVmFile)
+                .start((VisualVMParameters parameters) ->
+                {
+                    parameters.setOpenPid(processId);
+                    parameters.setSuppressConsoleOutput(true);
+                    parameters.setJDKHome(jdkProjectVersionFolder);
+                })
+                .await();
 
             output.writeLine(" Press enter to continue...").await();
 
