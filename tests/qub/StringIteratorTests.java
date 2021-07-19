@@ -6,11 +6,11 @@ public class StringIteratorTests
     {
         runner.testGroup("StringIterator", () ->
         {
-            runner.testGroup("constructor", () ->
+            runner.testGroup("create(String)", () ->
             {
                 runner.test("with null", test ->
                 {
-                    final StringIterator iterator = new StringIterator(null);
+                    final StringIterator iterator = StringIterator.create(null);
                     assertIterator(test, iterator, false, null, 0);
 
                     test.assertFalse(iterator.next());
@@ -22,7 +22,7 @@ public class StringIteratorTests
 
                 runner.test("with empty", test ->
                 {
-                    final StringIterator iterator = new StringIterator("");
+                    final StringIterator iterator = StringIterator.create("");
                     assertIterator(test, iterator, false, null, 0);
 
                     test.assertFalse(iterator.next());
@@ -34,7 +34,7 @@ public class StringIteratorTests
 
                 runner.test("with non-empty", test ->
                 {
-                    final StringIterator iterator = new StringIterator("ab");
+                    final StringIterator iterator = StringIterator.create("ab");
                     assertIterator(test, iterator, false, null, 0);
 
                     test.assertTrue(iterator.next());
@@ -55,7 +55,7 @@ public class StringIteratorTests
             {
                 runner.test("with " + Strings.escapeAndQuote("hello") + " and " + -10, test ->
                 {
-                    final StringIterator iterator = new StringIterator("hello");
+                    final StringIterator iterator = StringIterator.create("hello");
 
                     iterator.setCurrentIndex(-10);
                     assertIterator(test, iterator, true, 'h', 0);
@@ -63,7 +63,7 @@ public class StringIteratorTests
 
                 runner.test("with " + Strings.escapeAndQuote("hello") + " and " + 0, test ->
                 {
-                    final StringIterator iterator = new StringIterator("hello");
+                    final StringIterator iterator = StringIterator.create("hello");
 
                     iterator.setCurrentIndex(0);
                     assertIterator(test, iterator, true, 'h', 0);
@@ -71,7 +71,7 @@ public class StringIteratorTests
 
                 runner.test("with " + Strings.escapeAndQuote("hello") + " and " + 1, test ->
                 {
-                    final StringIterator iterator = new StringIterator("hello");
+                    final StringIterator iterator = StringIterator.create("hello");
 
                     iterator.setCurrentIndex(1);
                     assertIterator(test, iterator, true, 'e', 1);
@@ -79,7 +79,7 @@ public class StringIteratorTests
 
                 runner.test("with " + Strings.escapeAndQuote("hello") + " and " + 4, test ->
                 {
-                    final StringIterator iterator = new StringIterator("hello");
+                    final StringIterator iterator = StringIterator.create("hello");
 
                     iterator.setCurrentIndex(4);
                     assertIterator(test, iterator, true, 'o', 4);
@@ -87,7 +87,7 @@ public class StringIteratorTests
 
                 runner.test("with " + Strings.escapeAndQuote("hello") + " and " + 5, test ->
                 {
-                    final StringIterator iterator = new StringIterator("hello");
+                    final StringIterator iterator = StringIterator.create("hello");
 
                     iterator.setCurrentIndex(5);
                     assertIterator(test, iterator, true, null, 5);
@@ -95,7 +95,7 @@ public class StringIteratorTests
 
                 runner.test("with " + Strings.escapeAndQuote("hello") + " and " + 6, test ->
                 {
-                    final StringIterator iterator = new StringIterator("hello");
+                    final StringIterator iterator = StringIterator.create("hello");
 
                     iterator.setCurrentIndex(6);
                     assertIterator(test, iterator, true, null, 5);

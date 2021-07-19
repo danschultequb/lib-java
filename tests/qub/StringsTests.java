@@ -29,6 +29,114 @@ public interface StringsTests
                 });
             });
 
+            runner.testGroup("startsWith(String,String)", () ->
+            {
+                final Action3<String,String,Boolean> startsWithTest = (String value, String prefix, Boolean expected) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(value, prefix).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.startsWith(value, prefix));
+                    });
+                };
+
+                startsWithTest.run(null, null, false);
+                startsWithTest.run(null, "", false);
+                startsWithTest.run(null, "a", false);
+                startsWithTest.run(null, "abc", false);
+
+                startsWithTest.run("", null, false);
+                startsWithTest.run("", "", false);
+                startsWithTest.run("", "a", false);
+                startsWithTest.run("", "abc", false);
+
+                startsWithTest.run("a", null, false);
+                startsWithTest.run("a", "", false);
+                startsWithTest.run("a", "a", true);
+                startsWithTest.run("a", "A", false);
+                startsWithTest.run("a", "abc", false);
+
+                startsWithTest.run("abcdef", null, false);
+                startsWithTest.run("abcdef", "", false);
+                startsWithTest.run("abcdef", "a", true);
+                startsWithTest.run("abcdef", "A", false);
+                startsWithTest.run("abcdef", "abc", true);
+            });
+
+            runner.testGroup("startsWith(String,String,CharacterComparer)", () ->
+            {
+                runner.test("with null characterComparer", (Test test) ->
+                {
+                    test.assertThrows(() -> Strings.startsWith("a", "b", null),
+                        new PreConditionFailure("characterComparer cannot be null."));
+                });
+
+                runner.testGroup("with CharacterComparer.Exact", () ->
+                {
+                    final Action3<String,String,Boolean> startsWithTest = (String value, String prefix, Boolean expected) ->
+                    {
+                        runner.test("with " + English.andList(Iterable.create(value, prefix).map(Strings::escapeAndQuote)), (Test test) ->
+                        {
+                            test.assertEqual(expected, Strings.startsWith(value, prefix, CharacterComparer.Exact));
+                        });
+                    };
+
+                    startsWithTest.run(null, null, false);
+                    startsWithTest.run(null, "", false);
+                    startsWithTest.run(null, "a", false);
+                    startsWithTest.run(null, "abc", false);
+
+                    startsWithTest.run("", null, false);
+                    startsWithTest.run("", "", false);
+                    startsWithTest.run("", "a", false);
+                    startsWithTest.run("", "abc", false);
+
+                    startsWithTest.run("a", null, false);
+                    startsWithTest.run("a", "", false);
+                    startsWithTest.run("a", "a", true);
+                    startsWithTest.run("a", "A", false);
+                    startsWithTest.run("a", "abc", false);
+
+                    startsWithTest.run("abcdef", null, false);
+                    startsWithTest.run("abcdef", "", false);
+                    startsWithTest.run("abcdef", "a", true);
+                    startsWithTest.run("abcdef", "A", false);
+                    startsWithTest.run("abcdef", "abc", true);
+                });
+
+                runner.testGroup("with CharacterComparer.CaseInsensitive", () ->
+                {
+                    final Action3<String,String,Boolean> startsWithTest = (String value, String prefix, Boolean expected) ->
+                    {
+                        runner.test("with " + English.andList(Iterable.create(value, prefix).map(Strings::escapeAndQuote)), (Test test) ->
+                        {
+                            test.assertEqual(expected, Strings.startsWith(value, prefix, CharacterComparer.CaseInsensitive));
+                        });
+                    };
+
+                    startsWithTest.run(null, null, false);
+                    startsWithTest.run(null, "", false);
+                    startsWithTest.run(null, "a", false);
+                    startsWithTest.run(null, "abc", false);
+
+                    startsWithTest.run("", null, false);
+                    startsWithTest.run("", "", false);
+                    startsWithTest.run("", "a", false);
+                    startsWithTest.run("", "abc", false);
+
+                    startsWithTest.run("a", null, false);
+                    startsWithTest.run("a", "", false);
+                    startsWithTest.run("a", "a", true);
+                    startsWithTest.run("a", "A", true);
+                    startsWithTest.run("a", "abc", false);
+
+                    startsWithTest.run("abcdef", null, false);
+                    startsWithTest.run("abcdef", "", false);
+                    startsWithTest.run("abcdef", "a", true);
+                    startsWithTest.run("abcdef", "A", true);
+                    startsWithTest.run("abcdef", "abc", true);
+                });
+            });
+
             runner.testGroup("endsWith(String,char)", () ->
             {
                 final Action3<String,String,Throwable> endsWithErrorTest = (String text, String suffix, Throwable expected) ->
@@ -359,6 +467,29 @@ public interface StringsTests
                 });
             });
 
+            runner.testGroup("concatenate(String,String)", () ->
+            {
+                final Action3<String,String,String> concatenateTest = (String lhs, String rhs, String expected) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(lhs, rhs).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.concatenate(lhs, rhs));
+                    });
+                };
+
+                concatenateTest.run(null, null, "");
+                concatenateTest.run(null, "", "");
+                concatenateTest.run(null, "def", "def");
+
+                concatenateTest.run("", null, "");
+                concatenateTest.run("", "", "");
+                concatenateTest.run("", "def", "def");
+
+                concatenateTest.run("abc", null, "abc");
+                concatenateTest.run("abc", "", "abc");
+                concatenateTest.run("abc", "def", "abcdef");
+            });
+
             runner.testGroup("join(java.lang.Iterable<String>)", () ->
             {
                 runner.test("with null values", (Test test) ->
@@ -375,6 +506,16 @@ public interface StringsTests
                 runner.test("with non-empty values", (Test test) ->
                 {
                     test.assertEqual("abc", Strings.join(Iterable.create("a", "b", "c")));
+                });
+
+                runner.test("with null value", (Test test) ->
+                {
+                    test.assertEqual("ac", Strings.join(Iterable.create("a", null, "c")));
+                });
+
+                runner.test("with empty value", (Test test) ->
+                {
+                    test.assertEqual("ac", Strings.join(Iterable.create("a", "", "c")));
                 });
             });
 
@@ -395,6 +536,16 @@ public interface StringsTests
                 {
                     test.assertEqual("a+b+c", Strings.join('+', Iterable.create("a", "b", "c")));
                 });
+
+                runner.test("with null value", (Test test) ->
+                {
+                    test.assertEqual("a--c", Strings.join('-', Iterable.create("a", null, "c")));
+                });
+
+                runner.test("with empty value", (Test test) ->
+                {
+                    test.assertEqual("a,,c", Strings.join(',', Iterable.create("a", "", "c")));
+                });
             });
 
             runner.testGroup("join(String,java.lang.Iterable<String>)", () ->
@@ -403,6 +554,16 @@ public interface StringsTests
                 {
                     test.assertThrows(() -> Strings.join(null, Iterable.create()),
                         new PreConditionFailure("separator cannot be null."));
+                });
+
+                runner.test("with empty separator and empty values", (Test test) ->
+                {
+                    test.assertEqual("", Strings.join("", Iterable.create()));
+                });
+
+                runner.test("with empty separator and non-empty values", (Test test) ->
+                {
+                    test.assertEqual("ab", Strings.join("", Iterable.create("a", "b")));
                 });
 
                 runner.test("with null values", (Test test) ->
@@ -420,6 +581,93 @@ public interface StringsTests
                 {
                     test.assertEqual("a and b and c", Strings.join(" and ", Iterable.create("a", "b", "c")));
                 });
+
+                runner.test("with null value", (Test test) ->
+                {
+                    test.assertEqual("a--c", Strings.join("-", Iterable.create("a", null, "c")));
+                });
+
+                runner.test("with empty value", (Test test) ->
+                {
+                    test.assertEqual("a,,c", Strings.join(",", Iterable.create("a", "", "c")));
+                });
+            });
+
+            runner.testGroup("equal(String,String)", () ->
+            {
+                final Action3<String,String,Boolean> equalTest = (String lhs, String rhs, Boolean expected) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(lhs, rhs).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.equal(lhs, rhs));
+                    });
+                };
+
+                equalTest.run(null, null, true);
+                equalTest.run(null, "", false);
+                equalTest.run(null, "a", false);
+                equalTest.run(null, "A", false);
+                equalTest.run(null, "abc", false);
+
+                equalTest.run("", null, false);
+                equalTest.run("", "", true);
+                equalTest.run("", "a", false);
+                equalTest.run("", "A", false);
+                equalTest.run("", "abc", false);
+
+                equalTest.run("a", null, false);
+                equalTest.run("a", "", false);
+                equalTest.run("a", "a", true);
+                equalTest.run("a", "A", false);
+                equalTest.run("a", "abc", false);
+
+                equalTest.run("abc", null, false);
+                equalTest.run("abc", "", false);
+                equalTest.run("abc", "a", false);
+                equalTest.run("abc", "A", false);
+                equalTest.run("abc", "abc", true);
+            });
+
+            runner.testGroup("format(String,Object...)", () ->
+            {
+                final Action3<String,Object[],Throwable> formatErrorTest = (String formattedString, Object[] formattedStringArguments, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(formattedString), Array.toString(formattedStringArguments)), (Test test) ->
+                    {
+                        test.assertThrows(() -> Strings.format(formattedString, formattedStringArguments),
+                            expected);
+                    });
+                };
+
+                formatErrorTest.run("hello %f", new Object[] { 1 }, new java.util.IllegalFormatConversionException('f', java.lang.Integer.class));
+
+                final Action3<String,Object[],String> formatTest = (String formattedString, Object[] formattedStringArguments, String expected) ->
+                {
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(formattedString), Array.toString(formattedStringArguments)), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.format(formattedString, formattedStringArguments));
+                    });
+                };
+
+                formatTest.run(null, null, null);
+                formatTest.run(null, new Object[0], null);
+                formatTest.run(null, new Object[] { 1 }, null);
+                formatTest.run("", null, "");
+                formatTest.run("", new Object[0], "");
+                formatTest.run("", new Object[] { 1 }, "");
+                formatTest.run("hello", null, "hello");
+                formatTest.run("hello", new Object[0], "hello");
+                formatTest.run("hello", new Object[] { 1 }, "hello");
+                formatTest.run("hello %d", null, "hello %d");
+                formatTest.run("hello %d", new Object[0], "hello %d");
+                formatTest.run("hello %d", new Object[] { 1 }, "hello 1");
+                formatTest.run("hello %f", null, "hello %f");
+                formatTest.run("hello %f", new Object[0], "hello %f");
+                formatTest.run("hello %f", new Object[] { 1.2 }, "hello 1.200000");
+                formatTest.run("hello %.3f", new Object[] { 1.2 }, "hello 1.200");
+                formatTest.run("hello %s", null, "hello %s");
+                formatTest.run("hello %s", new Object[0], "hello %s");
+                formatTest.run("hello %s", new Object[] { "there" }, "hello there");
             });
 
             runner.testGroup("padLeft()", () ->
@@ -511,96 +759,178 @@ public interface StringsTests
                 });
             });
 
-            runner.testGroup("getWords(String)", () ->
+            runner.testGroup("iterateWords(String)", () ->
             {
-                final Action2<String,Iterable<String>> getWordsTest = (String value, Iterable<String> expected) ->
+                final Action2<String,Iterable<String>> iterateWordsTest = (String value, Iterable<String> expected) ->
                 {
                     runner.test("with " + Strings.escapeAndQuote(value), (Test test) ->
                     {
-                        test.assertEqual(expected, Strings.getWords(value));
+                        test.assertEqual(expected, Strings.iterateWords(value).toList());
                     });
                 };
 
-                getWordsTest.run(null, Iterable.create());
-                getWordsTest.run("", Iterable.create());
-                getWordsTest.run("     ", Iterable.create());
-                getWordsTest.run("./\\\"*", Iterable.create());
-                getWordsTest.run("a", Iterable.create("a"));
-                getWordsTest.run("abc", Iterable.create("abc"));
-                getWordsTest.run("a.a", Iterable.create("a"));
-                getWordsTest.run("Disposable.create()", Iterable.create("Disposable", "create"));
-                getWordsTest.run("a a", Iterable.create("a"));
-                getWordsTest.run("a b", Iterable.create("a", "b"));
-                getWordsTest.run("a1 b", Iterable.create("a1", "b"));
+                iterateWordsTest.run(null, Iterable.create());
+                iterateWordsTest.run("", Iterable.create());
+                iterateWordsTest.run("     ", Iterable.create());
+                iterateWordsTest.run("./\\\"*", Iterable.create());
+                iterateWordsTest.run("a", Iterable.create("a"));
+                iterateWordsTest.run("abc", Iterable.create("abc"));
+                iterateWordsTest.run("a.a", Iterable.create("a", "a"));
+                iterateWordsTest.run("Disposable.create()", Iterable.create("Disposable", "create"));
+                iterateWordsTest.run("a a", Iterable.create("a", "a"));
+                iterateWordsTest.run("a b", Iterable.create("a", "b"));
+                iterateWordsTest.run("a1 b", Iterable.create("a1", "b"));
             });
 
-            runner.testGroup("getLines(String)", () ->
+            runner.testGroup("compare(String,String)", () ->
             {
-                runner.test("with null", (Test test) ->
+                final Action3<String,String,Comparison> compareTest = (String lhs, String rhs, Comparison expected) ->
                 {
-                    test.assertThrows(() -> Strings.getLines(null), new PreConditionFailure("value cannot be null."));
-                });
-
-                final Action2<String,Iterable<String>> getLinesTest = (String value, Iterable<String> expected) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(value), (Test test) ->
+                    runner.test("with " + English.andList(Iterable.create(lhs, rhs).map(Strings::escapeAndQuote)), (Test test) ->
                     {
-                        test.assertEqual(expected, Strings.getLines(value));
+                        test.assertEqual(expected, Strings.compare(lhs, rhs));
                     });
                 };
 
-                getLinesTest.run("", Iterable.create());
-                getLinesTest.run("   ", Iterable.create("   "));
-                getLinesTest.run("abcd", Iterable.create("abcd"));
-                getLinesTest.run("\n\n\n", Iterable.create("", "", ""));
-                getLinesTest.run("\r\n\n\r", Iterable.create("", "", "\r"));
-                getLinesTest.run("a\nb\r\nc\rd", Iterable.create("a", "b", "c\rd"));
+                compareTest.run(null, null, Comparison.Equal);
+                compareTest.run(null, "", Comparison.LessThan);
+                compareTest.run(null, "a", Comparison.LessThan);
+                compareTest.run(null, "abc", Comparison.LessThan);
+                compareTest.run(null, "defg", Comparison.LessThan);
+
+                compareTest.run("", null, Comparison.GreaterThan);
+                compareTest.run("", "", Comparison.Equal);
+                compareTest.run("", "a", Comparison.LessThan);
+                compareTest.run("", "abc", Comparison.LessThan);
+                compareTest.run("", "defg", Comparison.LessThan);
+
+                compareTest.run("a", null, Comparison.GreaterThan);
+                compareTest.run("a", "", Comparison.GreaterThan);
+                compareTest.run("a", "a", Comparison.Equal);
+                compareTest.run("a", "abc", Comparison.LessThan);
+                compareTest.run("a", "defg", Comparison.LessThan);
+
+                compareTest.run("abc", null, Comparison.GreaterThan);
+                compareTest.run("abc", "", Comparison.GreaterThan);
+                compareTest.run("abc", "a", Comparison.GreaterThan);
+                compareTest.run("abc", "abc", Comparison.Equal);
+                compareTest.run("abc", "defg", Comparison.LessThan);
             });
 
-            runner.testGroup("getLines(String,boolean) with includeNewLineCharacters set to false", () ->
+            runner.testGroup("lessThan(String,String)", () ->
             {
-                runner.test("with null", (Test test) ->
+                final Action3<String,String,Boolean> lessThanTest = (String lhs, String rhs, Boolean expected) ->
                 {
-                    test.assertThrows(() -> Strings.getLines(null), new PreConditionFailure("value cannot be null."));
-                });
-
-                final Action2<String,Iterable<String>> getLinesTest = (String value, Iterable<String> expected) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(value), (Test test) ->
+                    runner.test("with " + English.andList(Iterable.create(lhs, rhs).map(Strings::escapeAndQuote)), (Test test) ->
                     {
-                        test.assertEqual(expected, Strings.getLines(value, false));
+                        test.assertEqual(expected, Strings.lessThan(lhs, rhs));
                     });
                 };
 
-                getLinesTest.run("", Iterable.create());
-                getLinesTest.run("   ", Iterable.create("   "));
-                getLinesTest.run("abcd", Iterable.create("abcd"));
-                getLinesTest.run("\n\n\n", Iterable.create("", "", ""));
-                getLinesTest.run("\r\n\n\r", Iterable.create("", "", "\r"));
-                getLinesTest.run("a\nb\r\nc\rd", Iterable.create("a", "b", "c\rd"));
+                lessThanTest.run(null, null, false);
+                lessThanTest.run(null, "", true);
+                lessThanTest.run(null, "a", true);
+                lessThanTest.run(null, "abc", true);
+                lessThanTest.run(null, "defg", true);
+
+                lessThanTest.run("", null, false);
+                lessThanTest.run("", "", false);
+                lessThanTest.run("", "a", true);
+                lessThanTest.run("", "abc", true);
+                lessThanTest.run("", "defg", true);
+
+                lessThanTest.run("a", null, false);
+                lessThanTest.run("a", "", false);
+                lessThanTest.run("a", "a", false);
+                lessThanTest.run("a", "abc", true);
+                lessThanTest.run("a", "defg", true);
+
+                lessThanTest.run("abc", null, false);
+                lessThanTest.run("abc", "", false);
+                lessThanTest.run("abc", "a", false);
+                lessThanTest.run("abc", "abc", false);
+                lessThanTest.run("abc", "defg", true);
             });
 
-            runner.testGroup("getLines(String,boolean) with includeNewLineCharacters set to true", () ->
+            runner.testGroup("greaterThan(String,String)", () ->
             {
-                runner.test("with null", (Test test) ->
+                final Action3<String,String,Boolean> greaterThanTest = (String lhs, String rhs, Boolean expected) ->
                 {
-                    test.assertThrows(() -> Strings.getLines(null), new PreConditionFailure("value cannot be null."));
-                });
-
-                final Action2<String,Iterable<String>> getLinesTest = (String value, Iterable<String> expected) ->
-                {
-                    runner.test("with " + Strings.escapeAndQuote(value), (Test test) ->
+                    runner.test("with " + English.andList(Iterable.create(lhs, rhs).map(Strings::escapeAndQuote)), (Test test) ->
                     {
-                        test.assertEqual(expected, Strings.getLines(value, true));
+                        test.assertEqual(expected, Strings.greaterThan(lhs, rhs));
                     });
                 };
 
-                getLinesTest.run("", Iterable.create());
-                getLinesTest.run("   ", Iterable.create("   "));
-                getLinesTest.run("abcd", Iterable.create("abcd"));
-                getLinesTest.run("\n\n\n", Iterable.create("\n", "\n", "\n"));
-                getLinesTest.run("\r\n\n\r", Iterable.create("\r\n", "\n", "\r"));
-                getLinesTest.run("a\nb\r\nc\rd", Iterable.create("a\n", "b\r\n", "c\rd"));
+                greaterThanTest.run(null, null, false);
+                greaterThanTest.run(null, "", false);
+                greaterThanTest.run(null, "a", false);
+                greaterThanTest.run(null, "abc", false);
+                greaterThanTest.run(null, "defg", false);
+
+                greaterThanTest.run("", null, true);
+                greaterThanTest.run("", "", false);
+                greaterThanTest.run("", "a", false);
+                greaterThanTest.run("", "abc", false);
+                greaterThanTest.run("", "defg", false);
+
+                greaterThanTest.run("a", null, true);
+                greaterThanTest.run("a", "", true);
+                greaterThanTest.run("a", "a", false);
+                greaterThanTest.run("a", "abc", false);
+                greaterThanTest.run("a", "defg", false);
+
+                greaterThanTest.run("abc", null, true);
+                greaterThanTest.run("abc", "", true);
+                greaterThanTest.run("abc", "a", true);
+                greaterThanTest.run("abc", "abc", false);
+                greaterThanTest.run("abc", "defg", false);
+            });
+
+            runner.testGroup("iterateLines(String)", () ->
+            {
+                final Action2<String,Iterable<String>> iterateLinesTest = (String value, Iterable<String> expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(value), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.iterateLines(value).toList());
+                    });
+                };
+
+                iterateLinesTest.run(null, Iterable.create());
+                iterateLinesTest.run("", Iterable.create());
+                iterateLinesTest.run("   ", Iterable.create("   "));
+                iterateLinesTest.run("abcd", Iterable.create("abcd"));
+                iterateLinesTest.run("\n\n\n", Iterable.create("", "", ""));
+                iterateLinesTest.run("\r\n\n\r", Iterable.create("", "", "\r"));
+                iterateLinesTest.run("a\nb\r\nc\rd", Iterable.create("a", "b", "c\rd"));
+            });
+
+            runner.testGroup("iterateLines(String,boolean)", () ->
+            {
+                final Action3<String,Boolean,Iterable<String>> iterateLinesTest = (String value, Boolean includeNewLines, Iterable<String> expected) ->
+                {
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(value), includeNewLines), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.iterateLines(value, includeNewLines).toList());
+                    });
+                };
+
+                iterateLinesTest.run(null, false, Iterable.create());
+                iterateLinesTest.run("", false, Iterable.create());
+                iterateLinesTest.run("   ", false, Iterable.create("   "));
+                iterateLinesTest.run("abcd", false, Iterable.create("abcd"));
+                iterateLinesTest.run("\n\n\n", false, Iterable.create("", "", ""));
+                iterateLinesTest.run("\r\n\n\r", false, Iterable.create("", "", "\r"));
+                iterateLinesTest.run("a\nb\r\nc\rd", false, Iterable.create("a", "b", "c\rd"));
+
+                iterateLinesTest.run(null, true, Iterable.create());
+                iterateLinesTest.run("", true, Iterable.create());
+                iterateLinesTest.run("   ", true, Iterable.create("   "));
+                iterateLinesTest.run("abcd", true, Iterable.create("abcd"));
+                iterateLinesTest.run("\n\n\n", true, Iterable.create("\n", "\n", "\n"));
+                iterateLinesTest.run("\r\n\n\r", true, Iterable.create("\r\n", "\n", "\r"));
+                iterateLinesTest.run("a\nb\r\nc\rd", true, Iterable.create("a\n", "b\r\n", "c\rd"));
             });
         });
     }

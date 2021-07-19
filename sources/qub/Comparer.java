@@ -7,17 +7,22 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
 {
     static Comparison compare(int lhs, int rhs)
     {
-        return Comparison.create(lhs - rhs);
+        return Integers.compare(lhs, rhs);
     }
 
     static Comparison compare(int lhs, Integer rhs)
     {
-        return rhs == null ? Comparison.GreaterThan : Comparer.compare(lhs, rhs.intValue());
+        return Integers.compare(lhs, rhs);
     }
 
     static Comparison compare(Integer lhs, int rhs)
     {
-        return lhs == null ? Comparison.LessThan : Comparer.compare(lhs.intValue(), rhs);
+        return Integers.compare(lhs, rhs);
+    }
+
+    static Comparison compare(String lhs, String rhs)
+    {
+        return Strings.compare(lhs, rhs);
     }
 
     static <U, T extends java.lang.Comparable<U>> Comparison compare(T lhs, U rhs)

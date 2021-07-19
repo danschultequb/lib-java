@@ -30,7 +30,7 @@ public interface Strings
      */
     static Iterator<Character> iterate(String text)
     {
-        return new StringIterator(text);
+        return StringIterator.create(text);
     }
 
     /**
@@ -304,16 +304,6 @@ public interface Strings
     }
 
     /**
-     * Get whether or not the provided text is null or empty.
-     * @param text The text to check.
-     * @return Whether or not the provided text is null or empty.
-     */
-    static boolean isNullOrEmpty(StringBuilder text)
-    {
-        return text == null || text.length() == 0;
-    }
-
-    /**
      * Repeat the provided value String a specified number of times.
      * @param value The value to repeat.
      * @param repetitions The number of times to repeat the value.
@@ -324,20 +314,20 @@ public interface Strings
         PreCondition.assertNotNull(value, "value");
         PreCondition.assertGreaterThanOrEqualTo(repetitions, 0, "repetitions");
 
-        final StringBuilder builder = new StringBuilder(value.length() * repetitions);
+        final CharacterList list = CharacterList.create();
         if (!Strings.isNullOrEmpty(value))
         {
             for (int i = 0; i < repetitions; ++i)
             {
-                builder.append(value);
+                list.addAll(value);
             }
         }
-        final String result = builder.toString();
+        final String result = list.toString();
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertEqual(Strings.getLength(value) * repetitions, result.length(), "result.length()");
 
-        return builder.toString();
+        return result;
     }
 
     /**
@@ -350,17 +340,17 @@ public interface Strings
     {
         PreCondition.assertGreaterThanOrEqualTo(repetitions, 0, "repetitions");
 
-        final StringBuilder builder = new StringBuilder(repetitions);
+        final CharacterList list = CharacterList.create();
         for (int i = 0; i < repetitions; ++i)
         {
-            builder.append(value);
+            list.add(value);
         }
-        final String result = builder.toString();
+        final String result = list.toString();
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertEqual(repetitions, result.length(), "result.length()");
 
-        return builder.toString();
+        return result;
     }
 
     /**
@@ -372,15 +362,16 @@ public interface Strings
      */
     static String concatenate(String lhs, String rhs)
     {
-        String result = "";
+        final CharacterList list = CharacterList.create();
         if (lhs != null)
         {
-            result += lhs;
+            list.addAll(lhs);
         }
         if (rhs != null)
         {
-            result += rhs;
+            list.addAll(rhs);
         }
+        final String result = list.toString(true);
 
         PostCondition.assertNotNull(result, "result");
 
@@ -396,15 +387,15 @@ public interface Strings
     {
         PreCondition.assertNotNull(values, "values");
 
-        final StringBuilder builder = new StringBuilder();
+        final CharacterList list = CharacterList.create();
         for (final String value : values)
         {
             if (!Strings.isNullOrEmpty(value))
             {
-                builder.append(value);
+                list.addAll(value);
             }
         }
-        final String result = builder.toString();
+        final String result = list.toString();
 
         PostCondition.assertNotNull(result, "result");
 
@@ -421,19 +412,19 @@ public interface Strings
     {
         PreCondition.assertNotNull(values, "values");
 
-        final StringBuilder builder = new StringBuilder();
+        final CharacterList list = CharacterList.create();
         for (final String value : values)
         {
-            if (builder.length() > 0)
+            if (list.any())
             {
-                builder.append(separator);
+                list.add(separator);
             }
             if (value != null)
             {
-                builder.append(value);
+                list.addAll(value);
             }
         }
-        final String result = builder.toString();
+        final String result = list.toString();
 
         PostCondition.assertNotNull(result, "result");
 
@@ -451,19 +442,19 @@ public interface Strings
         PreCondition.assertNotNull(separator, "separator");
         PreCondition.assertNotNull(values, "values");
 
-        final StringBuilder builder = new StringBuilder();
+        final CharacterList list = CharacterList.create();
         for (final String value : values)
         {
-            if (builder.length() > 0)
+            if (list.any())
             {
-                builder.append(separator);
+                list.addAll(separator);
             }
             if (value != null)
             {
-                builder.append(value);
+                list.addAll(value);
             }
         }
-        final String result = builder.toString();
+        final String result = list.toString();
 
         PostCondition.assertNotNull(result, "result");
 
@@ -480,7 +471,7 @@ public interface Strings
         String result;
         if (formattedString != null && !formattedString.isEmpty() && formattedStringArguments != null && formattedStringArguments.length > 0)
         {
-            result = String.format(formattedString, formattedStringArguments);
+            result = java.lang.String.format(formattedString, formattedStringArguments);
         }
         else
         {
@@ -529,7 +520,7 @@ public interface Strings
 
     static boolean isOneOf(String value, String... possibilities)
     {
-        return isOneOf(value, Iterable.create(possibilities));
+        return Strings.isOneOf(value, Iterable.create(possibilities));
     }
 
     static boolean isOneOf(String value, Iterable<String> possibilities)
@@ -539,38 +530,37 @@ public interface Strings
         return possibilities.contains(value);
     }
 
-    /**
-     * Return the set of words that are used in the provided String.
-     * @param value The String to find words in.
-     * @return The set of words that are used in the provided String.
-     */
-    static Set<String> getWords(String value)
+    static Iterator<String> iterateWords(String value)
     {
-        final Set<String> result = Set.create();
+        return Strings.iterateWords(Strings.iterate(value));
+    }
 
-        if (!Strings.isNullOrEmpty(value))
+    static Iterator<String> iterateWords(Iterator<Character> characters)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+
+        final CharacterList list = CharacterList.create();
+        return Iterator.create((IteratorActions<String> actions) ->
         {
-            final CharacterList builder = CharacterList.create();
-            for (final char character : value.toCharArray())
+            characters.start();
+
+            while (characters.hasCurrent() && !Characters.isLetterOrDigit(characters.getCurrent()))
             {
-                if (Characters.isLetterOrDigit(character))
-                {
-                    builder.add(character);
-                }
-                else if (builder.any())
-                {
-                    result.add(builder.toString());
-                    builder.clear();
-                }
+                characters.next();
             }
 
-            if (builder.any())
+            while (characters.hasCurrent() && Characters.isLetterOrDigit(characters.getCurrent()))
             {
-                result.add(builder.toString());
+                list.add(characters.getCurrent());
+                characters.next();
             }
-        }
 
-        return result;
+            if (list.any())
+            {
+                actions.returnValue(list.toString());
+                list.clear();
+            }
+        });
     }
 
     static Comparison compare(String lhs, String rhs)
@@ -605,67 +595,56 @@ public interface Strings
         return Strings.compare(lhs, rhs) == Comparison.GreaterThan;
     }
 
-    /**
-     * Get the lines that make up the provided String value.
-     * @param value The value to get the lines create.
-     * @return The lines that make up the provided String value.
-     */
-    static Iterable<String> getLines(String value)
+    static Iterator<String> iterateLines(String value)
     {
-        return getLines(value, false);
+        return Strings.iterateLines(Strings.iterate(value));
     }
 
-    /**
-     * Get the lines that make up the provided String value.
-     * @param value The value to get the lines create.
-     * @param includeNewLineCharacters Whether or not to include new line sequences (\n and \r\n).
-     * @return The lines that make up the provided String value.
-     */
-    static Iterable<String> getLines(String value, boolean includeNewLineCharacters)
+    static Iterator<String> iterateLines(String value, boolean includeNewLines)
     {
-        PreCondition.assertNotNull(value, "value");
+        return Strings.iterateLines(Strings.iterate(value), includeNewLines);
+    }
 
-        final List<String> result = List.create();
-        int lineStart = 0;
-        int lineLength = 0;
-        final int valueLength = value.length();
-        boolean previousCharacterWasCarriageReturn = false;
-        for (int i = 0; i < valueLength; ++i)
+    static Iterator<String> iterateLines(Iterator<Character> characters)
+    {
+        return Strings.iterateLines(characters, false);
+    }
+
+    static Iterator<String> iterateLines(Iterator<Character> characters, boolean includeNewLines)
+    {
+        PreCondition.assertNotNull(characters, "characters");
+
+        final CharacterList list = CharacterList.create();
+        return Iterator.create((IteratorActions<String> actions) ->
         {
-            final char currentCharacter = value.charAt(i);
-            ++lineLength;
+            characters.start();
 
-            if (currentCharacter == '\r')
+            boolean foundLine = false;
+            while (characters.hasCurrent())
             {
-                previousCharacterWasCarriageReturn = true;
-            }
-            else
-            {
-                if (currentCharacter == '\n')
+                foundLine = true;
+
+                list.add(characters.takeCurrent());
+
+                if (list.endsWith('\n'))
                 {
-                    int lineEnd = lineStart + lineLength;
-                    if (!includeNewLineCharacters)
+                    if (!includeNewLines)
                     {
-                        --lineEnd;
-                        if (previousCharacterWasCarriageReturn)
+                        list.removeLast();
+                        if (list.endsWith('\r'))
                         {
-                            --lineEnd;
+                            list.removeLast();
                         }
                     }
-                    result.add(value.substring(lineStart, lineEnd));
-                    lineStart = i + 1;
-                    lineLength = 0;
+                    break;
                 }
-                previousCharacterWasCarriageReturn = false;
             }
-        }
-        if (lineLength > 0)
-        {
-            result.add(value.substring(lineStart));
-        }
 
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+            if (foundLine)
+            {
+                actions.returnValue(list.toString());
+                list.clear();
+            }
+        });
     }
 }

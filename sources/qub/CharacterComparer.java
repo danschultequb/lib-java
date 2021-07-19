@@ -22,7 +22,7 @@ public interface CharacterComparer
     {
         final char lhsLower = Characters.toLowerCase(lhs);
         final char rhsLower = Characters.toLowerCase(rhs);
-        return Exact.compare(lhsLower, rhsLower);
+        return CharacterComparer.Exact.compare(lhsLower, rhsLower);
     };
 
     /**
@@ -41,6 +41,6 @@ public interface CharacterComparer
      */
     default boolean equal(char lhs, char rhs)
     {
-        return compare(lhs, rhs) == Comparison.Equal;
+        return this.compare(lhs, rhs) == Comparison.Equal;
     }
 }

@@ -6,6 +6,180 @@ public interface PathTests
     {
         runner.testGroup(Path.class, () ->
         {
+            runner.testGroup("parse()", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Path.parse(null),
+                        new PreConditionFailure("pathString cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    test.assertThrows(() -> Path.parse(""),
+                        new PreConditionFailure("pathString cannot be empty."));
+                });
+
+                runner.test("with " + Strings.escapeAndQuote("/"), (Test test) ->
+                {
+                    final Path path = Path.parse("/");
+                    test.assertNotNull(path);
+                    test.assertEqual("/", path.toString());
+                    test.assertEqual(1, path.length());
+                    test.assertTrue(path.isRooted());
+                    test.assertEqual(Path.parse("/"), path.getRoot().await());
+                    test.assertTrue(path.equals(path));
+                    test.assertTrue(path.equals((Object)path));
+                    final Indexable<String> pathSegments = path.getSegments();
+                    test.assertNotNull(pathSegments);
+                    test.assertEqual(Iterable.create("/"), pathSegments);
+                    test.assertEqual("/", path.getName());
+                    test.assertEqual("/", path.getNameWithoutFileExtension());
+
+                    final Path normalizedPath = path.normalize();
+                    test.assertEqual("/", normalizedPath.toString());
+                    test.assertSame(normalizedPath, normalizedPath.normalize());
+                    final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
+                    test.assertNotNull(normalizedPathSegments);
+                    test.assertEqual(Iterable.create("/"), normalizedPathSegments);
+                });
+
+                runner.test("with " + Strings.escapeAndQuote("\\"), (Test test) ->
+                {
+                    final Path path = Path.parse("\\");
+                    test.assertNotNull(path);
+                    test.assertEqual("\\", path.toString());
+                    test.assertEqual(1, path.length());
+                    test.assertTrue(path.isRooted());
+                    test.assertEqual(Path.parse("\\"), path.getRoot().await());
+                    test.assertTrue(path.equals(path));
+                    test.assertTrue(path.equals((Object)path));
+                    final Indexable<String> pathSegments = path.getSegments();
+                    test.assertNotNull(pathSegments);
+                    test.assertEqual(Iterable.create("/"), pathSegments);
+                    test.assertEqual("/", path.getName());
+                    test.assertEqual("/", path.getNameWithoutFileExtension());
+
+                    final Path normalizedPath = path.normalize();
+                    test.assertEqual("/", normalizedPath.toString());
+                    test.assertSame(normalizedPath, normalizedPath.normalize());
+                    final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
+                    test.assertNotNull(normalizedPathSegments);
+                    test.assertEqual(Iterable.create("/"), normalizedPathSegments);
+                });
+
+                runner.test("with " + Strings.escapeAndQuote("C:\\"), (Test test) ->
+                {
+                    final Path path = Path.parse("C:\\");
+                    test.assertNotNull(path);
+                    test.assertEqual("C:\\", path.toString());
+                    test.assertEqual(3, path.length());
+                    test.assertTrue(path.isRooted());
+                    test.assertEqual(Path.parse("C:\\"), path.getRoot().await());
+                    test.assertTrue(path.equals(path));
+                    test.assertTrue(path.equals((Object)path));
+                    final Indexable<String> pathSegments = path.getSegments();
+                    test.assertNotNull(pathSegments);
+                    test.assertEqual(Iterable.create("C:"), pathSegments);
+                    test.assertEqual("C:", path.getName());
+                    test.assertEqual("C:", path.getNameWithoutFileExtension());
+
+                    final Path normalizedPath = path.normalize();
+                    test.assertEqual("C:/", normalizedPath.toString());
+                    test.assertSame(normalizedPath, normalizedPath.normalize());
+                    final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
+                    test.assertNotNull(normalizedPathSegments);
+                    test.assertEqual(Iterable.create("C:"), normalizedPathSegments);
+                });
+
+                runner.test("with " + Strings.escapeAndQuote("/hello/there.txt"), (Test test) ->
+                {
+                    final Path path = Path.parse("/hello/there.txt");
+                    test.assertNotNull(path);
+                    test.assertEqual("/hello/there.txt", path.toString());
+                    test.assertEqual(16, path.length());
+                    test.assertTrue(path.isRooted());
+                    test.assertEqual(Path.parse("/"), path.getRoot().await());
+                    test.assertTrue(path.equals(path));
+                    test.assertTrue(path.equals((Object)path));
+                    final Indexable<String> pathSegments = path.getSegments();
+                    test.assertNotNull(pathSegments);
+                    test.assertEqual(Iterable.create("/", "hello", "there.txt"), pathSegments);
+                    test.assertEqual("there.txt", path.getName());
+                    test.assertEqual("there", path.getNameWithoutFileExtension());
+
+                    final Path normalizedPath = path.normalize();
+                    test.assertEqual("/hello/there.txt", normalizedPath.toString());
+                    test.assertSame(normalizedPath, normalizedPath.normalize());
+                    final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
+                    test.assertNotNull(normalizedPathSegments);
+                    test.assertEqual(Iterable.create("/", "hello", "there.txt"), normalizedPathSegments);
+                });
+
+                runner.test("with " + Strings.escapeAndQuote("/\\/test1//"), (Test test) ->
+                {
+                    final Path path = Path.parse("/\\/test1//");
+                    test.assertNotNull(path);
+                    test.assertEqual("/\\/test1//", path.toString());
+                    test.assertEqual(10, path.length());
+                    test.assertTrue(path.isRooted());
+                    test.assertEqual(Path.parse("/"), path.getRoot().await());
+                    final Indexable<String> pathSegments = path.getSegments();
+                    test.assertNotNull(pathSegments);
+                    test.assertEqual(Iterable.create("/", "test1"), pathSegments);
+                    test.assertEqual("test1", path.getName());
+                    test.assertEqual("test1", path.getNameWithoutFileExtension());
+
+                    final Path normalizedPath = path.normalize();
+                    test.assertEqual("/test1/", normalizedPath.toString());
+                    final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
+                    test.assertNotNull(normalizedPathSegments);
+                    test.assertEqual(Iterable.create("/", "test1"), normalizedPathSegments);
+                });
+
+                runner.test("with " + Strings.escapeAndQuote("/\\/test1.notafileextension//"), (Test test) ->
+                {
+                    final Path path = Path.parse("/\\/test1.notafileextension//");
+                    test.assertNotNull(path);
+                    test.assertEqual("/\\/test1.notafileextension//", path.toString());
+                    test.assertEqual(28, path.length());
+                    test.assertTrue(path.isRooted());
+                    test.assertEqual(Path.parse("/"), path.getRoot().await());
+                    final Indexable<String> pathSegments = path.getSegments();
+                    test.assertNotNull(pathSegments);
+                    test.assertEqual(Iterable.create("/", "test1.notafileextension"), pathSegments);
+                    test.assertEqual("test1.notafileextension", path.getName());
+                    test.assertEqual("test1.notafileextension", path.getNameWithoutFileExtension());
+
+                    final Path normalizedPath = path.normalize();
+                    test.assertEqual("/test1.notafileextension/", normalizedPath.toString());
+                    final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
+                    test.assertNotNull(normalizedPathSegments);
+                    test.assertEqual(Iterable.create("/", "test1.notafileextension"), normalizedPathSegments);
+                });
+
+                runner.test("with " + Strings.escapeAndQuote("C:\\Windows\\System32\\cmd.exe"), (Test test) ->
+                {
+                    final Path path = Path.parse("C:\\Windows\\System32\\cmd.exe");
+                    test.assertNotNull(path);
+                    test.assertEqual("C:\\Windows\\System32\\cmd.exe", path.toString());
+                    test.assertEqual(27, path.length());
+                    test.assertTrue(path.isRooted());
+                    test.assertEqual(Path.parse("C:"), path.getRoot().await());
+                    final Indexable<String> pathSegments = path.getSegments();
+                    test.assertNotNull(pathSegments);
+                    test.assertEqual(Iterable.create("C:", "Windows", "System32", "cmd.exe"), pathSegments);
+                    test.assertEqual("cmd.exe", path.getName());
+                    test.assertEqual("cmd", path.getNameWithoutFileExtension());
+
+                    final Path normalizedPath = path.normalize();
+                    test.assertEqual("C:/Windows/System32/cmd.exe", normalizedPath.toString());
+                    final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
+                    test.assertNotNull(normalizedPathSegments);
+                    test.assertEqual(Iterable.create("C:", "Windows", "System32", "cmd.exe"), normalizedPathSegments);
+                });
+            });
+
             runner.testGroup("concatenate(String)", () ->
             {
                 final Action2<String,Throwable> concatenateErrorTest = (String rhs, Throwable expectedError) ->
@@ -231,76 +405,6 @@ public interface PathTests
                 getParentFailureTest.run("D:", new NotFoundException("The path \"D:\" doesn't have a parent folder."));
                 getParentFailureTest.run("/a/../", new NotFoundException("The path \"/a/../\" doesn't have a parent folder."));
             });
-            
-            runner.testGroup("parse()", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    test.assertThrows(() -> Path.parse(null), new PreConditionFailure("pathString cannot be null."));
-                });
-                
-                runner.test("with empty", (Test test) ->
-                {
-                    test.assertThrows(() -> Path.parse(""), new PreConditionFailure("pathString cannot be empty."));
-                });
-
-                runner.test("with " + Strings.escapeAndQuote("/hello/there.txt"), (Test test) ->
-                {
-                    final Path path = Path.parse("/hello/there.txt");
-                    test.assertNotNull(path);
-                    test.assertEqual("/hello/there.txt", path.toString());
-                    test.assertTrue(path.isRooted());
-                    test.assertEqual(Path.parse("/"), path.getRoot().await());
-                    test.assertTrue(path.equals(path));
-                    test.assertTrue(path.equals((Object)path));
-                    final Indexable<String> pathSegments = path.getSegments();
-                    test.assertNotNull(pathSegments);
-                    test.assertEqual(Iterable.create("/", "hello", "there.txt"), pathSegments);
-
-                    final Path normalizedPath = path.normalize();
-                    test.assertEqual("/hello/there.txt", normalizedPath.toString());
-                    test.assertSame(normalizedPath, normalizedPath.normalize());
-                    final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
-                    test.assertNotNull(normalizedPathSegments);
-                    test.assertEqual(Iterable.create("/", "hello", "there.txt"), normalizedPathSegments);
-                });
-
-                runner.test("with " + Strings.escapeAndQuote("/\\/test1//"), (Test test) ->
-                {
-                    final Path path = Path.parse("/\\/test1//");
-                    test.assertNotNull(path);
-                    test.assertEqual("/\\/test1//", path.toString());
-                    test.assertTrue(path.isRooted());
-                    test.assertEqual(Path.parse("/"), path.getRoot().await());
-                    final Indexable<String> pathSegments = path.getSegments();
-                    test.assertNotNull(pathSegments);
-                    test.assertEqual(Iterable.create("/", "test1"), pathSegments);
-
-                    final Path normalizedPath = path.normalize();
-                    test.assertEqual("/test1/", normalizedPath.toString());
-                    final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
-                    test.assertNotNull(normalizedPathSegments);
-                    test.assertEqual(Iterable.create("/", "test1"), normalizedPathSegments);
-                });
-
-                runner.test("with " + Strings.escapeAndQuote("C:\\Windows\\System32\\cmd.exe"), (Test test) ->
-                {
-                    final Path path = Path.parse("C:\\Windows\\System32\\cmd.exe");
-                    test.assertNotNull(path);
-                    test.assertEqual("C:\\Windows\\System32\\cmd.exe", path.toString());
-                    test.assertTrue(path.isRooted());
-                    test.assertEqual(Path.parse("C:"), path.getRoot().await());
-                    final Indexable<String> pathSegments = path.getSegments();
-                    test.assertNotNull(pathSegments);
-                    test.assertEqual(Iterable.create("C:", "Windows", "System32", "cmd.exe"), pathSegments);
-
-                    final Path normalizedPath = path.normalize();
-                    test.assertEqual("C:/Windows/System32/cmd.exe", normalizedPath.toString());
-                    final Indexable<String> normalizedPathSegments = normalizedPath.getSegments();
-                    test.assertNotNull(normalizedPathSegments);
-                    test.assertEqual(Iterable.create("C:", "Windows", "System32", "cmd.exe"), normalizedPathSegments);
-                });
-            });
 
             runner.testGroup("hasFileExtension()", () ->
             {
@@ -397,6 +501,7 @@ public interface PathTests
                 };
 
                 withoutFileExtensionTest.run("/a/b/c/", "/a/b/c/");
+                withoutFileExtensionTest.run("/a/b/c.d/", "/a/b/c.d/");
                 withoutFileExtensionTest.run("folder/file.txt", "folder/file");
                 withoutFileExtensionTest.run("a.b/c/d", "a.b/c/d");
             });

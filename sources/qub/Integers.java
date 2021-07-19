@@ -78,6 +78,28 @@ public interface Integers
     }
 
     /**
+     * Compare the two provided ints.
+     * @param lhs The first int to compare.
+     * @param rhs The second int to compare.
+     * @return The comparison of the two ints.
+     */
+    static Comparison compare(int lhs, Integer rhs)
+    {
+        return rhs == null ? Comparison.GreaterThan : Integers.compare(lhs, rhs.intValue());
+    }
+
+    /**
+     * Compare the two provided ints.
+     * @param lhs The first int to compare.
+     * @param rhs The second int to compare.
+     * @return The comparison of the two ints.
+     */
+    static Comparison compare(Integer lhs, int rhs)
+    {
+        return lhs == null ? Comparison.LessThan : Integers.compare(lhs.intValue(), rhs);
+    }
+
+    /**
      * Compare the two provided Integers.
      * @param lhs The first Integer to compare.
      * @param rhs The second Integer to compare.

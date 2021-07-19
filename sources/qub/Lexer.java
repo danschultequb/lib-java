@@ -8,7 +8,7 @@ public class Lexer implements Iterator<Lex>
 
     public Lexer(String text)
     {
-        this(new StringIterator(text));
+        this(Strings.iterate(text));
     }
 
     public Lexer(Iterator<Character> characters)

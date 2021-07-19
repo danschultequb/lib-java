@@ -39,7 +39,7 @@ public interface Set<T> extends Iterable<T>
     {
         PreCondition.assertNotNull(initialValues, "initialValues");
 
-        final Set<T> result = new ListSet<>();
+        final Set<T> result = ListSet.create();
         result.addAll(initialValues);
         return result;
     }

@@ -4,6 +4,6 @@ public class ListSetTests
 {
     public static void test(TestRunner runner)
     {
-        SetTests.test(runner, ListSet::new);
+        SetTests.test(runner, ListSet::create);
     }
 }

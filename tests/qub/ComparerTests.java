@@ -1,8 +1,8 @@
 package qub;
 
-public class ComparerTests
+public interface ComparerTests
 {
-    public static void test(TestRunner runner)
+    static void test(TestRunner runner)
     {
         runner.testGroup(Comparer.class, () ->
         {
@@ -71,7 +71,42 @@ public class ComparerTests
                 compareTest.run(10, 1, Comparison.GreaterThan);
             });
 
-            runner.testGroup("compare(T,T)", () ->
+            runner.testGroup("compare(String,String)", () ->
+            {
+                final Action3<String,String,Comparison> compareTest = (String lhs, String rhs, Comparison expected) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(lhs, rhs).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        test.assertEqual(expected, Comparer.compare(lhs, rhs));
+                    });
+                };
+
+                compareTest.run(null, null, Comparison.Equal);
+                compareTest.run(null, "", Comparison.LessThan);
+                compareTest.run(null, "a", Comparison.LessThan);
+                compareTest.run(null, "abc", Comparison.LessThan);
+                compareTest.run(null, "defg", Comparison.LessThan);
+
+                compareTest.run("", null, Comparison.GreaterThan);
+                compareTest.run("", "", Comparison.Equal);
+                compareTest.run("", "a", Comparison.LessThan);
+                compareTest.run("", "abc", Comparison.LessThan);
+                compareTest.run("", "defg", Comparison.LessThan);
+
+                compareTest.run("a", null, Comparison.GreaterThan);
+                compareTest.run("a", "", Comparison.GreaterThan);
+                compareTest.run("a", "a", Comparison.Equal);
+                compareTest.run("a", "abc", Comparison.LessThan);
+                compareTest.run("a", "defg", Comparison.LessThan);
+
+                compareTest.run("abc", null, Comparison.GreaterThan);
+                compareTest.run("abc", "", Comparison.GreaterThan);
+                compareTest.run("abc", "a", Comparison.GreaterThan);
+                compareTest.run("abc", "abc", Comparison.Equal);
+                compareTest.run("abc", "defg", Comparison.LessThan);
+            });
+
+            runner.testGroup("compare(Comparable<T>,T)", () ->
             {
                 final Action3<Distance,Distance,Comparison> compareTest = (Distance lhs, Distance rhs, Comparison expected) ->
                 {

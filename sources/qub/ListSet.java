@@ -4,9 +4,14 @@ public class ListSet<T> implements Set<T>
 {
     private final List<T> values;
 
-    public ListSet()
+    private ListSet()
     {
         this.values = List.create();
+    }
+
+    public static <T> ListSet<T> create()
+    {
+        return new ListSet<>();
     }
 
     @Override

@@ -20,6 +20,18 @@ public class Path
     }
 
     /**
+     * Parse a Path object create the provided pathString.
+     * @param pathString The String representation of a Path.
+     * @return The parsed Path object, or null if the provided pathString couldn't be parsed.
+     */
+    public static Path parse(String pathString)
+    {
+        PreCondition.assertNotNullAndNotEmpty(pathString, "pathString");
+
+        return new Path(pathString, false);
+    }
+
+    /**
      * Get the number of characters in this Path.
      * @return The number of characters in this Path.
      */
@@ -29,12 +41,30 @@ public class Path
     }
 
     /**
+     * Get the value of the last segment of this path.
+     * @return The value of the last segment of this path.
+     */
+    public String getName()
+    {
+        return this.getSegments().last();
+    }
+
+    /**
+     * Get the value of the last segment of this path without a file extension.
+     * @return The value of the last segment of this path without a file extension.
+     */
+    public String getNameWithoutFileExtension()
+    {
+        return this.withoutFileExtension().getName();
+    }
+
+    /**
      * Get whether or not this Path has a file extension.
      * @return Whether or not this Path has a file extension.
      */
     public boolean hasFileExtension()
     {
-        return getFileExtension() != null;
+        return this.getFileExtension() != null;
     }
 
     /**
@@ -105,24 +135,23 @@ public class Path
      */
     public Path withoutFileExtension()
     {
-        Path result;
-        final Path normalizedPath = normalize();
-        final String lastSegment = normalizedPath.getSegments().last();
-        final int lastPeriodIndex = lastSegment.lastIndexOf('.');
-        if (lastPeriodIndex == -1)
+        Path result = this;
+        final Path normalizedPath = this.normalize();
+        if (!normalizedPath.endsWith('/'))
         {
-            result = this;
-        }
-        else
-        {
-            final int lastSegmentLength = lastSegment.length();
+            final String name = normalizedPath.getName();
+            final int lastPeriodIndex = name.lastIndexOf('.');
+            if (lastPeriodIndex != -1)
+            {
+                final int nameLength = name.length();
 
-            final String normalizedPathString = normalizedPath.toString();
-            final int normalizedPathStringLength = normalizedPathString.length();
+                final String normalizedPathString = normalizedPath.toString();
+                final int normalizedPathStringLength = normalizedPathString.length();
 
-            final int fileExtensionStartIndex = normalizedPathStringLength - (lastSegmentLength - lastPeriodIndex);
+                final int fileExtensionStartIndex = normalizedPathStringLength - (nameLength - lastPeriodIndex);
 
-            result = new Path(normalizedPathString.substring(0, fileExtensionStartIndex), true);
+                result = new Path(normalizedPathString.substring(0, fileExtensionStartIndex), true);
+            }
         }
         return result;
     }
@@ -746,17 +775,5 @@ public class Path
         PreCondition.assertTrue(this.isRooted(), "this.isRooted()");
 
         return possibleAncestorPath.isAncestorOf(this);
-    }
-
-    /**
-     * Parse a Path object create the provided pathString.
-     * @param pathString The String representation of a Path.
-     * @return The parsed Path object, or null if the provided pathString couldn't be parsed.
-     */
-    public static Path parse(String pathString)
-    {
-        PreCondition.assertNotNullAndNotEmpty(pathString, "pathString");
-
-        return new Path(pathString, false);
     }
 }

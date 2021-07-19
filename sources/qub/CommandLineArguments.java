@@ -298,8 +298,8 @@ public class CommandLineArguments implements Indexable<CommandLineArgument>
         PreCondition.assertNotNull(commandLineArguments, "commandLineArguments");
 
         final List<CommandLineArgument> arguments = List.create();
-        final StringBuilder argumentName = new StringBuilder();
-        final StringBuilder argumentValue = new StringBuilder();
+        final CharacterList argumentName = CharacterList.create();
+        final CharacterList argumentValue = CharacterList.create();
         for (final String commandLineArgument : commandLineArguments)
         {
             final Iterator<Character> characters = Strings.iterate(commandLineArgument);
@@ -313,27 +313,27 @@ public class CommandLineArguments implements Indexable<CommandLineArgument>
 
                 if (isValueArgument)
                 {
-                    argumentValue.append(commandLineArgument);
+                    argumentValue.addAll(commandLineArgument);
                 }
                 else
                 {
                     while (characters.hasCurrent() && characters.getCurrent() != '=')
                     {
-                        argumentName.append(characters.takeCurrent());
+                        argumentName.add(characters.takeCurrent());
                     }
 
                     if (characters.next())
                     {
-                        argumentValue.append(Characters.join(characters));
+                        argumentValue.addAll(characters);
                     }
                 }
             }
 
-            if (!Strings.isNullOrEmpty(argumentName) || !Strings.isNullOrEmpty(argumentValue))
+            if (argumentName.any() || argumentValue.any())
             {
                 arguments.add(new CommandLineArgument(argumentName.toString(), argumentValue.toString()));
-                argumentName.setLength(0);
-                argumentValue.setLength(0);
+                argumentName.clear();
+                argumentValue.clear();
             }
         }
         final CommandLineArguments result = new CommandLineArguments(arguments);

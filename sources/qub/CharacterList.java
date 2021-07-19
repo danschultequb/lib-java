@@ -64,13 +64,13 @@ public class CharacterList implements List<Character>
     @Override
     public boolean any()
     {
-        return count > 0;
+        return this.count > 0;
     }
 
     @Override
     public int getCount()
     {
-        return count;
+        return this.count;
     }
 
     public CharacterList insert(int insertIndex, char value)
@@ -194,7 +194,7 @@ public class CharacterList implements List<Character>
         PreCondition.assertNotNullAndNotEmpty(this, "list");
         PreCondition.assertNonEmptyLength(outputCharacters.length, 0, getCount());
 
-        removeFirstCharacters(outputCharacters, 0, outputCharacters.length);
+        this.removeFirstCharacters(outputCharacters, 0, outputCharacters.length);
     }
 
     /**
@@ -212,26 +212,34 @@ public class CharacterList implements List<Character>
         PreCondition.assertNotNullAndNotEmpty(this, "list");
         PreCondition.assertLength(length, 0, getCount());
 
-        Array.copy(characters, 0, outputCharacters, startIndex, length);
-        final int bytesInList = getCount();
+        Array.copy(this.characters, 0, outputCharacters, startIndex, length);
+        final int bytesInList = this.getCount();
         if (length < bytesInList)
         {
-            Array.copy(characters, length, this.characters, 0, bytesInList - length);
+            Array.copy(this.characters, length, this.characters, 0, bytesInList - length);
         }
-        count -= length;
+        this.count -= length;
+    }
+
+    @Override
+    public CharacterList clear()
+    {
+        this.count = 0;
+
+        return this;
     }
 
     @Override
     public Iterable<Character> removeFirst(int valuesToRemove)
     {
-        return removeFirstCharacters(valuesToRemove);
+        return this.removeFirstCharacters(valuesToRemove);
     }
 
     public CharacterList set(int index, char value)
     {
         PreCondition.assertIndexAccess(index, count, "index");
 
-        characters[index] = value;
+        this.characters[index] = value;
 
         return this;
     }
@@ -270,7 +278,7 @@ public class CharacterList implements List<Character>
     @Override
     public Iterator<Character> iterate()
     {
-        return count == 0 ? Iterator.create() : new CharacterArrayIterator(characters, 0, count);
+        return this.count == 0 ? Iterator.create() : new CharacterArrayIterator(characters, 0, count);
     }
 
     @Override

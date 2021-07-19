@@ -876,7 +876,7 @@ public class Test
         PreCondition.assertNotNull(stream, "stream");
         PreCondition.assertNotDisposed(stream, "stream");
 
-        this.assertEqual(expected, Strings.getLines(stream.getText().await()));
+        this.assertEqual(expected, Strings.iterateLines(stream.getText().await()).toList());
     }
 
     /**
@@ -892,7 +892,7 @@ public class Test
         PreCondition.assertNotNull(stream, "stream");
         PreCondition.assertNotDisposed(stream, "stream");
 
-        this.assertEqual(expected, Strings.getLines(stream.getText().await()), message);
+        this.assertEqual(expected, Strings.iterateLines(stream.getText().await()).toList(), message);
     }
 
     /**

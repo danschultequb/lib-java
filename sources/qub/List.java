@@ -297,7 +297,7 @@ public interface List<T> extends MutableIndexable<T>
      */
     default List<T> clear()
     {
-        while (any())
+        while (this.any())
         {
             this.removeFirst();
         }
@@ -312,7 +312,7 @@ public interface List<T> extends MutableIndexable<T>
     default boolean endsWith(T value)
     {
         final int count = this.getCount();
-        return count > 0 && Comparer.equal(get(count - 1), value);
+        return count > 0 && Comparer.equal(this.get(count - 1), value);
     }
 
     /**

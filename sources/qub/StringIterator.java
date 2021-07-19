@@ -10,10 +10,15 @@ public class StringIterator implements SeekableIterator<Character>
     private boolean hasStarted;
     private int index;
 
-    public StringIterator(String text)
+    private StringIterator(String text)
     {
         this.text = text;
         textLength = text == null ? 0 : text.length();
+    }
+
+    public static StringIterator create(String text)
+    {
+        return new StringIterator(text);
     }
 
     @Override
