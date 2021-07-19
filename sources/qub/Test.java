@@ -876,7 +876,7 @@ public class Test
         PreCondition.assertNotNull(stream, "stream");
         PreCondition.assertNotDisposed(stream, "stream");
 
-        this.assertEqual(expected, Strings.iterateLines(stream.getText().await()).toList());
+        this.assertLinesEqual(expected, stream.getText().await());
     }
 
     /**
@@ -892,7 +892,65 @@ public class Test
         PreCondition.assertNotNull(stream, "stream");
         PreCondition.assertNotDisposed(stream, "stream");
 
-        this.assertEqual(expected, Strings.iterateLines(stream.getText().await()).toList(), message);
+        this.assertLinesEqual(expected, stream.getText().await(), message);
+    }
+
+    /**
+     * Assert that the lines in the provided String are equal to the provided expected lines. If
+     * they are not equal, then a TestError will be thrown.
+     * @param expected The expected lines.
+     * @param text The String that contains the actual text.
+     */
+    public void assertLinesEqual(Iterable<String> expected, String text)
+    {
+        PreCondition.assertNotNull(expected, "expected");
+        PreCondition.assertNotNull(text, "text");
+
+        this.assertLinesEqual(expected, Strings.iterateLines(text));
+    }
+
+    /**
+     * Assert that the lines in the provided String are equal to the provided expected lines. If
+     * they are not equal, then a TestError will be thrown.
+     * @param expected The expected lines.
+     * @param text The String that contains the actual text.
+     * @param message The message to show if the values are not equal.
+     */
+    public void assertLinesEqual(Iterable<String> expected, String text, String message)
+    {
+        PreCondition.assertNotNull(expected, "expected");
+        PreCondition.assertNotNull(text, "text");
+
+        this.assertLinesEqual(expected, Strings.iterateLines(text), message);
+    }
+
+    /**
+     * Assert that the lines in the provided Iterator are equal to the provided expected lines. If
+     * they are not equal, then a TestError will be thrown.
+     * @param expected The expected lines.
+     * @param lines The Iterator that contains the actual lines.
+     */
+    public void assertLinesEqual(Iterable<String> expected, Iterator<String> lines)
+    {
+        PreCondition.assertNotNull(expected, "expected");
+        PreCondition.assertNotNull(lines, "lines");
+
+        this.assertEqual(expected, lines.toList());
+    }
+
+    /**
+     * Assert that the lines in the provided Iterator are equal to the provided expected lines. If
+     * they are not equal, then a TestError will be thrown.
+     * @param expected The expected lines.
+     * @param lines The Iterator that contains the actual text.
+     * @param message The message to show if the values are not equal.
+     */
+    public void assertLinesEqual(Iterable<String> expected, Iterator<String> lines, String message)
+    {
+        PreCondition.assertNotNull(expected, "expected");
+        PreCondition.assertNotNull(lines, "lines");
+
+        this.assertEqual(expected, lines.toList(), message);
     }
 
     /**

@@ -1476,7 +1476,7 @@ public interface TestTests
                     runner.test("with " + English.andList(expected, Strings.escapeAndQuote(stream == null ? null : stream.getText().await()), Strings.escapeAndQuote(message)), (Test test) ->
                     {
                         final Test t = TestTests.createTest("abc");
-                        t.assertLinesEqual(expected, stream);
+                        t.assertLinesEqual(expected, stream, message);
                     });
                 };
 
@@ -1503,6 +1503,302 @@ public interface TestTests
                 assertLinesEqualNoErrorTest.run(
                     Iterable.create("a", "b", "c"),
                     InMemoryCharacterStream.create("a\nb\nc").endOfStream(),
+                    "hello");
+            });
+
+            runner.testGroup("assertLinesEqual(Iterable<String>,String)", () ->
+            {
+                final Action3<Iterable<String>,String,Throwable> assertLinesEqualErrorTest = (Iterable<String> expectedLines, String text, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(expectedLines, Strings.escapeAndQuote(text)), (Test test) ->
+                    {
+                        final Test t = TestTests.createTest("abc");
+                        test.assertThrows(() -> t.assertLinesEqual(expectedLines, text), expected);
+                    });
+                };
+
+                assertLinesEqualErrorTest.run(null, "hello", new PreConditionFailure("expected cannot be null."));
+                assertLinesEqualErrorTest.run(Iterable.create(), null, new PreConditionFailure("text cannot be null."));
+
+                assertLinesEqualErrorTest.run(
+                    Iterable.create(),
+                    "a",
+                    new TestError("abc", Iterable.create(
+                        "Expected: []",
+                        "Actual:   [a]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create("a"),
+                    "b",
+                    new TestError("abc", Iterable.create(
+                        "Expected: [a]",
+                        "Actual:   [b]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create("a", "b", "c"),
+                    "a\nb\nc\nd",
+                    new TestError("abc", Iterable.create(
+                        "Expected: [a,b,c]",
+                        "Actual:   [a,b,c,d]")));
+
+                final Action2<Iterable<String>,String> assertLinesEqualNoErrorTest = (Iterable<String> expected, String text) ->
+                {
+                    runner.test("with " + English.andList(expected, Strings.escapeAndQuote(text)), (Test test) ->
+                    {
+                        final Test t = TestTests.createTest("abc");
+                        t.assertLinesEqual(expected, text);
+                    });
+                };
+
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create(),
+                    "");
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create("abc"),
+                    "abc");
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create("a", "b", "c"),
+                    "a\nb\nc");
+            });
+
+            runner.testGroup("assertLinesEqual(Iterable<String>,String,String)", () ->
+            {
+                final Action4<Iterable<String>,String,String,Throwable> assertLinesEqualErrorTest = (Iterable<String> expectedLines, String text, String message, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(expectedLines, Strings.escapeAndQuote(text), Strings.escapeAndQuote(message)), (Test test) ->
+                    {
+                        final Test t = TestTests.createTest("abc");
+                        test.assertThrows(() -> t.assertLinesEqual(expectedLines, text, message), expected);
+                    });
+                };
+
+                assertLinesEqualErrorTest.run(null, "abc", null, new PreConditionFailure("expected cannot be null."));
+                assertLinesEqualErrorTest.run(Iterable.create(), null, null, new PreConditionFailure("text cannot be null."));
+
+                assertLinesEqualErrorTest.run(
+                    Iterable.create(),
+                    "a",
+                    null,
+                    new TestError("abc", Iterable.create(
+                        "Expected: []",
+                        "Actual:   [a]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create(),
+                    "a",
+                    "hello",
+                    new TestError("abc", Iterable.create(
+                        "Message:  hello",
+                        "Expected: []",
+                        "Actual:   [a]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create("a"),
+                    "b",
+                    null,
+                    new TestError("abc", Iterable.create(
+                        "Expected: [a]",
+                        "Actual:   [b]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create("a"),
+                    "b",
+                    "hello",
+                    new TestError("abc", Iterable.create(
+                        "Message:  hello",
+                        "Expected: [a]",
+                        "Actual:   [b]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create("a", "b", "c"),
+                    "a\nb\nc\nd",
+                    null,
+                    new TestError("abc", Iterable.create(
+                        "Expected: [a,b,c]",
+                        "Actual:   [a,b,c,d]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create("a", "b", "c"),
+                    "a\nb\nc\nd",
+                    "hello",
+                    new TestError("abc", Iterable.create(
+                        "Message:  hello",
+                        "Expected: [a,b,c]",
+                        "Actual:   [a,b,c,d]")));
+
+                final Action3<Iterable<String>,String,String> assertLinesEqualNoErrorTest = (Iterable<String> expected, String text, String message) ->
+                {
+                    runner.test("with " + English.andList(expected, Strings.escapeAndQuote(text), Strings.escapeAndQuote(message)), (Test test) ->
+                    {
+                        final Test t = TestTests.createTest("abc");
+                        t.assertLinesEqual(expected, text, message);
+                    });
+                };
+
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create(),
+                    "",
+                    null);
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create("abc"),
+                    "abc",
+                    null);
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create("a", "b", "c"),
+                    "a\nb\nc",
+                    null);
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create(),
+                    "",
+                    "hello");
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create("abc"),
+                    "abc",
+                    "hello");
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create("a", "b", "c"),
+                    "a\nb\nc",
+                    "hello");
+            });
+
+            runner.testGroup("assertLinesEqual(Iterable<String>,Iterator<String>)", () ->
+            {
+                final Action3<Iterable<String>,Iterator<String>,Throwable> assertLinesEqualErrorTest = (Iterable<String> expectedLines, Iterator<String> lines, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(expectedLines, Strings.escapeAndQuote(lines)), (Test test) ->
+                    {
+                        final Test t = TestTests.createTest("abc");
+                        test.assertThrows(() -> t.assertLinesEqual(expectedLines, lines), expected);
+                    });
+                };
+
+                assertLinesEqualErrorTest.run(null, Iterator.create("hello"), new PreConditionFailure("expected cannot be null."));
+                assertLinesEqualErrorTest.run(Iterable.create(), null, new PreConditionFailure("lines cannot be null."));
+
+                assertLinesEqualErrorTest.run(
+                    Iterable.create(),
+                    Iterator.create("a"),
+                    new TestError("abc", Iterable.create(
+                        "Expected: []",
+                        "Actual:   [a]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create("a"),
+                    Iterator.create("b"),
+                    new TestError("abc", Iterable.create(
+                        "Expected: [a]",
+                        "Actual:   [b]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create("a", "b", "c"),
+                    Iterator.create("a", "b", "c", "d"),
+                    new TestError("abc", Iterable.create(
+                        "Expected: [a,b,c]",
+                        "Actual:   [a,b,c,d]")));
+
+                final Action2<Iterable<String>,Iterator<String>> assertLinesEqualNoErrorTest = (Iterable<String> expected, Iterator<String> lines) ->
+                {
+                    runner.test("with " + English.andList(expected, Strings.escapeAndQuote(lines)), (Test test) ->
+                    {
+                        final Test t = TestTests.createTest("abc");
+                        t.assertLinesEqual(expected, lines);
+                    });
+                };
+
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create(),
+                    Iterator.create());
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create("abc"),
+                    Iterator.create("abc"));
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create("a", "b", "c"),
+                    Iterator.create("a", "b", "c"));
+            });
+
+            runner.testGroup("assertLinesEqual(Iterable<String>,Iterator<String>,String)", () ->
+            {
+                final Action4<Iterable<String>,Iterator<String>,String,Throwable> assertLinesEqualErrorTest = (Iterable<String> expectedLines, Iterator<String> lines, String message, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(expectedLines, Strings.escapeAndQuote(lines), Strings.escapeAndQuote(message)), (Test test) ->
+                    {
+                        final Test t = TestTests.createTest("abc");
+                        test.assertThrows(() -> t.assertLinesEqual(expectedLines, lines, message), expected);
+                    });
+                };
+
+                assertLinesEqualErrorTest.run(null, Iterator.create("abc"), null, new PreConditionFailure("expected cannot be null."));
+                assertLinesEqualErrorTest.run(Iterable.create(), null, null, new PreConditionFailure("lines cannot be null."));
+
+                assertLinesEqualErrorTest.run(
+                    Iterable.create(),
+                    Iterator.create("a"),
+                    null,
+                    new TestError("abc", Iterable.create(
+                        "Expected: []",
+                        "Actual:   [a]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create(),
+                    Iterator.create("a"),
+                    "hello",
+                    new TestError("abc", Iterable.create(
+                        "Message:  hello",
+                        "Expected: []",
+                        "Actual:   [a]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create("a"),
+                    Iterator.create("b"),
+                    null,
+                    new TestError("abc", Iterable.create(
+                        "Expected: [a]",
+                        "Actual:   [b]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create("a"),
+                    Iterator.create("b"),
+                    "hello",
+                    new TestError("abc", Iterable.create(
+                        "Message:  hello",
+                        "Expected: [a]",
+                        "Actual:   [b]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create("a", "b", "c"),
+                    Iterator.create("a", "b", "c", "d"),
+                    null,
+                    new TestError("abc", Iterable.create(
+                        "Expected: [a,b,c]",
+                        "Actual:   [a,b,c,d]")));
+                assertLinesEqualErrorTest.run(
+                    Iterable.create("a", "b", "c"),
+                    Iterator.create("a", "b", "c", "d"),
+                    "hello",
+                    new TestError("abc", Iterable.create(
+                        "Message:  hello",
+                        "Expected: [a,b,c]",
+                        "Actual:   [a,b,c,d]")));
+
+                final Action3<Iterable<String>,Iterator<String>,String> assertLinesEqualNoErrorTest = (Iterable<String> expected, Iterator<String> lines, String message) ->
+                {
+                    runner.test("with " + English.andList(expected, Strings.escapeAndQuote(lines), Strings.escapeAndQuote(message)), (Test test) ->
+                    {
+                        final Test t = TestTests.createTest("abc");
+                        t.assertLinesEqual(expected, lines, message);
+                    });
+                };
+
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create(),
+                    Iterator.create(),
+                    null);
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create("abc"),
+                    Iterator.create("abc"),
+                    null);
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create("a", "b", "c"),
+                    Iterator.create("a", "b", "c"),
+                    null);
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create(),
+                    Iterator.create(),
+                    "hello");
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create("abc"),
+                    Iterator.create("abc"),
+                    "hello");
+                assertLinesEqualNoErrorTest.run(
+                    Iterable.create("a", "b", "c"),
+                    Iterator.create("a", "b", "c"),
                     "hello");
             });
 
