@@ -661,7 +661,7 @@ public interface FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getFileContentsByteWriteStream(Path.parse(rootedFilePath));
+        return this.getFileContentsByteWriteStream(Path.parse(rootedFilePath));
     }
 
     /**

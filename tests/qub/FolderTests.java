@@ -376,6 +376,142 @@ public interface FolderTests
                 });
             });
 
+            runner.testGroup("deleteFolder(String)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.deleteFolder((String)null),
+                        new PreConditionFailure("relativeFolderPath cannot be null."));
+                    test.assertFalse(folder.exists().await());
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.deleteFolder(""),
+                        new PreConditionFailure("relativeFolderPath cannot be empty."));
+                    test.assertFalse(folder.exists().await());
+                });
+
+                runner.test("with non-existing child folder", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.deleteFolder("doesntExist").await(),
+                        new FolderNotFoundException("/test/folder/doesntExist"));
+                    test.assertFalse(folder.exists().await());
+                });
+
+                runner.test("with existing child folder", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    final Folder childFolder = folder.createFolder("exists").await();
+
+                    test.assertNull(folder.deleteFolder("exists").await());
+
+                    test.assertTrue(folder.exists().await());
+                    test.assertFalse(childFolder.exists().await());
+                });
+            });
+
+            runner.testGroup("deleteFolder(Path)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.deleteFolder((Path)null),
+                        new PreConditionFailure("relativeFolderPath cannot be null."));
+                    test.assertFalse(folder.exists().await());
+                });
+
+                runner.test("with non-existing child folder", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.deleteFolder(Path.parse("doesntExist")).await(),
+                        new FolderNotFoundException("/test/folder/doesntExist"));
+                    test.assertFalse(folder.exists().await());
+                });
+
+                runner.test("with existing child folder", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    final Folder childFolder = folder.createFolder("exists").await();
+
+                    test.assertNull(folder.deleteFolder(Path.parse("exists")).await());
+
+                    test.assertTrue(folder.exists().await());
+                    test.assertFalse(childFolder.exists().await());
+                });
+            });
+
+            runner.testGroup("deleteFile(String)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.deleteFile((String)null),
+                        new PreConditionFailure("relativeFilePath cannot be null."));
+                    test.assertFalse(folder.exists().await());
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.deleteFile(""),
+                        new PreConditionFailure("relativeFilePath cannot be empty."));
+                    test.assertFalse(folder.exists().await());
+                });
+
+                runner.test("with non-existing child folder", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.deleteFile("doesntExist").await(),
+                        new FolderNotFoundException(folder));
+                    test.assertFalse(folder.exists().await());
+                });
+
+                runner.test("with existing child folder", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    final File childFile = folder.createFile("exists").await();
+
+                    test.assertNull(folder.deleteFile("exists").await());
+
+                    test.assertTrue(folder.exists().await());
+                    test.assertFalse(childFile.exists().await());
+                });
+            });
+
+            runner.testGroup("deleteFile(Path)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.deleteFile((Path)null),
+                        new PreConditionFailure("relativeFilePath cannot be null."));
+                    test.assertFalse(folder.exists().await());
+                });
+
+                runner.test("with non-existing child folder", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.deleteFile(Path.parse("doesntExist")).await(),
+                        new FolderNotFoundException(folder));
+                    test.assertFalse(folder.exists().await());
+                });
+
+                runner.test("with existing child folder", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    final File childFile = folder.createFile("exists").await();
+
+                    test.assertNull(folder.deleteFile(Path.parse("exists")).await());
+
+                    test.assertTrue(folder.exists().await());
+                    test.assertFalse(childFile.exists().await());
+                });
+            });
+
             runner.test("iterateFolders()", (Test test) ->
             {
                 final Folder folder = FolderTests.getFolder();
