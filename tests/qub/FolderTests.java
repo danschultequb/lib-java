@@ -638,6 +638,115 @@ public interface FolderTests
                 });
             });
 
+            runner.testGroup("getFileContentReadStream(String)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.getFileContentReadStream((String)null),
+                        new PreConditionFailure("relativeFilePath cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.getFileContentReadStream(""),
+                        new PreConditionFailure("relativeFilePath cannot be empty."));
+                });
+
+                runner.test("with rooted file path", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.getFileContentReadStream("/test.txt"),
+                        new PreConditionFailure("relativeFilePath.isRooted() cannot be true."));
+                });
+
+                runner.test("with relative folder path", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.getFileContentReadStream("test.txt/"),
+                        new PreConditionFailure("relativeFilePath.endsWith(\"/\") || relativeFilePath.endsWith(\"\\\\\") cannot be true."));
+                });
+
+                runner.test("when folder doesn't exist", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.getFileContentReadStream("test.txt").await(),
+                        new FileNotFoundException("/test/folder/test.txt"));
+                });
+
+                runner.test("when file doesn't exist", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    folder.create().await();
+                    test.assertThrows(() -> folder.getFileContentReadStream("test.txt").await(),
+                        new FileNotFoundException("/test/folder/test.txt"));
+                });
+
+                runner.test("when file doesn't exist", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    folder.create().await();
+                    folder.setFileContentsAsString("test.txt", "hello there").await();
+
+                    try (final CharacterToByteReadStream stream = folder.getFileContentReadStream("test.txt").await())
+                    {
+                        test.assertEqual("hello there", stream.readEntireString().await());
+                    }
+                });
+            });
+
+            runner.testGroup("getFileContentReadStream(Path)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.getFileContentReadStream((Path)null),
+                        new PreConditionFailure("relativeFilePath cannot be null."));
+                });
+
+                runner.test("with rooted file path", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.getFileContentReadStream(Path.parse("/test.txt")),
+                        new PreConditionFailure("relativeFilePath.isRooted() cannot be true."));
+                });
+
+                runner.test("with relative folder path", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.getFileContentReadStream(Path.parse("test.txt/")),
+                        new PreConditionFailure("relativeFilePath.endsWith(\"/\") || relativeFilePath.endsWith(\"\\\\\") cannot be true."));
+                });
+
+                runner.test("when folder doesn't exist", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    test.assertThrows(() -> folder.getFileContentReadStream(Path.parse("test.txt")).await(),
+                        new FileNotFoundException("/test/folder/test.txt"));
+                });
+
+                runner.test("when file doesn't exist", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    folder.create().await();
+                    test.assertThrows(() -> folder.getFileContentReadStream(Path.parse("test.txt")).await(),
+                        new FileNotFoundException("/test/folder/test.txt"));
+                });
+
+                runner.test("when file doesn't exist", (Test test) ->
+                {
+                    final Folder folder = FolderTests.getFolder();
+                    folder.create().await();
+                    folder.setFileContentsAsString("test.txt", "hello there").await();
+
+                    try (final CharacterToByteReadStream stream = folder.getFileContentReadStream(Path.parse("test.txt")).await())
+                    {
+                        test.assertEqual("hello there", stream.readEntireString().await());
+                    }
+                });
+            });
+
             runner.testGroup("folderExists(String)", () ->
             {
                 runner.test("when folder doesn't exist", (Test test) ->

@@ -49,7 +49,7 @@ public class Folder extends FileSystemEntry
      */
     public Result<Void> create()
     {
-        return getFileSystem().createFolder(getPath()).then(() -> {});
+        return this.getFileSystem().createFolder(getPath()).then(() -> {});
     }
 
     /**
@@ -72,8 +72,8 @@ public class Folder extends FileSystemEntry
         PreCondition.assertNotNull(relativeFolderPath, "relativeFolderPath");
         PreCondition.assertFalse(relativeFolderPath.isRooted(), "relativeFolderPath.isRooted()");
 
-        final Path childFolderPath = getChildPath(relativeFolderPath);
-        final FileSystem fileSystem = getFileSystem();
+        final Path childFolderPath = this.getChildPath(relativeFolderPath);
+        final FileSystem fileSystem = this.getFileSystem();
         return fileSystem.folderExists(childFolderPath);
     }
 
@@ -99,8 +99,8 @@ public class Folder extends FileSystemEntry
         PreCondition.assertNotNull(folderRelativePath, "folderRelativePath");
         PreCondition.assertFalse(folderRelativePath.isRooted(), "folderRelativePath.isRooted()");
 
-        final Path childFolderPath = getChildPath(folderRelativePath);
-        final FileSystem fileSystem = getFileSystem();
+        final Path childFolderPath = this.getChildPath(folderRelativePath);
+        final FileSystem fileSystem = this.getFileSystem();
         return fileSystem.getFolder(childFolderPath);
     }
 
@@ -123,8 +123,8 @@ public class Folder extends FileSystemEntry
     {
         validateRelativeFilePath(relativeFilePath);
 
-        final Path childFilePath = getChildPath(relativeFilePath);
-        final FileSystem fileSystem = getFileSystem();
+        final Path childFilePath = this.getChildPath(relativeFilePath);
+        final FileSystem fileSystem = this.getFileSystem();
         return fileSystem.fileExists(childFilePath);
     }
 
@@ -150,9 +150,25 @@ public class Folder extends FileSystemEntry
         PreCondition.assertNotNull(relativeFilePath, "relativeFilePath");
         PreCondition.assertFalse(relativeFilePath.isRooted(), "relativeFilePath.isRooted() (" + relativeFilePath + ")");
 
-        final Path childFilePath = getChildPath(relativeFilePath);
-        final FileSystem fileSystem = getFileSystem();
+        final Path childFilePath = this.getChildPath(relativeFilePath);
+        final FileSystem fileSystem = this.getFileSystem();
         return fileSystem.getFile(childFilePath);
+    }
+
+    public Result<CharacterToByteReadStream> getFileContentReadStream(String relativeFilePath)
+    {
+        PreCondition.assertNotNullAndNotEmpty(relativeFilePath, "relativeFilePath");
+
+        return this.getFileContentReadStream(Path.parse(relativeFilePath));
+    }
+
+    public Result<CharacterToByteReadStream> getFileContentReadStream(Path relativeFilePath)
+    {
+        Folder.validateRelativeFilePath(relativeFilePath);
+
+        final Path childFilePath = this.getChildPath(relativeFilePath);
+        final FileSystem fileSystem = this.getFileSystem();
+        return fileSystem.getFileContentReadStream(childFilePath);
     }
 
     /**
@@ -177,8 +193,8 @@ public class Folder extends FileSystemEntry
         PreCondition.assertNotNull(relativeFilePath, "relativeFilePath");
         PreCondition.assertFalse(relativeFilePath.isRooted(), "relativeFilePath.isRooted()");
 
-        final Path childFilePath = getChildPath(relativeFilePath);
-        final FileSystem fileSystem = getFileSystem();
+        final Path childFilePath = this.getChildPath(relativeFilePath);
+        final FileSystem fileSystem = this.getFileSystem();
         return fileSystem.getFileContentsAsString(childFilePath);
     }
 

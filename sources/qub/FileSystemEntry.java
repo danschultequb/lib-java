@@ -28,7 +28,7 @@ public abstract class FileSystemEntry
      */
     protected FileSystem getFileSystem()
     {
-        return fileSystem;
+        return this.fileSystem;
     }
 
     /**
@@ -37,7 +37,7 @@ public abstract class FileSystemEntry
      */
     public String getName()
     {
-        return path.getSegments().last();
+        return this.path.getName();
     }
 
     /**
@@ -45,7 +45,7 @@ public abstract class FileSystemEntry
      */
     public Path getPath()
     {
-        return path;
+        return this.path;
     }
 
     /**
@@ -183,6 +183,6 @@ public abstract class FileSystemEntry
     @Override
     public String toString()
     {
-        return path.toString();
+        return this.path.toString();
     }
 }

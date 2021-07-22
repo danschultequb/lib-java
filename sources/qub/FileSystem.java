@@ -745,7 +745,7 @@ public interface FileSystem
 
         return Result.create(() ->
         {
-            final ByteWriteStream byteWriteStream = this.getFileContentsByteWriteStream(rootedFilePath, openWriteType).await();
+            final BufferedByteWriteStream byteWriteStream = this.getFileContentsByteWriteStream(rootedFilePath, openWriteType).await();
             return CharacterWriteStream.create(byteWriteStream);
         });
     }
@@ -777,7 +777,7 @@ public interface FileSystem
 
         return Result.createUsing(
             () -> { return this.getFileContentsByteWriteStream(rootedFilePath).await(); },
-            (ByteWriteStream byteWriteStream) ->
+            (BufferedByteWriteStream byteWriteStream) ->
             {
                 if (contents.length > 0)
                 {
