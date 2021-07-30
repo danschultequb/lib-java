@@ -6,7 +6,7 @@ public interface BasicFakeProcessRunTests
     {
         runner.testGroup(BasicFakeChildProcessRun.class, () ->
         {
-            FakeProcessRunTests.test(runner, (String executablePath) -> BasicFakeChildProcessRun.create(Path.parse(executablePath), Iterable.create()));
+            FakeChildProcessRunTests.test(runner, (String executablePath) -> BasicFakeChildProcessRun.create(Path.parse(executablePath), Iterable.create()));
 
             runner.testGroup("constructor(Path)", () ->
             {

@@ -35,7 +35,7 @@ public interface FakeChildProcessRun
      */
     static FakeChildProcessRun create(Path executablePath, String... arguments)
     {
-        PreCondition.assertNotNull(executablePath, "executableFilePath");
+        PreCondition.assertNotNull(executablePath, "executablePath");
         PreCondition.assertNotNull(arguments, "arguments");
 
         return FakeChildProcessRun.create(executablePath, Iterable.create(arguments));
@@ -47,7 +47,7 @@ public interface FakeChildProcessRun
      */
     static FakeChildProcessRun create(Path executablePath, Iterable<String> arguments)
     {
-        PreCondition.assertNotNull(executablePath, "executableFilePath");
+        PreCondition.assertNotNull(executablePath, "executablePath");
 
         return BasicFakeChildProcessRun.create(executablePath, arguments);
     }
@@ -56,11 +56,24 @@ public interface FakeChildProcessRun
      * Create a new FakeProcessRun from the provided executableFile.
      * @param executableFile The file to execute.
      */
-    static FakeChildProcessRun create(File executableFile)
+    static FakeChildProcessRun create(File executableFile, String... arguments)
     {
         PreCondition.assertNotNull(executableFile, "executableFile");
+        PreCondition.assertNotNull(arguments, "arguments");
 
-        return FakeChildProcessRun.create(executableFile.getPath());
+        return FakeChildProcessRun.create(executableFile, Iterable.create(arguments));
+    }
+
+    /**
+     * Create a new FakeProcessRun from the provided executableFile.
+     * @param executableFile The file to execute.
+     */
+    static FakeChildProcessRun create(File executableFile, Iterable<String> arguments)
+    {
+        PreCondition.assertNotNull(executableFile, "executableFile");
+        PreCondition.assertNotNull(arguments, "arguments");
+
+        return FakeChildProcessRun.create(executableFile.getPath(), arguments);
     }
 
     /**

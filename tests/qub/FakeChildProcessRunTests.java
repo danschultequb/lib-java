@@ -1,93 +1,242 @@
 package qub;
 
-public interface FakeProcessRunTests
+public interface FakeChildProcessRunTests
 {
     static void test(TestRunner runner)
     {
         runner.testGroup(FakeChildProcessRun.class, () ->
         {
-            runner.testGroup("get(String)", () ->
+            runner.testGroup("create(String,String...)", () ->
             {
-                runner.test("with null", (Test test) ->
+                runner.test("with null executablePath", (Test test) ->
                 {
                     test.assertThrows(() -> FakeChildProcessRun.create((String)null),
                         new PreConditionFailure("executablePath cannot be null."));
                 });
 
-                runner.test("with empty", (Test test) ->
+                runner.test("with empty executablePath", (Test test) ->
                 {
                     test.assertThrows(() -> FakeChildProcessRun.create(""),
                         new PreConditionFailure("executablePath cannot be empty."));
                 });
 
-                runner.test("with relative path", (Test test) ->
+                runner.test("with null arguments array", (Test test) ->
                 {
-                    final FakeChildProcessRun fakeProcessRun = FakeChildProcessRun.create("testFile.exe");
-                    test.assertInstanceOf(fakeProcessRun, BasicFakeChildProcessRun.class);
-                    test.assertEqual(Path.parse("testFile.exe"), fakeProcessRun.getExecutablePath());
-                    test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
-                    test.assertNull(fakeProcessRun.getWorkingFolderPath());
-                    test.assertNull(fakeProcessRun.getFunction());
+                    test.assertThrows(() -> FakeChildProcessRun.create("fake.exe", (String[])null),
+                        new PreConditionFailure("arguments cannot be null."));
                 });
 
-                runner.test("with rooted path", (Test test) ->
+                runner.test("with relative executablePath", (Test test) ->
                 {
-                    final FakeChildProcessRun fakeProcessRun = FakeChildProcessRun.create("/testFile.exe");
-                    test.assertInstanceOf(fakeProcessRun, BasicFakeChildProcessRun.class);
-                    test.assertEqual(Path.parse("/testFile.exe"), fakeProcessRun.getExecutablePath());
-                    test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
-                    test.assertNull(fakeProcessRun.getWorkingFolderPath());
-                    test.assertNull(fakeProcessRun.getFunction());
+                    final FakeChildProcessRun run = FakeChildProcessRun.create("fake.exe");
+                    test.assertNotNull(run);
+                    test.assertEqual(Path.parse("fake.exe"), run.getExecutablePath());
+                    test.assertEqual(Iterable.create(), run.getArguments());
+                    test.assertNull(run.getWorkingFolderPath());
+                    test.assertNull(run.getFunction());
+                });
+
+                runner.test("with arguments", (Test test) ->
+                {
+                    final FakeChildProcessRun run = FakeChildProcessRun.create("fake.exe", "hello", "there");
+                    test.assertNotNull(run);
+                    test.assertEqual(Path.parse("fake.exe"), run.getExecutablePath());
+                    test.assertEqual(Iterable.create("hello", "there"), run.getArguments());
+                    test.assertNull(run.getWorkingFolderPath());
+                    test.assertNull(run.getFunction());
                 });
             });
 
-            runner.testGroup("get(Path)", () ->
+            runner.testGroup("create(String,Iterable<String>)", () ->
             {
-                runner.test("with null", (Test test) ->
+                runner.test("with null executablePath", (Test test) ->
+                {
+                    test.assertThrows(() -> FakeChildProcessRun.create((String)null, Iterable.create()),
+                        new PreConditionFailure("executablePath cannot be null."));
+                });
+
+                runner.test("with empty executablePath", (Test test) ->
+                {
+                    test.assertThrows(() -> FakeChildProcessRun.create("", Iterable.create()),
+                        new PreConditionFailure("executablePath cannot be empty."));
+                });
+
+                runner.test("with null arguments Iterable", (Test test) ->
+                {
+                    test.assertThrows(() -> FakeChildProcessRun.create("fake.exe", (Iterable<String>)null),
+                        new PreConditionFailure("arguments cannot be null."));
+                });
+
+                runner.test("with relative executablePath", (Test test) ->
+                {
+                    final FakeChildProcessRun run = FakeChildProcessRun.create("fake.exe", Iterable.create());
+                    test.assertNotNull(run);
+                    test.assertEqual(Path.parse("fake.exe"), run.getExecutablePath());
+                    test.assertEqual(Iterable.create(), run.getArguments());
+                    test.assertNull(run.getWorkingFolderPath());
+                    test.assertNull(run.getFunction());
+                });
+
+                runner.test("with arguments", (Test test) ->
+                {
+                    final FakeChildProcessRun run = FakeChildProcessRun.create("fake.exe", Iterable.create("hello", "there"));
+                    test.assertNotNull(run);
+                    test.assertEqual(Path.parse("fake.exe"), run.getExecutablePath());
+                    test.assertEqual(Iterable.create("hello", "there"), run.getArguments());
+                    test.assertNull(run.getWorkingFolderPath());
+                    test.assertNull(run.getFunction());
+                });
+            });
+
+            runner.testGroup("create(Path,String...)", () ->
+            {
+                runner.test("with null executablePath", (Test test) ->
                 {
                     test.assertThrows(() -> FakeChildProcessRun.create((Path)null),
-                        new PreConditionFailure("executableFilePath cannot be null."));
+                        new PreConditionFailure("executablePath cannot be null."));
                 });
 
-                runner.test("with relative path", (Test test) ->
+                runner.test("with null arguments array", (Test test) ->
                 {
-                    final FakeChildProcessRun fakeProcessRun = FakeChildProcessRun.create(Path.parse("testFile.exe"));
-                    test.assertInstanceOf(fakeProcessRun, BasicFakeChildProcessRun.class);
-                    test.assertEqual(Path.parse("testFile.exe"), fakeProcessRun.getExecutablePath());
-                    test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
-                    test.assertNull(fakeProcessRun.getWorkingFolderPath());
-                    test.assertNull(fakeProcessRun.getFunction());
+                    test.assertThrows(() -> FakeChildProcessRun.create(Path.parse("fake.exe"), (String[])null),
+                        new PreConditionFailure("arguments cannot be null."));
                 });
 
-                runner.test("with rooted path", (Test test) ->
+                runner.test("with relative executablePath", (Test test) ->
                 {
-                    final FakeChildProcessRun fakeProcessRun = FakeChildProcessRun.create(Path.parse("/testFile.exe"));
-                    test.assertInstanceOf(fakeProcessRun, BasicFakeChildProcessRun.class);
-                    test.assertEqual(Path.parse("/testFile.exe"), fakeProcessRun.getExecutablePath());
-                    test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
-                    test.assertNull(fakeProcessRun.getWorkingFolderPath());
-                    test.assertNull(fakeProcessRun.getFunction());
+                    final FakeChildProcessRun run = FakeChildProcessRun.create(Path.parse("fake.exe"));
+                    test.assertNotNull(run);
+                    test.assertEqual(Path.parse("fake.exe"), run.getExecutablePath());
+                    test.assertEqual(Iterable.create(), run.getArguments());
+                    test.assertNull(run.getWorkingFolderPath());
+                    test.assertNull(run.getFunction());
+                });
+
+                runner.test("with arguments", (Test test) ->
+                {
+                    final FakeChildProcessRun run = FakeChildProcessRun.create(Path.parse("fake.exe"), "hello", "there");
+                    test.assertNotNull(run);
+                    test.assertEqual(Path.parse("fake.exe"), run.getExecutablePath());
+                    test.assertEqual(Iterable.create("hello", "there"), run.getArguments());
+                    test.assertNull(run.getWorkingFolderPath());
+                    test.assertNull(run.getFunction());
                 });
             });
 
-            runner.testGroup("get(File)", () ->
+            runner.testGroup("create(Path,Iterable<String>)", () ->
             {
-                runner.test("with null", (Test test) ->
+                runner.test("with null executablePath", (Test test) ->
+                {
+                    test.assertThrows(() -> FakeChildProcessRun.create((Path)null, Iterable.create()),
+                        new PreConditionFailure("executablePath cannot be null."));
+                });
+
+                runner.test("with null arguments Iterable", (Test test) ->
+                {
+                    test.assertThrows(() -> FakeChildProcessRun.create(Path.parse("fake.exe"), (Iterable<String>)null),
+                        new PreConditionFailure("arguments cannot be null."));
+                });
+
+                runner.test("with relative executablePath", (Test test) ->
+                {
+                    final FakeChildProcessRun run = FakeChildProcessRun.create(Path.parse("fake.exe"), Iterable.create());
+                    test.assertNotNull(run);
+                    test.assertEqual(Path.parse("fake.exe"), run.getExecutablePath());
+                    test.assertEqual(Iterable.create(), run.getArguments());
+                    test.assertNull(run.getWorkingFolderPath());
+                    test.assertNull(run.getFunction());
+                });
+
+                runner.test("with arguments", (Test test) ->
+                {
+                    final FakeChildProcessRun run = FakeChildProcessRun.create(Path.parse("fake.exe"), Iterable.create("hello", "there"));
+                    test.assertNotNull(run);
+                    test.assertEqual(Path.parse("fake.exe"), run.getExecutablePath());
+                    test.assertEqual(Iterable.create("hello", "there"), run.getArguments());
+                    test.assertNull(run.getWorkingFolderPath());
+                    test.assertNull(run.getFunction());
+                });
+            });
+
+            runner.testGroup("create(File,String...)", () ->
+            {
+                runner.test("with null executableFile", (Test test) ->
                 {
                     test.assertThrows(() -> FakeChildProcessRun.create((File)null),
                         new PreConditionFailure("executableFile cannot be null."));
                 });
 
-                runner.test("with non-null", (Test test) ->
+                runner.test("with null arguments array", (Test test) ->
                 {
                     final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
-                    final File file = fileSystem.getFile("/testFile2.exe").await();
-                    final FakeChildProcessRun fakeProcessRun = FakeChildProcessRun.create(file);
-                    test.assertInstanceOf(fakeProcessRun, BasicFakeChildProcessRun.class);
-                    test.assertEqual(Path.parse("/testFile2.exe"), fakeProcessRun.getExecutablePath());
-                    test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
-                    test.assertNull(fakeProcessRun.getWorkingFolderPath());
-                    test.assertNull(fakeProcessRun.getFunction());
+                    final File file = fileSystem.getFile("/fake.exe").await();
+                    test.assertThrows(() -> FakeChildProcessRun.create(file, (String[])null),
+                        new PreConditionFailure("arguments cannot be null."));
+                });
+
+                runner.test("with relative executablePath", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
+                    final File file = fileSystem.getFile("/fake.exe").await();
+                    final FakeChildProcessRun run = FakeChildProcessRun.create(file);
+                    test.assertNotNull(run);
+                    test.assertEqual(Path.parse("/fake.exe"), run.getExecutablePath());
+                    test.assertEqual(Iterable.create(), run.getArguments());
+                    test.assertNull(run.getWorkingFolderPath());
+                    test.assertNull(run.getFunction());
+                });
+
+                runner.test("with arguments", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
+                    final File file = fileSystem.getFile("/fake.exe").await();
+                    final FakeChildProcessRun run = FakeChildProcessRun.create(file, "hello", "there");
+                    test.assertNotNull(run);
+                    test.assertEqual(Path.parse("/fake.exe"), run.getExecutablePath());
+                    test.assertEqual(Iterable.create("hello", "there"), run.getArguments());
+                    test.assertNull(run.getWorkingFolderPath());
+                    test.assertNull(run.getFunction());
+                });
+            });
+
+            runner.testGroup("create(File,Iterable<String>)", () ->
+            {
+                runner.test("with null executablePath", (Test test) ->
+                {
+                    test.assertThrows(() -> FakeChildProcessRun.create((File)null, Iterable.create()),
+                        new PreConditionFailure("executableFile cannot be null."));
+                });
+
+                runner.test("with null arguments Iterable", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
+                    final File file = fileSystem.getFile("/fake.exe").await();
+                    test.assertThrows(() -> FakeChildProcessRun.create(file, (Iterable<String>)null),
+                        new PreConditionFailure("arguments cannot be null."));
+                });
+
+                runner.test("with relative executablePath", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
+                    final File file = fileSystem.getFile("/fake.exe").await();
+                    final FakeChildProcessRun run = FakeChildProcessRun.create(file, Iterable.create());
+                    test.assertNotNull(run);
+                    test.assertEqual(Path.parse("/fake.exe"), run.getExecutablePath());
+                    test.assertEqual(Iterable.create(), run.getArguments());
+                    test.assertNull(run.getWorkingFolderPath());
+                    test.assertNull(run.getFunction());
+                });
+
+                runner.test("with arguments", (Test test) ->
+                {
+                    final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
+                    final File file = fileSystem.getFile("/fake.exe").await();
+                    final FakeChildProcessRun run = FakeChildProcessRun.create(file, Iterable.create("hello", "there"));
+                    test.assertNotNull(run);
+                    test.assertEqual(Path.parse("/fake.exe"), run.getExecutablePath());
+                    test.assertEqual(Iterable.create("hello", "there"), run.getArguments());
+                    test.assertNull(run.getWorkingFolderPath());
+                    test.assertNull(run.getFunction());
                 });
             });
         });
