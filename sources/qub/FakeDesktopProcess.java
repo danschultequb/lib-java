@@ -251,8 +251,8 @@ public class FakeDesktopProcess extends DesktopProcessBase
     {
         final InMemoryFileSystem fileSystem = this.getFileSystem();
         final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
-        final File compiledSourcesFile = qubFolder.getCompiledSourcesFile("fake-publisher", "fake-project", "8").await();
-        compiledSourcesFile.create().await();
+        final QubProjectVersionFolder projectVersionFolder = qubFolder.getProjectVersionFolder("fake-publisher", "fake-project", "8").await();
+        final File compiledSourcesFile = projectVersionFolder.createFile("fake-project.jar").await();
 
         final FakeTypeLoader result = FakeTypeLoader.create();
         result.addTypeContainer(this.getMainClassFullName(), compiledSourcesFile);

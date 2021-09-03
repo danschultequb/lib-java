@@ -31,7 +31,7 @@ public interface JarFileTests
                 {
                     final File file = qubFolder.getProjectFolder("qub", "lib-java").await()
                         .getLatestProjectVersionFolder().await()
-                        .getCompiledSourcesFile().await();
+                        .getFile("lib-java.jar").await();
                     try (final JarFile jarFile = JarFile.open(file).await())
                     {
                         test.assertNotNull(jarFile);
@@ -55,7 +55,7 @@ public interface JarFileTests
                 {
                     final File file = qubFolder.getProjectFolder("qub", "lib-java").await()
                         .getLatestProjectVersionFolder().await()
-                        .getCompiledSourcesFile().await();
+                        .getFile("lib-java.jar").await();
                     final Path fooFilePath = file.getPath().changeFileExtension(".foo");
                     try (final TemporaryFile fooFile = TemporaryFile.get(file.getFileSystem().getFile(fooFilePath).await()))
                     {
@@ -77,7 +77,7 @@ public interface JarFileTests
             {
                 final File file = qubFolder.getProjectFolder("qub", "lib-java").await()
                     .getLatestProjectVersionFolder().await()
-                    .getCompiledSourcesFile().await();
+                    .getFile("lib-java.jar").await();
                 try (final JarFile jarFile = JarFile.open(file).await())
                 {
                     test.assertTrue(jarFile.dispose().await());
@@ -92,7 +92,8 @@ public interface JarFileTests
                 (TestResources resources) -> Tuple.create(resources.getQubFolder()),
                 (Test test, QubFolder qubFolder) ->
             {
-                final File file = qubFolder.getCompiledSourcesFile("qub", "pack-java", "20").await();
+                final QubProjectVersionFolder projectVersionFolder = qubFolder.getProjectVersionFolder("qub", "pack-java", "20").await();
+                final File file = projectVersionFolder.getFile("pack-java.jar").await();
                 try (final JarFile jarFile = JarFile.open(file).await())
                 {
                     final Iterable<JarFileEntry> entries = jarFile.getEntries();
@@ -116,7 +117,8 @@ public interface JarFileTests
                 (TestResources resources) -> Tuple.create(resources.getQubFolder()),
                 (Test test, QubFolder qubFolder) ->
             {
-                final File file = qubFolder.getCompiledSourcesFile("qub", "pack-java", "20").await();
+                final QubProjectVersionFolder projectVersionFolder = qubFolder.getProjectVersionFolder("qub", "pack-java", "20").await();
+                final File file = projectVersionFolder.getFile("pack-java.jar").await();
                 try (final JarFile jarFile = JarFile.open(file).await())
                 {
                     final Iterable<JarFileEntry> entries = jarFile.getClassFileEntries();

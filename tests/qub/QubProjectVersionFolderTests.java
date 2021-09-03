@@ -79,10 +79,6 @@ public interface QubProjectVersionFolderTests
                     test.assertEqual("fake-publisher", projectVersionFolder.getPublisherName().await());
                     test.assertEqual("/fake-publisher/", projectVersionFolder.getPublisherFolder().await().toString());
                     test.assertEqual("/", projectVersionFolder.getQubFolder().await().toString());
-                    test.assertEqual("/fake-publisher/fake-project/versions/fake-version/project.json", projectVersionFolder.getProjectJSONFile().await().toString());
-                    test.assertEqual("/fake-publisher/fake-project/versions/fake-version/fake-project.jar", projectVersionFolder.getCompiledSourcesFile().await().toString());
-                    test.assertEqual("/fake-publisher/fake-project/versions/fake-version/fake-project.sources.jar", projectVersionFolder.getSourcesFile().await().toString());
-                    test.assertEqual("/fake-publisher/fake-project/versions/fake-version/fake-project.tests.jar", projectVersionFolder.getCompiledTestsFile().await().toString());
                     test.assertEqual(
                         ProjectSignature.create("fake-publisher", "fake-project", "fake-version"),
                         projectVersionFolder.getProjectSignature().await());
@@ -114,70 +110,6 @@ public interface QubProjectVersionFolderTests
                 final String version = "1";
                 final QubProjectVersionFolder projectVersionFolder = QubProjectVersionFolderTests.getQubProjectVersionFolder(test, "/qub/" + publisherName + "/" + projectName + "/versions/" + version + "/");
                 test.assertEqual(publisherName, projectVersionFolder.getPublisherName().await());
-            });
-
-            runner.testGroup("getProjectJSONFile()", () ->
-            {
-                final Action3<String,String,String> getProjectJSONFileTest = (String publisherName, String projectName, String version) ->
-                {
-                    runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
-                    {
-                        final QubProjectVersionFolder projectVersionFolder = QubProjectVersionFolderTests.getQubProjectVersionFolder(test, "/qub/" + publisherName + "/" + projectName + "/versions/" + version + "/");
-                        test.assertEqual(
-                            projectVersionFolder.getFile("project.json").await(),
-                            projectVersionFolder.getProjectJSONFile().await());
-                    });
-                };
-
-                getProjectJSONFileTest.run("a", "b", "c");
-            });
-
-            runner.testGroup("getCompiledSourcesFile()", () ->
-            {
-                final Action3<String,String,String> getCompiledSourcesFileTest = (String publisherName, String projectName, String version) ->
-                {
-                    runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
-                    {
-                        final QubProjectVersionFolder projectVersionFolder = QubProjectVersionFolderTests.getQubProjectVersionFolder(test, "/qub/" + publisherName + "/" + projectName + "/versions/" + version + "/");
-                        test.assertEqual(
-                            projectVersionFolder.getFile(projectName + ".jar").await(),
-                            projectVersionFolder.getCompiledSourcesFile().await());
-                    });
-                };
-
-                getCompiledSourcesFileTest.run("a", "b", "1");
-            });
-
-            runner.testGroup("getSourcesFile(String)", () ->
-            {
-                final Action3<String,String,String> getSourcesFileTest = (String publisherName, String projectName, String version) ->
-                {
-                    runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
-                    {
-                        final QubProjectVersionFolder projectVersionFolder = QubProjectVersionFolderTests.getQubProjectVersionFolder(test, "/qub/" + publisherName + "/" + projectName + "/versions/" + version + "/");
-                        test.assertEqual(
-                            projectVersionFolder.getFile(projectName + ".sources.jar").await(),
-                            projectVersionFolder.getSourcesFile().await());
-                    });
-                };
-
-                getSourcesFileTest.run("a", "b", "1");
-            });
-
-            runner.testGroup("getCompiledTestsFile(String)", () ->
-            {
-                final Action3<String,String,String> getCompiledTestsFileTest = (String publisherName, String projectName, String version) ->
-                {
-                    runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
-                    {
-                        final QubProjectVersionFolder projectVersionFolder = QubProjectVersionFolderTests.getQubProjectVersionFolder(test, "/qub/" + publisherName + "/" + projectName + "/versions/" + version + "/");
-                        test.assertEqual(
-                            projectVersionFolder.getFile(projectName + ".tests.jar").await(),
-                            projectVersionFolder.getCompiledTestsFile().await());
-                    });
-                };
-
-                getCompiledTestsFileTest.run("a", "b", "1");
             });
 
             runner.testGroup("getProjectSignature()", () ->
@@ -346,10 +278,5 @@ public interface QubProjectVersionFolderTests
     static QubProjectVersionFolder getQubProjectVersionFolder(Test test, String folderPath)
     {
         return QubProjectVersionFolder.get(QubProjectVersionFolderTests.getFolder(test, folderPath));
-    }
-
-    static QubProjectVersionFolder createQubProjectVersionFolder(Test test, String folderPath)
-    {
-        return QubProjectVersionFolder.get(QubProjectVersionFolderTests.createFolder(test, folderPath));
     }
 }

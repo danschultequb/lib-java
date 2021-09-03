@@ -15,8 +15,8 @@ public interface FakeDesktopProcessTests
 
                 final InMemoryFileSystem fileSystem = process.getFileSystem();
                 final QubFolder qubFolder = QubFolder.get(fileSystem.getFolder("/qub/").await());
-                final File compiledSourcesFile = qubFolder.getCompiledSourcesFile("fake", "main-java", "13").await();
-                compiledSourcesFile.create().await();
+                final QubProjectVersionFolder projectVersionFolder = qubFolder.getProjectVersionFolder("fake", "main-java", "13").await();
+                final File compiledSourcesFile = projectVersionFolder.createFile("main-java.jar").await();
 
                 process.getTypeLoader()
                     .addTypeContainer("fake.MainClassFullName", compiledSourcesFile.toString());

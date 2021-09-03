@@ -223,118 +223,6 @@ public interface QubProjectFolderTests
                 test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/", projectFolder.getProjectVersionsFolder().await().toString());
             });
 
-            runner.testGroup("getProjectJSONFile(String)", () ->
-            {
-                final Action4<String,String,String,Throwable> getProjectJSONFileErrorTest = (String publisherName, String projectName, String version, Throwable expected) ->
-                {
-                    runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
-                    {
-                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
-                        test.assertThrows(() -> projectFolder.getProjectJSONFile(version), expected);
-                    });
-                };
-
-                getProjectJSONFileErrorTest.run("a", "b", null, new PreConditionFailure("version cannot be null."));
-                getProjectJSONFileErrorTest.run("a", "b", "", new PreConditionFailure("version cannot be empty."));
-
-                final Action3<String,String,String> getProjectJSONFileTest = (String publisherName, String projectName, String version) ->
-                {
-                    runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
-                    {
-                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
-                        test.assertEqual(
-                            projectFolder.getFile("versions/" + version + "/project.json").await(),
-                            projectFolder.getProjectJSONFile(version).await());
-                    });
-                };
-
-                getProjectJSONFileTest.run("a", "b", "c");
-            });
-
-            runner.testGroup("getCompiledSourcesFile(String)", () ->
-            {
-                final Action4<String,String,String,Throwable> getCompiledSourcesFileErrorTest = (String publisherName, String projectName, String version, Throwable expected) ->
-                {
-                    runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
-                    {
-                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
-                        test.assertThrows(() -> projectFolder.getCompiledSourcesFile(version), expected);
-                    });
-                };
-
-                getCompiledSourcesFileErrorTest.run("a", "b", null, new PreConditionFailure("version cannot be null."));
-                getCompiledSourcesFileErrorTest.run("a", "b", "", new PreConditionFailure("version cannot be empty."));
-
-                final Action3<String,String,String> getCompiledSourcesFileTest = (String publisherName, String projectName, String version) ->
-                {
-                    runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
-                    {
-                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
-                        test.assertEqual(
-                            projectFolder.getFile("versions/" + version + "/" + projectName + ".jar").await(),
-                            projectFolder.getCompiledSourcesFile(version).await());
-                    });
-                };
-
-                getCompiledSourcesFileTest.run("a", "b", "1");
-            });
-
-            runner.testGroup("getSourcesFile(String)", () ->
-            {
-                final Action4<String,String,String,Throwable> getSourcesFileErrorTest = (String publisherName, String projectName, String version, Throwable expected) ->
-                {
-                    runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
-                    {
-                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
-                        test.assertThrows(() -> projectFolder.getSourcesFile(version), expected);
-                    });
-                };
-
-                getSourcesFileErrorTest.run("a", "b", null, new PreConditionFailure("version cannot be null."));
-                getSourcesFileErrorTest.run("a", "b", "", new PreConditionFailure("version cannot be empty."));
-
-                final Action3<String,String,String> getSourcesFileTest = (String publisherName, String projectName, String version) ->
-                {
-                    runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
-                    {
-                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
-                        test.assertEqual(
-                            projectFolder.getFile("versions/" + version + "/" + projectName + ".sources.jar").await(),
-                            projectFolder.getSourcesFile(version).await());
-                    });
-                };
-
-                getSourcesFileTest.run("a", "b", "1");
-            });
-
-            runner.testGroup("getCompiledTestsFile(String)", () ->
-            {
-                final Action4<String,String,String,Throwable> getCompiledTestsFileErrorTest = (String publisherName, String projectName, String version, Throwable expected) ->
-                {
-                    runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
-                    {
-                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
-                        test.assertThrows(() -> projectFolder.getCompiledTestsFile(version), expected);
-                    });
-                };
-
-                getCompiledTestsFileErrorTest.run("a", "b", null, new PreConditionFailure("version cannot be null."));
-                getCompiledTestsFileErrorTest.run("a", "b", "", new PreConditionFailure("version cannot be empty."));
-
-                final Action3<String,String,String> getCompiledTestsFileTest = (String publisherName, String projectName, String version) ->
-                {
-                    runner.test("with " + English.andList(Iterable.create(publisherName, projectName, version).map(Strings::escapeAndQuote)), (Test test) ->
-                    {
-                        final QubProjectFolder projectFolder = QubProjectFolderTests.getQubProjectFolder("/qub/" + publisherName + "/" + projectName + "/");
-                        test.assertEqual(
-                            projectFolder.getFile("versions/" + version + "/" + projectName + ".tests.jar").await(),
-                            projectFolder.getCompiledTestsFile(version).await());
-                    });
-                };
-
-                getCompiledTestsFileTest.run("a", "b", "1");
-            });
-
             runner.testGroup("equals(Object)", () ->
             {
                 runner.test("with /qub/me/grapes/ and null", (Test test) ->
@@ -451,10 +339,5 @@ public interface QubProjectFolderTests
     static QubProjectFolder getQubProjectFolder(String folderPath)
     {
         return QubProjectFolder.get(QubProjectFolderTests.getFolder(folderPath));
-    }
-
-    static QubProjectFolder createQubProjectFolder(String folderPath)
-    {
-        return QubProjectFolder.get(QubProjectFolderTests.createFolder(folderPath));
     }
 }

@@ -2,7 +2,7 @@ package qub;
 
 public class QubProjectVersionFolder extends Folder implements Comparable<QubProjectVersionFolder>
 {
-    private QubProjectVersionFolder(Folder projectVersionFolder)
+    protected QubProjectVersionFolder(Folder projectVersionFolder)
     {
         super(projectVersionFolder.getFileSystem(), projectVersionFolder.getPath());
     }
@@ -52,26 +52,6 @@ public class QubProjectVersionFolder extends Folder implements Comparable<QubPro
     public Result<? extends VersionNumber> getVersion()
     {
         return VersionNumber.parse(this.getName());
-    }
-
-    public Result<File> getProjectJSONFile()
-    {
-        return this.getFile("project.json");
-    }
-
-    public Result<File> getCompiledSourcesFile()
-    {
-        return this.getFile(this.getProjectName().await() + ".jar");
-    }
-
-    public Result<File> getSourcesFile()
-    {
-        return this.getFile(this.getProjectName().await() + ".sources.jar");
-    }
-
-    public Result<File> getCompiledTestsFile()
-    {
-        return this.getFile(this.getProjectName().await() + ".tests.jar");
     }
 
     /**
