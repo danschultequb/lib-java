@@ -4,48 +4,78 @@ package qub;
  * A node that can connect to any number of other nodes.
  * @param <T> The type of value stored in this GraphNode.
  */
-public interface GraphNode<T> extends Traversable<GraphNode<T>,T>
+public interface GraphNode<T>
 {
     /**
-     * Create a new MutableGraphNode.
-     * @param value The value stored in the new MutableGraphNode.
-     * @param <T> The type of value stored in the new MutableGraphNode.
-     * @return The new MutableGraphNode.
+     * Create a new {@link GraphNode} in the provided {@link MutableGraph} with the provided value.
+     * @param graph The {@link MutableGraph} to create a new {@link GraphNode} in.
+     * @param value The value that the new {@link GraphNode} will contain.
+     * @param <T> The type of value that the new {@link GraphNode} will contain.
+     * @return The new {@link GraphNode}.
      */
-    static <T> MutableGraphNode<T> create(T value)
+    static <T> MutableGraphNode<T> create(MutableGraph<T> graph, T value)
     {
-        return MutableGraphNode.create(value);
+        return MutableGraphNode.create(graph, value);
     }
 
     /**
-     * Get the value stored in this GraphNode.
-     * @return The value stored in this GraphNode.
+     * Get the value stored in this {@link GraphNode}.
+     * @return The value stored in this {@link GraphNode}.
      */
     T getValue();
 
     /**
-     * Get whether or not this GraphNode contains the provided node.
-     * @param node The node to look for in this GraphNode.
-     * @return Whether or not this GraphNode contains the provided node.
+     * Get the nodes that this {@link GraphNode} is linked to.
+     * @return The nodes that this {@link GraphNode} is linked to.
      */
-    default boolean containsNode(GraphNode<T> node)
-    {
-        PreCondition.assertNotNull(node, "node");
+    Iterable<GraphNode<T>> getLinkedNodes();
 
-        return this.getNodes().contains(node);
+    /**
+     * Get the {@link GraphNode} with the provided value that is linked to this {@link GraphNode}.
+     * @param value The value to look for.
+     * @return The {@link GraphNode} with the provided value that is linked to this
+     * {@link GraphNode}.
+     */
+    default Result<? extends GraphNode<T>> getLinkedNode(T value)
+    {
+        return Result.create(() ->
+        {
+            final Iterable<? extends GraphNode<T>> linkedNodes = this.getLinkedNodes();
+            final GraphNode<T> result = linkedNodes.first(node -> Comparer.equal(node.getValue(), value));
+            if (result == null)
+            {
+                throw new NotFoundException("No GraphNode is linked to this GraphNode with the value " + value + ".");
+            }
+            return result;
+        });
     }
 
     /**
-     * Get the nodes that this GraphNode is connected to.
-     * @return The nodes that this GraphNode is connected to.
+     * Get whether or not this {@link GraphNode} is linked to a {@link GraphNode} with the provided
+     * value.
+     * @param value The value to look for in the {@link GraphNode}s that this {@link GraphNode} is
+     *              linked to.
+     * @return Whether or not this {@link GraphNode} is linked to a {@link GraphNode} with the
+     * provided value.
      */
-    Iterable<GraphNode<T>> getNodes();
-
-    @Override
-    default Iterator<T> iterate(Traversal<GraphNode<T>, T> traversal)
+    default boolean isLinkedTo(T value)
     {
-        PreCondition.assertNotNull(traversal, "traversal");
+        return this.getLinkedNode(value)
+            .then(() -> true)
+            .catchError(NotFoundException.class, () -> false)
+            .await();
+    }
 
-        return traversal.iterate(this);
+    /**
+     * Get whether or not this {@link GraphNode} is linked to the provided {@link GraphNode}.
+     * @param node The {@link GraphNode} to look for.
+     * @return Whether or not this {@link GraphNode} is linked to the provided
+     * {@link GraphNode}.
+     */
+    default boolean isLinkedTo(GraphNode<T> node)
+    {
+        PreCondition.assertNotNull(node, "node");
+
+        return this.getLinkedNodes().contains(node);
     }
 }

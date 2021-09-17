@@ -1,29 +1,41 @@
 package qub;
 
 /**
- * A basic implementation of MutableGraphNode.
- * @param <T> The type of value stored in this BasicGraphNode.
+ * A basic implementation of {@link MutableGraphNode}.
+ * @param <T> The type of value stored in this {@link BasicGraphNode}.
  */
 public class BasicGraphNode<T> implements MutableGraphNode<T>
 {
-    private T value;
-    private final List<GraphNode<T>> nodes;
+    private final MutableGraph<T> graph;
+    private final T value;
+    private final List<GraphNode<T>> linkedNodes;
 
-    private BasicGraphNode(T value)
+    private BasicGraphNode(MutableGraph<T> graph, T value)
     {
+        PreCondition.assertNotNull(graph, "graph");
+
+        this.graph = graph;
         this.value = value;
-        this.nodes = List.create();
+        this.linkedNodes = List.create();
     }
 
     /**
-     * Create a new BasicGraphNode.
-     * @param value The value stored in the new BasicGraphNode.
-     * @param <T> The type of value stored in the new BasicGraphNode.
-     * @return The new BasicGraphNode.
+     * Create a new {@link BasicGraphNode}.
+     * @param value The value stored in the new {@link BasicGraphNode}.
+     * @param <T> The type of value stored in the new {@link BasicGraphNode}.
+     * @return The new {@link BasicGraphNode}.
      */
-    public static <T> BasicGraphNode<T> create(T value)
+    public static <T> BasicGraphNode<T> create(MutableGraph<T> graph, T value)
     {
-        return new BasicGraphNode<>(value);
+        PreCondition.assertNotNull(graph, "graph");
+        PreCondition.assertFalse(graph.containsValue(value), "graph.containsValue(value)");
+
+        final BasicGraphNode<T> result = new BasicGraphNode<>(graph, value);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertFalse(graph.containsValue(value), "graph.containsValue(value)");
+
+        return result;
     }
 
     @Override
@@ -33,26 +45,28 @@ public class BasicGraphNode<T> implements MutableGraphNode<T>
     }
 
     @Override
-    public Iterable<GraphNode<T>> getNodes()
+    public Iterable<GraphNode<T>> getLinkedNodes()
     {
-        return this.nodes;
+        return this.linkedNodes;
     }
 
     @Override
-    public BasicGraphNode<T> setValue(T value)
+    public BasicGraphNode<T> addLinkToValue(T value)
     {
-        this.value = value;
+        PreCondition.assertFalse(this.isLinkedTo(value), "this.isLinkedTo(value)");
+        PreCondition.assertTrue(this.graph.containsValue(value), "this.graph.containsValue(value)");
 
-        return this;
+        return this.addLinkToNode(this.graph.getNode(value).await());
     }
 
     @Override
-    public BasicGraphNode<T> addNode(GraphNode<T> node)
+    public BasicGraphNode<T> addLinkToNode(GraphNode<T> node)
     {
         PreCondition.assertNotNull(node, "node");
-        PreCondition.assertFalse(this.containsNode(node), "this.containsNode(node)");
+        PreCondition.assertFalse(this.isLinkedTo(node), "this.isLinkedTo(node)");
+        PreCondition.assertTrue(this.graph.containsNode(node), "this.graph.containsNode(node)");
 
-        this.nodes.add(node);
+        this.linkedNodes.add(node);
 
         return this;
     }
