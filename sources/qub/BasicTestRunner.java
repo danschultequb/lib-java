@@ -235,7 +235,7 @@ public final class BasicTestRunner implements TestRunner
                 {
                     final String testFullName = test.getFullName();
                     final TestError testError = new TestError(testFullName, "An unexpected error occurred during " + Strings.escapeAndQuote(testFullName) + ".", error);
-                    addFailedTest(testError);
+                    this.addFailedTest(testError);
 
                     if (this.afterTestFailureAction != null)
                     {

@@ -50,7 +50,7 @@ public interface FileTests
                 getNameWithoutFileExtensionTest.run("/folder/file", "file");
                 getNameWithoutFileExtensionTest.run("/dogs.txt", "dogs");
             });
-            
+
             runner.test("create()", (Test test) ->
             {
                 final File file = FileTests.getFile();
@@ -66,7 +66,7 @@ public interface FileTests
 
                 test.assertTrue(file.exists().await());
             });
-            
+
             runner.testGroup("exists()", () ->
             {
                 runner.test("when file doesn't exist", (Test test) ->
@@ -78,7 +78,7 @@ public interface FileTests
                 runner.test("when file does exist", (Test test) ->
                 {
                     final File file = FileTests.getFile();
-                    file.create();
+                    file.create().await();
                     test.assertTrue(file.exists().await());
                 });
             });

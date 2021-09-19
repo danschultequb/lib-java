@@ -283,7 +283,7 @@ public interface InMemoryByteStreamTests
                 runner.test("with disposed ByteReadStream", (Test test) ->
                 {
                     final InMemoryByteStream stream = InMemoryByteStreamTests.create();
-                    stream.dispose();
+                    stream.dispose().await();
                     test.assertThrows(stream::readAllBytes, new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
 

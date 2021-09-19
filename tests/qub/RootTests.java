@@ -37,7 +37,7 @@ public interface RootTests
                     test.assertEqual(path, root.getPath());
                 });
             });
-            
+
             runner.testGroup("equals()", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -45,19 +45,19 @@ public interface RootTests
                     final Root root = RootTests.getRoot(test);
                     test.assertFalse(root.equals(null));
                 });
-                
+
                 runner.test("with String", (Test test) ->
                 {
                     final Root root = RootTests.getRoot(test);
                     test.assertFalse(root.equals(root.toString()));
                 });
-                
+
                 runner.test("with same Root", (Test test) ->
                 {
                     final Root root = RootTests.getRoot(test);
                     test.assertTrue(root.equals((Object)root));
                 });
-                
+
                 runner.test("with equal Root", (Test test) ->
                 {
                     final InMemoryFileSystem fileSystem = getFileSystem(test);
@@ -65,7 +65,7 @@ public interface RootTests
                     final Root root2 = RootTests.getRoot(fileSystem);
                     test.assertTrue(root.equals((Object)root2));
                 });
-                
+
                 runner.test("with different Root", (Test test) ->
                 {
                     final InMemoryFileSystem fileSystem = getFileSystem(test);
@@ -164,7 +164,7 @@ public interface RootTests
                     test.assertEqual(DataSize.bytes(5), root.getUsedDataSize().await(), DataSize.bytes(0.0001));
                 });
             });
-            
+
             runner.testGroup("getFolder(String)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -172,13 +172,13 @@ public interface RootTests
                     final Root root = RootTests.getRoot(test);
                     test.assertThrows(() -> root.getFolder((String)null), new PreConditionFailure("folderRelativePath cannot be null."));
                 });
-                
+
                 runner.test("with empty String", (Test test) ->
                 {
                     final Root root = RootTests.getRoot(test);
                     test.assertThrows(() -> root.getFolder(""), new PreConditionFailure("folderRelativePath cannot be empty."));
                 });
-                
+
                 runner.test("with relative path that doesn't exist", (Test test) ->
                 {
                     final Root root = RootTests.getRoot(test);
@@ -538,8 +538,8 @@ public interface RootTests
                 runner.test("when root has folders", (Test test) ->
                 {
                     final Root root = RootTests.getRoot(test);
-                    root.createFolder("1.txt");
-                    root.createFolder("2.txt");
+                    root.createFolder("1.txt").await();
+                    root.createFolder("2.txt").await();
                     test.assertEqual(
                         Iterable.create(
                             root.getFolder("1.txt").await(),

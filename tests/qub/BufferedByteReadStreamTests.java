@@ -17,7 +17,7 @@ public interface BufferedByteReadStreamTests
                 runner.test("with disposed ByteReadStream", (Test test) ->
                 {
                     final InMemoryByteStream byteReadStream = InMemoryByteStream.create();
-                    byteReadStream.dispose();
+                    byteReadStream.dispose().await();
                     byteReadStream.endOfStream();
 
                     final BufferedByteReadStream bufferedByteReadStream = BufferedByteReadStream.create(byteReadStream);
@@ -51,7 +51,7 @@ public interface BufferedByteReadStreamTests
                 runner.test("with disposed ByteReadStream", (Test test) ->
                 {
                     final InMemoryByteStream byteReadStream = InMemoryByteStream.create();
-                    byteReadStream.dispose();
+                    byteReadStream.dispose().await();
                     byteReadStream.endOfStream();
 
                     final BufferedByteReadStream bufferedByteReadStream = BufferedByteReadStream.create(byteReadStream, 5);

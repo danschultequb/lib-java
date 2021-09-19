@@ -8,7 +8,7 @@ public interface Result<T>
      */
     static <U> Result<U> create()
     {
-        return LazyResult.create();
+        return Result.create(() -> null);
     }
 
     /**
@@ -29,7 +29,11 @@ public interface Result<T>
     {
         PreCondition.assertNotNull(action, "action");
 
-        return LazyResult.create(action);
+        return Result.create(() ->
+        {
+            action.run();
+            return null;
+        });
     }
 
     /**
@@ -41,7 +45,7 @@ public interface Result<T>
     {
         PreCondition.assertNotNull(function, "function");
 
-        return SyncResult.create(function);
+        return LazyResult.create(function);
     }
 
     /**

@@ -50,13 +50,18 @@ public class InMemoryCharacterToByteStream extends BasicCharacterToByteReadStrea
 
     public Result<String> getText()
     {
-        final byte[] bytes = this.getBytes();
-        return bytes.length == 0 ? Result.success("") : this.getCharacterEncoding().decodeAsString(bytes);
+        return Result.create(() ->
+        {
+            final byte[] bytes = this.getBytes();
+            return bytes.length == 0
+                ? ""
+                : this.characterEncoding.decodeAsString(bytes).await();
+        });
     }
 
     public InMemoryCharacterToByteStream endOfStream()
     {
-        byteStream.endOfStream();
+        this.byteStream.endOfStream();
         return this;
     }
 

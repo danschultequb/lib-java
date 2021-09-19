@@ -108,7 +108,7 @@ public interface InMemoryCharacterToByteStreamTests
                 runner.test("with disposed CharacterReadStream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
-                    characterReadStream.dispose();
+                    characterReadStream.dispose().await();
                     test.assertThrows(characterReadStream::readCharacter,
                         new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
@@ -143,7 +143,7 @@ public interface InMemoryCharacterToByteStreamTests
                 runner.test("with disposed CharacterReadStream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
-                    characterReadStream.dispose();
+                    characterReadStream.dispose().await();
                     test.assertThrows(() -> characterReadStream.readCharacters(5),
                         new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
@@ -398,7 +398,7 @@ public interface InMemoryCharacterToByteStreamTests
                 runner.test("with disposed CharacterReadStream", (Test test) ->
                 {
                     final InMemoryCharacterToByteStream characterReadStream = createStream();
-                    characterReadStream.dispose();
+                    characterReadStream.dispose().await();
                     test.assertThrows(() -> characterReadStream.readString(5),
                         new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
@@ -554,7 +554,7 @@ public interface InMemoryCharacterToByteStreamTests
                     {
                         runner.test("with " + Strings.escapeAndQuote(text), (Test test) ->
                         {
-                            final InMemoryCharacterToByteStream stream = createStream(text);
+                            final InMemoryCharacterToByteStream stream = InMemoryCharacterToByteStreamTests.createStream(text);
                             int lineNumber = 0;
                             for (final String expectedLine : expectedLines)
                             {
@@ -581,24 +581,24 @@ public interface InMemoryCharacterToByteStreamTests
 
     static InMemoryCharacterToByteStream createStream()
     {
-        return createStream(null, true);
+        return InMemoryCharacterToByteStreamTests.createStream(null, true);
     }
 
     static InMemoryCharacterToByteStream createStream(String text)
     {
-        return createStream(text, true);
+        return InMemoryCharacterToByteStreamTests.createStream(text, true);
     }
 
     static InMemoryCharacterToByteStream createStream(String text, boolean endOfStream)
     {
-        InMemoryCharacterToByteStream result = InMemoryCharacterToByteStream.create();
+        final InMemoryCharacterToByteStream result = InMemoryCharacterToByteStream.create();
         if (!Strings.isNullOrEmpty(text))
         {
-            result.write(text);
+            result.write(text).await();
         }
         if (endOfStream)
         {
-            result = result.endOfStream();
+            result.endOfStream();
         }
         return result;
     }

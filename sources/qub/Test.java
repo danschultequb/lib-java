@@ -1453,8 +1453,8 @@ public class Test
             result.add("Message:  " + message);
         }
 
-        final String expectedString = toString(expected);
-        final String actualString = toString(actual);
+        final String expectedString = Test.toString(expected);
+        final String actualString = Test.toString(actual);
         result.add("Expected: " + addType(expected, actual, expectedString, actualString));
         result.add("Actual:   " + addType(actual, expected, actualString, expectedString));
 
@@ -1472,7 +1472,7 @@ public class Test
         }
         else if (value instanceof Class<?>)
         {
-            stream.write(Types.getFullTypeName((Class<?>)value));
+            stream.write(Types.getFullTypeName((Class<?>)value)).await();
         }
         else
         {

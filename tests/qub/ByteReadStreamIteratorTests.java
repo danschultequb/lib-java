@@ -17,7 +17,7 @@ public interface ByteReadStreamIteratorTests
                 runner.test("with disposed", (Test test) ->
                 {
                     final InMemoryByteStream byteReadStream = InMemoryByteStream.create().endOfStream();
-                    byteReadStream.dispose();
+                    byteReadStream.dispose().await();
                     final ByteReadStreamIterator iterator = ByteReadStreamIterator.create(byteReadStream);
                     test.assertNotNull(iterator);
                     test.assertFalse(iterator.hasStarted());
