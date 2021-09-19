@@ -87,16 +87,15 @@ public class FakeByteReadStream implements ByteReadStream
     @Override
     public Result<Boolean> dispose()
     {
-        Result<Boolean> result;
-        if (this.isDisposed)
+        return Result.create(() ->
         {
-            result = Result.successFalse();
-        }
-        else
-        {
-            this.isDisposed = true;
-            result = Result.successTrue();
-        }
-        return result;
+            boolean result = false;
+            if (!this.isDisposed)
+            {
+                this.isDisposed = true;
+                result = true;
+            }
+            return result;
+        });
     }
 }

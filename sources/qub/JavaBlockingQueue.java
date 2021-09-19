@@ -39,7 +39,7 @@ public class JavaBlockingQueue<T> implements BlockingQueue<T>
         try
         {
             javaQueue.put(value);
-            result = Result.success();
+            result = Result.create();
         }
         catch (InterruptedException e)
         {

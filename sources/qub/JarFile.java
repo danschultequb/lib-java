@@ -1,5 +1,7 @@
 package qub;
 
+import java.io.IOException;
+
 /**
  * A class that provides access to the contents of a Jar file.
  */
@@ -54,34 +56,31 @@ public class JarFile extends File implements Disposable
     @Override
     public boolean isDisposed()
     {
-        return disposed;
+        return this.disposed;
     }
 
     @Override
     public Result<Boolean> dispose()
     {
-        Result<Boolean> result;
-        if (isDisposed())
+        return Result.create(() ->
         {
-            result = Result.successFalse();
-        }
-        else
-        {
-            disposed = true;
-            try
+            boolean result = false;
+            if (!this.disposed)
             {
-                javaJarFile.close();
-                result = Result.successTrue();
-            }
-            catch (Throwable e)
-            {
-                result = Result.error(e);
-            }
-        }
+                this.disposed = true;
+                try
+                {
+                    this.javaJarFile.close();
+                }
+                catch (java.io.IOException e)
+                {
+                    throw Exceptions.asRuntime(e);
+                }
 
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+                result = true;
+            }
+            return result;
+        });
     }
 
     /**
@@ -92,7 +91,7 @@ public class JarFile extends File implements Disposable
     {
         final List<JarFileEntry> result = List.create();
 
-        final java.util.Enumeration<java.util.jar.JarEntry> jarEntries = javaJarFile.entries();
+        final java.util.Enumeration<java.util.jar.JarEntry> jarEntries = this.javaJarFile.entries();
         while (jarEntries.hasMoreElements())
         {
             final java.util.jar.JarEntry jarEntry = jarEntries.nextElement();
@@ -110,7 +109,7 @@ public class JarFile extends File implements Disposable
      */
     public Iterable<JarFileEntry> getClassFileEntries()
     {
-        return getEntries()
+        return this.getEntries()
             .where((JarFileEntry entry) -> Comparer.equal(".class", entry.getRelativePath().getFileExtension()));
     }
 }

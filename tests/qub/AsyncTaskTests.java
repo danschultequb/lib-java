@@ -42,7 +42,7 @@ public interface AsyncTaskTests
             {
                 runner.test("with null AsyncScheduler", (Test test) ->
                 {
-                    test.assertThrows(() -> new AsyncTask<Integer>(null, Result.success(), () -> {}),
+                    test.assertThrows(() -> new AsyncTask<Integer>(null, Result.create(), () -> {}),
                         new PreConditionFailure("asyncScheduler cannot be null."));
                 });
 
@@ -54,7 +54,7 @@ public interface AsyncTaskTests
 
                 runner.test("with null action", (Test test) ->
                 {
-                    test.assertThrows(() -> new AsyncTask<Integer>(null, Result.success(), (Action0)null),
+                    test.assertThrows(() -> new AsyncTask<Integer>(null, Result.create(), (Action0)null),
                         new PreConditionFailure("asyncScheduler cannot be null."));
                 });
             });
@@ -91,7 +91,7 @@ public interface AsyncTaskTests
             {
                 runner.test("with null AsyncScheduler", (Test test) ->
                 {
-                    test.assertThrows(() -> new AsyncTask<>(null, Result.success(), () -> 11),
+                    test.assertThrows(() -> new AsyncTask<>(null, Result.create(), () -> 11),
                         new PreConditionFailure("asyncScheduler cannot be null."));
                 });
 
@@ -103,7 +103,7 @@ public interface AsyncTaskTests
 
                 runner.test("with null function", (Test test) ->
                 {
-                    test.assertThrows(() -> new AsyncTask<>(ManualAsyncRunner.create(), Result.success(), (Function0<Integer>)null),
+                    test.assertThrows(() -> new AsyncTask<>(ManualAsyncRunner.create(), Result.create(), (Function0<Integer>)null),
                         new PreConditionFailure("function cannot be null."));
                 });
             });

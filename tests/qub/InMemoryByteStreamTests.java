@@ -28,7 +28,7 @@ public interface InMemoryByteStreamTests
                     test.assertEqual(new byte[0], stream.getBytes());
                 });
             });
-            
+
             runner.test("close()", (Test test) ->
             {
                 final InMemoryByteStream stream = InMemoryByteStream.create();
@@ -74,7 +74,7 @@ public interface InMemoryByteStreamTests
                     test.assertThrows(readStream::readByte, new PreConditionFailure("this.isDisposed() cannot be true."));
                 });
             });
-            
+
             runner.test("readBytes(int)", (Test test) ->
             {
                 final InMemoryByteStream readStream1 = InMemoryByteStreamTests.create();
@@ -356,7 +356,7 @@ public interface InMemoryByteStreamTests
                     test.assertEqual(new byte[] { 6, 7, 8, 9 }, stream.getBytes());
                 });
             });
-            
+
             runner.testGroup("take(long)", () ->
             {
                 final Action2<Long,Throwable> takeErrorTest = (Long toTake, Throwable expected) ->
@@ -367,7 +367,7 @@ public interface InMemoryByteStreamTests
                         test.assertThrows(() -> stream.take(toTake), expected);
                     });
                 };
-                
+
                 takeErrorTest.run(-1L, new PreConditionFailure("toTake (-1) must be greater than or equal to 0."));
 
                 final Action4<byte[],Long,byte[],byte[]> takeTest = (byte[] contents, Long toTake, byte[] takeStreamExpected, byte[] remainingExpected) ->
@@ -527,7 +527,7 @@ public interface InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = InMemoryByteStream.create();
                     final InMemoryByteStream readStream = InMemoryByteStream.create();
-                    readStream.dispose();
+                    readStream.dispose().await();
                     test.assertThrows(() -> stream.writeAll(readStream).await(),
                         new PreConditionFailure("byteReadStream.isDisposed() cannot be true."));
                     test.assertEqual(new byte[0], stream.getBytes());
@@ -536,7 +536,7 @@ public interface InMemoryByteStreamTests
                 runner.test("with disposed ByteWriteStream", (Test test) ->
                 {
                     final InMemoryByteStream stream = InMemoryByteStream.create();
-                    stream.dispose();
+                    stream.dispose().await();
                     final InMemoryByteStream readStream = InMemoryByteStream.create().endOfStream();
                     test.assertThrows(() -> stream.writeAll(readStream).await(),
                         new PreConditionFailure("this.isDisposed() cannot be true."));

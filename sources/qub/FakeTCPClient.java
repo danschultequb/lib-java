@@ -40,49 +40,48 @@ public class FakeTCPClient implements TCPClient
     @Override
     public boolean isDisposed()
     {
-        return disposed;
+        return this.disposed;
     }
 
     @Override
     public Result<Boolean> dispose()
     {
-        Result<Boolean> result;
-        if (this.isDisposed())
+        return Result.create(() ->
         {
-            result = Result.successFalse();
-        }
-        else
-        {
-            this.disposed = true;
+            boolean result = false;
+            if (!this.disposed)
+            {
+                this.disposed = true;
+                this.network.clientDisposed(this.localIPAddress, this.localPort, this.socketReadStream, this.socketWriteStream);
 
-            this.network.clientDisposed(this.localIPAddress, this.localPort, this.socketReadStream, this.socketWriteStream);
-            result = Result.successTrue();
-        }
-        return result;
+                result = true;
+            }
+            return result;
+        });
     }
 
     @Override
     public IPv4Address getLocalIPAddress()
     {
-        return localIPAddress;
+        return this.localIPAddress;
     }
 
     @Override
     public int getLocalPort()
     {
-        return localPort;
+        return this.localPort;
     }
 
     @Override
     public IPv4Address getRemoteIPAddress()
     {
-        return remoteIPAddress;
+        return this.remoteIPAddress;
     }
 
     @Override
     public int getRemotePort()
     {
-        return remotePort;
+        return this.remotePort;
     }
 
     @Override

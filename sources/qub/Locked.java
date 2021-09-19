@@ -47,7 +47,7 @@ public class Locked<T>
     {
         PreCondition.assertNotNull(action, "action");
 
-        this.mutex.criticalSection(() -> action.run(this.value));
+        this.mutex.criticalSection(() -> action.run(this.value)).await();
     }
 
     /**

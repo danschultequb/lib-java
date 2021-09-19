@@ -179,7 +179,7 @@ public class FakeNetwork implements Network
         else
         {
             networkStream.dispose().await();
-            this.streamReferenceCounts.remove(networkStream);
+            this.streamReferenceCounts.remove(networkStream).await();
         }
     }
 
@@ -215,7 +215,9 @@ public class FakeNetwork implements Network
                 throw Exceptions.asRuntime(new java.io.IOException("IPAddress (" + localIPAddress + ") and port (" + localPort + ") are already bound."));
             }
 
-            final FakeTCPServer tcpServer = FakeTCPServer.create(localIPAddress, localPort, this, this.clock);
+            final FakeTCPServer tcpServer = this.clock == null
+                ? FakeTCPServer.create(localIPAddress, localPort, this)
+                : FakeTCPServer.create(localIPAddress, localPort, this, this.clock);
 
             this.boundTCPServers.getOrSet(localIPAddress, Map::create).await()
                 .set(localPort, tcpServer);
@@ -232,10 +234,9 @@ public class FakeNetwork implements Network
 
         this.mutex.criticalSection(() ->
         {
-            this.boundTCPServers.get(ipAddress)
-                .await()
-                .remove(port);
-        });
+            this.boundTCPServers.get(ipAddress).await()
+                .remove(port).await();
+        }).await();
     }
 
     public void clientDisposed(IPv4Address localIPAddress, int localPort, InMemoryByteStream socketReadStream, InMemoryByteStream socketWriteStream)

@@ -47,14 +47,14 @@ public class JavaMutexCondition implements MutexCondition
             {
                 if (this.conditionFunction != null && this.conditionFunction.run())
                 {
-                    result = Result.success();
+                    result = Result.create();
                 }
                 else
                 {
                     this.conditionVariable.await();
                     if (conditionFunction == null)
                     {
-                        result = Result.success();
+                        result = Result.create();
                     }
                 }
             }
@@ -97,7 +97,7 @@ public class JavaMutexCondition implements MutexCondition
             }
             else if (this.conditionFunction != null && this.conditionFunction.run())
             {
-                result = Result.success();
+                result = Result.create();
             }
             else
             {
@@ -105,7 +105,7 @@ public class JavaMutexCondition implements MutexCondition
                 {
                     if (this.conditionVariable.await(1, java.util.concurrent.TimeUnit.MILLISECONDS) && this.conditionFunction == null)
                     {
-                        result = Result.success();
+                        result = Result.create();
                     }
                 }
                 catch (InterruptedException e)

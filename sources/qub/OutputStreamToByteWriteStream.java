@@ -29,7 +29,7 @@ public class OutputStreamToByteWriteStream extends BasicDisposable implements By
         try
         {
             this.outputStream.flush();
-            result = Result.success();
+            result = Result.create();
         }
         catch (java.io.IOException e)
         {
@@ -46,24 +46,22 @@ public class OutputStreamToByteWriteStream extends BasicDisposable implements By
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        Result<Integer> result;
-        try
+        return Result.create(() ->
         {
-            this.outputStream.write(toWrite);
-            if (this.autoFlush)
+            try
             {
-                this.outputStream.flush();
+                this.outputStream.write(toWrite);
+                if (this.autoFlush)
+                {
+                    this.outputStream.flush();
+                }
             }
-            result = Result.successOne();
-        }
-        catch (java.io.IOException e)
-        {
-            result = Result.error(e);
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+            catch (java.io.IOException e)
+            {
+                throw Exceptions.asRuntime(e);
+            }
+            return 1;
+        });
     }
 
     @Override

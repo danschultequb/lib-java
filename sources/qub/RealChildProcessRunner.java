@@ -124,7 +124,7 @@ public class RealChildProcessRunner implements ChildProcessRunner
     {
         return this.foldersInPathEnvironmentVariable;
     }
-    
+
     /**
      * Get the default executable file extensions that this process factory will add when looking
      * for an executable file.
@@ -272,7 +272,7 @@ public class RealChildProcessRunner implements ChildProcessRunner
                 }
 
                 final Result<Void> outputAction = outputStreamHandler == null
-                    ? Result.success()
+                    ? Result.create()
                     : this.parallelAsyncRunner.schedule(() ->
                     {
                         try (final ByteReadStream childProcessOutputStream = new InputStreamToByteReadStream(childProcess.getInputStream()))
@@ -282,7 +282,7 @@ public class RealChildProcessRunner implements ChildProcessRunner
                     });
 
                 final Result<Void> errorAction = errorStreamHandler == null
-                    ? Result.success()
+                    ? Result.create()
                     : this.parallelAsyncRunner.schedule(() ->
                     {
                         try (final ByteReadStream childProcessErrorStream = new InputStreamToByteReadStream(childProcess.getErrorStream()))

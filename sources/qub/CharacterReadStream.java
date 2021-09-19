@@ -277,66 +277,72 @@ public interface CharacterReadStream extends Disposable
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        String result;
-        int charactersRead = 0;
-        final CharacterList list = CharacterList.create();
-        if (includeNewLine)
+        return Result.create(() ->
         {
-            result = this.readStringUntil('\n')
-                .catchError(EndOfStreamException.class)
-                .await();
-            if (result != null)
+            String result;
+            int charactersRead = 0;
+            final CharacterList list = CharacterList.create();
+            if (includeNewLine)
             {
-                charactersRead = result.length();
-            }
-        }
-        else
-        {
-            final Iterator<Character> iterator = CharacterReadStream.iterate(this);
-            boolean previousCharacterWasCarriageReturn = false;
-            while (iterator.next())
-            {
-                ++charactersRead;
-                final char currentCharacter = iterator.getCurrent();
-                if (currentCharacter == '\r')
+                result = this.readStringUntil('\n')
+                    .catchError(EndOfStreamException.class)
+                    .await();
+                if (result != null)
                 {
-                    if (previousCharacterWasCarriageReturn)
+                    charactersRead = result.length();
+                }
+            }
+            else
+            {
+                final Iterator<Character> iterator = CharacterReadStream.iterate(this);
+                boolean previousCharacterWasCarriageReturn = false;
+                while (iterator.next())
+                {
+                    ++charactersRead;
+                    final char currentCharacter = iterator.getCurrent();
+                    if (currentCharacter == '\r')
                     {
-                        list.add('\r');
+                        if (previousCharacterWasCarriageReturn)
+                        {
+                            list.add('\r');
+                        }
+                        else
+                        {
+                            previousCharacterWasCarriageReturn = true;
+                        }
+                    }
+                    else if (currentCharacter != '\n')
+                    {
+                        if (previousCharacterWasCarriageReturn)
+                        {
+                            list.add('\r');
+                        }
+                        previousCharacterWasCarriageReturn = false;
+
+                        list.add(currentCharacter);
                     }
                     else
                     {
-                        previousCharacterWasCarriageReturn = true;
+                        previousCharacterWasCarriageReturn = false;
+                        break;
                     }
                 }
-                else if (currentCharacter != '\n')
-                {
-                    if (previousCharacterWasCarriageReturn)
-                    {
-                        list.add('\r');
-                    }
-                    previousCharacterWasCarriageReturn = false;
 
-                    list.add(currentCharacter);
-                }
-                else
+                if (!iterator.hasCurrent() && previousCharacterWasCarriageReturn)
                 {
-                    previousCharacterWasCarriageReturn = false;
-                    break;
+                    list.add('\r');
                 }
+
+                result = list.toString(true);
             }
 
-            if (!iterator.hasCurrent() && previousCharacterWasCarriageReturn)
+            if (charactersRead == 0)
             {
-                list.add('\r');
+                throw new EndOfStreamException();
             }
 
-            result = list.toString(true);
-        }
-
-        return charactersRead == 0
-            ? Result.endOfStream()
-            : Result.success(result);
+            return result;
+        });
     }
 
     /**

@@ -76,45 +76,65 @@ public interface BooleansTests
 
             runner.testGroup("parse(String)", () ->
             {
-                runner.test("with null", (Test test) ->
+                final Action2<String,Throwable> parseErrorTest = (String value, Throwable expected) ->
                 {
-                    test.assertThrows(() -> Booleans.parse(null),
-                        new PreConditionFailure("value cannot be null."));
-                });
+                    runner.test("with " + Strings.escapeAndQuote(value), (Test test) ->
+                    {
+                        test.assertThrows(() -> Booleans.parse(value).await(),
+                            expected);
+                    });
+                };
 
-                runner.test("with empty", (Test test) ->
-                {
-                    test.assertThrows(() -> Booleans.parse(""),
-                        new PreConditionFailure("value cannot be empty."));
-                });
+                parseErrorTest.run(null, new PreConditionFailure("value cannot be null."));
+                parseErrorTest.run("", new PreConditionFailure("value cannot be empty."));
+                parseErrorTest.run("True", new ParseException("Expected the value (\"True\") to be either \"true\" or \"false\"."));
+                parseErrorTest.run("falSE", new ParseException("Expected the value (\"falSE\") to be either \"true\" or \"false\"."));
+                parseErrorTest.run("apple", new ParseException("Expected the value (\"apple\") to be either \"true\" or \"false\"."));
 
-                runner.test("with \"true\"", (Test test) ->
+                final Action2<String,Boolean> parseTest = (String value, Boolean expected) ->
                 {
-                    test.assertTrue(Booleans.parse("true").await());
-                });
+                    runner.test("with " + Strings.escapeAndQuote(value), (Test test) ->
+                    {
+                        test.assertEqual(expected, Booleans.parse(value).await());
+                    });
+                };
 
-                runner.test("with \"false\"", (Test test) ->
-                {
-                    test.assertFalse(Booleans.parse("false").await());
-                });
+                parseTest.run("true", true);
+                parseTest.run("false", false);
+            });
 
-                runner.test("with \"True\"", (Test test) ->
+            runner.testGroup("parse(String,boolean)", () ->
+            {
+                final Action3<String,Boolean,Throwable> parseErrorTest = (String value, Boolean caseSensitive, Throwable expected) ->
                 {
-                    test.assertThrows(() -> Booleans.parse("True").await(),
-                        new ParseException("Expected the value (\"True\") to be either \"true\" or \"false\"."));
-                });
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(value), caseSensitive), (Test test) ->
+                    {
+                        test.assertThrows(() -> Booleans.parse(value, caseSensitive).await(),
+                            expected);
+                    });
+                };
 
-                runner.test("with \"falSE\"", (Test test) ->
-                {
-                    test.assertThrows(() -> Booleans.parse("falSE").await(),
-                        new ParseException("Expected the value (\"falSE\") to be either \"true\" or \"false\"."));
-                });
+                parseErrorTest.run(null, true, new PreConditionFailure("value cannot be null."));
+                parseErrorTest.run("", true, new PreConditionFailure("value cannot be empty."));
+                parseErrorTest.run("True", true, new ParseException("Expected the value (\"True\") to be either \"true\" or \"false\"."));
+                parseErrorTest.run("falSE", true, new ParseException("Expected the value (\"falSE\") to be either \"true\" or \"false\"."));
+                parseErrorTest.run("apple", true, new ParseException("Expected the value (\"apple\") to be either \"true\" or \"false\"."));
+                parseErrorTest.run("apple", false, new ParseException("Expected the value (\"apple\") to be either \"true\" or \"false\"."));
 
-                runner.test("with \"apple\"", (Test test) ->
+                final Action3<String,Boolean,Boolean> parseTest = (String value, Boolean caseSensitive, Boolean expected) ->
                 {
-                    test.assertThrows(() -> Booleans.parse("apple").await(),
-                        new ParseException("Expected the value (\"apple\") to be either \"true\" or \"false\"."));
-                });
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(value), caseSensitive), (Test test) ->
+                    {
+                        test.assertEqual(expected, Booleans.parse(value, caseSensitive).await());
+                    });
+                };
+
+                parseTest.run("true", true, true);
+                parseTest.run("true", false, true);
+                parseTest.run("TrUe", false, true);
+                parseTest.run("false", true, false);
+                parseTest.run("false", false, false);
+                parseTest.run("FalsE", false, false);
             });
         });
     }

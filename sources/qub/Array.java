@@ -205,35 +205,24 @@ public interface Array<T> extends MutableIndexable<T>
     {
         PreCondition.assertNotNull(values, "values");
 
-        Result<char[]> result = null;
-        final int valuesCount = values.getCount();
-        final char[] array = new char[valuesCount];
-        if (valuesCount == 0)
+        return Result.create(() ->
         {
-            result = Result.success(new char[0]);
-        }
-        else
-        {
-            int index = 0;
-            for (final Character value : values)
+            final int valuesCount = values.getCount();
+            final char[] result = new char[valuesCount];
+            if (valuesCount > 0)
             {
-                if (value == null)
+                int index = 0;
+                for (final Character value : values)
                 {
-                    result = Result.error(new NullPointerException("The " + index + " element cannot be null."));
-                    break;
-                }
-                else
-                {
-                    array[index++] = value;
+                    if (value == null)
+                    {
+                        throw new NullPointerException("The " + index + " element cannot be null.");
+                    }
+                    result[index++] = value;
                 }
             }
-
-            if (result == null)
-            {
-                result = Result.success(array);
-            }
-        }
-        return result;
+            return result;
+        });
     }
 
     /**
@@ -257,37 +246,24 @@ public interface Array<T> extends MutableIndexable<T>
     {
         PreCondition.assertNotNull(values, "values");
 
-        Result<int[]> result = null;
-        if (!values.any())
+        return Result.create(() ->
         {
-            result = Result.success(new int[0]);
-        }
-        else
-        {
-            final int[] array = new int[values.getCount()];
-            int index = 0;
-            for (final Integer value : values)
+            final int valuesCount = values.getCount();
+            final int[] result = new int[valuesCount];
+            if (valuesCount > 0)
             {
-                if (value == null)
+                int index = 0;
+                for (final Integer value : values)
                 {
-                    result = Result.error(new NullPointerException("The " + index + " element cannot be null."));
-                    break;
-                }
-                else
-                {
-                    array[index++] = value;
+                    if (value == null)
+                    {
+                        throw new NullPointerException("The " + index + " element cannot be null.");
+                    }
+                    result[index++] = value;
                 }
             }
-
-            if (result == null)
-            {
-                result = Result.success(array);
-            }
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+            return result;
+        });
     }
 
     /**
@@ -297,7 +273,7 @@ public interface Array<T> extends MutableIndexable<T>
      */
     static byte[] clone(byte[] toClone)
     {
-        return clone(toClone, 0, toClone == null ? 0 : toClone.length);
+        return Array.clone(toClone, 0, toClone == null ? 0 : toClone.length);
     }
 
     /**

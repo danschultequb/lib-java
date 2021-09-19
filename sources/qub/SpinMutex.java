@@ -57,7 +57,7 @@ public class SpinMutex implements Mutex
         }
         this.acquiredCount.increment();
 
-        return Result.success();
+        return Result.create();
     }
 
     @Override
@@ -115,7 +115,7 @@ public class SpinMutex implements Mutex
                 this.acquiredByThreadId.set(-1);
             }
         }
-        return Result.success();
+        return Result.create();
     }
 
     @Override

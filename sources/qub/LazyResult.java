@@ -17,6 +17,35 @@ public class LazyResult<T> implements Result<T>
     }
 
     /**
+     * Create a new empty successful {@link LazyResult}.
+     * @param <U> The type of value the {@link LazyResult} should contain.
+     */
+    public static <U> LazyResult<U> create()
+    {
+        return LazyResult.create(() -> null);
+    }
+
+    public static <U> LazyResult<U> create(U value)
+    {
+        return LazyResult.create(() -> value);
+    }
+
+    /**
+     * Create a new Result by synchronously running the provided Action and returning the result.
+     * @param action The action to run.
+     */
+    public static LazyResult<Void> create(Action0 action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return LazyResult.create(() ->
+        {
+            action.run();
+            return null;
+        });
+    }
+
+    /**
      * Create a new LazyResult that will invoke the provided function only when the new LazyResult
      * is awaited.
      * @param function The function to invoke when the new LazyResult is awaited.
@@ -49,6 +78,18 @@ public class LazyResult<T> implements Result<T>
         PreCondition.assertNotNull(function, "function");
 
         return new LazyResult<>(parentResult, (Function2<Object,Throwable,T>)function);
+    }
+
+    /**
+     * Create a new {@link LazyResult} that contains the provided {@link Throwable}.
+     * @param error The {@link Throwable} that the {@link LazyResult} should contain.
+     * @param <U> The type of value the {@link LazyResult} can contain.
+     */
+    public static <U> LazyResult<U> error(Throwable error)
+    {
+        PreCondition.assertNotNull(error, "error");
+
+        return LazyResult.create(() -> { throw Exceptions.asRuntime(error); });
     }
 
     /**

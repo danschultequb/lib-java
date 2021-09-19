@@ -28,7 +28,7 @@ public class ListSet<T> implements Set<T>
     public Result<Void> remove(T value)
     {
         return values.remove(value)
-            ? Result.success()
+            ? Result.create()
             : Result.error(new NotFoundException("Could not find the value " + value + "."));
     }
 

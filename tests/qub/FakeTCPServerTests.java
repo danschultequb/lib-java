@@ -13,9 +13,7 @@ public interface FakeTCPServerTests
                 final IPv4Address serverAddress = IPv4Address.localhost;
                 final int serverPort = port.incrementAndGet();
                 final FakeNetwork network = FakeNetwork.create(clock);
-                return clock == null
-                    ? FakeTCPServer.create(serverAddress, serverPort, network)
-                    : FakeTCPServer.create(serverAddress, serverPort, network, clock);
+                return network.createTCPServer(serverAddress, serverPort).await();
             });
         });
     }

@@ -44,7 +44,7 @@ public interface FakeByteReadStreamTests
                     final FakeByteReadStream stream = FakeByteReadStream.create((byte[] outputBytes, Integer startIndex, Integer length) ->
                     {
                         outputBytes[startIndex] = (byte)value.incrementAndGetAsInt();
-                        return Result.successOne();
+                        return Result.success(1);
                     });
                     test.assertEqual(1, stream.readByte().await());
                     test.assertEqual(2, stream.readByte().await());

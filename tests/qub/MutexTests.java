@@ -41,10 +41,10 @@ public interface MutexTests
                     {
                         mutex.acquire().await();
                         mutexAcquired.open();
-                        isAcquiredChecked.passThrough();
+                        isAcquiredChecked.passThrough().await();
                     });
 
-                    mutexAcquired.passThrough();
+                    mutexAcquired.passThrough().await();
                     test.assertTrue(mutex.isAcquired());
                     isAcquiredChecked.open();
                     task.await();

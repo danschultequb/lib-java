@@ -39,7 +39,7 @@ public class JavaMutex implements Mutex
     public Result<Void> acquire()
     {
         this.lock.lock();
-        return Result.success();
+        return Result.create();
     }
 
     @Override

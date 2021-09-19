@@ -73,27 +73,25 @@ public interface Booleans
     {
         PreCondition.assertNotNullAndNotEmpty(value, "value");
 
-        if (!caseSensitive)
+        return Result.create(() ->
         {
-            value = value.toLowerCase();
-        }
+            boolean result;
 
-        Result<Boolean> result;
-        if ("true".equals(value))
-        {
-            result = Result.successTrue();
-        }
-        else if ("false".equals(value))
-        {
-            result = Result.successFalse();
-        }
-        else
-        {
-            result = Result.error(new ParseException("Expected the value (" + Strings.escapeAndQuote(value) + ") to be either \"true\" or \"false\"."));
-        }
+            final String toParse = caseSensitive ? value : value.toLowerCase();
+            if ("true".equals(toParse))
+            {
+                result = true;
+            }
+            else if ("false".equals(toParse))
+            {
+                result = false;
+            }
+            else
+            {
+                throw new ParseException("Expected the value (" + Strings.escapeAndQuote(value) + ") to be either \"true\" or \"false\".");
+            }
 
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+            return result;
+        });
     }
 }

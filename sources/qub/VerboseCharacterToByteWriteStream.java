@@ -92,33 +92,45 @@ public class VerboseCharacterToByteWriteStream implements LinePrefixCharacterToB
     @Override
     public Result<Integer> write(char toWrite)
     {
-        return this.isVerbose
-            ? this.innerStream.write(toWrite)
-            : Result.successZero();
+        return Result.create(() ->
+        {
+            return this.isVerbose
+                ? this.innerStream.write(toWrite).await()
+                : 0;
+        });
     }
 
     @Override
     public Result<Integer> write(char[] toWrite, int startIndex, int length)
     {
-        return this.isVerbose
-            ? this.innerStream.write(toWrite, startIndex, length)
-            : Result.successZero();
+        return Result.create(() ->
+        {
+            return this.isVerbose
+                ? this.innerStream.write(toWrite, startIndex, length).await()
+                : 0;
+        });
     }
 
     @Override
     public Result<Integer> write(String toWrite, Object... formattedStringArguments)
     {
-        return this.isVerbose
-            ? this.innerStream.write(toWrite, formattedStringArguments)
-            : Result.successZero();
+        return Result.create(() ->
+        {
+            return this.isVerbose
+                ? this.innerStream.write(toWrite, formattedStringArguments).await()
+                : 0;
+        });
     }
 
     @Override
     public Result<Integer> writeLine()
     {
-        return this.isVerbose
-            ? this.innerStream.writeLine()
-            : Result.successZero();
+        return Result.create(() ->
+        {
+            return this.isVerbose
+                ? this.innerStream.writeLine().await()
+                : 0;
+        });
     }
 
     @Override
@@ -136,16 +148,22 @@ public class VerboseCharacterToByteWriteStream implements LinePrefixCharacterToB
     @Override
     public Result<Integer> write(byte toWrite)
     {
-        return this.isVerbose
-            ? this.innerStream.write(toWrite)
-            : Result.successZero();
+        return Result.create(() ->
+        {
+            return this.isVerbose
+                ? this.innerStream.write(toWrite).await()
+                : 0;
+        });
     }
 
     @Override
     public Result<Integer> write(byte[] toWrite, int startIndex, int length)
     {
-        return this.isVerbose
-            ? this.innerStream.write(toWrite, startIndex, length)
-            : Result.successZero();
+        return Result.create(() ->
+        {
+            return this.isVerbose
+                ? this.innerStream.write(toWrite, startIndex, length).await()
+                : 0;
+        });
     }
 }

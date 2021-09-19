@@ -50,7 +50,7 @@ public class AsyncTask<T> implements PausedAsyncTask<T>
      */
     public AsyncTask(AsyncScheduler asyncScheduler, Action0 action)
     {
-        this(asyncScheduler, Result.success(), action);
+        this(asyncScheduler, Result.create(), action);
     }
 
     /**
@@ -85,7 +85,7 @@ public class AsyncTask<T> implements PausedAsyncTask<T>
      */
     public AsyncTask(AsyncScheduler asyncScheduler, Function0<T> function)
     {
-        this(asyncScheduler, Result.success(), function);
+        this(asyncScheduler, Result.create(), function);
     }
 
     /**

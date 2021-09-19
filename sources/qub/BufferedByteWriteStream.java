@@ -100,19 +100,12 @@ public class BufferedByteWriteStream implements ByteWriteStream
      */
     private Result<Integer> flushBufferIfFull()
     {
-        Result<Integer> result;
-        if (currentBufferIndex < buffer.length)
+        return Result.create(() ->
         {
-            result = Result.successZero();
-        }
-        else
-        {
-            result = this.flushOnce();
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+            return this.currentBufferIndex < this.buffer.length
+                ? 0
+                : this.flushOnce().await();
+        });
     }
 
     /**
@@ -174,33 +167,21 @@ public class BufferedByteWriteStream implements ByteWriteStream
     @Override
     public Result<Boolean> dispose()
     {
-        Result<Boolean> result;
-        if (isDisposed())
+        return Result.create(() ->
         {
-            result = Result.successFalse();
-        }
-        else
-        {
-            Result<Integer> writeBufferResult;
-            if (currentBufferIndex == 0)
+            boolean result = false;
+            if (!this.isDisposed())
             {
-                writeBufferResult = Result.successZero();
-            }
-            else
-            {
-                writeBufferResult = byteWriteStream.writeAll(buffer, 0, currentBufferIndex);
-            }
-            result = writeBufferResult
-                .then(() ->
+                if (this.currentBufferIndex > 0)
                 {
-                    buffer = null;
-                    currentBufferIndex = 0;
-                    return byteWriteStream.dispose().await();
-                });
-        }
+                    this.byteWriteStream.writeAll(this.buffer, 0, this.currentBufferIndex).await();
+                }
 
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+                this.buffer = null;
+                this.currentBufferIndex = 0;
+                result = this.byteWriteStream.dispose().await();
+            }
+            return result;
+        });
     }
 }

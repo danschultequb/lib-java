@@ -85,10 +85,15 @@ public class CommandLineArguments implements Indexable<CommandLineArgument>
     {
         PreCondition.assertNotNullAndNotEmpty(argumentName, "argumentName");
 
-        final CommandLineArgument value = this.arguments.first((CommandLineArgument arg) -> Comparer.equal(arg.getName(), argumentName));
-        return value != null
-            ? Result.success(value.getValue())
-            : Result.error(new NotFoundException("Could not find command-line arguments with the name " + Strings.escapeAndQuote(argumentName) + "."));
+        return Result.create(() ->
+        {
+            final CommandLineArgument argument = this.arguments.first((CommandLineArgument arg) -> Comparer.equal(arg.getName(), argumentName));
+            if (argument == null)
+            {
+                throw new NotFoundException("Could not find command-line arguments with the name " + Strings.escapeAndQuote(argumentName) + ".");
+            }
+            return argument.getValue();
+        });
     }
 
     /**
@@ -101,13 +106,18 @@ public class CommandLineArguments implements Indexable<CommandLineArgument>
     {
         PreCondition.assertNotNullAndNotEmpty(argumentName, "argumentName");
 
-        final Indexable<String> values = arguments
-            .where((CommandLineArgument arg) -> Comparer.equal(arg.getName(), argumentName))
-            .map(CommandLineArgument::getValue)
-            .toList();
-        return !Iterable.isNullOrEmpty(values)
-            ? Result.success(values)
-            : Result.error(new NotFoundException("Could not find command-line arguments with the name " + Strings.escapeAndQuote(argumentName) + "."));
+        return Result.create(() ->
+        {
+            final Indexable<String> values = this.arguments
+                .where((CommandLineArgument arg) -> Comparer.equal(arg.getName(), argumentName))
+                .map(CommandLineArgument::getValue)
+                .toList();
+            if (Iterable.isNullOrEmpty(values))
+            {
+                throw new NotFoundException("Could not find command-line arguments with the name " + Strings.escapeAndQuote(argumentName) + ".");
+            }
+            return values;
+        });
     }
 
     /**
@@ -120,10 +130,15 @@ public class CommandLineArguments implements Indexable<CommandLineArgument>
     {
         PreCondition.assertNotNullAndNotEmpty(argumentName, "argumentName");
 
-        final int index = arguments.indexOf((CommandLineArgument argument) -> Comparer.equal(argument.getName(), argumentName));
-        return index >= 0
-            ? Result.success(arguments.removeAt(index).getValue())
-            : Result.error(new NotFoundException("Could not find a command-line argument with the name " + Strings.escapeAndQuote(argumentName) + "."));
+        return Result.create(() ->
+        {
+            final int index = this.arguments.indexOf((CommandLineArgument argument) -> Comparer.equal(argument.getName(), argumentName));
+            if (index < 0)
+            {
+                throw new NotFoundException("Could not find a command-line argument with the name " + Strings.escapeAndQuote(argumentName) + ".");
+            }
+            return this.arguments.removeAt(index).getValue();
+        });
     }
 
     /**

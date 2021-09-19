@@ -11,20 +11,23 @@ public class CommandLineParameterBoolean extends CommandLineParameter<Boolean>
     {
         super(name, null, (String value) ->
         {
-            Result<Boolean> argumentValue;
-            if (value == null)
+            return Result.create(() ->
             {
-                argumentValue = unspecifiedValue ? Result.successTrue() : Result.successFalse();
-            }
-            else if (value.equals(""))
-            {
-                argumentValue = Result.successTrue();
-            }
-            else
-            {
-                argumentValue = Booleans.parse(value);
-            }
-            return argumentValue;
+                boolean argumentValue;
+                if (value == null)
+                {
+                    argumentValue = unspecifiedValue;
+                }
+                else if (value.equals(""))
+                {
+                    argumentValue = true;
+                }
+                else
+                {
+                    argumentValue = Booleans.parse(value).await();
+                }
+                return argumentValue;
+            });
         });
     }
 

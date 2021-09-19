@@ -19,31 +19,30 @@ public class InputStreamToByteReadStream implements ByteReadStream
     @Override
     final public boolean isDisposed()
     {
-        return disposed;
+        return this.disposed;
     }
 
     @Override
     final public Result<Boolean> dispose()
     {
-        Result<Boolean> result;
-        if (disposed)
+        return Result.create(() ->
         {
-            result = Result.successFalse();
-        }
-        else
-        {
-            disposed = true;
-            try
+            boolean result = false;
+            if (!this.disposed)
             {
-                inputStream.close();
-                result = Result.successTrue();
+                this.disposed = true;
+                try
+                {
+                    this.inputStream.close();
+                    result = true;
+                }
+                catch (java.io.IOException e)
+                {
+                    throw Exceptions.asRuntime(e);
+                }
             }
-            catch (java.io.IOException e)
-            {
-                result = Result.error(e);
-            }
-        }
-        return result;
+            return result;
+        });
     }
 
     @Override
@@ -51,24 +50,24 @@ public class InputStreamToByteReadStream implements ByteReadStream
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        Result<Byte> result;
-        try
+        return Result.create(() ->
         {
-            final int byteAsInt = inputStream.read();
-            if (byteAsInt == -1)
+            byte result;
+            try
             {
-                result = Result.endOfStream();
+                final int byteAsInt = this.inputStream.read();
+                if (byteAsInt == -1)
+                {
+                    throw new EndOfStreamException();
+                }
+                result = (byte)byteAsInt;
             }
-            else
+            catch (java.io.IOException e)
             {
-                result = Result.success((byte)byteAsInt);
+                throw Exceptions.asRuntime(e);
             }
-        }
-        catch (java.io.IOException e)
-        {
-            result = Result.error(e);
-        }
-        return result;
+            return result;
+        });
     }
 
     @Override
@@ -79,30 +78,26 @@ public class InputStreamToByteReadStream implements ByteReadStream
         PreCondition.assertLength(length, startIndex, outputBytes.length);
         PreCondition.assertNotDisposed(this, "this");
 
-        Result<Integer> result;
-        try
+        return Result.create(() ->
         {
-            if (length == 0)
+            int result = 0;
+            if (length > 0)
             {
-                result = Result.successZero();
-            }
-            else
-            {
-                final int bytesRead = inputStream.read(outputBytes, startIndex, length);
-                if (bytesRead == -1)
+                try
                 {
-                    result = Result.endOfStream();
+                    result = this.inputStream.read(outputBytes, startIndex, length);
+                    if (result == -1)
+                    {
+                        throw new EndOfStreamException();
+                    }
                 }
-                else
+                catch (java.io.IOException e)
                 {
-                    result = Result.success(bytesRead);
+                    throw Exceptions.asRuntime(e);
                 }
+
             }
-        }
-        catch (java.io.IOException e)
-        {
-            result = Result.error(e);
-        }
-        return result;
+            return result;
+        });
     }
 }

@@ -3,6 +3,170 @@ package qub;
 public interface Result<T>
 {
     /**
+     * Create a new empty successful Result.
+     * @param <U> The type of value the Result should contain.
+     */
+    static <U> Result<U> create()
+    {
+        return LazyResult.create();
+    }
+
+    /**
+     * Create a new successful Result that contains the provided value.
+     * @param value The value the Result should contain.
+     * @param <U> The type of the value.
+     */
+    static <U> Result<U> success(U value)
+    {
+        return Result.create(() -> value);
+    }
+
+    /**
+     * Create a new Result by synchronously running the provided Action and returning the result.
+     * @param action The action to run.
+     */
+    static Result<Void> create(Action0 action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return LazyResult.create(action);
+    }
+
+    /**
+     * Create a new Result by synchronously running the provided Function and returning the result.
+     * @param function The function to run.
+     * @param <U> The type of value the function will return.
+     */
+    static <U> Result<U> create(Function0<U> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        return SyncResult.create(function);
+    }
+
+    /**
+     * Create a new Result by synchronously running the provided action with the provided disposable
+     * value. When the action is completed, the disposable will be disposed.
+     * @param disposableFunction The function that will provided the disposable to dispose when the
+     *                           action is completed.
+     * @param action The action to run.
+     * @param <T> The type of the disposable.
+     * @return The new result.
+     */
+    static <T extends Disposable> Result<Void> createUsing(Function0<T> disposableFunction, Action1<T> action)
+    {
+        PreCondition.assertNotNull(disposableFunction, "disposableFunction");
+        PreCondition.assertNotNull(action, "action");
+
+        return Result.create(() ->
+        {
+            try (final T disposable = disposableFunction.run())
+            {
+                action.run(disposable);
+            }
+        });
+    }
+
+    /**
+     * Create a new Result by synchronously running the provided action with the provided disposable
+     * value. When the action is completed, the disposable will be disposed.
+     * @param disposableFunction1 The first function that will provide the disposable to dispose
+     *                            when the action is completed.
+     * @param disposableFunction2 The second function that will provide the disposable to dispose
+     *                            when the action is completed.
+     * @param action The action to run.
+     * @param <T> The first type of the disposable.
+     * @param <U> The second type of the disposable.
+     * @return The new result.
+     */
+    static <T extends Disposable,U extends Disposable> Result<Void> createUsing(Function0<T> disposableFunction1, Function0<U> disposableFunction2, Action2<T,U> action)
+    {
+        PreCondition.assertNotNull(disposableFunction1, "disposableFunction1");
+        PreCondition.assertNotNull(disposableFunction2, "disposableFunction2");
+        PreCondition.assertNotNull(action, "action");
+
+        return Result.create(() ->
+        {
+            try (final T disposable1 = disposableFunction1.run())
+            {
+                try (final U disposable2 = disposableFunction2.run())
+                {
+                    action.run(disposable1, disposable2);
+                }
+            }
+        });
+    }
+
+    /**
+     * Create a new Result by synchronously running the provided action with the provided disposable
+     * value. When the action is completed, the disposable will be disposed.
+     * @param disposableFunction The function that will provided the disposable to dispose when the
+     *                           action is completed.
+     * @param function The action to run.
+     * @param <T> The type of the disposable.
+     * @return The new result.
+     */
+    static <T extends Disposable,U> Result<U> createUsing(Function0<T> disposableFunction, Function1<T,U> function)
+    {
+        PreCondition.assertNotNull(disposableFunction, "disposableFunction");
+        PreCondition.assertNotNull(function, "function");
+
+        return Result.create(() ->
+        {
+            U result;
+            try (T disposable = disposableFunction.run())
+            {
+                result = function.run(disposable);
+            }
+            return result;
+        });
+    }
+
+    /**
+     * Create a new Result by synchronously running the provided action with the provided disposable
+     * value. When the action is completed, the disposable will be disposed.
+     * @param disposableFunction1 The first function that will provide the disposable to dispose
+     *                            when the action is completed.
+     * @param disposableFunction2 The second function that will provide the disposable to dispose
+     *                            when the action is completed.
+     * @param function The function to run.
+     * @param <T> The first type of the disposable.
+     * @param <U> The second type of the disposable.
+     * @return The new result.
+     */
+    static <T extends Disposable,U extends Disposable,V> Result<V> createUsing(Function0<T> disposableFunction1, Function0<U> disposableFunction2, Function2<T,U,V> function)
+    {
+        PreCondition.assertNotNull(disposableFunction1, "disposableFunction1");
+        PreCondition.assertNotNull(disposableFunction2, "disposableFunction2");
+        PreCondition.assertNotNull(function, "function");
+
+        return Result.create(() ->
+        {
+            V result;
+            try (final T disposable1 = disposableFunction1.run())
+            {
+                try (final U disposable2 = disposableFunction2.run())
+                {
+                    result = function.run(disposable1, disposable2);
+                }
+            }
+            return result;
+        });
+    }
+
+    /**
+     * Create a new Result that contains the provided error.
+     * @param error The error that the Result should contain.
+     * @param <U> The type of value the Result can contain.
+     */
+    static <U> Result<U> error(Throwable error)
+    {
+        PreCondition.assertNotNull(error, "error");
+
+        return LazyResult.error(error);
+    }
+
+    /**
      * Get whether or not this Result has completed running.
      * @return Whether or not this Result has completed running.
      */
@@ -387,212 +551,6 @@ public interface Result<T>
     }
 
     /**
-     * Create a new empty successful Result.
-     * @param <U> The type of value the Result should contain.
-     */
-    static <U> Result<U> success()
-    {
-        return SyncResult.success();
-    }
-
-    /**
-     * Get a successful Result that contains a 0 Integer value.
-     */
-    static Result<Integer> successZero()
-    {
-        return SyncResult.successZero();
-    }
-
-    /**
-     * Get a successful Result that contains a 1 Integer value.
-     */
-    static Result<Integer> successOne()
-    {
-        return SyncResult.successOne();
-    }
-
-    /**
-     * Get a successful Result that contains a true boolean value.
-     */
-    static Result<Boolean> successTrue()
-    {
-        return SyncResult.successTrue();
-    }
-
-    /**
-     * Get a successful Result that contains a true boolean value.
-     */
-    static Result<Boolean> successFalse()
-    {
-        return SyncResult.successFalse();
-    }
-
-    /**
-     * Create a new successful Result that contains the provided value.
-     * @param value The value the Result should contain.
-     * @param <U> The type of the value.
-     */
-    static <U> Result<U> success(U value)
-    {
-        return SyncResult.success(value);
-    }
-
-    /**
-     * Create a new Result by synchronously running the provided Action and returning the result.
-     * @param action The action to run.
-     */
-    static Result<Void> create(Action0 action)
-    {
-        PreCondition.assertNotNull(action, "action");
-
-        return SyncResult.create(action);
-    }
-
-    /**
-     * Create a new Result by synchronously running the provided Function and returning the result.
-     * @param function The function to run.
-     * @param <U> The type of value the function will return.
-     */
-    static <U> Result<U> create(Function0<U> function)
-    {
-        PreCondition.assertNotNull(function, "function");
-
-        return SyncResult.create(function);
-    }
-
-    /**
-     * Create a new Result by synchronously running the provided action with the provided disposable
-     * value. When the action is completed, the disposable will be disposed.
-     * @param disposableFunction The function that will provided the disposable to dispose when the
-     *                           action is completed.
-     * @param action The action to run.
-     * @param <T> The type of the disposable.
-     * @return The new result.
-     */
-    static <T extends Disposable> Result<Void> createUsing(Function0<T> disposableFunction, Action1<T> action)
-    {
-        PreCondition.assertNotNull(disposableFunction, "disposableFunction");
-        PreCondition.assertNotNull(action, "action");
-
-        return Result.create(() ->
-        {
-            try (T disposable = disposableFunction.run())
-            {
-                action.run(disposable);
-            }
-        });
-    }
-
-    /**
-     * Create a new Result by synchronously running the provided action with the provided disposable
-     * value. When the action is completed, the disposable will be disposed.
-     * @param disposableFunction1 The first function that will provide the disposable to dispose
-     *                            when the action is completed.
-     * @param disposableFunction2 The second function that will provide the disposable to dispose
-     *                            when the action is completed.
-     * @param action The action to run.
-     * @param <T> The first type of the disposable.
-     * @param <U> The second type of the disposable.
-     * @return The new result.
-     */
-    static <T extends Disposable,U extends Disposable> Result<Void> createUsing(Function0<T> disposableFunction1, Function0<U> disposableFunction2, Action2<T,U> action)
-    {
-        PreCondition.assertNotNull(disposableFunction1, "disposableFunction1");
-        PreCondition.assertNotNull(disposableFunction2, "disposableFunction2");
-        PreCondition.assertNotNull(action, "action");
-
-        return Result.create(() ->
-        {
-            try (final T disposable1 = disposableFunction1.run())
-            {
-                try (final U disposable2 = disposableFunction2.run())
-                {
-                    action.run(disposable1, disposable2);
-                }
-            }
-        });
-    }
-
-    /**
-     * Create a new Result by synchronously running the provided action with the provided disposable
-     * value. When the action is completed, the disposable will be disposed.
-     * @param disposableFunction The function that will provided the disposable to dispose when the
-     *                           action is completed.
-     * @param function The action to run.
-     * @param <T> The type of the disposable.
-     * @return The new result.
-     */
-    static <T extends Disposable,U> Result<U> createUsing(Function0<T> disposableFunction, Function1<T,U> function)
-    {
-        PreCondition.assertNotNull(disposableFunction, "disposableFunction");
-        PreCondition.assertNotNull(function, "function");
-
-        return Result.create(() ->
-        {
-            U result;
-            try (T disposable = disposableFunction.run())
-            {
-                result = function.run(disposable);
-            }
-            return result;
-        });
-    }
-
-    /**
-     * Create a new Result by synchronously running the provided action with the provided disposable
-     * value. When the action is completed, the disposable will be disposed.
-     * @param disposableFunction1 The first function that will provide the disposable to dispose
-     *                            when the action is completed.
-     * @param disposableFunction2 The second function that will provide the disposable to dispose
-     *                            when the action is completed.
-     * @param function The function to run.
-     * @param <T> The first type of the disposable.
-     * @param <U> The second type of the disposable.
-     * @return The new result.
-     */
-    static <T extends Disposable,U extends Disposable,V> Result<V> createUsing(Function0<T> disposableFunction1, Function0<U> disposableFunction2, Function2<T,U,V> function)
-    {
-        PreCondition.assertNotNull(disposableFunction1, "disposableFunction1");
-        PreCondition.assertNotNull(disposableFunction2, "disposableFunction2");
-        PreCondition.assertNotNull(function, "function");
-
-        return Result.create(() ->
-        {
-            V result;
-            try (final T disposable1 = disposableFunction1.run())
-            {
-                try (final U disposable2 = disposableFunction2.run())
-                {
-                    result = function.run(disposable1, disposable2);
-                }
-            }
-            return result;
-        });
-    }
-
-    /**
-     * Create a new Result that contains the provided error.
-     * @param error The error that the Result should contain.
-     * @param <U> The type of value the Result can contain.
-     */
-    static <U> Result<U> error(Throwable error)
-    {
-        PreCondition.assertNotNull(error, "error");
-
-        return SyncResult.error(error);
-    }
-
-    /**
-     * Create a new Result that contains an end of stream error.
-     * @param <U> The type of value that the Result can contain.
-     * @return A Result that contains an end of stream error.
-     */
-    static <U> Result<U> endOfStream()
-    {
-        return SyncResult.endOfStream();
-    }
-
-    /**
      * Await all of the provided Result objects.
      * @param resultsToAwait The Result objects to await.
      */
@@ -657,39 +615,49 @@ public interface Result<T>
         return result;
     }
 
+    /**
+     * Get the {@link JSONObject} representation of the provided {@link Result}.
+     * @param result The {@link Result} to get the {@link JSONObject} representation of.
+     * @param <T> The type of value stored in the {@link Result}.
+     * @return The {@link JSONObject} representation of the provided {@link Result}.
+     */
+    static <T> JSONObject toJson(Result<T> result)
+    {
+        PreCondition.assertNotNull(result, "result");
+
+        final JSONObject json = JSONObject.create()
+            .setString("type", Types.getTypeName(result));
+
+        final boolean isCompleted = result.isCompleted();
+        json.setBoolean("isCompleted", isCompleted);
+
+        if (isCompleted)
+        {
+            try
+            {
+                json.setString("value", Objects.toString(result.await()));
+            }
+            catch (Throwable error)
+            {
+                json.setString("error", error.toString());
+            }
+        }
+
+        PostCondition.assertNotNull(json, "json");
+
+        return json;
+    }
+
+    /**
+     * Get the {@link String} representation of the provided {@link Result}.
+     * @param result The {@link Result} to get the {@link String} representation of.
+     * @param <T> The type of value stored in the {@link Result}.
+     * @return The {@link String} representation of the provided {@link Result}.
+     */
     static <T> String toString(Result<T> result)
     {
         PreCondition.assertNotNull(result, "result");
 
-        final CharacterList builder = CharacterList.create();
-        builder.add('{');
-
-        builder.addAll("\"type\":");
-        builder.addAll(Strings.escapeAndQuote(Types.getTypeName(result)));
-        builder.add(',');
-
-        final boolean isCompleted = result.isCompleted();
-        builder.addAll("\"isCompleted\":");
-        builder.addAll(Booleans.toString(isCompleted));
-        if (isCompleted)
-        {
-            builder.add(',');
-            result
-                .then((T value) ->
-                {
-                    builder.addAll("\"value\":");
-                    builder.addAll(Strings.escapeAndQuote(value));
-                })
-                .catchError((Throwable error) ->
-                {
-                    builder.addAll("\"error\":");
-                    builder.addAll(Strings.escapeAndQuote(error));
-                })
-                .await();
-        }
-
-        builder.add('}');
-
-        return builder.toString(true);
+        return Result.toJson(result).toString();
     }
 }

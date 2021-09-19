@@ -6,6 +6,16 @@ public interface ResultTests
     {
         runner.testGroup(Result.class, () ->
         {
+            runner.test("success()", (Test test) ->
+            {
+                final Result<String> result = Result.create();
+                test.assertNotNull(result);
+                test.assertFalse(result.isCompleted());
+
+                test.assertNull(result.await());
+                test.assertTrue(result.isCompleted());
+            });
+
             runner.testGroup("success(T)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -17,20 +27,6 @@ public interface ResultTests
                 {
                     test.assertEqual("hello", Result.success("hello").await());
                 });
-            });
-
-            runner.test("successFalse()", (Test test) ->
-            {
-                final Result<Boolean> result = Result.successFalse();
-                test.assertFalse(result.await());
-                test.assertSame(result, Result.successFalse());
-            });
-
-            runner.test("successTrue()", (Test test) ->
-            {
-                final Result<Boolean> result = Result.successTrue();
-                test.assertTrue(result.await());
-                test.assertSame(result, Result.successTrue());
             });
 
             runner.testGroup("error(Throwable)", () ->

@@ -8,6 +8,20 @@ public interface LazyResultTests
         {
             ResultTests.test(runner, LazyResult::create);
 
+            runner.test("create()", (Test test) ->
+            {
+                final LazyResult<Character> result = LazyResult.create();
+                test.assertNotNull(result);
+                test.assertFalse(result.isCompleted());
+                test.assertTrue(result.isParentResultCompleted());
+
+                for (int i = 0; i < 2; ++i)
+                {
+                    test.assertNull(result.await());
+                    test.assertTrue(result.isCompleted());
+                }
+            });
+
             runner.testGroup("create(Function0<T>)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -48,6 +62,45 @@ public interface LazyResultTests
                         new NotFoundException("hello"));
                     test.assertTrue(result.isCompleted());
                     test.assertTrue(result.isParentResultCompleted());
+                });
+            });
+
+            runner.testGroup("error(Throwable)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> LazyResult.error(null),
+                        new PreConditionFailure("error cannot be null."));
+                });
+
+                runner.test("with non-null Exception", (Test test) ->
+                {
+                    final Exception e = new Exception("abc");
+                    final LazyResult<Boolean> result = LazyResult.error(e);
+                    test.assertNotNull(result, "result");
+                    test.assertFalse(result.isCompleted());
+                    test.assertTrue(result.isParentResultCompleted());
+
+                    for (int i = 0; i < 2; ++i)
+                    {
+                        test.assertThrows(result::await, e);
+                        test.assertTrue(result.isCompleted());
+                    }
+                });
+
+                runner.test("with non-null RuntimeException", (Test test) ->
+                {
+                    final RuntimeException e = new RuntimeException("abc");
+                    final LazyResult<Boolean> result = LazyResult.error(e);
+                    test.assertNotNull(result, "result");
+                    test.assertFalse(result.isCompleted());
+                    test.assertTrue(result.isParentResultCompleted());
+
+                    for (int i = 0; i < 2; ++i)
+                    {
+                        test.assertThrows(result::await, e);
+                        test.assertTrue(result.isCompleted());
+                    }
                 });
             });
 
@@ -116,6 +169,29 @@ public interface LazyResultTests
                     test.assertEqual(5, thenCounter.get());
                     test.assertTrue(parentResult.isCompleted());
                     test.assertTrue(thenResult.isCompleted());
+                });
+            });
+
+            runner.testGroup("toString()", () ->
+            {
+                runner.test("with non-completed", (Test test) ->
+                {
+                    final LazyResult<Integer> result = LazyResult.create(() -> 5);
+                    test.assertEqual("{\"type\":\"LazyResult\",\"isCompleted\":false}", result.toString());
+                });
+
+                runner.test("with completed value", (Test test) ->
+                {
+                    final LazyResult<Integer> result = LazyResult.create(() -> 5);
+                    result.await();
+                    test.assertEqual("{\"type\":\"LazyResult\",\"isCompleted\":true,\"value\":\"5\"}", result.toString());
+                });
+
+                runner.test("with completed error", (Test test) ->
+                {
+                    final LazyResult<Integer> result = LazyResult.create(() -> { throw new EndOfStreamException(); });
+                    result.catchError(EndOfStreamException.class).await();
+                    test.assertEqual("{\"type\":\"LazyResult\",\"isCompleted\":true,\"error\":\"qub.AwaitException: qub.EndOfStreamException\"}", result.toString());
                 });
             });
         });

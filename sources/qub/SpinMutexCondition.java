@@ -37,7 +37,7 @@ public class SpinMutexCondition implements MutexCondition
     {
         PreCondition.assertTrue(this.mutex.isAcquiredByCurrentThread(), "this.mutex.isAcquiredByCurrentThread()");
 
-        return SyncResult.create(() ->
+        return Result.create(() ->
         {
             boolean done = (this.condition != null && this.condition.run());
             while (!done)
@@ -74,7 +74,7 @@ public class SpinMutexCondition implements MutexCondition
         PreCondition.assertTrue(this.mutex.isAcquiredByCurrentThread(), "this.mutex.isAcquiredByCurrentThread()");
         PreCondition.assertNotNull(this.clock, "this.clock");
 
-        return SyncResult.create(() ->
+        return Result.create(() ->
         {
             boolean done = (this.condition != null && this.condition.run());
             while (!done)
