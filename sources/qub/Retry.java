@@ -15,9 +15,48 @@ public interface Retry
     {
         PreCondition.assertNotNull(action, "action");
 
-        return Result.create(() ->
+        return Retry.run(() ->
         {
             action.run();
+            return null;
+        });
+    }
+
+    /**
+     * Run the provided function. If the function throws an exception, the exception will be caught
+     * and the function will be run again up to 2 additional times.
+     * @param function The function to run and possibly retry.
+     * @return The result of running the provided function.
+     */
+    static <T> Result<T> run(Function0<T> function)
+    {
+        PreCondition.assertNotNull(function, "function");
+
+        return Result.create(() ->
+        {
+            T result = null;
+
+            boolean done = false;
+            final List<Throwable> exceptions = List.create();
+            while (!done && exceptions.getCount() < 3)
+            {
+                try
+                {
+                    result = function.run();
+                    done = true;
+                }
+                catch (Throwable e)
+                {
+                    exceptions.add(e);
+                }
+            }
+
+            if (!done)
+            {
+                throw ErrorIterable.create(exceptions);
+            }
+
+            return result;
         });
     }
 }
