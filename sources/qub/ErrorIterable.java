@@ -6,12 +6,14 @@ public class ErrorIterable extends RuntimeException implements Iterable<Throwabl
 
     private ErrorIterable(Iterable<Throwable> errors)
     {
+        super(errors.toString());
+
         this.errors = errors;
     }
 
     public static RuntimeException create(Throwable... errors)
     {
-        PreCondition.assertNotNullAndNotEmpty(errors, "errors");
+        PreCondition.assertNotNull(errors, "errors");
 
         return ErrorIterable.create(Iterable.create(errors));
     }
@@ -19,8 +21,6 @@ public class ErrorIterable extends RuntimeException implements Iterable<Throwabl
     public static RuntimeException create(Iterable<Throwable> errors)
     {
         PreCondition.assertNotNull(errors, "errors");
-
-        RuntimeException result = null;
 
         final List<Throwable> errorList = List.create();
         for (final Throwable error : errors)
@@ -35,16 +35,14 @@ public class ErrorIterable extends RuntimeException implements Iterable<Throwabl
             }
         }
 
-        if (!Iterable.isNullOrEmpty(errorList))
+        final RuntimeException result;
+        if (errorList.getCount() == 1)
         {
-            if (errorList.getCount() == 1)
-            {
-                result = Exceptions.asRuntime(errorList.first());
-            }
-            else
-            {
-                result = new ErrorIterable(errorList);
-            }
+            result = Exceptions.asRuntime(errorList.first());
+        }
+        else
+        {
+            result = new ErrorIterable(errorList);
         }
 
         return result;
