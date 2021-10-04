@@ -244,20 +244,20 @@ public interface PathTests
                         test.assertEqual(expectedResultPath, result.toString());
                     });
                 };
-                
+
                 concatenateTest.run("thing", "segment", "thingsegment");
                 concatenateTest.run("thing", "a/b/c", "thinga/b/c");
                 concatenateTest.run("thing", "a\\b\\c", "thinga\\b\\c");
-                
+
                 concatenateTest.run("z/y", "segment", "z/ysegment");
                 concatenateTest.run("z/y", "a/b/c", "z/ya/b/c");
                 concatenateTest.run("z/y", "a\\b\\c", "z/ya\\b\\c");
-                
+
                 concatenateTest.run("z\\y", "segment", "z\\ysegment");
                 concatenateTest.run("z\\y", "a/b/c", "z\\ya/b/c");
                 concatenateTest.run("z\\y", "a\\b\\c", "z\\ya\\b\\c");
             });
-            
+
             runner.testGroup("concatenateSegment(String)", () ->
             {
                 final Action2<String,Throwable> concatenateSegmentErrorTest = (String rhs, Throwable expectedError) ->
@@ -283,15 +283,15 @@ public interface PathTests
                         test.assertEqual(expectedResultPath, result == null ? null : result.toString());
                     });
                 };
-                
+
                 concatenateSegmentTest.run("thing", "segment", "thing/segment");
                 concatenateSegmentTest.run("thing", "a/b/c", "thing/a/b/c");
                 concatenateSegmentTest.run("thing", "a\\b\\c", "thing/a\\b\\c");
-                
+
                 concatenateSegmentTest.run("z/y", "segment", "z/y/segment");
                 concatenateSegmentTest.run("z/y", "a/b/c", "z/y/a/b/c");
                 concatenateSegmentTest.run("z/y", "a\\b\\c", "z/y/a\\b\\c");
-                
+
                 concatenateSegmentTest.run("z\\y", "segment", "z\\y/segment");
                 concatenateSegmentTest.run("z\\y", "a/b/c", "z\\y/a/b/c");
                 concatenateSegmentTest.run("z\\y", "a\\b\\c", "z\\y/a\\b\\c");
@@ -303,6 +303,97 @@ public interface PathTests
                 concatenateSegmentTest.run("y\\", "segment", "y\\segment");
                 concatenateSegmentTest.run("y\\", "a/b/c", "y\\a/b/c");
                 concatenateSegmentTest.run("y\\", "a\\b\\c", "y\\a\\b\\c");
+            });
+
+            runner.testGroup("startsWith(char)", () ->
+            {
+                runner.test("with \"apples\" and \'a\'", (Test test) ->
+                {
+                    test.assertTrue(Path.parse("apples").startsWith('a'));
+                });
+
+                runner.test("with \"apples\" and \'e\'", (Test test) ->
+                {
+                    test.assertFalse(Path.parse("apples").startsWith('e'));
+                });
+            });
+
+            runner.testGroup("startsWith(Character)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Path.parse("apples").startsWith((Character)null),
+                        new PreConditionFailure("prefix cannot be null."));
+                });
+
+                runner.test("with \"apples\" and \'a\'", (Test test) ->
+                {
+                    test.assertTrue(Path.parse("apples").startsWith(Character.valueOf('a')));
+                });
+
+                runner.test("with \"apples\" and \'e\'", (Test test) ->
+                {
+                    test.assertFalse(Path.parse("apples").startsWith(Character.valueOf('e')));
+                });
+            });
+
+            runner.testGroup("startsWith(String)", () ->
+            {
+                final Action3<String,String,RuntimeException> endsWithErrorTest = (String pathString, String suffix, RuntimeException expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(pathString) + " and " + Strings.escapeAndQuote(suffix), (Test test) ->
+                    {
+                        final Path path = Path.parse(pathString);
+                        test.assertThrows(() -> path.startsWith(suffix), expectedError);
+                    });
+                };
+
+                endsWithErrorTest.run("apples", null, new PreConditionFailure("prefix cannot be null."));
+                endsWithErrorTest.run("apples", "", new PreConditionFailure("prefix cannot be empty."));
+
+                final Action3<String,String,Boolean> endsWithTest = (String pathString, String suffix, Boolean expectedResult) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(pathString) + " and " + Strings.escapeAndQuote(suffix), (Test test) ->
+                    {
+                        final Path path = Path.parse(pathString);
+                        test.assertEqual(expectedResult, path.startsWith(suffix));
+                    });
+                };
+
+                endsWithTest.run("apples", "sel", false);
+                endsWithTest.run("apples", "app", true);
+            });
+
+            runner.testGroup("startsWith(Path)", () ->
+            {
+                final Action3<Path,Path,RuntimeException> startsWithErrorTest = (Path path, Path suffix, RuntimeException expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(path) + " and " + Strings.escapeAndQuote(suffix), (Test test) ->
+                    {
+                        test.assertThrows(() -> path.startsWith(suffix), expectedError);
+                    });
+                };
+
+                startsWithErrorTest.run(Path.parse("apples"), null, new PreConditionFailure("prefix cannot be null."));
+
+                final Action3<Path,Path,Boolean> startsWithTest = (Path path, Path suffix, Boolean expectedResult) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(path) + " and " + Strings.escapeAndQuote(suffix), (Test test) ->
+                    {
+                        test.assertEqual(expectedResult, path.startsWith(suffix));
+                    });
+                };
+
+                startsWithTest.run(Path.parse("apples"), Path.parse("sel"), false);
+                startsWithTest.run(Path.parse("apples"), Path.parse("app"), true);
+                startsWithTest.run(Path.parse("/a/b/c"), Path.parse("b/c/"), false);
+                startsWithTest.run(Path.parse("/a/b/c"), Path.parse("b/c"), false);
+                startsWithTest.run(Path.parse("/a/b/c"), Path.parse("b\\c\\"), false);
+                startsWithTest.run(Path.parse("/a/b/c"), Path.parse("b\\c"), false);
+                startsWithTest.run(Path.parse("/a/b/c"), Path.parse("/a/b/"), true);
+                startsWithTest.run(Path.parse("/a/b/c"), Path.parse("/a/b"), true);
+                startsWithTest.run(Path.parse("/a/b/c"), Path.parse("\\a\\b\\"), true);
+                startsWithTest.run(Path.parse("/a/b/c"), Path.parse("\\a\\b"), true);
             });
 
             runner.testGroup("endsWith(char)", () ->
@@ -318,7 +409,7 @@ public interface PathTests
                 });
             });
 
-            runner.testGroup("endsWith(char)", () ->
+            runner.testGroup("endsWith(Character)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
@@ -335,7 +426,7 @@ public interface PathTests
                     test.assertFalse(Path.parse("apples").endsWith(Character.valueOf('e')));
                 });
             });
-            
+
             runner.testGroup("endsWith(String)", () ->
             {
                 final Action3<String,String,RuntimeException> endsWithErrorTest = (String pathString, String suffix, RuntimeException expectedError) ->
@@ -358,9 +449,125 @@ public interface PathTests
                         test.assertEqual(expectedResult, path.endsWith(suffix));
                     });
                 };
-                
+
                 endsWithTest.run("apples", "sel", false);
                 endsWithTest.run("apples", "les", true);
+            });
+
+            runner.testGroup("endsWith(Path)", () ->
+            {
+                final Action3<Path,Path,RuntimeException> endsWithErrorTest = (Path path, Path suffix, RuntimeException expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(path) + " and " + Strings.escapeAndQuote(suffix), (Test test) ->
+                    {
+                        test.assertThrows(() -> path.endsWith(suffix), expectedError);
+                    });
+                };
+
+                endsWithErrorTest.run(Path.parse("apples"), null, new PreConditionFailure("suffix cannot be null."));
+
+                final Action3<Path,Path,Boolean> endsWithTest = (Path path, Path suffix, Boolean expectedResult) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(path) + " and " + Strings.escapeAndQuote(suffix), (Test test) ->
+                    {
+                        test.assertEqual(expectedResult, path.endsWith(suffix));
+                    });
+                };
+
+                endsWithTest.run(Path.parse("apples"), Path.parse("sel"), false);
+                endsWithTest.run(Path.parse("apples"), Path.parse("les"), true);
+                endsWithTest.run(Path.parse("/a/b/c"), Path.parse("b/c/"), false);
+                endsWithTest.run(Path.parse("/a/b/c"), Path.parse("b/c"), true);
+                endsWithTest.run(Path.parse("/a/b/c"), Path.parse("b\\c\\"), false);
+                endsWithTest.run(Path.parse("/a/b/c"), Path.parse("b\\c"), true);
+            });
+
+            runner.testGroup("contains(char)", () ->
+            {
+                runner.test("with \"apples\" and \'p\'", (Test test) ->
+                {
+                    test.assertTrue(Path.parse("apples").contains('p'));
+                });
+
+                runner.test("with \"apples\" and \'z\'", (Test test) ->
+                {
+                    test.assertFalse(Path.parse("apples").contains('z'));
+                });
+            });
+
+            runner.testGroup("contains(Character)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    test.assertThrows(() -> Path.parse("apples").contains((Character)null),
+                        new PreConditionFailure("value cannot be null."));
+                });
+
+                runner.test("with \"apples\" and \'p\'", (Test test) ->
+                {
+                    test.assertTrue(Path.parse("apples").contains(Character.valueOf('p')));
+                });
+
+                runner.test("with \"apples\" and \'y\'", (Test test) ->
+                {
+                    test.assertFalse(Path.parse("apples").contains(Character.valueOf('y')));
+                });
+            });
+
+            runner.testGroup("contains(String)", () ->
+            {
+                final Action3<String,String,RuntimeException> containsErrorTest = (String pathString, String substring, RuntimeException expectedError) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(pathString) + " and " + Strings.escapeAndQuote(substring), (Test test) ->
+                    {
+                        final Path path = Path.parse(pathString);
+                        test.assertThrows(() -> path.contains(substring), expectedError);
+                    });
+                };
+
+                containsErrorTest.run("apples", null, new PreConditionFailure("value cannot be null."));
+                containsErrorTest.run("apples", "", new PreConditionFailure("value cannot be empty."));
+
+                final Action3<String,String,Boolean> containsTest = (String pathString, String substring, Boolean expectedResult) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(pathString, substring).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        final Path path = Path.parse(pathString);
+                        test.assertEqual(expectedResult, path.contains(substring));
+                    });
+                };
+
+                containsTest.run("apples", "sel", false);
+                containsTest.run("apples", "les", true);
+            });
+
+            runner.testGroup("contains(Path)", () ->
+            {
+                final Action3<Path,Path,RuntimeException> containsErrorTest = (Path path, Path subPath, RuntimeException expectedError) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(path, subPath).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        test.assertThrows(() -> path.contains(subPath), expectedError);
+                    });
+                };
+
+                containsErrorTest.run(Path.parse("apples"),
+                    null, new PreConditionFailure("value cannot be null."));
+
+                final Action3<Path,Path,Boolean> containsTest = (Path path, Path subPath, Boolean expectedResult) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(path, subPath).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        test.assertEqual(expectedResult, path.contains(subPath));
+                    });
+                };
+
+                containsTest.run(Path.parse("apples"), Path.parse("sel"), false);
+                containsTest.run(Path.parse("apples"), Path.parse("les"), true);
+                containsTest.run(Path.parse("/a/b/c"), Path.parse("b/c/"), false);
+                containsTest.run(Path.parse("/a/b/c"), Path.parse("b/c"), true);
+                containsTest.run(Path.parse("/a/b/c"), Path.parse("b\\c\\"), false);
+                containsTest.run(Path.parse("/a/b/c"), Path.parse("b\\c"), true);
             });
 
             runner.testGroup("getRoot()", () ->

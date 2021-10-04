@@ -245,13 +245,59 @@ public class Path
         PreCondition.assertNotNull(segmentToConcatenate, "segmentToConcatenate");
         PreCondition.assertFalse(segmentToConcatenate.isRooted(), "segmentToConcatenate.isRooted()");
 
-        String resultPathString = value;
+        String resultPathString = this.value;
         if (!resultPathString.endsWith("/") && !resultPathString.endsWith("\\"))
         {
             resultPathString += "/";
         }
         resultPathString += segmentToConcatenate;
         return new Path(resultPathString, false);
+    }
+
+    /**
+     * Get whether this Path starts with the provided prefix.
+     * @param prefix The prefix to check against this Path.
+     * @return Whether this Path starts with the provided prefix.
+     */
+    public boolean startsWith(char prefix)
+    {
+        return this.value.startsWith(Characters.toString(prefix));
+    }
+
+    /**
+     * Get whether this Path starts with the provided prefix.
+     * @param prefix The prefix to check against this Path.
+     * @return Whether this Path starts with the provided prefix.
+     */
+    public boolean startsWith(Character prefix)
+    {
+        PreCondition.assertNotNull(prefix, "prefix");
+
+        return this.value.startsWith(Characters.toString(prefix));
+    }
+
+    /**
+     * Get whether this Path starts with the provided prefix.
+     * @param prefix The prefix to check against this Path.
+     * @return Whether this Path starts with the provided prefix.
+     */
+    public boolean startsWith(String prefix)
+    {
+        PreCondition.assertNotNullAndNotEmpty(prefix, "prefix");
+
+        return this.value.startsWith(prefix);
+    }
+
+    /**
+     * Get whether this Path starts with the provided prefix.
+     * @param prefix The prefix to check against this Path.
+     * @return Whether this Path starts with the provided prefix.
+     */
+    public boolean startsWith(Path prefix)
+    {
+        PreCondition.assertNotNull(prefix, "prefix");
+
+        return this.normalize().startsWith(prefix.normalize().toString());
     }
 
     /**
@@ -289,6 +335,18 @@ public class Path
     }
 
     /**
+     * Get whether this Path ends with the provided suffix.
+     * @param suffix The suffix to check against this Path.
+     * @return Whether this Path ends with the provided suffix.
+     */
+    public boolean endsWith(Path suffix)
+    {
+        PreCondition.assertNotNull(suffix, "suffix");
+
+        return this.normalize().endsWith(suffix.normalize().toString());
+    }
+
+    /**
      * Get whether or not this Path contains the provided value.
      * @param value The value to look for in this Path.
      * @return Whether or not this Path contains the provided value.
@@ -320,6 +378,18 @@ public class Path
         PreCondition.assertNotNullAndNotEmpty(value, "value");
 
         return this.value.contains(value);
+    }
+
+    /**
+     * Get whether or not this Path contains the provided value.
+     * @param value The value to look for in this Path.
+     * @return Whether or not this Path contains the provided value.
+     */
+    public boolean contains(Path value)
+    {
+        PreCondition.assertNotNull(value, "value");
+
+        return this.normalize().contains(value.normalize().toString());
     }
 
     /**
