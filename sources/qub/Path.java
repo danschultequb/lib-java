@@ -3,7 +3,7 @@ package qub;
 /**
  * The path to a file system entry (Root, File, or Folder).
  */
-public class Path
+public class Path implements Comparable<Path>
 {
     private final String value;
     private Path normalizedPath;
@@ -821,9 +821,10 @@ public class Path
     }
 
     /**
-     * Get whether or not this path is an descendant of the provided path.
-     * @param possibleAncestorPathString The path that may be a ancestor of this path.
-     * @return Whether or not this path is an descendant of the provided path.
+     * Get whether this {@link Path} is a descendant of the provided path String.
+     * @param possibleAncestorPathString The path string that may be an ancestor of this
+     * {@link Path}.
+     * @return Whether this {@link Path} is a descendant of the provided path string.
      */
     public Result<Boolean> isDescendantOf(String possibleAncestorPathString)
     {
@@ -834,9 +835,9 @@ public class Path
     }
 
     /**
-     * Get whether or not this path is an descendant of the provided path.
-     * @param possibleAncestorPath The path that may be a ancestor of this path.
-     * @return Whether or not this path is an descendant of the provided path.
+     * Get whether this {@link Path} is a descendant of the provided {@link Path}.
+     * @param possibleAncestorPath The {@link Path} that may be an ancestor of this {@link Path}.
+     * @return Whether this {@link Path} is a descendant of the provided {@link Path}.
      */
     public Result<Boolean> isDescendantOf(Path possibleAncestorPath)
     {
@@ -845,5 +846,13 @@ public class Path
         PreCondition.assertTrue(this.isRooted(), "this.isRooted()");
 
         return possibleAncestorPath.isAncestorOf(this);
+    }
+
+    @Override
+    public Comparison compareWith(Path value)
+    {
+        return value == null
+            ? Comparison.GreaterThan
+            : Strings.compare(this.normalize().toString(), value.normalize().toString());
     }
 }

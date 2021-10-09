@@ -67,11 +67,11 @@ public interface JSONPropertyWrapper
         return this.toJson().toString(stream, format);
     }
 
-    static boolean equals(JSONObjectWrapper wrapper, Object rhs)
+    static boolean equals(JSONPropertyWrapper wrapper, Object rhs)
     {
         PreCondition.assertNotNull(wrapper, "wrapper");
 
         return wrapper.getClass().equals(Types.getType(rhs)) &&
-            wrapper.toJson().equals(((JSONObjectWrapper)rhs).toJson());
+            wrapper.toJson().equals(((JSONPropertyWrapper)rhs).toJson());
     }
 }
