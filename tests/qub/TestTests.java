@@ -1233,25 +1233,25 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run((double)1, (double)2, (double)-1.0001,
+                assertEqualTest.run((double)1, (double)2, -1.0001,
                     new PreConditionFailure("marginOfError (-1.0001) must be greater than or equal to 0.0."));
-                assertEqualTest.run((double)1, (double)2, (double)-1.0,
+                assertEqualTest.run((double)1, (double)2, -1.0,
                     new PreConditionFailure("marginOfError (-1.0) must be greater than or equal to 0.0."));
-                assertEqualTest.run((double)1, (double)2, (double)-0.99999,
+                assertEqualTest.run((double)1, (double)2, -0.99999,
                     new PreConditionFailure("marginOfError (-0.99999) must be greater than or equal to 0.0."));
-                assertEqualTest.run((double)1, (double)2, (double)-0.5,
+                assertEqualTest.run((double)1, (double)2, -0.5,
                     new PreConditionFailure("marginOfError (-0.5) must be greater than or equal to 0.0."));
                 assertEqualTest.run((double)1, (double)2, (double)0, new TestError("abc", Iterable.create(
                     "Expected: 1.0",
                     "Actual:   2.0")));
-                assertEqualTest.run((double)1, (double)2, (double)0.5, new TestError("abc", Iterable.create(
+                assertEqualTest.run((double)1, (double)2, 0.5, new TestError("abc", Iterable.create(
                     "Expected: 1.0",
                     "Actual:   2.0")));
-                assertEqualTest.run((double)1, (double)2, (double)0.99999, new TestError("abc", Iterable.create(
+                assertEqualTest.run((double)1, (double)2, 0.99999, new TestError("abc", Iterable.create(
                     "Expected: 1.0",
                     "Actual:   2.0")));
-                assertEqualTest.run((double)1, (double)2, (double)1.0, null);
-                assertEqualTest.run((double)1, (double)2, (double)1.0001, null);
+                assertEqualTest.run((double)1, (double)2, 1.0, null);
+                assertEqualTest.run((double)1, (double)2, 1.0001, null);
             });
 
             runner.testGroup("assertEqual(double,Double)", () ->

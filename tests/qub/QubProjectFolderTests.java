@@ -288,7 +288,7 @@ public interface QubProjectFolderTests
                     final Folder folder2 = fileSystem.getFolder("/other/thing/project2").await();
                     final QubProjectFolder projectFolder2 = QubProjectFolder.get(folder2);
 
-                    test.assertEqual(false, projectFolder.equals((QubProjectFolder)projectFolder2));
+                    test.assertEqual(false, projectFolder.equals(projectFolder2));
                 });
 
                 runner.test("with /qub/me/proj/ and /qub/me/proj/", (Test test) ->
@@ -301,7 +301,7 @@ public interface QubProjectFolderTests
                     final Folder folder2 = fileSystem.getFolder("/qub/me/proj/").await();
                     final QubProjectFolder projectFolder2 = QubProjectFolder.get(folder2);
 
-                    test.assertEqual(true, projectFolder.equals((QubProjectFolder)projectFolder2));
+                    test.assertEqual(true, projectFolder.equals(projectFolder2));
                 });
             });
 

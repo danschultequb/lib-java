@@ -679,7 +679,7 @@ public interface QubFolderTests
                     final Folder folder2 = fileSystem.getFolder("/other/").await();
                     final QubFolder qubFolder2 = QubFolder.get(folder2);
 
-                    test.assertEqual(false, qubFolder.equals((QubFolder)qubFolder2));
+                    test.assertEqual(false, qubFolder.equals(qubFolder2));
                 });
 
                 runner.test("with /qub/ and /qub/", (Test test) ->
@@ -692,7 +692,7 @@ public interface QubFolderTests
                     final Folder folder2 = fileSystem.getFolder("/qub/").await();
                     final QubFolder qubFolder2 = QubFolder.get(folder2);
 
-                    test.assertEqual(true, qubFolder.equals((QubFolder)qubFolder2));
+                    test.assertEqual(true, qubFolder.equals(qubFolder2));
                 });
             });
 

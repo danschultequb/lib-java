@@ -306,7 +306,7 @@ public interface SetTests
 
                 runner.test("with empty Iterable", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)Iterable.<Integer>create()));
+                    test.assertFalse(creator.run().addAll(1, 2, 3).equals(Iterable.<Integer>create()));
                 });
 
                 runner.test("with subset Iterable", (Test test) ->

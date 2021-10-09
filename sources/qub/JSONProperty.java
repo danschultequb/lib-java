@@ -45,8 +45,8 @@ public class JSONProperty implements MapEntry<String,JSONSegment>
     }
 
     /**
-     * Get the name of this property.
-     * @return The name of this property.
+     * Get the name of this {@link JSONProperty}.
+     * @return The name of this {@link JSONProperty}.
      */
     public String getName()
     {
@@ -73,10 +73,10 @@ public class JSONProperty implements MapEntry<String,JSONSegment>
     }
 
     /**
-     * Get this property's value as the provided JSONSegment type.
-     * @param type The JSONSegment type to get this property's value as.
-     * @param <T> The JSONSegment type to get this property's value as.
-     * @return This property's value as the provided JSONSegment type.
+     * Get this property's value as the provided {@link JSONSegment} type.
+     * @param type The {@link JSONSegment} type to get this property's value as.
+     * @param <T> The {@link JSONSegment} type to get this property's value as.
+     * @return This property's value as the provided {@link JSONSegment} type.
      */
     public <T extends JSONSegment> Result<T> getValueAs(java.lang.Class<T> type)
     {
@@ -198,8 +198,8 @@ public class JSONProperty implements MapEntry<String,JSONSegment>
     }
 
     /**
-     * Get the String representation of this JSONSegment using the provided format.
-     * @param format The format to use when converting this JSONSegment to a string.
+     * Get the String representation of this {@link JSONProperty} using the provided format.
+     * @param format The format to use when converting this {@link JSONProperty} to a string.
      * @return The number of characters that were written.
      */
     public String toString(JSONFormat format)
@@ -207,6 +207,41 @@ public class JSONProperty implements MapEntry<String,JSONSegment>
         PreCondition.assertNotNull(format, "format");
 
         return JSONSegment.toString((IndentedCharacterWriteStream stream) -> this.toString(stream, format));
+    }
+
+    /**
+     * Write the String representation of this {@link JSONProperty} to the provided stream.
+     * @param stream The stream to write the String representation of this {@link JSONProperty} to.
+     * @return The number of characters that were written.
+     */
+    public Result<Integer> toString(CharacterWriteStream stream)
+    {
+        PreCondition.assertNotNull(stream, "stream");
+
+        return this.toString(IndentedCharacterWriteStream.create(stream));
+    }
+
+    /**
+     * Write the String representation of this {@link JSONProperty} to the provided stream.
+     * @param stream The stream to write the String representation of this {@link JSONProperty} to.
+     * @return The number of characters that were written.
+     */
+    public Result<Integer> toString(IndentedCharacterWriteStream stream)
+    {
+        return this.toString(stream, JSONFormat.consise);
+    }
+
+    /**
+     * Write the String representation of this {@link JSONProperty} to the provided stream.
+     * @param stream The stream to write the String representation of this {@link JSONProperty} to.
+     * @param format The format to use when converting this {@link JSONProperty} to a string.
+     * @return The number of characters that were written.
+     */
+    public Result<Integer> toString(CharacterWriteStream stream, JSONFormat format)
+    {
+        PreCondition.assertNotNull(stream, "stream");
+
+        return this.toString(IndentedCharacterWriteStream.create(stream), format);
     }
 
     public Result<Integer> toString(IndentedCharacterWriteStream stream, JSONFormat format)

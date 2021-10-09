@@ -39,7 +39,7 @@ public interface QubPublisherFolderTests
                     test.assertTrue(publisherFolder.exists().await());
                 });
             });
-            
+
             runner.testGroup("iterateProjectFolders()", () ->
             {
                 runner.test("with non-existing QubPublisherFolder", (Test test) ->
@@ -73,7 +73,7 @@ public interface QubPublisherFolderTests
                         publisherFolder.iterateProjectFolders().toList());
                 });
             });
-            
+
             runner.testGroup("getProjectFolder(String)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -240,7 +240,7 @@ public interface QubPublisherFolderTests
                     final Folder folder2 = fileSystem.getFolder("/other/thing/").await();
                     final QubPublisherFolder publisherFolder2 = QubPublisherFolder.get(folder2);
 
-                    test.assertEqual(false, publisherFolder.equals((QubPublisherFolder)publisherFolder2));
+                    test.assertEqual(false, publisherFolder.equals(publisherFolder2));
                 });
 
                 runner.test("with /qub/me/ and /qub/me/", (Test test) ->
@@ -253,7 +253,7 @@ public interface QubPublisherFolderTests
                     final Folder folder2 = fileSystem.getFolder("/qub/me/").await();
                     final QubPublisherFolder publisherFolder2 = QubPublisherFolder.get(folder2);
 
-                    test.assertEqual(true, publisherFolder.equals((QubPublisherFolder)publisherFolder2));
+                    test.assertEqual(true, publisherFolder.equals(publisherFolder2));
                 });
             });
 
@@ -289,7 +289,7 @@ public interface QubPublisherFolderTests
         final InMemoryFileSystem fileSystem = QubPublisherFolderTests.createFileSystem(test);
         return fileSystem.createFolder(folderPath).await();
     }
-    
+
     static QubPublisherFolder getQubPublisherFolder(Test test, String folderPath)
     {
         return QubPublisherFolder.get(QubPublisherFolderTests.getFolder(test, folderPath));

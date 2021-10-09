@@ -621,7 +621,7 @@ public interface JSONPropertyTests
                 runner.test("with null", (Test test) ->
                 {
                     final JSONProperty property = JSONProperty.create("a", "b");
-                    test.assertThrows(() -> property.toString(null),
+                    test.assertThrows(() -> property.toString((JSONFormat)null),
                         new PreConditionFailure("format cannot be null."));
                 });
 

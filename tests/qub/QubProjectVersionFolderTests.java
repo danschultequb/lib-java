@@ -84,7 +84,7 @@ public interface QubProjectVersionFolderTests
                         projectVersionFolder.getProjectSignature().await());
                 });
             });
-            
+
             runner.test("getQubFolder()", (Test test) ->
             {
                 final String publisherName = "a";
@@ -225,7 +225,7 @@ public interface QubProjectVersionFolderTests
                     final Folder folder2 = fileSystem.getFolder("/other/thing/project2/versions/2/").await();
                     final QubProjectVersionFolder projectVersionFolder2 = QubProjectVersionFolder.get(folder2);
 
-                    test.assertEqual(false, projectVersionFolder.equals((QubProjectVersionFolder)projectVersionFolder2));
+                    test.assertEqual(false, projectVersionFolder.equals(projectVersionFolder2));
                 });
 
                 runner.test("with /qub/me/proj/versions/3/ and /qub/me/proj/versions/3/", (Test test) ->
@@ -238,7 +238,7 @@ public interface QubProjectVersionFolderTests
                     final Folder folder2 = fileSystem.getFolder("/qub/me/proj/versions/3/").await();
                     final QubProjectVersionFolder projectVersionFolder2 = QubProjectVersionFolder.get(folder2);
 
-                    test.assertEqual(true, projectVersionFolder.equals((QubProjectVersionFolder)projectVersionFolder2));
+                    test.assertEqual(true, projectVersionFolder.equals(projectVersionFolder2));
                 });
             });
 

@@ -5,6 +5,11 @@ package qub;
  */
 public interface TestRunner
 {
+    static TestRunner create(DesktopProcess process, PathPattern testPattern)
+    {
+        return BasicTestRunner.create(process, testPattern);
+    }
+
     /**
      * A method that returns a Skip. This method is really used as a flag to skip a TestGroup or
      * a Test.

@@ -2171,7 +2171,7 @@ public interface JSONSchemaTests
                     final JSONSchema setEnumResult = schema.addEnum((float)15);
                     test.assertSame(schema, setEnumResult);
 
-                    test.assertEqual(Iterable.create((double)15.0), schema.getEnum());
+                    test.assertEqual(Iterable.create(15.0), schema.getEnum());
                     test.assertEqual(
                         JSONObject.create()
                             .setArray("enum", JSONArray.create()

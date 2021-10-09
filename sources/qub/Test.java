@@ -55,19 +55,19 @@ public class Test
     public boolean matches(PathPattern testPattern)
     {
         return testPattern == null ||
-            testPattern.isMatch(getName()) ||
-            testPattern.isMatch(getFullName()) ||
-            (parent != null && parent.matches(testPattern));
+            testPattern.isMatch(this.getName()) ||
+            testPattern.isMatch(this.getFullName()) ||
+            (this.parent != null && this.parent.matches(testPattern));
     }
 
     public boolean shouldSkip()
     {
-        return skip != null || (parent != null && parent.shouldSkip());
+        return this.skip != null || (this.parent != null && this.parent.shouldSkip());
     }
 
     public String getSkipMessage()
     {
-        return skip == null ? null : skip.getMessage();
+        return this.skip == null ? null : this.skip.getMessage();
     }
 
     /**
@@ -78,7 +78,7 @@ public class Test
      */
     public void assertTrue(boolean value)
     {
-        assertTrue(value, null);
+        this.assertTrue(value, null);
     }
 
     /**
@@ -92,7 +92,7 @@ public class Test
     {
         if (!value)
         {
-            throw new TestError(getFullName(), getMessageLines(message, true, false));
+            throw new TestError(this.getFullName(), Test.getMessageLines(message, true, false));
         }
     }
 
@@ -104,7 +104,7 @@ public class Test
      */
     public void assertFalse(boolean value)
     {
-        assertFalse(value, (String)null);
+        this.assertFalse(value, (String)null);
     }
 
     /**
@@ -116,7 +116,7 @@ public class Test
      */
     public void assertFalse(boolean value, String message)
     {
-        assertFalse(value, message == null ? null : () -> message);
+        this.assertFalse(value, message == null ? null : () -> message);
     }
 
     /**
