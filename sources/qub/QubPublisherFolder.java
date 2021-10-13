@@ -58,6 +58,14 @@ public class QubPublisherFolder extends Folder
             .then((QubProjectFolder projectFolder) -> projectFolder.getProjectDataFolder().await());
     }
 
+    public Result<Folder> getProjectVersionsFolder(String projectName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
+
+        return this.getProjectFolder(projectName)
+            .then((QubProjectFolder projectFolder) -> projectFolder.getProjectVersionsFolder().await());
+    }
+
     public Iterator<QubProjectVersionFolder> iterateProjectVersionFolders(String projectName)
     {
         PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
@@ -85,5 +93,16 @@ public class QubPublisherFolder extends Folder
 
         return this.getProjectFolder(projectName)
             .then((QubProjectFolder projectFolder) -> projectFolder.getProjectVersionFolder(version).await());
+    }
+
+    public Result<QubProjectVersionFolder> getLatestProjectVersionFolder(String projectName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(projectName, "projectName");
+
+        return Result.create(() ->
+        {
+            final QubProjectFolder projectFolder = this.getProjectFolder(projectName).await();
+            return projectFolder.getLatestProjectVersionFolder().await();
+        });
     }
 }

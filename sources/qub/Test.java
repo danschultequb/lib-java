@@ -1433,7 +1433,7 @@ public class Test
 
     private static Iterable<String> getMessageLines(Function0<String> message, Object expected, Object actual)
     {
-        return getMessageLines(message == null ? (String)null : message.run(), expected, actual);
+        return Test.getMessageLines(message == null ? (String)null : message.run(), expected, actual);
     }
 
     private static Iterable<String> getMessageLines(String message, Object expected, Object actual)

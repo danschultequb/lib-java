@@ -253,6 +253,67 @@ public interface QubFolderTests
                 });
             });
 
+            runner.testGroup("getProjectDataFolder(String,String)", () ->
+            {
+                runner.test("with null publisherName", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    test.assertThrows(() -> qubFolder.getProjectDataFolder(null, "my-project"),
+                        new PreConditionFailure("publisherName cannot be null."));
+                });
+
+                runner.test("with empty publisherName", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    test.assertThrows(() -> qubFolder.getProjectDataFolder("", "my-project"),
+                        new PreConditionFailure("publisherName cannot be empty."));
+                });
+
+                runner.test("with null projectName", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    test.assertThrows(() -> qubFolder.getProjectDataFolder("me", null),
+                        new PreConditionFailure("projectName cannot be null."));
+                });
+
+                runner.test("with empty projectName", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    test.assertThrows(() -> qubFolder.getProjectDataFolder("me", ""),
+                        new PreConditionFailure("projectName cannot be empty."));
+                });
+
+                runner.test("with non-existing publisher", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    final Folder projectDataFolder = qubFolder.getProjectDataFolder("spam", "my-project").await();
+                    test.assertNotNull(projectDataFolder);
+                    test.assertEqual(Path.parse("/qub/spam/my-project/data/"), projectDataFolder.getPath());
+                });
+
+                runner.test("with non-existing project", (Test test) ->
+                {
+                    final Folder folder = QubFolderTests.createFolder("/qub/");
+                    final QubFolder qubFolder = QubFolder.get(folder);
+
+                    folder.createFolder("spam").await();
+                    final Folder projectDataFolder = qubFolder.getProjectDataFolder("spam", "my-project").await();
+                    test.assertNotNull(projectDataFolder);
+                    test.assertEqual(Path.parse("/qub/spam/my-project/data/"), projectDataFolder.getPath());
+                });
+
+                runner.test("with existing project", (Test test) ->
+                {
+                    final Folder folder = QubFolderTests.createFolder("/qub/");
+                    final QubFolder qubFolder = QubFolder.get(folder);
+
+                    folder.createFolder("spam/my-project/").await();
+                    final Folder projectDataFolder = qubFolder.getProjectDataFolder("spam", "my-project").await();
+                    test.assertNotNull(projectDataFolder);
+                    test.assertEqual(Path.parse("/qub/spam/my-project/data/"), projectDataFolder.getPath());
+                });
+            });
+
             runner.testGroup("iterateProjectVersionFolders(String,String)", () ->
             {
                 final Action3<String,String,Throwable> iterateProjectVersionFoldersErrorTest = (String publisherName, String projectName, Throwable expected) ->
@@ -611,6 +672,361 @@ public interface QubFolderTests
                     test.assertEqual(
                         qubFolder.getFolder(projectSignature.getPublisher() + "/" + projectSignature.getProject() + "/versions/" + projectSignature.getVersion()).await(),
                         qubFolder.getProjectVersionFolder(projectSignature).await());
+                });
+            });
+
+            runner.testGroup("getLatestProjectVersionFolder(String,String)", () ->
+            {
+                runner.test("with no existing Qub folder", (Test test) ->
+                {
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    test.assertThrows(() -> qubFolder.getLatestProjectVersionFolder(publisherName, projectName).await(),
+                        new NotFoundException("No project named a/b has been published."));
+                });
+
+                runner.test("with no existing publisher folder", (Test test) ->
+                {
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    qubFolder.create().await();
+                    test.assertThrows(() -> qubFolder.getLatestProjectVersionFolder(publisherName, projectName).await(),
+                        new NotFoundException("No project named a/b has been published."));
+                });
+
+                runner.test("with no existing project folder", (Test test) ->
+                {
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    qubFolder.getPublisherFolder(publisherName).await().create().await();
+                    test.assertThrows(() -> qubFolder.getLatestProjectVersionFolder(publisherName, projectName).await(),
+                        new NotFoundException("No project named a/b has been published."));
+                });
+
+                runner.test("with no existing versions folder", (Test test) ->
+                {
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    qubFolder.getProjectFolder(publisherName, projectName).await().create().await();
+                    test.assertThrows(() -> qubFolder.getLatestProjectVersionFolder(publisherName, projectName).await(),
+                        new NotFoundException("No project named a/b has been published."));
+                });
+
+                runner.test("with no existing version folders", (Test test) ->
+                {
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    qubFolder.getProjectVersionsFolder(publisherName, projectName).await().create().await();
+                    test.assertThrows(() -> qubFolder.getLatestProjectVersionFolder(publisherName, projectName).await(),
+                        new NotFoundException("No project named a/b has been published."));
+                });
+
+                runner.test("with one version", (Test test) ->
+                {
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    qubFolder.getProjectVersionFolder(publisherName, projectName, "1").await().create().await();
+                    test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/1/", qubFolder.getLatestProjectVersionFolder(publisherName, projectName).await().toString());
+                });
+
+                runner.test("with two versions", (Test test) ->
+                {
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    qubFolder.getProjectVersionFolder(publisherName, projectName, "2").await().create().await();
+                    qubFolder.getProjectVersionFolder(publisherName, projectName, "3").await().create().await();
+                    test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/3/", qubFolder.getLatestProjectVersionFolder(publisherName, projectName).await().toString());
+                });
+
+                runner.test("with three non-sorted versions", (Test test) ->
+                {
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    qubFolder.getProjectVersionFolder(publisherName, projectName, "2").await().create().await();
+                    qubFolder.getProjectVersionFolder(publisherName, projectName, "30").await().create().await();
+                    qubFolder.getProjectVersionFolder(publisherName, projectName, "13").await().create().await();
+                    test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/30/", qubFolder.getLatestProjectVersionFolder(publisherName, projectName).await().toString());
+                });
+
+                runner.test("with non-integer versions", (Test test) ->
+                {
+                    final String publisherName = "a";
+                    final String projectName = "b";
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    qubFolder.getProjectVersionFolder(publisherName, projectName, "2").await().create().await();
+                    qubFolder.getProjectVersionFolder(publisherName, projectName, "3.0.3").await().create().await();
+                    qubFolder.getProjectVersionFolder(publisherName, projectName, "1.3").await().create().await();
+                    test.assertEqual("/qub/" + publisherName + "/" + projectName + "/versions/3.0.3/", qubFolder.getLatestProjectVersionFolder(publisherName, projectName).await().toString());
+                });
+            });
+
+            runner.testGroup("getAllDependencyFolders(Iterable<ProjectSignature>,Function1<QubProjectVersionFolder,Iterable<ProjectSignature>>,boolean)", () ->
+            {
+                runner.test("with null projectSignatures", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    final Iterable<ProjectSignature> projectSignatures = null;
+                    final Function1<QubProjectVersionFolder,Result<Iterable<ProjectSignature>>> getDependenciesFunction = (QubProjectVersionFolder folder) -> Result.success(Iterable.create());
+                    final boolean validateDependencies = false;
+                    test.assertThrows(() -> qubFolder.getAllDependencyFolders(projectSignatures, getDependenciesFunction, validateDependencies),
+                        new PreConditionFailure("projectSignatures cannot be null."));
+                });
+
+                runner.test("with null getDependenciesFunction", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    final Iterable<ProjectSignature> projectSignatures = Iterable.create();
+                    final Function1<QubProjectVersionFolder,Result<Iterable<ProjectSignature>>> getDependenciesFunction = null;
+                    final boolean validateDependencies = false;
+                    test.assertThrows(() -> qubFolder.getAllDependencyFolders(projectSignatures, getDependenciesFunction, validateDependencies),
+                        new PreConditionFailure("getDependenciesFunction cannot be null."));
+                });
+
+                runner.test("with empty projectSignatures", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    final Iterable<ProjectSignature> projectSignatures = Iterable.create();
+                    final Function1<QubProjectVersionFolder,Result<Iterable<ProjectSignature>>> getDependenciesFunction = (QubProjectVersionFolder folder) -> Result.success(Iterable.create());
+                    final boolean validateDependencies = false;
+                    test.assertEqual(
+                        Iterable.create(),
+                        qubFolder.getAllDependencyFolders(projectSignatures, getDependenciesFunction, validateDependencies).await());
+                });
+
+                runner.test("with projectSignature that doesn't exist and validateDependencies is false", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    final QubProjectVersionFolder ab1 = qubFolder.getProjectVersionFolder("a", "b", "1").await();
+                    final Iterable<ProjectSignature> projectSignatures = Iterable.create(
+                        ab1.getProjectSignature().await());
+                    final Function1<QubProjectVersionFolder,Result<Iterable<ProjectSignature>>> getDependenciesFunction = (QubProjectVersionFolder folder) -> Result.success(Iterable.create());
+                    final boolean validateDependencies = false;
+                    test.assertEqual(
+                        Iterable.create(
+                            ab1),
+                        qubFolder.getAllDependencyFolders(projectSignatures, getDependenciesFunction, validateDependencies).await());
+                });
+
+                runner.test("with projectSignature that doesn't exist and validateDependencies is true", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    final QubProjectVersionFolder ab1 = qubFolder.getProjectVersionFolder("a", "b", "1").await();
+                    final Iterable<ProjectSignature> projectSignatures = Iterable.create(
+                        ab1.getProjectSignature().await());
+                    final Function1<QubProjectVersionFolder,Result<Iterable<ProjectSignature>>> getDependenciesFunction = (QubProjectVersionFolder folder) ->
+                    {
+                        return Result.create(() ->
+                        {
+                            throw new NotFoundException(folder.toString());
+                        });
+                    };
+                    final boolean validateDependencies = true;
+                    test.assertThrows(() -> qubFolder.getAllDependencyFolders(projectSignatures, getDependenciesFunction, validateDependencies).await(),
+                        new NotFoundException(ab1.toString()));
+                });
+
+                runner.test("with dependency that doesn't exist and validateDependencies is false", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    final QubProjectVersionFolder ab1 = qubFolder.getProjectVersionFolder("a", "b", "1").await();
+                    final QubProjectVersionFolder cd2 = qubFolder.getProjectVersionFolder("c", "d", "2").await();
+                    final Iterable<ProjectSignature> projectSignatures = Iterable.create(
+                        ab1.getProjectSignature().await());
+                    final Function1<QubProjectVersionFolder,Result<Iterable<ProjectSignature>>> getDependenciesFunction = (QubProjectVersionFolder folder) ->
+                    {
+                        return Result.create(() ->
+                        {
+                            final List<ProjectSignature> result = List.create();
+                            if (folder.equals(ab1))
+                            {
+                                result.add(cd2.getProjectSignature().await());
+                            }
+                            else
+                            {
+                                throw new NotFoundException(folder.toString());
+                            }
+                            return result;
+                        });
+                    };
+                    final boolean validateDependencies = false;
+                    test.assertEqual(
+                        Iterable.create(
+                            ab1,
+                            cd2),
+                        qubFolder.getAllDependencyFolders(projectSignatures, getDependenciesFunction, validateDependencies).await());
+                });
+
+                runner.test("with dependency that doesn't exist and validateDependencies is true", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    final QubProjectVersionFolder ab1 = qubFolder.getProjectVersionFolder("a", "b", "1").await();
+                    final QubProjectVersionFolder cd2 = qubFolder.getProjectVersionFolder("c", "d", "2").await();
+                    final Iterable<ProjectSignature> projectSignatures = Iterable.create(
+                        ab1.getProjectSignature().await());
+                    final Function1<QubProjectVersionFolder,Result<Iterable<ProjectSignature>>> getDependenciesFunction = (QubProjectVersionFolder folder) ->
+                    {
+                        return Result.create(() ->
+                        {
+                            final List<ProjectSignature> result = List.create();
+                            if (folder.equals(ab1))
+                            {
+                                result.add(cd2.getProjectSignature().await());
+                            }
+                            else
+                            {
+                                throw new NotFoundException(folder.toString());
+                            }
+                            return result;
+                        });
+                    };
+                    final boolean validateDependencies = true;
+                    test.assertThrows(() -> qubFolder.getAllDependencyFolders(projectSignatures, getDependenciesFunction, validateDependencies).await(),
+                        new NotFoundException(cd2.toString()));
+                });
+
+                runner.test("with diamond dependencies and validateDependencies is false", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    final QubProjectVersionFolder ab1 = qubFolder.getProjectVersionFolder("a", "b", "1").await();
+                    final QubProjectVersionFolder cd2 = qubFolder.getProjectVersionFolder("c", "d", "2").await();
+                    final QubProjectVersionFolder ef3 = qubFolder.getProjectVersionFolder("e", "f", "3").await();
+                    final QubProjectVersionFolder gh4 = qubFolder.getProjectVersionFolder("g", "h", "4").await();
+                    final Iterable<ProjectSignature> projectSignatures = Iterable.create(
+                        ab1.getProjectSignature().await());
+                    final Function1<QubProjectVersionFolder,Result<Iterable<ProjectSignature>>> getDependenciesFunction = (QubProjectVersionFolder folder) ->
+                    {
+                        return Result.create(() ->
+                        {
+                            final List<ProjectSignature> result = List.create();
+                            if (folder.equals(ab1))
+                            {
+                                result.addAll(
+                                    cd2.getProjectSignature().await(),
+                                    ef3.getProjectSignature().await());
+                            }
+                            else if (folder.equals(cd2) || folder.equals(ef3))
+                            {
+                                result.add(gh4.getProjectSignature().await());
+                            }
+                            return result;
+                        });
+                    };
+                    final boolean validateDependencies = false;
+                    test.assertEqual(
+                        Iterable.create(
+                            ab1,
+                            cd2,
+                            gh4,
+                            ef3),
+                        qubFolder.getAllDependencyFolders(projectSignatures, getDependenciesFunction, validateDependencies).await());
+                });
+
+                runner.test("with diamond dependencies and validateDependencies is true", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    final QubProjectVersionFolder ab1 = qubFolder.getProjectVersionFolder("a", "b", "1").await();
+                    final QubProjectVersionFolder cd2 = qubFolder.getProjectVersionFolder("c", "d", "2").await();
+                    final QubProjectVersionFolder ef3 = qubFolder.getProjectVersionFolder("e", "f", "3").await();
+                    final QubProjectVersionFolder gh4 = qubFolder.getProjectVersionFolder("g", "h", "4").await();
+                    final Iterable<ProjectSignature> projectSignatures = Iterable.create(
+                        ab1.getProjectSignature().await());
+                    final Function1<QubProjectVersionFolder,Result<Iterable<ProjectSignature>>> getDependenciesFunction = (QubProjectVersionFolder folder) ->
+                    {
+                        return Result.create(() ->
+                        {
+                            final List<ProjectSignature> result = List.create();
+                            if (folder.equals(ab1))
+                            {
+                                result.addAll(
+                                    cd2.getProjectSignature().await(),
+                                    ef3.getProjectSignature().await());
+                            }
+                            else if (folder.equals(cd2) || folder.equals(ef3))
+                            {
+                                result.add(gh4.getProjectSignature().await());
+                            }
+                            return result;
+                        });
+                    };
+                    final boolean validateDependencies = true;
+                    test.assertEqual(
+                        Iterable.create(
+                            ab1,
+                            cd2,
+                            gh4,
+                            ef3),
+                        qubFolder.getAllDependencyFolders(projectSignatures, getDependenciesFunction, validateDependencies).await());
+                });
+
+                runner.test("with conflicting dependency versions and validateDependencies is false", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    final QubProjectVersionFolder ab1 = qubFolder.getProjectVersionFolder("a", "b", "1").await();
+                    final QubProjectVersionFolder cd2 = qubFolder.getProjectVersionFolder("c", "d", "2").await();
+                    final QubProjectVersionFolder cd3 = qubFolder.getProjectVersionFolder("c", "d", "3").await();
+                    final Iterable<ProjectSignature> projectSignatures = Iterable.create(
+                        ab1.getProjectSignature().await());
+                    final Function1<QubProjectVersionFolder,Result<Iterable<ProjectSignature>>> getDependenciesFunction = (QubProjectVersionFolder folder) ->
+                    {
+                        return Result.create(() ->
+                        {
+                            final List<ProjectSignature> result = List.create();
+                            if (folder.equals(ab1))
+                            {
+                                result.addAll(
+                                    cd2.getProjectSignature().await(),
+                                    cd3.getProjectSignature().await());
+                            }
+                            return result;
+                        });
+                    };
+                    final boolean validateDependencies = false;
+                    test.assertEqual(
+                        Iterable.create(
+                            ab1,
+                            cd2,
+                            cd3),
+                        qubFolder.getAllDependencyFolders(projectSignatures, getDependenciesFunction, validateDependencies).await());
+                });
+
+                runner.test("with conflicting dependency versions and validateDependencies is true", (Test test) ->
+                {
+                    final QubFolder qubFolder = QubFolderTests.getQubFolder("/qub/");
+                    final QubProjectVersionFolder ab1 = qubFolder.getProjectVersionFolder("a", "b", "1").await();
+                    final QubProjectVersionFolder cd2 = qubFolder.getProjectVersionFolder("c", "d", "2").await();
+                    final QubProjectVersionFolder cd3 = qubFolder.getProjectVersionFolder("c", "d", "3").await();
+                    final Iterable<ProjectSignature> projectSignatures = Iterable.create(
+                        ab1.getProjectSignature().await());
+                    final Function1<QubProjectVersionFolder,Result<Iterable<ProjectSignature>>> getDependenciesFunction = (QubProjectVersionFolder folder) ->
+                    {
+                        return Result.create(() ->
+                        {
+                            final List<ProjectSignature> result = List.create();
+                            if (folder.equals(ab1))
+                            {
+                                result.addAll(
+                                    cd2.getProjectSignature().await(),
+                                    cd3.getProjectSignature().await());
+                            }
+                            return result;
+                        });
+                    };
+                    final boolean validateDependencies = true;
+                    test.assertThrows(() -> qubFolder.getAllDependencyFolders(projectSignatures, getDependenciesFunction, validateDependencies).await(),
+                        new RuntimeException(Strings.join('\n', Iterable.create(
+                            "Found more than one required version for package c/d:",
+                            "1. c/d@2",
+                            "    from a/b@1",
+                            "2. c/d@3",
+                            "    from a/b@1"))));
                 });
             });
 

@@ -571,7 +571,7 @@ public interface RealChildProcessRunnerTests
                     final RealChildProcessRunner processRunner = RealChildProcessRunner.create(process);
 
                     final QubFolder qubFolder = process.getQubFolder().await();
-                    final QubProjectVersionFolder jdkFolder = qubFolder.getProjectLatestVersionFolder("openjdk", "jdk").await();
+                    final QubProjectVersionFolder jdkFolder = qubFolder.getLatestProjectVersionFolder("openjdk", "jdk").await();
                     final ChildProcessParameters parameters = ChildProcessParameters.create("bin/javac.exe")
                         .setWorkingFolder(jdkFolder);
                     final Integer exitCode = processRunner.run(parameters).await();
@@ -585,7 +585,7 @@ public interface RealChildProcessRunnerTests
                     final RealChildProcessRunner processRunner = RealChildProcessRunner.create(process);
 
                     final QubFolder qubFolder = process.getQubFolder().await();
-                    final QubProjectVersionFolder jdkFolder = qubFolder.getProjectLatestVersionFolder("openjdk", "jdk").await();
+                    final QubProjectVersionFolder jdkFolder = qubFolder.getLatestProjectVersionFolder("openjdk", "jdk").await();
                     final ChildProcessParameters parameters = ChildProcessParameters.create("bin\\javac")
                         .setWorkingFolder(jdkFolder);
                     final Integer exitCode = processRunner.run(parameters).await();
