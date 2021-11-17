@@ -4,6 +4,8 @@ public class FakeDesktopProcess extends DesktopProcessBase
 {
     private final Value<Path> currentFolderPath;
     private final Value<InMemoryCharacterToByteStream> input;
+    private final Value<InMemoryCharacterToByteStream> output;
+    private final Value<InMemoryCharacterToByteStream> error;
 
     /**
      * Create a new JavaProcess object with the provided command line arguments.
@@ -66,6 +68,8 @@ public class FakeDesktopProcess extends DesktopProcessBase
 
         this.currentFolderPath = Value.create(Path.parse("/"));
         this.input = Value.create(InMemoryCharacterToByteStream.create().endOfStream());
+        this.output = Value.create(InMemoryCharacterToByteStream.create());
+        this.error = Value.create(InMemoryCharacterToByteStream.create());
     }
 
     @Override
@@ -93,9 +97,27 @@ public class FakeDesktopProcess extends DesktopProcessBase
     }
 
     @Override
-    protected InMemoryCharacterToByteStream createDefaultOutputWriteStream()
+    public InMemoryCharacterToByteStream createDefaultOutputWriteStream()
     {
-        return InMemoryCharacterToByteStream.create();
+        PreCondition.assertTrue(this.output.hasValue(), "this.output.hasValue()");
+        PreCondition.assertNotNull(this.output.get(), "this.output.get()");
+
+        final InMemoryCharacterToByteStream result = this.output.get();
+        this.output.clear();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    public FakeDesktopProcess setDefaultOutputWriteStream(InMemoryCharacterToByteStream output)
+    {
+        PreCondition.assertNotNull(output, "output");
+        PreCondition.assertTrue(this.output.hasValue(), "this.output.hasValue()");
+
+        this.output.set(output);
+
+        return this;
     }
 
     @Override
@@ -107,7 +129,25 @@ public class FakeDesktopProcess extends DesktopProcessBase
     @Override
     public InMemoryCharacterToByteStream createDefaultErrorWriteStream()
     {
-        return InMemoryCharacterToByteStream.create();
+        PreCondition.assertTrue(this.error.hasValue(), "this.error.hasValue()");
+        PreCondition.assertNotNull(this.error.get(), "this.error.get()");
+
+        final InMemoryCharacterToByteStream result = this.error.get();
+        this.error.clear();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    public FakeDesktopProcess setDefaultErrorWriteStream(InMemoryCharacterToByteStream error)
+    {
+        PreCondition.assertNotNull(error, "error");
+        PreCondition.assertTrue(this.error.hasValue(), "this.error.hasValue()");
+
+        this.error.set(error);
+
+        return this;
     }
 
     @Override
@@ -132,6 +172,7 @@ public class FakeDesktopProcess extends DesktopProcessBase
 
     public FakeDesktopProcess setDefaultInputReadStream(InMemoryCharacterToByteStream input)
     {
+        PreCondition.assertNotNull(input, "input");
         PreCondition.assertTrue(this.input.hasValue(), "this.input.hasValue()");
 
         this.input.set(input);
