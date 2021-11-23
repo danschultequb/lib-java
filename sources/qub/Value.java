@@ -100,16 +100,10 @@ public interface Value<T> extends Getter<T>, Setter<T>
     {
         PreCondition.assertNotNull(creator, "creator");
 
-        final T result;
-        if (this.hasValue())
+        if (!this.hasValue())
         {
-            result = this.get();
+            this.set(creator.run());
         }
-        else
-        {
-            result = creator.run();
-            this.set(result);
-        }
-        return result;
+        return this.get();
     }
 }

@@ -110,8 +110,8 @@ public class LazyResult<T> implements Result<T>
     }
 
     /**
-     * Ensure that this LazyResult and it's parent Result (if it has a parent result) are both
-     * completed.
+     * Ensure that this {@link LazyResult} and it's parent {@link Result} (if it has a parent
+     * result) are both completed.
      */
     private void ensureIsCompleted()
     {
