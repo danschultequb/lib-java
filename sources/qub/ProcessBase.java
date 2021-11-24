@@ -1,24 +1,21 @@
 package qub;
 
-public abstract class ProcessBase implements Process
+public abstract class ProcessBase<T extends MutableProcess> implements MutableProcess
 {
-    private final Value<CharacterToByteWriteStream> outputWriteStream;
-    private boolean shouldDisposeOutputWriteStream;
-    private final Value<CharacterToByteWriteStream> errorWriteStream;
-    private boolean shouldDisposeErrorWriteStream;
-    private final Value<CharacterToByteReadStream> inputReadStream;
-    private boolean shouldDisposeInputReadStream;
-    private final Value<Random> random;
-    private final Value<FileSystem> fileSystem;
-    private final Value<Network> network;
-    private final Value<Folder> currentFolder;
-    private final Value<EnvironmentVariables> environmentVariables;
-    private final Value<Synchronization> synchronization;
-    private final Value<Clock> clock;
-    private final Value<Iterable<Display>> displays;
-    private final Value<TypeLoader> typeLoader;
-    private final Value<DefaultApplicationLauncher> defaultApplicationLauncher;
-    private final Value<Map<String,String>> systemProperties;
+    private final LazyValue<CharacterToByteWriteStream> outputWriteStream;
+    private final LazyValue<CharacterToByteWriteStream> errorWriteStream;
+    private final LazyValue<CharacterToByteReadStream> inputReadStream;
+    private final LazyValue<Random> random;
+    private final LazyValue<FileSystem> fileSystem;
+    private final LazyValue<Network> network;
+    private final LazyValue<Path> currentFolderPath;
+    private final LazyValue<EnvironmentVariables> environmentVariables;
+    private final LazyValue<Synchronization> synchronization;
+    private final LazyValue<Clock> clock;
+    private final LazyValue<Iterable<Display>> displays;
+    private final LazyValue<TypeLoader> typeLoader;
+    private final LazyValue<DefaultApplicationLauncher> defaultApplicationLauncher;
+    private final LazyValue<Map<String,String>> systemProperties;
 
     private final AsyncScheduler mainAsyncRunner;
     private final AsyncScheduler parallelAsyncRunner;
@@ -29,24 +26,20 @@ public abstract class ProcessBase implements Process
     {
         PreCondition.assertNotNull(mainAsyncRunner, "mainAsyncRunner");
 
-        this.outputWriteStream = Value.create();
-        this.shouldDisposeOutputWriteStream = true;
-        this.errorWriteStream = Value.create();
-        this.shouldDisposeErrorWriteStream = true;
-        this.inputReadStream = Value.create();
-        this.shouldDisposeInputReadStream = true;
-
-        this.random = Value.create();
-        this.fileSystem = Value.create();
-        this.network = Value.create();
-        this.currentFolder = Value.create();
-        this.environmentVariables = Value.create();
-        this.synchronization = Value.create();
-        this.clock = Value.create();
-        this.displays = Value.create();
-        this.typeLoader = Value.create();
-        this.defaultApplicationLauncher = Value.create();
-        this.systemProperties = Value.create();
+        this.outputWriteStream = LazyValue.create();
+        this.errorWriteStream = LazyValue.create();
+        this.inputReadStream = LazyValue.create();
+        this.random = LazyValue.create();
+        this.fileSystem = LazyValue.create();
+        this.network = LazyValue.create();
+        this.currentFolderPath = LazyValue.create();
+        this.environmentVariables = LazyValue.create();
+        this.synchronization = LazyValue.create();
+        this.clock = LazyValue.create();
+        this.displays = LazyValue.create();
+        this.typeLoader = LazyValue.create();
+        this.defaultApplicationLauncher = LazyValue.create();
+        this.systemProperties = LazyValue.create();
 
         this.mainAsyncRunner = mainAsyncRunner;
         CurrentThread.setAsyncRunner(mainAsyncRunner);
@@ -55,19 +48,31 @@ public abstract class ProcessBase implements Process
 
         this.disposable = Disposable.create(() ->
         {
-            if (this.shouldDisposeInputReadStream() && this.inputReadStream.hasValue())
+            if (this.inputReadStream.hasValue())
             {
-                this.inputReadStream.get().dispose().await();
+                final Disposable inputReadStream = this.inputReadStream.get();
+                if (inputReadStream != null)
+                {
+                    inputReadStream.dispose().await();
+                }
             }
 
-            if (this.shouldDisposeOutputWriteStream() && this.outputWriteStream.hasValue())
+            if (this.outputWriteStream.hasValue())
             {
-                this.outputWriteStream.get().dispose().await();
+                final Disposable outputWriteStream = this.outputWriteStream.get();
+                if (outputWriteStream != null)
+                {
+                    outputWriteStream.dispose().await();
+                }
             }
 
-            if (this.shouldDisposeErrorWriteStream() && this.errorWriteStream.hasValue())
+            if (this.errorWriteStream.hasValue())
             {
-                this.errorWriteStream.get().dispose().await();
+                final Disposable errorWriteStream = this.errorWriteStream.get();
+                if (errorWriteStream != null)
+                {
+                    errorWriteStream.dispose().await();
+                }
             }
         });
     }
@@ -93,21 +98,23 @@ public abstract class ProcessBase implements Process
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        return this.outputWriteStream.getOrSet(this::createDefaultOutputWriteStream);
+        return this.outputWriteStream.get();
     }
 
-    protected abstract CharacterToByteWriteStream createDefaultOutputWriteStream();
-
-    protected boolean shouldDisposeOutputWriteStream()
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setOutputWriteStream(CharacterToByteWriteStream outputWriteStream)
     {
-        return this.shouldDisposeOutputWriteStream;
+        return (T)MutableProcess.super.setOutputWriteStream(outputWriteStream);
     }
 
-    protected ProcessBase setShouldDisposeOutputWriteStream(boolean shouldDisposeOutputWriteStream)
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setOutputWriteStream(Function0<CharacterToByteWriteStream> outputWriteStream)
     {
-        this.shouldDisposeOutputWriteStream = shouldDisposeOutputWriteStream;
+        this.outputWriteStream.set(outputWriteStream);
 
-        return this;
+        return (T)this;
     }
 
     @Override
@@ -115,21 +122,23 @@ public abstract class ProcessBase implements Process
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        return this.errorWriteStream.getOrSet(this::createDefaultErrorWriteStream);
+        return this.errorWriteStream.get();
     }
 
-    protected abstract CharacterToByteWriteStream createDefaultErrorWriteStream();
-
-    protected boolean shouldDisposeErrorWriteStream()
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setErrorWriteStream(CharacterToByteWriteStream errorWriteStream)
     {
-        return this.shouldDisposeErrorWriteStream;
+        return (T)MutableProcess.super.setErrorWriteStream(errorWriteStream);
     }
 
-    protected ProcessBase setShouldDisposeErrorWriteStream(boolean shouldDisposeErrorWriteStream)
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setErrorWriteStream(Function0<CharacterToByteWriteStream> errorWriteStream)
     {
-        this.shouldDisposeErrorWriteStream = shouldDisposeErrorWriteStream;
+        this.errorWriteStream.set(errorWriteStream);
 
-        return this;
+        return (T)this;
     }
 
     /**
@@ -140,21 +149,23 @@ public abstract class ProcessBase implements Process
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        return this.inputReadStream.getOrSet(this::createDefaultInputReadStream);
+        return this.inputReadStream.get();
     }
 
-    protected abstract CharacterToByteReadStream createDefaultInputReadStream();
-
-    protected boolean shouldDisposeInputReadStream()
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setInputReadStream(CharacterToByteReadStream inputReadStream)
     {
-        return this.shouldDisposeInputReadStream;
+        return (T)MutableProcess.super.setInputReadStream(inputReadStream);
     }
 
-    protected ProcessBase setShouldDisposeInputReadStream(boolean shouldDisposeInputReadStream)
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setInputReadStream(Function0<CharacterToByteReadStream> inputReadStream)
     {
-        this.shouldDisposeInputReadStream = shouldDisposeInputReadStream;
+        this.inputReadStream.set(inputReadStream);
 
-        return this;
+        return (T)this;
     }
 
     @Override
@@ -162,128 +173,264 @@ public abstract class ProcessBase implements Process
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        return this.random.getOrSet(this::createDefaultRandom);
+        return this.random.get();
     }
 
-    protected abstract Random createDefaultRandom();
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setRandom(Random random)
+    {
+        return (T)MutableProcess.super.setRandom(random);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setRandom(Function0<Random> random)
+    {
+        this.random.set(random);
+
+        return (T)this;
+    }
 
     @Override
     public FileSystem getFileSystem()
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        return this.fileSystem.getOrSet(this::createDefaultFileSystem);
+        return this.fileSystem.get();
     }
 
-    protected abstract FileSystem createDefaultFileSystem();
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setFileSystem(FileSystem fileSystem)
+    {
+        return (T)MutableProcess.super.setFileSystem(fileSystem);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setFileSystem(Function0<FileSystem> fileSystem)
+    {
+        this.fileSystem.set(fileSystem);
+
+        return (T)this;
+    }
 
     @Override
     public Network getNetwork()
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        return this.network.getOrSet(this::createDefaultNetwork);
+        return this.network.get();
     }
-
-    protected abstract Network createDefaultNetwork();
 
     @Override
-    public Folder getCurrentFolder()
+    @SuppressWarnings("unchecked")
+    public T setNetwork(Network network)
     {
-        PreCondition.assertNotDisposed(this, "this");
-        PreCondition.assertNotNull(this.getFileSystem(), "this.getFileSystem()");
-
-        return this.currentFolder.getOrSet(this::createDefaultCurrentFolder);
+        return (T)MutableProcess.super.setNetwork(network);
     }
 
-    protected abstract Folder createDefaultCurrentFolder();
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setNetwork(Function0<Network> network)
+    {
+        this.network.set(network);
 
-    /**
-     * Get the environment variables for this application.
-     * @return The environment variables for this application.
-     */
+        return (T)this;
+    }
+
+    @Override
+    public Path getCurrentFolderPath()
+    {
+        PreCondition.assertNotDisposed(this, "this");
+
+        return this.currentFolderPath.get();
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setCurrentFolderPath(Path currentFolderPath)
+    {
+        return (T)MutableProcess.super.setCurrentFolderPath(currentFolderPath);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setCurrentFolderPath(Function0<Path> currentFolderPath)
+    {
+        this.currentFolderPath.set(currentFolderPath);
+
+        return (T)this;
+    }
+
+    @Override
     public EnvironmentVariables getEnvironmentVariables()
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        return this.environmentVariables.getOrSet(this::createDefaultEnvironmentVariables);
+        return this.environmentVariables.get();
     }
 
-    protected abstract EnvironmentVariables createDefaultEnvironmentVariables();
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setEnvironmentVariables(EnvironmentVariables environmentVariables)
+    {
+        return (T)MutableProcess.super.setEnvironmentVariables(environmentVariables);
+    }
 
-    /**
-     * Get the Synchronization factory for creating synchronization objects.
-     * @return The Synchronization factory for creating synchronization objects.
-     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setEnvironmentVariables(Function0<EnvironmentVariables> environmentVariables)
+    {
+        this.environmentVariables.set(environmentVariables);
+
+        return (T)this;
+    }
+
+    @Override
     public Synchronization getSynchronization()
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        return this.synchronization.getOrSet(this::createDefaultSynchronization);
+        return this.synchronization.get();
     }
 
-    protected abstract Synchronization createDefaultSynchronization();
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setSynchronization(Synchronization synchronization)
+    {
+        return (T)MutableProcess.super.setSynchronization(synchronization);
+    }
 
-    /**
-     * Get the Clock object that has been assigned to this Process.
-     * @return The Clock object that has been assigned to this Process.
-     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setSynchronization(Function0<Synchronization> synchronization)
+    {
+        this.synchronization.set(synchronization);
+
+        return (T)this;
+    }
+
+    @Override
     public Clock getClock()
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        return this.clock.getOrSet(this::createDefaultClock);
+        return this.clock.get();
     }
 
-    protected abstract Clock createDefaultClock();
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setClock(Clock clock)
+    {
+        return (T)MutableProcess.super.setClock(clock);
+    }
 
-    /**
-     * Get the displays that have been assigned to this Process.
-     * @return The displays that have been assigned to this Process.
-     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setClock(Function0<Clock> clock)
+    {
+        this.clock.set(clock);
+
+        return (T)this;
+    }
+
+    @Override
     public Iterable<Display> getDisplays()
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        return this.displays.getOrSet(this::createDefaultDisplays);
+        return this.displays.get();
     }
 
-    protected abstract Iterable<Display> createDefaultDisplays();
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setDisplays(Iterable<Display> displays)
+    {
+        return (T)MutableProcess.super.setDisplays(displays);
+    }
 
-    /**
-     * Get the DefaultApplicationLauncher that will be used to open files with their registered
-     * default application.
-     * @return The DefaultApplicationLauncher that will be used to open files with their registered
-     * default application.
-     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setDisplays(Function0<Iterable<Display>> displays)
+    {
+        this.displays.set(displays);
+
+        return (T)this;
+    }
+
+    @Override
     public DefaultApplicationLauncher getDefaultApplicationLauncher()
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        return this.defaultApplicationLauncher.getOrSet(this::createDefaultApplicationLauncher);
+        return this.defaultApplicationLauncher.get();
     }
 
-    protected abstract DefaultApplicationLauncher createDefaultApplicationLauncher();
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setDefaultApplicationLauncher(DefaultApplicationLauncher defaultApplicationLauncher)
+    {
+        return (T)MutableProcess.super.setDefaultApplicationLauncher(defaultApplicationLauncher);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setDefaultApplicationLauncher(Function0<DefaultApplicationLauncher> defaultApplicationLauncher)
+    {
+        this.defaultApplicationLauncher.set(defaultApplicationLauncher);
+
+        return (T)this;
+    }
 
     @Override
     public Map<String,String> getSystemProperties()
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        return this.systemProperties.getOrSet(this::createDefaultSystemProperties);
+        return this.systemProperties.get();
     }
 
-    protected abstract Map<String,String> createDefaultSystemProperties();
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setSystemProperties(Map<String, String> systemProperties)
+    {
+        return (T)MutableProcess.super.setSystemProperties(systemProperties);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setSystemProperties(Function0<Map<String, String>> systemProperties)
+    {
+        this.systemProperties.set(systemProperties);
+
+        return (T)this;
+    }
 
     @Override
     public TypeLoader getTypeLoader()
     {
         PreCondition.assertNotDisposed(this, "this");
 
-        return this.typeLoader.getOrSet(this::createDefaultTypeLoader);
+        return this.typeLoader.get();
     }
 
-    protected abstract TypeLoader createDefaultTypeLoader();
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setTypeLoader(TypeLoader typeLoader)
+    {
+        return (T)MutableProcess.super.setTypeLoader(typeLoader);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setTypeLoader(Function0<TypeLoader> typeLoader)
+    {
+        this.typeLoader.set(typeLoader);
+
+        return (T)this;
+    }
 
     @Override
     public boolean isDisposed()

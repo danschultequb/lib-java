@@ -312,23 +312,22 @@ public class CommandLineParameters
         {
             return Result.create(() ->
             {
-                Folder folder;
+                Path path;
                 if (Strings.isNullOrEmpty(value))
                 {
-                    folder = process.getCurrentFolder();
+                    path = process.getCurrentFolderPath();
                 }
                 else
                 {
-                    Path path = Path.parse(value);
+                    path = Path.parse(value);
                     if (!path.isRooted())
                     {
                         path = process.getCurrentFolderPath().resolve(path).await();
                     }
-
-                    final FileSystem fileSystem = process.getFileSystem();
-                    folder = fileSystem.getFolder(path).await();
                 }
-                return folder;
+
+                final FileSystem fileSystem = process.getFileSystem();
+                return fileSystem.getFolder(path).await();
             });
         };
     }

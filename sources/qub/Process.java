@@ -54,33 +54,21 @@ public interface Process extends Disposable
     Network getNetwork();
 
     /**
-     * Get the String representation of the folder path that this process is running under.
-     * @return The String representation of the folder path that this process is running under.
-     */
-    default String getCurrentFolderPathString()
-    {
-        final String result = this.getCurrentFolderPath().toString();
-
-        PostCondition.assertNotNullAndNotEmpty(result, "result");
-        PostCondition.assertTrue(result.endsWith("/"), "result.endsWith(\"/\")");
-
-        return result;
-    }
-
-    /**
      * Get the path to the folder that this Process is currently running in.
      * @return The path to the folder that this Process is currently running in.
      */
-    default Path getCurrentFolderPath()
-    {
-        return this.getCurrentFolder().getPath();
-    }
+    Path getCurrentFolderPath();
 
     /**
      * Get the folder that this Process is currently running in.
      * @return The folder that this Process is currently running in.
      */
-    Folder getCurrentFolder();
+    default Folder getCurrentFolder()
+    {
+        final FileSystem fileSystem = this.getFileSystem();
+        final Path currentFolderPath = this.getCurrentFolderPath();
+        return fileSystem.getFolder(currentFolderPath).await();
+    }
 
     /**
      * Get the environment variables for this application.

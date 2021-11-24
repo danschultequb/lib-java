@@ -209,7 +209,7 @@ public interface TestResourcesTests
                         try (final TestResources resources = TestResources.create(process))
                         {
                             final Folder currentFolder = resources.getCurrentFolder();
-                            test.assertSame(process.getCurrentFolder(), currentFolder);
+                            test.assertEqual(process.getCurrentFolder(), currentFolder);
                         }
                     }
                 });

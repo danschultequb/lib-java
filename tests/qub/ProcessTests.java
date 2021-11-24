@@ -127,23 +127,12 @@ public interface ProcessTests
                 test.assertSame(defaultNetwork, process.getNetwork());
             });
 
-            runner.test("getCurrentFolderPathString()", (Test test) ->
-            {
-                final Process process = creator.run(test);
-                final String currentFolderPathString = process.getCurrentFolderPathString();
-                test.assertNotNull(currentFolderPathString);
-                test.assertFalse(currentFolderPathString.isEmpty());
-                test.assertEndsWith(currentFolderPathString, "/");
-                test.assertTrue(process.getFileSystem().folderExists(currentFolderPathString).await());
-            });
-
             runner.test("getCurrentFolderPath()", (Test test) ->
             {
                 final Process process = creator.run(test);
                 final Path currentFolderPath = process.getCurrentFolderPath();
                 test.assertNotNull(currentFolderPath);
                 test.assertTrue(currentFolderPath.isRooted());
-                test.assertEndsWith(currentFolderPath.toString(), "/");
                 test.assertTrue(process.getFileSystem().folderExists(currentFolderPath).await());
             });
 

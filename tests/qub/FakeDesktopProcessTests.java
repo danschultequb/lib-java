@@ -36,18 +36,15 @@ public interface FakeDesktopProcessTests
                 }
             });
 
-            runner.testGroup("setDefaultOutputWriteStream(InMemoryCharacterToByteStream)", () ->
+            runner.testGroup("setOutputWriteStream(InMemoryCharacterToByteStream)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        test.assertThrows(() -> process.setDefaultOutputWriteStream(null),
-                            new PreConditionFailure("output cannot be null."));
-
-                        final InMemoryCharacterToByteStream output = process.getOutputWriteStream();
-                        test.assertNotNull(output);
-                        test.assertSame(output, process.getOutputWriteStream());
+                        final FakeDesktopProcess setOutputWriteStreamResult = process.setOutputWriteStream((InMemoryCharacterToByteStream)null);
+                        test.assertSame(process, setOutputWriteStreamResult);
+                        test.assertNull(process.getOutputWriteStream());
                     }
                 });
 
@@ -56,7 +53,7 @@ public interface FakeDesktopProcessTests
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
                         final InMemoryCharacterToByteStream output = InMemoryCharacterToByteStream.create();
-                        final FakeDesktopProcess setDefaultOutputWriteStreamResult = process.setDefaultOutputWriteStream(output);
+                        final FakeDesktopProcess setDefaultOutputWriteStreamResult = process.setOutputWriteStream(output);
                         test.assertSame(process, setDefaultOutputWriteStreamResult);
                         test.assertSame(output, process.getOutputWriteStream());
                         test.assertSame(output, process.getOutputWriteStream());
@@ -70,10 +67,9 @@ public interface FakeDesktopProcessTests
                         final InMemoryCharacterToByteStream output = process.getOutputWriteStream();
 
                         final InMemoryCharacterToByteStream output2 = InMemoryCharacterToByteStream.create();
-                        test.assertThrows(() -> process.setDefaultOutputWriteStream(output2),
-                            new PreConditionFailure("this.output.hasValue() cannot be false."));
-
-                        test.assertSame(output, process.getOutputWriteStream());
+                        final FakeDesktopProcess setOutputWriteStreamResult = process.setOutputWriteStream(output2);
+                        test.assertSame(process, setOutputWriteStreamResult);
+                        test.assertSame(output2, process.getOutputWriteStream());
                     }
                 });
             });
@@ -88,18 +84,15 @@ public interface FakeDesktopProcessTests
                 }
             });
 
-            runner.testGroup("setDefaultErrorWriteStream(InMemoryCharacterToByteStream)", () ->
+            runner.testGroup("setErrorWriteStream(InMemoryCharacterToByteStream)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        test.assertThrows(() -> process.setDefaultErrorWriteStream(null),
-                            new PreConditionFailure("error cannot be null."));
-
-                        final InMemoryCharacterToByteStream error = process.getErrorWriteStream();
-                        test.assertNotNull(error);
-                        test.assertSame(error, process.getErrorWriteStream());
+                        final FakeDesktopProcess setErrorWriteStreamResult = process.setErrorWriteStream((InMemoryCharacterToByteStream)null);
+                        test.assertSame(process, setErrorWriteStreamResult);
+                        test.assertNull(process.getErrorWriteStream());
                     }
                 });
 
@@ -108,7 +101,7 @@ public interface FakeDesktopProcessTests
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
                         final InMemoryCharacterToByteStream error = InMemoryCharacterToByteStream.create();
-                        final FakeDesktopProcess setDefaultErrorWriteStreamResult = process.setDefaultErrorWriteStream(error);
+                        final FakeDesktopProcess setDefaultErrorWriteStreamResult = process.setErrorWriteStream(error);
                         test.assertSame(process, setDefaultErrorWriteStreamResult);
                         test.assertSame(error, process.getErrorWriteStream());
                         test.assertSame(error, process.getErrorWriteStream());
@@ -119,13 +112,12 @@ public interface FakeDesktopProcessTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final InMemoryCharacterToByteStream error = process.getErrorWriteStream();
+                        process.getErrorWriteStream();
 
                         final InMemoryCharacterToByteStream error2 = InMemoryCharacterToByteStream.create();
-                        test.assertThrows(() -> process.setDefaultErrorWriteStream(error2),
-                            new PreConditionFailure("this.error.hasValue() cannot be false."));
-
-                        test.assertSame(error, process.getErrorWriteStream());
+                        final FakeDesktopProcess setErrorWriteStream = process.setErrorWriteStream(error2);
+                        test.assertSame(process, setErrorWriteStream);
+                        test.assertSame(error2, process.getErrorWriteStream());
                     }
                 });
             });
@@ -140,18 +132,15 @@ public interface FakeDesktopProcessTests
                 }
             });
 
-            runner.testGroup("setDefaultInputWriteStream(InMemoryCharacterToByteStream)", () ->
+            runner.testGroup("setInputReadStream(InMemoryCharacterToByteStream)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        test.assertThrows(() -> process.setDefaultInputReadStream(null),
-                            new PreConditionFailure("input cannot be null."));
-
-                        final InMemoryCharacterToByteStream input = process.getInputReadStream();
-                        test.assertNotNull(input);
-                        test.assertSame(input, process.getInputReadStream());
+                        final FakeDesktopProcess setInputReadStreamResult = process.setInputReadStream((InMemoryCharacterToByteStream)null);
+                        test.assertSame(process, setInputReadStreamResult);
+                        test.assertNull(process.getInputReadStream());
                     }
                 });
 
@@ -160,7 +149,7 @@ public interface FakeDesktopProcessTests
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
                         final InMemoryCharacterToByteStream input = InMemoryCharacterToByteStream.create();
-                        final FakeDesktopProcess setDefaultInputReadStreamResult = process.setDefaultInputReadStream(input);
+                        final FakeDesktopProcess setDefaultInputReadStreamResult = process.setInputReadStream(input);
                         test.assertSame(process, setDefaultInputReadStreamResult);
                         test.assertSame(input, process.getInputReadStream());
                         test.assertSame(input, process.getInputReadStream());
@@ -171,13 +160,12 @@ public interface FakeDesktopProcessTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final InMemoryCharacterToByteStream input = process.getInputReadStream();
+                        process.getInputReadStream();
 
                         final InMemoryCharacterToByteStream input2 = InMemoryCharacterToByteStream.create();
-                        test.assertThrows(() -> process.setDefaultInputReadStream(input2),
-                            new PreConditionFailure("this.input.hasValue() cannot be false."));
-
-                        test.assertSame(input, process.getInputReadStream());
+                        final FakeDesktopProcess setInputReadStreamResult = process.setInputReadStream(input2);
+                        test.assertSame(process, setInputReadStreamResult);
+                        test.assertSame(input2, process.getInputReadStream());
                     }
                 });
             });

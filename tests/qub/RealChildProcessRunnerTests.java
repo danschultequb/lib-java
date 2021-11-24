@@ -20,7 +20,7 @@ public interface RealChildProcessRunnerTests
                     (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
-                    process.setDefaultCurrentFolder("/fake/current/folder/");
+                    process.setCurrentFolderPath("/fake/current/folder/");
                     process.getEnvironmentVariables()
                         .set("PATH", "/a;/b;/c")
                         .set("PATHEXT", ".exe;.fake");

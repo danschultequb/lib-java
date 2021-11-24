@@ -1,12 +1,12 @@
 package qub;
 
-public abstract class DesktopProcessBase extends ProcessBase implements DesktopProcess
+public abstract class DesktopProcessBase<T extends MutableDesktopProcess> extends ProcessBase<T> implements MutableDesktopProcess
 {
     private final CommandLineArguments commandLineArguments;
     private int exitCode;
-    private final LongValue processId;
-    private final Value<ChildProcessRunner> childProcessRunner;
-    private final Value<String> mainClassFullName;
+    private final LazyValue<Long> processId;
+    private final LazyValue<ChildProcessRunner> childProcessRunner;
+    private final LazyValue<String> mainClassFullName;
 
     protected DesktopProcessBase(CommandLineArguments commandLineArguments, AsyncScheduler mainAsyncRunner)
     {
@@ -15,9 +15,9 @@ public abstract class DesktopProcessBase extends ProcessBase implements DesktopP
         PreCondition.assertNotNull(commandLineArguments, "commandLineArguments");
 
         this.commandLineArguments = commandLineArguments;
-        this.processId = LongValue.create();
-        this.childProcessRunner = Value.create();
-        this.mainClassFullName = Value.create();
+        this.processId = LazyValue.create();
+        this.childProcessRunner = LazyValue.create();
+        this.mainClassFullName = LazyValue.create();
     }
 
     /**
@@ -26,14 +26,21 @@ public abstract class DesktopProcessBase extends ProcessBase implements DesktopP
      */
     public long getProcessId()
     {
-        return this.processId.getOrSet(this.getProcessIdValue());
+        return this.processId.get();
     }
 
-    /**
-     * Get the ID of this process.
-     * @return The ID of this process.
-     */
-    protected abstract long getProcessIdValue();
+    public T setProcessId(long processId)
+    {
+        return (T)this.setProcessId(() -> processId);
+    }
+
+    @SuppressWarnings("unchecked")
+    public T setProcessId(Function0<Long> processId)
+    {
+        this.processId.set(processId);
+
+        return (T)this;
+    }
 
     @Override
     public int getExitCode()
@@ -42,10 +49,12 @@ public abstract class DesktopProcessBase extends ProcessBase implements DesktopP
     }
 
     @Override
-    public DesktopProcessBase setExitCode(int exitCode)
+    @SuppressWarnings("unchecked")
+    public T setExitCode(int exitCode)
     {
         this.exitCode = exitCode;
-        return this;
+
+        return (T)this;
     }
 
     @Override
@@ -57,10 +66,24 @@ public abstract class DesktopProcessBase extends ProcessBase implements DesktopP
     @Override
     public ChildProcessRunner getChildProcessRunner()
     {
-        return this.childProcessRunner.getOrSet(this::createDefaultChildProcessRunner);
+        return this.childProcessRunner.get();
     }
 
-    protected abstract ChildProcessRunner createDefaultChildProcessRunner();
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setChildProcessRunner(ChildProcessRunner childProcessRunner)
+    {
+        return (T)MutableDesktopProcess.super.setChildProcessRunner(childProcessRunner);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setChildProcessRunner(Function0<ChildProcessRunner> childProcessRunner)
+    {
+        this.childProcessRunner.set(childProcessRunner);
+
+        return (T)this;
+    }
 
     /**
      * Get the full name of the main class of this application.
@@ -68,8 +91,22 @@ public abstract class DesktopProcessBase extends ProcessBase implements DesktopP
      */
     public String getMainClassFullName()
     {
-        return this.mainClassFullName.getOrSet(this::createDefaultMainClassFullName);
+        return this.mainClassFullName.get();
     }
 
-    protected abstract String createDefaultMainClassFullName();
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setMainClassFullName(String mainClassFullName)
+    {
+        return (T)MutableDesktopProcess.super.setMainClassFullName(mainClassFullName);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public T setMainClassFullName(Function0<String> mainClassFullName)
+    {
+        this.mainClassFullName.set(mainClassFullName);
+
+        return (T)this;
+    }
 }
