@@ -94,14 +94,34 @@ public interface FakeChildProcessRun
      * @param arguments The arguments to add.
      * @return This object for method chaining.
      */
-    FakeChildProcessRun addArguments(String... arguments);
+    default FakeChildProcessRun addArguments(String... arguments)
+    {
+        PreCondition.assertNotNull(arguments, "arguments");
+
+        for (final String argument : arguments)
+        {
+            this.addArgument(argument);
+        }
+
+        return this;
+    }
 
     /**
      * Add the provided arguments to this FakeProcessRun.
      * @param arguments The arguments to add.
      * @return This object for method chaining.
      */
-    FakeChildProcessRun addArguments(Iterable<String> arguments);
+    default FakeChildProcessRun addArguments(Iterable<String> arguments)
+    {
+        PreCondition.assertNotNull(arguments, "arguments");
+
+        for (final String argument : arguments)
+        {
+            this.addArgument(argument);
+        }
+
+        return this;
+    }
 
     /**
      * Get the arguments that have been added to this process.
@@ -115,7 +135,12 @@ public interface FakeChildProcessRun
      * @param workingFolderPath The folder path that the process was run from.
      * @return This object for method chaining.
      */
-    FakeChildProcessRun setWorkingFolder(String workingFolderPath);
+    default FakeChildProcessRun setWorkingFolder(String workingFolderPath)
+    {
+        PreCondition.assertNullOrNotEmpty(workingFolderPath, "workingFolderPath");
+
+        return this.setWorkingFolder(workingFolderPath == null ? null : Path.parse(workingFolderPath));
+    }
 
     /**
      * Set the folder path that the process will be run from. If null is provided, then this will
@@ -131,7 +156,10 @@ public interface FakeChildProcessRun
      * @param workingFolder The folder that the process was run from.
      * @return This object for method chaining.
      */
-    FakeChildProcessRun setWorkingFolder(Folder workingFolder);
+    default FakeChildProcessRun setWorkingFolder(Folder workingFolder)
+    {
+        return this.setWorkingFolder(workingFolder == null ? null : workingFolder.getPath());
+    }
 
     /**
      * Get the folder path that a matching process will run in. If this is null, then this will
@@ -141,71 +169,30 @@ public interface FakeChildProcessRun
     Path getWorkingFolderPath();
 
     /**
-     * Set the exit code that will be returned when this FakeProcessRun is invoked.
-     * @param exitCode The exit code that will be returned by the fake process.
+     * Set the {@link Action1} that will be run when this {@link FakeChildProcessRun} is invoked.
+     * @param action The {@link Action1} that will be run when this {@link FakeChildProcessRun} is
+     *               invoked.
      * @return This object for method chaining.
      */
-    FakeChildProcessRun setFunction(int exitCode);
+    default FakeChildProcessRun setAction(Action0 action)
+    {
+        PreCondition.assertNotNull(action, "action");
+
+        return this.setAction((FakeDesktopProcess process) -> action.run());
+    }
 
     /**
-     * Set the action that will be run when this FakeProcessRun is invoked.
-     * @param action The action that will be run when this FakeProcessRun is invoked.
+     * Set the {@link Action1} that will be run when this {@link FakeChildProcessRun} is invoked.
+     * @param action The {@link Action1} that will be run when this {@link FakeChildProcessRun} is
+     *               invoked.
      * @return This object for method chaining.
      */
-    FakeChildProcessRun setFunction(Action0 action);
+    FakeChildProcessRun setAction(Action1<FakeDesktopProcess> action);
 
     /**
-     * Set the action that will be run when this FakeProcessRun is invoked.
-     * @param function The action that will be run when this FakeProcessRun is invoked.
-     * @return This object for method chaining.
+     * The {@link Action1} will be run when this {@link FakeChildProcessRun} is invoked.
+     * @return The {@link Action1} that will be run when this {@link FakeChildProcessRun} is
+     * invoked.
      */
-    FakeChildProcessRun setFunction(Function0<Integer> function);
-
-    /**
-     * Set the action that will be run when this FakeProcessRun is invoked.
-     * @param action The action that will be run when this FakeProcessRun is invoked.
-     * @return This object for method chaining.
-     */
-    FakeChildProcessRun setFunction(Action1<ByteWriteStream> action);
-
-    /**
-     * Set the action that will be run when this FakeProcessRun is invoked.
-     * @param function The action that will be run when this FakeProcessRun is invoked.
-     * @return This object for method chaining.
-     */
-    FakeChildProcessRun setFunction(Function1<ByteWriteStream,Integer> function);
-
-    /**
-     * Set the action that will be run when this FakeProcessRun is invoked.
-     * @param action The action that will be run when this FakeProcessRun is invoked.
-     * @return This object for method chaining.
-     */
-    FakeChildProcessRun setFunction(Action2<ByteWriteStream,ByteWriteStream> action);
-
-    /**
-     * Set the action that will be run when this FakeProcessRun is invoked.
-     * @param function The action that will be run when this FakeProcessRun is invoked.
-     * @return This object for method chaining.
-     */
-    FakeChildProcessRun setFunction(Function2<ByteWriteStream,ByteWriteStream,Integer> function);
-
-    /**
-     * Set the action that will be run when this FakeProcessRun is invoked.
-     * @param action The action that will be run when this FakeProcessRun is invoked.
-     * @return This object for method chaining.
-     */
-    FakeChildProcessRun setFunction(Action3<ByteReadStream,ByteWriteStream,ByteWriteStream> action);
-
-    /**
-     * Set the action that will be run when this FakeProcessRun is invoked.
-     * @param function The action that will be run when this FakeProcessRun is invoked.
-     * @return This object for method chaining.
-     */
-    FakeChildProcessRun setFunction(Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer> function);
-
-    /**
-     * The action that will be run when this FakeProcessRun is invoked.
-     * @return The action that will be run when this FakeProcessRun is invoked.
-     */
-    Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer> getFunction();
+    Action1<FakeDesktopProcess> getAction();
 }

@@ -33,7 +33,7 @@ public interface FakeChildProcessRunTests
                     test.assertEqual(Path.parse("fake.exe"), run.getExecutablePath());
                     test.assertEqual(Iterable.create(), run.getArguments());
                     test.assertNull(run.getWorkingFolderPath());
-                    test.assertNull(run.getFunction());
+                    test.assertNull(run.getAction());
                 });
 
                 runner.test("with arguments", (Test test) ->
@@ -43,7 +43,7 @@ public interface FakeChildProcessRunTests
                     test.assertEqual(Path.parse("fake.exe"), run.getExecutablePath());
                     test.assertEqual(Iterable.create("hello", "there"), run.getArguments());
                     test.assertNull(run.getWorkingFolderPath());
-                    test.assertNull(run.getFunction());
+                    test.assertNull(run.getAction());
                 });
             });
 
@@ -74,7 +74,7 @@ public interface FakeChildProcessRunTests
                     test.assertEqual(Path.parse("fake.exe"), run.getExecutablePath());
                     test.assertEqual(Iterable.create(), run.getArguments());
                     test.assertNull(run.getWorkingFolderPath());
-                    test.assertNull(run.getFunction());
+                    test.assertNull(run.getAction());
                 });
 
                 runner.test("with arguments", (Test test) ->
@@ -84,7 +84,7 @@ public interface FakeChildProcessRunTests
                     test.assertEqual(Path.parse("fake.exe"), run.getExecutablePath());
                     test.assertEqual(Iterable.create("hello", "there"), run.getArguments());
                     test.assertNull(run.getWorkingFolderPath());
-                    test.assertNull(run.getFunction());
+                    test.assertNull(run.getAction());
                 });
             });
 
@@ -109,7 +109,7 @@ public interface FakeChildProcessRunTests
                     test.assertEqual(Path.parse("fake.exe"), run.getExecutablePath());
                     test.assertEqual(Iterable.create(), run.getArguments());
                     test.assertNull(run.getWorkingFolderPath());
-                    test.assertNull(run.getFunction());
+                    test.assertNull(run.getAction());
                 });
 
                 runner.test("with arguments", (Test test) ->
@@ -119,7 +119,7 @@ public interface FakeChildProcessRunTests
                     test.assertEqual(Path.parse("fake.exe"), run.getExecutablePath());
                     test.assertEqual(Iterable.create("hello", "there"), run.getArguments());
                     test.assertNull(run.getWorkingFolderPath());
-                    test.assertNull(run.getFunction());
+                    test.assertNull(run.getAction());
                 });
             });
 
@@ -144,7 +144,7 @@ public interface FakeChildProcessRunTests
                     test.assertEqual(Path.parse("fake.exe"), run.getExecutablePath());
                     test.assertEqual(Iterable.create(), run.getArguments());
                     test.assertNull(run.getWorkingFolderPath());
-                    test.assertNull(run.getFunction());
+                    test.assertNull(run.getAction());
                 });
 
                 runner.test("with arguments", (Test test) ->
@@ -154,7 +154,7 @@ public interface FakeChildProcessRunTests
                     test.assertEqual(Path.parse("fake.exe"), run.getExecutablePath());
                     test.assertEqual(Iterable.create("hello", "there"), run.getArguments());
                     test.assertNull(run.getWorkingFolderPath());
-                    test.assertNull(run.getFunction());
+                    test.assertNull(run.getAction());
                 });
             });
 
@@ -183,7 +183,7 @@ public interface FakeChildProcessRunTests
                     test.assertEqual(Path.parse("/fake.exe"), run.getExecutablePath());
                     test.assertEqual(Iterable.create(), run.getArguments());
                     test.assertNull(run.getWorkingFolderPath());
-                    test.assertNull(run.getFunction());
+                    test.assertNull(run.getAction());
                 });
 
                 runner.test("with arguments", (Test test) ->
@@ -195,7 +195,7 @@ public interface FakeChildProcessRunTests
                     test.assertEqual(Path.parse("/fake.exe"), run.getExecutablePath());
                     test.assertEqual(Iterable.create("hello", "there"), run.getArguments());
                     test.assertNull(run.getWorkingFolderPath());
-                    test.assertNull(run.getFunction());
+                    test.assertNull(run.getAction());
                 });
             });
 
@@ -224,7 +224,7 @@ public interface FakeChildProcessRunTests
                     test.assertEqual(Path.parse("/fake.exe"), run.getExecutablePath());
                     test.assertEqual(Iterable.create(), run.getArguments());
                     test.assertNull(run.getWorkingFolderPath());
-                    test.assertNull(run.getFunction());
+                    test.assertNull(run.getAction());
                 });
 
                 runner.test("with arguments", (Test test) ->
@@ -236,7 +236,7 @@ public interface FakeChildProcessRunTests
                     test.assertEqual(Path.parse("/fake.exe"), run.getExecutablePath());
                     test.assertEqual(Iterable.create("hello", "there"), run.getArguments());
                     test.assertNull(run.getWorkingFolderPath());
-                    test.assertNull(run.getFunction());
+                    test.assertNull(run.getAction());
                 });
             });
         });
@@ -441,354 +441,93 @@ public interface FakeChildProcessRunTests
                 });
             });
 
-            runner.test("setFunction(int)", (Test test) ->
-            {
-                final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                test.assertSame(fakeProcessRun, fakeProcessRun.setFunction(17));
-                test.assertNotNull(fakeProcessRun.getFunction());
-                final InMemoryByteStream input = InMemoryByteStream.create();
-                final InMemoryByteStream output = InMemoryByteStream.create();
-                final InMemoryByteStream error = InMemoryByteStream.create();
-                test.assertEqual(17, fakeProcessRun.getFunction().run(input, output, error));
-                test.assertEqual(new byte[0], output.getBytes());
-                test.assertEqual(new byte[0], error.getBytes());
-            });
-
-            runner.testGroup("setFunction(Action0)", () ->
+            runner.testGroup("setAction(Action0)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
                     final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertThrows(() -> fakeProcessRun.setFunction((Action0)null),
+                    test.assertThrows(() -> fakeProcessRun.setAction((Action0)null),
                         new PreConditionFailure("action cannot be null."));
-                    test.assertNull(fakeProcessRun.getFunction());
+                    test.assertNull(fakeProcessRun.getAction());
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
                     final FakeChildProcessRun fakeProcessRun = creator.run("exe");
                     final IntegerValue value = new IntegerValue(5);
-                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction(() -> { value.set(20); }));
-                    test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = InMemoryByteStream.create();
-                    final InMemoryByteStream output = InMemoryByteStream.create();
-                    final InMemoryByteStream error = InMemoryByteStream.create();
-                    test.assertEqual(0, fakeProcessRun.getFunction().run(input, output, error));
-                    test.assertEqual(new byte[0], output.getBytes());
-                    test.assertEqual(new byte[0], error.getBytes());
-                    test.assertEqual(20, value.get());
+                    test.assertSame(fakeProcessRun, fakeProcessRun.setAction(() -> { value.set(20); }));
+                    test.assertNotNull(fakeProcessRun.getAction());
+                    try (final FakeDesktopProcess childProcess = FakeDesktopProcess.create())
+                    {
+                        fakeProcessRun.getAction().run(childProcess);
+                        test.assertEqual(new byte[0], childProcess.getOutputWriteStream().getBytes());
+                        test.assertEqual(new byte[0], childProcess.getErrorWriteStream().getBytes());
+                        test.assertEqual(20, value.get());
+                        test.assertEqual(0, childProcess.getExitCode());
+                    }
                 });
 
                 runner.test("with non-null that throws", (Test test) ->
                 {
                     final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction(() -> { throw new ParseException("blah"); }));
-                    test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = InMemoryByteStream.create();
-                    final InMemoryByteStream output = InMemoryByteStream.create();
-                    final InMemoryByteStream error = InMemoryByteStream.create();
-                    test.assertThrows(() -> fakeProcessRun.getFunction().run(input, output, error),
-                        new ParseException("blah"));
-                    test.assertEqual(new byte[0], output.getBytes());
-                    test.assertEqual(new byte[0], error.getBytes());
+                    test.assertSame(fakeProcessRun, fakeProcessRun.setAction(() -> { throw new ParseException("blah"); }));
+                    test.assertNotNull(fakeProcessRun.getAction());
+                    try (final FakeDesktopProcess childProcess = FakeDesktopProcess.create())
+                    {
+                        test.assertThrows(() -> fakeProcessRun.getAction().run(childProcess),
+                            new ParseException("blah"));
+                        test.assertEqual(new byte[0], childProcess.getOutputWriteStream().getBytes());
+                        test.assertEqual(new byte[0], childProcess.getErrorWriteStream().getBytes());
+                        test.assertEqual(0, childProcess.getExitCode());
+                    }
                 });
             });
 
-            runner.testGroup("setFunction(Function0<Integer>)", () ->
+            runner.testGroup("setAction(Action1<FakeDesktopProcess>)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
                     final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertThrows(() -> fakeProcessRun.setFunction((Function0<Integer>)null),
-                        new PreConditionFailure("function cannot be null."));
-                    test.assertNull(fakeProcessRun.getFunction());
+                    test.assertThrows(() -> fakeProcessRun.setAction((Action1<FakeDesktopProcess>)null),
+                        new PreConditionFailure("action cannot be null."));
+                    test.assertNull(fakeProcessRun.getAction());
                 });
 
                 runner.test("with non-null", (Test test) ->
                 {
                     final FakeChildProcessRun fakeProcessRun = creator.run("exe");
                     final IntegerValue value = new IntegerValue(5);
-                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction(() -> { value.set(20); return 7; }));
-                    test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = InMemoryByteStream.create();
-                    final InMemoryByteStream output = InMemoryByteStream.create();
-                    final InMemoryByteStream error = InMemoryByteStream.create();
-                    test.assertEqual(7, fakeProcessRun.getFunction().run(input, output, error));
-                    test.assertEqual(new byte[0], output.getBytes());
-                    test.assertEqual(new byte[0], error.getBytes());
-                    test.assertEqual(20, value.get());
+                    final FakeChildProcessRun setActionResult = fakeProcessRun.setAction((FakeDesktopProcess childProcess) ->
+                    {
+                        value.set(20);
+                        childProcess.setExitCode(2);
+                    });
+                    test.assertSame(fakeProcessRun, setActionResult);
+                    test.assertNotNull(fakeProcessRun.getAction());
+                    try (final FakeDesktopProcess childProcess = FakeDesktopProcess.create())
+                    {
+                        fakeProcessRun.getAction().run(childProcess);
+                        test.assertEqual(new byte[0], childProcess.getOutputWriteStream().getBytes());
+                        test.assertEqual(new byte[0], childProcess.getErrorWriteStream().getBytes());
+                        test.assertEqual(20, value.get());
+                        test.assertEqual(2, childProcess.getExitCode());
+                    }
                 });
 
                 runner.test("with non-null that throws", (Test test) ->
                 {
                     final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((Function0<Integer>)() -> { throw new ParseException("blah"); }));
-                    test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = InMemoryByteStream.create();
-                    final InMemoryByteStream output = InMemoryByteStream.create();
-                    final InMemoryByteStream error = InMemoryByteStream.create();
-                    test.assertThrows(() -> fakeProcessRun.getFunction().run(input, output, error),
-                        new ParseException("blah"));
-                    test.assertEqual(new byte[0], output.getBytes());
-                    test.assertEqual(new byte[0], error.getBytes());
-                });
-            });
-
-            runner.testGroup("setFunction(Action1<ByteWriteStream>)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertThrows(() -> fakeProcessRun.setFunction((Action1<ByteWriteStream>)null),
-                        new PreConditionFailure("action cannot be null."));
-                    test.assertNull(fakeProcessRun.getFunction());
-                });
-
-                runner.test("with non-null", (Test test) ->
-                {
-                    final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteWriteStream output) -> { output.write(new byte[] { 1, 2, 3 }).await(); }));
-                    test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = InMemoryByteStream.create();
-                    final InMemoryByteStream output = InMemoryByteStream.create();
-                    final InMemoryByteStream error = InMemoryByteStream.create();
-                    test.assertEqual(0, fakeProcessRun.getFunction().run(input, output, error));
-                    test.assertEqual(new byte[] { 1, 2, 3 }, output.getBytes());
-                    test.assertEqual(new byte[0], error.getBytes());
-                });
-
-                runner.test("with non-null that throws", (Test test) ->
-                {
-                    final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((Action1<ByteWriteStream>)(ByteWriteStream output) -> { throw new ParseException("blah"); }));
-                    test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = InMemoryByteStream.create();
-                    final InMemoryByteStream output = InMemoryByteStream.create();
-                    final InMemoryByteStream error = InMemoryByteStream.create();
-                    test.assertThrows(() -> fakeProcessRun.getFunction().run(input, output, error),
-                        new ParseException("blah"));
-                    test.assertEqual(new byte[0], output.getBytes());
-                    test.assertEqual(new byte[0], error.getBytes());
-                });
-            });
-
-            runner.testGroup("setFunction(Function1<ByteWriteStream,Integer>)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertThrows(() -> fakeProcessRun.setFunction((Function1<ByteWriteStream,Integer>)null),
-                        new PreConditionFailure("function cannot be null."));
-                    test.assertNull(fakeProcessRun.getFunction());
-                });
-
-                runner.test("with non-null", (Test test) ->
-                {
-                    final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteWriteStream output) -> { output.write(new byte[] { 1, 2 }).await(); return 100; }));
-                    test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = InMemoryByteStream.create();
-                    final InMemoryByteStream output = InMemoryByteStream.create();
-                    final InMemoryByteStream error = InMemoryByteStream.create();
-                    test.assertEqual(100, fakeProcessRun.getFunction().run(input, output, error));
-                    test.assertEqual(new byte[] { 1, 2 }, output.getBytes());
-                    test.assertEqual(new byte[0], error.getBytes());
-                });
-
-                runner.test("with non-null that throws", (Test test) ->
-                {
-                    final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((Function1<ByteWriteStream,Integer>)(ByteWriteStream output) -> { throw new ParseException("blah"); }));
-                    test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = InMemoryByteStream.create();
-                    final InMemoryByteStream output = InMemoryByteStream.create();
-                    final InMemoryByteStream error = InMemoryByteStream.create();
-                    test.assertThrows(() -> fakeProcessRun.getFunction().run(input, output, error),
-                        new ParseException("blah"));
-                    test.assertEqual(new byte[0], output.getBytes());
-                    test.assertEqual(new byte[0], error.getBytes());
-                });
-            });
-
-            runner.testGroup("setFunction(Action2<ByteWriteStream,ByteWriteStream>)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertThrows(() -> fakeProcessRun.setFunction((Action2<ByteWriteStream,ByteWriteStream>)null),
-                        new PreConditionFailure("action cannot be null."));
-                    test.assertNull(fakeProcessRun.getFunction());
-                });
-
-                runner.test("with non-null", (Test test) ->
-                {
-                    final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteWriteStream output, ByteWriteStream error) ->
+                    final FakeChildProcessRun setActionResult = fakeProcessRun.setAction((FakeDesktopProcess childProcess) -> { throw new ParseException("blah"); });
+                    test.assertSame(fakeProcessRun, setActionResult);
+                    test.assertNotNull(fakeProcessRun.getAction());
+                    try (final FakeDesktopProcess childProcess = FakeDesktopProcess.create())
                     {
-                        output.write(new byte[] { 1, 2, 3 }).await();
-                        error.write(new byte[] { 4, 5, 6 }).await();
-                    }));
-                    test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = InMemoryByteStream.create();
-                    final InMemoryByteStream output = InMemoryByteStream.create();
-                    final InMemoryByteStream error = InMemoryByteStream.create();
-                    test.assertEqual(0, fakeProcessRun.getFunction().run(input, output, error));
-                    test.assertEqual(new byte[] { 1, 2, 3 }, output.getBytes());
-                    test.assertEqual(new byte[] { 4, 5, 6 }, error.getBytes());
-                });
-
-                runner.test("with non-null that throws", (Test test) ->
-                {
-                    final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((Action2<ByteWriteStream,ByteWriteStream>)(ByteWriteStream output, ByteWriteStream error) ->
-                    {
-                        throw new ParseException("blah");
-                    }));
-                    test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = InMemoryByteStream.create();
-                    final InMemoryByteStream output = InMemoryByteStream.create();
-                    final InMemoryByteStream error = InMemoryByteStream.create();
-                    test.assertThrows(() -> fakeProcessRun.getFunction().run(input, output, error),
-                        new ParseException("blah"));
-                    test.assertEqual(new byte[0], output.getBytes());
-                    test.assertEqual(new byte[0], error.getBytes());
-                });
-            });
-
-            runner.testGroup("setFunction(Function2<ByteWriteStream,ByteWriteStream,Integer>)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertThrows(() -> fakeProcessRun.setFunction((Function2<ByteWriteStream,ByteWriteStream,Integer>)null),
-                        new PreConditionFailure("function cannot be null."));
-                    test.assertNull(fakeProcessRun.getFunction());
-                });
-
-                runner.test("with non-null", (Test test) ->
-                {
-                    final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteWriteStream output, ByteWriteStream error) ->
-                    {
-                        output.write(new byte[] { 1, 2, 3 }).await();
-                        error.write(new byte[] { 4, 5, 6 }).await();
-                        return 6;
-                    }));
-                    test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = InMemoryByteStream.create();
-                    final InMemoryByteStream output = InMemoryByteStream.create();
-                    final InMemoryByteStream error = InMemoryByteStream.create();
-                    test.assertEqual(6, fakeProcessRun.getFunction().run(input, output, error));
-                    test.assertEqual(new byte[] { 1, 2, 3 }, output.getBytes());
-                    test.assertEqual(new byte[] { 4, 5, 6 }, error.getBytes());
-                });
-
-                runner.test("with non-null that throws", (Test test) ->
-                {
-                    final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((Function2<ByteWriteStream,ByteWriteStream,Integer>)(ByteWriteStream output, ByteWriteStream error) ->
-                    {
-                        throw new ParseException("blah");
-                    }));
-                    test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = InMemoryByteStream.create();
-                    final InMemoryByteStream output = InMemoryByteStream.create();
-                    final InMemoryByteStream error = InMemoryByteStream.create();
-                    test.assertThrows(() -> fakeProcessRun.getFunction().run(input, output, error),
-                        new ParseException("blah"));
-                    test.assertEqual(new byte[0], output.getBytes());
-                    test.assertEqual(new byte[0], error.getBytes());
-                });
-            });
-
-            runner.testGroup("setFunction(Action3<ByteReadStream,ByteWriteStream,ByteWriteStream>)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertThrows(() -> fakeProcessRun.setFunction((Action3<ByteReadStream,ByteWriteStream,ByteWriteStream>)null),
-                        new PreConditionFailure("action cannot be null."));
-                    test.assertNull(fakeProcessRun.getFunction());
-                });
-
-                runner.test("with non-null", (Test test) ->
-                {
-                    final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) ->
-                    {
-                        output.writeAll(input).await();
-                        error.write(new byte[] { 4, 5, 6 }).await();
-                    }));
-                    test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = InMemoryByteStream.create(new byte[] { 10, 20, 30 }).endOfStream();
-                    final InMemoryByteStream output = InMemoryByteStream.create();
-                    final InMemoryByteStream error = InMemoryByteStream.create();
-                    test.assertEqual(0, fakeProcessRun.getFunction().run(input, output, error));
-                    test.assertEqual(new byte[] { 10, 20, 30 }, output.getBytes());
-                    test.assertEqual(new byte[] { 4, 5, 6 }, error.getBytes());
-                });
-
-                runner.test("with non-null that throws", (Test test) ->
-                {
-                    final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((Action3<ByteReadStream,ByteWriteStream,ByteWriteStream>)(ByteReadStream input, ByteWriteStream output, ByteWriteStream error) ->
-                    {
-                        throw new ParseException("blah");
-                    }));
-                    test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = InMemoryByteStream.create();
-                    final InMemoryByteStream output = InMemoryByteStream.create();
-                    final InMemoryByteStream error = InMemoryByteStream.create();
-                    test.assertThrows(() -> fakeProcessRun.getFunction().run(input, output, error),
-                        new ParseException("blah"));
-                    test.assertEqual(new byte[0], output.getBytes());
-                    test.assertEqual(new byte[0], error.getBytes());
-                });
-            });
-
-            runner.testGroup("setFunction(Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer>)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertThrows(() -> fakeProcessRun.setFunction((Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer>)null),
-                        new PreConditionFailure("function cannot be null."));
-                    test.assertNull(fakeProcessRun.getFunction());
-                });
-
-                runner.test("with non-null", (Test test) ->
-                {
-                    final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) ->
-                    {
-                        output.writeAll(input).await();
-                        error.write(new byte[] { 4, 5, 6 }).await();
-                        return 6;
-                    }));
-                    test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = InMemoryByteStream.create(new byte[] { 10, 20, 30 }).endOfStream();
-                    final InMemoryByteStream output = InMemoryByteStream.create();
-                    final InMemoryByteStream error = InMemoryByteStream.create();
-                    test.assertEqual(6, fakeProcessRun.getFunction().run(input, output, error));
-                    test.assertEqual(new byte[] { 10, 20, 30 }, output.getBytes());
-                    test.assertEqual(new byte[] { 4, 5, 6 }, error.getBytes());
-                });
-
-                runner.test("with non-null that throws", (Test test) ->
-                {
-                    final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    test.assertSame(fakeProcessRun, fakeProcessRun.setFunction((Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer>)(ByteReadStream input, ByteWriteStream output, ByteWriteStream error) ->
-                    {
-                        throw new ParseException("blah");
-                    }));
-                    test.assertNotNull(fakeProcessRun.getFunction());
-                    final InMemoryByteStream input = InMemoryByteStream.create();
-                    final InMemoryByteStream output = InMemoryByteStream.create();
-                    final InMemoryByteStream error = InMemoryByteStream.create();
-                    test.assertThrows(() -> fakeProcessRun.getFunction().run(input, output, error),
-                        new ParseException("blah"));
-                    test.assertEqual(new byte[0], output.getBytes());
-                    test.assertEqual(new byte[0], error.getBytes());
+                        test.assertThrows(() -> fakeProcessRun.getAction().run(childProcess),
+                            new ParseException("blah"));
+                        test.assertEqual(new byte[0], childProcess.getOutputWriteStream().getBytes());
+                        test.assertEqual(new byte[0], childProcess.getErrorWriteStream().getBytes());
+                        test.assertEqual(0, childProcess.getExitCode());
+                    }
                 });
             });
         });

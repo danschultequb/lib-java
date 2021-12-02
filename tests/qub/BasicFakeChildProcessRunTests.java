@@ -1,6 +1,6 @@
 package qub;
 
-public interface BasicFakeProcessRunTests
+public interface BasicFakeChildProcessRunTests
 {
     static void test(TestRunner runner)
     {
@@ -22,7 +22,7 @@ public interface BasicFakeProcessRunTests
                     test.assertEqual(Path.parse("testFile.exe"), fakeProcessRun.getExecutablePath());
                     test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
                     test.assertNull(fakeProcessRun.getWorkingFolderPath());
-                    test.assertNull(fakeProcessRun.getFunction());
+                    test.assertNull(fakeProcessRun.getAction());
                 });
 
                 runner.test("with rooted path", (Test test) ->
@@ -31,7 +31,7 @@ public interface BasicFakeProcessRunTests
                     test.assertEqual(Path.parse("/testFile.exe"), fakeProcessRun.getExecutablePath());
                     test.assertEqual(Iterable.create(), fakeProcessRun.getArguments());
                     test.assertNull(fakeProcessRun.getWorkingFolderPath());
-                    test.assertNull(fakeProcessRun.getFunction());
+                    test.assertNull(fakeProcessRun.getAction());
                 });
             });
         });

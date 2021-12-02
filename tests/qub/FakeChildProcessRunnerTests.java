@@ -8,28 +8,6 @@ public interface FakeChildProcessRunnerTests
         {
             ChildProcessRunnerTests.test(runner, FakeChildProcessRunner::create);
 
-            runner.testGroup("create(AsyncRunner,Folder)", () ->
-            {
-                final Action4<String,AsyncRunner,Folder,Throwable> createErrorTest = (String testName, AsyncRunner parallelAsyncRunner, Folder currentFolder, Throwable expected) ->
-                {
-                    runner.test(testName, (Test test) ->
-                    {
-                        test.assertThrows(() -> FakeChildProcessRunner.create(parallelAsyncRunner, currentFolder),
-                            expected);
-                    });
-                };
-
-                createErrorTest.run("with null parallelAsyncRunner",
-                    null,
-                    InMemoryFileSystem.create().getFolder("/").await(),
-                    new PreConditionFailure("parallelAsyncRunner cannot be null."));
-
-                createErrorTest.run("with null currentFolder",
-                    ManualAsyncRunner.create(),
-                    null,
-                    new PreConditionFailure("currentFolder cannot be null."));
-            });
-
             runner.testGroup("create(DesktopProcess)", () ->
             {
                 runner.test("with null process", (Test test) ->
@@ -64,7 +42,7 @@ public interface FakeChildProcessRunnerTests
                 {
                     final FakeChildProcessRunner processRunner = FakeChildProcessRunner.create(process);
                     final FakeChildProcessRunner addResult = processRunner.add(FakeChildProcessRun.create("/executable/file")
-                        .setFunction(20));
+                        .setAction((FakeDesktopProcess childProcess) -> childProcess.setExitCode(20)));
                     test.assertSame(processRunner, addResult);
                     test.assertEqual(20, processRunner.run("/executable/file").await());
                 });
@@ -76,11 +54,11 @@ public interface FakeChildProcessRunnerTests
                     final FakeChildProcessRunner processRunner = FakeChildProcessRunner.create(process);
 
                     final FakeChildProcessRunner addResult1 = processRunner.add(FakeChildProcessRun.create("/executable/file")
-                        .setFunction(20));
+                        .setAction((FakeDesktopProcess childProcess) -> childProcess.setExitCode(20)));
                     test.assertSame(processRunner, addResult1);
 
                     final FakeChildProcessRunner addResult2 = processRunner.add(FakeChildProcessRun.create("/executable/file")
-                        .setFunction(21));
+                        .setAction((FakeDesktopProcess childProcess) -> childProcess.setExitCode(21)));
                     test.assertSame(processRunner, addResult2);
 
                     test.assertEqual(21, processRunner.run("/executable/file").await());
@@ -153,7 +131,7 @@ public interface FakeChildProcessRunnerTests
                         final FakeChildProcessRunner processRunner = FakeChildProcessRunner.create(process)
                             .add(FakeChildProcessRun.create("/other/exe", "apples", "ban anas")
                                 .setWorkingFolder(workingFolder)
-                                .setFunction(() -> 3));
+                                .setAction((FakeDesktopProcess childProcess) -> childProcess.setExitCode(3)));
                         final ChildProcessParameters parameters = ChildProcessParameters.create("/other/exe", "apples", "ban anas")
                             .setWorkingFolder(workingFolder);
                         test.assertEqual(3, processRunner.run(parameters).await());
@@ -166,9 +144,9 @@ public interface FakeChildProcessRunnerTests
                 {
                     final FakeChildProcessRunner processRunner = FakeChildProcessRunner.create(process)
                         .add(FakeChildProcessRun.create("/other/exe", "a", "b")
-                            .setFunction(() -> 3))
+                            .setAction((FakeDesktopProcess childProcess) -> childProcess.setExitCode(3)))
                         .add(FakeChildProcessRun.create("/other/exe", "a", "b")
-                            .setFunction(() -> 4));
+                            .setAction((FakeDesktopProcess childProcess) -> childProcess.setExitCode(4)));
                     test.assertEqual(4, processRunner.run("/other/exe", "a", "b").await());
                 });
 
@@ -178,10 +156,10 @@ public interface FakeChildProcessRunnerTests
                 {
                     final FakeChildProcessRunner processRunner = FakeChildProcessRunner.create(process)
                         .add(FakeChildProcessRun.create("/other/exe", "a", "b")
-                            .setFunction(() -> 3))
+                            .setAction((FakeDesktopProcess childProcess) -> childProcess.setExitCode(3)))
                         .add(FakeChildProcessRun.create("/other/exe", "a", "b")
                             .setWorkingFolder("/other/working/")
-                            .setFunction(() -> 4));
+                            .setAction((FakeDesktopProcess childProcess) -> childProcess.setExitCode(4)));
                     test.assertEqual(3, processRunner.run("/other/exe", "a", "b").await());
                 });
 
@@ -191,7 +169,7 @@ public interface FakeChildProcessRunnerTests
                 {
                     final FakeChildProcessRunner processRunner = FakeChildProcessRunner.create(process)
                         .add(FakeChildProcessRun.create("/executable/file")
-                            .setFunction(() ->
+                            .setAction(() ->
                             {
                                 throw new ParseException("blah");
                             }));
@@ -206,10 +184,10 @@ public interface FakeChildProcessRunnerTests
                     final IntegerValue value = new IntegerValue(10);
                     final FakeChildProcessRunner processRunner = FakeChildProcessRunner.create(process)
                         .add(FakeChildProcessRun.create("/executable/file")
-                            .setFunction(() ->
+                            .setAction((FakeDesktopProcess childProcess) ->
                             {
                                 value.set(20);
-                                return 3;
+                                childProcess.setExitCode(3);
                             }));
                     test.assertEqual(3, processRunner.run("/executable/file").await());
                     test.assertEqual(20, value.get());
@@ -221,9 +199,12 @@ public interface FakeChildProcessRunnerTests
                 {
                     final FakeChildProcessRunner processRunner = FakeChildProcessRunner.create(process)
                         .add(FakeChildProcessRun.create("/executable/file")
-                            .setFunction((ByteReadStream input, ByteWriteStream output, ByteWriteStream error) ->
+                            .setAction((FakeDesktopProcess childProcess) ->
                             {
-                                return input.readAllBytes().await().length;
+                                final ByteReadStream input = childProcess.getInputReadStream();
+                                final byte[] bytes = input.readAllBytes().await();
+                                final int bytesLength = bytes.length;
+                                childProcess.setExitCode(bytesLength);
                             }));
                     final ChildProcessParameters parameters = ChildProcessParameters.create("/executable/file")
                         .setInputStream(InMemoryByteStream.create(new byte[] { 9, 8, 7, 6, 5, 4 }).endOfStream());
@@ -236,10 +217,10 @@ public interface FakeChildProcessRunnerTests
                 {
                     final FakeChildProcessRunner processRunner = FakeChildProcessRunner.create(process)
                         .add(FakeChildProcessRun.create("/executable/file")
-                            .setFunction((ByteWriteStream output) ->
+                            .setAction((FakeDesktopProcess childProcess) ->
                             {
-                                output.write(new byte[] { 10, 9, 8, 7 }).await();
-                                return 4;
+                                childProcess.getOutputWriteStream().write(new byte[] { 10, 9, 8, 7 }).await();
+                                childProcess.setExitCode(4);
                             }));
                     final InMemoryByteStream output = InMemoryByteStream.create();
                     final InMemoryByteStream error = InMemoryByteStream.create();
@@ -257,10 +238,10 @@ public interface FakeChildProcessRunnerTests
                 {
                     final FakeChildProcessRunner processRunner = FakeChildProcessRunner.create(process)
                         .add(FakeChildProcessRun.create("/executable/file")
-                            .setFunction((ByteWriteStream output, ByteWriteStream error) ->
+                            .setAction((FakeDesktopProcess childProcess) ->
                             {
-                                error.write(new byte[]{ 9, 8, 7, 6 }).await();
-                                return 5;
+                                childProcess.getErrorWriteStream().write(new byte[]{ 9, 8, 7, 6 }).await();
+                                childProcess.setExitCode(5);
                             }));
                     final InMemoryByteStream output = InMemoryByteStream.create();
                     final InMemoryByteStream error = InMemoryByteStream.create();

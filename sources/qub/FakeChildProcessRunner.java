@@ -5,35 +5,23 @@ package qub;
  */
 public class FakeChildProcessRunner implements ChildProcessRunner
 {
-    private final AsyncRunner parallelAsyncRunner;
-    private final Folder currentFolder;
+    private final DesktopProcess process;
     private final List<FakeChildProcessRun> fakeProcessRuns;
 
     /**
      * Create a new FakeProcessFactory.
      */
-    private FakeChildProcessRunner(AsyncRunner parallelAsyncRunner, Folder currentFolder)
+    private FakeChildProcessRunner(DesktopProcess process)
     {
-        PreCondition.assertNotNull(parallelAsyncRunner, "parallelAsyncRunner");
-        PreCondition.assertNotNull(currentFolder, "currentFolder");
+        PreCondition.assertNotNull(process, "process");
 
-        this.parallelAsyncRunner = parallelAsyncRunner;
-        this.currentFolder = currentFolder;
+        this.process = process;
         this.fakeProcessRuns = List.create();
-    }
-
-    public static FakeChildProcessRunner create(AsyncRunner parallelAsyncRunner, Folder currentFolder)
-    {
-        return new FakeChildProcessRunner(parallelAsyncRunner, currentFolder);
     }
 
     public static FakeChildProcessRunner create(DesktopProcess process)
     {
-        PreCondition.assertNotNull(process, "process");
-
-        final AsyncRunner parallelAsyncRunner = process.getParallelAsyncRunner();
-        final Folder currentFolder = process.getCurrentFolder();
-        return FakeChildProcessRunner.create(parallelAsyncRunner, currentFolder);
+        return new FakeChildProcessRunner(process);
     }
 
     @Override
@@ -43,16 +31,16 @@ public class FakeChildProcessRunner implements ChildProcessRunner
 
         return Result.create(() ->
         {
-            Path workingFolderPath = parameters.getWorkingFolderPath();
-            if (workingFolderPath == null)
+            Path currentFolderPath = parameters.getWorkingFolderPath();
+            if (currentFolderPath == null)
             {
-                workingFolderPath = this.currentFolder.getPath();
+                currentFolderPath = this.process.getCurrentFolderPath();
             }
 
-            final FileSystem fileSystem = this.currentFolder.getFileSystem();
-            if (!fileSystem.folderExists(workingFolderPath).await())
+            final FileSystem fileSystem = this.process.getFileSystem();
+            if (!fileSystem.folderExists(currentFolderPath).await())
             {
-                throw new FolderNotFoundException(workingFolderPath);
+                throw new FolderNotFoundException(currentFolderPath);
             }
 
             final Path executablePath = parameters.getExecutablePath();
@@ -68,7 +56,7 @@ public class FakeChildProcessRunner implements ChildProcessRunner
                 if (executablePath.equals(fakeProcessRun.getExecutablePath()) && arguments.equals(fakeProcessRun.getArguments()))
                 {
                     final Path runWorkingFolderPath = fakeProcessRun.getWorkingFolderPath();
-                    if (workingFolderPath.equals(runWorkingFolderPath))
+                    if (currentFolderPath.equals(runWorkingFolderPath))
                     {
                         match = fakeProcessRun;
                         break;
@@ -90,52 +78,64 @@ public class FakeChildProcessRunner implements ChildProcessRunner
 
             if (match == null)
             {
-                final String command = ChildProcessRunner.getCommand(executablePath, arguments, workingFolderPath);
+                final String command = ChildProcessRunner.getCommand(executablePath, arguments, currentFolderPath);
                 throw new NotFoundException("No fake process run found for " + Strings.escapeAndQuote(command) + ".");
             }
             else
             {
-                final Function3<ByteReadStream,ByteWriteStream,ByteWriteStream,Integer> function = match.getFunction();
-                if (function == null)
+                final Action1<FakeDesktopProcess> action = match.getAction();
+                if (action == null)
                 {
                     result.setProcessResult(0);
                 }
                 else
                 {
+                    final AsyncRunner parallelAsyncRunner = this.process.getParallelAsyncRunner();
+                    final FakeDesktopProcess childProcess = FakeDesktopProcess.create(arguments);
+
+                    childProcess.setCurrentFolderPath(currentFolderPath);
+                    childProcess.setFileSystem(fileSystem);
+
                     final ByteReadStream inputStream = parameters.getInputStream();
+                    if (inputStream != null)
+                    {
+                        final InMemoryCharacterToByteStream childProcessInput = InMemoryCharacterToByteStream.create();
+                        childProcess.setInputReadStream(childProcessInput);
+                        parallelAsyncRunner.schedule(() ->
+                        {
+                            childProcessInput.writeAll(inputStream).await();
+                            childProcessInput.endOfStream();
+                        });
+                    }
+
                     final Action1<ByteReadStream> outputStreamHandler = parameters.getOutputStreamHandler();
+                    final InMemoryCharacterToByteStream childProcessOutput = childProcess.getOutputWriteStream();
+                    if (outputStreamHandler != null)
+                    {
+                        result.setOutputResult(parallelAsyncRunner.schedule(() -> outputStreamHandler.run(childProcessOutput)));
+                    }
+
                     final Action1<ByteReadStream> errorStreamHandler = parameters.getErrorStreamHandler();
-                    try
+                    final InMemoryCharacterToByteStream childProcessError = childProcess.getErrorWriteStream();
+                    if (errorStreamHandler != null)
                     {
-                        final ByteReadStream input = inputStream != null
-                            ? inputStream
-                            : InMemoryByteStream.create().endOfStream();
+                        result.setErrorResult(parallelAsyncRunner.schedule(() -> errorStreamHandler.run(childProcessError)));
+                    }
 
-                        final InMemoryByteStream output = InMemoryByteStream.create();
-                        if (outputStreamHandler != null)
+                    result.setProcessResult(parallelAsyncRunner.schedule(() ->
+                    {
+                        try
                         {
-                            result.setOutputResult(this.parallelAsyncRunner.schedule(() -> outputStreamHandler.run(output)));
+                            action.run(childProcess);
                         }
-
-                        final InMemoryByteStream error = InMemoryByteStream.create();
-                        if (errorStreamHandler != null)
+                        finally
                         {
-                            result.setErrorResult(this.parallelAsyncRunner.schedule(() -> errorStreamHandler.run(error)));
-                        }
-
-                        result.setProcessResult(this.parallelAsyncRunner.schedule(() ->
-                        {
-                            final int exitCode = function.run(input, output, error);
-                            output.endOfStream();
-                            error.endOfStream();
+                            childProcessOutput.endOfStream();
+                            childProcessError.endOfStream();
                             result.setState(ProcessState.NotRunning);
-                            return exitCode;
-                        }));
-                    }
-                    catch (Throwable error)
-                    {
-                        throw Exceptions.asRuntime(error);
-                    }
+                        }
+                        return childProcess.getExitCode();
+                    }));
                 }
             }
 
