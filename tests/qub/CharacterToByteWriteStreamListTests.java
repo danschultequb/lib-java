@@ -60,11 +60,13 @@ public interface CharacterToByteWriteStreamListTests
                     test.assertNotNull(streamList);
                     test.assertEqual(Iterable.create(innerStream1, innerStream2), streamList);
 
-                    test.assertEqual(1, streamList.write('a').await());
+                    test.assertThrows(() -> streamList.write('a').await(),
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual("a", innerStream1.getText().await());
                     test.assertEqual("", innerStream2.getText().await());
 
-                    test.assertEqual(2, streamList.write("bc").await());
+                    test.assertThrows(() -> streamList.write("bc").await(),
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual("abc", innerStream1.getText().await());
                     test.assertEqual("", innerStream2.getText().await());
                 });
@@ -124,11 +126,13 @@ public interface CharacterToByteWriteStreamListTests
                     test.assertNotNull(streamList);
                     test.assertEqual(Iterable.create(innerStream1, innerStream2), streamList);
 
-                    test.assertEqual(1, streamList.write('a').await());
+                    test.assertThrows(() -> streamList.write('a').await(),
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual("a", innerStream1.getText().await());
                     test.assertEqual("", innerStream2.getText().await());
 
-                    test.assertEqual(2, streamList.write("bc").await());
+                    test.assertThrows(() -> streamList.write("bc").await(),
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual("abc", innerStream1.getText().await());
                     test.assertEqual("", innerStream2.getText().await());
                 });
@@ -189,7 +193,7 @@ public interface CharacterToByteWriteStreamListTests
                     final CharacterToByteWriteStreamList setNewLineResult = streamList.setNewLine('a');
                     test.assertSame(streamList, setNewLineResult);
                     test.assertEqual("a", streamList.getNewLine());
-                    test.assertEqual("\n", innerStream.getNewLine());
+                    test.assertEqual("a", innerStream.getNewLine());
                 });
             });
 
@@ -262,7 +266,7 @@ public interface CharacterToByteWriteStreamListTests
                     final CharacterToByteWriteStreamList setNewLineResult = streamList.setNewLine(new char[] { 'a' });
                     test.assertSame(streamList, setNewLineResult);
                     test.assertEqual("a", streamList.getNewLine());
-                    test.assertEqual("\n", innerStream.getNewLine());
+                    test.assertEqual("a", innerStream.getNewLine());
                 });
             });
 
@@ -335,7 +339,7 @@ public interface CharacterToByteWriteStreamListTests
                     final CharacterToByteWriteStreamList setNewLineResult = streamList.setNewLine("a");
                     test.assertSame(streamList, setNewLineResult);
                     test.assertEqual("a", streamList.getNewLine());
-                    test.assertEqual("\n", innerStream.getNewLine());
+                    test.assertEqual("a", innerStream.getNewLine());
                 });
             });
 
@@ -362,7 +366,8 @@ public interface CharacterToByteWriteStreamListTests
                     innerStream.dispose().await();
                     final CharacterToByteWriteStreamList streamList = CharacterToByteWriteStreamList.create(innerStream);
 
-                    test.assertEqual(0, streamList.write('a').await());
+                    test.assertThrows(() -> streamList.write('a').await(),
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual("", innerStream.getText().await());
                 });
 
@@ -373,9 +378,10 @@ public interface CharacterToByteWriteStreamListTests
                     final InMemoryCharacterToByteStream innerStream2 = InMemoryCharacterToByteStream.create();
                     final CharacterToByteWriteStreamList streamList = CharacterToByteWriteStreamList.create(innerStream1, innerStream2);
 
-                    test.assertEqual(1, streamList.write('a').await());
+                    test.assertThrows(() -> streamList.write('a').await(),
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual("", innerStream1.getText().await());
-                    test.assertEqual("a", innerStream2.getText().await());
+                    test.assertEqual("", innerStream2.getText().await());
                 });
 
                 runner.test("with two non-disposed innerStreams", (Test test) ->
@@ -420,7 +426,8 @@ public interface CharacterToByteWriteStreamListTests
                     innerStream.dispose().await();
                     final CharacterToByteWriteStreamList streamList = CharacterToByteWriteStreamList.create(innerStream);
 
-                    test.assertEqual(0, streamList.write("hello").await());
+                    test.assertThrows(() -> streamList.write("hello").await(),
+                        new PreConditionFailure("this.isDisposed() cannot be true."));
                     test.assertEqual("", innerStream.getText().await());
                 });
 

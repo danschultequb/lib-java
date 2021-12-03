@@ -83,10 +83,7 @@ public class CharacterToByteWriteStreamList implements CharacterToByteWriteStrea
         this.newLine = newLine;
         for (final CharacterWriteStream stream : this.innerStreams)
         {
-            if (stream != null && !stream.isDisposed())
-            {
-                stream.setNewLine(newLine);
-            }
+            stream.setNewLine(newLine);
         }
 
         return this;
@@ -102,10 +99,7 @@ public class CharacterToByteWriteStreamList implements CharacterToByteWriteStrea
             int result = 0;
             for (final CharacterWriteStream stream : this.innerStreams)
             {
-                if (stream != null && !stream.isDisposed())
-                {
-                    result += stream.write(toWrite).await();
-                }
+                result += stream.write(toWrite).await();
             }
             return result;
         });
@@ -123,10 +117,7 @@ public class CharacterToByteWriteStreamList implements CharacterToByteWriteStrea
             int result = 0;
             for (final CharacterWriteStream stream : this.innerStreams)
             {
-                if (stream != null && !stream.isDisposed())
-                {
-                    result += stream.write(toWrite, formattedStringArguments).await();
-                }
+                result += stream.write(toWrite, formattedStringArguments).await();
             }
             return result;
         });
@@ -149,10 +140,7 @@ public class CharacterToByteWriteStreamList implements CharacterToByteWriteStrea
                 this.isDisposed = true;
                 for (final CharacterWriteStream stream : this.innerStreams)
                 {
-                    if (stream != null && !stream.isDisposed())
-                    {
-                        stream.dispose().await();
-                    }
+                    stream.dispose().await();
                 }
             }
             return result;
