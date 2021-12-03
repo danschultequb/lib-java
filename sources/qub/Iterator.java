@@ -348,9 +348,9 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      * Create a CustomDecorator that will wrap around this Iterator.
      * @return A CustomDecorator that will wrap around this Iterator.
      */
-    default CustomDecorator<T> customize()
+    default CustomIteratorDecorator<T> customize()
     {
-        return CustomDecorator.create(this);
+        return CustomIteratorDecorator.create(this);
     }
 
     /**

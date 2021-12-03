@@ -1,16 +1,15 @@
 package qub;
 
-public class VerboseChildProcessRunner implements ChildProcessRunner
+public class VerboseChildProcessRunner extends ChildProcessRunnerDecorator
 {
-    private final ChildProcessRunner innerChildProcessRunner;
     private final CharacterWriteStream writeStream;
 
     private VerboseChildProcessRunner(ChildProcessRunner innerChildProcessRunner, CharacterWriteStream writeStream)
     {
-        PreCondition.assertNotNull(innerChildProcessRunner, "innerChildProcessRunner");
+        super(innerChildProcessRunner);
+
         PreCondition.assertNotNull(writeStream, "writeStream");
 
-        this.innerChildProcessRunner = innerChildProcessRunner;
         this.writeStream = writeStream;
     }
 
@@ -38,24 +37,24 @@ public class VerboseChildProcessRunner implements ChildProcessRunner
             final Path workingFolderPath = parameters.getWorkingFolderPath();
             if (workingFolderPath != null)
             {
-                writeStream.write(workingFolderPath.toString()).await();
-                writeStream.write(": ").await();
+                this.writeStream.write(workingFolderPath.toString()).await();
+                this.writeStream.write(": ").await();
             }
 
-            writeStream.write(parameters.getExecutablePath().toString()).await();
+            this.writeStream.write(parameters.getExecutablePath().toString()).await();
 
             final Iterable<String> arguments = parameters.getArguments();
             if (!Iterable.isNullOrEmpty(arguments))
             {
                 for (final String argument : parameters.getArguments())
                 {
-                    writeStream.write(" ").await();
-                    writeStream.write(argument).await();
+                    this.writeStream.write(" ").await();
+                    this.writeStream.write(argument).await();
                 }
             }
-            writeStream.writeLine().await();
+            this.writeStream.writeLine().await();
 
-            return this.innerChildProcessRunner.start(parameters).await();
+            return super.start(parameters).await();
         });
     }
 }
