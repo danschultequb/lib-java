@@ -1,6 +1,6 @@
 package qub;
 
-public class CustomIteratorDecorator<T> implements Iterator<T>
+public class CustomIterator<T> implements Iterator<T>
 {
     private final Iterator<T> innerIterator;
     private Function1<Iterator<T>,Boolean> hasStartedFunction;
@@ -8,7 +8,7 @@ public class CustomIteratorDecorator<T> implements Iterator<T>
     private Function1<Iterator<T>,T> getCurrentFunction;
     private Function1<Iterator<T>,Boolean> nextFunction;
 
-    private CustomIteratorDecorator(Iterator<T> innerIterator)
+    private CustomIterator(Iterator<T> innerIterator)
     {
         PreCondition.assertNotNull(innerIterator, "innerIterator");
 
@@ -19,9 +19,9 @@ public class CustomIteratorDecorator<T> implements Iterator<T>
         this.nextFunction = Iterator::next;
     }
 
-    public static <T> CustomIteratorDecorator<T> create(Iterator<T> innerIterator)
+    public static <T> CustomIterator<T> create(Iterator<T> innerIterator)
     {
-        return new CustomIteratorDecorator<>(innerIterator);
+        return new CustomIterator<>(innerIterator);
     }
 
     @Override
@@ -35,7 +35,7 @@ public class CustomIteratorDecorator<T> implements Iterator<T>
      * @param hasStartedFunction The function that will be invoked when hasStarted() is called.
      * @return This object for method chaining.
      */
-    public CustomIteratorDecorator<T> setHasStartedFunction(Function1<Iterator<T>,Boolean> hasStartedFunction)
+    public CustomIterator<T> setHasStartedFunction(Function1<Iterator<T>,Boolean> hasStartedFunction)
     {
         PreCondition.assertNotNull(hasStartedFunction, "hasStartedFunction");
 
@@ -55,7 +55,7 @@ public class CustomIteratorDecorator<T> implements Iterator<T>
      * @param hasCurrentFunction The function that will be invoked when hasCurrent() is called.
      * @return This object for method chaining.
      */
-    public CustomIteratorDecorator<T> setHasCurrentFunction(Function1<Iterator<T>,Boolean> hasCurrentFunction)
+    public CustomIterator<T> setHasCurrentFunction(Function1<Iterator<T>,Boolean> hasCurrentFunction)
     {
         PreCondition.assertNotNull(hasCurrentFunction, "hasStartedFunction");
 
@@ -75,7 +75,7 @@ public class CustomIteratorDecorator<T> implements Iterator<T>
      * @param getCurrentFunction The function that will be invoked when getCurrent() is called.
      * @return This object for method chaining.
      */
-    public CustomIteratorDecorator<T> setGetCurrentFunction(Function1<Iterator<T>,T> getCurrentFunction)
+    public CustomIterator<T> setGetCurrentFunction(Function1<Iterator<T>,T> getCurrentFunction)
     {
         PreCondition.assertNotNull(getCurrentFunction, "getCurrentFunction");
 
@@ -95,7 +95,7 @@ public class CustomIteratorDecorator<T> implements Iterator<T>
      * @param nextFunction The function that will be invoked when next() is called.
      * @return This object for method chaining.
      */
-    public CustomIteratorDecorator<T> setNextFunction(Function1<Iterator<T>,Boolean> nextFunction)
+    public CustomIterator<T> setNextFunction(Function1<Iterator<T>,Boolean> nextFunction)
     {
         PreCondition.assertNotNull(nextFunction, "nextFunction");
 

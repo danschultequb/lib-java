@@ -11,7 +11,34 @@ public interface FakeTypeLoaderTests
                 return FakeTypeLoader.create()
                     .addType(Integer.class)
                     .addType(String.class)
-                    .addType(TypeLoader.class);
+                    .addType(TypeLoader.class)
+                    .addType(TypeLoaderTests.class);
+            });
+
+            runner.testGroup("addType(String,Class<?>)", () ->
+            {
+                final Action3<String,Class<?>,Throwable> addTypeErrorTest = (String fullTypeName, Class<?> type, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(fullTypeName), type), (Test test) ->
+                    {
+                        final FakeTypeLoader typeLoader = FakeTypeLoader.create();
+                        test.assertThrows(() -> typeLoader.addType(fullTypeName, type),
+                            expected);
+                    });
+                };
+
+                addTypeErrorTest.run(null, String.class, new PreConditionFailure("fullTypeName cannot be null."));
+                addTypeErrorTest.run("", String.class, new PreConditionFailure("fullTypeName cannot be empty."));
+                addTypeErrorTest.run("fake.full.typename", null, new PreConditionFailure("type cannot be null."));
+
+                runner.test("with valid arguments", (Test test) ->
+                {
+                    final FakeTypeLoader typeLoader = FakeTypeLoader.create();
+
+                    final FakeTypeLoader addTypeResult = typeLoader.addType(String.class);
+                    test.assertSame(typeLoader, addTypeResult);
+                    test.assertSame(String.class, typeLoader.getType("java.lang.String").await());
+                });
             });
 
             runner.testGroup("addType(Class<?>)", () ->

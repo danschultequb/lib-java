@@ -16,13 +16,21 @@ public class FakeTypeLoader implements TypeLoader
         return new FakeTypeLoader();
     }
 
+    public FakeTypeLoader addType(String fullTypeName, Class<?> type)
+    {
+        PreCondition.assertNotNullAndNotEmpty(fullTypeName, "fullTypeName");
+        PreCondition.assertNotNull(type, "type");
+
+        this.typeMap.set(fullTypeName, type);
+
+        return this;
+    }
+
     public FakeTypeLoader addType(Class<?> type)
     {
         PreCondition.assertNotNull(type, "type");
 
-        this.typeMap.set(Types.getFullTypeName(type), type);
-
-        return this;
+        return this.addType(Types.getFullTypeName(type), type);
     }
 
     @Override

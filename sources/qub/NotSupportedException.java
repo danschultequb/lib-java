@@ -20,5 +20,7 @@ public class NotSupportedException extends RuntimeException
     public NotSupportedException(String message)
     {
         super(message);
+
+        PreCondition.assertNotNullAndNotEmpty(message, "message");
     }
 }

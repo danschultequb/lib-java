@@ -39,6 +39,284 @@ public interface TypeLoaderTests
                 getTypeTest.run("qub.TypeLoader", qub.TypeLoader.class);
             });
 
+            runner.testGroup("getStaticMethod0(String,String)", () ->
+            {
+                final Action3<String,String,Throwable> getStaticMethod0ErrorTest = (String fullTypeName, String methodName, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(fullTypeName, methodName).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        final TypeLoader typeLoader = creator.run();
+                        test.assertThrows(() -> typeLoader.getStaticMethod0(fullTypeName, methodName).await(),
+                            expected);
+                    });
+                };
+
+                getStaticMethod0ErrorTest.run(null, "there", new PreConditionFailure("fullTypeName cannot be null."));
+                getStaticMethod0ErrorTest.run("", "there", new PreConditionFailure("fullTypeName cannot be empty."));
+                getStaticMethod0ErrorTest.run("hello", null, new PreConditionFailure("methodName cannot be null."));
+                getStaticMethod0ErrorTest.run("hello", "", new PreConditionFailure("methodName cannot be empty."));
+                getStaticMethod0ErrorTest.run("hello", "there", new NotFoundException("Could not load a class named \"hello\"."));
+                getStaticMethod0ErrorTest.run(Types.getFullTypeName(TypeLoaderTests.class), "test", new NotFoundException("No static method with the signature qub.TypeLoaderTests.test() -> ? could be found."));
+
+                runner.test("with matching static function", (Test test) ->
+                {
+                    final TypeLoader typeLoader = creator.run();
+                    final StaticMethod0<?,?> staticMethod = typeLoader.getStaticMethod0(
+                        Types.getFullTypeName(TypeLoaderTests.class),
+                        "fakeStaticMethod0")
+                        .await();
+                    test.assertNotNull(staticMethod);
+                    test.assertEqual(5, staticMethod.run());
+                });
+            });
+
+            runner.testGroup("getStaticMethod0(String,String,Class<TReturn>)", () ->
+            {
+                final Action4<String,String,Class<?>,Throwable> getStaticMethod0ErrorTest = (String fullTypeName, String methodName, Class<?> returnType, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(fullTypeName), Strings.escapeAndQuote(methodName), returnType), (Test test) ->
+                    {
+                        final TypeLoader typeLoader = creator.run();
+                        test.assertThrows(() -> typeLoader.getStaticMethod0(fullTypeName, methodName, returnType).await(),
+                            expected);
+                    });
+                };
+
+                getStaticMethod0ErrorTest.run(
+                    null,
+                    "fakeMethodName",
+                    Integer.class,
+                    new PreConditionFailure("fullTypeName cannot be null."));
+                getStaticMethod0ErrorTest.run(
+                    "",
+                    "fakeMethodName",
+                    Integer.class,
+                    new PreConditionFailure("fullTypeName cannot be empty."));
+                getStaticMethod0ErrorTest.run(
+                    "fakeTypeName",
+                    null,
+                    Integer.class,
+                    new PreConditionFailure("methodName cannot be null."));
+                getStaticMethod0ErrorTest.run(
+                    "fakeTypeName",
+                    "",
+                    Integer.class,
+                    new PreConditionFailure("methodName cannot be empty."));
+                getStaticMethod0ErrorTest.run(
+                    "fakeTypeName",
+                    "fakeMethodName",
+                    null,
+                    new PreConditionFailure("returnType cannot be null."));
+                getStaticMethod0ErrorTest.run(
+                    "idontexist",
+                    "fakeMethodName",
+                    Void.class,
+                    new NotFoundException("Could not load a class named \"idontexist\"."));
+                getStaticMethod0ErrorTest.run(
+                    Types.getFullTypeName(TypeLoaderTests.class),
+                    "fakeStaticMethod0",
+                    Float.class,
+                    new NotFoundException("No static method with the signature qub.TypeLoaderTests.fakeStaticMethod0() -> java.lang.Float could be found."));
+                getStaticMethod0ErrorTest.run(
+                    Types.getFullTypeName(TypeLoaderTests.class),
+                    "fakeStaticMethod0",
+                    Object.class,
+                    new NotFoundException("No static method with the signature qub.TypeLoaderTests.fakeStaticMethod0() -> java.lang.Object could be found."));
+                getStaticMethod0ErrorTest.run(
+                    Types.getFullTypeName(TypeLoaderTests.class),
+                    "test",
+                    Void.class,
+                    new NotFoundException("No static method with the signature qub.TypeLoaderTests.test() -> java.lang.Void could be found."));
+                getStaticMethod0ErrorTest.run(
+                    Types.getFullTypeName(TypeLoaderTests.class),
+                    "fakeStaticMethod0",
+                    Integer.class,
+                    new NotFoundException("No static method with the signature qub.TypeLoaderTests.fakeStaticMethod0() -> java.lang.Integer could be found."));
+
+                runner.test("with matching static method", (Test test) ->
+                {
+                    final TypeLoader typeLoader = creator.run();
+                    final StaticMethod0<?,Integer> staticMethod = typeLoader.getStaticMethod0(
+                        Types.getFullTypeName(TypeLoaderTests.class),
+                        "fakeStaticMethod0",
+                        int.class)
+                        .await();
+                    test.assertNotNull(staticMethod);
+                    test.assertEqual(5, staticMethod.run());
+                });
+            });
+
+            runner.testGroup("getStaticMethod1(String,String,Class<T1>)", () ->
+            {
+                final Action4<String,String,Class<?>,Throwable> getStaticMethod1ErrorTest = (String fullTypeName, String methodName, Class<?> arg1Type, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(fullTypeName), Strings.escapeAndQuote(methodName), arg1Type), (Test test) ->
+                    {
+                        final TypeLoader typeLoader = creator.run();
+                        test.assertThrows(() -> typeLoader.getStaticMethod1(fullTypeName, methodName, arg1Type).await(),
+                            expected);
+                    });
+                };
+
+                getStaticMethod1ErrorTest.run(
+                    null,
+                    "fakeMethodName",
+                    Integer.class,
+                    new PreConditionFailure("fullTypeName cannot be null."));
+                getStaticMethod1ErrorTest.run(
+                    "",
+                    "fakeMethodName",
+                    Integer.class,
+                    new PreConditionFailure("fullTypeName cannot be empty."));
+                getStaticMethod1ErrorTest.run(
+                    "fakeTypeName",
+                    null,
+                    Integer.class,
+                    new PreConditionFailure("methodName cannot be null."));
+                getStaticMethod1ErrorTest.run(
+                    "fakeTypeName",
+                    "",
+                    Integer.class,
+                    new PreConditionFailure("methodName cannot be empty."));
+                getStaticMethod1ErrorTest.run(
+                    "fakeTypeName",
+                    "fakeMethodName",
+                    null,
+                    new PreConditionFailure("arg1Type cannot be null."));
+                getStaticMethod1ErrorTest.run(
+                    "idontexist",
+                    "fakeMethodName",
+                    Void.class,
+                    new NotFoundException("Could not load a class named \"idontexist\"."));
+                getStaticMethod1ErrorTest.run(
+                    Types.getFullTypeName(TypeLoaderTests.class),
+                    "fakeStaticMethod0",
+                    Float.class,
+                    new NotFoundException("No static method with the signature qub.TypeLoaderTests.fakeStaticMethod0(java.lang.Float) -> ? could be found."));
+                getStaticMethod1ErrorTest.run(
+                    Types.getFullTypeName(TypeLoaderTests.class),
+                    "fakeStaticMethod0",
+                    Object.class,
+                    new NotFoundException("No static method with the signature qub.TypeLoaderTests.fakeStaticMethod0(java.lang.Object) -> ? could be found."));
+                getStaticMethod1ErrorTest.run(
+                    Types.getFullTypeName(TypeLoaderTests.class),
+                    "test",
+                    Void.class,
+                    new NotFoundException("No static method with the signature qub.TypeLoaderTests.test(java.lang.Void) -> ? could be found."));
+                getStaticMethod1ErrorTest.run(
+                    Types.getFullTypeName(TypeLoaderTests.class),
+                    "fakeStaticMethod0",
+                    Integer.class,
+                    new NotFoundException("No static method with the signature qub.TypeLoaderTests.fakeStaticMethod0(java.lang.Integer) -> ? could be found."));
+
+                runner.test("with matching static method", (Test test) ->
+                {
+                    final TypeLoader typeLoader = creator.run();
+                    final StaticMethod1<?,Float,?> staticMethod = typeLoader.getStaticMethod1(
+                        Types.getFullTypeName(TypeLoaderTests.class),
+                        "fakeStaticMethod1",
+                        Float.class)
+                        .await();
+                    test.assertNotNull(staticMethod);
+                    test.assertEqual(1.2, staticMethod.run(null));
+                    test.assertEqual(6.4, staticMethod.run(3f));
+                });
+            });
+
+            runner.testGroup("getStaticMethod1(String,String,Class<T1>,Class<TReturn>)", () ->
+            {
+                final Action5<String,String,Class<?>,Class<?>,Throwable> getStaticMethod1ErrorTest = (String fullTypeName, String methodName, Class<?> arg1Type, Class<?> returnType, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(fullTypeName), Strings.escapeAndQuote(methodName), arg1Type, returnType), (Test test) ->
+                    {
+                        final TypeLoader typeLoader = creator.run();
+                        test.assertThrows(() -> typeLoader.getStaticMethod1(fullTypeName, methodName, arg1Type, returnType).await(),
+                            expected);
+                    });
+                };
+
+                getStaticMethod1ErrorTest.run(
+                    null,
+                    "fakeMethodName",
+                    Integer.class,
+                    Boolean.class,
+                    new PreConditionFailure("fullTypeName cannot be null."));
+                getStaticMethod1ErrorTest.run(
+                    "",
+                    "fakeMethodName",
+                    Integer.class,
+                    Boolean.class,
+                    new PreConditionFailure("fullTypeName cannot be empty."));
+                getStaticMethod1ErrorTest.run(
+                    "fakeTypeName",
+                    null,
+                    Integer.class,
+                    Boolean.class,
+                    new PreConditionFailure("methodName cannot be null."));
+                getStaticMethod1ErrorTest.run(
+                    "fakeTypeName",
+                    "",
+                    Integer.class,
+                    Boolean.class,
+                    new PreConditionFailure("methodName cannot be empty."));
+                getStaticMethod1ErrorTest.run(
+                    "fakeTypeName",
+                    "fakeMethodName",
+                    null,
+                    Boolean.class,
+                    new PreConditionFailure("arg1Type cannot be null."));
+                getStaticMethod1ErrorTest.run(
+                    "fakeTypeName",
+                    "fakeMethodName",
+                    Integer.class,
+                    null,
+                    new PreConditionFailure("returnType cannot be null."));
+                getStaticMethod1ErrorTest.run(
+                    "idontexist",
+                    "fakeMethodName",
+                    Void.class,
+                    Boolean.class,
+                    new NotFoundException("Could not load a class named \"idontexist\"."));
+                getStaticMethod1ErrorTest.run(
+                    Types.getFullTypeName(TypeLoaderTests.class),
+                    "fakeStaticMethod0",
+                    Float.class,
+                    Boolean.class,
+                    new NotFoundException("No static method with the signature qub.TypeLoaderTests.fakeStaticMethod0(java.lang.Float) -> java.lang.Boolean could be found."));
+                getStaticMethod1ErrorTest.run(
+                    Types.getFullTypeName(TypeLoaderTests.class),
+                    "fakeStaticMethod0",
+                    Object.class,
+                    Boolean.class,
+                    new NotFoundException("No static method with the signature qub.TypeLoaderTests.fakeStaticMethod0(java.lang.Object) -> java.lang.Boolean could be found."));
+                getStaticMethod1ErrorTest.run(
+                    Types.getFullTypeName(TypeLoaderTests.class),
+                    "test",
+                    Void.class,
+                    Short.class,
+                    new NotFoundException("No static method with the signature qub.TypeLoaderTests.test(java.lang.Void) -> java.lang.Short could be found."));
+                getStaticMethod1ErrorTest.run(
+                    Types.getFullTypeName(TypeLoaderTests.class),
+                    "fakeStaticMethod0",
+                    Integer.class,
+                    Boolean.class,
+                    new NotFoundException("No static method with the signature qub.TypeLoaderTests.fakeStaticMethod0(java.lang.Integer) -> java.lang.Boolean could be found."));
+
+                runner.test("with matching static method", (Test test) ->
+                {
+                    final TypeLoader typeLoader = creator.run();
+                    final StaticMethod1<?,Float,Double> staticMethod = typeLoader.getStaticMethod1(
+                        Types.getFullTypeName(TypeLoaderTests.class),
+                        "fakeStaticMethod1",
+                        Float.class,
+                        double.class)
+                        .await();
+                    test.assertNotNull(staticMethod);
+                    test.assertEqual(1.2, staticMethod.run(null));
+                    test.assertEqual(6.4, staticMethod.run(3f));
+                });
+            });
+
             runner.testGroup("getTypeContainerPathString(String)", () ->
             {
                 final Action2<String,Throwable> getTypeContainerPathStringErrorTest = (String fullTypeName, Throwable expected) ->
@@ -111,5 +389,15 @@ public interface TypeLoaderTests
                 getTypeContainerPathErrorTest.run(java.lang.Integer.class, new NotFoundException("Could not find a type container for a type named \"java.lang.Integer\"."));
             });
         });
+    }
+
+    static int fakeStaticMethod0()
+    {
+        return 5;
+    }
+
+    static double fakeStaticMethod1(Float value)
+    {
+        return value == null ? 1.2 : value + 3.4;
     }
 }

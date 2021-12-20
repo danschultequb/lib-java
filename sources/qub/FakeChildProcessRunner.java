@@ -91,21 +91,34 @@ public class FakeChildProcessRunner implements ChildProcessRunner
                 else
                 {
                     final AsyncRunner parallelAsyncRunner = this.process.getParallelAsyncRunner();
-                    final FakeDesktopProcess childProcess = FakeDesktopProcess.create(arguments);
-
-                    childProcess.setCurrentFolderPath(currentFolderPath);
-                    childProcess.setFileSystem(fileSystem);
+                    final FakeDesktopProcess childProcess = FakeDesktopProcess.create(arguments)
+                        .setChildProcessRunner(this.process::getChildProcessRunner)
+                        .setClock(this.process::getClock)
+                        .setCurrentFolderPath(currentFolderPath)
+                        .setDefaultApplicationLauncher(this.process::getDefaultApplicationLauncher)
+                        .setDisplays(this.process::getDisplays)
+                        .setEnvironmentVariables(this.process::getEnvironmentVariables)
+                        .setFileSystem(fileSystem)
+                        .setNetwork(this.process::getNetwork)
+                        .setRandom(this.process::getRandom)
+                        .setSynchronization(this.process::getSynchronization)
+                        .setSystemProperties(this.process::getSystemProperties)
+                        .setTypeLoader(this.process::getTypeLoader);
 
                     final ByteReadStream inputStream = parameters.getInputStream();
                     if (inputStream != null)
                     {
-                        final InMemoryCharacterToByteStream childProcessInput = InMemoryCharacterToByteStream.create();
-                        childProcess.setInputReadStream(childProcessInput);
-                        parallelAsyncRunner.schedule(() ->
+                        childProcess.setInputReadStream(() ->
                         {
-                            childProcessInput.writeAll(inputStream).await();
-                            childProcessInput.endOfStream();
+                            final InMemoryCharacterToByteStream childProcessInput = InMemoryCharacterToByteStream.create();
+                            parallelAsyncRunner.schedule(() ->
+                            {
+                                childProcessInput.writeAll(inputStream).await();
+                                childProcessInput.endOfStream();
+                            });
+                            return childProcessInput;
                         });
+
                     }
 
                     final Action1<ByteReadStream> outputStreamHandler = parameters.getOutputStreamHandler();
