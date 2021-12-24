@@ -54,7 +54,7 @@ public final class BasicTestRunner implements TestRunner
         {
             final TypeLoader typeLoader = this.process.getTypeLoader();
             final Class<?> classWithTests = typeLoader.getType(fullClassName).await();
-            this.testClass(classWithTests).await();
+            this.testClass(fullClassName, classWithTests).await();
         });
     }
 
