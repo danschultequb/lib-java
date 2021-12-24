@@ -64,7 +64,7 @@ public interface TestTests
 
                 runner.test("with TestClassParent parent", (Test test) ->
                 {
-                    final TestClass parent = new TestClass(TestTests.class);
+                    final TestClass parent = TestClass.create(TestTests.class);
                     final Test t = Test.create("apples", parent, null);
                     test.assertEqual("qub.TestTests apples", t.getFullName());
                 });
@@ -78,7 +78,7 @@ public interface TestTests
 
                 runner.test("with TestGroup parent with TestClass grandparent", (Test test) ->
                 {
-                    final TestClass grandparent = new TestClass(TestTests.class);
+                    final TestClass grandparent = TestClass.create(TestTests.class);
                     final TestGroup parent = TestGroup.create("bananas", grandparent, null);
                     final Test t = Test.create("apples", parent, null);
                     test.assertEqual("qub.TestTests bananas apples", t.getFullName());
@@ -103,14 +103,14 @@ public interface TestTests
 
                 runner.test("with TestClass parent", (Test test) ->
                 {
-                    final TestClass parent = new TestClass(TestTests.class);
+                    final TestClass parent = TestClass.create(TestTests.class);
                     final Test t = Test.create("apples", parent, null);
                     test.assertSame(parent, t.getTestClass());
                 });
 
                 runner.test("with TestClass grandparent", (Test test) ->
                 {
-                    final TestClass grandparent = new TestClass(TestTests.class);
+                    final TestClass grandparent = TestClass.create(TestTests.class);
                     final TestGroup parent = TestGroup.create("parent", grandparent, null);
                     final Test t = Test.create("apples", parent, null);
                     test.assertSame(grandparent, t.getTestClass());

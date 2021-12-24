@@ -506,6 +506,19 @@ public interface Types
     }
 
     /**
+     * Get the simple name (without the package path) of the provided full type name.
+     * @param fullTypeName The full type name to get the simple name of.
+     * @return The simple name (without the package path) of the provided full type name.
+     */
+    static String getTypeNameFromFullTypeName(String fullTypeName)
+    {
+        PreCondition.assertNotNullAndNotEmpty(fullTypeName, "fullTypeName");
+
+        final int lastDot = fullTypeName.lastIndexOf('.');
+        return lastDot < 0 ? fullTypeName : fullTypeName.substring(lastDot + 1);
+    }
+
+    /**
      * Get the simple name (without the package path) of the provided type.
      * @param type The type to get the simple name of.
      * @return The simple name (without the package path) of the provided type.

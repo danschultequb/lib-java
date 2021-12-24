@@ -74,6 +74,13 @@ public interface TestRunner
     Result<Void> testClass(Class<?> testClass);
 
     /**
+     * Attempt to run the tests that are found in the provided testClass.
+     * @param fullTypeName The full type name of the test class.
+     * @param testClass The class to run the tests of.
+     */
+    Result<Void> testClass(String fullTypeName, Class<?> testClass);
+
+    /**
      * Create a new test group with the name of the provided class and the provided action.
      * @param testClass The class that this test group will be testing.
      * @param testGroupAction The action that should be run to run the tests of the test group.

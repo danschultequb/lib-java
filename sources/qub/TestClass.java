@@ -2,36 +2,51 @@ package qub;
 
 public class TestClass implements TestParent
 {
+    private final String fullTypeName;
     private final Class<?> testClass;
     private int skippedTestCount;
     private int passedTestCount;
     private int failedTestCount;
 
-    public TestClass(Class<?> testClass)
+    private TestClass(String fullTypeName, Class<?> testClass)
+    {
+        this.fullTypeName = fullTypeName;
+        this.testClass = testClass;
+    }
+
+    public static TestClass create(String fullTypeName, Class<?> testClass)
+    {
+        PreCondition.assertNotNullAndNotEmpty(fullTypeName, "fullTypeName");
+        PreCondition.assertNotNull(testClass, "testClass");
+
+        return new TestClass(fullTypeName, testClass);
+    }
+
+    public static TestClass create(Class<?> testClass)
     {
         PreCondition.assertNotNull(testClass, "testClass");
 
-        this.testClass = testClass;
+        return TestClass.create(Types.getFullTypeName(testClass), testClass);
     }
 
     @Override
     public String getName()
     {
-        return Types.getTypeName(testClass);
+        return Types.getTypeNameFromFullTypeName(this.fullTypeName);
     }
 
     @Override
     public String getFullName()
     {
-        return Types.getFullTypeName(testClass);
+        return this.fullTypeName;
     }
 
     @Override
     public boolean matches(PathPattern testPattern)
     {
         return testPattern == null ||
-            testPattern.isMatch(getName()) ||
-            testPattern.isMatch(getFullName());
+            testPattern.isMatch(this.getName()) ||
+            testPattern.isMatch(this.getFullName());
     }
 
     @Override
@@ -54,36 +69,36 @@ public class TestClass implements TestParent
 
     public void incrementSkippedTestCount()
     {
-        ++skippedTestCount;
+        ++this.skippedTestCount;
     }
 
     public int getSkippedTestCount()
     {
-        return skippedTestCount;
+        return this.skippedTestCount;
     }
 
     public void incrementFailedTestCount()
     {
-        ++failedTestCount;
+        ++this.failedTestCount;
     }
 
     public int getFailedTestCount()
     {
-        return failedTestCount;
+        return this.failedTestCount;
     }
 
     public void incrementPassedTestCount()
     {
-        ++passedTestCount;
+        ++this.passedTestCount;
     }
 
     public int getPassedTestCount()
     {
-        return passedTestCount;
+        return this.passedTestCount;
     }
 
     public int getTestCount()
     {
-        return skippedTestCount + failedTestCount + passedTestCount;
+        return this.skippedTestCount + this.failedTestCount + this.passedTestCount;
     }
 }

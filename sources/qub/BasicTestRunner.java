@@ -63,9 +63,18 @@ public final class BasicTestRunner implements TestRunner
     {
         PreCondition.assertNotNull(testClass, "testClass");
 
+        return this.testClass(Types.getFullTypeName(testClass), testClass);
+    }
+
+    @Override
+    public Result<Void> testClass(String fullTypeName, Class<?> testClass)
+    {
+        PreCondition.assertNotNullAndNotEmpty(fullTypeName, "fullTypeName");
+        PreCondition.assertNotNull(testClass, "testClass");
+
         return Result.create(() ->
         {
-            this.currentTestClass = new TestClass(testClass);
+            this.currentTestClass = TestClass.create(fullTypeName, testClass);
             try
             {
                 if (this.beforeTestClassAction != null)

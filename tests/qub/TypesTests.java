@@ -247,7 +247,7 @@ public class TypesTests
                 runner.test("with String", (Test test) ->
                 {
                     final Iterable<String> actual = Types.getMemberVariables("test").map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = Iterable.create("value", "coder", "hash", "hashIsZero", "serialVersionUID", "COMPACT_STRINGS", "serialPersistentFields", "CASE_INSENSITIVE_ORDER", "LATIN1", "UTF16");
+                    final Iterable<String> expected = Iterable.create("value", "coder", "hash", "hashIsZero", "serialVersionUID", "COMPACT_STRINGS", "serialPersistentFields", "REPL", "CASE_INSENSITIVE_ORDER", "LATIN1", "UTF16");
                     test.assertEqual(expected, actual);
                 });
 
@@ -283,14 +283,14 @@ public class TypesTests
                 runner.test("with String.getClass()", (Test test) ->
                 {
                     final Iterable<String> actual = Types.getMemberVariables("test").map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = Iterable.create("value", "coder", "hash", "hashIsZero", "serialVersionUID", "COMPACT_STRINGS", "serialPersistentFields", "CASE_INSENSITIVE_ORDER", "LATIN1", "UTF16");
+                    final Iterable<String> expected = Iterable.create("value", "coder", "hash", "hashIsZero", "serialVersionUID", "COMPACT_STRINGS", "serialPersistentFields", "REPL", "CASE_INSENSITIVE_ORDER", "LATIN1", "UTF16");
                     test.assertEqual(expected, actual);
                 });
 
                 runner.test("with String.class", (Test test) ->
                 {
                     final Iterable<String> actual = Types.getMemberVariables(String.class).map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = Iterable.create("value", "coder", "hash", "hashIsZero", "serialVersionUID", "COMPACT_STRINGS", "serialPersistentFields", "CASE_INSENSITIVE_ORDER", "LATIN1", "UTF16");
+                    final Iterable<String> expected = Iterable.create("value", "coder", "hash", "hashIsZero", "serialVersionUID", "COMPACT_STRINGS", "serialPersistentFields", "REPL", "CASE_INSENSITIVE_ORDER", "LATIN1", "UTF16");
                     test.assertEqual(expected, actual);
                 });
 
@@ -1044,6 +1044,33 @@ public class TypesTests
                 {
                     test.assertEqual("String", Types.getTypeName(String.class));
                 });
+            });
+
+            runner.testGroup("getTypeNameFromFullTypeName(String)", () ->
+            {
+                final Action2<String,Throwable> getTypeNameFromFullTypeNameErrorTest = (String fullTypeName, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(fullTypeName), (Test test) ->
+                    {
+                        test.assertThrows(() -> Types.getTypeNameFromFullTypeName(fullTypeName),
+                            expected);
+                    });
+                };
+
+                getTypeNameFromFullTypeNameErrorTest.run(null, new PreConditionFailure("fullTypeName cannot be null."));
+                getTypeNameFromFullTypeNameErrorTest.run("", new PreConditionFailure("fullTypeName cannot be empty."));
+
+                final Action2<String,String> getTypeNameFromFullTypeNameTest = (String fullTypeName, String expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(fullTypeName), (Test test) ->
+                    {
+                        test.assertEqual(expected, Types.getTypeNameFromFullTypeName(fullTypeName));
+                    });
+                };
+
+                getTypeNameFromFullTypeNameTest.run("a", "a");
+                getTypeNameFromFullTypeNameTest.run("a.b", "b");
+                getTypeNameFromFullTypeNameTest.run("a.b$1", "b$1");
             });
 
             runner.testGroup("getFullTypeName(Object)", () ->
