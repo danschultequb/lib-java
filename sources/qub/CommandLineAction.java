@@ -66,6 +66,10 @@ public class CommandLineAction
     public String getFullName()
     {
         String result = this.getName();
+        if (this.isDefaultAction())
+        {
+            result = '[' + result + ']';
+        }
         if (this.parentActions != null)
         {
             final String applicationName = this.parentActions.getApplicationName();

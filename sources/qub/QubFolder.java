@@ -173,10 +173,13 @@ public class QubFolder extends Folder
                     final ProjectSignature dependency = currentNode.getValue();
                     dependencyPaths.getOrSet(dependency, List::create).await()
                         .add(currentNode);
-                    final List<VersionNumber> dependencyVersionList = dependencyVersions.getOrSet(Tuple.create(dependency.getPublisher(), dependency.getProject()), List::create).await();
-                    if (!dependencyVersionList.contains(dependency.getVersion()))
+                    if (validateDependencies)
                     {
-                        dependencyVersionList.add(dependency.getVersion());
+                        final List<VersionNumber> dependencyVersionList = dependencyVersions.getOrSet(Tuple.create(dependency.getPublisher(), dependency.getProject()), List::create).await();
+                        if (!dependencyVersionList.contains(dependency.getVersion()))
+                        {
+                            dependencyVersionList.add(dependency.getVersion());
+                        }
                     }
 
                     final QubProjectVersionFolder dependencyFolder = this.getProjectVersionFolder(dependency).catchError().await();
