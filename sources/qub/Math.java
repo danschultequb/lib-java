@@ -196,7 +196,9 @@ public interface Math
      */
     static double round(double value, double scale)
     {
-        return round(value / scale) * scale;
+        PreCondition.assertNotEqual(0, scale, "scale");
+
+        return Math.round(value / scale) * scale;
     }
 
     /**

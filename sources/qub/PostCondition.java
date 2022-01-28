@@ -263,6 +263,34 @@ public class PostCondition
      * @param lowerBound The lower bound to ensure that the value is greater than.
      * @param variableName The name of the variable that contains the value.
      */
+    public static void assertGreaterThan(int value, int lowerBound, String variableName)
+    {
+        if (!Comparer.greaterThan(value, lowerBound))
+        {
+            throw new PreConditionFailure(AssertionMessages.greaterThan(value, lowerBound, variableName));
+        }
+    }
+
+    /**
+     * Assert that value is greater than lowerBound.
+     * @param value The value to ensure is greater than lowerBound.
+     * @param lowerBound The lower bound to ensure that the value is greater than.
+     * @param variableName The name of the variable that contains the value.
+     */
+    public static void assertGreaterThan(double value, double lowerBound, String variableName)
+    {
+        if (!Comparer.greaterThan(value, lowerBound))
+        {
+            throw new PreConditionFailure(AssertionMessages.greaterThan(value, lowerBound, variableName));
+        }
+    }
+
+    /**
+     * Assert that value is greater than lowerBound.
+     * @param value The value to ensure is greater than lowerBound.
+     * @param lowerBound The lower bound to ensure that the value is greater than.
+     * @param variableName The name of the variable that contains the value.
+     */
     public static <T extends Comparable<T>> void assertGreaterThan(T value, T lowerBound, String variableName)
     {
         if (!Comparer.greaterThan(value, lowerBound))
@@ -367,7 +395,7 @@ public class PostCondition
             throw new PostConditionFailure(AssertionMessages.instanceOf(value, type, variableName));
         }
     }
-    
+
     public static void assertInstanceOf(Object value, Iterable<Class<?>> types, String variableName)
     {
         if (!Types.instanceOf(value, types))

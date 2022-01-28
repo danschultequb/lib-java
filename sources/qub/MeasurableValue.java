@@ -26,6 +26,12 @@ public interface MeasurableValue<TUnit> extends ComparableWithError<MeasurableVa
     MeasurableValue<TUnit> convertTo(TUnit units);
 
     /**
+     * Get the absolute value of this {@link MeasurableValue}.
+     * @return The absolute value of this {@link MeasurableValue}.
+     */
+    MeasurableValue<TUnit> absoluteValue();
+
+    /**
      * Get the negated version of this {@link MeasurableValue}.
      * @return The negated version of this {@link MeasurableValue}.
      */
@@ -74,17 +80,17 @@ public interface MeasurableValue<TUnit> extends ComparableWithError<MeasurableVa
 
     /**
      * Round this {@link MeasurableValue} to the nearest multiple of the provided value.
-     * @param value The value to find the nearest multiple of.
+     * @param scale The value to find the nearest multiple of.
      * @return The multiple of the provided value nearest to this {@link MeasurableValue}.
      */
-    MeasurableValue<TUnit> round(double value);
+    MeasurableValue<TUnit> round(double scale);
 
     /**
      * Round this {@link MeasurableValue} to the nearest multiple of the provided {@link MeasurableValue}.
-     * @param value The {@link MeasurableValue} to find the nearest multiple of.
+     * @param scale The {@link MeasurableValue} to find the nearest multiple of.
      * @return The multiple of the provided {@link MeasurableValue} nearest to this {@link MeasurableValue}.
      */
-    MeasurableValue<TUnit> round(MeasurableValue<TUnit> value);
+    MeasurableValue<TUnit> round(MeasurableValue<TUnit> scale);
 
     default String toString(String format)
     {
@@ -120,6 +126,7 @@ public interface MeasurableValue<TUnit> extends ComparableWithError<MeasurableVa
     default Comparison compareTo(MeasurableValue<TUnit> value, MeasurableValue<TUnit> marginOfError)
     {
         PreCondition.assertNotNull(marginOfError, "marginOfError");
+        PreCondition.assertGreaterThanOrEqualTo(marginOfError.getValue(), 0, "marginOfError.getValue()");
 
         Comparison result;
         if (value == null)

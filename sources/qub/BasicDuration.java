@@ -3,7 +3,7 @@ package qub;
 /**
  * A period of time.
  */
-public class BasicDuration implements Duration
+public class BasicDuration extends MeasurableValueBase<DurationUnit,BasicDuration> implements Duration
 {
     public static final int WeeksToDays = 7;
     public static final int DaysToHours = 24;
@@ -45,40 +45,26 @@ public class BasicDuration implements Duration
     public static final double SecondsToDays = 1.0 / DaysToSeconds;
     public static final double SecondsToHours = 1.0 / HoursToSeconds;
     public static final double SecondsToMinutes = 1.0 / MinutesToSeconds;
-    public static final int SecondsToMicroseconds = SecondsToMilliseconds * MillisecondsToMicroseconds;
-    public static final int SecondsToNanoseconds = SecondsToMicroseconds * MicrosecondsToNanoseconds;
 
     private static final double MillisecondsToWeeks = 1.0 / WeeksToMilliseconds;
     private static final double MillisecondsToDays = 1.0 / DaysToMilliseconds;
     private static final double MillisecondsToHours = 1.0 / HoursToMilliseconds;
     private static final double MillisecondsToMinutes = 1.0 / MinutesToMilliseconds;
-    public static final double MillisecondsToSeconds = 1.0 / SecondsToMilliseconds;
     public static final int MillisecondsToNanoseconds = MillisecondsToMicroseconds * MicrosecondsToNanoseconds;
 
     private static final double MicrosecondsToWeeks = 1.0 / WeeksToMicroseconds;
     private static final double MicrosecondsToDays = 1.0 / DaysToMicroseconds;
     private static final double MicrosecondsToHours = 1.0 / HoursToMicroseconds;
     private static final double MicrosecondsToMinutes = 1.0 / MinutesToMicroseconds;
-    public static final double MicrosecondsToSeconds = 1.0 / SecondsToMicroseconds;
-    private static final double MicrosecondsToMilliseconds = 1.0 / MillisecondsToMicroseconds;
 
     public static final double NanosecondsToWeeks = 1.0 / WeeksToNanoseconds;
     public static final double NanosecondsToDays = 1.0 / DaysToNanoseconds;
     public static final double NanosecondsToHours = 1.0 / HoursToNanoseconds;
     public static final double NanosecondsToMinutes = 1.0 / MinutesToNanoseconds;
-    public static final double NanosecondsToSeconds = 1.0 / SecondsToNanoseconds;
-    public static final double NanosecondsToMilliseconds = 1.0 / MillisecondsToNanoseconds;
-    public static final double NanosecondsToMicroseconds = 1.0 / MicrosecondsToNanoseconds;
-
-    private final double value;
-    private final DurationUnit units;
 
     private BasicDuration(double value, DurationUnit units)
     {
-        PreCondition.assertNotNull(units, "units");
-
-        this.value = value;
-        this.units = units;
+        super(value, units, BasicDuration::create);
     }
 
     public static BasicDuration create(double value, DurationUnit units)
@@ -87,299 +73,349 @@ public class BasicDuration implements Duration
     }
 
     @Override
-    public double getValue()
+    protected double getConversionMultiplier(DurationUnit units)
     {
-        return value;
-    }
+        PreCondition.assertNotNull(units, "units");
 
-    @Override
-    public DurationUnit getUnits()
-    {
-        return units;
-    }
+        double result = 0;
 
-    @Override
-    public BasicDuration convertTo(DurationUnit destinationUnits)
-    {
-        BasicDuration result = this;
-        switch (units)
+        switch (this.getUnits())
         {
             case Nanoseconds:
-                switch (destinationUnits)
+                switch (units)
                 {
+                    case Nanoseconds:
+                        result = 1;
+                        break;
+
                     case Microseconds:
-                        result = new BasicDuration(value * NanosecondsToMicroseconds, destinationUnits);
+                        result = MetricScale.nanoToMicro;
                         break;
 
                     case Milliseconds:
-                        result = new BasicDuration(value * NanosecondsToMilliseconds, destinationUnits);
+                        result = MetricScale.nanoToMilli;
                         break;
 
                     case Seconds:
-                        result = new BasicDuration(value * NanosecondsToSeconds, destinationUnits);
+                        result = MetricScale.nanoToUni;
                         break;
 
                     case Minutes:
-                        result = new BasicDuration(value * NanosecondsToMinutes, destinationUnits);
+                        result = BasicDuration.NanosecondsToMinutes;
                         break;
 
                     case Hours:
-                        result = new BasicDuration(value * NanosecondsToHours, destinationUnits);
+                        result = BasicDuration.NanosecondsToHours;
                         break;
 
                     case Days:
-                        result = new BasicDuration(value * NanosecondsToDays, destinationUnits);
+                        result = BasicDuration.NanosecondsToDays;
                         break;
 
                     case Weeks:
-                        result = new BasicDuration(value * NanosecondsToWeeks, destinationUnits);
+                        result = BasicDuration.NanosecondsToWeeks;
+                        break;
+
+                    default:
+                        MeasurableValueBase.throwUnrecognizedUnitsException(units);
                         break;
                 }
                 break;
 
             case Microseconds:
-                switch (destinationUnits)
+                switch (units)
                 {
                     case Nanoseconds:
-                        result = new BasicDuration(value * MicrosecondsToNanoseconds, destinationUnits);
+                        result = MetricScale.microToNano;
+                        break;
+
+                    case Microseconds:
+                        result = 1;
                         break;
 
                     case Milliseconds:
-                        result = new BasicDuration(value * MicrosecondsToMilliseconds, destinationUnits);
+                        result = MetricScale.microToMilli;
                         break;
 
                     case Seconds:
-                        result = new BasicDuration(value * MicrosecondsToSeconds, destinationUnits);
+                        result = MetricScale.microToUni;
                         break;
 
                     case Minutes:
-                        result = new BasicDuration(value * MicrosecondsToMinutes, destinationUnits);
+                        result = BasicDuration.MicrosecondsToMinutes;
                         break;
 
                     case Hours:
-                        result = new BasicDuration(value * MicrosecondsToHours, destinationUnits);
+                        result = BasicDuration.MicrosecondsToHours;
                         break;
 
                     case Days:
-                        result = new BasicDuration(value * MicrosecondsToDays, destinationUnits);
+                        result = BasicDuration.MicrosecondsToDays;
                         break;
 
                     case Weeks:
-                        result = new BasicDuration(value * MicrosecondsToWeeks, destinationUnits);
+                        result = BasicDuration.MicrosecondsToWeeks;
+                        break;
+
+                    default:
+                        MeasurableValueBase.throwUnrecognizedUnitsException(units);
                         break;
                 }
                 break;
 
             case Milliseconds:
-                switch (destinationUnits)
+                switch (units)
                 {
                     case Nanoseconds:
-                        result = new BasicDuration(value * MillisecondsToNanoseconds, destinationUnits);
+                        result = MetricScale.milliToNano;
                         break;
 
                     case Microseconds:
-                        result = new BasicDuration(value * MillisecondsToMicroseconds, destinationUnits);
+                        result = MetricScale.milliToMicro;
+                        break;
+
+                    case Milliseconds:
+                        result = 1;
                         break;
 
                     case Seconds:
-                        result = new BasicDuration(value * MillisecondsToSeconds, destinationUnits);
+                        result = MetricScale.milliToUni;
                         break;
 
                     case Minutes:
-                        result = new BasicDuration(value * MillisecondsToMinutes, destinationUnits);
+                        result = BasicDuration.MillisecondsToMinutes;
                         break;
 
                     case Hours:
-                        result = new BasicDuration(value * MillisecondsToHours, destinationUnits);
+                        result = BasicDuration.MillisecondsToHours;
                         break;
 
                     case Days:
-                        result = new BasicDuration(value * MillisecondsToDays, destinationUnits);
+                        result = BasicDuration.MillisecondsToDays;
                         break;
 
                     case Weeks:
-                        result = new BasicDuration(value * MillisecondsToWeeks, destinationUnits);
+                        result = BasicDuration.MillisecondsToWeeks;
+                        break;
+
+                    default:
+                        MeasurableValueBase.throwUnrecognizedUnitsException(units);
                         break;
                 }
                 break;
 
             case Seconds:
-                switch (destinationUnits)
+                switch (units)
                 {
                     case Nanoseconds:
-                        result = new BasicDuration(value * SecondsToNanoseconds, destinationUnits);
+                        result = MetricScale.uniToNano;
                         break;
 
                     case Microseconds:
-                        result = new BasicDuration(value * SecondsToMicroseconds, destinationUnits);
+                        result = MetricScale.uniToMicro;
                         break;
 
                     case Milliseconds:
-                        result = new BasicDuration(value * SecondsToMilliseconds, destinationUnits);
+                        result = MetricScale.uniToMilli;
+                        break;
+
+                    case Seconds:
+                        result = 1;
                         break;
 
                     case Minutes:
-                        result = new BasicDuration(value * SecondsToMinutes, destinationUnits);
+                        result = BasicDuration.SecondsToMinutes;
                         break;
 
                     case Hours:
-                        result = new BasicDuration(value * SecondsToHours, destinationUnits);
+                        result = BasicDuration.SecondsToHours;
                         break;
 
                     case Days:
-                        result = new BasicDuration(value * SecondsToDays, destinationUnits);
+                        result = BasicDuration.SecondsToDays;
                         break;
 
                     case Weeks:
-                        result = new BasicDuration(value * SecondsToWeeks, destinationUnits);
+                        result = BasicDuration.SecondsToWeeks;
+                        break;
+
+                    default:
+                        MeasurableValueBase.throwUnrecognizedUnitsException(units);
                         break;
                 }
                 break;
 
             case Minutes:
-                switch (destinationUnits)
+                switch (units)
                 {
                     case Nanoseconds:
-                        result = new BasicDuration(value * MinutesToNanoseconds, destinationUnits);
+                        result = BasicDuration.MinutesToNanoseconds;
                         break;
 
                     case Microseconds:
-                        result = new BasicDuration(value * MinutesToMicroseconds, destinationUnits);
+                        result = BasicDuration.MinutesToMicroseconds;
                         break;
 
                     case Milliseconds:
-                        result = new BasicDuration(value * MinutesToMilliseconds, destinationUnits);
+                        result = BasicDuration.MinutesToMilliseconds;
                         break;
 
                     case Seconds:
-                        result = new BasicDuration(value * MinutesToSeconds, destinationUnits);
+                        result = BasicDuration.MinutesToSeconds;
+                        break;
+
+                    case Minutes:
+                        result = 1;
                         break;
 
                     case Hours:
-                        result = new BasicDuration(value * MinutesToHours, destinationUnits);
+                        result = BasicDuration.MinutesToHours;
                         break;
 
                     case Days:
-                        result = new BasicDuration(value * MinutesToDays, destinationUnits);
+                        result = BasicDuration.MinutesToDays;
                         break;
 
                     case Weeks:
-                        result = new BasicDuration(value * MinutesToWeeks, destinationUnits);
+                        result = BasicDuration.MinutesToWeeks;
+                        break;
+
+                    default:
+                        MeasurableValueBase.throwUnrecognizedUnitsException(units);
                         break;
                 }
                 break;
 
             case Hours:
-                switch (destinationUnits)
+                switch (units)
                 {
                     case Nanoseconds:
-                        result = new BasicDuration(value * HoursToNanoseconds, destinationUnits);
+                        result = BasicDuration.HoursToNanoseconds;
                         break;
 
                     case Microseconds:
-                        result = new BasicDuration(value * HoursToMicroseconds, destinationUnits);
+                        result = BasicDuration.HoursToMicroseconds;
                         break;
 
                     case Milliseconds:
-                        result = new BasicDuration(value * HoursToMilliseconds, destinationUnits);
+                        result = BasicDuration.HoursToMilliseconds;
                         break;
 
                     case Seconds:
-                        result = new BasicDuration(value * HoursToSeconds, destinationUnits);
+                        result = BasicDuration.HoursToSeconds;
                         break;
 
                     case Minutes:
-                        result = new BasicDuration(value * HoursToMinutes, destinationUnits);
+                        result = BasicDuration.HoursToMinutes;
+                        break;
+
+                    case Hours:
+                        result = 1;
                         break;
 
                     case Days:
-                        result = new BasicDuration(value * HoursToDays, destinationUnits);
+                        result = BasicDuration.HoursToDays;
                         break;
 
                     case Weeks:
-                        result = new BasicDuration(value * HoursToWeeks, destinationUnits);
+                        result = BasicDuration.HoursToWeeks;
+                        break;
+
+                    default:
+                        MeasurableValueBase.throwUnrecognizedUnitsException(units);
                         break;
                 }
                 break;
 
             case Days:
-                switch (destinationUnits)
+                switch (units)
                 {
                     case Nanoseconds:
-                        result = new BasicDuration(value * DaysToNanoseconds, destinationUnits);
+                        result = BasicDuration.DaysToNanoseconds;
                         break;
 
                     case Microseconds:
-                        result = new BasicDuration(value * DaysToMicroseconds, destinationUnits);
+                        result = BasicDuration.DaysToMicroseconds;
                         break;
 
                     case Milliseconds:
-                        result = new BasicDuration(value * DaysToMilliseconds, destinationUnits);
+                        result = BasicDuration.DaysToMilliseconds;
                         break;
 
                     case Seconds:
-                        result = new BasicDuration(value * DaysToSeconds, destinationUnits);
+                        result = BasicDuration.DaysToSeconds;
                         break;
 
                     case Minutes:
-                        result = new BasicDuration(value * DaysToMinutes, destinationUnits);
+                        result = BasicDuration.DaysToMinutes;
                         break;
 
                     case Hours:
-                        result = new BasicDuration(value * DaysToHours, destinationUnits);
+                        result = BasicDuration.DaysToHours;
+                        break;
+
+                    case Days:
+                        result = 1;
                         break;
 
                     case Weeks:
-                        result = new BasicDuration(value * DaysToWeeks, destinationUnits);
+                        result = BasicDuration.DaysToWeeks;
+                        break;
+
+                    default:
+                        MeasurableValueBase.throwUnrecognizedUnitsException(units);
                         break;
                 }
                 break;
 
             case Weeks:
-                switch (destinationUnits)
+                switch (units)
                 {
                     case Nanoseconds:
-                        result = new BasicDuration(value * WeeksToNanoseconds, destinationUnits);
+                        result = BasicDuration.WeeksToNanoseconds;
                         break;
 
                     case Microseconds:
-                        result = new BasicDuration(value * WeeksToMicroseconds, destinationUnits);
+                        result = BasicDuration.WeeksToMicroseconds;
                         break;
 
                     case Milliseconds:
-                        result = new BasicDuration(value * WeeksToMilliseconds, destinationUnits);
+                        result = BasicDuration.WeeksToMilliseconds;
                         break;
 
                     case Seconds:
-                        result = new BasicDuration(value * WeeksToSeconds, destinationUnits);
+                        result = BasicDuration.WeeksToSeconds;
                         break;
 
                     case Minutes:
-                        result = new BasicDuration(value * WeeksToMinutes, destinationUnits);
+                        result = BasicDuration.WeeksToMinutes;
                         break;
 
                     case Hours:
-                        result = new BasicDuration(value * WeeksToHours, destinationUnits);
+                        result = BasicDuration.WeeksToHours;
                         break;
 
                     case Days:
-                        result = new BasicDuration(value * WeeksToDays, destinationUnits);
+                        result = BasicDuration.WeeksToDays;
+                        break;
+
+                    case Weeks:
+                        result = 1;
+                        break;
+
+                    default:
+                        MeasurableValueBase.throwUnrecognizedUnitsException(units);
                         break;
                 }
                 break;
+
+            default:
+                MeasurableValueBase.throwUnrecognizedUnitsException(this.getUnits());
+                break;
         }
+
+        PostCondition.assertGreaterThan(result, 0, "result");
+
         return result;
-    }
-
-    @Override
-    public String toString()
-    {
-        return Duration.toString(this);
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return Duration.equals(this, rhs);
     }
 }

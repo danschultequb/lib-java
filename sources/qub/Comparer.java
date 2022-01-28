@@ -786,6 +786,17 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
      * Get whether or not the provided lhs value is greater than the provided rhs value.
      * @param lhs The first value to compare.
      * @param rhs The second value to compare.
+     * @return Whether or not the provided lhs value is greater than the provided rhs value.
+     */
+    static boolean greaterThan(double lhs, double rhs)
+    {
+        return lhs > rhs;
+    }
+
+    /**
+     * Get whether or not the provided lhs value is greater than the provided rhs value.
+     * @param lhs The first value to compare.
+     * @param rhs The second value to compare.
      * @param <T> The type of the values to compare.
      * @return Whether or not the provided lhs value is greater than the provided rhs value.
      */

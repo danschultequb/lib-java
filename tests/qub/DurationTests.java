@@ -246,7 +246,7 @@ public interface DurationTests
                             expected);
                     });
                 };
-                
+
                 dividedByErrorTest.run(creator.run(50.0, DurationUnit.Nanoseconds), 0.0, new PreConditionFailure("rhs (0.0) must not be 0.0."));
 
                 final Action3<Duration,Double,Duration> dividedByTest = (Duration dividend, Double divisor, Duration expectedQuotient) ->
@@ -272,7 +272,7 @@ public interface DurationTests
                             expected);
                     });
                 };
-                
+
                 dividedByErrorTest.run(creator.run(10.0, DurationUnit.Seconds), null, new PreConditionFailure("rhs cannot be null."));
                 dividedByErrorTest.run(creator.run(10.0, DurationUnit.Seconds), creator.run(0.0, DurationUnit.Seconds), new PreConditionFailure("rhs.getValue() (0.0) must not be 0.0."));
 
@@ -315,6 +315,8 @@ public interface DurationTests
                 };
 
                 roundErrorTest.run(creator.run(10.0, DurationUnit.Seconds), null, new PreConditionFailure("scale cannot be null."));
+                roundErrorTest.run(creator.run(0.0, DurationUnit.Seconds), creator.run(0.0, DurationUnit.Minutes), new PreConditionFailure("scale.getValue() (0.0) must not be 0.0."));
+                roundErrorTest.run(creator.run(1.5, DurationUnit.Minutes), creator.run(0.0, DurationUnit.Hours), new PreConditionFailure("scale.getValue() (0.0) must not be 0.0."));
 
                 final Action3<Duration,Duration,Duration> roundTest = (Duration value, Duration scale, Duration expectedRoundedValue) ->
                 {
@@ -324,8 +326,7 @@ public interface DurationTests
                     });
                 };
 
-                roundTest.run(creator.run(0.0, DurationUnit.Seconds), creator.run(0.0, DurationUnit.Minutes), creator.run(0.0, DurationUnit.Minutes));
-                roundTest.run(creator.run(1.5, DurationUnit.Minutes), creator.run(0.0, DurationUnit.Hours), creator.run(0.0, DurationUnit.Hours));
+                roundTest.run(creator.run(0.0, DurationUnit.Seconds), creator.run(1.0, DurationUnit.Minutes), creator.run(0.0, DurationUnit.Minutes));
                 roundTest.run(creator.run(1.0, DurationUnit.Seconds), creator.run(1.0, DurationUnit.Seconds), creator.run(1.0, DurationUnit.Seconds));
                 roundTest.run(creator.run(9.0, DurationUnit.Seconds), creator.run(5.0, DurationUnit.Seconds), creator.run(10.0, DurationUnit.Seconds));
                 roundTest.run(creator.run(1.555, DurationUnit.Seconds), creator.run(100.0, DurationUnit.Milliseconds), creator.run(1600.0, DurationUnit.Milliseconds));
@@ -333,7 +334,19 @@ public interface DurationTests
 
             runner.testGroup("round(double)", () ->
             {
-                final Action3<Duration,Double, Duration> roundTest = (Duration value, Double scale, Duration expectedRoundedValue) ->
+                final Action3<Duration,Double,Throwable> roundErrorTest = (Duration value, Double scale, Throwable expected) ->
+                {
+                    runner.test("with " + value + " rounded to nearest " + scale, (Test test) ->
+                    {
+                        test.assertThrows(() -> value.round(scale),
+                            expected);
+                    });
+                };
+
+                roundErrorTest.run(creator.run(0.0, DurationUnit.Seconds), 0.0, new PreConditionFailure("scale (0.0) must not be 0.0."));
+                roundErrorTest.run(creator.run(1.0, DurationUnit.Seconds), 0.0, new PreConditionFailure("scale (0.0) must not be 0.0."));
+
+                final Action3<Duration,Double,Duration> roundTest = (Duration value, Double scale, Duration expectedRoundedValue) ->
                 {
                     runner.test("with " + value + " rounded to nearest " + scale, (Test test) ->
                     {
@@ -341,8 +354,7 @@ public interface DurationTests
                     });
                 };
 
-                roundTest.run(creator.run(0.0, DurationUnit.Seconds), 0.0, creator.run(0.0, DurationUnit.Seconds));
-                roundTest.run(creator.run(1.0, DurationUnit.Seconds), 0.0, creator.run(0.0, DurationUnit.Seconds));
+                roundTest.run(creator.run(0.0, DurationUnit.Seconds), 1.0, creator.run(0.0, DurationUnit.Seconds));
                 roundTest.run(creator.run(1.0, DurationUnit.Seconds), 1.0, creator.run(1.0, DurationUnit.Seconds));
                 roundTest.run(creator.run(9.0, DurationUnit.Seconds), 5.0, creator.run(10.0, DurationUnit.Seconds));
                 roundTest.run(creator.run(1.555, DurationUnit.Seconds), 0.1, creator.run(1.6, DurationUnit.Seconds));
@@ -526,7 +538,7 @@ public interface DurationTests
                 runner.test("with negative marginOfError", (Test test) ->
                 {
                     test.assertThrows(() -> creator.run(1.0, DurationUnit.Seconds).compareTo(creator.run(2.0, DurationUnit.Seconds), creator.run(-1.0, DurationUnit.Nanoseconds)),
-                        new PreConditionFailure("marginOfError (-1.0 Nanoseconds) must be greater than or equal to 0.0 Seconds."));
+                        new PreConditionFailure("marginOfError.getValue() (-1.0) must be greater than or equal to 0.0."));
                 });
 
                 final Action4<Duration, Duration, Duration,Comparison> compareToTest = (Duration duration, Duration rhs, Duration marginOfError, Comparison expected) ->
@@ -558,11 +570,6 @@ public interface DurationTests
     static void assertDuration(Test test, Duration duration, Duration expected)
     {
         DurationTests.assertDuration(test, duration, expected.getValue(), expected.getUnits());
-    }
-
-    static void assertDuration(Test test, Duration duration, Duration expected, double marginOfError)
-    {
-        DurationTests.assertDuration(test, duration, expected.getValue(), expected.getUnits(), marginOfError);
     }
 
     static void assertDuration(Test test, Duration duration, double expectedValue, DurationUnit expectedUnits)

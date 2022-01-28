@@ -712,13 +712,13 @@ public interface DistanceTests
                 runner.test("with null", (Test test) ->
                 {
                     test.assertThrows(() -> Distance.meters(5).round(null),
-                        new PreConditionFailure("value cannot be null."));
+                        new PreConditionFailure("scale cannot be null."));
                 });
 
                 runner.test("with 0 Millimeters and 0 Meter scale", (Test test) ->
                 {
                     test.assertThrows(() -> Distance.millimeters(0).round(Distance.meters(0)),
-                        new PreConditionFailure("value.getValue() (0.0) must not be 0.0."));
+                        new PreConditionFailure("scale.getValue() (0.0) must not be 0.0."));
                 });
 
                 runner.test("with 0 Millimeters and 1 Meter scale", (Test test) ->

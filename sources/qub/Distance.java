@@ -117,7 +117,7 @@ public class Distance extends MeasurableValueBase<DistanceUnit, Distance>
     {
         PreCondition.assertNotNull(units, "units");
 
-        double result;
+        double result = 0;
 
         switch (this.getUnits())
         {
@@ -157,7 +157,8 @@ public class Distance extends MeasurableValueBase<DistanceUnit, Distance>
                         break;
 
                     default:
-                        throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(DistanceUnit.class) + ": " + units);
+                        MeasurableValueBase.throwUnrecognizedUnitsException(units);
+                        break;
                 }
                 break;
 
@@ -197,7 +198,8 @@ public class Distance extends MeasurableValueBase<DistanceUnit, Distance>
                         break;
 
                     default:
-                        throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(DistanceUnit.class) + ": " + units);
+                        MeasurableValueBase.throwUnrecognizedUnitsException(units);
+                        break;
                 }
                 break;
 
@@ -237,7 +239,8 @@ public class Distance extends MeasurableValueBase<DistanceUnit, Distance>
                         break;
 
                     default:
-                        throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(DistanceUnit.class) + ": " + units);
+                        MeasurableValueBase.throwUnrecognizedUnitsException(units);
+                        break;
                 }
                 break;
 
@@ -277,7 +280,8 @@ public class Distance extends MeasurableValueBase<DistanceUnit, Distance>
                         break;
 
                     default:
-                        throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(DistanceUnit.class) + ": " + units);
+                        MeasurableValueBase.throwUnrecognizedUnitsException(units);
+                        break;
                 }
                 break;
 
@@ -317,7 +321,8 @@ public class Distance extends MeasurableValueBase<DistanceUnit, Distance>
                         break;
 
                     default:
-                        throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(DistanceUnit.class) + ": " + units);
+                        MeasurableValueBase.throwUnrecognizedUnitsException(units);
+                        break;
                 }
                 break;
 
@@ -357,7 +362,8 @@ public class Distance extends MeasurableValueBase<DistanceUnit, Distance>
                         break;
 
                     default:
-                        throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(DistanceUnit.class) + ": " + units);
+                        MeasurableValueBase.throwUnrecognizedUnitsException(units);
+                        break;
                 }
                 break;
 
@@ -397,7 +403,8 @@ public class Distance extends MeasurableValueBase<DistanceUnit, Distance>
                         break;
 
                     default:
-                        throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(DistanceUnit.class) + ": " + units);
+                        MeasurableValueBase.throwUnrecognizedUnitsException(units);
+                        break;
                 }
                 break;
 
@@ -437,15 +444,17 @@ public class Distance extends MeasurableValueBase<DistanceUnit, Distance>
                         break;
 
                     default:
-                        throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(DistanceUnit.class) + ": " + units);
+                        MeasurableValueBase.throwUnrecognizedUnitsException(units);
+                        break;
                 }
                 break;
 
             default:
-                throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(DistanceUnit.class) + ": " + units);
+                MeasurableValueBase.throwUnrecognizedUnitsException(this.getUnits());
+                break;
         }
 
-        PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
+        PostCondition.assertGreaterThan(result, 0, "result");
 
         return result;
     }

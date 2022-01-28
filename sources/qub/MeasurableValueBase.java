@@ -30,11 +30,14 @@ public abstract class MeasurableValueBase<TUnit, T extends MeasurableValue<TUnit
 
     protected abstract double getConversionMultiplier(TUnit units);
 
-    /**
-     * Convert this {@link MeasurableValue} to the provided units.
-     * @param units The units to convert this {@link MeasurableValue} to.
-     * @return The converted {@link MeasurableValue}.
-     */
+    protected static <TUnit> void throwUnrecognizedUnitsException(TUnit unrecognizedUnits)
+    {
+        PreCondition.assertNotNull(unrecognizedUnits, "unrecognizedUnits");
+
+        throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(unrecognizedUnits) + ": " + unrecognizedUnits);
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public T convertTo(TUnit units)
     {
@@ -56,10 +59,21 @@ public abstract class MeasurableValueBase<TUnit, T extends MeasurableValue<TUnit
         return result;
     }
 
-    /**
-     * Get the negated version of this {@link MeasurableValue}.
-     * @return The negated version of this {@link MeasurableValue}.
-     */
+    @Override
+    @SuppressWarnings("unchecked")
+    public T absoluteValue()
+    {
+        final double value = this.getValue();
+        final T result = (value >= 0 ? (T)this : this.creator.run(-value, this.getUnits()));
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertGreaterThanOrEqualTo(result.getValue(), 0, "result.getValue()");
+        PostCondition.assertEqual(this.getUnits(), result.getUnits(), "result.getUnits()");
+
+        return result;
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public T negate()
     {
@@ -79,11 +93,7 @@ public abstract class MeasurableValueBase<TUnit, T extends MeasurableValue<TUnit
         return result;
     }
 
-    /**
-     * Add this {@link MeasurableValue} to the provided {@link MeasurableValue}.
-     * @param rhs The {@link MeasurableValue} to add to this {@link MeasurableValue}.
-     * @return The sum of this {@link MeasurableValue} and the provided {@link MeasurableValue}.
-     */
+    @Override
     @SuppressWarnings("unchecked")
     public T plus(MeasurableValue<TUnit> rhs)
     {
@@ -106,11 +116,7 @@ public abstract class MeasurableValueBase<TUnit, T extends MeasurableValue<TUnit
         return result;
     }
 
-    /**
-     * Subtract the provided {@link MeasurableValue} from this {@link MeasurableValue}.
-     * @param rhs The {@link MeasurableValue} to subtract from this {@link MeasurableValue}.
-     * @return The difference between this {@link MeasurableValue} and the provided {@link MeasurableValue}.
-     */
+    @Override
     @SuppressWarnings("unchecked")
     public T minus(MeasurableValue<TUnit> rhs)
     {
@@ -133,11 +139,7 @@ public abstract class MeasurableValueBase<TUnit, T extends MeasurableValue<TUnit
         return result;
     }
 
-    /**
-     * Multiply this {@link MeasurableValue} by the provided value.
-     * @param rhs The value to multiply this {@link MeasurableValue} by.
-     * @return The product of multiplying this {@link MeasurableValue} by the provided value.
-     */
+    @Override
     @SuppressWarnings("unchecked")
     public T times(double rhs)
     {
@@ -157,11 +159,7 @@ public abstract class MeasurableValueBase<TUnit, T extends MeasurableValue<TUnit
         return result;
     }
 
-    /**
-     * Divide this {@link MeasurableValue} by the provided value.
-     * @param rhs The value to divide this {@link MeasurableValue} by.
-     * @return The quotient of dividing this {@link MeasurableValue} by the provided value.
-     */
+    @Override
     @SuppressWarnings("unchecked")
     public T dividedBy(double rhs)
     {
@@ -192,10 +190,7 @@ public abstract class MeasurableValueBase<TUnit, T extends MeasurableValue<TUnit
         return this.getValue() / rhs.convertTo(this.getUnits()).getValue();
     }
 
-    /**
-     * Round this {@link MeasurableValue} to the nearest whole number value.
-     * @return The nearest whole number value of this {@link MeasurableValue}.
-     */
+    @Override
     @SuppressWarnings("unchecked")
     public T round()
     {
@@ -217,18 +212,14 @@ public abstract class MeasurableValueBase<TUnit, T extends MeasurableValue<TUnit
         return result;
     }
 
-    /**
-     * Round this {@link MeasurableValue} to the nearest multiple of the provided value.
-     * @param value The value to find the nearest multiple of.
-     * @return The multiple of the provided value nearest to this {@link MeasurableValue}.
-     */
+    @Override
     @SuppressWarnings("unchecked")
-    public T round(double value)
+    public T round(double scale)
     {
-        PreCondition.assertNotEqual(0, value, "scale");
+        PreCondition.assertNotEqual(0, scale, "scale");
 
         final double thisValue = this.getValue();
-        final double roundedValue = Math.round(thisValue, value);
+        final double roundedValue = Math.round(thisValue, scale);
         final T result = (thisValue == roundedValue ? (T)this : this.creator.run(roundedValue, this.getUnits()));
 
         PostCondition.assertNotNull(result, "result");
@@ -237,45 +228,20 @@ public abstract class MeasurableValueBase<TUnit, T extends MeasurableValue<TUnit
         return result;
     }
 
-    /**
-     * Round this {@link MeasurableValue} to the nearest multiple of the provided {@link MeasurableValue}.
-     * @param value The {@link MeasurableValue} to find the nearest multiple of.
-     * @return The multiple of the provided {@link MeasurableValue} nearest to this {@link MeasurableValue}.
-     */
-    public T round(MeasurableValue<TUnit> value)
-    {
-        PreCondition.assertNotNull(value, "value");
-        PreCondition.assertNotEqual(0, value.getValue(), "value.getValue()");
-
-        final TUnit valueUnits = value.getUnits();
-        final T convertedLhs = this.convertTo(valueUnits);
-        final double convertedLhsValue = convertedLhs.getValue();
-        final double roundedValue = Math.round(convertedLhsValue, value.getValue());
-        final T result = (convertedLhsValue == roundedValue ? convertedLhs : this.creator.run(roundedValue, valueUnits));
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(value.getUnits(), result.getUnits(), "result.getUnits()");
-
-        return result;
-    }
-
     @Override
-    public Comparison compareTo(MeasurableValue<TUnit> value, MeasurableValue<TUnit> marginOfError)
+    public T round(MeasurableValue<TUnit> scale)
     {
-        PreCondition.assertNotNull(marginOfError, "marginOfError");
+        PreCondition.assertNotNull(scale, "scale");
+        PreCondition.assertNotEqual(0, scale.getValue(), "scale.getValue()");
 
-        Comparison result;
-        if (value == null)
-        {
-            result = Comparison.GreaterThan;
-        }
-        else
-        {
-            final TUnit units = this.getUnits();
-            result = Comparison.create(this.getValue() - value.convertTo(units).getValue(), marginOfError.convertTo(units).getValue());
-        }
+        final TUnit scaleUnits = scale.getUnits();
+        final T convertedLhs = this.convertTo(scaleUnits);
+        final double convertedLhsValue = convertedLhs.getValue();
+        final double roundedValue = Math.round(convertedLhsValue, scale.getValue());
+        final T result = (convertedLhsValue == roundedValue ? convertedLhs : this.creator.run(roundedValue, scaleUnits));
 
         PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(scale.getUnits(), result.getUnits(), "result.getUnits()");
 
         return result;
     }
