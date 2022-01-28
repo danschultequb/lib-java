@@ -84,41 +84,41 @@ public interface Duration extends MeasurableValue<DurationUnit>
 
     default Duration toNanoseconds()
     {
-        return (Duration)this.convertTo(DurationUnit.Nanoseconds);
+        return this.convertTo(DurationUnit.Nanoseconds);
     }
 
     default Duration toMicroseconds()
     {
-        return (Duration)this.convertTo(DurationUnit.Microseconds);
+        return this.convertTo(DurationUnit.Microseconds);
     }
 
     default Duration toMilliseconds()
     {
-        return (Duration)this.convertTo(DurationUnit.Milliseconds);
+        return this.convertTo(DurationUnit.Milliseconds);
     }
 
     default Duration toSeconds()
     {
-        return (Duration)this.convertTo(DurationUnit.Seconds);
+        return this.convertTo(DurationUnit.Seconds);
     }
 
     default Duration toMinutes()
     {
-        return (Duration)this.convertTo(DurationUnit.Minutes);
+        return this.convertTo(DurationUnit.Minutes);
     }
 
     default Duration toHours()
     {
-        return (Duration)this.convertTo(DurationUnit.Hours);
+        return this.convertTo(DurationUnit.Hours);
     }
 
     default Duration toDays()
     {
-        return (Duration)this.convertTo(DurationUnit.Days);
+        return this.convertTo(DurationUnit.Days);
     }
 
     default Duration toWeeks()
     {
-        return (Duration)this.convertTo(DurationUnit.Weeks);
+        return this.convertTo(DurationUnit.Weeks);
     }
 }

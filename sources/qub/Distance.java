@@ -109,7 +109,7 @@ public class Distance extends MeasurableValueBase<DistanceUnit, Distance>
 
     private Distance(double value, DistanceUnit units)
     {
-        super(value, units, Distance::create);
+        super(value, units, Distance::create, DistanceUnit.Meters);
     }
 
     @Override
@@ -497,17 +497,5 @@ public class Distance extends MeasurableValueBase<DistanceUnit, Distance>
     public Distance toFontPoints()
     {
         return this.convertTo(DistanceUnit.FontPoints);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Doubles.hashCode(this.toMeters().getValue());
-    }
-
-    @Override
-    public Comparison compareWith(MeasurableValue<DistanceUnit> value)
-    {
-        return this.compareTo(value, Distance.zero);
     }
 }

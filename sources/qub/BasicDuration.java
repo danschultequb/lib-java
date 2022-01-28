@@ -64,7 +64,7 @@ public class BasicDuration extends MeasurableValueBase<DurationUnit,BasicDuratio
 
     private BasicDuration(double value, DurationUnit units)
     {
-        super(value, units, BasicDuration::create);
+        super(value, units, BasicDuration::create, DurationUnit.Seconds);
     }
 
     public static BasicDuration create(double value, DurationUnit units)

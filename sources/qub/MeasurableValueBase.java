@@ -2,18 +2,21 @@ package qub;
 
 public abstract class MeasurableValueBase<TUnit, T extends MeasurableValue<TUnit>> implements MeasurableValue<TUnit>
 {
-    private final Function2<Double,TUnit,T> creator;
     private final double value;
     private final TUnit units;
+    private final Function2<Double,TUnit,T> creator;
+    private final TUnit defaultUnits;
 
-    protected MeasurableValueBase(double value, TUnit units, Function2<Double,TUnit,T> creator)
+    protected MeasurableValueBase(double value, TUnit units, Function2<Double,TUnit,T> creator, TUnit defaultUnits)
     {
         PreCondition.assertNotNull(units, "units");
         PreCondition.assertNotNull(creator, "creator");
+        PreCondition.assertNotNull(defaultUnits, "defaultUnits");
 
         this.value = value;
         this.units = units;
         this.creator = creator;
+        this.defaultUnits = defaultUnits;
     }
 
     @Override
@@ -257,5 +260,11 @@ public abstract class MeasurableValueBase<TUnit, T extends MeasurableValue<TUnit
     {
         return this == rhs ||
             (rhs instanceof MeasurableValue && this.equals((MeasurableValue<TUnit>)rhs));
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Doubles.hashCode(this.convertTo(this.defaultUnits).getValue());
     }
 }
