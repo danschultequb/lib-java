@@ -794,7 +794,7 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
         return lhs != null && lhs.greaterThan(rhs);
     }
 
-    static <T extends Comparable<T>> T minimum(Iterable<T> values)
+    static <T extends Comparable<T>, U extends T> U minimum(Iterable<U> values)
     {
         return Comparer.minimum(values, Comparer::compare);
     }
@@ -808,12 +808,12 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
     }
 
     @SafeVarargs
-    static <T extends Comparable<T>> T maximum(T... values)
+    static <T extends Comparable<T>, U extends T> U maximum(U... values)
     {
         return Comparer.maximum(Iterable.create(values));
     }
 
-    static <T extends Comparable<T>> T maximum(Iterable<T> values)
+    static <T extends Comparable<T>, U extends T> U maximum(Iterable<U> values)
     {
         return Comparer.maximum(values, Comparer::compare);
     }

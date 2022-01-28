@@ -450,7 +450,7 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      * @param <T> The type of values to order.
      * @return The ordered Iterable.
      */
-    static <T extends Comparable<T>> Iterable<T> order(Iterable<T> values)
+    static <T extends Comparable<T>, U extends T> Iterable<U> order(Iterable<U> values)
     {
         PreCondition.assertNotNull(values, "values");
 

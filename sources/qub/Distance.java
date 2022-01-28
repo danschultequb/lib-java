@@ -3,7 +3,7 @@ package qub;
 /**
  * A measurement between two points.
  */
-public class Distance implements ComparableWithError<Distance>
+public class Distance extends MeasurableValueBase<DistanceUnit, Distance>
 {
     private static final double MilesToFeet = 5280;
     private static final double FeetToInches = 12;
@@ -100,511 +100,405 @@ public class Distance implements ComparableWithError<Distance>
         return new Distance(value, DistanceUnit.Kilometers);
     }
 
-    private final double value;
-    private final DistanceUnit units;
-
-    public Distance(double value, DistanceUnit units)
+    public static Distance create(double value, DistanceUnit units)
     {
         PreCondition.assertNotNull(units, "units");
 
-        this.value = value;
-        this.units = units;
+        return new Distance(value, units);
     }
 
-    public double getValue()
+    private Distance(double value, DistanceUnit units)
     {
-        return value;
+        super(value, units, Distance::create);
     }
 
-    public DistanceUnit getUnits()
+    @Override
+    protected double getConversionMultiplier(DistanceUnit units)
     {
-        return units;
-    }
+        PreCondition.assertNotNull(units, "units");
 
-    public Distance convertTo(DistanceUnit destinationUnits)
-    {
-        PreCondition.assertNotNull(destinationUnits, "destinationUnits");
+        double result;
 
-        Distance result = this;
-
-        switch (units)
+        switch (this.getUnits())
         {
             case Millimeters:
-                switch (destinationUnits)
+                switch (units)
                 {
+                    case Millimeters:
+                        result = 1;
+                        break;
+
                     case Centimeters:
-                        result = new Distance(value * MetricScale.milliToCenti, destinationUnits);
+                        result = MetricScale.milliToCenti;
                         break;
 
                     case Meters:
-                        result = new Distance(value * MetricScale.milliToUni, destinationUnits);
+                        result = MetricScale.milliToUni;
                         break;
 
                     case Kilometers:
-                        result = new Distance(value * MetricScale.milliToKilo, destinationUnits);
+                        result = MetricScale.milliToKilo;
                         break;
 
                     case Inches:
-                        result = new Distance(value * MillimetersToInches, destinationUnits);
+                        result = Distance.MillimetersToInches;
                         break;
 
                     case Feet:
-                        result = new Distance(value * MillimetersToFeet, destinationUnits);
+                        result = Distance.MillimetersToFeet;
                         break;
 
                     case Miles:
-                        result = new Distance(value * MillimetersToMiles, destinationUnits);
+                        result = Distance.MillimetersToMiles;
                         break;
 
                     case FontPoints:
-                        result = new Distance(value * MillimeterstoFontPoints, destinationUnits);
+                        result = Distance.MillimeterstoFontPoints;
                         break;
+
+                    default:
+                        throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(DistanceUnit.class) + ": " + units);
                 }
                 break;
 
             case Centimeters:
-                switch (destinationUnits)
+                switch (units)
                 {
                     case Millimeters:
-                        result = new Distance(value * MetricScale.centiToMilli, destinationUnits);
+                        result = MetricScale.centiToMilli;
+                        break;
+
+                    case Centimeters:
+                        result = 1;
                         break;
 
                     case Meters:
-                        result = new Distance(value * MetricScale.centiToUni, destinationUnits);
+                        result = MetricScale.centiToUni;
                         break;
 
                     case Kilometers:
-                        result = new Distance(value * MetricScale.centiToKilo, destinationUnits);
+                        result = MetricScale.centiToKilo;
                         break;
 
                     case Inches:
-                        result = new Distance(value * CentimeterstoInches, destinationUnits);
+                        result = Distance.CentimeterstoInches;
                         break;
 
                     case Feet:
-                        result = new Distance(value * CentimetersToFeet, destinationUnits);
+                        result = Distance.CentimetersToFeet;
                         break;
 
                     case Miles:
-                        result = new Distance(value * CentimetersToMiles, destinationUnits);
+                        result = Distance.CentimetersToMiles;
                         break;
 
                     case FontPoints:
-                        result = new Distance(value * CentimetersToFontPoints, destinationUnits);
+                        result = Distance.CentimetersToFontPoints;
                         break;
+
+                    default:
+                        throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(DistanceUnit.class) + ": " + units);
                 }
                 break;
 
             case Meters:
-                switch (destinationUnits)
+                switch (units)
                 {
                     case Millimeters:
-                        result = new Distance(value * MetricScale.uniToMilli, destinationUnits);
+                        result = MetricScale.uniToMilli;
                         break;
 
                     case Centimeters:
-                        result = new Distance(value * MetricScale.uniToCenti, destinationUnits);
+                        result = MetricScale.uniToCenti;
+                        break;
+
+                    case Meters:
+                        result = 1;
                         break;
 
                     case Kilometers:
-                        result = new Distance(value * MetricScale.uniToKilo, destinationUnits);
+                        result = MetricScale.uniToKilo;
                         break;
 
                     case Inches:
-                        result = new Distance(value * MetersToInches, destinationUnits);
+                        result = Distance.MetersToInches;
                         break;
 
                     case Feet:
-                        result = new Distance(value * MetersToFeet, destinationUnits);
+                        result = Distance.MetersToFeet;
                         break;
 
                     case Miles:
-                        result = new Distance(value * MetersToMiles, destinationUnits);
+                        result = Distance.MetersToMiles;
                         break;
 
                     case FontPoints:
-                        result = new Distance(value * MetersToFontPoints, destinationUnits);
+                        result = Distance.MetersToFontPoints;
                         break;
+
+                    default:
+                        throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(DistanceUnit.class) + ": " + units);
                 }
                 break;
 
             case Kilometers:
-                switch (destinationUnits)
+                switch (units)
                 {
                     case Millimeters:
-                        result = new Distance(value * MetricScale.kiloToMilli, destinationUnits);
+                        result = MetricScale.kiloToMilli;
                         break;
 
                     case Centimeters:
-                        result = new Distance(value * MetricScale.kiloToCenti, destinationUnits);
+                        result = MetricScale.kiloToCenti;
                         break;
 
                     case Meters:
-                        result = new Distance(value * MetricScale.kiloToUni, destinationUnits);
+                        result = MetricScale.kiloToUni;
+                        break;
+
+                    case Kilometers:
+                        result = 1;
                         break;
 
                     case Inches:
-                        result = new Distance(value * KilometersToInches, destinationUnits);
+                        result = Distance.KilometersToInches;
                         break;
 
                     case Feet:
-                        result = new Distance(value * KilometersToFeet, destinationUnits);
+                        result = Distance.KilometersToFeet;
                         break;
 
                     case Miles:
-                        result = new Distance(value * KilometersToMiles, destinationUnits);
+                        result = Distance.KilometersToMiles;
                         break;
 
                     case FontPoints:
-                        result = new Distance(value * KilometersToFontPoints, destinationUnits);
+                        result = Distance.KilometersToFontPoints;
                         break;
+
+                    default:
+                        throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(DistanceUnit.class) + ": " + units);
                 }
                 break;
 
             case Inches:
-                switch (destinationUnits)
+                switch (units)
                 {
                     case Millimeters:
-                        result = new Distance(value * InchesToMillimeters, destinationUnits);
+                        result = Distance.InchesToMillimeters;
                         break;
 
                     case Centimeters:
-                        result = new Distance(value * InchesToCentimeters, destinationUnits);
+                        result = Distance.InchesToCentimeters;
                         break;
 
                     case Meters:
-                        result = new Distance(value * InchesToMeters, destinationUnits);
+                        result = Distance.InchesToMeters;
                         break;
 
                     case Kilometers:
-                        result = new Distance(value * InchesToKilometers, destinationUnits);
+                        result = Distance.InchesToKilometers;
+                        break;
+
+                    case Inches:
+                        result = 1;
                         break;
 
                     case Feet:
-                        result = new Distance(value * InchesToFeet, destinationUnits);
+                        result = Distance.InchesToFeet;
                         break;
 
                     case Miles:
-                        result = new Distance(value * InchesToMiles, destinationUnits);
+                        result = Distance.InchesToMiles;
                         break;
 
                     case FontPoints:
-                        result = new Distance(value * InchesToFontPoints, destinationUnits);
+                        result = Distance.InchesToFontPoints;
                         break;
+
+                    default:
+                        throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(DistanceUnit.class) + ": " + units);
                 }
                 break;
 
             case Feet:
-                switch (destinationUnits)
+                switch (units)
                 {
                     case Millimeters:
-                        result = new Distance(value * FeetToMillimeters, destinationUnits);
+                        result = Distance.FeetToMillimeters;
                         break;
 
                     case Centimeters:
-                        result = new Distance(value * FeetToCentimeters, destinationUnits);
+                        result = Distance.FeetToCentimeters;
                         break;
 
                     case Meters:
-                        result = new Distance(value * FeetToMeters, destinationUnits);
+                        result = Distance.FeetToMeters;
                         break;
 
                     case Kilometers:
-                        result = new Distance(value * FeetToKilometers, destinationUnits);
+                        result = Distance.FeetToKilometers;
                         break;
 
                     case Inches:
-                        result = new Distance(value * FeetToInches, destinationUnits);
+                        result = Distance.FeetToInches;
+                        break;
+
+                    case Feet:
+                        result = 1;
                         break;
 
                     case Miles:
-                        result = new Distance(value * FeetToMiles, destinationUnits);
+                        result = Distance.FeetToMiles;
                         break;
 
                     case FontPoints:
-                        result = new Distance(value * FeetToFontPoints, destinationUnits);
+                        result = Distance.FeetToFontPoints;
                         break;
+
+                    default:
+                        throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(DistanceUnit.class) + ": " + units);
                 }
                 break;
 
             case Miles:
-                switch (destinationUnits)
+                switch (units)
                 {
                     case Millimeters:
-                        result = new Distance(value * MilesToMillimeters, destinationUnits);
+                        result = Distance.MilesToMillimeters;
                         break;
 
                     case Centimeters:
-                        result = new Distance(value * MilesToCentimeters, destinationUnits);
+                        result = Distance.MilesToCentimeters;
                         break;
 
                     case Meters:
-                        result = new Distance(value * MilesToMeters, destinationUnits);
+                        result = Distance.MilesToMeters;
                         break;
 
                     case Kilometers:
-                        result = new Distance(value * MilesToKilometers, destinationUnits);
+                        result = Distance.MilesToKilometers;
                         break;
 
                     case Inches:
-                        result = new Distance(value * MilesToInches, destinationUnits);
+                        result = Distance.MilesToInches;
                         break;
 
                     case Feet:
-                        result = new Distance(value * MilesToFeet, destinationUnits);
+                        result = Distance.MilesToFeet;
+                        break;
+
+                    case Miles:
+                        result = 1;
                         break;
 
                     case FontPoints:
-                        result = new Distance(value * MilesToFontPoints, destinationUnits);
+                        result = Distance.MilesToFontPoints;
                         break;
+
+                    default:
+                        throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(DistanceUnit.class) + ": " + units);
                 }
                 break;
 
             case FontPoints:
-                switch (destinationUnits)
+                switch (units)
                 {
                     case Millimeters:
-                        result = new Distance(value * FontPointsToMillimeters, destinationUnits);
+                        result = Distance.FontPointsToMillimeters;
                         break;
 
                     case Centimeters:
-                        result = new Distance(value * FontPointsToCentimeters, destinationUnits);
+                        result = Distance.FontPointsToCentimeters;
                         break;
 
                     case Meters:
-                        result = new Distance(value * FontPointsToMeters, destinationUnits);
+                        result = Distance.FontPointsToMeters;
                         break;
 
                     case Kilometers:
-                        result = new Distance(value * FontPointsToKilometers, destinationUnits);
+                        result = Distance.FontPointsToKilometers;
                         break;
 
                     case Inches:
-                        result = new Distance(value * FontPointsToInches, destinationUnits);
+                        result = Distance.FontPointsToInches;
                         break;
 
                     case Feet:
-                        result = new Distance(value * FontPointsToFeet, destinationUnits);
+                        result = Distance.FontPointsToFeet;
                         break;
 
                     case Miles:
-                        result = new Distance(value * FontPointsToMiles, destinationUnits);
+                        result = Distance.FontPointsToMiles;
                         break;
+
+                    case FontPoints:
+                        result = 1;
+                        break;
+
+                    default:
+                        throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(DistanceUnit.class) + ": " + units);
                 }
                 break;
+
+            default:
+                throw new java.lang.IllegalArgumentException("Unrecognized " + Types.getTypeName(DistanceUnit.class) + ": " + units);
         }
 
-        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
 
         return result;
     }
 
     public Distance toMillimeters()
     {
-        return convertTo(DistanceUnit.Millimeters);
+        return this.convertTo(DistanceUnit.Millimeters);
     }
 
     public Distance toCentimeters()
     {
-        return convertTo(DistanceUnit.Centimeters);
+        return this.convertTo(DistanceUnit.Centimeters);
     }
 
     public Distance toMeters()
     {
-        return convertTo(DistanceUnit.Meters);
+        return this.convertTo(DistanceUnit.Meters);
     }
 
     public Distance toKilometers()
     {
-        return convertTo(DistanceUnit.Kilometers);
+        return this.convertTo(DistanceUnit.Kilometers);
     }
 
     public Distance toInches()
     {
-        return convertTo(DistanceUnit.Inches);
+        return this.convertTo(DistanceUnit.Inches);
     }
 
     public Distance toFeet()
     {
-        return convertTo(DistanceUnit.Feet);
+        return this.convertTo(DistanceUnit.Feet);
     }
 
     public Distance toMiles()
     {
-        return convertTo(DistanceUnit.Miles);
+        return this.convertTo(DistanceUnit.Miles);
     }
 
     public Distance toFontPoints()
     {
-        return convertTo(DistanceUnit.FontPoints);
-    }
-
-    public Distance negate()
-    {
-        final Distance result = (value == 0 ? this : new Distance(-value, units));
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    public Distance plus(Distance rhs)
-    {
-        PreCondition.assertNotNull(rhs, "rhs");
-
-        final Distance result = (rhs.getValue() == 0 ? this : new Distance(value + rhs.convertTo(units).getValue(), units));
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(units, result.getUnits(), "result.getUnits()");
-
-        return result;
-    }
-
-    /**
-     * Get the difference between this Distance and the provided Distance.
-     * @param rhs The distance to subtract from this Distance.
-     * @return The difference between this Distance and the provided Distance.
-     */
-    public Distance minus(Distance rhs)
-    {
-        PreCondition.assertNotNull(rhs, "rhs");
-
-        final Distance result = (rhs.getValue() == 0 ? this : new Distance(value - rhs.convertTo(units).getValue(), units));
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(units, result.getUnits(), "result.getUnits()");
-
-        return result;
-    }
-
-    public Distance times(double value)
-    {
-        final Distance result = (value == 1 ? this : new Distance(this.value * value, units));
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(units, result.getUnits(), "result.getUnits()");
-
-        return result;
-    }
-
-    public Distance dividedBy(double rhs)
-    {
-        PreCondition.assertNotEqual(0.0, rhs, "rhs");
-
-        final Distance result = (rhs == 1 ? this : new Distance(value / rhs, units));
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
-    public double dividedBy(Distance rhs)
-    {
-        PreCondition.assertNotNull(rhs, "rhs");
-        PreCondition.assertNotEqual(0, rhs.getValue(), "rhs.getValue()");
-
-        final Distance convertedRhs = rhs.convertTo(units);
-        final double result = value / convertedRhs.value;
-
-        return result;
-    }
-
-    public Speed dividedBy(Duration rhs)
-    {
-        PreCondition.assertNotNull(rhs, "rhs");
-        PreCondition.assertNotEqual(0, rhs.getValue(), "rhs.getValue()");
-
-        return Speed.create(this.value / rhs.getValue(), this.units, rhs.getUnits());
-    }
-
-    public Distance round()
-    {
-        final double roundedValue = Math.round(value);
-        return roundedValue == value ? this : new Distance(roundedValue, units);
-    }
-
-    public Distance round(Distance scale)
-    {
-        PreCondition.assertNotNull(scale, "scale");
-        PreCondition.assertNotEqual(0, scale.getValue(), "scale.getValue()");
-
-        final Distance convertedLhs = this.convertTo(scale.units);
-        final double roundedValue = Math.round(convertedLhs.value, scale.value);
-        final Distance result = convertedLhs.value == roundedValue ? convertedLhs : new Distance(roundedValue, scale.units);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(scale.getUnits(), result.getUnits(), "result.getUnits()");
-
-        return result;
-    }
-
-    public Distance round(double scale)
-    {
-        PreCondition.assertNotEqual(0, scale, "scale");
-
-        final double roundedValue = Math.round(value, scale);
-        final Distance result = value == roundedValue ? this : new Distance(roundedValue, units);
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(getUnits(), result.getUnits(), "result.getUnits()");
-
-        return result;
-    }
-
-    @Override
-    public String toString()
-    {
-        return value + " " + units;
-    }
-
-    public String toString(String format)
-    {
-        PreCondition.assertNotNull(format, "format");
-
-        return new java.text.DecimalFormat(format).format(value) + " " + units;
-    }
-
-    @Override
-    public boolean equals(Object value)
-    {
-        return value instanceof Distance && equals((Distance)value);
-    }
-
-    public boolean equals(Distance rhs)
-    {
-        return rhs != null && rhs.convertTo(units).value == value;
+        return this.convertTo(DistanceUnit.FontPoints);
     }
 
     @Override
     public int hashCode()
     {
-        return units != DistanceUnit.Meters ? toMeters().hashCode() : Doubles.hashCode(value);
+        return Doubles.hashCode(this.toMeters().getValue());
     }
 
     @Override
-    public Comparison compareWith(Distance value)
+    public Comparison compareWith(MeasurableValue<DistanceUnit> value)
     {
         return this.compareTo(value, Distance.zero);
-    }
-
-    @Override
-    public Comparison compareTo(Distance value, Distance marginOfError)
-    {
-        PreCondition.assertNotNull(marginOfError, "marginOfError");
-
-        Comparison result;
-        if (value == null)
-        {
-            result = Comparison.GreaterThan;
-        }
-        else
-        {
-            final DistanceUnit units = this.getUnits();
-            result = Comparison.create(this.getValue() - value.convertTo(units).getValue(), marginOfError.convertTo(units).getValue());
-        }
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
     }
 }

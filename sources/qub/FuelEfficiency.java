@@ -67,7 +67,7 @@ public class FuelEfficiency implements Comparable<FuelEfficiency>
 
         if (this.distanceUnits != distanceUnits)
         {
-            value = new Distance(value, this.distanceUnits).convertTo(distanceUnits).getValue();
+            value = Distance.create(value, this.distanceUnits).convertTo(distanceUnits).getValue();
         }
         if (this.volumeUnits != volumeUnits)
         {
@@ -159,7 +159,7 @@ public class FuelEfficiency implements Comparable<FuelEfficiency>
     {
         PreCondition.assertNotNull(rhs, "rhs");
 
-        final Distance result = new Distance(this.value * rhs.convertTo(this.volumeUnits).getValue(), this.distanceUnits);
+        final Distance result = Distance.create(this.value * rhs.convertTo(this.volumeUnits).getValue(), this.distanceUnits);
 
         PostCondition.assertNotNull(result, "result");
         PostCondition.assertEqual(this.getDistanceUnits(), result.getUnits(), "result.getUnits()");

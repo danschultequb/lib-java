@@ -80,10 +80,10 @@ public interface MutableIndexable<T> extends Indexable<T>
      * Sort the values in the provided MutableIndexable using their compareTo() method. This will
      * change the MutableIndexable if the values are not already in sorted order.
      * @param values The values to sort.
-     * @param <T> The type of values to sort.
+     * @param <U> The type of values to sort.
      * @return The sorted MutableIndexable.
      */
-    static <T extends Comparable<T>> MutableIndexable<T> sort(MutableIndexable<T> values)
+    static <T extends Comparable<T>, U extends T> MutableIndexable<U> sort(MutableIndexable<U> values)
     {
         PreCondition.assertNotNull(values, "values");
 
