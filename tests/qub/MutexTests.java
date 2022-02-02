@@ -99,18 +99,6 @@ public interface MutexTests
                     test.assertTrue(mutex.isAcquiredByCurrentThread());
                 });
 
-                runner.test("when locked by this thread", (Test test) ->
-                {
-                    final Mutex mutex = creator.run(null);
-                    mutex.acquire().await();
-                    test.assertTrue(mutex.isAcquired());
-                    test.assertTrue(mutex.isAcquiredByCurrentThread());
-
-                    mutex.acquire().await();
-                    test.assertTrue(mutex.isAcquired());
-                    test.assertTrue(mutex.isAcquiredByCurrentThread());
-                });
-
                 runner.test("with multiple threads",
                     (TestResources resources) -> Tuple.create(resources.getParallelAsyncRunner()),
                     (Test test, AsyncRunner parallelAsyncRunner) ->
@@ -182,7 +170,8 @@ public interface MutexTests
                 {
                     final Mutex mutex = creator.run(clock);
                     test.assertNull(mutex.acquire().await());
-                    test.assertNull(mutex.acquire(Duration.seconds(5)).await());
+                    test.assertThrows(() -> mutex.acquire(Duration.seconds(0.1)).await(),
+                        new TimeoutException());
                     test.assertTrue(mutex.isAcquired());
                 });
 
@@ -198,7 +187,8 @@ public interface MutexTests
                     final Duration timeout = Duration.seconds(1);
 
                     final DateTime startTime = clock.getCurrentDateTime();
-                    test.assertThrows(() -> mutex.acquire(timeout).await(), new TimeoutException());
+                    test.assertThrows(() -> mutex.acquire(timeout).await(),
+                        new TimeoutException());
                     final DateTime endTime = clock.getCurrentDateTime();
 
                     test.assertTrue(mutex.isAcquired());
@@ -288,7 +278,7 @@ public interface MutexTests
                 {
                     final Mutex mutex = creator.run(null);
                     test.assertNull(mutex.acquire().await());
-                    test.assertTrue(mutex.tryAcquire().await());
+                    test.assertFalse(mutex.tryAcquire().await());
                     test.assertTrue(mutex.isAcquired());
                 });
 
@@ -314,7 +304,8 @@ public interface MutexTests
                 runner.test("when not locked", (Test test) ->
                 {
                     final Mutex mutex = creator.run(null);
-                    test.assertNull(mutex.release().await());
+                    test.assertThrows(() -> mutex.release().await(),
+                        new PreConditionFailure("this.isAcquiredByCurrentThread() cannot be false."));
                     test.assertFalse(mutex.isAcquired());
                 });
 
@@ -403,9 +394,10 @@ public interface MutexTests
                     test.assertNull(mutex.acquire().await());
 
                     final Value<Boolean> value = Value.create(false);
-                    test.assertNull(mutex.criticalSection(Duration.seconds(1), () -> { value.set(true); }).await());
+                    test.assertThrows(() -> mutex.criticalSection(Duration.seconds(1), () -> { value.set(true); }).await(),
+                        new TimeoutException());
                     test.assertTrue(mutex.isAcquired());
-                    test.assertTrue(value.get());
+                    test.assertFalse(value.get());
                 });
 
                 runner.test("with positive duration when Mutex is already acquired by a different thread",
@@ -489,9 +481,10 @@ public interface MutexTests
 
                     final Value<Boolean> value = Value.create(false);
                     final DateTime timeout = clock.getCurrentDateTime().plus(Duration.seconds(1));
-                    test.assertNull(mutex.criticalSection(timeout, () -> { value.set(true); }).await());
+                    test.assertThrows(() -> mutex.criticalSection(timeout, () -> { value.set(true); }).await(),
+                        new TimeoutException());
                     test.assertTrue(mutex.isAcquired());
-                    test.assertTrue(value.get());
+                    test.assertFalse(value.get());
                 });
 
                 runner.test("with DateTime in the future when Mutex is already acquired by a different thread",

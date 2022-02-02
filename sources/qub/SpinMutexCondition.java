@@ -45,10 +45,14 @@ public class SpinMutexCondition implements MutexCondition
                 this.gate.close();
 
                 this.mutex.release().await();
-
-                this.gate.passThrough().await();
-
-                this.mutex.acquire().await();
+                try
+                {
+                    this.gate.passThrough().await();
+                }
+                finally
+                {
+                    this.mutex.acquire().await();
+                }
 
                 done = (this.condition == null || this.condition.run());
             }
@@ -82,10 +86,14 @@ public class SpinMutexCondition implements MutexCondition
                 this.gate.close();
 
                 this.mutex.release().await();
-
-                this.gate.passThrough(timeout).await();
-
-                this.mutex.acquire(timeout).await();
+                try
+                {
+                    this.gate.passThrough(timeout).await();
+                }
+                finally
+                {
+                    this.mutex.acquire().await();
+                }
 
                 done = (this.condition == null || this.condition.run());
             }

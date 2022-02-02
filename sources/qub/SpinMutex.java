@@ -8,13 +8,11 @@ package qub;
 public class SpinMutex implements Mutex
 {
     private final LongValue acquiredByThreadId;
-    private final LongValue acquiredCount;
     private final Clock clock;
 
     private SpinMutex(Clock clock)
     {
         this.acquiredByThreadId = LongValue.create(-1);
-        this.acquiredCount = LongValue.create(0);
         this.clock = clock;
     }
 
@@ -45,19 +43,16 @@ public class SpinMutex implements Mutex
     @Override
     public Result<Void> acquire()
     {
-        final long threadId = Thread.currentThread().getId();
-        if (this.acquiredByThreadId.get() != threadId)
+        return Result.create(() ->
         {
+            final long threadId = Thread.currentThread().getId();
             while (!this.acquiredByThreadId.compareAndSet(-1, threadId))
             {
                 while (this.isAcquired())
                 {
                 }
             }
-        }
-        this.acquiredCount.increment();
-
-        return Result.create();
+        });
     }
 
     @Override
@@ -95,27 +90,22 @@ public class SpinMutex implements Mutex
     @Override
     public Result<Boolean> tryAcquire()
     {
-        final long threadId = Thread.currentThread().getId();
-        final boolean acquired = this.acquiredByThreadId.get() == threadId || this.acquiredByThreadId.compareAndSet(-1, threadId);
-        if (acquired)
+        return Result.create(() ->
         {
-            this.acquiredCount.increment();
-        }
-        return Result.success(acquired);
+            final long threadId = Thread.currentThread().getId();
+            return this.acquiredByThreadId.compareAndSet(-1, threadId);
+        });
     }
 
     @Override
     public Result<Void> release()
     {
-        final long threadId = Thread.currentThread().getId();
-        if (this.acquiredByThreadId.get() == threadId)
+        PreCondition.assertTrue(this.isAcquiredByCurrentThread(), "this.isAcquiredByCurrentThread()");
+
+        return Result.create(() ->
         {
-            if (this.acquiredCount.decrement().get() == 0)
-            {
-                this.acquiredByThreadId.set(-1);
-            }
-        }
-        return Result.create();
+            this.acquiredByThreadId.set(-1);
+        });
     }
 
     @Override

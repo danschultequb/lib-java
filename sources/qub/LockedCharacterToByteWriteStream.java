@@ -126,7 +126,7 @@ public class LockedCharacterToByteWriteStream implements CharacterToByteWriteStr
     }
 
     @Override
-    public CharacterToByteWriteStream setNewLine(char newLine)
+    public LockedCharacterToByteWriteStream setNewLine(char newLine)
     {
         this.innerStream.unlock(stream ->
         {
@@ -137,7 +137,7 @@ public class LockedCharacterToByteWriteStream implements CharacterToByteWriteStr
     }
 
     @Override
-    public CharacterToByteWriteStream setNewLine(char[] newLine)
+    public LockedCharacterToByteWriteStream setNewLine(char[] newLine)
     {
         PreCondition.assertNotNull(newLine, "newLine");
 
@@ -150,7 +150,7 @@ public class LockedCharacterToByteWriteStream implements CharacterToByteWriteStr
     }
 
     @Override
-    public CharacterToByteWriteStream setNewLine(String newLine)
+    public LockedCharacterToByteWriteStream setNewLine(String newLine)
     {
         PreCondition.assertNotNull(newLine, "newLine");
 

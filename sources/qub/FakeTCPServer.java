@@ -102,7 +102,7 @@ public class FakeTCPServer implements TCPServer
     @Override
     public boolean isDisposed()
     {
-        return this.mutex.criticalSection(() -> this.disposed).await();
+        return this.disposed;
     }
 
     @Override

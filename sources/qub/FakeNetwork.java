@@ -64,94 +64,75 @@ public class FakeNetwork implements Network
 
         final Function0<Result<FakeTCPClient>> function = () ->
         {
-            Result<FakeTCPClient> result;
-            if (dateTimeTimeout != null && this.clock.getCurrentDateTime().greaterThanOrEqualTo(dateTimeTimeout))
-            {
-                result = Result.error(new TimeoutException());
-            }
-            else
-            {
-                result = Result.create(() ->
-                {
-                    FakeTCPServer remoteTCPServer = null;
+            PreCondition.assertTrue(this.mutex.isAcquiredByCurrentThread(), "this.mutex.isAcquiredByCurrentThread()");
 
-                    while (remoteTCPServer == null)
+            return Result.create(() ->
+            {
+                if (dateTimeTimeout != null && this.clock.getCurrentDateTime().greaterThanOrEqualTo(dateTimeTimeout))
+                {
+                    throw new TimeoutException();
+                }
+
+                FakeTCPServer remoteTCPServer = null;
+                while (remoteTCPServer == null)
+                {
+                    remoteTCPServer = this.boundTCPServers.get(remoteIPAddress)
+                        .then((MutableMap<Integer,FakeTCPServer> remoteTCPServers) -> remoteTCPServers.get(remotePort).await())
+                        .catchError(NotFoundException.class)
+                        .await();
+                    if (remoteTCPServer == null)
                     {
                         if (dateTimeTimeout == null)
                         {
-                            this.mutex.acquire().await();
+                            throw Exceptions.asRuntime(new java.net.ConnectException("Connection refused: connect"));
                         }
                         else
                         {
-                            this.mutex.acquire(dateTimeTimeout).await();
-                        }
-                        try
-                        {
-                            remoteTCPServer = this.boundTCPServers.get(remoteIPAddress)
-                                .then((MutableMap<Integer,FakeTCPServer> remoteTCPServers) -> remoteTCPServers.get(remotePort).await())
-                                .catchError(NotFoundException.class)
-                                .await();
-                            if (remoteTCPServer == null)
-                            {
-                                if (dateTimeTimeout == null)
-                                {
-                                    throw Exceptions.asRuntime(new java.net.ConnectException("Connection refused: connect"));
-                                }
-                                else
-                                {
-                                    this.boundTCPServerAvailable.watch(dateTimeTimeout).await();
-                                }
-                            }
-                        }
-                        finally
-                        {
-                            this.mutex.release().await();
+                            this.boundTCPServerAvailable.watch(dateTimeTimeout).await();
                         }
                     }
+                }
 
-                    final IPv4Address clientLocalIPAddress = IPv4Address.localhost;
-                    int clientLocalPort = 65535;
-                    while (1 <= clientLocalPort && !isAvailable(clientLocalIPAddress, clientLocalPort))
+                final IPv4Address clientLocalIPAddress = IPv4Address.localhost;
+                int clientLocalPort = 65535;
+                while (1 <= clientLocalPort && !this.isAvailable(clientLocalIPAddress, clientLocalPort))
+                {
+                    --clientLocalPort;
+                }
+
+                if (clientLocalPort < 1)
+                {
+                    throw new IllegalStateException("No more ports available on IP address " + clientLocalIPAddress);
+                }
+
+                int serverClientLocalPort = 65535;
+                final boolean localIPAddressEqualsRemoteIPAddress = clientLocalIPAddress.equals(remoteIPAddress);
+                while ((localIPAddressEqualsRemoteIPAddress && clientLocalPort == serverClientLocalPort) ||
+                        !this.isAvailable(remoteIPAddress, serverClientLocalPort))
+                {
+                    --serverClientLocalPort;
+
+                    if (serverClientLocalPort <= 0)
                     {
-                        --clientLocalPort;
+                        throw new IllegalStateException("No more ports available on IP address " + remoteIPAddress);
                     }
+                }
 
-                    if (clientLocalPort < 1)
-                    {
-                        throw new IllegalStateException("No more ports available on IP address " + clientLocalIPAddress);
-                    }
+                final InMemoryByteStream clientToServer = this.createNetworkStream();
+                final InMemoryByteStream serverToClient = this.createNetworkStream();
 
-                    int serverClientLocalPort = 65535;
-                    final boolean localIPAddressEqualsRemoteIPAddress = clientLocalIPAddress.equals(remoteIPAddress);
-                    while ((localIPAddressEqualsRemoteIPAddress && clientLocalPort == serverClientLocalPort) ||
-                            !isAvailable(remoteIPAddress, serverClientLocalPort))
-                    {
-                        --serverClientLocalPort;
+                final FakeTCPClient tcpClient = FakeTCPClient.create(this, clientLocalIPAddress, clientLocalPort, remoteIPAddress, remotePort, serverToClient, clientToServer);
+                this.addLocalTCPClient(tcpClient);
 
-                        if (serverClientLocalPort <= 0)
-                        {
-                            throw new IllegalStateException("No more ports available on IP address " + remoteIPAddress);
-                        }
-                    }
+                final FakeTCPClient serverTCPClient = FakeTCPClient.create(this, remoteIPAddress, serverClientLocalPort, clientLocalIPAddress, clientLocalPort, clientToServer, serverToClient);
+                this.addLocalTCPClient(serverTCPClient);
 
-                    final InMemoryByteStream clientToServer = createNetworkStream();
-                    final InMemoryByteStream serverToClient = createNetworkStream();
+                remoteTCPServer.addIncomingClient(serverTCPClient);
 
-                    final FakeTCPClient tcpClient = FakeTCPClient.create(this, clientLocalIPAddress, clientLocalPort, remoteIPAddress, remotePort, serverToClient, clientToServer);
-                    this.addLocalTCPClient(tcpClient);
+                PostCondition.assertTrue(this.mutex.isAcquiredByCurrentThread(), "this.mutex.isAcquiredByCurrentThread()");
 
-                    final FakeTCPClient serverTCPClient = FakeTCPClient.create(this, remoteIPAddress, serverClientLocalPort, clientLocalIPAddress, clientLocalPort, clientToServer, serverToClient);
-                    this.addLocalTCPClient(serverTCPClient);
-
-                    remoteTCPServer.addIncomingClient(serverTCPClient);
-
-                    return tcpClient;
-                });
-            }
-
-            PostCondition.assertNotNull(result, "result");
-
-            return result;
+                return tcpClient;
+            });
         };
 
         return dateTimeTimeout != null
@@ -186,12 +167,12 @@ public class FakeNetwork implements Network
     private void addLocalTCPClient(FakeTCPClient tcpClient)
     {
         PreCondition.assertNotNull(tcpClient, "tcpClient");
+        PreCondition.assertTrue(this.mutex.isAcquiredByCurrentThread(), "this.mutex.isAcquiredByCurrentThread()");
 
-        this.mutex.criticalSection(() ->
-        {
-            this.boundTCPClients.getOrSet(tcpClient.getLocalIPAddress(), Map::create).await()
-                .set(tcpClient.getLocalPort(), tcpClient);
-        }).await();
+        this.boundTCPClients.getOrSet(tcpClient.getLocalIPAddress(), Map::create).await()
+            .set(tcpClient.getLocalPort(), tcpClient);
+
+        PostCondition.assertTrue(this.mutex.isAcquiredByCurrentThread(), "this.mutex.isAcquiredByCurrentThread()");
     }
 
     @Override
@@ -257,33 +238,34 @@ public class FakeNetwork implements Network
         }).await();
     }
 
-    public boolean isAvailable(IPv4Address ipAddress, int port)
+    private boolean isAvailable(IPv4Address ipAddress, int port)
     {
         Network.validateIPAddress(ipAddress, "ipAddress");
         Network.validatePort(port, "port");
+        PreCondition.assertTrue(this.mutex.isAcquiredByCurrentThread(), "this.mutex.isAcquiredByCurrentThread()");
 
-        return this.mutex.criticalSection(() ->
+        boolean result = true;
+
+        final Map<Integer,FakeTCPClient> localTCPClients = this.boundTCPClients.get(ipAddress)
+            .catchError(NotFoundException.class)
+            .await();
+        if (localTCPClients != null && localTCPClients.containsKey(port))
         {
-            boolean result = true;
-
-            final Map<Integer,FakeTCPClient> localTCPClients = this.boundTCPClients.get(ipAddress)
+            result = false;
+        }
+        else
+        {
+            final Map<Integer,FakeTCPServer> localTCPServers = this.boundTCPServers.get(ipAddress)
                 .catchError(NotFoundException.class)
                 .await();
-            if (localTCPClients != null && localTCPClients.containsKey(port))
+            if (localTCPServers != null && localTCPServers.containsKey(port))
             {
                 result = false;
             }
-            else
-            {
-                final Map<Integer,FakeTCPServer> localTCPServers = this.boundTCPServers.get(ipAddress)
-                    .catchError(NotFoundException.class)
-                    .await();
-                if (localTCPServers != null && localTCPServers.containsKey(port))
-                {
-                    result = false;
-                }
-            }
-            return result;
-        }).await();
+        }
+
+        PostCondition.assertTrue(this.mutex.isAcquiredByCurrentThread(), "this.mutex.isAcquiredByCurrentThread()");
+
+        return result;
     }
 }
