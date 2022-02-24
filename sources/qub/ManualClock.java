@@ -103,15 +103,20 @@ public class ManualClock implements Clock
      * Advance this clock forward by the provided duration.
      * @param duration The duration to advance this Clock forward by.
      */
-    public void advance(Duration duration)
+    public Result<Void> advance(Duration duration)
     {
         PreCondition.assertNotNull(duration, "duration");
 
-        this.currentDateTime = this.currentDateTime.plus(duration);
-        while (this.pausedTasks.any() && this.pausedTasks.first().getScheduledAt().lessThanOrEqualTo(this.currentDateTime))
+        return Result.create(() ->
         {
-            this.pausedTasks.removeFirst().schedulePausedAction();
-        }
+            this.currentDateTime = this.currentDateTime.plus(duration);
+            final Iterable<PausedTask> pausedTasksToRun = this.pausedTasks
+                .removeAll((PausedTask pausedTask) -> pausedTask.getScheduledAt().lessThanOrEqualTo(this.currentDateTime));
+            for (final PausedTask pausedTaskToRun : pausedTasksToRun)
+            {
+                pausedTaskToRun.schedulePausedAction();
+            }
+        });
     }
 
     private static class PausedTask

@@ -51,17 +51,19 @@ public interface Clock
     default Result<Void> delay(Duration duration)
     {
         PreCondition.assertNotNull(duration, "duration");
-        PreCondition.assertGreaterThanOrEqualTo(duration, Duration.zero, "duration");
 
         return this.scheduleAfter(duration, Action0.empty);
     }
 
     /**
-     * Create a Stopwatch object based on this Clock.
-     * @return The Stopwatch object based on this Clock.
+     * Delay the current thread until the provided date and time.
+     * @param dateTime The date and time to delay the current thread until.
+     * @return The result of delaying the current thread.
      */
-    default Stopwatch createStopwatch()
+    default Result<Void> delayUntil(DateTime dateTime)
     {
-        return Stopwatch.create(this);
+        PreCondition.assertNotNull(dateTime, "dateTime");
+
+        return this.scheduleAt(dateTime, Action0.empty);
     }
 }

@@ -68,7 +68,7 @@ public interface StopwatchTests
 
                     stopwatch.start();
 
-                    clock.advance(Duration.seconds(5));
+                    clock.advance(Duration.seconds(5)).await();
 
                     test.assertEqual(Duration.seconds(5), stopwatch.stop());
                     test.assertFalse(stopwatch.hasStarted());
