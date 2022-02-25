@@ -5,13 +5,13 @@ package qub;
  * condition.
  * @param <T> The type of values returned by this {@link Iterator}.
  */
-public class TakeUntilIterator<T> implements Iterator<T>
+public class TakeWhileIterator<T> implements Iterator<T>
 {
     private final Iterator<T> innerIterator;
     private final Function1<T,Boolean> condition;
     private boolean hasCurrent;
 
-    private TakeUntilIterator(Iterator<T> innerIterator, Function1<T,Boolean> condition)
+    private TakeWhileIterator(Iterator<T> innerIterator, Function1<T,Boolean> condition)
     {
         PreCondition.assertNotNull(innerIterator, "innerIterator");
         PreCondition.assertNotNull(condition, "condition");
@@ -21,9 +21,9 @@ public class TakeUntilIterator<T> implements Iterator<T>
         this.updateHasCurrent();
     }
 
-    public static <T> TakeUntilIterator<T> create(Iterator<T> innerIterator, Function1<T,Boolean> condition)
+    public static <T> TakeWhileIterator<T> create(Iterator<T> innerIterator, Function1<T,Boolean> condition)
     {
-        return new TakeUntilIterator<>(innerIterator, condition);
+        return new TakeWhileIterator<>(innerIterator, condition);
     }
 
     private void updateHasCurrent()

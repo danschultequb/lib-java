@@ -612,6 +612,143 @@ public interface IteratorTests
                     test.assertEqual(0, conditionCounter.get());
 
                     final Iterable<Integer> returnedValues = takeUntilResult.toList();
+                    test.assertEqual(Iterable.create(), returnedValues);
+                    IteratorTests.assertIterator(test, iterator, true, 0);
+                    IteratorTests.assertIterator(test, takeUntilResult, true, null);
+                    test.assertEqual(1, conditionCounter.get());
+                });
+
+                runner.test("with condition that is always true with started inner iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(5, true);
+
+                    final IntegerValue conditionCounter = IntegerValue.create(0);
+                    final Iterator<Integer> takeUntilResult = iterator.takeUntil((Integer value) ->
+                    {
+                        conditionCounter.increment();
+                        return true;
+                    });
+                    IteratorTests.assertIterator(test, iterator, true, 0);
+                    IteratorTests.assertIterator(test, takeUntilResult, true, null);
+                    test.assertEqual(1, conditionCounter.get());
+
+                    final Iterable<Integer> returnedValues = takeUntilResult.toList();
+                    test.assertEqual(Iterable.create(), returnedValues);
+                    IteratorTests.assertIterator(test, iterator, true, 0);
+                    IteratorTests.assertIterator(test, takeUntilResult, true, null);
+                    test.assertEqual(1, conditionCounter.get());
+                });
+
+                runner.test("with condition that is always false with non-started inner iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(5, false);
+
+                    final IntegerValue conditionCounter = IntegerValue.create(0);
+                    final Iterator<Integer> takeUntilResult = iterator.takeUntil((Integer value) ->
+                    {
+                        conditionCounter.increment();
+                        return false;
+                    });
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, takeUntilResult, false, null);
+                    test.assertEqual(0, conditionCounter.get());
+
+                    final Iterable<Integer> returnedValues = takeUntilResult.toList();
+                    test.assertEqual(Iterable.create(0, 1, 2, 3, 4), returnedValues);
+                    IteratorTests.assertIterator(test, iterator, true, null);
+                    IteratorTests.assertIterator(test, takeUntilResult, true, null);
+                    test.assertEqual(5, conditionCounter.get());
+                });
+
+                runner.test("with condition that is always false with started inner iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(5, true);
+
+                    final IntegerValue conditionCounter = IntegerValue.create(0);
+                    final Iterator<Integer> takeUntilResult = iterator.takeUntil((Integer value) ->
+                    {
+                        conditionCounter.increment();
+                        return false;
+                    });
+                    IteratorTests.assertIterator(test, iterator, true, 0);
+                    IteratorTests.assertIterator(test, takeUntilResult, true, 0);
+                    test.assertEqual(1, conditionCounter.get());
+
+                    final Iterable<Integer> returnedValues = takeUntilResult.toList();
+                    test.assertEqual(Iterable.create(0, 1, 2, 3, 4), returnedValues);
+                    IteratorTests.assertIterator(test, iterator, true, null);
+                    IteratorTests.assertIterator(test, takeUntilResult, true, null);
+                    test.assertEqual(5, conditionCounter.get());
+                });
+
+                runner.test("with real condition with non-started inner iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(5, false);
+
+                    final IntegerValue conditionCounter = IntegerValue.create(0);
+                    final Iterator<Integer> takeUntilResult = iterator.takeUntil((Integer value) ->
+                    {
+                        conditionCounter.increment();
+                        return value >= 3;
+                    });
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, takeUntilResult, false, null);
+                    test.assertEqual(0, conditionCounter.get());
+
+                    final Iterable<Integer> returnedValues = takeUntilResult.toList();
+                    test.assertEqual(Iterable.create(0, 1, 2), returnedValues);
+                    IteratorTests.assertIterator(test, iterator, true, 3);
+                    IteratorTests.assertIterator(test, takeUntilResult, true, null);
+                    test.assertEqual(4, conditionCounter.get());
+                });
+
+                runner.test("with real condition with started inner iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(5, true);
+
+                    final IntegerValue conditionCounter = IntegerValue.create(0);
+                    final Iterator<Integer> takeUntilResult = iterator.takeUntil((Integer value) ->
+                    {
+                        conditionCounter.increment();
+                        return value >= 3;
+                    });
+                    IteratorTests.assertIterator(test, iterator, true, 0);
+                    IteratorTests.assertIterator(test, takeUntilResult, true, 0);
+                    test.assertEqual(1, conditionCounter.get());
+
+                    final Iterable<Integer> returnedValues = takeUntilResult.toList();
+                    test.assertEqual(Iterable.create(0, 1, 2), returnedValues);
+                    IteratorTests.assertIterator(test, iterator, true, 3);
+                    IteratorTests.assertIterator(test, takeUntilResult, true, null);
+                    test.assertEqual(4, conditionCounter.get());
+                });
+            });
+
+            runner.testGroup("takeWhile(Function1<T,Boolean>)", () ->
+            {
+                runner.test("with null condition", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(5, false);
+                    test.assertThrows(() -> iterator.takeUntil(null),
+                        new PreConditionFailure("condition cannot be null."));
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                });
+
+                runner.test("with condition that is always true with non-started inner iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(5, false);
+
+                    final IntegerValue conditionCounter = IntegerValue.create(0);
+                    final Iterator<Integer> takeUntilResult = iterator.takeWhile((Integer value) ->
+                    {
+                        conditionCounter.increment();
+                        return true;
+                    });
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, takeUntilResult, false, null);
+                    test.assertEqual(0, conditionCounter.get());
+
+                    final Iterable<Integer> returnedValues = takeUntilResult.toList();
                     test.assertEqual(Iterable.create(0, 1, 2, 3, 4), returnedValues);
                     IteratorTests.assertIterator(test, iterator, true, null);
                     IteratorTests.assertIterator(test, takeUntilResult, true, null);
@@ -623,7 +760,7 @@ public interface IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, true);
 
                     final IntegerValue conditionCounter = IntegerValue.create(0);
-                    final Iterator<Integer> takeUntilResult = iterator.takeUntil((Integer value) ->
+                    final Iterator<Integer> takeUntilResult = iterator.takeWhile((Integer value) ->
                     {
                         conditionCounter.increment();
                         return true;
@@ -644,7 +781,7 @@ public interface IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, false);
 
                     final IntegerValue conditionCounter = IntegerValue.create(0);
-                    final Iterator<Integer> takeUntilResult = iterator.takeUntil((Integer value) ->
+                    final Iterator<Integer> takeUntilResult = iterator.takeWhile((Integer value) ->
                     {
                         conditionCounter.increment();
                         return false;
@@ -665,7 +802,7 @@ public interface IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, true);
 
                     final IntegerValue conditionCounter = IntegerValue.create(0);
-                    final Iterator<Integer> takeUntilResult = iterator.takeUntil((Integer value) ->
+                    final Iterator<Integer> takeUntilResult = iterator.takeWhile((Integer value) ->
                     {
                         conditionCounter.increment();
                         return false;
@@ -686,7 +823,7 @@ public interface IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, false);
 
                     final IntegerValue conditionCounter = IntegerValue.create(0);
-                    final Iterator<Integer> takeUntilResult = iterator.takeUntil((Integer value) ->
+                    final Iterator<Integer> takeUntilResult = iterator.takeWhile((Integer value) ->
                     {
                         conditionCounter.increment();
                         return value < 3;
@@ -707,7 +844,7 @@ public interface IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(5, true);
 
                     final IntegerValue conditionCounter = IntegerValue.create(0);
-                    final Iterator<Integer> takeUntilResult = iterator.takeUntil((Integer value) ->
+                    final Iterator<Integer> takeUntilResult = iterator.takeWhile((Integer value) ->
                     {
                         conditionCounter.increment();
                         return value < 3;

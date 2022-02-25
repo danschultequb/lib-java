@@ -244,7 +244,21 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     {
         PreCondition.assertNotNull(condition, "condition");
 
-        return TakeUntilIterator.create(this, condition);
+        return this.takeWhile(Functions.not(condition));
+    }
+
+    /**
+     * Create a new {@link Iterator} that will take and return elements in this {@link Iterator}
+     * until it finds an element that makes the provided condition false.
+     * @param condition The condition.
+     * @return A new {@link Iterator} that will take and return elements in this {@link Iterator}
+     * until it finds an element that makes the provided condition false.
+     */
+    default Iterator<T> takeWhile(Function1<T,Boolean> condition)
+    {
+        PreCondition.assertNotNull(condition, "condition");
+
+        return TakeWhileIterator.create(this, condition);
     }
 
     /**

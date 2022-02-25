@@ -137,7 +137,7 @@ public class CharacterList implements List<Character>
     }
 
     /**
-     * Add all of the provided characters to this CharacterList.
+     * Add all of the provided characters to this {@link CharacterList}.
      * @param values The characters to add.
      */
     public CharacterList addAll(char... values)

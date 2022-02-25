@@ -91,7 +91,33 @@ public interface CharactersTests
 
             runner.testGroup("escape(char)", () ->
             {
-                final Action2<Character,String> escapeAndQuoteTest = (Character character, String expected) ->
+                final Action2<Character,String> escapeTest = (Character character, String expected) ->
+                {
+                    runner.test("with " + Characters.escapeAndQuote(character), (Test test) ->
+                    {
+                        test.assertEqual(expected, Characters.escape(character.charValue()));
+                    });
+                };
+
+                escapeTest.run('a', "a");
+                escapeTest.run('A', "A");
+                escapeTest.run(' ', " ");
+                escapeTest.run('\b', "\\b");
+                escapeTest.run('\f', "\\f");
+                escapeTest.run('\n', "\\n");
+                escapeTest.run('\r', "\\r");
+                escapeTest.run('\t', "\\t");
+                escapeTest.run('\'', "'");
+                escapeTest.run('\"', "\\\"");
+                escapeTest.run((char)0xD800, "\\u+D800");
+                escapeTest.run((char)0xD801, "\\u+D801");
+                escapeTest.run((char)0xDFFE, "\\u+DFFE");
+                escapeTest.run((char)0xDFFF, "\\u+DFFF");
+            });
+
+            runner.testGroup("escape(Character)", () ->
+            {
+                final Action2<Character,String> escapeTest = (Character character, String expected) ->
                 {
                     runner.test("with " + Characters.escapeAndQuote(character), (Test test) ->
                     {
@@ -99,20 +125,21 @@ public interface CharactersTests
                     });
                 };
 
-                escapeAndQuoteTest.run('a', "a");
-                escapeAndQuoteTest.run('A', "A");
-                escapeAndQuoteTest.run(' ', " ");
-                escapeAndQuoteTest.run('\b', "\\b");
-                escapeAndQuoteTest.run('\f', "\\f");
-                escapeAndQuoteTest.run('\n', "\\n");
-                escapeAndQuoteTest.run('\r', "\\r");
-                escapeAndQuoteTest.run('\t', "\\t");
-                escapeAndQuoteTest.run('\'', "'");
-                escapeAndQuoteTest.run('\"', "\\\"");
-                escapeAndQuoteTest.run((char)0xD800, "\\u+D800");
-                escapeAndQuoteTest.run((char)0xD801, "\\u+D801");
-                escapeAndQuoteTest.run((char)0xDFFE, "\\u+DFFE");
-                escapeAndQuoteTest.run((char)0xDFFF, "\\u+DFFF");
+                escapeTest.run(null, "null");
+                escapeTest.run('a', "a");
+                escapeTest.run('A', "A");
+                escapeTest.run(' ', " ");
+                escapeTest.run('\b', "\\b");
+                escapeTest.run('\f', "\\f");
+                escapeTest.run('\n', "\\n");
+                escapeTest.run('\r', "\\r");
+                escapeTest.run('\t', "\\t");
+                escapeTest.run('\'', "'");
+                escapeTest.run('\"', "\\\"");
+                escapeTest.run((char)0xD800, "\\u+D800");
+                escapeTest.run((char)0xD801, "\\u+D801");
+                escapeTest.run((char)0xDFFE, "\\u+DFFE");
+                escapeTest.run((char)0xDFFF, "\\u+DFFF");
             });
 
             runner.testGroup("unescapeNextCharacter(SaveableIterator<Character>)", () ->

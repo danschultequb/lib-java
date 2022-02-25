@@ -1,10 +1,10 @@
 package qub;
 
-public interface TakeUntilIteratorTests
+public interface TakeWhileIteratorTests
 {
     static void test(TestRunner runner)
     {
-        runner.testGroup(TakeUntilIterator.class, () ->
+        runner.testGroup(TakeWhileIterator.class, () ->
         {
             IteratorTests.test(runner, (Integer count, Boolean started) ->
             {
@@ -16,7 +16,7 @@ public interface TakeUntilIteratorTests
                     array.set(i, i);
                 }
 
-                final Iterator<Integer> iterator = array.iterate().takeUntil((Integer value) -> value < count);
+                final Iterator<Integer> iterator = array.iterate().takeWhile((Integer value) -> value < count);
 
                 if (started)
                 {
