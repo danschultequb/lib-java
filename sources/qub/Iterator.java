@@ -234,6 +234,20 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
+     * Create a new {@link Iterator} that will take and return elements in this {@link Iterator}
+     * until it finds an element that makes the provided condition true.
+     * @param condition The condition.
+     * @return A new {@link Iterator} that will take and return elements in this {@link Iterator}
+     * until it finds an element that makes the provided condition true.
+     */
+    default Iterator<T> takeUntil(Function1<T,Boolean> condition)
+    {
+        PreCondition.assertNotNull(condition, "condition");
+
+        return TakeUntilIterator.create(this, condition);
+    }
+
+    /**
      * Create a new Iterator that will skip over the first toSkip number of elements in this
      * Iterator and then iterate over the remaining elements.
      * @param toSkip The number of elements to skip.
