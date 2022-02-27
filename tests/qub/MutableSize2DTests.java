@@ -60,13 +60,9 @@ public interface MutableSize2DTests
                 {
                     runner.test("with " + English.andList(size, width), (Test test) ->
                     {
-                        final boolean differentWidth = !width.equals(size.getWidth());
-                        final IntegerValue counter = IntegerValue.create(0);
-                        size.onChanged(counter::increment);
-                        final MutableSize2D changedSize = size.setWidth(width);
-                        test.assertSame(size, changedSize);
+                        final MutableSize2D setWidthResult = size.setWidth(width);
+                        test.assertSame(size, setWidthResult);
                         test.assertEqual(width, size.getWidth());
-                        test.assertEqual(differentWidth ? 1 : 0, counter.get());
                     });
                 };
 
@@ -92,13 +88,9 @@ public interface MutableSize2DTests
                 {
                     runner.test("with " + English.andList(size, height), (Test test) ->
                     {
-                        final boolean differentHeight = !height.equals(size.getHeight());
-                        final IntegerValue counter = IntegerValue.create(0);
-                        size.onChanged(counter::increment);
-                        final MutableSize2D changedSize = size.setHeight(height);
-                        test.assertSame(size, changedSize);
+                        final MutableSize2D setHeightResult = size.setHeight(height);
+                        test.assertSame(size, setHeightResult);
                         test.assertEqual(height, size.getHeight());
-                        test.assertEqual(differentHeight ? 1 : 0, counter.get());
                     });
                 };
 
@@ -126,14 +118,10 @@ public interface MutableSize2DTests
                 {
                     runner.test("with " + English.andList(size, width, height), (Test test) ->
                     {
-                        final boolean different = !width.equals(size.getWidth()) || !height.equals(size.getHeight());
-                        final IntegerValue counter = IntegerValue.create(0);
-                        size.onChanged(counter::increment);
-                        final MutableSize2D changedSize = size.set(width, height);
-                        test.assertSame(size, changedSize);
+                        final MutableSize2D setResult = size.set(width, height);
+                        test.assertSame(size, setResult);
                         test.assertEqual(width, size.getWidth());
                         test.assertEqual(height, size.getHeight());
-                        test.assertEqual(different ? 1 : 0, counter.get());
                     });
                 };
 
@@ -142,35 +130,6 @@ public interface MutableSize2DTests
                 setTest.run(creator.run(Distance.zero, Distance.zero), Distance.inches(2), Distance.zero);
                 setTest.run(creator.run(Distance.zero, Distance.zero), Distance.zero, Distance.feet(1));
                 setTest.run(creator.run(Distance.zero, Distance.zero), Distance.miles(7), Distance.feet(1));
-            });
-
-            runner.testGroup("onChanged(Action0)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    final MutableSize2D size = creator.run(Distance.zero, Distance.zero);
-                    test.assertThrows(() -> size.onChanged(null),
-                        new PreConditionFailure("callback cannot be null."));
-                });
-
-                runner.test("with non-null", (Test test) ->
-                {
-                    final MutableSize2D size = creator.run(Distance.zero, Distance.zero);
-                    final IntegerValue counter = IntegerValue.create(0);
-
-                    final Disposable subscription = size.onChanged(counter::increment);
-                    test.assertNotNull(subscription);
-                    test.assertFalse(subscription.isDisposed());
-
-                    size.set(Distance.inches(1), Distance.inches(2));
-                    test.assertEqual(1, counter.get());
-
-                    test.assertTrue(subscription.dispose().await());
-                    test.assertTrue(subscription.isDisposed());
-
-                    size.set(Distance.feet(1), Distance.feet(2));
-                    test.assertEqual(1, counter.get());
-                });
             });
 
             runner.testGroup("toString()", () ->

@@ -159,7 +159,7 @@ public class Display
 
         final Distance horizontalDistance = this.convertHorizontalPixelsToDistance(horizontalPixels);
         final Distance verticalDistance = this.convertVerticalPixelsToDistance(verticalPixels);
-        final Point2D result = new Point2D(horizontalDistance, verticalDistance);
+        final Point2D result = Point2D.create(horizontalDistance, verticalDistance);
 
         PostCondition.assertNotNull(result, "result");
 

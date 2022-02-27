@@ -3,81 +3,65 @@ package qub;
 /**
  * A two-dimensional point object.
  */
-public class Point2D
+public interface Point2D
 {
-    public static final Point2D zero = new Point2D(Distance.zero, Distance.zero);
+    Point2D zero = Point2D.create();
 
-    private final Distance x;
-    private final Distance y;
-
-    /**
-     * Create a new Point2D object.
-     * @param x The x-coordinate of the point.
-     * @param y The y-coordinate of the point.
-     */
-    public Point2D(Distance x, Distance y)
+    static MutablePoint2D create()
     {
-        PreCondition.assertNotNull(x, "x");
-        PreCondition.assertNotNull(y, "y");
+        return MutablePoint2D.create();
+    }
 
-        this.x = x;
-        this.y = y;
+    static MutablePoint2D create(Distance x, Distance y)
+    {
+        return MutablePoint2D.create(x, y);
     }
 
     /**
-     * Create a new Point2D object.
-     * @param x The x-coordinate of the point.
-     * @param y The y-coordinate of the point.
-     * @return The new Point2D object.
+     * Get the x-coordinate of the {@link Point2D}.
+     * @return The x-coordinate of the {@link Point2D}.
      */
-    public static Point2D create(Distance x, Distance y)
+    Distance getX();
+
+    /**
+     * Get the y-coordinate of the {@link Point2D}.
+     * @return The y-coordinate of the {@link Point2D}.
+     */
+    Distance getY();
+
+    static String toString(Point2D point)
     {
-        return new Point2D(x, y);
+        PreCondition.assertNotNull(point, "point");
+
+        return JSONObject.create()
+            .setString("x", point.getX().toString())
+            .setString("y", point.getY().toString())
+            .toString();
+    }
+
+    static boolean equals(Point2D lhs, Object rhs)
+    {
+        PreCondition.assertNotNull(lhs, "lhs");
+
+        return rhs instanceof Point2D && lhs.equals((Point2D)rhs);
     }
 
     /**
-     * Get the x-coordinate of the point.
-     * @return The x-coordinate of the point.
+     * Get whether this {@link Point2D} equals the provided {@link Point2D}.
+     * @param rhs The {@link Point2D} to compare to this {@link Point2D}.
+     * @return Whether this {@link Point2D} equals the provided {@link Point2D}.
      */
-    public Distance getX()
+    default boolean equals(Point2D rhs)
     {
-        return x;
+        return rhs != null &&
+            this.getX().equals(rhs.getX()) &&
+            this.getY().equals(rhs.getY());
     }
 
-    /**
-     * Get the y-coordinate of the point.
-     * @return The y-coordinate of the point.
-     */
-    public Distance getY()
+    static int hashCode(Point2D point)
     {
-        return y;
-    }
+        PreCondition.assertNotNull(point, "point");
 
-    @Override
-    public String toString()
-    {
-        return "(" + x + "," + y + ")";
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return rhs instanceof Point2D && equals((Point2D)rhs);
-    }
-
-    /**
-     * Get whether or not this Point2D equals the provided Point2D.
-     * @param rhs The Point2D to compare to this Point2D.
-     * @return Whether or not this Point2D equals the provided Point2D.
-     */
-    public boolean equals(Point2D rhs)
-    {
-        return rhs != null && x.equals(rhs.x) && y.equals(rhs.y);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return x.hashCode() ^ y.hashCode();
+        return Hash.getHashCode(point.getX(), point.getY());
     }
 }

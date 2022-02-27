@@ -1,31 +1,87 @@
 package qub;
 
-public interface MutableSize2D extends Size2D
+public class MutableSize2D implements Size2D
 {
-    static MutableSize2D create(Distance width, Distance height)
+    private Distance width;
+    private Distance height;
+
+    private MutableSize2D(Distance width, Distance height)
     {
-        return BasicMutableSize2D.create(width, height);
+        PreCondition.assertNotNull(width, "width");
+        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
+        PreCondition.assertNotNull(height, "height");
+        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
+
+        this.width = width;
+        this.height = height;
     }
 
-    default MutableSize2D setWidth(Distance width)
+    public static MutableSize2D create()
     {
-        return this.set(width, this.getHeight());
+        return MutableSize2D.create(Distance.zero, Distance.zero);
     }
 
-    default MutableSize2D setHeight(Distance height)
+    public static MutableSize2D create(Distance width, Distance height)
     {
-        return this.set(this.getWidth(), height);
+        return new MutableSize2D(width, height);
     }
 
-    MutableSize2D set(Distance width, Distance height);
+    @Override
+    public Distance getWidth()
+    {
+        return this.width;
+    }
 
-    /**
-     * Register the provided callback to be run whenever this MutableSize2D's width and/or height
-     * changes.
-     * @param callback The callback to run whenever this MutableSize2D's width and/or height
-     *                 changes.
-     * @return A Disposable that can be disposed to unregister the provided callback from this
-     * event.
-     */
-    Disposable onChanged(Action0 callback);
+    public MutableSize2D setWidth(Distance width)
+    {
+        PreCondition.assertNotNull(width, "width");
+
+        this.width = width;
+
+        return this;
+    }
+
+    @Override
+    public Distance getHeight()
+    {
+        return this.height;
+    }
+
+    public MutableSize2D setHeight(Distance height)
+    {
+        PreCondition.assertNotNull(height, "height");
+
+        this.height = height;
+
+        return this;
+    }
+
+    public MutableSize2D set(Distance width, Distance height)
+    {
+        PreCondition.assertNotNull(width, "width");
+        PreCondition.assertNotNull(height, "height");
+
+        this.width = width;
+        this.height = height;
+
+        return this;
+    }
+
+    @Override
+    public String toString()
+    {
+        return Size2D.toString(this);
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return Size2D.equals(this, rhs);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Size2D.hashCode(this);
+    }
 }

@@ -31,7 +31,7 @@ public abstract class DesktopProcessBase<T extends MutableDesktopProcess> extend
 
     public T setProcessId(long processId)
     {
-        return (T)this.setProcessId(() -> processId);
+        return this.setProcessId(() -> processId);
     }
 
     @SuppressWarnings("unchecked")
