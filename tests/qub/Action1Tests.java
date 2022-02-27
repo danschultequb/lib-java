@@ -6,6 +6,80 @@ public class Action1Tests
     {
         runner.testGroup(Action1.class, () ->
         {
+            runner.testGroup("add(Class<T2>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final IntegerValue counter = IntegerValue.create(0);
+                    final Action1<Integer> action1 = counter::plusAssign;
+                    test.assertThrows(() -> action1.add(null),
+                        new PreConditionFailure("parameterType cannot be null."));
+                });
+
+                runner.test("with non-null", (Test test) ->
+                {
+                    final IntegerValue counter = IntegerValue.create(2);
+                    final Action1<Integer> action1 = counter::plusAssign;
+                    final Action2<Integer,String> action2 = action1.add(String.class);
+                    test.assertNotNull(action2);
+
+                    action2.run(5, "abc");
+
+                    test.assertEqual(7, counter.get());
+                });
+            });
+
+            runner.testGroup("insert0(Class<T0>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final IntegerValue counter = IntegerValue.create(0);
+                    final Action1<Integer> action1 = counter::plusAssign;
+                    test.assertThrows(() -> action1.insert0(null),
+                        new PreConditionFailure("parameterType cannot be null."));
+                });
+
+                runner.test("with non-null", (Test test) ->
+                {
+                    final IntegerValue counter = IntegerValue.create(1);
+                    final Action1<Integer> action1 = counter::plusAssign;
+                    final Action2<String,Integer> action2 = action1.insert0(String.class);
+                    test.assertNotNull(action2);
+
+                    action2.run("abc", 5);
+
+                    test.assertEqual(6, counter.get());
+                });
+            });
+
+            runner.test("bind1(T1)", (Test test) ->
+            {
+                final IntegerValue counter = IntegerValue.create(3);
+                final Action1<Integer> action1 = counter::plusAssign;
+                final Action0 action0 = action1.bind1(10);
+                test.assertNotNull(action0);
+
+                action0.run();
+                test.assertEqual(13, counter.get());
+
+                action0.run();
+                test.assertEqual(23, counter.get());
+            });
+
+            runner.test("bindReturn(TReturn)", (Test test) ->
+            {
+                final IntegerValue counter = IntegerValue.create(3);
+                final Action1<Integer> action1 = counter::plusAssign;
+                final Function1<Integer,String> function1 = action1.bindReturn("hello");
+                test.assertNotNull(function1);
+
+                test.assertEqual("hello", function1.run(10));
+                test.assertEqual(13, counter.get());
+
+                test.assertEqual("hello", function1.run(4));
+                test.assertEqual(17, counter.get());
+            });
+
             runner.testGroup("sequence(Action1<T>...)", () ->
             {
                 runner.test("with no arguments", (Test test) ->

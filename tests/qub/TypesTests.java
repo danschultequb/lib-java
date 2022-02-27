@@ -321,8 +321,8 @@ public class TypesTests
                 {
                     final Iterable<java.lang.reflect.Method> action0Methods = Types.getMethods(Action0.class);
                     test.assertNotNull(action0Methods);
-                    test.assertEqual(Iterable.create("run"), action0Methods.map(method -> method.getName()));
-                    test.assertEqual(Iterable.create(Action0.class), action0Methods.map(method -> method.getDeclaringClass()));
+                    test.assertEqual(Iterable.create("run", "add", "add"), action0Methods.map(method -> method.getName()));
+                    test.assertEqual(Iterable.create(Action0.class, Action0.class, Action0.class), action0Methods.map(method -> method.getDeclaringClass()));
                 });
             });
 
