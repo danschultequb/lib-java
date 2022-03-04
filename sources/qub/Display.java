@@ -152,14 +152,14 @@ public class Display
      * @param verticalPixels The vertical pixel quantity.
      * @return The converted Point2D.
      */
-    public Point2D convertPixelsToPoint2D(double horizontalPixels, double verticalPixels)
+    public Point2Distance convertPixelsToPoint2D(double horizontalPixels, double verticalPixels)
     {
         PreCondition.assertGreaterThanOrEqualTo(horizontalPixels, 0, "horizontalPixels");
         PreCondition.assertGreaterThanOrEqualTo(verticalPixels, 0, "verticalPixels");
 
         final Distance horizontalDistance = this.convertHorizontalPixelsToDistance(horizontalPixels);
         final Distance verticalDistance = this.convertVerticalPixelsToDistance(verticalPixels);
-        final Point2D result = Point2D.create(horizontalDistance, verticalDistance);
+        final Point2Distance result = Point2Distance.create(horizontalDistance, verticalDistance);
 
         PostCondition.assertNotNull(result, "result");
 
