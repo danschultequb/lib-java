@@ -59,7 +59,7 @@ public class MutableSize2Integer extends Size2Base<Integer> implements MutableSi
     }
 
     @Override
-    public MutableSize2<Integer> set(Integer width, Integer height)
+    public MutableSize2Integer set(Integer width, Integer height)
     {
         PreCondition.assertNotNull(width, "width");
         PreCondition.assertGreaterThanOrEqualTo(width, 0, "width");
