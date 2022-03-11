@@ -55,4 +55,16 @@ public class MutablePoint2Distance extends Point2Base<Distance> implements Mutab
 
         return this;
     }
+
+    @Override
+    public MutablePoint2Distance set(Distance x, Distance y)
+    {
+        PreCondition.assertNotNull(x, "x");
+        PreCondition.assertNotNull(y, "y");
+
+        this.x = x;
+        this.y = y;
+
+        return this;
+    }
 }

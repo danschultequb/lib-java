@@ -1,11 +1,11 @@
 package qub;
 
-public class MutableSize2D implements Size2D
+public class MutableSize2Distance extends Size2Base<Distance> implements MutableSize2<Distance>, Size2Distance
 {
     private Distance width;
     private Distance height;
 
-    private MutableSize2D(Distance width, Distance height)
+    private MutableSize2Distance(Distance width, Distance height)
     {
         PreCondition.assertNotNull(width, "width");
         PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
@@ -16,14 +16,14 @@ public class MutableSize2D implements Size2D
         this.height = height;
     }
 
-    public static MutableSize2D create()
+    public static MutableSize2Distance create()
     {
-        return MutableSize2D.create(Distance.zero, Distance.zero);
+        return MutableSize2Distance.create(Distance.zero, Distance.zero);
     }
 
-    public static MutableSize2D create(Distance width, Distance height)
+    public static MutableSize2Distance create(Distance width, Distance height)
     {
-        return new MutableSize2D(width, height);
+        return new MutableSize2Distance(width, height);
     }
 
     @Override
@@ -32,9 +32,10 @@ public class MutableSize2D implements Size2D
         return this.width;
     }
 
-    public MutableSize2D setWidth(Distance width)
+    public MutableSize2Distance setWidth(Distance width)
     {
         PreCondition.assertNotNull(width, "width");
+        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
 
         this.width = width;
 
@@ -47,41 +48,26 @@ public class MutableSize2D implements Size2D
         return this.height;
     }
 
-    public MutableSize2D setHeight(Distance height)
+    public MutableSize2Distance setHeight(Distance height)
     {
         PreCondition.assertNotNull(height, "height");
+        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
 
         this.height = height;
 
         return this;
     }
 
-    public MutableSize2D set(Distance width, Distance height)
+    public MutableSize2Distance set(Distance width, Distance height)
     {
         PreCondition.assertNotNull(width, "width");
+        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
         PreCondition.assertNotNull(height, "height");
+        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
 
         this.width = width;
         this.height = height;
 
         return this;
-    }
-
-    @Override
-    public String toString()
-    {
-        return Size2D.toString(this);
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return Size2D.equals(this, rhs);
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Size2D.hashCode(this);
     }
 }

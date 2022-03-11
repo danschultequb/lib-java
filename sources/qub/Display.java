@@ -132,14 +132,14 @@ public class Display
         return result;
     }
 
-    public Size2D convertPixelsToSize2D(double horizontalPixels, double verticalPixels)
+    public Size2Distance convertPixelsToSize2D(double horizontalPixels, double verticalPixels)
     {
         PreCondition.assertGreaterThanOrEqualTo(horizontalPixels, 0, "horizontalPixels");
         PreCondition.assertGreaterThanOrEqualTo(verticalPixels, 0, "verticalPixels");
 
         final Distance horizontalDistance = convertHorizontalPixelsToDistance(horizontalPixels);
         final Distance verticalDistance = convertVerticalPixelsToDistance(verticalPixels);
-        final Size2D result = Size2D.create(horizontalDistance, verticalDistance);
+        final Size2Distance result = Size2Distance.create(horizontalDistance, verticalDistance);
 
         PostCondition.assertNotNull(result, "result");
 

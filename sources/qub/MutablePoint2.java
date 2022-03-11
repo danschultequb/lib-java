@@ -15,4 +15,12 @@ public interface MutablePoint2<T> extends Point2<T>
      * @return This object for method chaining.
      */
     MutablePoint2<T> setY(T y);
+
+    /**
+     * Set the x and y-coordinates/dimensions of this {@link MutablePoint2}.
+     * @param x The x-coordinate/dimension of this {@link MutablePoint2}.
+     * @param y The y-coordinate/dimension of this {@link MutablePoint2}.
+     * @return This object for method chaining.
+     */
+    MutablePoint2<T> set(T x, T y);
 }

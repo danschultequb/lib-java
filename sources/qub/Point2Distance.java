@@ -5,7 +5,12 @@ package qub;
  */
 public interface Point2Distance extends Point2<Distance>
 {
-    Point2Distance zero = Point2Distance.create(Distance.zero, Distance.zero);
+    Point2Distance zero = Point2Distance.create();
+
+    public static MutablePoint2Distance create()
+    {
+        return MutablePoint2Distance.create(Distance.zero, Distance.zero);
+    }
 
     static MutablePoint2Distance create(Distance x, Distance y)
     {
