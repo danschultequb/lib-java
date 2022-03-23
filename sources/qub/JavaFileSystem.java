@@ -335,7 +335,7 @@ public class JavaFileSystem implements FileSystem
                 final String rootedFilePathString = rootedFilePath.toString();
                 final java.nio.file.Path filePath = java.nio.file.Paths.get(rootedFilePathString);
                 final java.io.InputStream fileContentsInputStream = java.nio.file.Files.newInputStream(filePath);
-                result = CharacterToByteReadStream.create(new InputStreamToByteReadStream(fileContentsInputStream));
+                result = CharacterToByteReadStream.create(InputStreamToByteReadStream.create(fileContentsInputStream));
             }
             catch (java.nio.file.NoSuchFileException e)
             {

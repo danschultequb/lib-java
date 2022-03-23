@@ -65,7 +65,7 @@ public class RealDesktopProcess extends DesktopProcessBase<RealDesktopProcess>
         });
         this.setOutputWriteStream(() -> CharacterWriteStream.create(OutputStreamToByteWriteStream.create(java.lang.System.out)));
         this.setErrorWriteStream(() -> CharacterWriteStream.create(OutputStreamToByteWriteStream.create(java.lang.System.err)));
-        this.setInputReadStream(() -> CharacterToByteReadStream.create(new InputStreamToByteReadStream(java.lang.System.in)));
+        this.setInputReadStream(() -> CharacterToByteReadStream.create(InputStreamToByteReadStream.create(java.lang.System.in)));
         this.setRandom(() -> new JavaRandom());
         this.setFileSystem(() -> JavaFileSystem.create());
         this.setNetwork(() -> JavaNetwork.create(this.getClock()));

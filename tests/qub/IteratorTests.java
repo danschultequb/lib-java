@@ -1670,7 +1670,7 @@ public interface IteratorTests
         });
     }
 
-    static <T> void assertIterator(Test test, Iterator<T> iterator, boolean expectedHasStarted, T expectedCurrent)
+    public static <T> void assertIterator(Test test, Iterator<T> iterator, boolean expectedHasStarted, T expectedCurrent)
     {
         PreCondition.assertNotNull(test, "test");
 

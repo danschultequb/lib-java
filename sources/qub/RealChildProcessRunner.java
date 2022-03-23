@@ -275,7 +275,7 @@ public class RealChildProcessRunner implements ChildProcessRunner
                     ? Result.create()
                     : this.parallelAsyncRunner.schedule(() ->
                     {
-                        try (final ByteReadStream childProcessOutputStream = new InputStreamToByteReadStream(childProcess.getInputStream()))
+                        try (final ByteReadStream childProcessOutputStream = InputStreamToByteReadStream.create(childProcess.getInputStream()))
                         {
                             outputStreamHandler.run(childProcessOutputStream);
                         }
@@ -285,7 +285,7 @@ public class RealChildProcessRunner implements ChildProcessRunner
                     ? Result.create()
                     : this.parallelAsyncRunner.schedule(() ->
                     {
-                        try (final ByteReadStream childProcessErrorStream = new InputStreamToByteReadStream(childProcess.getErrorStream()))
+                        try (final ByteReadStream childProcessErrorStream = InputStreamToByteReadStream.create(childProcess.getErrorStream()))
                         {
                             errorStreamHandler.run(childProcessErrorStream);
                         }

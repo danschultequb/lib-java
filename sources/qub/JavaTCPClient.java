@@ -23,7 +23,7 @@ class JavaTCPClient implements TCPClient
             TCPClient result;
             try
             {
-                final ByteReadStream socketReadStream = new InputStreamToByteReadStream(socket.getInputStream());
+                final ByteReadStream socketReadStream = InputStreamToByteReadStream.create(socket.getInputStream());
                 final ByteWriteStream socketWriteStream = OutputStreamToByteWriteStream.create(socket.getOutputStream());
                 result = new JavaTCPClient(socket, socketReadStream, socketWriteStream);
             }

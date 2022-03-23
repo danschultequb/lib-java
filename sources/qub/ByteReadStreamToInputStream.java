@@ -6,7 +6,14 @@ public class ByteReadStreamToInputStream extends java.io.InputStream
 
     public ByteReadStreamToInputStream(ByteReadStream byteReadStream)
     {
+        PreCondition.assertNotNull(byteReadStream, "byteReadStream");
+        
         this.byteReadStream = byteReadStream;
+    }
+
+    public static ByteReadStreamToInputStream create(ByteReadStream byteReadStream)
+    {
+        return new ByteReadStreamToInputStream(byteReadStream);
     }
 
     @Override

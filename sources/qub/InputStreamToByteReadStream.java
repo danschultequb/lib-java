@@ -9,11 +9,16 @@ public class InputStreamToByteReadStream implements ByteReadStream
 
     private boolean disposed;
 
-    public InputStreamToByteReadStream(java.io.InputStream inputStream)
+    private InputStreamToByteReadStream(java.io.InputStream inputStream)
     {
         PreCondition.assertNotNull(inputStream, "inputStream");
 
         this.inputStream = inputStream;
+    }
+
+    public static InputStreamToByteReadStream create(java.io.InputStream inputStream)
+    {
+        return new InputStreamToByteReadStream(inputStream);
     }
 
     @Override

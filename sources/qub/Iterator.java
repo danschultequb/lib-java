@@ -741,7 +741,6 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      * @return The iterator that will iterate over the provided values.
      */
     @SafeVarargs
-    @SuppressWarnings("unchecked")
     static <T> Iterator<T> create(T... values)
     {
         return Iterable.create(values).iterate();
