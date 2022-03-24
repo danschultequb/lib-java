@@ -9,7 +9,7 @@ public interface ByteWriteStreamToOutputStreamTests
             runner.test("close()", (Test test) ->
             {
                 final InMemoryByteStream byteWriteStream = InMemoryByteStream.create();
-                final ByteWriteStreamToOutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
+                final ByteWriteStreamToOutputStream outputStream = ByteWriteStreamToOutputStream.create(byteWriteStream);
                 try
                 {
                     outputStream.close();
@@ -24,7 +24,7 @@ public interface ByteWriteStreamToOutputStreamTests
             runner.test("writeByte()", (Test test) ->
             {
                 final InMemoryByteStream byteWriteStream = InMemoryByteStream.create();
-                final ByteWriteStreamToOutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
+                final ByteWriteStreamToOutputStream outputStream = ByteWriteStreamToOutputStream.create(byteWriteStream);
                 try
                 {
                     outputStream.write((byte)15);
@@ -39,7 +39,7 @@ public interface ByteWriteStreamToOutputStreamTests
             runner.test("writeByte(byte[])", (Test test) ->
             {
                 final InMemoryByteStream byteWriteStream = InMemoryByteStream.create();
-                final ByteWriteStreamToOutputStream outputStream = new ByteWriteStreamToOutputStream(byteWriteStream);
+                final ByteWriteStreamToOutputStream outputStream = ByteWriteStreamToOutputStream.create(byteWriteStream);
                 try
                 {
                     outputStream.write(new byte[] { 16, 17, 18, 19, 20 });

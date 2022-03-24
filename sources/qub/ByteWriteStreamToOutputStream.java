@@ -4,9 +4,16 @@ public class ByteWriteStreamToOutputStream extends java.io.OutputStream
 {
     private final ByteWriteStream byteWriteStream;
 
-    public ByteWriteStreamToOutputStream(ByteWriteStream byteWriteStream)
+    private ByteWriteStreamToOutputStream(ByteWriteStream byteWriteStream)
     {
+        PreCondition.assertNotNull(byteWriteStream, "byteWriteStream");
+
         this.byteWriteStream = byteWriteStream;
+    }
+
+    public static ByteWriteStreamToOutputStream create(ByteWriteStream byteWriteStream)
+    {
+        return new ByteWriteStreamToOutputStream(byteWriteStream);
     }
 
     @Override

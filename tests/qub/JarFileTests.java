@@ -85,6 +85,7 @@ public interface JarFileTests
                         Iterable.create(
                             "META-INF/",
                             "META-INF/MANIFEST.MF",
+                            "qub/",
                             "qub/CSV.class",
                             "qub/CSVDocument.class",
                             "qub/CSVFormat.class",
