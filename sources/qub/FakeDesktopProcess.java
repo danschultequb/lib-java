@@ -125,12 +125,6 @@ public class FakeDesktopProcess extends DesktopProcessBase<FakeDesktopProcess>
     }
 
     @Override
-    public InMemoryCharacterToByteStream getInputReadStream()
-    {
-        return (InMemoryCharacterToByteStream)super.getInputReadStream();
-    }
-
-    @Override
     public InMemoryFileSystem getFileSystem()
     {
         return (InMemoryFileSystem)super.getFileSystem();

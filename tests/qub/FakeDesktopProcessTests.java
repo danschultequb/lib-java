@@ -126,19 +126,19 @@ public interface FakeDesktopProcessTests
             {
                 try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                 {
-                    final InMemoryCharacterToByteStream input = process.getInputReadStream();
+                    final CharacterToByteReadStream input = process.getInputReadStream();
                     test.assertNotNull(input);
                     test.assertSame(input, process.getInputReadStream());
                 }
             });
 
-            runner.testGroup("setInputReadStream(InMemoryCharacterToByteStream)", () ->
+            runner.testGroup("setInputReadStream(CharacterToByteReadStream)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final FakeDesktopProcess setInputReadStreamResult = process.setInputReadStream((InMemoryCharacterToByteStream)null);
+                        final FakeDesktopProcess setInputReadStreamResult = process.setInputReadStream((CharacterToByteReadStream)null);
                         test.assertSame(process, setInputReadStreamResult);
                         test.assertNull(process.getInputReadStream());
                     }
