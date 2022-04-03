@@ -25,24 +25,35 @@ public final class BasicTestRunner implements TestRunner
     private TestClass currentTestClass;
     private TestGroup currentTestGroup;
 
-    private final PathPattern testPattern;
+    private final TestRunnerParameters parameters;
 
-    /**
-     * Create a new BasicTestRunner object.
-     * @param process The Process that is running the tests.
-     * @param testPattern The pattern that tests must match in order to be run.
-     */
-    private BasicTestRunner(DesktopProcess process, PathPattern testPattern)
+    private BasicTestRunner(DesktopProcess process, TestRunnerParameters parameters)
     {
         PreCondition.assertNotNull(process, "process");
+        PreCondition.assertNotNull(parameters, "parameters");
 
         this.process = process;
-        this.testPattern = testPattern;
+        this.parameters = parameters;
     }
 
-    public static BasicTestRunner create(DesktopProcess process, PathPattern testPattern)
+    public static BasicTestRunner create(DesktopProcess process)
     {
-        return new BasicTestRunner(process, testPattern);
+        return BasicTestRunner.create(process, TestRunnerParameters.create());
+    }
+
+    public static BasicTestRunner create(DesktopProcess process, TestRunnerParameters parameters)
+    {
+        return new BasicTestRunner(process, parameters);
+    }
+
+    public TestRunnerParameters getParameters()
+    {
+        return this.parameters;
+    }
+
+    public PathPattern getTestPattern()
+    {
+        return this.getParameters().getTestPattern();
     }
 
     @Override
@@ -198,7 +209,7 @@ public final class BasicTestRunner implements TestRunner
         PreCondition.assertNotNull(testAction, "testAction");
 
         final Test test = Test.create(testName, this.currentTestGroup, skip);
-        if (test.matches(this.testPattern))
+        if (test.matches(this.getTestPattern()))
         {
             final AsyncScheduler currentThreadAsyncScheduler = CurrentThread.getAsyncRunner().await();
             try

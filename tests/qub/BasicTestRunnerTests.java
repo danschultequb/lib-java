@@ -6,12 +6,47 @@ public interface BasicTestRunnerTests
     {
         runner.testGroup(BasicTestRunner.class, () ->
         {
-            runner.testGroup("create(DesktopProcess,PathPattern)", () ->
+            runner.testGroup("create(DesktopProcess)", () ->
             {
                 runner.test("with null process", (Test test) ->
                 {
-                    test.assertThrows(() -> BasicTestRunner.create(null, null),
+                    test.assertThrows(() -> BasicTestRunner.create(null),
                         new PreConditionFailure("process cannot be null."));
+                });
+
+                runner.test("with non-null process",
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
+                {
+                    final BasicTestRunner testRunner = BasicTestRunner.create(process);
+                    test.assertNotNull(testRunner);
+                    test.assertEqual(TestRunnerParameters.create(), testRunner.getParameters());
+                });
+            });
+
+            runner.testGroup("create(DesktopProcess,TestRunnerParameters)", () ->
+            {
+                runner.test("with null process", (Test test) ->
+                {
+                    test.assertThrows(() -> BasicTestRunner.create(null, TestRunnerParameters.create()),
+                        new PreConditionFailure("process cannot be null."));
+                });
+
+                runner.test("with null parameters",
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
+                {
+                    test.assertThrows(() -> BasicTestRunner.create(process, (TestRunnerParameters)null),
+                        new PreConditionFailure("parameters cannot be null."));
+                });
+
+                runner.test("with non-null process and parameters",
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
+                {
+                    final BasicTestRunner testRunner = BasicTestRunner.create(process, TestRunnerParameters.create());
+                    test.assertNotNull(testRunner);
+                    test.assertEqual(TestRunnerParameters.create(), testRunner.getParameters());
                 });
             });
 
@@ -19,7 +54,7 @@ public interface BasicTestRunnerTests
             {
                 try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                 {
-                    final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                    final BasicTestRunner btr = BasicTestRunner.create(process);
                     final Skip skip = btr.skip();
                     test.assertNotNull(skip);
                     test.assertEqual("", skip.getMessage());
@@ -33,7 +68,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         test.assertNull(btr.skip(false));
                     }
                 });
@@ -42,7 +77,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
 
                         final Skip skip1 = btr.skip(true);
                         test.assertNotNull(skip1);
@@ -67,7 +102,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         test.assertThrows(() -> btr.skip(false, null),
                             new PreConditionFailure("message cannot be null."));
                     }
@@ -77,7 +112,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         test.assertThrows(() -> btr.skip(false, ""),
                             new PreConditionFailure("message cannot be empty."));
                     }
@@ -87,7 +122,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         test.assertNull(btr.skip(false, "abc"));
                     }
                 });
@@ -96,7 +131,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         test.assertThrows(() -> btr.skip(true, null),
                             new PreConditionFailure("message cannot be null."));
                     }
@@ -106,7 +141,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         test.assertThrows(() -> btr.skip(true, ""),
                             new PreConditionFailure("message cannot be empty."));
                     }
@@ -116,7 +151,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         final Skip skip = btr.skip(true, "abc");
                         test.assertNotNull(skip);
                         test.assertEqual("abc", skip.getMessage());
@@ -130,7 +165,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         test.assertThrows(() -> btr.skip(null),
                             new PreConditionFailure("message cannot be null."));
                     }
@@ -140,7 +175,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         test.assertThrows(() -> btr.skip(""),
                             new PreConditionFailure("message cannot be empty."));
                     }
@@ -150,7 +185,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         final Skip skip = btr.skip("abc");
                         test.assertNotNull(skip);
                         test.assertEqual("abc", skip.getMessage());
@@ -164,7 +199,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         test.assertThrows(() -> btr.testGroup((Class<?>)null, null),
                             new PreConditionFailure("testClass cannot be null."));
                     }
@@ -174,7 +209,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         test.assertThrows(() -> btr.testGroup((Class<?>)null, Action0.empty),
                             new PreConditionFailure("testClass cannot be null."));
                     }
@@ -184,7 +219,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         test.assertThrows(() -> btr.testGroup(BasicTestRunnerTests.class, null),
                             new PreConditionFailure("testGroupAction cannot be null."));
                     }
@@ -195,7 +230,7 @@ public interface BasicTestRunnerTests
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
                         final Value<Integer> value = Value.create(0);
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         btr.testGroup(BasicTestRunnerTests.class, () -> value.set(value.get() + 1));
                         test.assertEqual(1, value.get());
                     }
@@ -205,7 +240,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         final IntegerValue counter = new IntegerValue(0);
                         final Value<Integer> value = Value.create(0);
                         final MutableMap<Integer, TestGroup> beforeTestGroup = Map.create();
@@ -251,7 +286,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         final IntegerValue counter = new IntegerValue(0);
                         final IntegerValue value = IntegerValue.create(0);
                         final MutableMap<Integer, TestGroup> beforeTestGroup = Map.create();
@@ -296,7 +331,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         test.assertThrows(() -> btr.testGroup((String)null, null),
                             new PreConditionFailure("testGroupName cannot be null."));
                     }
@@ -306,7 +341,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         test.assertThrows(() -> btr.testGroup("", Action0.empty),
                             new PreConditionFailure("testGroupName cannot be empty."));
                     }
@@ -316,7 +351,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         test.assertThrows(() -> btr.testGroup("abc", null),
                             new PreConditionFailure("testGroupAction cannot be null."));
                     }
@@ -326,7 +361,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         final Value<Integer> value = Value.create(0);
                         btr.testGroup("abc", () -> value.set(value.get() + 1));
                         test.assertEqual(1, value.get());
@@ -337,7 +372,7 @@ public interface BasicTestRunnerTests
                 {
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
-                        final BasicTestRunner btr = BasicTestRunner.create(process, null);
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
                         final IntegerValue counter = new IntegerValue(0);
                         final Value<Integer> value = Value.create(0);
                         final MutableMap<Integer, TestGroup> beforeTestGroup = Map.create();

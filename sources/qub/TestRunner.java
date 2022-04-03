@@ -5,9 +5,14 @@ package qub;
  */
 public interface TestRunner
 {
-    static TestRunner create(DesktopProcess process, PathPattern testPattern)
+    public static TestRunner create(DesktopProcess process)
     {
-        return BasicTestRunner.create(process, testPattern);
+        return TestRunner.create(process, TestRunnerParameters.create());
+    }
+
+    public static TestRunner create(DesktopProcess process, TestRunnerParameters parameters)
+    {
+        return BasicTestRunner.create(process, parameters);
     }
 
     /**
