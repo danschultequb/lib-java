@@ -257,6 +257,13 @@ public abstract class ProcessBase<T extends MutableProcess> implements MutablePr
 
     @Override
     @SuppressWarnings("unchecked")
+    public T setCurrentFolderPath(Folder currentFolder)
+    {
+        return (T)MutableProcess.super.setCurrentFolderPath(currentFolder);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
     public T setCurrentFolderPath(Function0<Path> currentFolderPath)
     {
         this.currentFolderPath.set(currentFolderPath);

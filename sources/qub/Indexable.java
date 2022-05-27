@@ -2,6 +2,12 @@ package qub;
 
 public interface Indexable<T> extends Iterable<T>
 {
+    @Override
+    public default boolean any()
+    {
+        return this.getCount() > 0;
+    }
+
     /**
      * Get the element at the provided index. If the provided index is outside of the bounds of this
      * Indexable, then null will be returned.

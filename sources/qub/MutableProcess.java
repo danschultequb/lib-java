@@ -134,6 +134,18 @@ public interface MutableProcess extends Process
 
     /**
      * Set the current folder path assigned to this {@link MutableProcess}.
+     * @param currentFolder The current folder assigned to this {@link MutableProcess}.
+     * @return This object for method chaining.
+     */
+    default MutableProcess setCurrentFolderPath(Folder currentFolder)
+    {
+        PreCondition.assertNotNull(currentFolder, "currentFolderPath");
+
+        return this.setCurrentFolderPath(currentFolder.getPath());
+    }
+
+    /**
+     * Set the current folder path assigned to this {@link MutableProcess}.
      * @param currentFolderPath The current folder path assigned to this {@link MutableProcess}.
      * @return This object for method chaining.
      */

@@ -39,143 +39,49 @@ public class TypesTests
     {
         runner.testGroup(Types.class, () ->
         {
-            runner.testGroup("containsMemberVariable(Object,String)", () ->
-            {
-                runner.test("with null Object", (Test test) ->
-                {
-                    test.assertThrows(() -> Types.containsMemberVariable(null, "parent"), new PreConditionFailure("type cannot be null."));
-                });
-
-                runner.test("with null memberVariableName", (Test test) ->
-                {
-                    test.assertThrows(() -> Types.containsMemberVariable(test, (String)null), new PreConditionFailure("memberVariableName cannot be null."));
-                });
-
-                runner.test("with empty memberVariableName", (Test test) ->
-                {
-                    test.assertThrows(() -> Types.containsMemberVariable(test, ""), new PreConditionFailure("memberVariableName cannot be empty."));
-                });
-            });
-
-            runner.testGroup("containsMemberVariable(Object,Function1<java.lang.reflect.Field,Boolean>)", () ->
-            {
-                runner.test("with null Object", (Test test) ->
-                {
-                    test.assertThrows(() -> Types.containsMemberVariable((Object)null, (java.lang.reflect.Field memberVariable) -> true), new PreConditionFailure("value cannot be null."));
-                });
-
-                runner.test("with null condition", (Test test) ->
-                {
-                    test.assertThrows(() -> Types.containsMemberVariable(test, (Function1<java.lang.reflect.Field,Boolean>)null), new PreConditionFailure("condition cannot be null."));
-                });
-
-                runner.test("with non-matching condition", (Test test) ->
-                {
-                    test.assertFalse(Types.containsMemberVariable(test, (java.lang.reflect.Field memberVariable) -> false));
-                });
-
-                runner.test("with matching condition", (Test test) ->
-                {
-                    test.assertTrue(Types.containsMemberVariable(test, (java.lang.reflect.Field memberVariable) -> true));
-                });
-            });
-
-            runner.testGroup("getMemberVariable(Object,String)", () ->
-            {
-                runner.test("with null Object", (Test test) ->
-                {
-                    test.assertThrows(() -> Types.getMemberVariable((Object)null, "parent"), new PreConditionFailure("value cannot be null."));
-                });
-
-                runner.test("with null memberVariableName", (Test test) ->
-                {
-                    test.assertThrows(() -> Types.getMemberVariable(test, (String)null), new PreConditionFailure("memberVariableName cannot be null."));
-                });
-
-                runner.test("with empty memberVariableName", (Test test) ->
-                {
-                    test.assertThrows(() -> Types.getMemberVariable(test, ""), new PreConditionFailure("memberVariableName cannot be empty."));
-                });
-
-                runner.test("with non-existing memberVariableName", (Test test) ->
-                {
-                    test.assertThrows(() -> Types.getMemberVariable(test, "abc"), new PreConditionFailure("containsMemberVariable(value, memberVariableName) cannot be false."));
-                });
-
-                runner.test("with existing memberVariableName", (Test test) ->
-                {
-                    final java.lang.reflect.Field field = Types.getMemberVariable(test, "parent");
-                    test.assertNotNull(field);
-                    test.assertEqual(TestParent.class, field.getType());
-                    test.assertEqual("parent", field.getName());
-                });
-            });
-
-            runner.testGroup("getMemberVariable(Object,Function1<java.lang.reflect.Field,Boolean>)", () ->
-            {
-                runner.test("with null Object", (Test test) ->
-                {
-                    test.assertThrows(() -> Types.getMemberVariable((Object)null, memberVariable -> true), new PreConditionFailure("value cannot be null."));
-                });
-
-                runner.test("with null condition", (Test test) ->
-                {
-                    test.assertThrows(() -> Types.getMemberVariable(test, (Function1<java.lang.reflect.Field,Boolean>)null), new PreConditionFailure("condition cannot be null."));
-                });
-
-                runner.test("with non-matching condition", (Test test) ->
-                {
-                    test.assertThrows(() -> Types.getMemberVariable(test, memberVariable -> false), new PreConditionFailure("containsMemberVariable(value, condition) cannot be false."));
-                });
-
-                runner.test("with matching condition", (Test test) ->
-                {
-                    final java.lang.reflect.Field field = Types.getMemberVariable(test, memberVariable -> memberVariable.getName().equals("parent"));
-                    test.assertNotNull(field);
-                    test.assertEqual(TestParent.class, field.getType());
-                    test.assertEqual("parent", field.getName());
-                });
-            });
-
             runner.testGroup("getMemberVariableValue(Object,String)", () ->
             {
                 runner.test("with null Object", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMemberVariableValue((Object)null, "skip"), new PreConditionFailure("value cannot be null."));
+                    test.assertThrows(() -> Types.getMemberVariableValue((Object)null, "skip"),
+                        new PreConditionFailure("value cannot be null."));
                 });
 
                 runner.test("with null memberVariableName", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMemberVariableValue(test, null), new PreConditionFailure("memberVariableName cannot be null."));
+                    test.assertThrows(() -> Types.getMemberVariableValue(test, null),
+                        new PreConditionFailure("memberVariableName cannot be null."));
                 });
 
                 runner.test("with empty memberVariableName", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMemberVariableValue(test, ""), new PreConditionFailure("memberVariableName cannot be empty."));
+                    test.assertThrows(() -> Types.getMemberVariableValue(test, ""),
+                        new PreConditionFailure("memberVariableName cannot be empty."));
                 });
 
                 runner.test("with non-existing memberVariableName", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMemberVariableValue(test, "abc"), new PreConditionFailure("containsMemberVariable(value, memberVariableName) cannot be false."));
+                    test.assertThrows(() -> Types.getMemberVariableValue(test, "abc").await(),
+                        new NotFoundException("Could not find a member variable named \"abc\" on type qub.Test."));
                 });
 
                 runner.test("with existing public int memberVariable", (Test test) ->
                 {
-                    final Integer publicInt = (Integer)Types.getMemberVariableValue(new TypesTests(), "publicInt");
+                    final Integer publicInt = (Integer)Types.getMemberVariableValue(new TypesTests(), "publicInt").await();
                     test.assertNotNull(publicInt);
                     test.assertEqual(0, publicInt);
                 });
 
                 runner.test("with existing protected String memberVariable", (Test test) ->
                 {
-                    final String protectedString = (String)Types.getMemberVariableValue(new TypesTests(), "protectedString");
+                    final String protectedString = (String)Types.getMemberVariableValue(new TypesTests(), "protectedString").await();
                     test.assertEqual("testing this", protectedString);
                 });
 
                 runner.test("with existing private object memberVariable", (Test test) ->
                 {
                     final Node1<Integer> node = Node1.create(2);
-                    test.assertEqual(2, Types.getMemberVariableValue(node, "value"));
+                    test.assertEqual(2, Types.getMemberVariableValue(node, "value").await());
                 });
             });
 
@@ -183,129 +89,95 @@ public class TypesTests
             {
                 runner.test("with null Object", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.setMemberVariableValue((Object)null, "publicInt", 7), new PreConditionFailure("value cannot be null."));
+                    test.assertThrows(() -> Types.setMemberVariableValue((Object)null, "publicInt", 7),
+                        new PreConditionFailure("value cannot be null."));
                 });
 
                 runner.test("with null memberVariableName", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.setMemberVariableValue(test, null, 6), new PreConditionFailure("memberVariableName cannot be null."));
+                    test.assertThrows(() -> Types.setMemberVariableValue(test, null, 6),
+                        new PreConditionFailure("memberVariableName cannot be null."));
                 });
 
                 runner.test("with empty memberVariableName", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.setMemberVariableValue(test, "", 5), new PreConditionFailure("memberVariableName cannot be empty."));
+                    test.assertThrows(() -> Types.setMemberVariableValue(test, "", 5),
+                        new PreConditionFailure("memberVariableName cannot be empty."));
                 });
 
                 runner.test("with non-existing memberVariableName", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.setMemberVariableValue(test, "abc", 4), new PreConditionFailure("containsMemberVariable(value, memberVariableName) cannot be false."));
+                    test.assertThrows(() -> Types.setMemberVariableValue(test, "abc", 4).await(),
+                        new NotFoundException("Could not find a member variable named \"abc\" on type qub.Test."));
                 });
 
                 runner.test("with existing public int memberVariable", (Test test) ->
                 {
                     final TypesTests typesTests = new TypesTests();
-                    Types.setMemberVariableValue(typesTests, "publicInt", 11);
+                    Types.setMemberVariableValue(typesTests, "publicInt", 11).await();
                     test.assertEqual(11, typesTests.publicInt);
                 });
 
                 runner.test("with existing protected String memberVariable", (Test test) ->
                 {
                     final TypesTests typesTests = new TypesTests();
-                    Types.setMemberVariableValue(typesTests, "protectedString", "abc");
+                    Types.setMemberVariableValue(typesTests, "protectedString", "abc").await();
                     test.assertEqual("abc", typesTests.protectedString);
                 });
 
                 runner.test("with existing private Boolean memberVariable", (Test test) ->
                 {
                     final TypesTests typesTests = new TypesTests();
-                    Types.setMemberVariableValue(typesTests, "privateBoolean", true);
+                    Types.setMemberVariableValue(typesTests, "privateBoolean", true).await();
                     test.assertEqual(true, typesTests.privateBoolean);
                 });
 
                 runner.test("with existing private object memberVariable", (Test test) ->
                 {
                     final Node1<Integer> node = Node1.create(2);
-                    Types.setMemberVariableValue(node, "value", 7);
+                    Types.setMemberVariableValue(node, "value", 7).await();
                     test.assertEqual(7, node.getValue());
                 });
             });
 
-            runner.testGroup("getMemberVariables(Object)", () ->
+            runner.testGroup("iterateMemberVariables(Class<?>)", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMemberVariables((Object)null), new PreConditionFailure("value cannot be null."));
-                });
-
-                runner.test("with Object", (Test test) ->
-                {
-                    final Iterable<String> actual = Types.getMemberVariables(new Object()).map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = new ArrayList<>();
-                    test.assertEqual(expected, actual);
-                });
-
-                runner.test("with String", (Test test) ->
-                {
-                    final Iterable<String> actual = Types.getMemberVariables("test").map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = Iterable.create("value", "coder", "hash", "hashIsZero", "serialVersionUID", "COMPACT_STRINGS", "serialPersistentFields", "REPL", "CASE_INSENSITIVE_ORDER", "LATIN1", "UTF16");
-                    test.assertEqual(expected, actual);
-                });
-
-                runner.test("with Test", (Test test) ->
-                {
-                    final Iterable<String> actual = Types.getMemberVariables(test).map(java.lang.reflect.Field::getName).where(value -> !value.equals("$jacocoData"));
-                    final Iterable<String> expected = Iterable.create("name", "parent", "skip");
-                    test.assertEqual(expected, actual);
-                });
-            });
-
-            runner.testGroup("getMemberVariables(Class<?>)", () ->
-            {
-                runner.test("with null", (Test test) ->
-                {
-                    test.assertThrows(() -> Types.getMemberVariables((Class<?>)null), new PreConditionFailure("type cannot be null."));
+                    test.assertThrows(() -> Types.iterateMemberVariables((Class<?>)null),
+                        new PreConditionFailure("type cannot be null."));
                 });
 
                 runner.test("with Object.getClass()", (Test test) ->
                 {
-                    final Iterable<String> actual = Types.getMemberVariables(new Object().getClass()).map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = Iterable.create();
-                    test.assertEqual(expected, actual);
+                    final Iterator<String> actual = Types.iterateMemberVariables(new Object().getClass()).map(java.lang.reflect.Field::getName);
+                    test.assertNotNull(actual);
+                    test.assertEqual(Iterable.create(), actual.toList());
                 });
 
                 runner.test("with Object.class", (Test test) ->
                 {
-                    final Iterable<String> actual = Types.getMemberVariables(Object.class).map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = Iterable.create();
-                    test.assertEqual(expected, actual);
-                });
-
-                runner.test("with String.getClass()", (Test test) ->
-                {
-                    final Iterable<String> actual = Types.getMemberVariables("test").map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = Iterable.create("value", "coder", "hash", "hashIsZero", "serialVersionUID", "COMPACT_STRINGS", "serialPersistentFields", "REPL", "CASE_INSENSITIVE_ORDER", "LATIN1", "UTF16");
-                    test.assertEqual(expected, actual);
+                    final Iterator<String> actual = Types.iterateMemberVariables(Object.class).map(java.lang.reflect.Field::getName);
+                    test.assertNotNull(actual);
+                    test.assertEqual(Iterable.create(), actual.toList());
                 });
 
                 runner.test("with String.class", (Test test) ->
                 {
-                    final Iterable<String> actual = Types.getMemberVariables(String.class).map(java.lang.reflect.Field::getName);
-                    final Iterable<String> expected = Iterable.create("value", "coder", "hash", "hashIsZero", "serialVersionUID", "COMPACT_STRINGS", "serialPersistentFields", "REPL", "CASE_INSENSITIVE_ORDER", "LATIN1", "UTF16");
-                    test.assertEqual(expected, actual);
-                });
-
-                runner.test("with Test.getClass()", (Test test) ->
-                {
-                    final Iterable<String> actual = Types.getMemberVariables(test.getClass()).map(java.lang.reflect.Field::getName).where(value -> !value.equals("$jacocoData"));
-                    final Iterable<String> expected = Iterable.create("name", "parent", "skip");
-                    test.assertEqual(expected, actual);
+                    final Iterator<String> actual = Types.iterateMemberVariables(String.class).map(java.lang.reflect.Field::getName);
+                    test.assertNotNull(actual);
+                    test.assertEqual(
+                        Iterable.create("value", "coder", "hash", "hashIsZero", "serialVersionUID", "COMPACT_STRINGS", "serialPersistentFields", "REPL", "CASE_INSENSITIVE_ORDER", "LATIN1", "UTF16"),
+                        actual.toList());
                 });
 
                 runner.test("with Test.class", (Test test) ->
                 {
-                    final Iterable<String> actual = Types.getMemberVariables(Test.class).map(java.lang.reflect.Field::getName).where(value -> !value.equals("$jacocoData"));
-                    final Iterable<String> expected = Iterable.create("name", "parent", "skip");
-                    test.assertEqual(expected, actual);
+                    final Iterator<String> actual = Types.iterateMemberVariables(Test.class).map(java.lang.reflect.Field::getName);
+                    test.assertNotNull(actual);
+                    test.assertEqual(
+                        Iterable.create("name", "parent", "skip"),
+                        actual.toList());
                 });
             });
 
@@ -313,16 +185,17 @@ public class TypesTests
             {
                 runner.test("with null type", (Test test) ->
                 {
-                    test.assertThrows(() -> Types.getMethods(null),
+                    test.assertThrows(() -> Types.iterateMethods(null),
                         new PreConditionFailure("type cannot be null."));
                 });
 
                 runner.test("with non-null type", (Test test) ->
                 {
-                    final Iterable<java.lang.reflect.Method> action0Methods = Types.getMethods(Action0.class);
+                    final Iterator<java.lang.reflect.Method> action0Methods = Types.iterateMethods(Action0.class);
                     test.assertNotNull(action0Methods);
-                    test.assertEqual(Iterable.create("run", "add", "add"), action0Methods.map(method -> method.getName()));
-                    test.assertEqual(Iterable.create(Action0.class, Action0.class, Action0.class), action0Methods.map(method -> method.getDeclaringClass()));
+                    final Iterable<java.lang.reflect.Method> action0MethodsList = action0Methods.toList();
+                    test.assertEqual(Iterable.create("run", "add", "add"), action0MethodsList.map(java.lang.reflect.Method::getName));
+                    test.assertEqual(Iterable.create(Action0.class, Action0.class, Action0.class), action0MethodsList.map(java.lang.reflect.Method::getDeclaringClass));
                 });
             });
 
@@ -556,25 +429,25 @@ public class TypesTests
                 runner.test("with non-existing method name", (Test test) ->
                 {
                     test.assertThrows(() -> Types.getRawMethod(TypesTests.class, "hello", Integer.class).await(),
-                        new NotFoundException("No method with the signature qub.TypesTests.hello(java.lang.Integer) -> ? could be found."));
+                        TypesTests.getExpectedMethodNotFoundException("qub.TypesTests.hello(java.lang.Integer) -> ?"));
                 });
 
                 runner.test("with existing method with different parameter types", (Test test) ->
                 {
                     test.assertThrows(() -> Types.getRawMethod(TypesTests.class, "staticAdd1", String.class).await(),
-                        new NotFoundException("No method with the signature qub.TypesTests.staticAdd1(java.lang.String) -> ? could be found."));
+                        TypesTests.getExpectedMethodNotFoundException("qub.TypesTests.staticAdd1(java.lang.String) -> ?"));
                 });
 
                 runner.test("with existing static method with different parameter count", (Test test) ->
                 {
                     test.assertThrows(() -> Types.getRawMethod(TypesTests.class, "staticAdd1", Integer.class, Integer.class).await(),
-                        new NotFoundException("No method with the signature qub.TypesTests.staticAdd1(java.lang.Integer,java.lang.Integer) -> ? could be found."));
+                        TypesTests.getExpectedMethodNotFoundException("qub.TypesTests.staticAdd1(java.lang.Integer,java.lang.Integer) -> ?"));
                 });
 
                 runner.test("with existing static method with provided boxed parameter type instead of actual primitive parameter type", (Test test) ->
                 {
                     test.assertThrows(() -> Types.getRawMethod(TypesTests.class, "staticAdd1", Integer.class).await(),
-                        new NotFoundException("No method with the signature qub.TypesTests.staticAdd1(java.lang.Integer) -> ? could be found."));
+                        TypesTests.getExpectedMethodNotFoundException("qub.TypesTests.staticAdd1(java.lang.Integer) -> ?"));
                 });
 
                 runner.test("with matching static method", (Test test) ->
@@ -596,7 +469,7 @@ public class TypesTests
                 runner.test("with existing member method with provided primitive parameter type instead of actual boxed parameter type", (Test test) ->
                 {
                     test.assertThrows(() -> Types.getRawMethod(TypesTests.class, "memberAdd2", int.class).await(),
-                        new NotFoundException("No method with the signature qub.TypesTests.memberAdd2(int) -> ? could be found."));
+                        TypesTests.getExpectedMethodNotFoundException("qub.TypesTests.memberAdd2(int) -> ?"));
                 });
 
                 runner.test("with matching member method", (Test test) ->
@@ -639,19 +512,19 @@ public class TypesTests
                 runner.test("with non-existing method", (Test test) ->
                 {
                     test.assertThrows(() -> Types.getStaticMethod0(TypesTests.class, "blah").await(),
-                        new NotFoundException("No static method with the signature qub.TypesTests.blah() -> ? could be found."));
+                        new NotFoundException("Could not find a static method with the signature qub.TypesTests.blah() -> ?."));
                 });
 
                 runner.test("with existing static method with different parameter types", (Test test) ->
                 {
                     test.assertThrows(() -> Types.getStaticMethod0(TypesTests.class, "staticAdd1").await(),
-                        new NotFoundException("No static method with the signature qub.TypesTests.staticAdd1() -> ? could be found."));
+                        new NotFoundException("Could not find a static method with the signature qub.TypesTests.staticAdd1() -> ?."));
                 });
 
                 runner.test("with existing member method", (Test test) ->
                 {
                     test.assertThrows(() -> Types.getStaticMethod0(TypesTests.class, "memberGet6").await(),
-                        new NotFoundException("No static method with the signature qub.TypesTests.memberGet6() -> ? could be found."));
+                        new NotFoundException("Could not find a static method with the signature qub.TypesTests.memberGet6() -> ?."));
                 });
 
                 runner.test("with existing static method with return type", (Test test) ->
@@ -694,31 +567,31 @@ public class TypesTests
                 runner.test("with non-existing method", (Test test) ->
                 {
                     test.assertThrows(() -> Types.getStaticMethod0(TypesTests.class, "blah", int.class).await(),
-                        new NotFoundException("No static method with the signature qub.TypesTests.blah() -> int could be found."));
+                        new NotFoundException("Could not find a static method with the signature qub.TypesTests.blah() -> int."));
                 });
 
                 runner.test("with existing member method with different return type", (Test test) ->
                 {
                     test.assertThrows(() -> Types.getStaticMethod0(TypesTests.class, "memberGet6", char.class).await(),
-                        new NotFoundException("No static method with the signature qub.TypesTests.memberGet6() -> char could be found."));
+                        new NotFoundException("Could not find a static method with the signature qub.TypesTests.memberGet6() -> char."));
                 });
 
                 runner.test("with existing member method with same return type", (Test test) ->
                 {
                     test.assertThrows(() -> Types.getStaticMethod0(TypesTests.class, "memberGet6", int.class).await(),
-                        new NotFoundException("No static method with the signature qub.TypesTests.memberGet6() -> int could be found."));
+                        new NotFoundException("Could not find a static method with the signature qub.TypesTests.memberGet6() -> int."));
                 });
 
                 runner.test("with existing static method with different parameter types", (Test test) ->
                 {
                     test.assertThrows(() -> Types.getStaticMethod0(TypesTests.class, "staticAdd1", int.class).await(),
-                        new NotFoundException("No static method with the signature qub.TypesTests.staticAdd1() -> int could be found."));
+                        new NotFoundException("Could not find a static method with the signature qub.TypesTests.staticAdd1() -> int."));
                 });
 
                 runner.test("with existing static method with wrong return type", (Test test) ->
                 {
                     test.assertThrows(() -> Types.getStaticMethod0(TypesTests.class, "staticGet5", char.class).await(),
-                        new NotFoundException("No static method with the signature qub.TypesTests.staticGet5() -> char could be found."));
+                        new NotFoundException("Could not find a static method with the signature qub.TypesTests.staticGet5() -> char."));
                 });
 
                 runner.test("with existing static method with return type", (Test test) ->
@@ -732,7 +605,7 @@ public class TypesTests
                 runner.test("with existing static method with wrong boxed void return type", (Test test) ->
                 {
                     test.assertThrows(() -> Types.getStaticMethod0(TypesTests.class, "staticPrimitiveEmpty", Void.class).await(),
-                        new NotFoundException("No static method with the signature qub.TypesTests.staticPrimitiveEmpty() -> java.lang.Void could be found."));
+                        new NotFoundException("Could not find a static method with the signature qub.TypesTests.staticPrimitiveEmpty() -> java.lang.Void."));
                 });
 
                 runner.test("with existing static method with correct primitive void return type", (Test test) ->
@@ -746,7 +619,7 @@ public class TypesTests
                 runner.test("with existing static method with wrong primitive void return type", (Test test) ->
                 {
                     test.assertThrows(() -> Types.getStaticMethod0(TypesTests.class, "staticBoxedEmpty", void.class).await(),
-                        new NotFoundException("No static method with the signature qub.TypesTests.staticBoxedEmpty() -> void could be found."));
+                        new NotFoundException("Could not find a static method with the signature qub.TypesTests.staticBoxedEmpty() -> void."));
                 });
 
                 runner.test("with existing static method with correct boxed void return type", (Test test) ->
@@ -1114,5 +987,12 @@ public class TypesTests
                 });
             });
         });
+    }
+
+    private static NotFoundException getExpectedMethodNotFoundException(String expectedMethodSignature)
+    {
+        PreCondition.assertNotNullAndNotEmpty(expectedMethodSignature, "expectedMethodSignature");
+
+        return new NotFoundException("Could not find a method with the signature " + expectedMethodSignature + ".");
     }
 }

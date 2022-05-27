@@ -24,13 +24,13 @@ public class MutableMapEntry<TKey,TValue> implements MapEntry<TKey,TValue>
     @Override
     public TKey getKey()
     {
-        return key;
+        return this.key;
     }
 
     @Override
     public TValue getValue()
     {
-        return value;
+        return this.value;
     }
 
     /**

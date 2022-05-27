@@ -47,10 +47,21 @@ public interface TraversalActions<TNode,TValue>
      * Schedule an action to return the provided values.
      * @param values The values to return.
      */
-    default void returnValues(Iterable<TValue> values)
+    public default void returnValues(Iterable<TValue> values)
     {
         PreCondition.assertNotNull(values, "values");
 
         this.returnValues(values.iterate());
+    }
+
+    /**
+     * Schedule an action to return the provided values.
+     * @param values The values to return.
+     */
+    public default void returnValues(TValue[] values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        this.returnValues(Iterator.create(values));
     }
 }

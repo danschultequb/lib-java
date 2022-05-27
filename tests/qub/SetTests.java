@@ -18,25 +18,17 @@ public interface SetTests
         });
     }
 
-    static void test(TestRunner runner, Function0<Set<Integer>> creator)
+    public static void test(TestRunner runner, Function1<Integer,? extends Set<Integer>> creator)
     {
         runner.testGroup(Set.class, () ->
         {
-            IterableTests.test(runner, (Integer count) ->
-            {
-                final Set<Integer> set = creator.run();
-                for (int i = 0; i < count; ++i)
-                {
-                    set.add(i);
-                }
-                return set;
-            });
+            IterableTests.test(runner, creator);
 
             runner.testGroup("add()", () ->
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
 
                     set.add(null);
                     test.assertEqual(1, set.getCount());
@@ -49,7 +41,7 @@ public interface SetTests
 
                 runner.test("with single non-null value", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
 
                     set.add(5);
                     test.assertEqual(1, set.getCount());
@@ -62,7 +54,7 @@ public interface SetTests
 
                 runner.test("with multiple non-null values", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
 
                     set.add(5);
                     test.assertEqual(1, set.getCount());
@@ -81,35 +73,35 @@ public interface SetTests
             {
                 runner.test("with no arguments", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     set.addAll();
                     test.assertEqual(0, set.getCount());
                 });
 
                 runner.test("with null array", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     set.addAll((Integer[])null);
                     test.assertEqual(0, set.getCount());
                 });
 
                 runner.test("with empty array", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     set.addAll(new Integer[0]);
                     test.assertEqual(0, set.getCount());
                 });
 
                 runner.test("with non-empty array", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     set.addAll(1, 2, 3);
                     test.assertEqual(Iterable.create(1, 2, 3), set);
                 });
 
                 runner.test("with non-empty array with duplicates", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     set.addAll(1, 2, 2, 1);
                     test.assertEqual(Iterable.create(1, 2), set);
                 });
@@ -119,28 +111,28 @@ public interface SetTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     set.addAll((Iterator<Integer>)null);
                     test.assertEqual(0, set.getCount());
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     set.addAll(Iterator.create());
                     test.assertEqual(0, set.getCount());
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     set.addAll(Iterator.create(1, 2, 3));
                     test.assertEqual(Iterable.create(1, 2, 3), set);
                 });
 
                 runner.test("with non-empty with duplicates", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     set.addAll(Iterator.create(1, 2, 2, 1));
                     test.assertEqual(Iterable.create(1, 2), set);
                 });
@@ -150,28 +142,28 @@ public interface SetTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     set.addAll((Iterable<Integer>)null);
                     test.assertEqual(0, set.getCount());
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     set.addAll(Iterable.create());
                     test.assertEqual(0, set.getCount());
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     set.addAll(IntegerArray.create(1, 2, 3));
                     test.assertEqual(IntegerArray.create(1, 2, 3), set);
                 });
 
                 runner.test("with non-empty with duplicates", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     set.addAll(IntegerArray.create(1, 2, 2, 1));
                     test.assertEqual(IntegerArray.create(1, 2), set);
                 });
@@ -181,14 +173,14 @@ public interface SetTests
             {
                 runner.test("with not-found null", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     test.assertThrows(() -> set.remove(null).await(),
                         new NotFoundException("Could not find the value null."));
                 });
 
                 runner.test("with found null", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     set.add(null);
                     test.assertNull(set.remove(null).await());
                     test.assertEqual(Iterable.create(), set);
@@ -196,14 +188,14 @@ public interface SetTests
 
                 runner.test("with not-found non-null", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     test.assertThrows(() -> set.remove(20).await(),
                         new NotFoundException("Could not find the value 20."));
                 });
 
                 runner.test("with found non-null", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     set.add(20);
                     test.assertNull(set.remove(20).await());
                     test.assertEqual(Iterable.create(), set);
@@ -214,14 +206,14 @@ public interface SetTests
             {
                 runner.test("with empty", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     set.clear();
                     test.assertEqual(0, set.getCount());
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
-                    final Set<Integer> set = creator.run();
+                    final Set<Integer> set = creator.run(0);
                     set.addAll(1, 2, 3, 4);
                     test.assertEqual(4, set.getCount());
                     set.clear();
@@ -233,67 +225,67 @@ public interface SetTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)null));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Object)null));
                 });
 
                 runner.test("with non-Set or Iterable", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)"foo"));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Object)"foo"));
                 });
 
                 runner.test("with empty Iterable", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)Iterable.create()));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Object)Iterable.create()));
                 });
 
                 runner.test("with subset Iterable", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)IntegerArray.create(1, 2)));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Object)IntegerArray.create(1, 2)));
                 });
 
                 runner.test("with equal Iterable", (Test test) ->
                 {
-                    test.assertTrue(creator.run().addAll(1, 2, 3).equals((Object)IntegerArray.create(1, 2, 3)));
+                    test.assertTrue(creator.run(0).addAll(1, 2, 3).equals((Object)IntegerArray.create(1, 2, 3)));
                 });
 
                 runner.test("with equal Iterable in different order", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)IntegerArray.create(3, 1, 2)));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Object)IntegerArray.create(3, 1, 2)));
                 });
 
                 runner.test("with equal Iterable with duplicates", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)IntegerArray.create(1, 2, 3, 3)));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Object)IntegerArray.create(1, 2, 3, 3)));
                 });
 
                 runner.test("with superset Iterable", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)IntegerArray.create(1, 2, 3, 4)));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Object)IntegerArray.create(1, 2, 3, 4)));
                 });
 
                 runner.test("with empty Set", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)Set.create()));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Object)Set.create()));
                 });
 
                 runner.test("with subset Set", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)Set.create(1, 2)));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Object)Set.create(1, 2)));
                 });
 
                 runner.test("with equal Set", (Test test) ->
                 {
-                    test.assertTrue(creator.run().addAll(1, 2, 3).equals((Object)Set.create(1, 2, 3)));
+                    test.assertTrue(creator.run(0).addAll(1, 2, 3).equals((Object)Set.create(1, 2, 3)));
                 });
 
                 runner.test("with equal Set in different order", (Test test) ->
                 {
-                    test.assertTrue(creator.run().addAll(1, 2, 3).equals((Object)Set.create(3, 1, 2)));
+                    test.assertTrue(creator.run(0).addAll(1, 2, 3).equals((Object)Set.create(3, 1, 2)));
                 });
 
                 runner.test("with superset Set", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Object)Set.create(1, 2, 3, 4)));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Object)Set.create(1, 2, 3, 4)));
                 });
             });
 
@@ -301,62 +293,62 @@ public interface SetTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)null));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Iterable<Integer>)null));
                 });
 
                 runner.test("with empty Iterable", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals(Iterable.<Integer>create()));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals(Iterable.<Integer>create()));
                 });
 
                 runner.test("with subset Iterable", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)IntegerArray.create(1, 2)));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Iterable<Integer>)IntegerArray.create(1, 2)));
                 });
 
                 runner.test("with equal Iterable", (Test test) ->
                 {
-                    test.assertTrue(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)IntegerArray.create(1, 2, 3)));
+                    test.assertTrue(creator.run(0).addAll(1, 2, 3).equals((Iterable<Integer>)IntegerArray.create(1, 2, 3)));
                 });
 
                 runner.test("with equal Iterable in different order", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)IntegerArray.create(3, 1, 2)));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Iterable<Integer>)IntegerArray.create(3, 1, 2)));
                 });
 
                 runner.test("with equal Iterable with duplicates", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)IntegerArray.create(1, 2, 3, 3)));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Iterable<Integer>)IntegerArray.create(1, 2, 3, 3)));
                 });
 
                 runner.test("with superset Iterable", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)IntegerArray.create(1, 2, 3, 4)));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Iterable<Integer>)IntegerArray.create(1, 2, 3, 4)));
                 });
 
                 runner.test("with empty Set", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)Set.<Integer>create()));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Iterable<Integer>)Set.<Integer>create()));
                 });
 
                 runner.test("with subset Set", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)Set.create(1, 2)));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Iterable<Integer>)Set.create(1, 2)));
                 });
 
                 runner.test("with equal Set", (Test test) ->
                 {
-                    test.assertTrue(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)Set.create(1, 2, 3)));
+                    test.assertTrue(creator.run(0).addAll(1, 2, 3).equals((Iterable<Integer>)Set.create(1, 2, 3)));
                 });
 
                 runner.test("with equal Set in different order", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)Set.create(3, 1, 2)));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Iterable<Integer>)Set.create(3, 1, 2)));
                 });
 
                 runner.test("with superset Set", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Iterable<Integer>)Set.create(1, 2, 3, 4)));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Iterable<Integer>)Set.create(1, 2, 3, 4)));
                 });
             });
 
@@ -364,32 +356,32 @@ public interface SetTests
             {
                 runner.test("with null", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals((Set<Integer>)null));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals((Set<Integer>)null));
                 });
 
                 runner.test("with empty Set", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals(Set.create()));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals(Set.create()));
                 });
 
                 runner.test("with subset Set", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals(Set.create(1, 2)));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals(Set.create(1, 2)));
                 });
 
                 runner.test("with equal Set", (Test test) ->
                 {
-                    test.assertTrue(creator.run().addAll(1, 2, 3).equals(Set.create(1, 2, 3)));
+                    test.assertTrue(creator.run(0).addAll(1, 2, 3).equals(Set.create(1, 2, 3)));
                 });
 
                 runner.test("with equal Set in different order", (Test test) ->
                 {
-                    test.assertTrue(creator.run().addAll(1, 2, 3).equals(Set.create(3, 1, 2)));
+                    test.assertTrue(creator.run(0).addAll(1, 2, 3).equals(Set.create(3, 1, 2)));
                 });
 
                 runner.test("with superset Set", (Test test) ->
                 {
-                    test.assertFalse(creator.run().addAll(1, 2, 3).equals(Set.create(1, 2, 3, 4)));
+                    test.assertFalse(creator.run(0).addAll(1, 2, 3).equals(Set.create(1, 2, 3, 4)));
                 });
             });
 
@@ -402,17 +394,17 @@ public interface SetTests
 
                 runner.test("with one value", (Test test) ->
                 {
-                    test.assertEqual("{1}", creator.run().addAll(1).toString());
+                    test.assertEqual("{1}", creator.run(0).addAll(1).toString());
                 });
 
                 runner.test("with two values", (Test test) ->
                 {
-                    test.assertEqual("{1,2}", creator.run().addAll(1, 2).toString());
+                    test.assertEqual("{1,2}", creator.run(0).addAll(1, 2).toString());
                 });
 
                 runner.test("with three values", (Test test) ->
                 {
-                    test.assertEqual("{1,2,3}", creator.run().addAll(1, 2, 3).toString());
+                    test.assertEqual("{1,2,3}", creator.run(0).addAll(1, 2, 3).toString());
                 });
             });
         });

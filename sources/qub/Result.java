@@ -590,7 +590,7 @@ public interface Result<T>
 
         if (exceptions.any())
         {
-            throw Exceptions.asRuntime(exceptions.first());
+            throw ErrorIterable.create(exceptions);
         }
 
         PostCondition.assertNotNull(result, "result");

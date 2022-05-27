@@ -459,12 +459,15 @@ public class CharacterTableFormat
 
     private static void addProperty(CharacterList list, String propertyName, Object propertyValue)
     {
+        PreCondition.assertNotNull(list, "list");
+        PreCondition.assertNotNull(propertyName, "propertyName");
+
         if (propertyValue != null)
         {
             final String propertyValueString = Objects.toString(propertyValue);
             if (!Strings.isNullOrEmpty(propertyValueString))
             {
-                if (list.last() != '{')
+                if (!list.endsWith('{'))
                 {
                     list.add(',');
                 }

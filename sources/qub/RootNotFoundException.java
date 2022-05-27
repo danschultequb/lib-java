@@ -1,6 +1,6 @@
 package qub;
 
-public class RootNotFoundException extends RuntimeException
+public class RootNotFoundException extends NotFoundException
 {
     private final Path rootPath;
 

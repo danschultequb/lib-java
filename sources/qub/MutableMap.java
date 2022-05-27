@@ -10,7 +10,7 @@ public interface MutableMap<TKey,TValue> extends Map<TKey,TValue>
     /**
      * Remove all of the existing entries create this MutableMap.
      */
-    MutableMap<TKey,TValue> clear();
+    public MutableMap<TKey,TValue> clear();
 
     /**
      * Get the value associated with the provided key. If the key doesn't exist in this Map, then
@@ -21,21 +21,17 @@ public interface MutableMap<TKey,TValue> extends Map<TKey,TValue>
      *                     key if the key doesn't exist in this Map.
      * @return The value associated with the provided key.
      */
-    default Result<TValue> getOrSet(TKey key, Function0<TValue> valueCreator)
+    public default Result<TValue> getOrSet(TKey key, Function0<TValue> valueCreator)
     {
         PreCondition.assertNotNull(valueCreator, "valueCreator");
 
-        final Result<TValue> result = get(key)
+        return this.get(key)
             .catchError(NotFoundException.class, () ->
             {
                 final TValue value = valueCreator.run();
-                set(key, value);
+                this.set(key, value);
                 return value;
             });
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
     }
 
     /**
@@ -43,7 +39,7 @@ public interface MutableMap<TKey,TValue> extends Map<TKey,TValue>
      * @param entry The entry to set.
      * @return This Map for chaining methods.
      */
-    default MutableMap<TKey,TValue> set(MapEntry<TKey,TValue> entry)
+    public default MutableMap<TKey,TValue> set(MapEntry<TKey,TValue> entry)
     {
         PreCondition.assertNotNull(entry, "entry");
 
@@ -56,19 +52,19 @@ public interface MutableMap<TKey,TValue> extends Map<TKey,TValue>
      * @param value The value.
      * @return This Map for chaining methods.
      */
-    MutableMap<TKey,TValue> set(TKey key, TValue value);
+    public MutableMap<TKey,TValue> set(TKey key, TValue value);
 
     /**
      * Set all of the entries in the provided Iterable as key value pairs in this Map.
-     * @param entries
+     * @param entries The entries to set in this {@link MutableMap}.
      */
-    default MutableMap<TKey,TValue> setAll(Iterable<MapEntry<TKey,TValue>> entries)
+    public default MutableMap<TKey,TValue> setAll(Iterable<MapEntry<TKey,TValue>> entries)
     {
         PreCondition.assertNotNull(entries, "entries");
 
         for (final MapEntry<TKey,TValue> entry : entries)
         {
-            set(entry.getKey(), entry.getValue());
+            this.set(entry.getKey(), entry.getValue());
         }
 
         return this;
@@ -79,5 +75,5 @@ public interface MutableMap<TKey,TValue> extends Map<TKey,TValue>
      * @param key The key of the entry to remove.
      * @return The removed entry.
      */
-    Result<TValue> remove(TKey key);
+    public Result<TValue> remove(TKey key);
 }

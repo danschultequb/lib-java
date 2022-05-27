@@ -56,7 +56,7 @@ public interface TypeLoaderTests
                 getStaticMethod0ErrorTest.run("hello", null, new PreConditionFailure("methodName cannot be null."));
                 getStaticMethod0ErrorTest.run("hello", "", new PreConditionFailure("methodName cannot be empty."));
                 getStaticMethod0ErrorTest.run("hello", "there", new NotFoundException("Could not load a class named \"hello\"."));
-                getStaticMethod0ErrorTest.run(Types.getFullTypeName(TypeLoaderTests.class), "test", new NotFoundException("No static method with the signature qub.TypeLoaderTests.test() -> ? could be found."));
+                getStaticMethod0ErrorTest.run(Types.getFullTypeName(TypeLoaderTests.class), "test", new NotFoundException("Could not find a static method with the signature qub.TypeLoaderTests.test() -> ?."));
 
                 runner.test("with matching static function", (Test test) ->
                 {
@@ -116,22 +116,22 @@ public interface TypeLoaderTests
                     Types.getFullTypeName(TypeLoaderTests.class),
                     "fakeStaticMethod0",
                     Float.class,
-                    new NotFoundException("No static method with the signature qub.TypeLoaderTests.fakeStaticMethod0() -> java.lang.Float could be found."));
+                    new NotFoundException("Could not find a static method with the signature qub.TypeLoaderTests.fakeStaticMethod0() -> java.lang.Float."));
                 getStaticMethod0ErrorTest.run(
                     Types.getFullTypeName(TypeLoaderTests.class),
                     "fakeStaticMethod0",
                     Object.class,
-                    new NotFoundException("No static method with the signature qub.TypeLoaderTests.fakeStaticMethod0() -> java.lang.Object could be found."));
+                    new NotFoundException("Could not find a static method with the signature qub.TypeLoaderTests.fakeStaticMethod0() -> java.lang.Object."));
                 getStaticMethod0ErrorTest.run(
                     Types.getFullTypeName(TypeLoaderTests.class),
                     "test",
                     Void.class,
-                    new NotFoundException("No static method with the signature qub.TypeLoaderTests.test() -> java.lang.Void could be found."));
+                    new NotFoundException("Could not find a static method with the signature qub.TypeLoaderTests.test() -> java.lang.Void."));
                 getStaticMethod0ErrorTest.run(
                     Types.getFullTypeName(TypeLoaderTests.class),
                     "fakeStaticMethod0",
                     Integer.class,
-                    new NotFoundException("No static method with the signature qub.TypeLoaderTests.fakeStaticMethod0() -> java.lang.Integer could be found."));
+                    new NotFoundException("Could not find a static method with the signature qub.TypeLoaderTests.fakeStaticMethod0() -> java.lang.Integer."));
 
                 runner.test("with matching static method", (Test test) ->
                 {
