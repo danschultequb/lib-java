@@ -17,9 +17,9 @@ public class ListSet<T> implements Set<T>
     @Override
     public ListSet<T> add(T value)
     {
-        if (!values.contains(value))
+        if (!this.values.contains(value))
         {
-            values.add(value);
+            this.values.add(value);
         }
         return this;
     }
@@ -27,22 +27,26 @@ public class ListSet<T> implements Set<T>
     @Override
     public Result<Void> remove(T value)
     {
-        return values.remove(value)
-            ? Result.create()
-            : Result.error(new NotFoundException("Could not find the value " + value + "."));
+        return Result.create(() ->
+        {
+            if (!this.values.remove(value))
+            {
+                throw new NotFoundException("Could not find the value " + value + ".");
+            }
+        });
     }
 
     @Override
     public ListSet<T> clear()
     {
-        values.clear();
+        this.values.clear();
         return this;
     }
 
     @Override
     public Iterator<T> iterate()
     {
-        return values.iterate();
+        return this.values.iterate();
     }
 
     @Override
