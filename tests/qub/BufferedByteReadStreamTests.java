@@ -101,7 +101,7 @@ public interface BufferedByteReadStreamTests
                 {
                     final InMemoryByteStream innerStream = InMemoryByteStream.create().endOfStream();
                     final BufferedByteReadStream byteReadStream = BufferedByteReadStream.create(innerStream, 1);
-                    test.assertThrows(() -> byteReadStream.readByte().await(), new EndOfStreamException());
+                    test.assertThrows(() -> byteReadStream.readByte().await(), new EmptyException());
                 });
 
                 runner.test("when buffer size is smaller than inner stream byte count", (Test test) ->
@@ -140,7 +140,7 @@ public interface BufferedByteReadStreamTests
                     test.assertEqual(false, byteReadStream.getGrowOnNextBufferFill());
 
                     test.assertThrows(() -> byteReadStream.readByte().await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                     test.assertEqual(0, byteReadStream.getBufferedByteCount());
                     test.assertEqual(0, byteReadStream.getBufferSize());
                     test.assertEqual(false, byteReadStream.getGrowOnNextBufferFill());
@@ -161,7 +161,7 @@ public interface BufferedByteReadStreamTests
                     test.assertEqual(100, byteReadStream.getBufferSize());
                     test.assertEqual(false, byteReadStream.getGrowOnNextBufferFill());
 
-                    test.assertThrows(() -> byteReadStream.readByte().await(), new EndOfStreamException());
+                    test.assertThrows(() -> byteReadStream.readByte().await(), new EmptyException());
                     test.assertEqual(0, byteReadStream.getBufferedByteCount());
                     test.assertEqual(0, byteReadStream.getBufferSize());
                     test.assertEqual(false, byteReadStream.getGrowOnNextBufferFill());

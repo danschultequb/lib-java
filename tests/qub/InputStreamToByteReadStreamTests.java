@@ -40,14 +40,14 @@ public interface InputStreamToByteReadStreamTests
                     test.assertEqual(3, readStream.readByte().await());
                     test.assertEqual(4, readStream.readByte().await());
                     test.assertThrows(() -> readStream.readByte().await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("with no bytes to read", (Test test) ->
                 {
                     final InputStreamToByteReadStream readStream = InputStreamToByteReadStreamTests.getByteReadStream(test, 0);
                     test.assertThrows(() -> readStream.readByte().await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("when exception is thrown", (Test test) ->
@@ -91,7 +91,7 @@ public interface InputStreamToByteReadStreamTests
                     test.assertEqual(new byte[] { 0, 1, 2 }, byteReadStream.readBytes(3).await());
                     test.assertEqual(new byte[] { 3, 4 }, byteReadStream.readBytes(3).await());
                     test.assertThrows(() -> byteReadStream.readBytes(3).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("with bytesToRead equal to available", (Test test) ->
@@ -99,7 +99,7 @@ public interface InputStreamToByteReadStreamTests
                     final InputStreamToByteReadStream byteReadStream = InputStreamToByteReadStreamTests.getByteReadStream(test, 5);
                     test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, byteReadStream.readBytes(5).await());
                     test.assertThrows(() -> byteReadStream.readBytes(5).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("with more bytesToRead than available", (Test test) ->
@@ -107,7 +107,7 @@ public interface InputStreamToByteReadStreamTests
                     final InputStreamToByteReadStream byteReadStream = InputStreamToByteReadStreamTests.getByteReadStream(test, 5);
                     test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, byteReadStream.readBytes(6).await());
                     test.assertThrows(() -> byteReadStream.readBytes(6).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("when exception is thrown", (Test test) ->
@@ -157,7 +157,7 @@ public interface InputStreamToByteReadStreamTests
                     test.assertEqual(2, byteReadStream.readBytes(outputBytes).await());
                     test.assertEqual(new byte[] { 3, 4, 2 }, outputBytes);
                     test.assertThrows(() -> byteReadStream.readBytes(outputBytes).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("with bytesToRead equal to available", (Test test) ->
@@ -167,7 +167,7 @@ public interface InputStreamToByteReadStreamTests
                     test.assertEqual(5, byteReadStream.readBytes(outputBytes).await());
                     test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, outputBytes);
                     test.assertThrows(() -> byteReadStream.readBytes(outputBytes).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("with more bytesToRead than available", (Test test) ->
@@ -177,7 +177,7 @@ public interface InputStreamToByteReadStreamTests
                     test.assertEqual(5, byteReadStream.readBytes(outputBytes).await());
                     test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 0 }, outputBytes);
                     test.assertThrows(() -> byteReadStream.readBytes(outputBytes).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("when exception is thrown", (Test test) ->
@@ -270,7 +270,7 @@ public interface InputStreamToByteReadStreamTests
                     test.assertEqual(new byte[] { 3, 4, 0, 1, 2, 0 }, outputBytes);
 
                     test.assertThrows(() -> byteReadStream.readBytes(outputBytes, 4, 1).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("with bytesToRead equal to available", (Test test) ->
@@ -280,7 +280,7 @@ public interface InputStreamToByteReadStreamTests
                     test.assertEqual(5, byteReadStream.readBytes(outputBytes, 1, 5).await());
                     test.assertEqual(new byte[] { 0, 0, 1, 2, 3, 4, 0 }, outputBytes);
                     test.assertThrows(() -> byteReadStream.readBytes(outputBytes, 1, 5).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("with more bytesToRead than available", (Test test) ->
@@ -290,7 +290,7 @@ public interface InputStreamToByteReadStreamTests
                     test.assertEqual(5, byteReadStream.readBytes(outputBytes, 0, 6).await());
                     test.assertEqual(new byte[] { 0, 1, 2, 3, 4, 0 }, outputBytes);
                     test.assertThrows(() -> byteReadStream.readBytes(outputBytes, 0, 6).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("when exception is thrown", (Test test) ->
@@ -344,7 +344,7 @@ public interface InputStreamToByteReadStreamTests
                 {
                     final InputStreamToByteReadStream readStream = InputStreamToByteReadStreamTests.getByteReadStream(test, 0);
                     test.assertThrows(() -> readStream.readBytesUntil((byte)5).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("with no match", (Test test) ->
@@ -352,7 +352,7 @@ public interface InputStreamToByteReadStreamTests
                     final InputStreamToByteReadStream readStream = InputStreamToByteReadStreamTests.getByteReadStream(test, 5);
                     test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, readStream.readBytesUntil((byte)20).await());
                     test.assertThrows(() -> readStream.readBytesUntil((byte)20).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("with match", (Test test) ->
@@ -361,7 +361,7 @@ public interface InputStreamToByteReadStreamTests
                     test.assertEqual(new byte[] { 0, 1 }, readStream.readBytesUntil((byte)1).await());
                     test.assertEqual(new byte[] { 2, 3, 4 }, readStream.readBytesUntil((byte)1).await());
                     test.assertThrows(() -> readStream.readBytesUntil((byte)1).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
             });
 
@@ -379,7 +379,7 @@ public interface InputStreamToByteReadStreamTests
                 {
                     final InputStreamToByteReadStream readStream = InputStreamToByteReadStreamTests.getByteReadStream(test, 0);
                     test.assertThrows(() -> readStream.readBytesUntil(new byte[] { 5 }).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("with null", (Test test) ->
@@ -401,7 +401,7 @@ public interface InputStreamToByteReadStreamTests
                     final InputStreamToByteReadStream readStream = InputStreamToByteReadStreamTests.getByteReadStream(test, 5);
                     test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, readStream.readBytesUntil(new byte[] { 20 }).await());
                     test.assertThrows(() -> readStream.readBytesUntil(new byte[] { 20 }).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("with match", (Test test) ->
@@ -410,7 +410,7 @@ public interface InputStreamToByteReadStreamTests
                     test.assertEqual(new byte[] { 0, 1 }, readStream.readBytesUntil(new byte[] { 1 }).await());
                     test.assertEqual(new byte[] { 2, 3, 4 }, readStream.readBytesUntil(new byte[] { 1 }).await());
                     test.assertThrows(() -> readStream.readBytesUntil(new byte[] { 1 }).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("with partial match", (Test test) ->
@@ -418,7 +418,7 @@ public interface InputStreamToByteReadStreamTests
                     final InputStreamToByteReadStream readStream = InputStreamToByteReadStreamTests.getByteReadStream(test, 5);
                     test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, readStream.readBytesUntil(new byte[] { 1, 3 }).await());
                     test.assertThrows(() -> readStream.readBytesUntil(new byte[] { 1, 3 }).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
             });
 
@@ -436,7 +436,7 @@ public interface InputStreamToByteReadStreamTests
                 {
                     final InputStreamToByteReadStream readStream = InputStreamToByteReadStreamTests.getByteReadStream(test, 0);
                     test.assertThrows(() -> readStream.readBytesUntil(ByteArray.create(5)).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("with null", (Test test) ->
@@ -458,7 +458,7 @@ public interface InputStreamToByteReadStreamTests
                     final InputStreamToByteReadStream readStream = InputStreamToByteReadStreamTests.getByteReadStream(test, 5);
                     test.assertEqual(new byte[] { 0, 1, 2, 3, 4 }, readStream.readBytesUntil(ByteArray.create(20)).await());
                     test.assertThrows(() -> readStream.readBytesUntil(ByteArray.create(20)).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("with match", (Test test) ->
@@ -467,7 +467,7 @@ public interface InputStreamToByteReadStreamTests
                     test.assertEqual(new byte[] { 0, 1 }, readStream.readBytesUntil(ByteArray.create(1)).await());
                     test.assertEqual(new byte[] { 2, 3, 4 }, readStream.readBytesUntil(ByteArray.create(1)).await());
                     test.assertThrows(() -> readStream.readBytesUntil(ByteArray.create(1)).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("with partial match", (Test test) ->

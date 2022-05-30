@@ -63,7 +63,7 @@ public class InputStreamToByteReadStream implements ByteReadStream
                 final int byteAsInt = this.inputStream.read();
                 if (byteAsInt == -1)
                 {
-                    throw new EndOfStreamException();
+                    throw new EmptyException();
                 }
                 result = (byte)byteAsInt;
             }
@@ -93,7 +93,7 @@ public class InputStreamToByteReadStream implements ByteReadStream
                     result = this.inputStream.read(outputBytes, startIndex, length);
                     if (result == -1)
                     {
-                        throw new EndOfStreamException();
+                        throw new EmptyException();
                     }
                 }
                 catch (java.io.IOException e)

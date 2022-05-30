@@ -1,28 +1,26 @@
 package qub;
 
 /**
- * A data structure that allows values to be added and removed in First-In-First-Setable order.
- * @param <T> The type of values that can be added to this Queue.
+ * A data structure that allows values to be added and removed in First-In-First-Out order.
+ * @param <T> The type of values that can be added to this {@link Queue}.
  */
 public interface Queue<T>
 {
     /**
-     * Create a new empty Queue.
-     * @param <T> The type of values stored in the Queue.
-     * @return A new empty Queue.
+     * Create a new empty {@link Queue}.
+     * @param <T> The type of values stored in the {@link Queue}.
      */
-    static <T> Queue<T> create()
+    public static <T> Queue<T> create()
     {
         return ListQueue.create();
     }
 
     /**
-     * Create a new Queue with the provided initial values.
-     * @param initialValues The initial values to populate the new Queue with.
-     * @param <T> The type of values stored in the new Queue.
-     * @return A new Queue.
+     * Create a new {@link Queue} with the provided initial values.
+     * @param initialValues The initial values to populate the new {@link Queue} with.
+     * @param <T> The type of values stored in the new {@link Queue}.
      */
-    static <T> Queue<T> create(Iterable<T> initialValues)
+    public static <T> Queue<T> create(Iterable<T> initialValues)
     {
         PreCondition.assertNotNull(initialValues, "initialValues");
 
@@ -36,26 +34,23 @@ public interface Queue<T>
     }
 
     /**
-     * Get whether or not there are any values in the Queue.
-     * @return Whether or not there are any values in the Queue.
+     * Get whether there are any values in the {@link Queue}.
      */
     boolean any();
 
     /**
-     * Get the number of values that are in the Queue.
-     * @return The number of values that are in the Queue.
+     * Get the number of values that are in the {@link Queue}.
      */
     int getCount();
 
     /**
-     * Add the provided value to the Queue.
-     * @param value The value to add to the Queue.
+     * Add the provided value to the {@link Queue}.
      */
     Queue<T> enqueue(T value);
 
     /**
-     * Add all of the provided values to the Queue.
-     * @param values The values to add to the Queue.
+     * Add the provided values to the {@link Queue}.
+     * @param values The values to add to the {@link Queue}.
      */
     default Queue<T> enqueueAll(Iterator<T> values)
     {
@@ -70,8 +65,8 @@ public interface Queue<T>
     }
 
     /**
-     * Add all of the provided values to the Queue.
-     * @param values The values to add to the Queue.
+     * Add the provided values to the {@link Queue}.
+     * @param values The values to add to the {@link Queue}.
      */
     default Queue<T> enqueueAll(Iterable<T> values)
     {
@@ -86,16 +81,14 @@ public interface Queue<T>
     }
 
     /**
-     * Remove and return the next value create the Queue. If there are no values in the Queue, then
-     * null will be returned.
-     * @return The next value create the Queue or null if the Queue is empty.
+     * Remove and return the next value from the {@link Queue}.
+     * @exception EmptyException if the {@link Queue} is empty.
      */
     Result<T> dequeue();
 
     /**
-     * Get the next value create the Queue without removing it. If there are no values in the Queue,
-     * then null will be returned.
-     * @return The next value create the Queue or null if the Queue is empty.
+     * Get the next value create the {@link Queue} without removing it.
+     * @exception EmptyException if the {@link Queue} is empty.
      */
     Result<T> peek();
 }

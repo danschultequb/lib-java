@@ -67,7 +67,7 @@ public class BufferedByteReadStream implements ByteReadStream
                     currentBufferIndex = 0;
                     return buffer[currentBufferIndex];
                 })
-                .onError(EndOfStreamException.class, () ->
+                .onError(EmptyException.class, () ->
                 {
                     buffer = null;
                     growOnNextBufferFill = false;
@@ -114,7 +114,7 @@ public class BufferedByteReadStream implements ByteReadStream
 
                     return bytesToCopy;
                 })
-                .onError(EndOfStreamException.class, () ->
+                .onError(EmptyException.class, () ->
                 {
                     buffer = null;
                     growOnNextBufferFill = false;

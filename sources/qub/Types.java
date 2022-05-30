@@ -293,7 +293,6 @@ public interface Types
     /**
      * Get the simple name (without the package path) of the provided full type name.
      * @param fullTypeName The full type name to get the simple name of.
-     * @return The simple name (without the package path) of the provided full type name.
      */
     public static String getTypeNameFromFullTypeName(String fullTypeName)
     {
@@ -306,7 +305,6 @@ public interface Types
     /**
      * Get the simple name (without the package path) of the provided type.
      * @param type The type to get the simple name of.
-     * @return The simple name (without the package path) of the provided type.
      */
     public static String getTypeName(Class<?> type)
     {
@@ -316,7 +314,6 @@ public interface Types
     /**
      * Get the simple name (without the package path) of the runtime type of the provided value.
      * @param value The value to get the simple name of the runtime type of.
-     * @return The simple name (without the package path) of the runtime type of the provided value.
      */
     public static String getTypeName(Object value)
     {
@@ -326,7 +323,6 @@ public interface Types
     /**
      * Get the full name of the provided type.
      * @param type The type to get the full name of.
-     * @return The full name of the provided type.
      */
     public static String getFullTypeName(Class<?> type)
     {
@@ -336,7 +332,6 @@ public interface Types
     /**
      * Get the full name of the runtime type of the provided value.
      * @param value The value to get the full name of the runtime type of.
-     * @return The full name of the runtime type of the provided value.
      */
     public static String getFullTypeName(Object value)
     {

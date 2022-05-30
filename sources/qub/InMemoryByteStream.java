@@ -69,7 +69,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
 
             if (!this.bytes.any())
             {
-                throw new EndOfStreamException();
+                throw new EmptyException();
             }
 
             return this.bytes.removeFirst();
@@ -100,7 +100,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                 }
                 else if (!bytes.any())
                 {
-                    throw new EndOfStreamException();
+                    throw new EmptyException();
                 }
 
                 bytesRead = Math.minimum(bytes.getCount(), bytesRead);

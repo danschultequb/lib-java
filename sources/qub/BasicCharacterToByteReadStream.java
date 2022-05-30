@@ -29,7 +29,7 @@ public class BasicCharacterToByteReadStream implements CharacterToByteReadStream
             final Character result = this.characterEncoding.iterateDecodedCharacters(this.byteReadStream).first();
             if (result == null)
             {
-                throw new EndOfStreamException();
+                throw new EmptyException();
             }
             return result;
         });

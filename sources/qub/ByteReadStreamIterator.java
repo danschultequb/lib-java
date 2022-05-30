@@ -55,7 +55,7 @@ public class ByteReadStreamIterator implements Iterator<Byte>
             {
                 this.current = readByte;
             })
-            .catchError(EndOfStreamException.class, () ->
+            .catchError(EmptyException.class, () ->
             {
                 this.current = null;
             })

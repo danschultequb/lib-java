@@ -47,7 +47,7 @@ public interface EchoCharacterToByteReadStreamTests
                     final EchoCharacterToByteReadStream echoReadStream = EchoCharacterToByteReadStream.create(readStream, writeStream);
 
                     test.assertThrows(() -> echoReadStream.readByte().await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                     test.assertEqual("", writeStream.getText().await());
                 });
 
@@ -67,7 +67,7 @@ public interface EchoCharacterToByteReadStreamTests
                     test.assertEqual(new byte[] { 97, 98, 99 }, writeStream.getBytes());
 
                     test.assertThrows(() -> echoReadStream.readByte().await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                     test.assertEqual(new byte[] { 97, 98, 99 }, writeStream.getBytes());
                 });
             });
@@ -82,7 +82,7 @@ public interface EchoCharacterToByteReadStreamTests
 
                     final byte[] bytes = new byte[6];
                     test.assertThrows(() -> echoReadStream.readBytes(bytes, 2, 3).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                     test.assertEqual("", writeStream.getText().await());
                 });
 
@@ -106,7 +106,7 @@ public interface EchoCharacterToByteReadStreamTests
                     test.assertEqual(new byte[] { 97, 98, 99, 100, 101, 102 }, writeStream.getBytes());
 
                     test.assertThrows(() -> echoReadStream.readBytes(bytes, 0, 6).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                         test.assertEqual(new byte[] { 101, 102, 97, 98, 99, 0 }, bytes);
                         test.assertEqual(new byte[] { 97, 98, 99, 100, 101, 102 }, writeStream.getBytes());
                 });
@@ -121,7 +121,7 @@ public interface EchoCharacterToByteReadStreamTests
                     final EchoCharacterToByteReadStream echoReadStream = EchoCharacterToByteReadStream.create(readStream, writeStream);
 
                     test.assertThrows(() -> echoReadStream.readCharacter().await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                     test.assertEqual("", writeStream.getText().await());
                 });
 
@@ -141,7 +141,7 @@ public interface EchoCharacterToByteReadStreamTests
                     test.assertEqual("abc", writeStream.getText().await());
 
                     test.assertThrows(() -> echoReadStream.readCharacter().await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                     test.assertEqual("abc", writeStream.getText().await());
                 });
             });
@@ -156,7 +156,7 @@ public interface EchoCharacterToByteReadStreamTests
 
                     final char[] characters = new char[6];
                     test.assertThrows(() -> echoReadStream.readCharacters(characters, 2, 3).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                     test.assertEqual("", writeStream.getText().await());
                 });
 
@@ -180,7 +180,7 @@ public interface EchoCharacterToByteReadStreamTests
                     test.assertEqual("abcdef", writeStream.getText().await());
 
                     test.assertThrows(() -> echoReadStream.readCharacters(characters, 0, 6).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                     test.assertEqual(new char[] { 'e', 'f', 'a', 'b', 'c', '\0' }, characters);
                     test.assertEqual("abcdef", writeStream.getText().await());
                 });

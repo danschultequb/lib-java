@@ -81,13 +81,13 @@ public interface CharacterReadStream extends Disposable
             while(charactersRead < length)
             {
                 final Character c = this.readCharacter()
-                    .catchError(EndOfStreamException.class)
+                    .catchError(EmptyException.class)
                     .await();
                 if (c == null)
                 {
                     if (charactersRead == 0)
                     {
-                        throw new EndOfStreamException();
+                        throw new EmptyException();
                     }
                     break;
                 }
@@ -103,7 +103,7 @@ public interface CharacterReadStream extends Disposable
 
     /**
      * Read all of the characters in this stream. The termination of the stream is marked when
-     * readCharacter() returns an EndOfStreamException. This function will not return until all of
+     * readCharacter() returns an EmptyException. This function will not return until all of
      * the characters in the stream have been read.
      * @return All of the remaining characters in this stream.
      */
@@ -159,7 +159,7 @@ public interface CharacterReadStream extends Disposable
         {
             final CharacterList list = CharacterList.create();
             Character currentCharacter = this.readCharacter()
-                .catchError(EndOfStreamException.class)
+                .catchError(EmptyException.class)
                 .await();
             while (currentCharacter != null)
             {
@@ -171,13 +171,13 @@ public interface CharacterReadStream extends Disposable
                 }
 
                 currentCharacter = this.readCharacter()
-                    .catchError(EndOfStreamException.class)
+                    .catchError(EmptyException.class)
                     .await();
             }
 
             if (!list.any())
             {
-                throw new EndOfStreamException();
+                throw new EmptyException();
             }
 
             return Array.toCharArray(list).await();
@@ -285,7 +285,7 @@ public interface CharacterReadStream extends Disposable
             if (includeNewLine)
             {
                 result = this.readStringUntil('\n')
-                    .catchError(EndOfStreamException.class)
+                    .catchError(EmptyException.class)
                     .await();
                 if (result != null)
                 {
@@ -338,7 +338,7 @@ public interface CharacterReadStream extends Disposable
 
             if (charactersRead == 0)
             {
-                throw new EndOfStreamException();
+                throw new EmptyException();
             }
 
             return result;
@@ -366,7 +366,7 @@ public interface CharacterReadStream extends Disposable
         return Iterator.create((IteratorActions<String> actions) ->
         {
             final String line = this.readLine(includeNewLines)
-                .catchError(EndOfStreamException.class)
+                .catchError(EmptyException.class)
                 .await();
             if (line != null)
             {

@@ -270,7 +270,7 @@ public interface ComparerTests
                 equalTest.run(false, true, false);
                 equalTest.run(20, 20, true);
                 equalTest.run(new char[0], new char[0], true);
-                equalTest.run(new NotFoundException("a"), new EndOfStreamException(), false);
+                equalTest.run(new NotFoundException("a"), new EmptyException(), false);
                 equalTest.run(new NotFoundException("a"), new NotFoundException("b"), false);
                 equalTest.run(new NotFoundException("a"), new NotFoundException("a"), true);
             });
@@ -310,7 +310,7 @@ public interface ComparerTests
                 equalTest.run(null, null, true);
                 equalTest.run(new NotFoundException("a"), null, false);
                 equalTest.run(null, new NotFoundException("b"), false);
-                equalTest.run(new NotFoundException("a"), new EndOfStreamException(), false);
+                equalTest.run(new NotFoundException("a"), new EmptyException(), false);
                 equalTest.run(new NotFoundException("a"), new NotFoundException("b"), false);
                 equalTest.run(new NotFoundException("a"), new NotFoundException("a"), true);
                 equalTest.run(new RuntimeException(new NotFoundException("a")), new NotFoundException("a"), false);

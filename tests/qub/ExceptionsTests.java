@@ -48,57 +48,57 @@ public interface ExceptionsTests
 
                 runner.test("with null type", (Test test) ->
                 {
-                    test.assertFalse(Exceptions.instanceOf(new EndOfStreamException(), null));
+                    test.assertFalse(Exceptions.instanceOf(new EmptyException(), null));
                 });
 
                 runner.test("with same type", (Test test) ->
                 {
-                    test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), EndOfStreamException.class));
+                    test.assertTrue(Exceptions.instanceOf(new EmptyException(), EmptyException.class));
                 });
 
                 runner.test("with derived type", (Test test) ->
                 {
-                    test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), RuntimeException.class));
+                    test.assertTrue(Exceptions.instanceOf(new EmptyException(), RuntimeException.class));
                 });
 
                 runner.test("with parent type", (Test test) ->
                 {
-                    test.assertFalse(Exceptions.instanceOf(new RuntimeException("blah"), EndOfStreamException.class));
+                    test.assertFalse(Exceptions.instanceOf(new RuntimeException("blah"), EmptyException.class));
                 });
 
                 runner.test("with grandparent type", (Test test) ->
                 {
-                    test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), Exception.class));
+                    test.assertTrue(Exceptions.instanceOf(new EmptyException(), Exception.class));
                 });
 
                 runner.test("with great-grandparent type", (Test test) ->
                 {
-                    test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), Throwable.class));
+                    test.assertTrue(Exceptions.instanceOf(new EmptyException(), Throwable.class));
                 });
 
                 runner.test("with unrelated type", (Test test) ->
                 {
-                    test.assertFalse(Exceptions.instanceOf(new EndOfStreamException(), java.io.IOException.class));
+                    test.assertFalse(Exceptions.instanceOf(new EmptyException(), java.io.IOException.class));
                 });
 
                 runner.test("with RuntimeException wrapped matching error", (Test test) ->
                 {
-                    test.assertTrue(Exceptions.instanceOf(new RuntimeException(new EndOfStreamException()), EndOfStreamException.class));
+                    test.assertTrue(Exceptions.instanceOf(new RuntimeException(new EmptyException()), EmptyException.class));
                 });
 
                 runner.test("with RuntimeException twice wrapped matching error", (Test test) ->
                 {
-                    test.assertTrue(Exceptions.instanceOf(new RuntimeException(new RuntimeException(new EndOfStreamException())), EndOfStreamException.class));
+                    test.assertTrue(Exceptions.instanceOf(new RuntimeException(new RuntimeException(new EmptyException())), EmptyException.class));
                 });
 
                 runner.test("with AwaitException wrapped matching error", (Test test) ->
                 {
-                    test.assertTrue(Exceptions.instanceOf(new AwaitException(new EndOfStreamException()), EndOfStreamException.class));
+                    test.assertTrue(Exceptions.instanceOf(new AwaitException(new EmptyException()), EmptyException.class));
                 });
 
                 runner.test("with AwaitException twice wrapped matching error", (Test test) ->
                 {
-                    test.assertTrue(Exceptions.instanceOf(new AwaitException(new AwaitException(new EndOfStreamException())), EndOfStreamException.class));
+                    test.assertTrue(Exceptions.instanceOf(new AwaitException(new AwaitException(new EmptyException())), EmptyException.class));
                 });
             });
 
@@ -113,57 +113,57 @@ public interface ExceptionsTests
 
                     runner.test("with null type", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new EndOfStreamException(), null, null));
+                        test.assertFalse(Exceptions.instanceOf(new EmptyException(), null, null));
                     });
 
                     runner.test("with same type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), EndOfStreamException.class, null));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), EmptyException.class, null));
                     });
 
                     runner.test("with derived type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), RuntimeException.class, null));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), RuntimeException.class, null));
                     });
 
                     runner.test("with parent type", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new RuntimeException("blah"), EndOfStreamException.class, null));
+                        test.assertFalse(Exceptions.instanceOf(new RuntimeException("blah"), EmptyException.class, null));
                     });
 
                     runner.test("with grandparent type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), Exception.class, null));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), Exception.class, null));
                     });
 
                     runner.test("with great-grandparent type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), Throwable.class, null));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), Throwable.class, null));
                     });
 
                     runner.test("with unrelated type", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new EndOfStreamException(), java.io.IOException.class, null));
+                        test.assertFalse(Exceptions.instanceOf(new EmptyException(), java.io.IOException.class, null));
                     });
 
                     runner.test("with RuntimeException wrapped matching error", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new RuntimeException(new EndOfStreamException()), EndOfStreamException.class, null));
+                        test.assertFalse(Exceptions.instanceOf(new RuntimeException(new EmptyException()), EmptyException.class, null));
                     });
 
                     runner.test("with RuntimeException twice wrapped matching error", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new RuntimeException(new RuntimeException(new EndOfStreamException())), EndOfStreamException.class, null));
+                        test.assertFalse(Exceptions.instanceOf(new RuntimeException(new RuntimeException(new EmptyException())), EmptyException.class, null));
                     });
 
                     runner.test("with AwaitException wrapped matching error", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new AwaitException(new EndOfStreamException()), EndOfStreamException.class, null));
+                        test.assertFalse(Exceptions.instanceOf(new AwaitException(new EmptyException()), EmptyException.class, null));
                     });
 
                     runner.test("with AwaitException twice wrapped matching error", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new AwaitException(new AwaitException(new EndOfStreamException())), EndOfStreamException.class, null));
+                        test.assertFalse(Exceptions.instanceOf(new AwaitException(new AwaitException(new EmptyException())), EmptyException.class, null));
                     });
                 });
 
@@ -176,57 +176,57 @@ public interface ExceptionsTests
 
                     runner.test("with null type", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new EndOfStreamException(), null, Iterable.create()));
+                        test.assertFalse(Exceptions.instanceOf(new EmptyException(), null, Iterable.create()));
                     });
 
                     runner.test("with same type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), EndOfStreamException.class, Iterable.create()));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), EmptyException.class, Iterable.create()));
                     });
 
                     runner.test("with derived type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), RuntimeException.class, Iterable.create()));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), RuntimeException.class, Iterable.create()));
                     });
 
                     runner.test("with parent type", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new RuntimeException("blah"), EndOfStreamException.class, Iterable.create()));
+                        test.assertFalse(Exceptions.instanceOf(new RuntimeException("blah"), EmptyException.class, Iterable.create()));
                     });
 
                     runner.test("with grandparent type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), Exception.class, Iterable.create()));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), Exception.class, Iterable.create()));
                     });
 
                     runner.test("with great-grandparent type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), Throwable.class, Iterable.create()));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), Throwable.class, Iterable.create()));
                     });
 
                     runner.test("with unrelated type", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new EndOfStreamException(), java.io.IOException.class, Iterable.create()));
+                        test.assertFalse(Exceptions.instanceOf(new EmptyException(), java.io.IOException.class, Iterable.create()));
                     });
 
                     runner.test("with RuntimeException wrapped matching error", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new RuntimeException(new EndOfStreamException()), EndOfStreamException.class, Iterable.create()));
+                        test.assertFalse(Exceptions.instanceOf(new RuntimeException(new EmptyException()), EmptyException.class, Iterable.create()));
                     });
 
                     runner.test("with RuntimeException twice wrapped matching error", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new RuntimeException(new RuntimeException(new EndOfStreamException())), EndOfStreamException.class, Iterable.create()));
+                        test.assertFalse(Exceptions.instanceOf(new RuntimeException(new RuntimeException(new EmptyException())), EmptyException.class, Iterable.create()));
                     });
 
                     runner.test("with AwaitException wrapped matching error", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new AwaitException(new EndOfStreamException()), EndOfStreamException.class, Iterable.create()));
+                        test.assertFalse(Exceptions.instanceOf(new AwaitException(new EmptyException()), EmptyException.class, Iterable.create()));
                     });
 
                     runner.test("with AwaitException twice wrapped matching error", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new AwaitException(new AwaitException(new EndOfStreamException())), EndOfStreamException.class, Iterable.create()));
+                        test.assertFalse(Exceptions.instanceOf(new AwaitException(new AwaitException(new EmptyException())), EmptyException.class, Iterable.create()));
                     });
                 });
 
@@ -239,57 +239,57 @@ public interface ExceptionsTests
 
                     runner.test("with null type", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new EndOfStreamException(), null, Iterable.create(RuntimeException.class)));
+                        test.assertFalse(Exceptions.instanceOf(new EmptyException(), null, Iterable.create(RuntimeException.class)));
                     });
 
                     runner.test("with same type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), EndOfStreamException.class, Iterable.create(RuntimeException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), EmptyException.class, Iterable.create(RuntimeException.class)));
                     });
 
                     runner.test("with derived type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), RuntimeException.class, Iterable.create(RuntimeException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), RuntimeException.class, Iterable.create(RuntimeException.class)));
                     });
 
                     runner.test("with parent type", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new RuntimeException("blah"), EndOfStreamException.class, Iterable.create(RuntimeException.class)));
+                        test.assertFalse(Exceptions.instanceOf(new RuntimeException("blah"), EmptyException.class, Iterable.create(RuntimeException.class)));
                     });
 
                     runner.test("with grandparent type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), Exception.class, Iterable.create(RuntimeException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), Exception.class, Iterable.create(RuntimeException.class)));
                     });
 
                     runner.test("with great-grandparent type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), Throwable.class, Iterable.create(RuntimeException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), Throwable.class, Iterable.create(RuntimeException.class)));
                     });
 
                     runner.test("with unrelated type", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new EndOfStreamException(), java.io.IOException.class, Iterable.create(RuntimeException.class)));
+                        test.assertFalse(Exceptions.instanceOf(new EmptyException(), java.io.IOException.class, Iterable.create(RuntimeException.class)));
                     });
 
                     runner.test("with RuntimeException wrapped matching error", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new RuntimeException(new EndOfStreamException()), EndOfStreamException.class, Iterable.create(RuntimeException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new RuntimeException(new EmptyException()), EmptyException.class, Iterable.create(RuntimeException.class)));
                     });
 
                     runner.test("with RuntimeException twice wrapped matching error", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new RuntimeException(new RuntimeException(new EndOfStreamException())), EndOfStreamException.class, Iterable.create(RuntimeException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new RuntimeException(new RuntimeException(new EmptyException())), EmptyException.class, Iterable.create(RuntimeException.class)));
                     });
 
                     runner.test("with AwaitException wrapped matching error", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new AwaitException(new EndOfStreamException()), EndOfStreamException.class, Iterable.create(RuntimeException.class)));
+                        test.assertFalse(Exceptions.instanceOf(new AwaitException(new EmptyException()), EmptyException.class, Iterable.create(RuntimeException.class)));
                     });
 
                     runner.test("with AwaitException twice wrapped matching error", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new AwaitException(new AwaitException(new EndOfStreamException())), EndOfStreamException.class, Iterable.create(RuntimeException.class)));
+                        test.assertFalse(Exceptions.instanceOf(new AwaitException(new AwaitException(new EmptyException())), EmptyException.class, Iterable.create(RuntimeException.class)));
                     });
                 });
 
@@ -302,57 +302,57 @@ public interface ExceptionsTests
 
                     runner.test("with null type", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new EndOfStreamException(), null, Iterable.create(AwaitException.class)));
+                        test.assertFalse(Exceptions.instanceOf(new EmptyException(), null, Iterable.create(AwaitException.class)));
                     });
 
                     runner.test("with same type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), EndOfStreamException.class, Iterable.create(AwaitException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), EmptyException.class, Iterable.create(AwaitException.class)));
                     });
 
                     runner.test("with derived type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), RuntimeException.class, Iterable.create(AwaitException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), RuntimeException.class, Iterable.create(AwaitException.class)));
                     });
 
                     runner.test("with parent type", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new RuntimeException("blah"), EndOfStreamException.class, Iterable.create(AwaitException.class)));
+                        test.assertFalse(Exceptions.instanceOf(new RuntimeException("blah"), EmptyException.class, Iterable.create(AwaitException.class)));
                     });
 
                     runner.test("with grandparent type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), Exception.class, Iterable.create(AwaitException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), Exception.class, Iterable.create(AwaitException.class)));
                     });
 
                     runner.test("with great-grandparent type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), Throwable.class, Iterable.create(AwaitException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), Throwable.class, Iterable.create(AwaitException.class)));
                     });
 
                     runner.test("with unrelated type", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new EndOfStreamException(), java.io.IOException.class, Iterable.create(AwaitException.class)));
+                        test.assertFalse(Exceptions.instanceOf(new EmptyException(), java.io.IOException.class, Iterable.create(AwaitException.class)));
                     });
 
                     runner.test("with RuntimeException wrapped matching error", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new RuntimeException(new EndOfStreamException()), EndOfStreamException.class, Iterable.create(AwaitException.class)));
+                        test.assertFalse(Exceptions.instanceOf(new RuntimeException(new EmptyException()), EmptyException.class, Iterable.create(AwaitException.class)));
                     });
 
                     runner.test("with RuntimeException twice wrapped matching error", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new RuntimeException(new RuntimeException(new EndOfStreamException())), EndOfStreamException.class, Iterable.create(AwaitException.class)));
+                        test.assertFalse(Exceptions.instanceOf(new RuntimeException(new RuntimeException(new EmptyException())), EmptyException.class, Iterable.create(AwaitException.class)));
                     });
 
                     runner.test("with AwaitException wrapped matching error", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new AwaitException(new EndOfStreamException()), EndOfStreamException.class, Iterable.create(AwaitException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new AwaitException(new EmptyException()), EmptyException.class, Iterable.create(AwaitException.class)));
                     });
 
                     runner.test("with AwaitException twice wrapped matching error", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new AwaitException(new AwaitException(new EndOfStreamException())), EndOfStreamException.class, Iterable.create(AwaitException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new AwaitException(new AwaitException(new EmptyException())), EmptyException.class, Iterable.create(AwaitException.class)));
                     });
                 });
 
@@ -365,57 +365,57 @@ public interface ExceptionsTests
 
                     runner.test("with null type", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new EndOfStreamException(), null, Iterable.create(AwaitException.class, RuntimeException.class)));
+                        test.assertFalse(Exceptions.instanceOf(new EmptyException(), null, Iterable.create(AwaitException.class, RuntimeException.class)));
                     });
 
                     runner.test("with same type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), EndOfStreamException.class, Iterable.create(AwaitException.class, RuntimeException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), EmptyException.class, Iterable.create(AwaitException.class, RuntimeException.class)));
                     });
 
                     runner.test("with derived type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), RuntimeException.class, Iterable.create(AwaitException.class, RuntimeException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), RuntimeException.class, Iterable.create(AwaitException.class, RuntimeException.class)));
                     });
 
                     runner.test("with parent type", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new RuntimeException("blah"), EndOfStreamException.class, Iterable.create(AwaitException.class, RuntimeException.class)));
+                        test.assertFalse(Exceptions.instanceOf(new RuntimeException("blah"), EmptyException.class, Iterable.create(AwaitException.class, RuntimeException.class)));
                     });
 
                     runner.test("with grandparent type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), Exception.class, Iterable.create(AwaitException.class, RuntimeException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), Exception.class, Iterable.create(AwaitException.class, RuntimeException.class)));
                     });
 
                     runner.test("with great-grandparent type", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new EndOfStreamException(), Throwable.class, Iterable.create(AwaitException.class, RuntimeException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new EmptyException(), Throwable.class, Iterable.create(AwaitException.class, RuntimeException.class)));
                     });
 
                     runner.test("with unrelated type", (Test test) ->
                     {
-                        test.assertFalse(Exceptions.instanceOf(new EndOfStreamException(), java.io.IOException.class, Iterable.create(AwaitException.class, RuntimeException.class)));
+                        test.assertFalse(Exceptions.instanceOf(new EmptyException(), java.io.IOException.class, Iterable.create(AwaitException.class, RuntimeException.class)));
                     });
 
                     runner.test("with RuntimeException wrapped matching error", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new RuntimeException(new EndOfStreamException()), EndOfStreamException.class, Iterable.create(AwaitException.class, RuntimeException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new RuntimeException(new EmptyException()), EmptyException.class, Iterable.create(AwaitException.class, RuntimeException.class)));
                     });
 
                     runner.test("with RuntimeException twice wrapped matching error", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new RuntimeException(new RuntimeException(new EndOfStreamException())), EndOfStreamException.class, Iterable.create(AwaitException.class, RuntimeException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new RuntimeException(new RuntimeException(new EmptyException())), EmptyException.class, Iterable.create(AwaitException.class, RuntimeException.class)));
                     });
 
                     runner.test("with AwaitException wrapped matching error", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new AwaitException(new EndOfStreamException()), EndOfStreamException.class, Iterable.create(AwaitException.class, RuntimeException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new AwaitException(new EmptyException()), EmptyException.class, Iterable.create(AwaitException.class, RuntimeException.class)));
                     });
 
                     runner.test("with AwaitException twice wrapped matching error", (Test test) ->
                     {
-                        test.assertTrue(Exceptions.instanceOf(new AwaitException(new AwaitException(new EndOfStreamException())), EndOfStreamException.class, Iterable.create(AwaitException.class, RuntimeException.class)));
+                        test.assertTrue(Exceptions.instanceOf(new AwaitException(new AwaitException(new EmptyException())), EmptyException.class, Iterable.create(AwaitException.class, RuntimeException.class)));
                     });
                 });
             });

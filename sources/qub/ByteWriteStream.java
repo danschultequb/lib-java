@@ -106,7 +106,7 @@ public interface ByteWriteStream extends Disposable
             while(true)
             {
                 bytesRead = byteReadStream.readBytes(buffer, bytesInBuffer, buffer.length - bytesInBuffer)
-                    .catchError(EndOfStreamException.class)
+                    .catchError(EmptyException.class)
                     .await();
                 if (bytesRead == null)
                 {

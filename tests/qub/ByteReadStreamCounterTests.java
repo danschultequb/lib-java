@@ -53,7 +53,7 @@ public interface ByteReadStreamCounterTests
                     final InMemoryByteStream innerStream = InMemoryByteStream.create(new byte[0]).endOfStream();
                     final ByteReadStreamCounter counter = new ByteReadStreamCounter(innerStream);
                     test.assertThrows(() -> counter.readByte().await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                     test.assertEqual(0, counter.getBytesRead());
                     test.assertEqual(0, counter.getBitsRead());
                 });
@@ -86,7 +86,7 @@ public interface ByteReadStreamCounterTests
                     final InMemoryByteStream innerStream = InMemoryByteStream.create(new byte[0]).endOfStream();
                     final ByteReadStreamCounter counter = new ByteReadStreamCounter(innerStream);
                     test.assertThrows(() -> counter.readBytes(10).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                     test.assertEqual(0, counter.getBytesRead());
                     test.assertEqual(0, counter.getBitsRead());
                 });

@@ -2,7 +2,7 @@ package qub;
 
 public interface QueueTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(Queue.class, () ->
         {
@@ -49,7 +49,7 @@ public interface QueueTests
             {
                 final Queue<Integer> queue = createQueue.run();
                 test.assertThrows(() -> queue.dequeue().await(),
-                    new QueueEmptyException());
+                    new EmptyException());
                 test.assertFalse(queue.any());
 
                 queue.enqueue(0);
@@ -69,7 +69,7 @@ public interface QueueTests
                 test.assertEqual(0, queue.getCount());
 
                 test.assertThrows(() -> queue.dequeue().await(),
-                    new QueueEmptyException());
+                    new EmptyException());
                 test.assertFalse(queue.any());
                 test.assertEqual(0, queue.getCount());
             });
@@ -109,7 +109,7 @@ public interface QueueTests
             {
                 final Queue<Integer> queue = createQueue.run();
                 test.assertThrows(() -> queue.peek().await(),
-                    new QueueEmptyException());
+                    new EmptyException());
 
                 queue.enqueue(20);
                 test.assertEqual(20, queue.peek().await());

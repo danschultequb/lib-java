@@ -189,9 +189,9 @@ public interface LazyResultTests
 
                 runner.test("with completed error", (Test test) ->
                 {
-                    final LazyResult<Integer> result = LazyResult.create(() -> { throw new EndOfStreamException(); });
-                    result.catchError(EndOfStreamException.class).await();
-                    test.assertEqual("{\"type\":\"LazyResult\",\"isCompleted\":true,\"error\":\"qub.AwaitException: qub.EndOfStreamException\"}", result.toString());
+                    final LazyResult<Integer> result = LazyResult.create(() -> { throw new EmptyException(); });
+                    result.catchError(EmptyException.class).await();
+                    test.assertEqual("{\"type\":\"LazyResult\",\"isCompleted\":true,\"error\":\"qub.AwaitException: qub.EmptyException\"}", result.toString());
                 });
             });
         });

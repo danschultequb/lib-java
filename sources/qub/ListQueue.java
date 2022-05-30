@@ -1,15 +1,15 @@
 package qub;
 
 /**
- * A data structure that allows values to be added and removed in First-In-First-Setable order.
- * @param <T> The type of values that can be added to this Queue.
+ * A data structure that allows values to be added and removed in First-In-First-Out order.
+ * @param <T> The type of values that can be added to this {@link ListQueue}.
  */
 public class ListQueue<T> implements Queue<T>
 {
     private final List<T> values;
 
     /**
-     * Create a new Queue.
+     * Create a new {@link ListQueue}.
      */
     protected ListQueue(List<T> values)
     {
@@ -52,16 +52,26 @@ public class ListQueue<T> implements Queue<T>
     @Override
     public Result<T> dequeue()
     {
-        return this.values.any()
-            ? Result.success(this.values.removeFirst())
-            : Result.error(new QueueEmptyException());
+        return Result.create(() ->
+        {
+            if (!this.any())
+            {
+                throw new EmptyException();
+            }
+            return this.values.removeFirst();
+        });
     }
 
     @Override
     public Result<T> peek()
     {
-        return this.values.any()
-            ? Result.success(this.values.first())
-            : Result.error(new QueueEmptyException());
+        return Result.create(() ->
+        {
+            if (!this.any())
+            {
+                throw new EmptyException();
+            }
+            return this.values.first();
+        });
     }
 }

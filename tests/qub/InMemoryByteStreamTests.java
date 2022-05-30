@@ -46,7 +46,7 @@ public interface InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = InMemoryByteStreamTests.create();
 
-                    test.assertThrows(() -> stream.readByte().await(), new EndOfStreamException());
+                    test.assertThrows(() -> stream.readByte().await(), new EmptyException());
                 });
 
                 runner.test("with one byte to read", (Test test) ->
@@ -54,7 +54,7 @@ public interface InMemoryByteStreamTests
                     final InMemoryByteStream stream = InMemoryByteStreamTests.create(new byte[] { 10 });
 
                     test.assertEqual(10, stream.readByte().await());
-                    test.assertThrows(() -> stream.readByte().await(), new EndOfStreamException());
+                    test.assertThrows(() -> stream.readByte().await(), new EmptyException());
                 });
 
                 runner.test("with two bytes to read", (Test test) ->
@@ -63,7 +63,7 @@ public interface InMemoryByteStreamTests
 
                     test.assertEqual(10, stream.readByte().await());
                     test.assertEqual(20, stream.readByte().await());
-                    test.assertThrows(() -> stream.readByte().await(), new EndOfStreamException());
+                    test.assertThrows(() -> stream.readByte().await(), new EmptyException());
                 });
 
                 runner.test("with disposed ByteReadStream", (Test test) ->
@@ -81,8 +81,8 @@ public interface InMemoryByteStreamTests
 
                 test.assertThrows(() -> readStream1.readBytes(-5), new PreConditionFailure("bytesToRead (-5) must be greater than or equal to 0."));
                 test.assertEqual(new byte[0], readStream1.readBytes(0).await());
-                test.assertThrows(() -> readStream1.readBytes(1).await(), new EndOfStreamException());
-                test.assertThrows(() -> readStream1.readBytes(5).await(), new EndOfStreamException());
+                test.assertThrows(() -> readStream1.readBytes(1).await(), new EmptyException());
+                test.assertThrows(() -> readStream1.readBytes(5).await(), new EmptyException());
 
                 final InMemoryByteStream readStream2 = InMemoryByteStreamTests.create(new byte[] { 0, 1, 2, 3 });
 
@@ -91,8 +91,8 @@ public interface InMemoryByteStreamTests
                 test.assertEqual(new byte[] { 0 }, readStream2.readBytes(1).await());
                 test.assertEqual(new byte[] { 1, 2 }, readStream2.readBytes(2).await());
                 test.assertEqual(new byte[] { 3 }, readStream2.readBytes(3).await());
-                test.assertThrows(() -> readStream2.readBytes(1).await(), new EndOfStreamException());
-                test.assertThrows(() -> readStream2.readBytes(5).await(), new EndOfStreamException());
+                test.assertThrows(() -> readStream2.readBytes(1).await(), new EmptyException());
+                test.assertThrows(() -> readStream2.readBytes(5).await(), new EmptyException());
 
                 test.assertTrue(readStream2.dispose().await());
 
@@ -132,7 +132,7 @@ public interface InMemoryByteStreamTests
                     final InMemoryByteStream stream = InMemoryByteStreamTests.create();
                     final byte[] outputBytes = new byte[10];
                     test.assertThrows(() -> stream.readBytes(outputBytes).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                     test.assertEqual(new byte[10], outputBytes);
                 });
 
@@ -145,7 +145,7 @@ public interface InMemoryByteStreamTests
                     test.assertEqual(new byte[0], stream.getBytes());
 
                     test.assertThrows(() -> stream.readByte().await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("with equal number of bytes to read to outputBytes", (Test test) ->
@@ -157,7 +157,7 @@ public interface InMemoryByteStreamTests
                     test.assertEqual(new byte[0], stream.getBytes());
 
                     test.assertThrows(() -> stream.readByte().await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("with more bytes to read than outputBytes", (Test test) ->
@@ -246,7 +246,7 @@ public interface InMemoryByteStreamTests
                     final InMemoryByteStream stream = InMemoryByteStreamTests.create();
                     final byte[] outputBytes = new byte[10];
                     test.assertThrows(() -> stream.readBytes(outputBytes, 1, 3).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                     test.assertEqual(new byte[10], outputBytes);
                 });
 
@@ -256,7 +256,7 @@ public interface InMemoryByteStreamTests
                     final byte[] outputBytes = new byte[10];
                     test.assertEqual(4, stream.readBytes(outputBytes, 0, 10).await());
                     test.assertEqual(new byte[] { 1, 2, 3, 4, 0, 0, 0, 0, 0, 0 }, outputBytes);
-                    test.assertThrows(() -> stream.readByte().await(), new EndOfStreamException());
+                    test.assertThrows(() -> stream.readByte().await(), new EmptyException());
                 });
 
                 runner.test("with equal number of bytes to read to length", (Test test) ->
@@ -265,7 +265,7 @@ public interface InMemoryByteStreamTests
                     final byte[] outputBytes = new byte[10];
                     test.assertEqual(10, stream.readBytes(outputBytes, 0, 10).await());
                     test.assertEqual(new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, outputBytes);
-                    test.assertThrows(() -> stream.readByte().await(), new EndOfStreamException());
+                    test.assertThrows(() -> stream.readByte().await(), new EmptyException());
                 });
 
                 runner.test("with more bytes to read than length", (Test test) ->
@@ -307,7 +307,7 @@ public interface InMemoryByteStreamTests
                 runner.test("with no bytes to read", (Test test) ->
                 {
                     final InMemoryByteStream stream = InMemoryByteStreamTests.create();
-                    test.assertThrows(() -> stream.readBytesUntil((byte)5).await(), new EndOfStreamException());
+                    test.assertThrows(() -> stream.readBytesUntil((byte)5).await(), new EmptyException());
                 });
 
                 runner.test("with bytes but not the stopByte", (Test test) ->
@@ -339,7 +339,7 @@ public interface InMemoryByteStreamTests
                 {
                     final InMemoryByteStream stream = InMemoryByteStreamTests.create();
                     test.assertThrows(() -> stream.readBytesUntil(ByteArray.create(5)).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                 });
 
                 runner.test("with bytes but not the stopByte", (Test test) ->

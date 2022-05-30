@@ -2,7 +2,7 @@ package qub;
 
 public interface ResultTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(Result.class, () ->
         {
@@ -1475,16 +1475,16 @@ public interface ResultTests
                     final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, (Action0)() ->
                     {
                         catchErrorCounter.increment();
-                        throw new QueueEmptyException();
+                        throw new EmptyException();
                     });
 
-                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(catchErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(1, catchErrorCounter.get());
                     test.assertTrue(parentResult.isCompleted());
                     test.assertTrue(catchErrorResult.isCompleted());
 
-                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(catchErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(1, catchErrorCounter.get());
                     test.assertTrue(parentResult.isCompleted());
@@ -1635,16 +1635,16 @@ public interface ResultTests
                     final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, (Action1<NotFoundException>)(NotFoundException parentError) ->
                     {
                         caughtErrors.add(parentError);
-                        throw new QueueEmptyException();
+                        throw new EmptyException();
                     });
 
-                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(catchErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
                     test.assertTrue(parentResult.isCompleted());
                     test.assertTrue(catchErrorResult.isCompleted());
 
-                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(catchErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
                     test.assertTrue(parentResult.isCompleted());
@@ -1733,16 +1733,16 @@ public interface ResultTests
                     final Result<Integer> catchErrorResult = parentResult.catchError((Function0<Integer>)() ->
                     {
                         catchErrorCounter.increment();
-                        throw new QueueEmptyException();
+                        throw new EmptyException();
                     });
 
-                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(catchErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(1, catchErrorCounter.get());
                     test.assertTrue(parentResult.isCompleted());
                     test.assertTrue(catchErrorResult.isCompleted());
 
-                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(catchErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(1, catchErrorCounter.get());
                     test.assertTrue(parentResult.isCompleted());
@@ -1831,16 +1831,16 @@ public interface ResultTests
                     final Result<Integer> catchErrorResult = parentResult.catchError((Function1<Throwable,Integer>)(Throwable error) ->
                     {
                         caughtExceptions.add(error);
-                        throw new QueueEmptyException();
+                        throw new EmptyException();
                     });
 
-                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(catchErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtExceptions);
                     test.assertTrue(parentResult.isCompleted());
                     test.assertTrue(catchErrorResult.isCompleted());
 
-                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(catchErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtExceptions);
                     test.assertTrue(parentResult.isCompleted());
@@ -1995,16 +1995,16 @@ public interface ResultTests
                     final Result<Integer> catchErrorResult = parentResult.catchError(NotFoundException.class, (Function0<Integer>)() ->
                     {
                         catchErrorCounter.increment();
-                        throw new QueueEmptyException();
+                        throw new EmptyException();
                     });
 
-                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(catchErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(1, catchErrorCounter.get());
                     test.assertTrue(parentResult.isCompleted());
                     test.assertTrue(catchErrorResult.isCompleted());
 
-                    test.assertThrows(catchErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(catchErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(1, catchErrorCounter.get());
                     test.assertTrue(parentResult.isCompleted());
@@ -3054,7 +3054,7 @@ public interface ResultTests
                     final Result<Integer> convertErrorResult = parentResult.convertError(NotFoundException.class, () ->
                     {
                         convertErrorCounter.increment();
-                        return new QueueEmptyException();
+                        return new EmptyException();
                     });
 
                     test.assertThrows(convertErrorResult::await, new RuntimeException("foo"));
@@ -3083,16 +3083,16 @@ public interface ResultTests
                     final Result<Integer> convertErrorResult = parentResult.convertError(FileNotFoundException.class, () ->
                     {
                         convertErrorCounter.increment();
-                        return new QueueEmptyException();
+                        return new EmptyException();
                     });
 
-                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(convertErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(1, convertErrorCounter.get());
                     test.assertTrue(parentResult.isCompleted());
                     test.assertTrue(convertErrorResult.isCompleted());
 
-                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(convertErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(1, convertErrorCounter.get());
                     test.assertTrue(parentResult.isCompleted());
@@ -3112,16 +3112,16 @@ public interface ResultTests
                     final Result<Integer> convertErrorResult = parentResult.convertError(NotFoundException.class, () ->
                     {
                         convertErrorCounter.increment();
-                        return new QueueEmptyException();
+                        return new EmptyException();
                     });
 
-                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(convertErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(1, convertErrorCounter.get());
                     test.assertTrue(parentResult.isCompleted());
                     test.assertTrue(convertErrorResult.isCompleted());
 
-                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(convertErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(1, convertErrorCounter.get());
                     test.assertTrue(parentResult.isCompleted());
@@ -3141,16 +3141,16 @@ public interface ResultTests
                     final Result<Integer> convertErrorResult = parentResult.convertError(NotFoundException.class, (Function0<Throwable>)() ->
                     {
                         convertErrorCounter.increment();
-                        throw new QueueEmptyException();
+                        throw new EmptyException();
                     });
 
-                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(convertErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(1, convertErrorCounter.get());
                     test.assertTrue(parentResult.isCompleted());
                     test.assertTrue(convertErrorResult.isCompleted());
 
-                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(convertErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(1, convertErrorCounter.get());
                     test.assertTrue(parentResult.isCompleted());
@@ -3189,7 +3189,7 @@ public interface ResultTests
                     final Result<Integer> convertErrorResult = parentResult.convertError(NotFoundException.class, (NotFoundException parentError) ->
                     {
                         foundErrors.add(parentError);
-                        return new QueueEmptyException();
+                        return new EmptyException();
                     });
 
                     test.assertEqual(5, convertErrorResult.await());
@@ -3218,7 +3218,7 @@ public interface ResultTests
                     final Result<Integer> convertErrorResult = parentResult.convertError(ParseException.class, (ParseException parentError) ->
                     {
                         foundErrors.add(parentError);
-                        return new QueueEmptyException();
+                        return new EmptyException();
                     });
 
                     test.assertThrows(convertErrorResult::await, new FileNotFoundException("/foo"));
@@ -3247,16 +3247,16 @@ public interface ResultTests
                     final Result<Integer> convertErrorResult = parentResult.convertError(FileNotFoundException.class, (FileNotFoundException parentError) ->
                     {
                         foundErrors.add(parentError);
-                        return new QueueEmptyException();
+                        return new EmptyException();
                     });
 
-                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(convertErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), foundErrors);
                     test.assertTrue(parentResult.isCompleted());
                     test.assertTrue(convertErrorResult.isCompleted());
 
-                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(convertErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), foundErrors);
                     test.assertTrue(parentResult.isCompleted());
@@ -3276,16 +3276,16 @@ public interface ResultTests
                     final Result<Integer> convertErrorResult = parentResult.convertError(NotFoundException.class, (NotFoundException parentError) ->
                     {
                         caughtErrors.add(parentError);
-                        return new QueueEmptyException();
+                        return new EmptyException();
                     });
 
-                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(convertErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
                     test.assertTrue(parentResult.isCompleted());
                     test.assertTrue(convertErrorResult.isCompleted());
 
-                    test.assertThrows(convertErrorResult::await, new QueueEmptyException());
+                    test.assertThrows(convertErrorResult::await, new EmptyException());
                     test.assertEqual(1, parentCounter.get());
                     test.assertEqual(Iterable.create(new FileNotFoundException("/foo")), caughtErrors);
                     test.assertTrue(parentResult.isCompleted());

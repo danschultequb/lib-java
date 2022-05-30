@@ -617,7 +617,7 @@ public interface FileSystem
             (ByteReadStream byteReadStream) ->
             {
                 return byteReadStream.readAllBytes()
-                        .catchError(EndOfStreamException.class, () -> new byte[0])
+                        .catchError(EmptyException.class, () -> new byte[0])
                         .await();
             });
     }

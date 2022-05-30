@@ -2247,7 +2247,7 @@ public interface TestTests
                 runner.test("with null action", (Test test) ->
                 {
                     final Test t = TestTests.createTest("abc");
-                    test.assertThrows(() -> t.assertThrows(null, new EndOfStreamException()),
+                    test.assertThrows(() -> t.assertThrows(null, new EmptyException()),
                         new PreConditionFailure("action cannot be null."));
                 });
 
@@ -2261,8 +2261,8 @@ public interface TestTests
                 runner.test("with action that doesn't throw and expected error with no message", (Test test) ->
                 {
                     final Test t = TestTests.createTest("abc");
-                    test.assertThrows(() -> t.assertThrows(() -> {}, new EndOfStreamException()),
-                        new TestError("abc", "Expected a qub.EndOfStreamException to be thrown with no message."));
+                    test.assertThrows(() -> t.assertThrows(() -> {}, new EmptyException()),
+                        new TestError("abc", "Expected a qub.EmptyException to be thrown with no message."));
                 });
 
                 runner.test("with action that doesn't throw and expected error with message", (Test test) ->
@@ -2388,7 +2388,7 @@ public interface TestTests
                 runner.test("with null action", (Test test) ->
                 {
                     final Test t = TestTests.createTest("abc");
-                    test.assertThrows(() -> t.assertThrows(null, EndOfStreamException.class),
+                    test.assertThrows(() -> t.assertThrows(null, EmptyException.class),
                         new PreConditionFailure("action cannot be null."));
                 });
 
@@ -2402,8 +2402,8 @@ public interface TestTests
                 runner.test("with action that doesn't throw and expected error with no message", (Test test) ->
                 {
                     final Test t = TestTests.createTest("abc");
-                    test.assertThrows(() -> t.assertThrows(() -> {}, EndOfStreamException.class),
-                        new TestError("abc", "Expected a qub.EndOfStreamException to be thrown."));
+                    test.assertThrows(() -> t.assertThrows(() -> {}, EmptyException.class),
+                        new TestError("abc", "Expected a qub.EmptyException to be thrown."));
                 });
 
                 runner.test("with action that doesn't throw and expected error with message", (Test test) ->

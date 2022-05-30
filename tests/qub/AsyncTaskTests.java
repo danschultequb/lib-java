@@ -2,7 +2,7 @@ package qub;
 
 public interface AsyncTaskTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(AsyncTask.class, () ->
         {
@@ -409,12 +409,12 @@ public interface AsyncTaskTests
                         });
                         final IntegerValue value = IntegerValue.create(0);
                         final Value<Throwable> value2 = Value.create();
-                        final Result<Void> asyncTask = parentResult.catchError(QueueEmptyException.class, (QueueEmptyException parentError) ->
+                        final Result<Void> asyncTask = parentResult.catchError(EmptyException.class, (EmptyException parentError) ->
                         {
                             value.increment();
                             value2.set(parentError);
                         });
-                        test.assertThrows(() -> asyncTask.await(QueueEmptyException.class), new AwaitException(new FolderNotFoundException("/abc")));
+                        test.assertThrows(() -> asyncTask.await(EmptyException.class), new AwaitException(new FolderNotFoundException("/abc")));
                         test.assertEqual(0, value.get());
                         test.assertFalse(value2.hasValue());
                     });
@@ -429,7 +429,7 @@ public interface AsyncTaskTests
                         });
                         final IntegerValue value = IntegerValue.create(0);
                         final Value<Throwable> value2 = Value.create();
-                        final Result<Void> asyncTask = parentResult.catchError(QueueEmptyException.class, (QueueEmptyException parentError) ->
+                        final Result<Void> asyncTask = parentResult.catchError(EmptyException.class, (EmptyException parentError) ->
                         {
                             value.increment();
                             value2.set(parentError);
@@ -2573,7 +2573,7 @@ public interface AsyncTaskTests
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
-                        final Result<Boolean> result = asyncTask.catchError(QueueEmptyException.class, (Action0)() ->
+                        final Result<Boolean> result = asyncTask.catchError(EmptyException.class, (Action0)() ->
                         {
                             value2.increment();
                             throw new FolderNotFoundException("/blah");
@@ -2606,7 +2606,7 @@ public interface AsyncTaskTests
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
-                        final Result<Boolean> result = asyncTask.catchError(QueueEmptyException.class, (Action0)() ->
+                        final Result<Boolean> result = asyncTask.catchError(EmptyException.class, (Action0)() ->
                         {
                             value2.increment();
                             throw new FolderNotFoundException("/blah");
@@ -3023,7 +3023,7 @@ public interface AsyncTaskTests
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Value<Throwable> value3 = Value.create();
-                        final Result<Boolean> result = asyncTask.catchError(QueueEmptyException.class, (Action1<QueueEmptyException>)(QueueEmptyException parentError) ->
+                        final Result<Boolean> result = asyncTask.catchError(EmptyException.class, (Action1<EmptyException>)(EmptyException parentError) ->
                         {
                             value2.increment();
                             value3.set(parentError);
@@ -3061,7 +3061,7 @@ public interface AsyncTaskTests
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Value<Throwable> value3 = Value.create();
-                        final Result<Boolean> result = asyncTask.catchError(QueueEmptyException.class, (Action1<QueueEmptyException>)(QueueEmptyException parentError) ->
+                        final Result<Boolean> result = asyncTask.catchError(EmptyException.class, (Action1<EmptyException>)(EmptyException parentError) ->
                         {
                             value2.increment();
                             value3.set(parentError);
@@ -4006,7 +4006,7 @@ public interface AsyncTaskTests
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
-                        final Result<Boolean> result = asyncTask.catchError(QueueEmptyException.class, (Function0<Boolean>)() ->
+                        final Result<Boolean> result = asyncTask.catchError(EmptyException.class, (Function0<Boolean>)() ->
                         {
                             value2.increment();
                             throw new FolderNotFoundException("/blah");
@@ -4039,7 +4039,7 @@ public interface AsyncTaskTests
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
-                        final Result<Boolean> result = asyncTask.catchError(QueueEmptyException.class, (Function0<Boolean>)() ->
+                        final Result<Boolean> result = asyncTask.catchError(EmptyException.class, (Function0<Boolean>)() ->
                         {
                             value2.increment();
                             throw new FolderNotFoundException("/blah");
@@ -4462,7 +4462,7 @@ public interface AsyncTaskTests
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Value<Throwable> value3 = Value.create();
-                        final Result<Boolean> result = asyncTask.catchError(QueueEmptyException.class, (Function1<QueueEmptyException,Boolean>)(QueueEmptyException parentError) ->
+                        final Result<Boolean> result = asyncTask.catchError(EmptyException.class, (Function1<EmptyException,Boolean>)(EmptyException parentError) ->
                         {
                             value2.increment();
                             value3.set(parentError);
@@ -4500,7 +4500,7 @@ public interface AsyncTaskTests
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Value<Throwable> value3 = Value.create();
-                        final Result<Boolean> result = asyncTask.catchError(QueueEmptyException.class, (Function1<QueueEmptyException,Boolean>)(QueueEmptyException parentError) ->
+                        final Result<Boolean> result = asyncTask.catchError(EmptyException.class, (Function1<EmptyException,Boolean>)(EmptyException parentError) ->
                         {
                             value2.increment();
                             value3.set(parentError);
@@ -5419,7 +5419,7 @@ public interface AsyncTaskTests
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
-                        final Result<Boolean> result = asyncTask.onError(QueueEmptyException.class, (Action0)() ->
+                        final Result<Boolean> result = asyncTask.onError(EmptyException.class, (Action0)() ->
                         {
                             value2.increment();
                             throw new FolderNotFoundException("/blah");
@@ -5452,7 +5452,7 @@ public interface AsyncTaskTests
                         });
 
                         final IntegerValue value2 = IntegerValue.create(10);
-                        final Result<Boolean> result = asyncTask.onError(QueueEmptyException.class, (Action0)() ->
+                        final Result<Boolean> result = asyncTask.onError(EmptyException.class, (Action0)() ->
                         {
                             value2.increment();
                             throw new FolderNotFoundException("/blah");
@@ -5869,7 +5869,7 @@ public interface AsyncTaskTests
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Value<Throwable> value3 = Value.create();
-                        final Result<Boolean> result = asyncTask.onError(QueueEmptyException.class, (Action1<QueueEmptyException>)(QueueEmptyException parentError) ->
+                        final Result<Boolean> result = asyncTask.onError(EmptyException.class, (Action1<EmptyException>)(EmptyException parentError) ->
                         {
                             value2.increment();
                             value3.set(parentError);
@@ -5907,7 +5907,7 @@ public interface AsyncTaskTests
 
                         final IntegerValue value2 = IntegerValue.create(10);
                         final Value<Throwable> value3 = Value.create();
-                        final Result<Boolean> result = asyncTask.onError(QueueEmptyException.class, (Action1<QueueEmptyException>)(QueueEmptyException parentError) ->
+                        final Result<Boolean> result = asyncTask.onError(EmptyException.class, (Action1<EmptyException>)(EmptyException parentError) ->
                         {
                             value2.increment();
                             value3.set(parentError);

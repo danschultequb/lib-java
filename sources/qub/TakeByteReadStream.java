@@ -28,7 +28,7 @@ public class TakeByteReadStream implements ByteReadStream
         {
             if (this.taken >= this.toTake)
             {
-                throw new EndOfStreamException();
+                throw new EmptyException();
             }
             final Byte result = this.innerStream.readByte().await();
             this.taken++;
@@ -45,7 +45,7 @@ public class TakeByteReadStream implements ByteReadStream
             final long remaining = this.toTake - this.taken;
             if (remaining == 0)
             {
-                throw new EndOfStreamException();
+                throw new EmptyException();
             }
             final int bytesToRead = (int)Math.minimum(remaining, length);
             final Integer bytesRead = this.innerStream.readBytes(outputBytes, startIndex, bytesToRead).await();

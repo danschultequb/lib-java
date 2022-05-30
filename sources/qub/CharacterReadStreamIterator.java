@@ -55,7 +55,7 @@ public class CharacterReadStreamIterator implements Iterator<Character>
             {
                 this.current = readByte;
             })
-            .catchError(EndOfStreamException.class, () ->
+            .catchError(EmptyException.class, () ->
             {
                 this.current = null;
             })

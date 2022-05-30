@@ -5,12 +5,12 @@ package qub;
  */
 public interface ByteReadStream extends Disposable
 {
-    static ByteReadStream create()
+    public static ByteReadStream create()
     {
         return InMemoryByteStream.create().endOfStream();
     }
 
-    static ByteReadStream create(byte[] bytes)
+    public static ByteReadStream create(byte[] bytes)
     {
         return InMemoryByteStream.create(bytes).endOfStream();
     }
@@ -83,9 +83,13 @@ public interface ByteReadStream extends Disposable
 
         return Result.create(() ->
         {
-            final InMemoryByteStream byteStream = InMemoryByteStream.create();
-            byteStream.writeAll(this).await();
-            return byteStream.getBytes();
+            final byte[] result;
+            try (final InMemoryByteStream byteStream = InMemoryByteStream.create())
+            {
+                byteStream.writeAll(this).await();
+                result = byteStream.getBytes();
+            }
+            return result;
         });
     }
 
@@ -134,7 +138,7 @@ public interface ByteReadStream extends Disposable
             while(true)
             {
                 final Byte byteRead = this.readByte()
-                    .catchError(EndOfStreamException.class, (EndOfStreamException error) ->
+                    .catchError(EmptyException.class, (EmptyException error) ->
                     {
                         if (!byteList.any())
                         {

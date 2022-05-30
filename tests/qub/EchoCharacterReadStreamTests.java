@@ -47,7 +47,7 @@ public interface EchoCharacterReadStreamTests
                     final EchoCharacterReadStream echoReadStream = EchoCharacterReadStream.create(readStream, writeStream);
 
                     test.assertThrows(() -> echoReadStream.readCharacter().await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                     test.assertEqual("", writeStream.getText().await());
                 });
 
@@ -67,7 +67,7 @@ public interface EchoCharacterReadStreamTests
                     test.assertEqual("abc", writeStream.getText().await());
 
                     test.assertThrows(() -> echoReadStream.readCharacter().await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                     test.assertEqual("abc", writeStream.getText().await());
                 });
             });
@@ -82,7 +82,7 @@ public interface EchoCharacterReadStreamTests
 
                     final char[] characters = new char[6];
                     test.assertThrows(() -> echoReadStream.readCharacters(characters, 2, 3).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                     test.assertEqual("", writeStream.getText().await());
                 });
 
@@ -106,7 +106,7 @@ public interface EchoCharacterReadStreamTests
                     test.assertEqual("abcdef", writeStream.getText().await());
 
                     test.assertThrows(() -> echoReadStream.readCharacters(characters, 0, 6).await(),
-                        new EndOfStreamException());
+                        new EmptyException());
                     test.assertEqual(new char[] { 'e', 'f', 'a', 'b', 'c', '\0' }, characters);
                     test.assertEqual("abcdef", writeStream.getText().await());
                 });
