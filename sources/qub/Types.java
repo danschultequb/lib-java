@@ -1,157 +1,13 @@
 package qub;
 
+/**
+ * A collection of functions for interacting with types.
+ */
 public interface Types
 {
-    public static Result<java.lang.reflect.Field> getMemberVariable(Class<?> type, String memberVariableName)
-    {
-        PreCondition.assertNotNull(type, "type");
-        PreCondition.assertNotNullAndNotEmpty(memberVariableName, "memberVariableName");
-
-        return Types.getMemberVariable(type, (java.lang.reflect.Field field) -> field.getName().equals(memberVariableName))
-            .convertError(NotFoundException.class, () ->
-            {
-                return new NotFoundException("Could not find a member variable named " + Strings.escapeAndQuote(memberVariableName) + " on type " + Types.getFullTypeName(type) + ".");
-            });
-    }
-
-    public static Result<java.lang.reflect.Field> getMemberVariable(Class<?> type, Function1<java.lang.reflect.Field,Boolean> condition)
-    {
-        PreCondition.assertNotNull(type, "type");
-        PreCondition.assertNotNull(condition, "condition");
-
-        return Result.create(() ->
-        {
-            final java.lang.reflect.Field field = Types.iterateMemberVariables(type).first(condition);
-            if (field == null)
-            {
-                throw new NotFoundException("Could not find a member variable that matches the provided condition in " + Types.getFullTypeName(type) + ".");
-            }
-            return field;
-        });
-    }
-
-    public static Result<Object> getMemberVariableValue(Object value, String memberVariableName)
-    {
-        PreCondition.assertNotNull(value, "value");
-        PreCondition.assertNotNullAndNotEmpty(memberVariableName, "memberVariableName");
-
-        return Result.create(() ->
-        {
-            final java.lang.reflect.Field field = Types.getMemberVariable(value.getClass(), memberVariableName).await();
-
-            Object result;
-            try
-            {
-                result = field.get(value);
-            }
-            catch (IllegalAccessException e)
-            {
-                @SuppressWarnings("deprecation")
-                final boolean accessible = field.isAccessible();
-                if (accessible)
-                {
-                    throw Exceptions.asRuntime(e);
-                }
-                else
-                {
-                    field.setAccessible(true);
-                    try
-                    {
-                        result = field.get(value);
-                    }
-                    catch (IllegalAccessException e1)
-                    {
-                        throw Exceptions.asRuntime(e1);
-                    }
-                    finally
-                    {
-                        field.setAccessible(accessible);
-                    }
-                }
-            }
-
-            return result;
-        });
-    }
-
-    public static Result<Void> setMemberVariableValue(Object value, String memberVariableName, Object memberVariableValue)
-    {
-        PreCondition.assertNotNull(value, "value");
-        PreCondition.assertNotNullAndNotEmpty(memberVariableName, "memberVariableName");
-
-        return Result.create(() ->
-        {
-            final java.lang.reflect.Field field = Types.getMemberVariable(value.getClass(), memberVariableName).await();
-            try
-            {
-                field.set(value, memberVariableValue);
-            }
-            catch (IllegalAccessException e)
-            {
-                @SuppressWarnings("deprecation")
-                final boolean accessible = field.isAccessible();
-                if (accessible)
-                {
-                    throw Exceptions.asRuntime(e);
-                }
-                else
-                {
-                    field.setAccessible(true);
-                    try
-                    {
-                        field.set(value, memberVariableValue);
-                    }
-                    catch (IllegalAccessException e1)
-                    {
-                        throw Exceptions.asRuntime(e1);
-                    }
-                    finally
-                    {
-                        field.setAccessible(accessible);
-                    }
-                }
-            }
-        });
-    }
-
-    public static Iterator<java.lang.reflect.Field> iterateMemberVariables(Class<?> type)
-    {
-        PreCondition.assertNotNull(type, "type");
-
-        final Traversal<Class<?>,java.lang.reflect.Field> traversal =
-            Traversal.createDepthFirstSearch((TraversalActions<Class<?>,java.lang.reflect.Field> actions, Class<?> currentType) ->
-            {
-                actions.returnValues(Iterator.create(currentType.getDeclaredFields()));
-
-                final Class<?> parentType = currentType.getSuperclass();
-                if (parentType != null)
-                {
-                    actions.visitNode(parentType);
-                }
-            });
-        return traversal.iterate(type);
-    }
-
-    /**
-     * Get the methods of the provided type.
-     * @param type The type to get the methods for.
-     * @return The methods of the provided type.
-     */
-    public static Iterator<java.lang.reflect.Method> iterateMethods(Class<?> type)
-    {
-        PreCondition.assertNotNull(type, "type");
-
-        final Iterator<java.lang.reflect.Method> result = Iterator.create(type.getMethods());
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
-    }
-
     /**
      * Get whether the provided method is static.
      * @param method The method to check.
-     * @return Whether or not the provided method is static.
      */
     public static boolean isStaticMethod(java.lang.reflect.Method method)
     {
@@ -161,24 +17,14 @@ public interface Types
     }
 
     /**
-     * Get the method signature for the provided type, methodName, and parameterTypes. The return
-     * type of the method signature will be unknown (?).
+     * Get the method signature for the provided type and methodName. The return type of the method
+     * signature will be unknown (?).
      * @param type The type of object that the method exists on.
      * @param methodName The name of the method.
-     * @param parameterTypes The types of the parameters of the method.
-     * @return The String representation of the method signature.
      */
-    public static String getMethodSignature(Class<?> type, String methodName, Class<?>... parameterTypes)
+    public static String getMethodSignature(Class<?> type, String methodName)
     {
-        PreCondition.assertNotNull(type, "type");
-        PreCondition.assertNotNullAndNotEmpty(methodName, "methodName");
-        PreCondition.assertNotNull(parameterTypes, "parameterTypes");
-
-        final String result = Types.getMethodSignature(type, methodName, Iterable.create(parameterTypes));
-
-        PostCondition.assertNotNullAndNotEmpty(result, "result");
-
-        return result;
+        return Types.getMethodSignature(type, methodName, Iterable.create());
     }
 
     /**
@@ -187,28 +33,18 @@ public interface Types
      * @param type The type of object that the method exists on.
      * @param methodName The name of the method.
      * @param parameterTypes The types of the parameters of the method.
-     * @return The String representation of the method signature.
      */
     public static String getMethodSignature(Class<?> type, String methodName, Iterable<Class<?>> parameterTypes)
     {
-        PreCondition.assertNotNull(type, "type");
-        PreCondition.assertNotNullAndNotEmpty(methodName, "methodName");
-        PreCondition.assertNotNull(parameterTypes, "parameterTypes");
-
-        final String result = Types.getMethodSignature(type, methodName, parameterTypes, "?");
-
-        PostCondition.assertNotNullAndNotEmpty(result, "result");
-
-        return result;
+        return Types.getMethodSignature(type, methodName, parameterTypes, "?");
     }
 
     /**
-     * Get the method signature for the provided type, methodName, and parameterTypes. The return
-     * type of the method signature will be unknown (?).
+     * Get the method signature for the provided type, methodName, parameterTypes, and return type.
      * @param type The type of object that the method exists on.
      * @param methodName The name of the method.
      * @param parameterTypes The types of the parameters of the method.
-     * @return The String representation of the method signature.
+     * @param returnType The return type of the method.
      */
     public static String getMethodSignature(Class<?> type, String methodName, Iterable<Class<?>> parameterTypes, Class<?> returnType)
     {
@@ -217,20 +53,15 @@ public interface Types
         PreCondition.assertNotNull(parameterTypes, "parameterTypes");
         PreCondition.assertNotNull(returnType, "returnType");
 
-        final String result = Types.getMethodSignature(type, methodName, parameterTypes, Types.getFullTypeName(returnType));
-
-        PostCondition.assertNotNullAndNotEmpty(result, "result");
-
-        return result;
+        return Types.getMethodSignature(type, methodName, parameterTypes, Types.getFullTypeName(returnType));
     }
 
     /**
-     * Get the method signature for the provided type, methodName, and parameterTypes. The return
-     * type of the method signature will be unknown (?).
+     * Get the method signature for the provided type, methodName, parameterTypes, and return type.
      * @param type The type of object that the method exists on.
      * @param methodName The name of the method.
      * @param parameterTypes The types of the parameters of the method.
-     * @return The String representation of the method signature.
+     * @param returnTypeFullName The full name of the return type.
      */
     public static String getMethodSignature(Class<?> type, String methodName, Iterable<Class<?>> parameterTypes, String returnTypeFullName)
     {
@@ -239,21 +70,17 @@ public interface Types
         PreCondition.assertNotNull(parameterTypes, "parameterTypes");
         PreCondition.assertNotNullAndNotEmpty(returnTypeFullName, "returnTypeFullName");
 
-        final String result = Types.getFullTypeName(type) + "." + methodName + "(" + Strings.join(',', parameterTypes.map(Types::getFullTypeName)) + ") -> " + returnTypeFullName;
-
-        PostCondition.assertNotNullAndNotEmpty(result, "result");
-
-        return result;
+        return Types.getFullTypeName(type) + "." + methodName + "(" + Strings.join(',', parameterTypes.map(Types::getFullTypeName)) + ") -> " + returnTypeFullName;
     }
 
     /**
-     * Get the raw method object on the provided type with the provided name.
+     * Get the method object on the provided type with the provided name and parameter types.
      * @param type The class to get the method from.
      * @param methodName The name of the method to get.
      * @param parameterTypes The types of the parameters of the method to get.
-     * @return The requested raw method object.
+     * @exception NotFoundException if the method is not found.
      */
-    public static Result<java.lang.reflect.Method> getRawMethod(Class<?> type, String methodName, Class<?>... parameterTypes)
+    public static Result<java.lang.reflect.Method> getMethod(Class<?> type, String methodName, Iterable<Class<?>> parameterTypes)
     {
         PreCondition.assertNotNull(type, "type");
         PreCondition.assertNotNullAndNotEmpty(methodName, "methodName");
@@ -264,9 +91,11 @@ public interface Types
             java.lang.reflect.Method result;
             try
             {
-                result = type.getMethod(methodName, parameterTypes);
+                final Class<?>[] parameterTypesArray = new Class<?>[parameterTypes.getCount()];
+                Array.toArray(parameterTypes, parameterTypesArray);
+                result = type.getMethod(methodName, parameterTypesArray);
             }
-            catch (Throwable e)
+            catch (NoSuchMethodException e)
             {
                 throw new NotFoundException("Could not find a method with the signature " + Types.getMethodSignature(type, methodName, parameterTypes) + ".");
             }
@@ -279,7 +108,7 @@ public interface Types
      * @param type The type to get the static method from.
      * @param methodName The name of the static method.
      * @param <TType> The type to get the static method from.
-     * @return The matching StaticMethod0 object.
+     * @exception NotFoundException if the static method is not found.
      */
     public static <TType> Result<StaticMethod0<TType,?>> getStaticMethod0(Class<TType> type, String methodName)
     {
@@ -288,7 +117,7 @@ public interface Types
 
         return Result.create(() ->
         {
-            final java.lang.reflect.Method rawMethod = Types.getRawMethod(type, methodName)
+            final java.lang.reflect.Method rawMethod = Types.getMethod(type, methodName, Iterable.create())
                 .catchError(NotFoundException.class)
                 .await();
             if (rawMethod == null ||
@@ -307,7 +136,7 @@ public interface Types
      * @param returnType The return type of the static method.
      * @param <TType> The type to get the static method from.
      * @param <TReturn> The return type of the static method.
-     * @return The matching StaticMethod0 object.
+     * @exception NotFoundException if the method is not found.
      */
     public static <TType,TReturn> Result<StaticMethod0<TType,TReturn>> getStaticMethod0(Class<TType> type, String methodName, Class<TReturn> returnType)
     {
@@ -317,7 +146,7 @@ public interface Types
 
         return Result.create(() ->
         {
-            final java.lang.reflect.Method rawMethod = Types.getRawMethod(type, methodName)
+            final java.lang.reflect.Method rawMethod = Types.getMethod(type, methodName, Iterable.create())
                 .catchError(NotFoundException.class)
                 .await();
             if (rawMethod == null ||
@@ -338,26 +167,24 @@ public interface Types
      * @param arg1Type The type of the parameter.
      * @param <TType> The type to get the static method from.
      * @param <T1> The type of the parameter.
-     * @return The matching StaticMethod1 object.
+     * @exception NotFoundException if the method is not found.
      */
     public static <TType,T1> Result<StaticMethod1<TType,T1,?>> getStaticMethod1(Class<TType> type, String methodName, Class<T1> arg1Type)
     {
         PreCondition.assertNotNull(type, "type");
         PreCondition.assertNotNullAndNotEmpty(methodName, "methodName");
 
-        final java.lang.reflect.Method rawMethod = Types.getRawMethod(type, methodName, arg1Type)
-            .catchError(NotFoundException.class)
-            .await();
-        final StaticMethod1<TType,T1,?> staticMethod = rawMethod != null && Types.isStaticMethod(rawMethod)
-            ? StaticMethod1.get(type, rawMethod)
-            : null;
-        final Result<StaticMethod1<TType,T1,?>> result = staticMethod != null
-            ? Result.success(staticMethod)
-            : Result.error(new NotFoundException("No static method with the signature " + Types.getMethodSignature(type, methodName, Iterable.create(arg1Type)) + " could be found."));
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return Result.create(() ->
+        {
+            final java.lang.reflect.Method method = Types.getMethod(type, methodName, Iterable.create(arg1Type))
+                .catchError(NotFoundException.class)
+                .await();
+            if (method == null || !Types.isStaticMethod(method))
+            {
+                throw new NotFoundException("Could not find a static method with the signature " + Types.getMethodSignature(type, methodName, Iterable.create(arg1Type)) + ".");
+            }
+            return StaticMethod1.get(type, method);
+        });
     }
 
     /**
@@ -369,7 +196,7 @@ public interface Types
      * @param <TType> The type to get the static method from.
      * @param <T1> The type of the parameter.
      * @param <TReturn> The return type of the static method.
-     * @return The matching StaticMethod1 object.
+     * @exception NotFoundException if the method is not found.
      */
     static <TType,T1,TReturn> Result<StaticMethod1<TType,T1,TReturn>> getStaticMethod1(Class<TType> type, String methodName, Class<T1> arg1Type, Class<TReturn> returnType)
     {
@@ -377,19 +204,19 @@ public interface Types
         PreCondition.assertNotNullAndNotEmpty(methodName, "methodName");
         PreCondition.assertNotNull(returnType, "returnType");
 
-        final java.lang.reflect.Method rawMethod = Types.getRawMethod(type, methodName, arg1Type)
-            .catchError(NotFoundException.class)
-            .await();
-        final StaticMethod1<TType,T1,TReturn> staticMethod = rawMethod != null && Types.isStaticMethod(rawMethod) && rawMethod.getReturnType() == returnType
-            ? StaticMethod1.get(type, rawMethod)
-            : null;
-        final Result<StaticMethod1<TType,T1,TReturn>> result = staticMethod != null
-            ? Result.success(staticMethod)
-            : Result.error(new NotFoundException("No static method with the signature " + Types.getMethodSignature(type, methodName, Iterable.create(arg1Type), returnType) + " could be found."));
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return Result.create(() ->
+        {
+            final java.lang.reflect.Method rawMethod = Types.getMethod(type, methodName, Iterable.create(arg1Type))
+                .catchError(NotFoundException.class)
+                .await();
+            if (rawMethod == null ||
+                !Types.isStaticMethod(rawMethod) ||
+                rawMethod.getReturnType() != returnType)
+            {
+                throw new NotFoundException("Could not find a static method with the signature " + Types.getMethodSignature(type, methodName, Iterable.create(arg1Type), returnType) + ".");
+            }
+            return StaticMethod1.get(type, rawMethod);
+        });
     }
 
     /**

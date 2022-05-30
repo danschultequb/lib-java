@@ -77,6 +77,75 @@ public interface Array<T> extends MutableIndexable<T>
     }
 
     /**
+     * Create a new {@link T}[] from the provided values.
+     * @param values The values to put into an array.
+     * @param <T> The type of value stored in the array.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T[] toArray(Iterable<T> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        final T[] output = (T[])new Object[values.getCount()];
+        Array.toArray(values, output);
+        return output;
+    }
+
+    /**
+     * Create a new {@link T}[] from the provided values.
+     * @param values The values to put into an array.
+     * @param <T> The type of value stored in the array.
+     */
+    public static <T> int toArray(Iterable<T> values, T[] output)
+    {
+        PreCondition.assertNotNull(values, "values");
+        PreCondition.assertNotNull(output, "output");
+
+        return Array.toArray(values.iterate(), output);
+    }
+
+    /**
+     * Create a new {@link T}[] from the provided values.
+     * @param values The values to put into an array.
+     * @param <T> The type of value stored in the array.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T[] toArray(Iterator<T> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return Array.toArray(values.toList());
+    }
+
+    /**
+     * Insert the values from the provided {@link Iterator} into the provided {@link T}[]. The
+     * number of values that are inserted will be returned.
+     * @param values The values to put into an array.
+     * @param output The {@link T}[] that the values will be inserted into.
+     * @param <T> The type of value stored in the array.
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> int toArray(Iterator<T> values, T[] output)
+    {
+        PreCondition.assertNotNull(values, "values");
+        PreCondition.assertNotNull(output, "output");
+
+        values.start();
+
+        int result = 0;
+        while (values.hasCurrent() && result < output.length)
+        {
+            output[result] = values.getCurrent();
+            result++;
+            values.next();
+        }
+
+        PostCondition.assertBetween(0, result, output.length, "result");
+
+        return result;
+    }
+
+    /**
      * Create a new boolean[] from the provided values.
      * @param values The values to create a boolean[] from.
      * @return The boolean[].

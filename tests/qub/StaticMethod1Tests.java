@@ -20,7 +20,7 @@ public interface StaticMethod1Tests
             {
                 runner.test("with null type", (Test test) ->
                 {
-                    test.assertThrows(() -> StaticMethod1.get(null, Types.getRawMethod(StaticMethod1Tests.class, "staticMethod1", int.class).await()),
+                    test.assertThrows(() -> StaticMethod1.get(null, Types.getMethod(StaticMethod1Tests.class, "staticMethod1", Iterable.create(int.class)).await()),
                         new PreConditionFailure("type cannot be null."));
                 });
 
@@ -33,7 +33,7 @@ public interface StaticMethod1Tests
                 runner.test("with valid arguments", (Test test) ->
                 {
                     final StaticMethod1<StaticMethod1Tests,java.lang.Integer,java.lang.Integer> staticMethod =
-                        StaticMethod1.get(StaticMethod1Tests.class, Types.getRawMethod(StaticMethod1Tests.class, "staticMethod1", int.class).await());
+                        StaticMethod1.get(StaticMethod1Tests.class, Types.getMethod(StaticMethod1Tests.class, "staticMethod1", Iterable.create(int.class)).await());
                     test.assertNotNull(staticMethod);
                     test.assertSame(StaticMethod1Tests.class, staticMethod.getType());
                 });
@@ -41,7 +41,7 @@ public interface StaticMethod1Tests
                 runner.test("with wrong return type", (Test test) ->
                 {
                     final StaticMethod1<StaticMethod1Tests,java.lang.Integer,java.lang.Boolean> staticMethod =
-                        StaticMethod1.get(StaticMethod1Tests.class, Types.getRawMethod(StaticMethod1Tests.class, "staticMethod2", Character.class).await());
+                        StaticMethod1.get(StaticMethod1Tests.class, Types.getMethod(StaticMethod1Tests.class, "staticMethod2", Iterable.create(Character.class)).await());
                     test.assertNotNull(staticMethod);
                     test.assertSame(StaticMethod1Tests.class, staticMethod.getType());
                 });
@@ -52,7 +52,7 @@ public interface StaticMethod1Tests
                 runner.test("when static method doesn't throw an exception", (Test test) ->
                 {
                     final StaticMethod1<StaticMethod1Tests,java.lang.Integer,java.lang.Integer> staticMethod =
-                        StaticMethod1.get(StaticMethod1Tests.class, Types.getRawMethod(StaticMethod1Tests.class, "staticMethod1", int.class).await());
+                        StaticMethod1.get(StaticMethod1Tests.class, Types.getMethod(StaticMethod1Tests.class, "staticMethod1", Iterable.create(int.class)).await());
                     test.assertEqual(12, staticMethod.run(7));
                     test.assertEqual(17, staticMethod.run(12));
                 });
@@ -60,7 +60,7 @@ public interface StaticMethod1Tests
                 runner.test("when static method throws an exception", (Test test) ->
                 {
                     final StaticMethod1<StaticMethod1Tests,Character,String> staticMethod =
-                        StaticMethod1.get(StaticMethod1Tests.class, Types.getRawMethod(StaticMethod1Tests.class, "staticMethod2", Character.class).await());
+                        StaticMethod1.get(StaticMethod1Tests.class, Types.getMethod(StaticMethod1Tests.class, "staticMethod2", Iterable.create(Character.class)).await());
                     test.assertThrows(() -> staticMethod.run('a'), new NotFoundException("blah - a"));
                     test.assertThrows(() -> staticMethod.run(';'), new NotFoundException("blah - ;"));
                 });
