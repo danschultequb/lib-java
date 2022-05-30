@@ -44,7 +44,7 @@ public interface OutputStreamToByteWriteStreamTests
             {
                 final Action3<java.io.OutputStream,Byte,Boolean> writeByteTest = (java.io.OutputStream outputStream, Byte toWrite, Boolean expectedWriteResult) ->
                 {
-                    runner.test("with " + outputStream.getClass().getSimpleName() + " and " + toWrite, test ->
+                    runner.test("with " + Types.getTypeName(outputStream) + " and " + toWrite, test ->
                     {
                         final OutputStreamToByteWriteStream writeStream = OutputStreamToByteWriteStream.create(outputStream);
                         final Result<Integer> writeResult = writeStream.write(toWrite);
@@ -74,7 +74,7 @@ public interface OutputStreamToByteWriteStreamTests
             {
                 final Action4<java.io.OutputStream,byte[],Integer,Throwable> writeByteArrayTest = (java.io.OutputStream outputStream, byte[] toWrite, Integer expectedWriteResult, Throwable expectedError) ->
                 {
-                    runner.test("with " + outputStream.getClass().getSimpleName() + " and " + Array.toString(toWrite), test ->
+                    runner.test("with " + Types.getTypeName(outputStream) + " and " + Array.toString(toWrite), test ->
                     {
                         final OutputStreamToByteWriteStream writeStream = OutputStreamToByteWriteStream.create(outputStream);
 

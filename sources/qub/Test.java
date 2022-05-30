@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A single Test objec that provides access to assertion methods.
+ * A single Test object that provides access to assertion methods.
  */
 public class Test
 {
@@ -92,7 +92,7 @@ public class Test
     {
         if (!value)
         {
-            throw new TestError(this.getFullName(), Test.getMessageLines(message, true, false));
+            throw new TestError(this.getFullName(), Test.getErrorMessage(message, true, false));
         }
     }
 
@@ -130,7 +130,7 @@ public class Test
     {
         if (value)
         {
-            throw new TestError(getFullName(), getMessageLines(message, false, true));
+            throw new TestError(getFullName(), Test.getErrorMessage(message, false, true));
         }
     }
 
@@ -154,7 +154,7 @@ public class Test
     {
         if (value != null)
         {
-            throw new TestError(getFullName(), getMessageLines(message, null, value));
+            throw new TestError(getFullName(), getErrorMessage(message, null, value));
         }
     }
 
@@ -178,7 +178,7 @@ public class Test
     {
         if (value == null)
         {
-            throw new TestError(getFullName(), getMessageLines(message, "not null", value));
+            throw new TestError(getFullName(), getErrorMessage(message, "not null", value));
         }
     }
 
@@ -192,7 +192,7 @@ public class Test
     {
         if (Strings.isNullOrEmpty(value))
         {
-            throw new TestError(getFullName(), getMessageLines((String)null, "not null and not empty", value));
+            throw new TestError(getFullName(), getErrorMessage((String)null, "not null and not empty", value));
         }
     }
 
@@ -206,7 +206,7 @@ public class Test
     {
         if (Strings.isNullOrEmpty(value))
         {
-            throw new TestError(getFullName(), getMessageLines(message, "not null and not empty", value));
+            throw new TestError(getFullName(), getErrorMessage(message, "not null and not empty", value));
         }
     }
 
@@ -221,7 +221,7 @@ public class Test
         assertNotNull(value);
         if (!value.any())
         {
-            throw new TestError(getFullName(), getMessageLines((String)null, "not null and not empty", value));
+            throw new TestError(getFullName(), getErrorMessage((String)null, "not null and not empty", value));
         }
     }
 
@@ -236,7 +236,7 @@ public class Test
         assertNotNull(value, message);
         if (!value.any())
         {
-            throw new TestError(getFullName(), getMessageLines(message, "not null and not empty", value));
+            throw new TestError(getFullName(), getErrorMessage(message, "not null and not empty", value));
         }
     }
 
@@ -264,7 +264,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestError(this.getFullName(), Test.getMessageLines(message, expected, actual));
+            throw new TestError(this.getFullName(), Test.getErrorMessage(message, expected, actual));
         }
     }
 
@@ -292,7 +292,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual, marginOfError))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -318,7 +318,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -344,7 +344,7 @@ public class Test
     {
         if (actual == null || !Comparer.equal(expected, actual.intValue()))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -369,7 +369,7 @@ public class Test
     {
         if (expected != actual)
         {
-            throw new TestError(this.getFullName(), Test.getMessageLines(message, expected, actual));
+            throw new TestError(this.getFullName(), Test.getErrorMessage(message, expected, actual));
         }
     }
 
@@ -395,7 +395,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -421,7 +421,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -447,7 +447,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -473,7 +473,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -499,7 +499,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -525,7 +525,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -551,7 +551,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -577,7 +577,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -603,7 +603,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -629,7 +629,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -655,7 +655,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -680,7 +680,7 @@ public class Test
     {
         if (expected != actual)
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -705,7 +705,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -730,7 +730,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -755,7 +755,7 @@ public class Test
     {
         if (expected != actual)
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -780,7 +780,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -805,7 +805,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -834,7 +834,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual, marginOfError))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -860,7 +860,7 @@ public class Test
     {
         if (!Comparer.equal(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -935,7 +935,7 @@ public class Test
         PreCondition.assertNotNull(expected, "expected");
         PreCondition.assertNotNull(lines, "lines");
 
-        this.assertEqual(expected, lines.toList());
+        this.assertLinesEqual(expected, lines.toList());
     }
 
     /**
@@ -950,7 +950,83 @@ public class Test
         PreCondition.assertNotNull(expected, "expected");
         PreCondition.assertNotNull(lines, "lines");
 
-        this.assertEqual(expected, lines.toList(), message);
+        this.assertLinesEqual(expected, lines.toList(), message);
+    }
+
+    /**
+     * Assert that the lines in the provided {@link Iterable} are equal to the provided expected
+     * lines. If they are not equal, then a {@link TestError} will be thrown.
+     * @param expected The expected lines.
+     * @param lines The {@link Iterable} that contains the actual lines.
+     */
+    public void assertLinesEqual(Iterable<String> expected, Iterable<String> lines)
+    {
+        PreCondition.assertNotNull(expected, "expected");
+        PreCondition.assertNotNull(lines, "lines");
+
+        this.assertLinesEqual(expected, lines, null);
+    }
+
+    /**
+     * Assert that the lines in the provided {@link Iterable} are equal to the provided expected
+     * lines. If they are not equal, then a {@link TestError} will be thrown.
+     * @param expected The expected lines.
+     * @param lines The {@link Iterable} that contains the actual lines.
+     * @param message The message to show if the values are not equal.
+     */
+    public void assertLinesEqual(Iterable<String> expected, Iterable<String> lines, String message)
+    {
+        PreCondition.assertNotNull(expected, "expected");
+        PreCondition.assertNotNull(lines, "lines");
+
+        if (!Comparer.equal(expected, lines))
+        {
+            final InMemoryCharacterToByteStream stream = InMemoryCharacterToByteStream.create();
+            if (!Strings.isNullOrEmpty(message))
+            {
+                stream.write("Message:  ").await();
+                stream.writeLine(message).await();
+            }
+
+            final boolean stringsAreEqual = Comparer.equal(Objects.toString(expected), Objects.toString(lines.toString()));
+            Test.writeLines(stream, "Expected: " + (stringsAreEqual ? Types.getFullTypeName(expected) : ""), expected);
+            stream.writeLine().await();
+            Test.writeLines(stream, "Actual:   " + (stringsAreEqual ? Types.getFullTypeName(lines) : ""), lines);
+
+            throw new TestError(this.getFullName(), stream.getText().await());
+        }
+    }
+
+    private static void writeLines(CharacterWriteStream stream, String header, Iterable<String> lines)
+    {
+        PreCondition.assertNotNull(stream, "stream");
+        PreCondition.assertNotNullAndNotEmpty(header, "header");
+
+        stream.write(header).await();
+
+        if (lines == null)
+        {
+            stream.writeLine("null").await();
+        }
+        else
+        {
+            stream.write("[").await();
+            if (lines.any())
+            {
+                stream.writeLine().await();
+
+                final String indent = "  ";
+                for (final String line : lines.skipLast())
+                {
+                    stream.write(indent).await();
+                    stream.write(Strings.escapeAndQuote(line)).await();
+                    stream.writeLine(",").await();
+                }
+                stream.write(indent).await();
+                stream.writeLine(Strings.escapeAndQuote(lines.last())).await();
+            }
+            stream.write("]").await();
+        }
     }
 
     /**
@@ -977,7 +1053,7 @@ public class Test
     {
         if (Comparer.equal(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, "not " + expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, "not " + expected, actual));
         }
     }
 
@@ -1005,7 +1081,7 @@ public class Test
     {
         if (!Comparer.same(expected, actual))
         {
-            throw new TestError(getFullName(), getMessageLines(message, expected, actual));
+            throw new TestError(getFullName(), getErrorMessage(message, expected, actual));
         }
     }
 
@@ -1033,7 +1109,7 @@ public class Test
     {
         if (Comparer.same(lhs, rhs))
         {
-            throw new TestError(getFullName(), getMessageLines(message, "not " + lhs, rhs));
+            throw new TestError(getFullName(), getErrorMessage(message, "not " + lhs, rhs));
         }
     }
 
@@ -1046,7 +1122,7 @@ public class Test
     {
         if (!Comparer.lessThan(value, upperBound))
         {
-            throw new TestError(getFullName(), getMessageLines(message, "less than " + Objects.toString(upperBound), value));
+            throw new TestError(getFullName(), getErrorMessage(message, "less than " + Objects.toString(upperBound), value));
         }
     }
 
@@ -1059,7 +1135,7 @@ public class Test
     {
         if (!Comparer.lessThanOrEqualTo(lhs, rhs))
         {
-            throw new TestError(getFullName(), getMessageLines(message, "less than or equal to " + Objects.toString(rhs), lhs));
+            throw new TestError(getFullName(), getErrorMessage(message, "less than or equal to " + Objects.toString(rhs), lhs));
         }
     }
 
@@ -1072,7 +1148,7 @@ public class Test
     {
         if (!Comparer.greaterThanOrEqualTo(value, lowerBound))
         {
-            throw new TestError(getFullName(), getMessageLines(message, "greater than or equal to " + Objects.toString(lowerBound), value));
+            throw new TestError(getFullName(), getErrorMessage(message, "greater than or equal to " + Objects.toString(lowerBound), value));
         }
     }
 
@@ -1085,7 +1161,7 @@ public class Test
     {
         if (!Comparer.greaterThanOrEqualTo(value, lowerBound, marginOfError))
         {
-            throw new TestError(getFullName(), getMessageLines(message, "greater than or equal to " + Objects.toString(lowerBound) + "(+/- " + marginOfError + ")", value));
+            throw new TestError(getFullName(), getErrorMessage(message, "greater than or equal to " + Objects.toString(lowerBound) + "(+/- " + marginOfError + ")", value));
         }
     }
 
@@ -1098,7 +1174,7 @@ public class Test
     {
         if (value < lowerBound)
         {
-            throw new TestError(getFullName(), getMessageLines(message, "greater than or equal to " + Objects.toString(lowerBound), value));
+            throw new TestError(getFullName(), getErrorMessage(message, "greater than or equal to " + Objects.toString(lowerBound), value));
         }
     }
 
@@ -1111,7 +1187,7 @@ public class Test
     {
         if (!Comparer.greaterThan(lhs, rhs))
         {
-            throw new TestError(getFullName(), getMessageLines(message, "greater than " + Objects.toString(rhs), lhs));
+            throw new TestError(getFullName(), getErrorMessage(message, "greater than " + Objects.toString(rhs), lhs));
         }
     }
 
@@ -1124,7 +1200,7 @@ public class Test
     {
         if (value <= lowerBound)
         {
-            throw new TestError(getFullName(), getMessageLines(message, "greater than " + Objects.toString(lowerBound), value));
+            throw new TestError(getFullName(), getErrorMessage(message, "greater than " + Objects.toString(lowerBound), value));
         }
     }
 
@@ -1151,7 +1227,7 @@ public class Test
     {
         if (!Comparer.between(lowerBound, value, upperBound))
         {
-            throw new TestError(getFullName(), getMessageLines(message, "between " + Objects.toString(lowerBound) + " and " + Objects.toString(upperBound), value));
+            throw new TestError(getFullName(), getErrorMessage(message, "between " + Objects.toString(lowerBound) + " and " + Objects.toString(upperBound), value));
         }
     }
 
@@ -1197,7 +1273,7 @@ public class Test
         {
             throw new TestError(
                 this.getFullName(),
-                Test.getMessageLines("Incorrect exception thrown", expectedException, exceptionThrown),
+                Test.getErrorMessage("Incorrect exception thrown", expectedException, exceptionThrown),
                 exceptionThrown);
         }
     }
@@ -1246,7 +1322,7 @@ public class Test
         {
             throw new TestError(
                 this.getFullName(),
-                Test.getMessageLines("Incorrect exception thrown", expectedExceptionType, exceptionThrown),
+                Test.getErrorMessage("Incorrect exception thrown", expectedExceptionType, exceptionThrown),
                 exceptionThrown);
         }
 
@@ -1312,10 +1388,10 @@ public class Test
         if (!Strings.endsWith(value, suffix))
         {
             throw new TestError(
-                getFullName(),
-                Iterable.create(
+                this.getFullName(),
+                Strings.join("\n", Iterable.create(
                     message,
-                    "Expected " + Strings.escapeAndQuote(value) + " to end with " + Strings.escapeAndQuote(suffix) + "."));
+                    "Expected " + Strings.escapeAndQuote(value) + " to end with " + Strings.escapeAndQuote(suffix) + ".")));
         }
     }
 
@@ -1324,7 +1400,7 @@ public class Test
         if (!Strings.contains(value, substring))
         {
             throw new TestError(
-                getFullName(),
+                this.getFullName(),
                 "Expected " + Strings.escapeAndQuote(value) + " to contain " + Strings.escapeAndQuote(substring) + ".");
         }
     }
@@ -1335,9 +1411,9 @@ public class Test
         {
             throw new TestError(
                 getFullName(),
-                Iterable.create(
+                Strings.join("\n", Iterable.create(
                     message,
-                    "Expected " + Strings.escapeAndQuote(value) + " to contain " + Strings.escapeAndQuote(substring) + "."));
+                    "Expected " + Strings.escapeAndQuote(value) + " to contain " + Strings.escapeAndQuote(substring) + ".")));
         }
     }
 
@@ -1348,7 +1424,7 @@ public class Test
         if (!Array.contains(possibleValues, value))
         {
             throw new TestError(
-                getFullName(),
+                this.getFullName(),
                 AssertionMessages.oneOf(value, possibleValues, "Actual value"));
         }
     }
@@ -1360,7 +1436,7 @@ public class Test
         if (!possibleValues.contains(value))
         {
             throw new TestError(
-                getFullName(),
+                this.getFullName(),
                 AssertionMessages.oneOf(value, possibleValues, "Actual value"));
         }
     }
@@ -1431,23 +1507,25 @@ public class Test
         throw new TestError(getFullName(), failMessage);
     }
 
-    private static Iterable<String> getMessageLines(Function0<String> message, Object expected, Object actual)
+    private static String getErrorMessage(Function0<String> message, Object expected, Object actual)
     {
-        return Test.getMessageLines(message == null ? (String)null : message.run(), expected, actual);
+        return Test.getErrorMessage(message == null ? (String)null : message.run(), expected, actual);
     }
 
-    private static Iterable<String> getMessageLines(String message, Object expected, Object actual)
+    private static String getErrorMessage(String messageFromTest, Object expected, Object actual)
     {
-        final List<String> result = List.create();
-        if (!Strings.isNullOrEmpty(message))
+        final InMemoryCharacterStream stream = InMemoryCharacterStream.create();
+        if (!Strings.isNullOrEmpty(messageFromTest))
         {
-            result.add("Message:  " + message);
+            stream.writeLine("Message:  " + messageFromTest).await();
         }
 
         final String expectedString = Test.toString(expected);
         final String actualString = Test.toString(actual);
-        result.add("Expected: " + addType(expected, actual, expectedString, actualString));
-        result.add("Actual:   " + addType(actual, expected, actualString, expectedString));
+        stream.writeLine("Expected: " + Test.addTypeIfNeeded(expected, actual, expectedString, actualString)).await();
+        stream.write("Actual:   " + Test.addTypeIfNeeded(actual, expected, actualString, expectedString)).await();
+
+        final String result = stream.getText().await();
 
         PostCondition.assertNotNullAndNotEmpty(result, "result");
 
@@ -1498,8 +1576,8 @@ public class Test
         return result;
     }
 
-    private static String addType(Object value, Object otherValue, String valueString, String otherValueString)
+    private static String addTypeIfNeeded(Object value, Object otherValue, String valueString, String otherValueString)
     {
-        return valueString + (value == null || !valueString.equals(otherValueString) ? "" : " (" + value.getClass().getName() + ")");
+        return valueString + (value == null || !valueString.equals(otherValueString) ? "" : " (" + Types.getFullTypeName(value) + ")");
     }
 }

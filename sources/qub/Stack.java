@@ -1,150 +1,117 @@
 package qub;
 
 /**
- * A data structure that allows values to be added in a First-In-Last-Setable order.
- * @param <T> The type of values that can be added to this Stack.
+ * A data structure that allows values to be added in a First-In-Last-Out order.
+ * @param <T> The type of values that can be added to this {@link Stack}.
  */
-public class Stack<T>
+public interface Stack<T>
 {
-    private final List<T> values;
-
     /**
-     * Create a new empty Stack.
+     * Create a new empty {@link Stack}.
+     * @param <T> The type of values stored in the new {@link Stack}.
      */
-    private Stack()
+    public static <T> Stack<T> create()
     {
-        values = List.create();
+        return ListStack.create();
     }
 
     /**
-     * Create a new Stack. The last value in the values will be on the top of the returned Stack.
-     * @param values The values to initialize the Stack with. The last value of these values will be
-     *               on the top of the returned Stack.
-     * @param <T> The type of values stored in the new Stack.
-     * @return The new Stack.
+     * Create a new {@link Stack}. The last value in the provided values will be on the top of the
+     * returned {@link Stack}.
+     * @param values The values to initialize the {@link Stack} with. The last of these values will
+     *               be on the top of the returned {@link Stack}.
+     * @param <T> The type of values stored in the new {@link Stack}.
      */
     @SafeVarargs
     public static <T> Stack<T> create(T... values)
     {
         PreCondition.assertNotNull(values, "values");
 
-        final Stack<T> result = Stack.create(Iterable.create(values));
-
-        PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(values.length, result.getCount(), "result.getCount()");
-
-        return result;
+        return Stack.create(Iterator.create(values));
     }
 
     /**
-     * Create a new Stack using the provided values. The last value in the provided Iterable will be
-     * on the top of the returned Stack.
-     * @param values The values to initialize the Stack with. The last value of this Iterable will
-     *               be on the top of the returned Stack.
-     * @param <T> The type of values that will be stored in the Stack.
-     * @return The newly created Stack.
+     * Create a new {@link Stack}. The last value in the provided values will be on the top of the
+     * returned {@link Stack}.
+     * @param values The values to initialize the {@link Stack} with. The last of these values will
+     *               be on the top of the returned {@link Stack}.
+     * @param <T> The type of values stored in the new {@link Stack}.
      */
     public static <T> Stack<T> create(Iterable<T> values)
     {
         PreCondition.assertNotNull(values, "values");
 
-        final Stack<T> result = new Stack<T>();
+        return Stack.create(values.iterate());
+    }
+
+    /**
+     * Create a new {@link Stack}. The last value in the provided values will be on the top of the
+     * returned {@link Stack}.
+     * @param values The values to initialize the {@link Stack} with. The last of these values will
+     *               be on the top of the returned {@link Stack}.
+     * @param <T> The type of values stored in the new {@link Stack}.
+     */
+    public static <T> Stack<T> create(Iterator<T> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        final Stack<T> result = Stack.create();
         result.pushAll(values);
 
         PostCondition.assertNotNull(result, "result");
-        PostCondition.assertEqual(values.getCount(), result.getCount(), "result.getCount()");
 
         return result;
     }
 
     /**
-     * Get whether or not this Stack contains any values.
-     * @return Whether or not this Stack contains any values.
+     * Get whether this {@link Stack} contains any values.
      */
-    public boolean any()
-    {
-        return values.any();
-    }
+    public boolean any();
 
     /**
-     * Get the number of values that are in this Stack.
-     * @return The number of values that are in this Stack.
+     * Get the number of values that are in this {@link Stack}.
      */
-    public int getCount()
-    {
-        return values.getCount();
-    }
+    public int getCount();
 
     /**
-     * Add a new value on top of this Stack.
+     * Add a new value on top of this {@link Stack}.
+     * @return This object for method chaining.
      */
-    public void push(T value)
-    {
-        values.add(value);
-    }
+    public Stack<T> push(T value);
 
     /**
-     * Push each of the provided values on top of this Stack. The last value in the Iterable will be
-     * the new top of this Stack.
-     * @param values The values to push on top of this Stack.
+     * Push each of the provided values on top of this {@link Stack}. The last value in the
+     * {@link Iterable} will be the new top of this {@link Stack}.
+     * @param values The values to push on top of this {@link Stack}.
+     * @return This object for method chaining.
      */
-    public Stack<T> pushAll(Iterable<T> values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        this.values.addAll(values);
-        return this;
-    }
+    public Stack<T> pushAll(Iterable<T> values);
 
     /**
-     * Push each of the provided values on top of this Stack. The last value in the Iterator will be
-     * the new top of this Stack.
-     * @param values The values to push on top of this Stack.
+     * Push each of the provided values on top of this {@link Stack}. The last value in the
+     * {@link Iterator} will be the new top of this {@link Stack}.
+     * @param values The values to push on top of this {@link Stack}.
+     * @return This object for method chaining.
      */
-    public Stack<T> pushAll(Iterator<T> values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        this.values.addAll(values);
-        return this;
-    }
+    public Stack<T> pushAll(Iterator<T> values);
 
     /**
-     * Remove and return the most recently pushed value. If the Stack is empty, then null will be
-     * returned.
+     * Remove and return the most recently pushed value.
      * @return The most recently pushed value.
+     * @exception EmptyException if the {@link Stack} is empty.
      */
-    public Result<T> pop()
-    {
-        return this.any()
-            ? Result.success(values.removeAt(this.getCount() - 1))
-            : Result.error(new StackEmptyException());
-    }
+    public Result<T> pop();
 
     /**
-     * Get the most recently pushed value. If the Stack is empty, then null will be returned.
-     * @return The most recently pushed value, or null if the Stack is empty.
+     * Get the most recently pushed value.
+     * @return The most recently pushed value.
+     * @exception EmptyException if the {@link Stack} is empty.
      */
-    public Result<T> peek()
-    {
-        return this.any()
-            ? Result.success(values.get(this.getCount() - 1))
-            : Result.error(new StackEmptyException());
-    }
+    public Result<T> peek();
 
     /**
-     * Get whether or not this Stack contains the provided value.
+     * Get whether this {@link Stack} contains the provided value.
      * @param value The value to look for.
-     * @return Whether or not this Stack contains the provided value.
      */
-    public boolean contains(T value)
-    {
-        return values.contains(value);
-    }
-
-    @Override
-    public String toString()
-    {
-        return values.toString();
-    }
+    public boolean contains(T value);
 }

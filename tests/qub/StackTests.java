@@ -2,7 +2,7 @@ package qub;
 
 public interface StackTests
 {
-    static void test(final TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(Stack.class, () ->
         {
@@ -70,10 +70,19 @@ public interface StackTests
                 });
             });
 
-            runner.test("push()", (Test test) ->
+            StackTests.test(runner, Stack::create);
+        });
+    }
+
+    public static void test(TestRunner runner, Function0<? extends Stack<Double>> creator)
+    {
+        runner.testGroup(Stack.class, () ->
+        {
+            runner.test("push(T)", (Test test) ->
             {
-                final Stack<Double> stack = Stack.create();
-                stack.push(5.6);
+                final Stack<Double> stack = creator.run();
+                final Stack<Double> pushResult = stack.push(5.6);
+                test.assertSame(stack, pushResult);
                 test.assertTrue(stack.any());
                 test.assertEqual(1, stack.getCount());
                 test.assertEqual(5.6, stack.peek().await());
@@ -83,16 +92,15 @@ public interface StackTests
             {
                 runner.test("when empty", (Test test) ->
                 {
-                    final Stack<Double> stack = Stack.create();
+                    final Stack<Double> stack = creator.run();
                     test.assertThrows(() -> stack.pop().await(),
-                        new StackEmptyException());
+                        new EmptyException());
                 });
 
                 runner.test("when not empty", (Test test) ->
                 {
-                    final Stack<Double> stack = Stack.create();
-                    stack.push(1.2);
-                    stack.push(3.4);
+                    final Stack<Double> stack = creator.run();
+                    stack.push(1.2).push(3.4);
                     test.assertEqual(3.4, stack.pop().await());
                     test.assertEqual(1, stack.getCount());
 
@@ -100,7 +108,7 @@ public interface StackTests
                     test.assertEqual(0, stack.getCount());
 
                     test.assertThrows(() -> stack.pop().await(),
-                        new StackEmptyException());
+                        new EmptyException());
                 });
             });
 
@@ -108,15 +116,14 @@ public interface StackTests
             {
                 runner.test("when empty", (Test test) ->
                 {
-                    final Stack<Double> stack = Stack.create();
+                    final Stack<Double> stack = creator.run();
                     test.assertThrows(() -> stack.peek().await(),
-                        new StackEmptyException());
+                        new EmptyException());
                 });
 
                 runner.test("when not empty", (Test test) ->
                 {
-                    final Stack<Double> stack = Stack.create();
-
+                    final Stack<Double> stack = creator.run();
                     stack.push(1.2);
                     for (int i = 0; i < 3; ++i)
                     {
@@ -141,32 +148,35 @@ public interface StackTests
             {
                 runner.test("with null when empty", (Test test) ->
                 {
-                    final Stack<Integer> stack = Stack.create();
+                    final Stack<Double> stack = creator.run();
                     test.assertFalse(stack.contains(null));
                 });
 
                 runner.test("with non-null when empty", (Test test) ->
                 {
-                    final Stack<Integer> stack = Stack.create();
-                    test.assertFalse(stack.contains(5));
+                    final Stack<Double> stack = creator.run();
+                    test.assertFalse(stack.contains(5.0));
                 });
 
                 runner.test("with null when non-empty", (Test test) ->
                 {
-                    final Stack<Integer> stack = Stack.create(1, 2, 3, 4);
+                    final Stack<Double> stack = creator.run();
+                    stack.pushAll(Iterable.create(1.0, 2.0, 3.0, 4.0));
                     test.assertFalse(stack.contains(null));
                 });
 
                 runner.test("with non-existing when non-empty", (Test test) ->
                 {
-                    final Stack<Integer> stack = Stack.create(1, 2, 3, 4);
-                    test.assertFalse(stack.contains(5));
+                    final Stack<Double> stack = creator.run();
+                    stack.pushAll(Iterable.create(1.0, 2.0, 3.0, 4.0));
+                    test.assertFalse(stack.contains(5.0));
                 });
 
                 runner.test("with existing when non-empty", (Test test) ->
                 {
-                    final Stack<Integer> stack = Stack.create(1, 2, 3, 4);
-                    test.assertTrue(stack.contains(1));
+                    final Stack<Double> stack = creator.run();
+                    stack.pushAll(Iterable.create(1.0, 2.0, 3.0, 4.0));
+                    test.assertTrue(stack.contains(1.0));
                 });
             });
         });

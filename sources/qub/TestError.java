@@ -3,81 +3,60 @@ package qub;
 public class TestError extends RuntimeException
 {
     private final String testScope;
-    private final Iterable<String> messageLines;
+    private final String errorMessage;
 
-    public TestError(String testScope, String message)
+    public TestError(String testScope, String errorMessage)
     {
-        this(testScope, Iterable.create(message), null);
+        this(testScope, errorMessage, null);
     }
 
-    public TestError(String testScope, String message, Throwable cause)
+    public TestError(String testScope, String errorMessage, Throwable cause)
     {
-        this(testScope, Iterable.create(message), cause);
-    }
-
-    public TestError(String testScope, Iterable<String> messageLines)
-    {
-        this(testScope, messageLines, null);
-    }
-
-    public TestError(String testScope, Iterable<String> messageLines, Throwable cause)
-    {
-        super(getMessage(testScope, messageLines), cause);
-
-        PreCondition.assertNotNullAndNotEmpty(testScope, "testScope");
-        PreCondition.assertNotNullAndNotEmpty(messageLines, "messageLines");
+        super(TestError.getMessage(testScope, errorMessage), cause);
 
         this.testScope = testScope;
-        this.messageLines = messageLines;
+        this.errorMessage = errorMessage;
     }
 
     public String getTestScope()
     {
-        return testScope;
+        return this.testScope;
     }
 
-    /**
-     * Get the lines that explain the test assertion failure.
-     * @return The lines that explain the test assertion failure.
-     */
-    public Iterable<String> getMessageLines()
+    public String getErrorMessage()
     {
-        return messageLines;
+        return this.errorMessage;
     }
 
     @Override
     public boolean equals(Object rhs)
     {
-        return rhs instanceof TestError && equals((TestError)rhs);
+        return rhs instanceof TestError && this.equals((TestError)rhs);
     }
 
     public boolean equals(TestError rhs)
     {
         return rhs != null &&
-                   Comparer.equal(getMessage(), rhs.getMessage()) &&
-                   Comparer.equal(getCause(), rhs.getCause());
+                   Comparer.equal(this.getMessage(), rhs.getMessage()) &&
+                   Comparer.equal(this.getCause(), rhs.getCause());
     }
 
-    @Override
-    public int hashCode()
-    {
-        return Hash.getHashCode(getMessage(), getCause());
-    }
-
-    private static String getMessage(String testScope, Iterable<String> messageLines)
+    private static String getMessage(String testScope, String errorMessage)
     {
         PreCondition.assertNotNullAndNotEmpty(testScope, "testScope");
-        PreCondition.assertNotNullAndNotEmpty(messageLines, "messageLines");
+        PreCondition.assertNotNullAndNotEmpty(errorMessage, "errorMessage");
 
-        final InMemoryCharacterToByteStream characterStream = InMemoryCharacterToByteStream.create();
-        characterStream.writeLine(testScope).await();
-        if (messageLines != null)
+        final String result;
+
+        try (final InMemoryCharacterToByteStream characterStream = InMemoryCharacterToByteStream.create())
         {
-            for (final String messageLine : messageLines)
-            {
-                characterStream.writeLine(messageLine).await();
-            }
+            characterStream.writeLine(testScope).await();
+            characterStream.writeLine(errorMessage).await();
+            result = characterStream.getText().await();
         }
-        return characterStream.getText().await();
+
+        PostCondition.assertNotNullAndNotEmpty(result, "result");
+
+        return result;
     }
 }

@@ -2,7 +2,7 @@ package qub;
 
 public interface TestTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(Test.class, () ->
         {
@@ -300,9 +300,11 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertTrue(false),
-                        new TestError("abc", Iterable.create(
-                            "Expected: true",
-                            "Actual:   false")));
+                        new TestError(
+                            "abc",
+                            TestTests.createErrorMessage(
+                                "Expected: true",
+                                "Actual:   false")));
                 });
 
                 runner.test("with true", (Test test) ->
@@ -317,28 +319,34 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertTrue(false, null),
-                        new TestError("abc", Iterable.create(
-                            "Expected: true",
-                            "Actual:   false")));
+                        new TestError(
+                            "abc",
+                            TestTests.createErrorMessage(
+                                "Expected: true",
+                                "Actual:   false")));
                 });
 
                 runner.test("with false and empty", (Test test) ->
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertTrue(false, ""),
-                        new TestError("abc", Iterable.create(
-                            "Expected: true",
-                            "Actual:   false")));
+                        new TestError(
+                            "abc",
+                            TestTests.createErrorMessage(
+                                "Expected: true",
+                                "Actual:   false")));
                 });
 
                 runner.test("with false and non-empty", (Test test) ->
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertTrue(false, "blah"),
-                        new TestError("abc", Iterable.create(
-                            "Message:  blah",
-                            "Expected: true",
-                            "Actual:   false")));
+                        new TestError(
+                            "abc",
+                            TestTests.createErrorMessage(
+                                "Message:  blah",
+                                "Expected: true",
+                                "Actual:   false")));
                 });
 
                 runner.test("with true and null", (Test test) ->
@@ -363,7 +371,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertFalse(true),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: false",
                             "Actual:   true")));
                 });
@@ -380,7 +388,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertFalse(true, (String)null),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: false",
                             "Actual:   true")));
                 });
@@ -389,7 +397,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertFalse(true, ""),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: false",
                             "Actual:   true")));
                 });
@@ -398,7 +406,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertFalse(true, "blah"),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Message:  blah",
                             "Expected: false",
                             "Actual:   true")));
@@ -426,7 +434,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertFalse(true, (Function0<String>)null),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: false",
                             "Actual:   true")));
                 });
@@ -435,7 +443,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertFalse(true, () -> null),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: false",
                             "Actual:   true")));
                 });
@@ -444,7 +452,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertFalse(true, () -> ""),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: false",
                             "Actual:   true")));
                 });
@@ -453,7 +461,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertFalse(true, () -> "blah"),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Message:  blah",
                             "Expected: false",
                             "Actual:   true")));
@@ -491,7 +499,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNull("Hello"),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: null",
                             "Actual:   \"Hello\"")));
                 });
@@ -518,7 +526,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNull("Hello", null),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: null",
                             "Actual:   \"Hello\"")));
                 });
@@ -527,7 +535,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNull("Hello", ""),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: null",
                             "Actual:   \"Hello\"")));
                 });
@@ -536,7 +544,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNull("Hello", "blah"),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Message:  blah",
                             "Expected: null",
                             "Actual:   \"Hello\"")));
@@ -549,7 +557,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNull(null),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: \"not null\"",
                             "Actual:   null")));
                 });
@@ -567,7 +575,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNull(null),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: \"not null\"",
                             "Actual:   null")));
                 });
@@ -576,7 +584,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNull(null, ""),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: \"not null\"",
                             "Actual:   null")));
                 });
@@ -585,7 +593,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNull(null, "blah"),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Message:  blah",
                             "Expected: \"not null\"",
                             "Actual:   null")));
@@ -616,7 +624,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty((String)null),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: \"not null and not empty\"",
                             "Actual:   null")));
                 });
@@ -625,7 +633,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty(""),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: \"not null and not empty\"",
                             "Actual:   \"\"")));
                 });
@@ -643,7 +651,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty((String)null, "hello"),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Message:  hello",
                             "Expected: \"not null and not empty\"",
                             "Actual:   null")));
@@ -653,7 +661,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty("", "hello"),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Message:  hello",
                             "Expected: \"not null and not empty\"",
                             "Actual:   \"\"")));
@@ -672,7 +680,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty((Iterable<Integer>)null),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: \"not null\"",
                             "Actual:   null")));
                 });
@@ -681,7 +689,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty(Iterable.create()),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: \"not null and not empty\"",
                             "Actual:   []")));
                 });
@@ -699,7 +707,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty((Iterable<Integer>)null, "hello"),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Message:  hello",
                             "Expected: \"not null\"",
                             "Actual:   null")));
@@ -709,7 +717,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertNotNullAndNotEmpty(Iterable.create(), "hello"),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Message:  hello",
                             "Expected: \"not null and not empty\"",
                             "Actual:   []")));
@@ -734,7 +742,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertEqual(null, "hello"),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: null",
                             "Actual:   \"hello\"")));
                 });
@@ -743,7 +751,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertEqual("there", null),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: \"there\"",
                             "Actual:   null")));
                 });
@@ -765,7 +773,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertEqual(Distance.meters(10), Distance.centimeters(100)),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: 10.0 Meters",
                             "Actual:   100.0 Centimeters")));
                 });
@@ -789,10 +797,10 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run((byte)1, null, new TestError("abc", Iterable.create(
+                assertEqualTest.run((byte)1, null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1",
                     "Actual:   null")));
-                assertEqualTest.run((byte)1, (byte)2, new TestError("abc", Iterable.create(
+                assertEqualTest.run((byte)1, (byte)2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1",
                     "Actual:   2")));
                 assertEqualTest.run((byte)1, (byte)1, null);
@@ -816,10 +824,10 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run(1, null, new TestError("abc", Iterable.create(
+                assertEqualTest.run(1, null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1",
                     "Actual:   null")));
-                assertEqualTest.run(1, (byte)2, new TestError("abc", Iterable.create(
+                assertEqualTest.run(1, (byte)2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1",
                     "Actual:   2")));
                 assertEqualTest.run(1, (byte)1, null);
@@ -843,10 +851,10 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run('a', null, new TestError("abc", Iterable.create(
+                assertEqualTest.run('a', null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: a",
                     "Actual:   null")));
-                assertEqualTest.run('a', 'b', new TestError("abc", Iterable.create(
+                assertEqualTest.run('a', 'b', new TestError("abc", TestTests.createErrorMessage(
                     "Expected: a",
                     "Actual:   b")));
                 assertEqualTest.run('a', 'a', null);
@@ -870,10 +878,10 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run(null, 'a', new TestError("abc", Iterable.create(
+                assertEqualTest.run(null, 'a', new TestError("abc", TestTests.createErrorMessage(
                     "Expected: null",
                     "Actual:   a")));
-                assertEqualTest.run('a', 'b', new TestError("abc", Iterable.create(
+                assertEqualTest.run('a', 'b', new TestError("abc", TestTests.createErrorMessage(
                     "Expected: a",
                     "Actual:   b")));
                 assertEqualTest.run('a', 'a', null);
@@ -897,7 +905,7 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run((short)1, (short)2, new TestError("abc", Iterable.create(
+                assertEqualTest.run((short)1, (short)2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1",
                     "Actual:   2")));
                 assertEqualTest.run((short)1, (short)1, null);
@@ -921,10 +929,10 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run((short)1, null, new TestError("abc", Iterable.create(
+                assertEqualTest.run((short)1, null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1",
                     "Actual:   null")));
-                assertEqualTest.run((short)1, (short)2, new TestError("abc", Iterable.create(
+                assertEqualTest.run((short)1, (short)2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1",
                     "Actual:   2")));
                 assertEqualTest.run((short)1, (short)1, null);
@@ -948,10 +956,10 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run(null, (short)2, new TestError("abc", Iterable.create(
+                assertEqualTest.run(null, (short)2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: null",
                     "Actual:   2")));
-                assertEqualTest.run((short)1, (short)2, new TestError("abc", Iterable.create(
+                assertEqualTest.run((short)1, (short)2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1",
                     "Actual:   2")));
                 assertEqualTest.run((short)1, (short)1, null);
@@ -975,7 +983,7 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run(1, 2, new TestError("abc", Iterable.create(
+                assertEqualTest.run(1, 2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1",
                     "Actual:   2")));
                 assertEqualTest.run(1, 1, null);
@@ -999,10 +1007,10 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run(1, null, new TestError("abc", Iterable.create(
+                assertEqualTest.run(1, null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1",
                     "Actual:   null")));
-                assertEqualTest.run(1, 2, new TestError("abc", Iterable.create(
+                assertEqualTest.run(1, 2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1",
                     "Actual:   2")));
                 assertEqualTest.run(1, 1, null);
@@ -1026,10 +1034,10 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run(null, 2, new TestError("abc", Iterable.create(
+                assertEqualTest.run(null, 2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: null",
                     "Actual:   2")));
-                assertEqualTest.run(1, 2, new TestError("abc", Iterable.create(
+                assertEqualTest.run(1, 2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1",
                     "Actual:   2")));
                 assertEqualTest.run(1, 1, null);
@@ -1053,7 +1061,7 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run((long)1, (long)2, new TestError("abc", Iterable.create(
+                assertEqualTest.run((long)1, (long)2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1",
                     "Actual:   2")));
                 assertEqualTest.run((long)1, (long)1, null);
@@ -1077,10 +1085,10 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run((long)1, null, new TestError("abc", Iterable.create(
+                assertEqualTest.run((long)1, null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1",
                     "Actual:   null")));
-                assertEqualTest.run((long)1, (long)2, new TestError("abc", Iterable.create(
+                assertEqualTest.run((long)1, (long)2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1",
                     "Actual:   2")));
                 assertEqualTest.run((long)1, (long)1, null);
@@ -1104,10 +1112,10 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run(null, (long)2, new TestError("abc", Iterable.create(
+                assertEqualTest.run(null, (long)2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: null",
                     "Actual:   2")));
-                assertEqualTest.run((long)1, (long)2, new TestError("abc", Iterable.create(
+                assertEqualTest.run((long)1, (long)2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1",
                     "Actual:   2")));
                 assertEqualTest.run((long)1, (long)1, null);
@@ -1131,7 +1139,7 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run((float)1, (float)2, new TestError("abc", Iterable.create(
+                assertEqualTest.run((float)1, (float)2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1.0",
                     "Actual:   2.0")));
                 assertEqualTest.run((float)1, (float)1, null);
@@ -1155,10 +1163,10 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run((float)1, null, new TestError("abc", Iterable.create(
+                assertEqualTest.run((float)1, null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1.0",
                     "Actual:   null")));
-                assertEqualTest.run((float)1, (float)2, new TestError("abc", Iterable.create(
+                assertEqualTest.run((float)1, (float)2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1.0",
                     "Actual:   2.0")));
                 assertEqualTest.run((float)1, (float)1, null);
@@ -1182,10 +1190,10 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run(null, (float)2, new TestError("abc", Iterable.create(
+                assertEqualTest.run(null, (float)2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: null",
                     "Actual:   2.0")));
-                assertEqualTest.run((float)1, (float)2, new TestError("abc", Iterable.create(
+                assertEqualTest.run((float)1, (float)2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1.0",
                     "Actual:   2.0")));
                 assertEqualTest.run((float)1, (float)1, null);
@@ -1209,7 +1217,7 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run((double)1, (double)2, new TestError("abc", Iterable.create(
+                assertEqualTest.run((double)1, (double)2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1.0",
                     "Actual:   2.0")));
                 assertEqualTest.run((double)1, (double)1, null);
@@ -1241,13 +1249,13 @@ public interface TestTests
                     new PreConditionFailure("marginOfError (-0.99999) must be greater than or equal to 0.0."));
                 assertEqualTest.run((double)1, (double)2, -0.5,
                     new PreConditionFailure("marginOfError (-0.5) must be greater than or equal to 0.0."));
-                assertEqualTest.run((double)1, (double)2, (double)0, new TestError("abc", Iterable.create(
+                assertEqualTest.run((double)1, (double)2, (double)0, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1.0",
                     "Actual:   2.0")));
-                assertEqualTest.run((double)1, (double)2, 0.5, new TestError("abc", Iterable.create(
+                assertEqualTest.run((double)1, (double)2, 0.5, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1.0",
                     "Actual:   2.0")));
-                assertEqualTest.run((double)1, (double)2, 0.99999, new TestError("abc", Iterable.create(
+                assertEqualTest.run((double)1, (double)2, 0.99999, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1.0",
                     "Actual:   2.0")));
                 assertEqualTest.run((double)1, (double)2, 1.0, null);
@@ -1272,10 +1280,10 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run((double)1, null, new TestError("abc", Iterable.create(
+                assertEqualTest.run((double)1, null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1.0",
                     "Actual:   null")));
-                assertEqualTest.run((double)1, (double)2, new TestError("abc", Iterable.create(
+                assertEqualTest.run((double)1, (double)2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1.0",
                     "Actual:   2.0")));
                 assertEqualTest.run((double)1, (double)1, null);
@@ -1299,10 +1307,10 @@ public interface TestTests
                     });
                 };
 
-                assertEqualTest.run(null, (double)2, new TestError("abc", Iterable.create(
+                assertEqualTest.run(null, (double)2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: null",
                     "Actual:   2.0")));
-                assertEqualTest.run((double)1, (double)2, new TestError("abc", Iterable.create(
+                assertEqualTest.run((double)1, (double)2, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: 1.0",
                     "Actual:   2.0")));
                 assertEqualTest.run((double)1, (double)1, null);
@@ -1320,7 +1328,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertEqual(null, new NullPointerException("abc")),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: null",
                             "Actual:   java.lang.NullPointerException: abc")));
                 });
@@ -1329,7 +1337,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertEqual(new NullPointerException("abc"), null),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: java.lang.NullPointerException: abc",
                             "Actual:   null")));
                 });
@@ -1338,7 +1346,7 @@ public interface TestTests
                 {
                     final Test t = TestTests.createTest("abc");
                     test.assertThrows(() -> t.assertEqual(new NullPointerException("a"), new NullPointerException("b")),
-                        new TestError("abc", Iterable.create(
+                        new TestError("abc", TestTests.createErrorMessage(
                             "Expected: java.lang.NullPointerException: a",
                             "Actual:   java.lang.NullPointerException: b")));
                 });
@@ -1371,23 +1379,38 @@ public interface TestTests
                 assertLinesEqualErrorTest.run(
                     Iterable.create(),
                     InMemoryCharacterStream.create("a").endOfStream(),
-                    new TestError("abc", Iterable.create(
+                    new TestError("abc", TestTests.createErrorMessage(
                         "Expected: []",
-                        "Actual:   [a]")));
+                        "Actual:   [",
+                        "  \"a\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create("a"),
                     InMemoryCharacterStream.create("b").endOfStream(),
-                    new TestError("abc", Iterable.create(
-                        "Expected: [a]",
-                        "Actual:   [b]")));
+                    new TestError("abc", TestTests.createErrorMessage(
+                        "Expected: [",
+                        "  \"a\"",
+                        "]",
+                        "Actual:   [",
+                        "  \"b\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create("a", "b", "c"),
                     InMemoryCharacterStream.create("a\nb\nc\nd").endOfStream(),
-                    new TestError("abc", Iterable.create(
-                        "Expected: [a,b,c]",
-                        "Actual:   [a,b,c,d]")));
+                    new TestError("abc", TestTests.createErrorMessage(
+                        "Expected: [",
+                        "  \"a\",",
+                        "  \"b\",",
+                        "  \"c\"",
+                        "]",
+                        "Actual:   [",
+                        "  \"a\",",
+                        "  \"b\",",
+                        "  \"c\",",
+                        "  \"d\"",
+                        "]")));
 
-                final Action2<Iterable<String>,InMemoryCharacterStream> assertLinesEqualNoErrorTest = (Iterable<String> expected, InMemoryCharacterStream stream) ->
+                final Action2<Iterable<String>,InMemoryCharacterStream> assertLinesEqualTest = (Iterable<String> expected, InMemoryCharacterStream stream) ->
                 {
                     runner.test("with " + English.andList(expected, Strings.escapeAndQuote(stream == null ? null : stream.getText().await())), (Test test) ->
                     {
@@ -1396,13 +1419,13 @@ public interface TestTests
                     });
                 };
 
-                assertLinesEqualNoErrorTest.run(
+                assertLinesEqualTest.run(
                     Iterable.create(),
                     InMemoryCharacterStream.create().endOfStream());
-                assertLinesEqualNoErrorTest.run(
+                assertLinesEqualTest.run(
                     Iterable.create("abc"),
                     InMemoryCharacterStream.create("abc").endOfStream());
-                assertLinesEqualNoErrorTest.run(
+                assertLinesEqualTest.run(
                     Iterable.create("a", "b", "c"),
                     InMemoryCharacterStream.create("a\nb\nc").endOfStream());
             });
@@ -1429,47 +1452,77 @@ public interface TestTests
                     Iterable.create(),
                     InMemoryCharacterStream.create("a").endOfStream(),
                     null,
-                    new TestError("abc", Iterable.create(
+                    new TestError("abc", TestTests.createErrorMessage(
                         "Expected: []",
-                        "Actual:   [a]")));
+                        "Actual:   [",
+                        "  \"a\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create(),
                     InMemoryCharacterStream.create("a").endOfStream(),
                     "hello",
-                    new TestError("abc", Iterable.create(
+                    new TestError("abc", TestTests.createErrorMessage(
                         "Message:  hello",
                         "Expected: []",
-                        "Actual:   [a]")));
+                        "Actual:   [",
+                        "  \"a\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create("a"),
                     InMemoryCharacterStream.create("b").endOfStream(),
                     null,
-                    new TestError("abc", Iterable.create(
-                        "Expected: [a]",
-                        "Actual:   [b]")));
+                    new TestError("abc", TestTests.createErrorMessage(
+                        "Expected: [",
+                        "  \"a\"",
+                        "]",
+                        "Actual:   [",
+                        "  \"b\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create("a"),
                     InMemoryCharacterStream.create("b").endOfStream(),
                     "hello",
-                    new TestError("abc", Iterable.create(
+                    new TestError("abc", TestTests.createErrorMessage(
                         "Message:  hello",
-                        "Expected: [a]",
-                        "Actual:   [b]")));
+                        "Expected: [",
+                        "  \"a\"",
+                        "]",
+                        "Actual:   [",
+                        "  \"b\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create("a", "b", "c"),
                     InMemoryCharacterStream.create("a\nb\nc\nd").endOfStream(),
                     null,
-                    new TestError("abc", Iterable.create(
-                        "Expected: [a,b,c]",
-                        "Actual:   [a,b,c,d]")));
+                    new TestError("abc", TestTests.createErrorMessage(
+                        "Expected: [",
+                        "  \"a\",",
+                        "  \"b\",",
+                        "  \"c\"",
+                        "]",
+                        "Actual:   [",
+                        "  \"a\",",
+                        "  \"b\",",
+                        "  \"c\",",
+                        "  \"d\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create("a", "b", "c"),
                     InMemoryCharacterStream.create("a\nb\nc\nd").endOfStream(),
                     "hello",
-                    new TestError("abc", Iterable.create(
+                    new TestError("abc", TestTests.createErrorMessage(
                         "Message:  hello",
-                        "Expected: [a,b,c]",
-                        "Actual:   [a,b,c,d]")));
+                        "Expected: [",
+                        "  \"a\",",
+                        "  \"b\",",
+                        "  \"c\"",
+                        "]",
+                        "Actual:   [",
+                        "  \"a\",",
+                        "  \"b\",",
+                        "  \"c\",",
+                        "  \"d\"",
+                        "]")));
 
                 final Action3<Iterable<String>,InMemoryCharacterStream,String> assertLinesEqualNoErrorTest = (Iterable<String> expected, InMemoryCharacterStream stream, String message) ->
                 {
@@ -1523,21 +1576,36 @@ public interface TestTests
                 assertLinesEqualErrorTest.run(
                     Iterable.create(),
                     "a",
-                    new TestError("abc", Iterable.create(
+                    new TestError("abc", TestTests.createErrorMessage(
                         "Expected: []",
-                        "Actual:   [a]")));
+                        "Actual:   [",
+                        "  \"a\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create("a"),
                     "b",
-                    new TestError("abc", Iterable.create(
-                        "Expected: [a]",
-                        "Actual:   [b]")));
+                    new TestError("abc", TestTests.createErrorMessage(
+                        "Expected: [",
+                        "  \"a\"",
+                        "]",
+                        "Actual:   [",
+                        "  \"b\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create("a", "b", "c"),
                     "a\nb\nc\nd",
-                    new TestError("abc", Iterable.create(
-                        "Expected: [a,b,c]",
-                        "Actual:   [a,b,c,d]")));
+                    new TestError("abc", TestTests.createErrorMessage(
+                        "Expected: [",
+                        "  \"a\",",
+                        "  \"b\",",
+                        "  \"c\"",
+                        "]",
+                        "Actual:   [",
+                        "  \"a\",",
+                        "  \"b\",",
+                        "  \"c\",",
+                        "  \"d\"",
+                        "]")));
 
                 final Action2<Iterable<String>,String> assertLinesEqualNoErrorTest = (Iterable<String> expected, String text) ->
                 {
@@ -1577,47 +1645,77 @@ public interface TestTests
                     Iterable.create(),
                     "a",
                     null,
-                    new TestError("abc", Iterable.create(
+                    new TestError("abc", TestTests.createErrorMessage(
                         "Expected: []",
-                        "Actual:   [a]")));
+                        "Actual:   [",
+                        "  \"a\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create(),
                     "a",
                     "hello",
-                    new TestError("abc", Iterable.create(
+                    new TestError("abc", TestTests.createErrorMessage(
                         "Message:  hello",
                         "Expected: []",
-                        "Actual:   [a]")));
+                        "Actual:   [",
+                        "  \"a\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create("a"),
                     "b",
                     null,
-                    new TestError("abc", Iterable.create(
-                        "Expected: [a]",
-                        "Actual:   [b]")));
+                    new TestError("abc", TestTests.createErrorMessage(
+                        "Expected: [",
+                        "  \"a\"",
+                        "]",
+                        "Actual:   [",
+                        "  \"b\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create("a"),
                     "b",
                     "hello",
-                    new TestError("abc", Iterable.create(
+                    new TestError("abc", TestTests.createErrorMessage(
                         "Message:  hello",
-                        "Expected: [a]",
-                        "Actual:   [b]")));
+                        "Expected: [",
+                        "  \"a\"",
+                        "]",
+                        "Actual:   [",
+                        "  \"b\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create("a", "b", "c"),
                     "a\nb\nc\nd",
                     null,
-                    new TestError("abc", Iterable.create(
-                        "Expected: [a,b,c]",
-                        "Actual:   [a,b,c,d]")));
+                    new TestError("abc", TestTests.createErrorMessage(
+                        "Expected: [",
+                        "  \"a\",",
+                        "  \"b\",",
+                        "  \"c\"",
+                        "]",
+                        "Actual:   [",
+                        "  \"a\",",
+                        "  \"b\",",
+                        "  \"c\",",
+                        "  \"d\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create("a", "b", "c"),
                     "a\nb\nc\nd",
                     "hello",
-                    new TestError("abc", Iterable.create(
+                    new TestError("abc", TestTests.createErrorMessage(
                         "Message:  hello",
-                        "Expected: [a,b,c]",
-                        "Actual:   [a,b,c,d]")));
+                        "Expected: [",
+                        "  \"a\",",
+                        "  \"b\",",
+                        "  \"c\"",
+                        "]",
+                        "Actual:   [",
+                        "  \"a\",",
+                        "  \"b\",",
+                        "  \"c\",",
+                        "  \"d\"",
+                        "]")));
 
                 final Action3<Iterable<String>,String,String> assertLinesEqualNoErrorTest = (Iterable<String> expected, String text, String message) ->
                 {
@@ -1671,21 +1769,36 @@ public interface TestTests
                 assertLinesEqualErrorTest.run(
                     Iterable.create(),
                     Iterator.create("a"),
-                    new TestError("abc", Iterable.create(
+                    new TestError("abc", TestTests.createErrorMessage(
                         "Expected: []",
-                        "Actual:   [a]")));
+                        "Actual:   [",
+                        "  \"a\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create("a"),
                     Iterator.create("b"),
-                    new TestError("abc", Iterable.create(
-                        "Expected: [a]",
-                        "Actual:   [b]")));
+                    new TestError("abc", TestTests.createErrorMessage(
+                        "Expected: [",
+                        "  \"a\"",
+                        "]",
+                        "Actual:   [",
+                        "  \"b\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create("a", "b", "c"),
                     Iterator.create("a", "b", "c", "d"),
-                    new TestError("abc", Iterable.create(
-                        "Expected: [a,b,c]",
-                        "Actual:   [a,b,c,d]")));
+                    new TestError("abc", TestTests.createErrorMessage(
+                        "Expected: [",
+                        "  \"a\",",
+                        "  \"b\",",
+                        "  \"c\"",
+                        "]",
+                        "Actual:   [",
+                        "  \"a\",",
+                        "  \"b\",",
+                        "  \"c\",",
+                        "  \"d\"",
+                        "]")));
 
                 final Action2<Iterable<String>,Iterator<String>> assertLinesEqualNoErrorTest = (Iterable<String> expected, Iterator<String> lines) ->
                 {
@@ -1725,49 +1838,79 @@ public interface TestTests
                     Iterable.create(),
                     Iterator.create("a"),
                     null,
-                    new TestError("abc", Iterable.create(
+                    new TestError("abc", TestTests.createErrorMessage(
                         "Expected: []",
-                        "Actual:   [a]")));
+                        "Actual:   [",
+                        "  \"a\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create(),
                     Iterator.create("a"),
                     "hello",
-                    new TestError("abc", Iterable.create(
+                    new TestError("abc", TestTests.createErrorMessage(
                         "Message:  hello",
                         "Expected: []",
-                        "Actual:   [a]")));
+                        "Actual:   [",
+                        "  \"a\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create("a"),
                     Iterator.create("b"),
                     null,
-                    new TestError("abc", Iterable.create(
-                        "Expected: [a]",
-                        "Actual:   [b]")));
+                    new TestError("abc", TestTests.createErrorMessage(
+                        "Expected: [",
+                        "  \"a\"",
+                        "]",
+                        "Actual:   [",
+                        "  \"b\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create("a"),
                     Iterator.create("b"),
                     "hello",
-                    new TestError("abc", Iterable.create(
+                    new TestError("abc", TestTests.createErrorMessage(
                         "Message:  hello",
-                        "Expected: [a]",
-                        "Actual:   [b]")));
+                        "Expected: [",
+                        "  \"a\"",
+                        "]",
+                        "Actual:   [",
+                        "  \"b\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create("a", "b", "c"),
                     Iterator.create("a", "b", "c", "d"),
                     null,
-                    new TestError("abc", Iterable.create(
-                        "Expected: [a,b,c]",
-                        "Actual:   [a,b,c,d]")));
+                    new TestError("abc", TestTests.createErrorMessage(
+                        "Expected: [",
+                        "  \"a\",",
+                        "  \"b\",",
+                        "  \"c\"",
+                        "]",
+                        "Actual:   [",
+                        "  \"a\",",
+                        "  \"b\",",
+                        "  \"c\",",
+                        "  \"d\"",
+                        "]")));
                 assertLinesEqualErrorTest.run(
                     Iterable.create("a", "b", "c"),
                     Iterator.create("a", "b", "c", "d"),
                     "hello",
-                    new TestError("abc", Iterable.create(
+                    new TestError("abc", TestTests.createErrorMessage(
                         "Message:  hello",
-                        "Expected: [a,b,c]",
-                        "Actual:   [a,b,c,d]")));
+                        "Expected: [",
+                        "  \"a\",",
+                        "  \"b\",",
+                        "  \"c\"",
+                        "]",
+                        "Actual:   [",
+                        "  \"a\",",
+                        "  \"b\",",
+                        "  \"c\",",
+                        "  \"d\"",
+                        "]")));
 
-                final Action3<Iterable<String>,Iterator<String>,String> assertLinesEqualNoErrorTest = (Iterable<String> expected, Iterator<String> lines, String message) ->
+                final Action3<Iterable<String>,Iterator<String>,String> assertLinesEqualTest = (Iterable<String> expected, Iterator<String> lines, String message) ->
                 {
                     runner.test("with " + English.andList(expected, Strings.escapeAndQuote(lines), Strings.escapeAndQuote(message)), (Test test) ->
                     {
@@ -1776,27 +1919,27 @@ public interface TestTests
                     });
                 };
 
-                assertLinesEqualNoErrorTest.run(
+                assertLinesEqualTest.run(
                     Iterable.create(),
                     Iterator.create(),
                     null);
-                assertLinesEqualNoErrorTest.run(
+                assertLinesEqualTest.run(
                     Iterable.create("abc"),
                     Iterator.create("abc"),
                     null);
-                assertLinesEqualNoErrorTest.run(
+                assertLinesEqualTest.run(
                     Iterable.create("a", "b", "c"),
                     Iterator.create("a", "b", "c"),
                     null);
-                assertLinesEqualNoErrorTest.run(
+                assertLinesEqualTest.run(
                     Iterable.create(),
                     Iterator.create(),
                     "hello");
-                assertLinesEqualNoErrorTest.run(
+                assertLinesEqualTest.run(
                     Iterable.create("abc"),
                     Iterator.create("abc"),
                     "hello");
-                assertLinesEqualNoErrorTest.run(
+                assertLinesEqualTest.run(
                     Iterable.create("a", "b", "c"),
                     Iterator.create("a", "b", "c"),
                     "hello");
@@ -1820,13 +1963,13 @@ public interface TestTests
                     });
                 };
 
-                assertNotEqualTest.run(null, null, new TestError("abc", Iterable.create(
+                assertNotEqualTest.run(null, null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"not null\"",
                     "Actual:   null")));
                 assertNotEqualTest.run("hello", null, null);
                 assertNotEqualTest.run(null, "there", null);
                 assertNotEqualTest.run("hello", "there", null);
-                assertNotEqualTest.run("hello", "hello", new TestError("abc", Iterable.create(
+                assertNotEqualTest.run("hello", "hello", new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"not hello\"",
                     "Actual:   \"hello\"")));
             });
@@ -1850,17 +1993,17 @@ public interface TestTests
                 };
 
                 assertSameTest.run(null, null, null);
-                assertSameTest.run("hello", null, new TestError("abc", Iterable.create(
+                assertSameTest.run("hello", null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"hello\"",
                     "Actual:   null")));
-                assertSameTest.run(null, "there", new TestError("abc", Iterable.create(
+                assertSameTest.run(null, "there", new TestError("abc", TestTests.createErrorMessage(
                     "Expected: null",
                     "Actual:   \"there\"")));
-                assertSameTest.run("hello", "there", new TestError("abc", Iterable.create(
+                assertSameTest.run("hello", "there", new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"hello\"",
                     "Actual:   \"there\"")));
                 assertSameTest.run("hello", "hello", null);
-                assertSameTest.run(new String("hello"), new String("hello"), new TestError("abc", Iterable.create(
+                assertSameTest.run(new String("hello"), new String("hello"), new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"hello\" (java.lang.String)",
                     "Actual:   \"hello\" (java.lang.String)")));
             });
@@ -1883,13 +2026,13 @@ public interface TestTests
                     });
                 };
 
-                assertNotSameTest.run(null, null, new TestError("abc", Iterable.create(
+                assertNotSameTest.run(null, null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"not null\"",
                     "Actual:   null")));
                 assertNotSameTest.run("hello", null, null);
                 assertNotSameTest.run(null, "there", null);
                 assertNotSameTest.run("hello", "there", null);
-                assertNotSameTest.run("hello", "hello", new TestError("abc", Iterable.create(
+                assertNotSameTest.run("hello", "hello", new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"not hello\"",
                     "Actual:   \"hello\"")));
                 assertNotSameTest.run(new String("hello"), new String("hello"), null);
@@ -1913,18 +2056,18 @@ public interface TestTests
                     });
                 };
 
-                assertLessThanTest.run(null, null, new TestError("abc", Iterable.create(
+                assertLessThanTest.run(null, null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"less than null\"",
                     "Actual:   null")));
-                assertLessThanTest.run(Distance.inches(1), null, new TestError("abc", Iterable.create(
+                assertLessThanTest.run(Distance.inches(1), null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"less than null\"",
                     "Actual:   1.0 Inches")));
                 assertLessThanTest.run(null, Distance.miles(5), null);
                 assertLessThanTest.run(Distance.inches(5), Distance.miles(3), null);
-                assertLessThanTest.run(Distance.miles(1), Distance.miles(1), new TestError("abc", Iterable.create(
+                assertLessThanTest.run(Distance.miles(1), Distance.miles(1), new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"less than 1.0 Miles\"",
                     "Actual:   1.0 Miles")));
-                assertLessThanTest.run(Distance.miles(4), Distance.inches(1), new TestError("abc", Iterable.create(
+                assertLessThanTest.run(Distance.miles(4), Distance.inches(1), new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"less than 1.0 Inches\"",
                     "Actual:   4.0 Miles")));
             });
@@ -1948,13 +2091,13 @@ public interface TestTests
                 };
 
                 assertLessThanOrEqualToTest.run(null, null, null);
-                assertLessThanOrEqualToTest.run(Distance.inches(1), null, new TestError("abc", Iterable.create(
+                assertLessThanOrEqualToTest.run(Distance.inches(1), null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"less than or equal to null\"",
                     "Actual:   1.0 Inches")));
                 assertLessThanOrEqualToTest.run(null, Distance.miles(5), null);
                 assertLessThanOrEqualToTest.run(Distance.inches(5), Distance.miles(3), null);
                 assertLessThanOrEqualToTest.run(Distance.miles(1), Distance.miles(1), null);
-                assertLessThanOrEqualToTest.run(Distance.miles(4), Distance.inches(1), new TestError("abc", Iterable.create(
+                assertLessThanOrEqualToTest.run(Distance.miles(4), Distance.inches(1), new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"less than or equal to 1.0 Inches\"",
                     "Actual:   4.0 Miles")));
             });
@@ -1979,10 +2122,10 @@ public interface TestTests
 
                 assertGreaterThanOrEqualToTest.run(null, null, null);
                 assertGreaterThanOrEqualToTest.run(Distance.inches(1), null, null);
-                assertGreaterThanOrEqualToTest.run(null, Distance.miles(5), new TestError("abc", Iterable.create(
+                assertGreaterThanOrEqualToTest.run(null, Distance.miles(5), new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"greater than or equal to 5.0 Miles\"",
                     "Actual:   null")));
-                assertGreaterThanOrEqualToTest.run(Distance.inches(5), Distance.miles(3), new TestError("abc", Iterable.create(
+                assertGreaterThanOrEqualToTest.run(Distance.inches(5), Distance.miles(3), new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"greater than or equal to 3.0 Miles\"",
                     "Actual:   5.0 Inches")));
                 assertGreaterThanOrEqualToTest.run(Distance.miles(1), Distance.miles(1), null);
@@ -2007,7 +2150,7 @@ public interface TestTests
                     });
                 };
 
-                assertGreaterThanOrEqualToTest.run(5.0, 6.0, new TestError("abc", Iterable.create(
+                assertGreaterThanOrEqualToTest.run(5.0, 6.0, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"greater than or equal to 6.0\"",
                     "Actual:   5.0")));
                 assertGreaterThanOrEqualToTest.run(5.0, 5.0, null);
@@ -2032,17 +2175,17 @@ public interface TestTests
                     });
                 };
 
-                assertGreaterThanTest.run(null, null, new TestError("abc", Iterable.create(
+                assertGreaterThanTest.run(null, null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"greater than null\"",
                     "Actual:   null")));
                 assertGreaterThanTest.run(Distance.inches(1), null, null);
-                assertGreaterThanTest.run(null, Distance.miles(5), new TestError("abc", Iterable.create(
+                assertGreaterThanTest.run(null, Distance.miles(5), new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"greater than 5.0 Miles\"",
                     "Actual:   null")));
-                assertGreaterThanTest.run(Distance.inches(5), Distance.miles(3), new TestError("abc", Iterable.create(
+                assertGreaterThanTest.run(Distance.inches(5), Distance.miles(3), new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"greater than 3.0 Miles\"",
                     "Actual:   5.0 Inches")));
-                assertGreaterThanTest.run(Distance.miles(1), Distance.miles(1), new TestError("abc", Iterable.create(
+                assertGreaterThanTest.run(Distance.miles(1), Distance.miles(1), new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"greater than 1.0 Miles\"",
                     "Actual:   1.0 Miles")));
                 assertGreaterThanTest.run(Distance.miles(4), Distance.inches(1), null);
@@ -2068,33 +2211,33 @@ public interface TestTests
 
                 assertBetweenTest.run(null, null, null, null);
                 assertBetweenTest.run(null, null, Distance.miles(0.6), null);
-                assertBetweenTest.run(null, Distance.miles(0.5), null, new TestError("abc", Iterable.create(
+                assertBetweenTest.run(null, Distance.miles(0.5), null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"between null and null\"",
                     "Actual:   0.5 Miles")));
-                assertBetweenTest.run(null, Distance.miles(0.5), Distance.miles(0.4), new TestError("abc", Iterable.create(
+                assertBetweenTest.run(null, Distance.miles(0.5), Distance.miles(0.4), new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"between null and 0.4 Miles\"",
                     "Actual:   0.5 Miles")));
                 assertBetweenTest.run(null, Distance.miles(0.5), Distance.miles(0.5), null);
                 assertBetweenTest.run(null, Distance.miles(0.5), Distance.miles(0.6), null);
-                assertBetweenTest.run(Distance.miles(1), null, null, new TestError("abc", Iterable.create(
+                assertBetweenTest.run(Distance.miles(1), null, null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"between 1.0 Miles and null\"",
                     "Actual:   null")));
-                assertBetweenTest.run(Distance.miles(1), Distance.miles(0.5), null, new TestError("abc", Iterable.create(
+                assertBetweenTest.run(Distance.miles(1), Distance.miles(0.5), null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"between 1.0 Miles and null\"",
                     "Actual:   0.5 Miles")));
-                assertBetweenTest.run(Distance.miles(1), Distance.miles(1.0), null, new TestError("abc", Iterable.create(
+                assertBetweenTest.run(Distance.miles(1), Distance.miles(1.0), null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"between 1.0 Miles and null\"",
                     "Actual:   1.0 Miles")));
-                assertBetweenTest.run(Distance.miles(1), Distance.miles(1.2), null, new TestError("abc", Iterable.create(
+                assertBetweenTest.run(Distance.miles(1), Distance.miles(1.2), null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"between 1.0 Miles and null\"",
                     "Actual:   1.2 Miles")));
-                assertBetweenTest.run(Distance.miles(1), null, Distance.miles(0.6), new TestError("abc", Iterable.create(
+                assertBetweenTest.run(Distance.miles(1), null, Distance.miles(0.6), new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"between 1.0 Miles and 0.6 Miles\"",
                     "Actual:   null")));
-                assertBetweenTest.run(Distance.miles(1), null, Distance.miles(1), new TestError("abc", Iterable.create(
+                assertBetweenTest.run(Distance.miles(1), null, Distance.miles(1), new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"between 1.0 Miles and 1.0 Miles\"",
                     "Actual:   null")));
-                assertBetweenTest.run(Distance.miles(1), null, Distance.miles(2), new TestError("abc", Iterable.create(
+                assertBetweenTest.run(Distance.miles(1), null, Distance.miles(2), new TestError("abc", TestTests.createErrorMessage(
                     "Expected: \"between 1.0 Miles and 2.0 Miles\"",
                     "Actual:   null")));
             });
@@ -2135,7 +2278,7 @@ public interface TestTests
                     test.assertThrows(() -> t.assertThrows(() -> { throw new NullPointerException(); }, new NotFoundException("blah")),
                         new TestError(
                             "abcd",
-                            Iterable.create(
+                            TestTests.createErrorMessage(
                                 "Message:  Incorrect exception thrown",
                                 "Expected: qub.NotFoundException: blah",
                                 "Actual:   java.lang.NullPointerException"),
@@ -2153,7 +2296,7 @@ public interface TestTests
                     test.assertThrows(() -> t.assertThrows(() -> { throw new NotFoundException("grapes"); }, new NotFoundException("blah")),
                         new TestError(
                             "abcd",
-                            Iterable.create(
+                            TestTests.createErrorMessage(
                                 "Message:  Incorrect exception thrown",
                                 "Expected: qub.NotFoundException: blah",
                                 "Actual:   qub.NotFoundException: grapes"),
@@ -2166,7 +2309,7 @@ public interface TestTests
                     test.assertThrows(() -> t.assertThrows(() -> { throw new NotFoundException("blah"); }, new RuntimeException("blah")),
                         new TestError(
                             "abcd",
-                            Iterable.create(
+                            TestTests.createErrorMessage(
                                 "Message:  Incorrect exception thrown",
                                 "Expected: java.lang.RuntimeException: blah",
                                 "Actual:   qub.NotFoundException: blah"),
@@ -2179,7 +2322,7 @@ public interface TestTests
                     test.assertThrows(() -> t.assertThrows(() -> { throw new NotFoundException("blah"); }, new RuntimeException("blah2")),
                         new TestError(
                             "abcd",
-                            Iterable.create(
+                            TestTests.createErrorMessage(
                                 "Message:  Incorrect exception thrown",
                                 "Expected: java.lang.RuntimeException: blah2",
                                 "Actual:   qub.NotFoundException: blah"),
@@ -2202,7 +2345,7 @@ public interface TestTests
                     test.assertThrows(() -> t.assertThrows(() -> { throw new RuntimeException(new NotFoundException("grapes")); }, new NotFoundException("blah")),
                         new TestError(
                             "abcd",
-                            Iterable.create(
+                            TestTests.createErrorMessage(
                                 "Message:  Incorrect exception thrown",
                                 "Expected: qub.NotFoundException: blah",
                                 "Actual:   java.lang.RuntimeException: qub.NotFoundException: grapes",
@@ -2231,7 +2374,7 @@ public interface TestTests
                     test.assertThrows(() -> t.assertThrows(() -> { throw new AwaitException(new NotFoundException("grapes")); }, new NotFoundException("blah")),
                         new TestError(
                             "abcd",
-                            Iterable.create(
+                            TestTests.createErrorMessage(
                                 "Message:  Incorrect exception thrown",
                                 "Expected: qub.NotFoundException: blah",
                                 "Actual:   qub.AwaitException: qub.NotFoundException: grapes",
@@ -2276,7 +2419,7 @@ public interface TestTests
                     test.assertThrows(() -> t.assertThrows(() -> { throw new NullPointerException(); }, NotFoundException.class),
                         new TestError(
                             "abcd",
-                            Iterable.create(
+                            TestTests.createErrorMessage(
                                 "Message:  Incorrect exception thrown",
                                 "Expected: qub.NotFoundException",
                                 "Actual:   java.lang.NullPointerException"),
@@ -2296,7 +2439,7 @@ public interface TestTests
                     test.assertThrows(() -> t.assertThrows(() -> { throw new NotFoundException("blah"); }, RuntimeException.class),
                         new TestError(
                             "abcd",
-                            Iterable.create(
+                            TestTests.createErrorMessage(
                                 "Message:  Incorrect exception thrown",
                                 "Expected: java.lang.RuntimeException",
                                 "Actual:   qub.NotFoundException: blah"),
@@ -2357,25 +2500,25 @@ public interface TestTests
                     });
                 };
 
-                assertStartsWithTest.run(null, null, new TestError("abc", Iterable.create(
+                assertStartsWithTest.run(null, null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected null to start with null.")));
-                assertStartsWithTest.run(null, "", new TestError("abc", Iterable.create(
+                assertStartsWithTest.run(null, "", new TestError("abc", TestTests.createErrorMessage(
                     "Expected null to start with \"\".")));
-                assertStartsWithTest.run(null, "ba", new TestError("abc", Iterable.create(
+                assertStartsWithTest.run(null, "ba", new TestError("abc", TestTests.createErrorMessage(
                     "Expected null to start with \"ba\".")));
-                assertStartsWithTest.run("", null, new TestError("abc", Iterable.create(
+                assertStartsWithTest.run("", null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"\" to start with null.")));
-                assertStartsWithTest.run("", "", new TestError("abc", Iterable.create(
+                assertStartsWithTest.run("", "", new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"\" to start with \"\".")));
-                assertStartsWithTest.run("", "ba", new TestError("abc", Iterable.create(
+                assertStartsWithTest.run("", "ba", new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"\" to start with \"ba\".")));
-                assertStartsWithTest.run("apples", null, new TestError("abc", Iterable.create(
+                assertStartsWithTest.run("apples", null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"apples\" to start with null.")));
-                assertStartsWithTest.run("apples", "", new TestError("abc", Iterable.create(
+                assertStartsWithTest.run("apples", "", new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"apples\" to start with \"\".")));
-                assertStartsWithTest.run("apples", "ba", new TestError("abc", Iterable.create(
+                assertStartsWithTest.run("apples", "ba", new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"apples\" to start with \"ba\".")));
-                assertStartsWithTest.run("apples", "Ap", new TestError("abc", Iterable.create(
+                assertStartsWithTest.run("apples", "Ap", new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"apples\" to start with \"Ap\".")));
                 assertStartsWithTest.run("apples", "ap", null);
             });
@@ -2399,27 +2542,27 @@ public interface TestTests
                 };
 
                 assertStartsWithTest.run(null, null, null, new PreConditionFailure("characterComparer cannot be null."));
-                assertStartsWithTest.run(null, null, CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                assertStartsWithTest.run(null, null, CharacterComparer.Exact, new TestError("abc", TestTests.createErrorMessage(
                     "Expected null to start with null.")));
-                assertStartsWithTest.run(null, null, CharacterComparer.CaseInsensitive, new TestError("abc", Iterable.create(
+                assertStartsWithTest.run(null, null, CharacterComparer.CaseInsensitive, new TestError("abc", TestTests.createErrorMessage(
                     "Expected null to start with null.")));
-                assertStartsWithTest.run(null, "", CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                assertStartsWithTest.run(null, "", CharacterComparer.Exact, new TestError("abc", TestTests.createErrorMessage(
                     "Expected null to start with \"\".")));
-                assertStartsWithTest.run(null, "ba", CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                assertStartsWithTest.run(null, "ba", CharacterComparer.Exact, new TestError("abc", TestTests.createErrorMessage(
                     "Expected null to start with \"ba\".")));
-                assertStartsWithTest.run("", null, CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                assertStartsWithTest.run("", null, CharacterComparer.Exact, new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"\" to start with null.")));
-                assertStartsWithTest.run("", "", CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                assertStartsWithTest.run("", "", CharacterComparer.Exact, new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"\" to start with \"\".")));
-                assertStartsWithTest.run("", "ba", CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                assertStartsWithTest.run("", "ba", CharacterComparer.Exact, new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"\" to start with \"ba\".")));
-                assertStartsWithTest.run("apples", null, CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                assertStartsWithTest.run("apples", null, CharacterComparer.Exact, new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"apples\" to start with null.")));
-                assertStartsWithTest.run("apples", "", CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                assertStartsWithTest.run("apples", "", CharacterComparer.Exact, new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"apples\" to start with \"\".")));
-                assertStartsWithTest.run("apples", "ba", CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                assertStartsWithTest.run("apples", "ba", CharacterComparer.Exact, new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"apples\" to start with \"ba\".")));
-                assertStartsWithTest.run("apples", "Ap", CharacterComparer.Exact, new TestError("abc", Iterable.create(
+                assertStartsWithTest.run("apples", "Ap", CharacterComparer.Exact, new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"apples\" to start with \"Ap\".")));
                 assertStartsWithTest.run("apples", "Ap", CharacterComparer.CaseInsensitive, null);
                 assertStartsWithTest.run("apples", "ap", CharacterComparer.Exact, null);
@@ -2449,13 +2592,13 @@ public interface TestTests
                 assertEndsWithTest.run(null, "ba", new PreConditionFailure("text cannot be null."));
                 assertEndsWithTest.run("", null, new PreConditionFailure("suffix cannot be null."));
                 assertEndsWithTest.run("", "", new PreConditionFailure("suffix cannot be empty."));
-                assertEndsWithTest.run("", "ba", new TestError("abc", Iterable.create(
+                assertEndsWithTest.run("", "ba", new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"\" to end with \"ba\".")));
                 assertEndsWithTest.run("apples", null, new PreConditionFailure("suffix cannot be null."));
                 assertEndsWithTest.run("apples", "", new PreConditionFailure("suffix cannot be empty."));
-                assertEndsWithTest.run("apples", "ba", new TestError("abc", Iterable.create(
+                assertEndsWithTest.run("apples", "ba", new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"apples\" to end with \"ba\".")));
-                assertEndsWithTest.run("apples", "LES", new TestError("abc", Iterable.create(
+                assertEndsWithTest.run("apples", "LES", new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"apples\" to end with \"LES\".")));
                 assertEndsWithTest.run("apples", "les", null);
             });
@@ -2483,15 +2626,15 @@ public interface TestTests
                 assertEndsWithTest.run(null, "ba", new PreConditionFailure("text cannot be null."));
                 assertEndsWithTest.run("", null, new PreConditionFailure("suffix cannot be null."));
                 assertEndsWithTest.run("", "", new PreConditionFailure("suffix cannot be empty."));
-                assertEndsWithTest.run("", "ba", new TestError("abc", Iterable.create(
+                assertEndsWithTest.run("", "ba", new TestError("abc", TestTests.createErrorMessage(
                     "hello",
                     "Expected \"\" to end with \"ba\".")));
                 assertEndsWithTest.run("apples", null, new PreConditionFailure("suffix cannot be null."));
                 assertEndsWithTest.run("apples", "", new PreConditionFailure("suffix cannot be empty."));
-                assertEndsWithTest.run("apples", "ba", new TestError("abc", Iterable.create(
+                assertEndsWithTest.run("apples", "ba", new TestError("abc", TestTests.createErrorMessage(
                     "hello",
                     "Expected \"apples\" to end with \"ba\".")));
-                assertEndsWithTest.run("apples", "LES", new TestError("abc", Iterable.create(
+                assertEndsWithTest.run("apples", "LES", new TestError("abc", TestTests.createErrorMessage(
                     "hello",
                     "Expected \"apples\" to end with \"LES\".")));
                 assertEndsWithTest.run("apples", "les", null);
@@ -2515,25 +2658,25 @@ public interface TestTests
                     });
                 };
 
-                assertContainsTest.run(null, null, new TestError("abc", Iterable.create(
+                assertContainsTest.run(null, null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected null to contain null.")));
-                assertContainsTest.run(null, "", new TestError("abc", Iterable.create(
+                assertContainsTest.run(null, "", new TestError("abc", TestTests.createErrorMessage(
                     "Expected null to contain \"\".")));
-                assertContainsTest.run(null, "ba", new TestError("abc", Iterable.create(
+                assertContainsTest.run(null, "ba", new TestError("abc", TestTests.createErrorMessage(
                     "Expected null to contain \"ba\".")));
-                assertContainsTest.run("", null, new TestError("abc", Iterable.create(
+                assertContainsTest.run("", null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"\" to contain null.")));
-                assertContainsTest.run("", "", new TestError("abc", Iterable.create(
+                assertContainsTest.run("", "", new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"\" to contain \"\".")));
-                assertContainsTest.run("", "ba", new TestError("abc", Iterable.create(
+                assertContainsTest.run("", "ba", new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"\" to contain \"ba\".")));
-                assertContainsTest.run("apples", null, new TestError("abc", Iterable.create(
+                assertContainsTest.run("apples", null, new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"apples\" to contain null.")));
-                assertContainsTest.run("apples", "", new TestError("abc", Iterable.create(
+                assertContainsTest.run("apples", "", new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"apples\" to contain \"\".")));
-                assertContainsTest.run("apples", "ba", new TestError("abc", Iterable.create(
+                assertContainsTest.run("apples", "ba", new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"apples\" to contain \"ba\".")));
-                assertContainsTest.run("apples", "LES", new TestError("abc", Iterable.create(
+                assertContainsTest.run("apples", "LES", new TestError("abc", TestTests.createErrorMessage(
                     "Expected \"apples\" to contain \"LES\".")));
                 assertContainsTest.run("apples", "les", null);
             });
@@ -2556,34 +2699,34 @@ public interface TestTests
                     });
                 };
 
-                assertContainsTest.run(null, null, new TestError("abc", Iterable.create(
+                assertContainsTest.run(null, null, new TestError("abc", TestTests.createErrorMessage(
                     "hello",
                     "Expected null to contain null.")));
-                assertContainsTest.run(null, "", new TestError("abc", Iterable.create(
+                assertContainsTest.run(null, "", new TestError("abc", TestTests.createErrorMessage(
                     "hello",
                     "Expected null to contain \"\".")));
-                assertContainsTest.run(null, "ba", new TestError("abc", Iterable.create(
+                assertContainsTest.run(null, "ba", new TestError("abc", TestTests.createErrorMessage(
                     "hello",
                     "Expected null to contain \"ba\".")));
-                assertContainsTest.run("", null, new TestError("abc", Iterable.create(
+                assertContainsTest.run("", null, new TestError("abc", TestTests.createErrorMessage(
                     "hello",
                     "Expected \"\" to contain null.")));
-                assertContainsTest.run("", "", new TestError("abc", Iterable.create(
+                assertContainsTest.run("", "", new TestError("abc", TestTests.createErrorMessage(
                     "hello",
                     "Expected \"\" to contain \"\".")));
-                assertContainsTest.run("", "ba", new TestError("abc", Iterable.create(
+                assertContainsTest.run("", "ba", new TestError("abc", TestTests.createErrorMessage(
                     "hello",
                     "Expected \"\" to contain \"ba\".")));
-                assertContainsTest.run("apples", null, new TestError("abc", Iterable.create(
+                assertContainsTest.run("apples", null, new TestError("abc", TestTests.createErrorMessage(
                     "hello",
                     "Expected \"apples\" to contain null.")));
-                assertContainsTest.run("apples", "", new TestError("abc", Iterable.create(
+                assertContainsTest.run("apples", "", new TestError("abc", TestTests.createErrorMessage(
                     "hello",
                     "Expected \"apples\" to contain \"\".")));
-                assertContainsTest.run("apples", "ba", new TestError("abc", Iterable.create(
+                assertContainsTest.run("apples", "ba", new TestError("abc", TestTests.createErrorMessage(
                     "hello",
                     "Expected \"apples\" to contain \"ba\".")));
-                assertContainsTest.run("apples", "LES", new TestError("abc", Iterable.create(
+                assertContainsTest.run("apples", "LES", new TestError("abc", TestTests.createErrorMessage(
                     "hello",
                     "Expected \"apples\" to contain \"LES\".")));
                 assertContainsTest.run("apples", "les", null);
@@ -2610,26 +2753,26 @@ public interface TestTests
                 assertOneOfTest.run(null, null, new PreConditionFailure("possibleValues cannot be null."));
                 assertOneOfTest.run(new String[0], null, new PreConditionFailure("possibleValues cannot be empty."));
                 assertOneOfTest.run(new String[] { null }, null, null);
-                assertOneOfTest.run(new String[] { "a" }, null, new TestError("abc", Iterable.create(
+                assertOneOfTest.run(new String[] { "a" }, null, new TestError("abc", TestTests.createErrorMessage(
                     "Actual value (null) must be \"a\".")));
-                assertOneOfTest.run(new String[] { "a", "b" }, null, new TestError("abc", Iterable.create(
+                assertOneOfTest.run(new String[] { "a", "b" }, null, new TestError("abc", TestTests.createErrorMessage(
                     "Actual value (null) must be \"a\" or \"b\".")));
-                assertOneOfTest.run(new String[] { "a", "b", "c" }, null, new TestError("abc", Iterable.create(
+                assertOneOfTest.run(new String[] { "a", "b", "c" }, null, new TestError("abc", TestTests.createErrorMessage(
                     "Actual value (null) must be \"a\", \"b\", or \"c\".")));
 
-                assertOneOfTest.run(new String[] { null }, "a", new TestError("abc", Iterable.create(
+                assertOneOfTest.run(new String[] { null }, "a", new TestError("abc", TestTests.createErrorMessage(
                     "Actual value (\"a\") must be null.")));
                 assertOneOfTest.run(new String[] { "a" }, "a", null);
-                assertOneOfTest.run(new String[] { "a" }, "z", new TestError("abc", Iterable.create(
+                assertOneOfTest.run(new String[] { "a" }, "z", new TestError("abc", TestTests.createErrorMessage(
                     "Actual value (\"z\") must be \"a\".")));
                 assertOneOfTest.run(new String[] { "a", "b" }, "a", null);
                 assertOneOfTest.run(new String[] { "a", "b" }, "b", null);
-                assertOneOfTest.run(new String[] { "a", "b" }, "z", new TestError("abc", Iterable.create(
+                assertOneOfTest.run(new String[] { "a", "b" }, "z", new TestError("abc", TestTests.createErrorMessage(
                     "Actual value (\"z\") must be \"a\" or \"b\".")));
                 assertOneOfTest.run(new String[] { "a", "b", "c" }, "a", null);
                 assertOneOfTest.run(new String[] { "a", "b", "c" }, "b", null);
                 assertOneOfTest.run(new String[] { "a", "b", "c" }, "c", null);
-                assertOneOfTest.run(new String[] { "a", "b", "c" }, "z", new TestError("abc", Iterable.create(
+                assertOneOfTest.run(new String[] { "a", "b", "c" }, "z", new TestError("abc", TestTests.createErrorMessage(
                     "Actual value (\"z\") must be \"a\", \"b\", or \"c\".")));
             });
 
@@ -2654,26 +2797,26 @@ public interface TestTests
                 assertOneOfTest.run(null, null, new PreConditionFailure("possibleValues cannot be null."));
                 assertOneOfTest.run(Iterable.create(), null, new PreConditionFailure("possibleValues cannot be empty."));
                 assertOneOfTest.run(Iterable.create((String)null), null, null);
-                assertOneOfTest.run(Iterable.create("a"), null, new TestError("abc", Iterable.create(
+                assertOneOfTest.run(Iterable.create("a"), null, new TestError("abc", TestTests.createErrorMessage(
                     "Actual value (null) must be \"a\".")));
-                assertOneOfTest.run(Iterable.create("a", "b"), null, new TestError("abc", Iterable.create(
+                assertOneOfTest.run(Iterable.create("a", "b"), null, new TestError("abc", TestTests.createErrorMessage(
                     "Actual value (null) must be \"a\" or \"b\".")));
-                assertOneOfTest.run(Iterable.create("a", "b", "c"), null, new TestError("abc", Iterable.create(
+                assertOneOfTest.run(Iterable.create("a", "b", "c"), null, new TestError("abc", TestTests.createErrorMessage(
                     "Actual value (null) must be \"a\", \"b\", or \"c\".")));
 
-                assertOneOfTest.run(Iterable.create((String)null), "a", new TestError("abc", Iterable.create(
+                assertOneOfTest.run(Iterable.create((String)null), "a", new TestError("abc", TestTests.createErrorMessage(
                     "Actual value (\"a\") must be null.")));
                 assertOneOfTest.run(Iterable.create("a"), "a", null);
-                assertOneOfTest.run(Iterable.create("a"), "z", new TestError("abc", Iterable.create(
+                assertOneOfTest.run(Iterable.create("a"), "z", new TestError("abc", TestTests.createErrorMessage(
                     "Actual value (\"z\") must be \"a\".")));
                 assertOneOfTest.run(Iterable.create("a", "b"), "a", null);
                 assertOneOfTest.run(Iterable.create("a", "b"), "b", null);
-                assertOneOfTest.run(Iterable.create("a", "b"), "z", new TestError("abc", Iterable.create(
+                assertOneOfTest.run(Iterable.create("a", "b"), "z", new TestError("abc", TestTests.createErrorMessage(
                     "Actual value (\"z\") must be \"a\" or \"b\".")));
                 assertOneOfTest.run(Iterable.create("a", "b", "c"), "a", null);
                 assertOneOfTest.run(Iterable.create("a", "b", "c"), "b", null);
                 assertOneOfTest.run(Iterable.create("a", "b", "c"), "c", null);
-                assertOneOfTest.run(Iterable.create("a", "b", "c"), "z", new TestError("abc", Iterable.create(
+                assertOneOfTest.run(Iterable.create("a", "b", "c"), "z", new TestError("abc", TestTests.createErrorMessage(
                     "Actual value (\"z\") must be \"a\", \"b\", or \"c\".")));
             });
 
@@ -2734,5 +2877,19 @@ public interface TestTests
     static Test createTest(String testName)
     {
         return Test.create(testName, null, null);
+    }
+
+    public static String createErrorMessage(String... errorMessageLines)
+    {
+        PreCondition.assertNotNullAndNotEmpty(errorMessageLines, "errorMessageLines");
+
+        return TestTests.createErrorMessage(Iterable.create(errorMessageLines));
+    }
+
+    public static String createErrorMessage(Iterable<String> errorMessageLines)
+    {
+        PreCondition.assertNotNullAndNotEmpty(errorMessageLines, "errorMessageLines");
+
+        return Strings.join("\n", errorMessageLines);
     }
 }
