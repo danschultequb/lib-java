@@ -14,7 +14,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
     {
         PreCondition.assertNotNull(bytes, "bytes");
 
-        this.bytes = ByteList.createFromBytes(bytes);
+        this.bytes = ByteList.create(bytes);
         this.mutex = SpinMutex.create();
         this.bytesAvailable = this.mutex.createCondition(() -> isDisposed() || this.endOfStream || this.bytes.any());
 
@@ -72,7 +72,7 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
                 throw new EmptyException();
             }
 
-            return this.bytes.removeFirst();
+            return this.bytes.removeFirst().await();
         });
     }
 
@@ -84,27 +84,27 @@ public class InMemoryByteStream implements ByteReadStream, ByteWriteStream
         PreCondition.assertLength(length, startIndex, outputBytes.length);
         PreCondition.assertNotDisposed(this, "this");
 
-        return mutex.criticalSection(() ->
+        return this.mutex.criticalSection(() ->
         {
             int bytesRead = length;
             if (bytesRead > 0)
             {
-                while (!isDisposed && !endOfStream && !bytes.any())
+                while (!this.isDisposed && !this.endOfStream && !this.bytes.any())
                 {
-                    bytesAvailable.watch().await();
+                    this.bytesAvailable.watch().await();
                 }
 
                 if (this.isDisposed())
                 {
                     throw new IllegalStateException("this.isDisposed() cannot be true.");
                 }
-                else if (!bytes.any())
+                else if (!this.bytes.any())
                 {
                     throw new EmptyException();
                 }
 
                 bytesRead = Math.minimum(bytes.getCount(), bytesRead);
-                bytes.removeFirstBytes(outputBytes, startIndex, bytesRead);
+                bytes.removeFirst(outputBytes, startIndex, bytesRead).await();
             }
             return bytesRead;
         });

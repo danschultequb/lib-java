@@ -127,7 +127,7 @@ public interface List<T> extends MutableIndexable<T>
      * Add the provided values at the end of this List.
      * @param values The values to add.
      */
-    default List<T> addAll(Iterator<? extends T> values)
+    public default List<T> addAll(Iterator<? extends T> values)
     {
         PreCondition.assertNotNull(values, "values");
 
@@ -145,7 +145,7 @@ public interface List<T> extends MutableIndexable<T>
      * Add the provided values at the end of this List.
      * @param values The values to add.
      */
-    default List<T> addAll(Iterable<? extends T> values)
+    public default List<T> addAll(Iterable<? extends T> values)
     {
         PreCondition.assertNotNull(values, "values");
 
@@ -176,41 +176,78 @@ public interface List<T> extends MutableIndexable<T>
     }
 
     /**
-     * Remove and return the value at the provided index. If the index is not in the bounds of this
-     * List, then no values will be removed and null will be returned.
-     * @param index The index to remove create.
-     * @return The value that was removed or null if the index is out of bounds.
+     * Remove and return the value at the provided index in this {@link List}.
+     * @param index The index of the value to remove from this {@link List}.
+     * @pre 0 <= index && index < this.getCount()
+     * @exception PreConditionFailure if the index is not in the bounds of this {@link List}.
      */
     T removeAt(int index);
 
     /**
-     * Remove and return the first value in this List. If this List is empty, then null will be
-     * returned.
-     * @return The value that was removed, or null if the List was empty.
+     * Remove and return the first value in this {@link List}.
+     * @exception EmptyException if this {@link List} is empty.
      */
-    default T removeFirst()
+    public default Result<T> removeFirst()
     {
-        return this.removeAt(0);
+        return Result.create(() ->
+        {
+            if (!this.any())
+            {
+                throw new EmptyException();
+            }
+
+            return this.removeAt(0);
+        });
     }
 
     /**
-     * Remove and return the first valuesToRemove values from this List. If the List does not have
-     * enough values, then all of the values in the list will be removed. If the List is empty,
-     * then null will be returned.
+     * Remove and return the first valuesToRemove values from this {@link List}. If this
+     * {@link List} does not have enough values, then all the values in this {@link List} will be
+     * removed and returned.
      * @param valuesToRemove The number of values to remove.
-     * @return The values that were removed or null if the List was empty.
+     * @PreCondition 0 <= valuesToRemove
+     * @PostCondition result != null
+     * @PostCondition 1 <= result.getCount() && result.getCount() <= valuesToRemove
+     * @exception EmptyException if the {@link List} is empty.
      */
-    default Iterable<T> removeFirst(int valuesToRemove)
+    public default Result<? extends Iterable<T>> removeFirst(int valuesToRemove)
     {
-        PreCondition.assertNotNullAndNotEmpty(this, "list");
-        PreCondition.assertNonEmptyLength(valuesToRemove, 0, this.getCount(), "valuesToRemove");
+        PreCondition.assertGreaterThanOrEqualTo(valuesToRemove, 0, "valuesToRemove");
 
-        final List<T> result = List.create();
-        for (int i = 0; i < valuesToRemove; ++i)
+        return Result.create(() ->
         {
-            result.add(this.removeFirst());
-        }
-        return result;
+            final List<T> result = List.create();
+
+            if (valuesToRemove > 0)
+            {
+                final Value<Throwable> errorValue = Value.create();
+                for (int i = 0; i < valuesToRemove; i++)
+                {
+                    this.removeFirst()
+                        .then(result::add)
+                        .catchError(errorValue::set)
+                        .await();
+                    if (errorValue.hasValue())
+                    {
+                        break;
+                    }
+                }
+
+                if (errorValue.hasValue())
+                {
+                    final Throwable error = errorValue.get();
+                    if (!(error instanceof EmptyException) || !result.any())
+                    {
+                        throw Exceptions.asRuntime(errorValue.get());
+                    }
+                }
+            }
+
+            PostCondition.assertNotNull(result, "result");
+            PostCondition.assertBetween(0, result.getCount(), valuesToRemove, "result.getCount()");
+
+            return result;
+        });
     }
 
     /**
@@ -219,7 +256,7 @@ public interface List<T> extends MutableIndexable<T>
      * @param condition The condition to run against each element in this List.
      * @return The element that was removed, or null if no element matched the condition.
      */
-    default T removeFirst(Function1<T,Boolean> condition)
+    public default T removeFirst(Function1<T,Boolean> condition)
     {
         final int removeIndex = this.indexOf(condition);
         return removeIndex < 0 ? null : this.removeAt(removeIndex);

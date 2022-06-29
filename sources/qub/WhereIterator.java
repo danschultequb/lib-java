@@ -1,21 +1,26 @@
 package qub;
 
 /**
- * An Iterator that only returns values that match a provided condition.
- * @param <T> The type of value that this Iterator returns.
+ * An {@link Iterator} that only returns values that match a provided condition.
+ * @param <T> The type of value that this {@link Iterator} returns.
  */
-class WhereIterator<T> implements Iterator<T>
+public class WhereIterator<T> implements Iterator<T>
 {
     private final Iterator<T> innerIterator;
     private final Function1<T,Boolean> condition;
 
-    WhereIterator(Iterator<T> innerIterator, Function1<T,Boolean> condition)
+    private WhereIterator(Iterator<T> innerIterator, Function1<T,Boolean> condition)
     {
         PreCondition.assertNotNull(innerIterator, "innerIterator");
         PreCondition.assertNotNull(condition, "condition");
 
         this.innerIterator = innerIterator;
         this.condition = condition;
+    }
+
+    public static <T> WhereIterator<T> create(Iterator<T> innerIterator, Function1<T,Boolean> condition)
+    {
+        return new WhereIterator<>(innerIterator, condition);
     }
 
     private void skipToMatch()

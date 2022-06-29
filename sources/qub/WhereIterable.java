@@ -1,15 +1,15 @@
 package qub;
 
 /**
- * An Iterable that only returns values that match a provided condition.
- * @param <T> The type of value that this Iterable returns.
+ * An {@link Iterable} that only returns values that match a provided condition.
+ * @param <T> The type of value that this {@link Iterable} returns.
  */
-class WhereIterable<T> implements Iterable<T>
+public class WhereIterable<T> implements Iterable<T>
 {
     private final Iterable<T> innerIterable;
     private final Function1<T,Boolean> condition;
 
-    WhereIterable(Iterable<T> innerIterable, Function1<T,Boolean> condition)
+    private WhereIterable(Iterable<T> innerIterable, Function1<T,Boolean> condition)
     {
         PreCondition.assertNotNull(innerIterable, "innerIterable");
         PreCondition.assertNotNull(condition, "condition");
@@ -18,10 +18,15 @@ class WhereIterable<T> implements Iterable<T>
         this.condition = condition;
     }
 
+    public static <T> WhereIterable<T> create(Iterable<T> innerIterable, Function1<T,Boolean> condition)
+    {
+        return new WhereIterable<>(innerIterable, condition);
+    }
+
     @Override
     public Iterator<T> iterate()
     {
-        return new WhereIterator<>(innerIterable.iterate(), condition);
+        return WhereIterator.create(innerIterable.iterate(), condition);
     }
 
     @Override

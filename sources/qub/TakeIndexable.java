@@ -5,13 +5,18 @@ public class TakeIndexable<T> implements Indexable<T>
     private final Indexable<T> innerIndexable;
     private final int toTake;
 
-    public TakeIndexable(Indexable<T> innerIndexable, int toTake)
+    private TakeIndexable(Indexable<T> innerIndexable, int toTake)
     {
         PreCondition.assertNotNull(innerIndexable, "innerIndexable");
         PreCondition.assertGreaterThanOrEqualTo(toTake, 0, "toTake");
 
         this.innerIndexable = innerIndexable;
         this.toTake = toTake;
+    }
+
+    public static <T> TakeIndexable<T> create(Indexable<T> innerIndexable, int toTake)
+    {
+        return new TakeIndexable<>(innerIndexable, toTake);
     }
 
     @Override

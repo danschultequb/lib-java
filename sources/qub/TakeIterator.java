@@ -4,14 +4,14 @@ package qub;
  * An Iterator that will iterate over no more than a fixed number of values create an inner Iterator.
  * @param <T> The type of value that this Iterator returns.
  */
-class TakeIterator<T> implements Iterator<T>
+public class TakeIterator<T> implements Iterator<T>
 {
     private final Iterator<T> innerIterator;
     private final int toTake;
 
     private int taken;
 
-    TakeIterator(Iterator<T> innerIterator, int toTake)
+    private TakeIterator(Iterator<T> innerIterator, int toTake)
     {
         PreCondition.assertNotNull(innerIterator, "innerIterator");
         PreCondition.assertGreaterThanOrEqualTo(toTake, 0, "toTake");
@@ -19,6 +19,11 @@ class TakeIterator<T> implements Iterator<T>
         this.innerIterator = innerIterator;
         this.toTake = toTake;
         taken = innerIterator.hasCurrent() ? 1 : 0;
+    }
+
+    public static <T> TakeIterator<T> create(Iterator<T> innerIterator, int toTake)
+    {
+        return new TakeIterator<>(innerIterator, toTake);
     }
 
     @Override

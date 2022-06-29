@@ -1,6 +1,6 @@
 package qub;
 
-public class MutableMapTests
+public interface MutableMapTests
 {
     public static void test(TestRunner runner, Function0<MutableMap<Integer,Boolean>> creator, boolean canHandleNullKeys, boolean canHandleNullValues)
     {
@@ -220,7 +220,7 @@ public class MutableMapTests
                     test.assertNotNull(entries);
                     test.assertEqual(1, entries.getCount());
 
-                    final MapEntry<Integer,Boolean> entry = map.iterate().first();
+                    final MapEntry<Integer,Boolean> entry = map.iterate().first().await();
                     final Integer expectedValue = 50;
                     final Integer actualValue = entry.getKey();
                     test.assertEqual(expectedValue, actualValue);

@@ -282,7 +282,7 @@ public interface IntegerListTests
                 {
                     runner.test("with " + English.andList(list, valuesToRemove), (Test test) ->
                     {
-                        test.assertEqual(expectedResult, list.removeFirst(valuesToRemove));
+                        test.assertEqual(expectedResult, list.removeFirst(valuesToRemove).await());
                         test.assertEqual(expectedList, list);
                     });
                 };
@@ -308,7 +308,7 @@ public interface IntegerListTests
                 {
                     runner.test("with " + English.andList(list, outputIntegers), (Test test) ->
                     {
-                        test.assertEqual(expectedResult, list.removeFirst(outputIntegers));
+                        test.assertEqual(expectedResult, list.removeFirst(outputIntegers).await());
                         test.assertEqual(expectedOutputLongs, outputIntegers);
                         test.assertEqual(expectedList, list);
                     });
@@ -345,7 +345,7 @@ public interface IntegerListTests
                 {
                     runner.test("with " + English.andList(list, outputIntegers, startIndex, length), (Test test) ->
                     {
-                        test.assertEqual(expectedResult, list.removeFirst(outputIntegers, startIndex, length));
+                        test.assertEqual(expectedResult, list.removeFirst(outputIntegers, startIndex, length).await());
                         test.assertEqual(expectedOutputLongs, outputIntegers);
                         test.assertEqual(expectedList, list);
                     });

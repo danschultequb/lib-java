@@ -92,7 +92,7 @@ public class ManualAsyncRunner implements AsyncScheduler
 
         while (!result.isCompleted())
         {
-            final AsyncTask<?> asyncTask = this.scheduledTasks.unlock((List<AsyncTask<?>> tasks) -> tasks.any() ? tasks.removeFirst() : null);
+            final AsyncTask<?> asyncTask = this.scheduledTasks.unlock((List<AsyncTask<?>> tasks) -> tasks.removeFirst().catchError(EmptyException.class).await());
             if (asyncTask != null)
             {
                 asyncTask.run();

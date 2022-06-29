@@ -126,13 +126,16 @@ public class IntegerList implements List<Integer>
     }
 
     @Override
-    public IntegerArray removeFirst(int valuesToRemove)
+    public Result<Iterable<Integer>> removeFirst(int valuesToRemove)
     {
         PreCondition.assertGreaterThanOrEqualTo(valuesToRemove, 0, "valuesToRemove");
 
-        final int[] integers = new int[Math.minimum(this.count, valuesToRemove)];
-        this.removeFirst(integers);
-        return IntegerArray.create(integers);
+        return Result.create(() ->
+        {
+            final int[] integers = new int[Math.minimum(this.count, valuesToRemove)];
+            this.removeFirst(integers).await();
+            return IntegerArray.create(integers);
+        });
     }
 
     /**
@@ -140,7 +143,7 @@ public class IntegerList implements List<Integer>
      * be enough integers in this list to fill the provided array.
      * @param outputIntegers The array to put the integers into.
      */
-    public int removeFirst(int[] outputIntegers)
+    public Result<Integer> removeFirst(int[] outputIntegers)
     {
         PreCondition.assertNotNull(outputIntegers, "outputIntegers");
 
@@ -153,26 +156,27 @@ public class IntegerList implements List<Integer>
      * @param startIndex The start index in the array to start putting the bytes to.
      * @param length The number of bytes to remove from the list and put into the array.
      */
-    public int removeFirst(int[] outputIntegers, int startIndex, int length)
+    public Result<Integer> removeFirst(int[] outputIntegers, int startIndex, int length)
     {
         PreCondition.assertNotNull(outputIntegers, "outputIntegers");
         PreCondition.assertStartIndex(startIndex, outputIntegers.length);
         PreCondition.assertLength(length, startIndex, outputIntegers.length);
 
-        final int result = Math.minimum(this.count, length);
-        if (result > 0)
+        return Result.create(() ->
         {
-            Array.copy(this.integers, 0, outputIntegers, startIndex, result);
-            if (result < this.count)
+            final int result = Math.minimum(length, this.count);
+            if (result > 0)
             {
-                Array.copy(this.integers, result, this.integers, 0, this.count - result);
+                Array.copy(this.integers, 0, outputIntegers, startIndex, result);
+                if (result < this.count)
+                {
+                    Array.copy(this.integers, result, this.integers, 0, this.count - result);
+                }
+                this.count -= result;
             }
-            count -= result;
-        }
 
-        PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
-
-        return result;
+            return result;
+        });
     }
 
     @Override

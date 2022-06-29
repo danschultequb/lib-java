@@ -28,7 +28,7 @@ public class InMemoryFileSystem implements FileSystem
 
     private InMemoryRoot getInMemoryRoot(String inMemoryRootPath)
     {
-        return getInMemoryRoot(Path.parse(inMemoryRootPath));
+        return this.getInMemoryRoot(Path.parse(inMemoryRootPath));
     }
 
     private InMemoryRoot getInMemoryRoot(Path inMemoryRootPath)
@@ -42,10 +42,11 @@ public class InMemoryFileSystem implements FileSystem
             .then((Path resolvedInMemoryFolderPath) ->
             {
                 final Iterator<String> folderPathSegments = resolvedInMemoryFolderPath.getSegments().iterate();
-                InMemoryFolder folder = this.getInMemoryRoot(folderPathSegments.first());
+                final String rootPath = folderPathSegments.first().await();
+                InMemoryFolder folder = this.getInMemoryRoot(rootPath);
                 if (folder == null)
                 {
-                    throw new RootNotFoundException(folderPathSegments.first());
+                    throw new RootNotFoundException(rootPath);
                 }
 
                 while (folder != null && folderPathSegments.next())
@@ -68,7 +69,7 @@ public class InMemoryFileSystem implements FileSystem
             {
                 boolean createdFolder = false;
                 final Iterator<String> folderPathSegments = resolvedInMemoryFolderPath.getSegments().iterate();
-                InMemoryFolder folder = this.getInMemoryRoot(folderPathSegments.first());
+                InMemoryFolder folder = this.getInMemoryRoot(folderPathSegments.first().await());
                 while (folderPathSegments.next())
                 {
                     final String folderName = folderPathSegments.getCurrent();

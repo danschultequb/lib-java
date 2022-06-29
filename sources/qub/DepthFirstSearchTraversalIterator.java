@@ -65,7 +65,9 @@ public class DepthFirstSearchTraversalIterator<TNode,TValue> extends TraversalIt
     @Override
     protected void runNextAction()
     {
-        final Action0 action = this.actionsToRun.removeFirst();
+        PreCondition.assertTrue(this.hasActionsToRun(), "this.hasActionsToRun()");
+
+        final Action0 action = this.actionsToRun.removeFirst().await();
         action.run();
     }
 
@@ -82,7 +84,7 @@ public class DepthFirstSearchTraversalIterator<TNode,TValue> extends TraversalIt
 
         this.actionsToRunInsertIndex = 0;
 
-        final TNode nodeToVisit = this.nodesToVisit.removeFirst();
+        final TNode nodeToVisit = this.nodesToVisit.removeFirst().await();
         this.visitNodeFunction.run(this, nodeToVisit);
     }
 

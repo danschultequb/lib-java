@@ -134,7 +134,7 @@ public interface ByteReadStream extends Disposable
         return Result.create(() ->
         {
             byte[] result;
-            final ByteList byteList = ByteList.empty();
+            final ByteList byteList = ByteList.create();
             while(true)
             {
                 final Byte byteRead = this.readByte()

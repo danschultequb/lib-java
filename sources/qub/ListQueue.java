@@ -52,14 +52,7 @@ public class ListQueue<T> implements Queue<T>
     @Override
     public Result<T> dequeue()
     {
-        return Result.create(() ->
-        {
-            if (!this.any())
-            {
-                throw new EmptyException();
-            }
-            return this.values.removeFirst();
-        });
+        return this.values.removeFirst();
     }
 
     @Override

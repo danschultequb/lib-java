@@ -1,6 +1,6 @@
 package qub;
 
-public class MapIterableTests
+public interface MapIterableTests
 {
     public static void test(TestRunner runner)
     {
@@ -13,7 +13,7 @@ public class MapIterableTests
                 {
                     innerIterable.add(Integer.toString(i));
                 }
-                return new MapIterable<>(innerIterable, Integer::parseInt);
+                return MapIterable.create(innerIterable, Integer::parseInt);
             });
         });
     }

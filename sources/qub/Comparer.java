@@ -788,7 +788,7 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
      * @param rhs The second value to compare.
      * @return Whether or not the provided lhs value is greater than the provided rhs value.
      */
-    static boolean greaterThan(double lhs, double rhs)
+    public static boolean greaterThan(double lhs, double rhs)
     {
         return lhs > rhs;
     }
@@ -800,41 +800,153 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
      * @param <T> The type of the values to compare.
      * @return Whether or not the provided lhs value is greater than the provided rhs value.
      */
-    static <T extends Comparable<T>> boolean greaterThan(T lhs, T rhs)
+    public static <T extends Comparable<T>> boolean greaterThan(T lhs, T rhs)
     {
         return lhs != null && lhs.greaterThan(rhs);
     }
 
-    static <T extends Comparable<T>, U extends T> U minimum(Iterable<U> values)
+    /**
+     * Get the value in the provided {@link Iterator} that is the minimum.
+     * @param values The {@link Iterator} of values to get the minimum of.
+     * {@link Iterator}.
+     * @exception EmptyException if the provided {@link Iterator} doesn't have any values.
+     */
+    public static <T extends Comparable<T>, U extends T> Result<U> minimum(Iterable<U> values)
     {
         return Comparer.minimum(values, Comparer::compare);
     }
 
-    static <T> T minimum(Iterable<T> values, Function2<T,T,Comparison> comparer)
+    /**
+     * Get the value in the provided {@link Iterable} that is the minimum based on the provided
+     * {@link CompareFunction}.
+     * @param values The {@link Iterable} of values to get the minimum of.
+     * @param comparer The {@link CompareFunction} to use to compare the values in this
+     * {@link Iterable}.
+     * @exception EmptyException if the provided {@link Iterable} doesn't have any values.
+     */
+    public static <T> Result<T> minimum(Iterable<T> values, CompareFunction<T> comparer)
     {
         PreCondition.assertNotNull(values, "values");
         PreCondition.assertNotNull(comparer, "comparer");
 
-        return values.minimum(comparer);
+        return Comparer.minimum(values.iterate(), comparer);
     }
 
-    @SafeVarargs
-    static <T extends Comparable<T>, U extends T> U maximum(U... values)
+    /**
+     * Get the value in the provided {@link Iterator} that is the minimum.
+     * @param values The {@link Iterator} of values to get the minimum of.
+     * {@link Iterator}.
+     * @exception EmptyException if the provided {@link Iterator} doesn't have any values.
+     */
+    public static <T extends Comparable<T>, U extends T> Result<U> minimum(Iterator<U> values)
     {
-        return Comparer.maximum(Iterable.create(values));
+        return Comparer.minimum(values, Comparer::compare);
     }
 
-    static <T extends Comparable<T>, U extends T> U maximum(Iterable<U> values)
+    /**
+     * Get the value in the provided {@link Iterator} that is the minimum based on the provided
+     * {@link CompareFunction}.
+     * @param values The {@link Iterator} of values to get the minimum of.
+     * @param comparer The {@link CompareFunction} to use to compare the values in this
+     * {@link Iterator}.
+     * @exception EmptyException if the provided {@link Iterator} doesn't have any values.
+     */
+    public static <T> Result<T> minimum(Iterator<T> values, CompareFunction<T> comparer)
+    {
+        PreCondition.assertNotNull(values, "values");
+        PreCondition.assertNotNull(comparer, "comparer");
+
+        return Result.create(() ->
+        {
+            values.start();
+            if (!values.hasCurrent())
+            {
+                throw new EmptyException();
+            }
+
+            T minimumValue = values.takeCurrent();
+            for (final T value : values)
+            {
+                if (comparer.run(value, minimumValue) == Comparison.LessThan)
+                {
+                    minimumValue = value;
+                }
+            }
+
+            return minimumValue;
+        });
+    }
+
+    /**
+     * Get the value in the provided {@link Iterator} that is the maximum.
+     * @param values The {@link Iterator} of values to get the maximum of.
+     * {@link Iterator}.
+     * @exception EmptyException if the provided {@link Iterator} doesn't have any values.
+     */
+    public static <T extends Comparable<T>, U extends T> Result<U> maximum(Iterable<U> values)
     {
         return Comparer.maximum(values, Comparer::compare);
     }
 
-    static <T> T maximum(Iterable<T> values, Function2<T,T,Comparison> comparer)
+    /**
+     * Get the value in the provided {@link Iterable} that is the maximum based on the provided
+     * {@link CompareFunction}.
+     * @param values The {@link Iterable} of values to get the maximum of.
+     * @param comparer The {@link CompareFunction} to use to compare the values in this
+     * {@link Iterable}.
+     * @exception EmptyException if the provided {@link Iterable} doesn't have any values.
+     */
+    public static <T> Result<T> maximum(Iterable<T> values, CompareFunction<T> comparer)
     {
         PreCondition.assertNotNull(values, "values");
         PreCondition.assertNotNull(comparer, "comparer");
 
-        return values.maximum(comparer);
+        return Comparer.maximum(values.iterate(), comparer);
+    }
+
+    /**
+     * Get the value in the provided {@link Iterator} that is the maximum.
+     * @param values The {@link Iterator} of values to get the maximum of.
+     * {@link Iterator}.
+     * @exception EmptyException if the provided {@link Iterator} doesn't have any values.
+     */
+    public static <T extends Comparable<T>, U extends T> Result<U> maximum(Iterator<U> values)
+    {
+        return Comparer.maximum(values, Comparer::compare);
+    }
+
+    /**
+     * Get the value in the provided {@link Iterator} that is the maximum based on the provided
+     * {@link CompareFunction}.
+     * @param values The {@link Iterator} of values to get the maximum of.
+     * @param comparer The {@link CompareFunction} to use to compare the values in this
+     * {@link Iterator}.
+     * @exception EmptyException if the provided {@link Iterator} doesn't have any values.
+     */
+    public static <T> Result<T> maximum(Iterator<T> values, CompareFunction<T> comparer)
+    {
+        PreCondition.assertNotNull(values, "values");
+        PreCondition.assertNotNull(comparer, "comparer");
+
+        return Result.create(() ->
+        {
+            values.start();
+            if (!values.hasCurrent())
+            {
+                throw new EmptyException();
+            }
+
+            T maximumValue = values.takeCurrent();
+            for (final T value : values)
+            {
+                if (comparer.run(value, maximumValue) == Comparison.GreaterThan)
+                {
+                    maximumValue = value;
+                }
+            }
+
+            return maximumValue;
+        });
     }
 
     /**

@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A collection of CommandLineAction objects that can be used for an application.
+ * A collection of {@link CommandLineAction} objects that can be used for an application.
  */
 public class CommandLineActions
 {
@@ -15,16 +15,28 @@ public class CommandLineActions
         this.actions = List.create();
     }
 
+    /**
+     * Create a new empty {@link CommandLineActions} object.
+     */
     public static CommandLineActions create()
     {
         return new CommandLineActions();
     }
 
+    /**
+     * Get the {@link DesktopProcess} that has been assigned to this {@link CommandLineActions}.
+     */
     public DesktopProcess getProcess()
     {
         return this.process;
     }
 
+    /**
+     * Set the {@link DesktopProcess} that is assigned to this {@link CommandLineActions}.
+     * @param process The {@link DesktopProcess} that is assigned to this
+     * {@link CommandLineActions}.
+     * @return This object for method chaining.
+     */
     public CommandLineActions setProcess(DesktopProcess process)
     {
         PreCondition.assertNotNull(process, "process");
@@ -48,7 +60,6 @@ public class CommandLineActions
 
     /**
      * Get the name of the application.
-     * @return The name of the application.
      */
     public String getApplicationName()
     {
@@ -69,7 +80,6 @@ public class CommandLineActions
 
     /**
      * Get the description of the application that these parameters apply to.
-     * @return The description of the application that these parameters apply to.
      */
     public String getApplicationDescription()
     {
@@ -80,7 +90,6 @@ public class CommandLineActions
      * Get the full action name of the provided action name. The full action name is the
      * application's name followed by the action path to reach the provided action.
      * @param actionName The name of the action to get the full action of.
-     * @return The full action name.
      */
     public String getFullActionName(String actionName)
     {
@@ -103,14 +112,32 @@ public class CommandLineActions
         return result;
     }
 
-    public CommandLineAction getDefaultAction()
+    /**
+     * Get the default action for this {@link CommandLineActions}.
+     * @exception NotFoundException if no default action was found.
+     */
+    public Result<CommandLineAction> getDefaultAction()
     {
-        return this.actions.first(CommandLineAction::isDefaultAction);
+        return Result.create(() ->
+        {
+            final CommandLineAction result = this.actions.first(CommandLineAction::isDefaultAction);
+            if (result == null)
+            {
+                throw new NotFoundException("No default action was found.");
+            }
+            return result;
+        });
     }
 
+    /**
+     * Get whether this {@link CommandLineActions} has a default action.
+     */
     public boolean hasDefaultAction()
     {
-        return this.getDefaultAction() != null;
+        return this.getDefaultAction()
+            .then(() -> true)
+            .catchError(NotFoundException.class, () -> false)
+            .await();
     }
 
     public Result<CommandLineAction> getAction(String actionName)
@@ -130,11 +157,9 @@ public class CommandLineActions
     }
 
     /**
-     * Get whether or not this CommandLineActions object contains an action with either the name or
-     * an alias that matches the provided actionName.
+     * Get whether this {@link CommandLineActions} object contains a {@link CommandLineAction} with
+     * either the name or an alias that matches the provided actionName.
      * @param actionName The name of the action to look for.
-     * @return Whether or not this CommandLineActions object contains an action with either the name
-     * or an alias that matches the provided actionName.
      */
     public boolean containsActionName(String actionName)
     {
@@ -269,7 +294,9 @@ public class CommandLineActions
 
         final String actionName = actionParameter.getValue().await();
 
-        final CommandLineAction defaultAction = this.getDefaultAction();
+        final CommandLineAction defaultAction = this.getDefaultAction()
+            .catchError(NotFoundException.class)
+            .await();
         CommandLineAction actionToRun = null;
         if (Strings.isNullOrEmpty(actionName))
         {

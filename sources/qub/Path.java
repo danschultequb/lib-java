@@ -430,9 +430,9 @@ public class Path implements Comparable<Path>
 
             final Iterator<String> segmentIterator = segments.skipLast().iterate();
             final StringBuilder builder = new StringBuilder();
-            if (segmentIterator.first().equals("/"))
+            if (segmentIterator.first().await().equals("/"))
             {
-                builder.append(segmentIterator.first());
+                builder.append(segmentIterator.first().await());
                 segmentIterator.next();
             }
 

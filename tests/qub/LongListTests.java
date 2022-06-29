@@ -271,7 +271,8 @@ public interface LongListTests
                 {
                     runner.test("with " + English.andList(list, valuesToRemove), (Test test) ->
                     {
-                        test.assertThrows(() -> list.removeFirst(valuesToRemove), expected);
+                        test.assertThrows(() -> list.removeFirst(valuesToRemove).await(),
+                            expected);
                     });
                 };
 
@@ -282,7 +283,7 @@ public interface LongListTests
                 {
                     runner.test("with " + English.andList(list, valuesToRemove), (Test test) ->
                     {
-                        test.assertEqual(expectedResult, list.removeFirst(valuesToRemove));
+                        test.assertEqual(expectedResult, list.removeFirst(valuesToRemove).await());
                         test.assertEqual(expectedList, list);
                     });
                 };
@@ -308,7 +309,7 @@ public interface LongListTests
                 {
                     runner.test("with " + English.andList(list, outputLongs), (Test test) ->
                     {
-                        test.assertEqual(expectedResult, list.removeFirst(outputLongs));
+                        test.assertEqual(expectedResult, list.removeFirst(outputLongs).await());
                         test.assertEqual(expectedOutputLongs, outputLongs);
                         test.assertEqual(expectedList, list);
                     });
@@ -345,7 +346,7 @@ public interface LongListTests
                 {
                     runner.test("with " + English.andList(list, outputLongs, startIndex, length), (Test test) ->
                     {
-                        test.assertEqual(expectedResult, list.removeFirst(outputLongs, startIndex, length));
+                        test.assertEqual(expectedResult, list.removeFirst(outputLongs, startIndex, length).await());
                         test.assertEqual(expectedOutputLongs, outputLongs);
                         test.assertEqual(expectedList, list);
                     });

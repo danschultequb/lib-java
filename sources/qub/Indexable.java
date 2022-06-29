@@ -2,6 +2,19 @@ package qub;
 
 public interface Indexable<T> extends Iterable<T>
 {
+    /**
+     * Create a new {@link Indexable} from the provided values.
+     * @param values The values to convert to an {@link Indexable}.
+     * @param <T> The type of values in the created {@link Indexable}.
+     */
+    @SafeVarargs
+    public static <T> Indexable<T> create(T... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return Array.create(values);
+    }
+
     @Override
     public default boolean any()
     {
@@ -9,32 +22,27 @@ public interface Indexable<T> extends Iterable<T>
     }
 
     /**
-     * Get the element at the provided index. If the provided index is outside of the bounds of this
-     * Indexable, then null will be returned.
+     * Get the element at the provided index.
      * @param index The index of the element to return.
-     * @return The element at the provided index, or null if the provided index is out of bounds.
      */
-    T get(int index);
+    public T get(int index);
 
     /**
      * Get the values over the provided range.
      * @param startIndex The index at which to start the range.
      * @param length The number of values to include in the range.
-     * @return The values over the provided range.
      */
-    default Indexable<T> getRange(int startIndex, int length)
+    public default Indexable<T> getRange(int startIndex, int length)
     {
-        return skip(startIndex).take(length);
+        return this.skip(startIndex).take(length);
     }
 
     /**
-     * Get the index of the first element in this Indexable that satisfies the provided condition,
-     * or -1 if no element isMatch the condition.
-     * @param condition The condition to compare against the elements in this Indexable.
-     * @return The index of the first element that satisfies the provided condition or -1 if no
-     * element isMatch the condition.
+     * Get the index of the first element in this {@link Indexable} that satisfies the provided
+     * condition.
+     * @param condition The condition to compare against the elements in this {@link Indexable}.
      */
-    default int indexOf(Function1<T,Boolean> condition)
+    public default int indexOf(Function1<T,Boolean> condition)
     {
         PreCondition.assertNotNull(condition, "condition");
 
@@ -59,61 +67,43 @@ public interface Indexable<T> extends Iterable<T>
     }
 
     /**
-     * Get the index of the first element in this Indexable that equals the provided value or -1 if
-     * no element equals the value.
-     * @param value The value to look for in this Indexable.
-     * @return The index of the first element that equals the provided value or -1 if no element
-     * equals the provided value.
+     * Get the index of the first element in this {@link Indexable} that equals the provided value.
+     * @param value The value to look for in this {@link Indexable}.
      */
-    default int indexOf(T value)
+    public default int indexOf(T value)
     {
-        return indexOf(element -> Comparer.equal(element, value));
+        return this.indexOf((T element) -> Comparer.equal(element, value));
     }
 
     /**
-     * Create a new Indexable that restricts this Indexable to a fixed number of values.
-     * @param toTake The number of values to constrain this Indexable to.
-     * @return A new Indexable that restricts this Indexable to a fixed number of values.
+     * Create a new {@link Indexable} that restricts this {@link Indexable} to a fixed number of
+     * values.
+     * @param toTake The number of values to constrain this {@link Indexable} to.
      */
-    default Indexable<T> take(int toTake)
+    public default Indexable<T> take(int toTake)
     {
-        return new TakeIndexable<>(this, toTake);
+        return TakeIndexable.create(this, toTake);
     }
 
     /**
-     * Create a new Indexable that will skip over the first toSkip number of elements in this
-     * Indexable and then return the remaining elements.
+     * Create a new {@link Indexable} that will skip over the first toSkip elements in this
+     * {@link Indexable} and then return the remaining elements.
      * @param toSkip The number of elements to skip.
-     * @return A new Indexable that will skip over the first toSkip number of elements in this
-     * Indexable and then return the remaining elements.
      */
-    default Indexable<T> skip(int toSkip)
+    public default Indexable<T> skip(int toSkip)
     {
-        return new SkipIndexable<>(this, toSkip);
+        return SkipIndexable.create(this, toSkip);
     }
 
     /**
-     * Convert this Indexable into an Indexable that returns values of type U instead of type T.
-     * @param conversion The function to use to convert values of type T to type U.
-     * @param <U> The type to convert values of type T to.
-     * @return An Indexable that returns values of type U instead of type T.
+     * Convert this {@link Indexable} into an {@link Indexable} that returns values of type
+     * {@link U} instead of type {@link T}.
+     * @param conversion The {@link Function1} to use to convert values of type {@link T} to type
+     * {@link U}.
+     * @param <U> The type to convert values of type {@link T} to.
      */
-    default <U> Indexable<U> map(Function1<T,U> conversion)
+    public default <U> Indexable<U> map(Function1<T,U> conversion)
     {
-        return new MapIndexable<>(this, conversion);
-    }
-
-    /**
-     * Create a new Indexable create the provided values.
-     * @param values The values to convert to an Indexable.
-     * @param <T> The type of values in the created Indexable.
-     * @return The created Indexable.
-     */
-    @SafeVarargs
-    static <T> Indexable<T> create(T... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return Array.create(values);
+        return MapIndexable.create(this, conversion);
     }
 }

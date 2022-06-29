@@ -1,16 +1,116 @@
 package qub;
 
 /**
- * The Iterator interface defines a type that can synchronously iterate over a collection of values.
- * @param <T> The type of value that the Iterator returns.
+ * A type that can iterate over a collection of values.
+ * @param <T> The type of value that the {@link Iterator} returns.
  */
 public interface Iterator<T> extends java.lang.Iterable<T>
 {
     /**
-     * Advance to this Iterator's first value if the Iterator hasn't started yet. If it has already started, then do
-     * nothing.
+     * Create an {@link Iterator} with no values.
+     * @param <T> The type of values to iterate over.
      */
-    default Iterator<T> start()
+    public static <T> Iterator<T> create()
+    {
+        return EmptyIterator.create();
+    }
+
+    /**
+     * Create an {@link Iterator} for the provided values.
+     * @param values The values to iterate over.
+     */
+    public static Iterator<Byte> createFromBytes(byte... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return ByteArrayIterator.create(values);
+    }
+
+    /**
+     * Create an {@link Iterator} for the provided values.
+     * @param values The values to iterate over.
+     * @PreCondition values != null
+     * @PreCondition 0 <= startIndex && startIndex < values.length
+     * @PreCondition 0 <= length && length < values.length - startIndex
+     * @PostCondition result != null
+     * @PostCondition result.hasStarted() == false
+     */
+    public static Iterator<Byte> create(byte[] values, int startIndex, int length)
+    {
+        PreCondition.assertNotNull(values, "values");
+        PreCondition.assertStartIndex(startIndex, values.length);
+        PreCondition.assertLength(length, startIndex, values.length);
+
+        return ByteArrayIterator.create(values, startIndex, length);
+    }
+
+    /**
+     * Create an {@link Iterator} for the provided values.
+     * @param values The values to iterate over.
+     * @PreCondition values != null
+     */
+    public static Iterator<Character> create(char[] values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        return new CharacterArrayIterator(values);
+    }
+
+    /**
+     * Create an {@link Iterator} for the provided values.
+     * @param values The values to iterate over.
+     */
+    public static Iterator<Integer> create(int[] values)
+    {
+        return IntegerArrayIterator.create(values);
+    }
+
+    /**
+     * Create an {@link Iterator} for the provided values.
+     * @param values The values to iterate over.
+     * @param <T> The type of the values.
+     */
+    @SafeVarargs
+    public static <T> Iterator<T> create(T... values)
+    {
+        return Iterable.create(values).iterate();
+    }
+
+    /**
+     * Create an {@link Iterator} that will invoke the provided {@link Action1} to determine what
+     * its next value(s) should be.
+     * @param getNextValuesAction The {@link Action1} that will be invoked to determine what the
+     *                            next value(s) for the returned {@link Iterator} should be.
+     * @param <T> The type of values returned by the {@link Iterator}.
+     * @PreCondition getNextValuesAction != null
+     */
+    public static <T> Iterator<T> create(Action1<IteratorActions<T>> getNextValuesAction)
+    {
+        PreCondition.assertNotNull(getNextValuesAction, "getNextValuesAction");
+
+        return BasicIterator.create(getNextValuesAction);
+    }
+
+    /**
+     * Create an {@link Iterator} that will invoke the provided {@link Action2} to determine what
+     * its next value(s) should be.
+     * @param getNextValuesAction The {@link Action2} that will be invoked to determine what the
+     *                            next value(s) for the returned {@link Iterator} should be.
+     * @param <T> The type of values returned by the {@link Iterator}.
+     */
+    public static <T> Iterator<T> create(Action2<IteratorActions<T>,Getter<T>> getNextValuesAction)
+    {
+        PreCondition.assertNotNull(getNextValuesAction, "getNextValuesAction");
+
+        return BasicIterator.create(getNextValuesAction);
+    }
+
+    /**
+     * Advance to this {@link Iterator}'s first value if it hasn't started yet. If it has already
+     * started, do nothing.
+     * @return This {@link Iterator} for method chaining.
+     */
+    public default Iterator<T> start()
     {
         if (!this.hasStarted())
         {
@@ -20,227 +120,209 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Whether or not this Iterator has begun iterating over its values.
-     * @return Whether or not this Iterator has begun iterating over its values.
+     * Whether this {@link Iterator} has begun iterating over its values.
      */
-    boolean hasStarted();
+    public boolean hasStarted();
 
     /**
-     * Whether or not this Iterator has a current value.
-     * @return Whether or not this Iterator has a current value.
+     * Whether this {@link Iterator} has a current value.
      */
-    boolean hasCurrent();
+    public boolean hasCurrent();
 
     /**
-     * Get the current value that this Iterator is pointing at.
-     * @return The current value that this Iterator is pointing at.
+     * Get the current value that this {@link Iterator} is pointing at.
      */
-    T getCurrent();
+    public T getCurrent();
 
     /**
-     * Get the next value for this Iterator. Returns whether or not a new value was found.
-     * @return Whether or not a new value was found.
+     * Advance this {@link Iterator} to its next value and return whether a new value was found.
      */
-    boolean next();
+    public boolean next();
 
     /**
-     * Return the current value for this Iterator and advance this Iterator to the next value.
-     * @return The current value for this Iterator.
+     * Return the current value for this {@link Iterator} and advance to the next value.
      */
-    default T takeCurrent()
+    public default T takeCurrent()
     {
-        final T current = getCurrent();
-        next();
-        return current;
+        PreCondition.assertTrue(this.hasCurrent(), "this.hasCurrent()");
+
+        final T result = this.getCurrent();
+        this.next();
+        return result;
     }
 
     /**
-     * Get whether or not this Iterator contains any values. This function may move this Iterator
-     * forward one position, but it can be called multiple times without consuming any of the
-     * values in this Iterator.
-     * @return Whether or not this Iterator contains any values.
+     * Get whether this {@link Iterator} contains any values. This function may start this
+     * {@link Iterator} if it hadn't started iterating yet, but this function can be called multiple
+     * times without consuming any of the values in this {@link Iterator}.
      */
-    default boolean any()
+    public default boolean any()
     {
         return this.start().hasCurrent();
     }
 
     /**
-     * Get the number of values that are in this Iterator. This will iterate through all of the
-     * values in this Iterator. Use this method only if you care how many values are in the
-     * Iterator, not what the values actually are.
-     * @return The number of values that are in this Iterator.
+     * Get the number of values that are in this {@link Iterator}. This will iterate through all the
+     * values in this {@link Iterator}. Use this method only if you care how many values are in the
+     * {@link Iterator}, not what the values actually are.
      */
-    default int getCount()
+    public default int getCount()
     {
         int result = this.hasCurrent() ? 1 : 0;
-        while (this.next()) {
+        while (this.next())
+        {
             ++result;
         }
         return result;
     }
 
     /**
-     * Get the first value in this Iterator. This may advance the Iterator once.
-     * @return The first value of this Iterator, or null if this Iterator has no (more) values.
+     * Get the first value in this {@link Iterator}. This may advance the {@link Iterator} once if
+     * it hasn't been started yet.
+     * @exception EmptyException if the {@link Iterator} is empty.
      */
-    default T first()
+    public default Result<T> first()
     {
-        this.start();
-        return this.hasCurrent() ? this.getCurrent() : null;
+        return Result.create(() ->
+        {
+            if (!this.start().hasCurrent())
+            {
+                throw new EmptyException();
+            }
+            return this.getCurrent();
+        });
     }
 
     /**
-     * Get the first value in this Iterator that isMatch the provided condition.
-     * @param condition The condition to run against each of the values in this Iterator.
-     * @return The first value of this Iterator that isMatch the provided condition, or null if this
-     * Iterator has no values that match the condition.
+     * Get the first value in this {@link Iterator} that matches the provided condition.
+     * @param condition The condition to run against each of the values in this {@link Iterator}.
+     * @exception NotFoundException if no matching value is found.
      */
-    default T first(Function1<T,Boolean> condition)
+    public default Result<T> first(Function1<T,Boolean> condition)
     {
         PreCondition.assertNotNull(condition, "condition");
 
-        T result = null;
-        boolean foundResult = false;
-
-        T current;
-        if (this.hasCurrent())
+        return Result.create(() ->
         {
-            current = this.getCurrent();
-            if (condition.run(current))
-            {
-                result = current;
-                foundResult = true;
-            }
-        }
+            T result = null;
+            boolean foundResult = false;
 
-        if (!foundResult)
-        {
-            while (this.next())
+            for (final T value : this)
             {
-                current = this.getCurrent();
-                if (condition.run(current))
+                if (condition.run(value))
                 {
-                    result = current;
+                    result = value;
+                    foundResult = true;
                     break;
                 }
             }
-        }
 
-        return result;
+            if (!foundResult)
+            {
+                throw new NotFoundException("Could not find a value in this " + Types.getTypeName(Iterator.class) + " that matches the provided condition.");
+            }
+
+            return result;
+        });
     }
 
     /**
-     * Get the last value in this Iterator. This will iterate through all of the values in this
-     * Iterator.
-     * @return The last value of this Iterator, or null if this Iterator has no (more) values.
+     * Get the last value in this {@link Iterator}.
+     * @exception EmptyException if the {@link Iterator} is empty.
      */
-    default T last()
+    public default Result<T> last()
     {
-        T result = null;
-
-        if (this.hasCurrent())
+        return Result.create(() ->
         {
-            result = getCurrent();
-        }
+            T result = null;
+            boolean foundResult = false;
 
-        while (next())
-        {
-            result = getCurrent();
-        }
+            for (final T value : this)
+            {
+                result = value;
+                foundResult = true;
+            }
 
-        return result;
+            if (!foundResult)
+            {
+                throw new EmptyException();
+            }
+
+            return result;
+        });
     }
 
     /**
-     * Get the last value in this Iterator that isMatch the provided condition.
-     * @param condition The condition to run against each of the values in this Iterator.
-     * @return The last value of this Iterator that isMatch the provided condition, or null if this
-     * Iterator has no values that match the condition.
+     * Get the last value in this {@link Iterator} that matches the provided condition.
+     * @param condition The condition to run against each of the values in this {@link Iterator}.
+     * @exception NotFoundException if no matching value is found.
      */
-    default T last(Function1<T,Boolean> condition)
+    public default Result<T> last(Function1<T,Boolean> condition)
     {
         PreCondition.assertNotNull(condition, "condition");
 
-        T result = null;
-
-        T current;
-        if (hasCurrent())
+        return Result.create(() ->
         {
-            current = getCurrent();
-            if (condition.run(current))
-            {
-                result = getCurrent();
-            }
-        }
+            T result = null;
+            boolean foundResult = false;
 
-        while (next())
-        {
-            current = getCurrent();
-            if (condition.run(current))
+            for (final T value : this)
             {
-                result = current;
+                if (condition.run(value))
+                {
+                    result = value;
+                    foundResult = true;
+                }
             }
-        }
 
-        return result;
+            if (!foundResult)
+            {
+                throw new NotFoundException("Could not find a value in this " + Types.getTypeName(Iterator.class) + " that matches the provided condition.");
+            }
+
+            return result;
+        });
     }
 
     /**
-     * Get whether or not this Iterator contains the provided value using the standard equals()
-     * method to compare values.
-     * @param value The value to look for in this Iterator.
-     * @return Whether or not this Iterator contains the provided value.
+     * Get whether this {@link Iterator} contains the provided value using {@link Comparer}.equal()
+     * to compare the values.
+     * @param value The value to look for in this {@link Iterator}.
      */
-    default boolean contains(T value)
+    public default Result<Boolean> contains(T value)
     {
-        return contains((T iteratorValue) -> Comparer.equal(iteratorValue, value));
+        return this.contains((T iteratorValue) -> Comparer.equal(iteratorValue, value));
     }
 
     /**
-     * Get whether or not this Iterator contains a value that isMatch the provided condition.
-     * @param condition The condition to check against the values in this Iterator.
-     * @return Whether or not this Iterator contains a value that isMatch the provided condition.
+     * Get whether this {@link Iterator} contains a value that matches the provided condition.
+     * @param condition The condition to run against each of the values in this {@link Iterator}.
      */
-    default boolean contains(Function1<T,Boolean> condition)
+    public default Result<Boolean> contains(Function1<T,Boolean> condition)
     {
         PreCondition.assertNotNull(condition, "condition");
 
-        boolean result = false;
-
-        if (hasCurrent())
-        {
-            result = condition.run(getCurrent());
-        }
-
-        while (!result && next())
-        {
-            result = condition.run(getCurrent());
-        }
-
-        return result;
+        return this.first(condition)
+            .then(() -> true)
+            .catchError(NotFoundException.class, () -> false);
     }
 
     /**
-     * Create a new Iterator that will iterate over no more than the provided number of values create
-     * this Iterator.
-     * @param toTake The number of values to take create this Iterator.
-     * @return A new Iterator that will iterate over no more than the provided number of values create
-     * this Iterator.
+     * Create a new {@link Iterator} that will iterate over no more than the provided number of
+     * values from this {@link Iterator}.
+     * @param toTake The number of values to take from this {@link Iterator}.
      */
-    default Iterator<T> take(int toTake)
+    public default Iterator<T> take(int toTake)
     {
-        return new TakeIterator<>(this, toTake);
+        return TakeIterator.create(this, toTake);
     }
 
     /**
      * Create a new {@link Iterator} that will take and return elements in this {@link Iterator}
-     * until it finds an element that makes the provided condition true.
-     * @param condition The condition.
-     * @return A new {@link Iterator} that will take and return elements in this {@link Iterator}
-     * until it finds an element that makes the provided condition true.
+     * until it finds an element that matches the provided condition.
+     * @param condition The condition to run against the values in this {@link Iterator}.
      */
-    default Iterator<T> takeUntil(Function1<T,Boolean> condition)
+    public default Iterator<T> takeUntil(Function1<T,Boolean> condition)
     {
         PreCondition.assertNotNull(condition, "condition");
 
@@ -250,11 +332,9 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     /**
      * Create a new {@link Iterator} that will take and return elements in this {@link Iterator}
      * until it finds an element that makes the provided condition false.
-     * @param condition The condition.
-     * @return A new {@link Iterator} that will take and return elements in this {@link Iterator}
-     * until it finds an element that makes the provided condition false.
+     * @param condition The condition to run against the values in this {@link Iterator}.
      */
-    default Iterator<T> takeWhile(Function1<T,Boolean> condition)
+    public default Iterator<T> takeWhile(Function1<T,Boolean> condition)
     {
         PreCondition.assertNotNull(condition, "condition");
 
@@ -262,132 +342,118 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create a new Iterator that will skip over the first toSkip number of elements in this
-     * Iterator and then iterate over the remaining elements.
+     * Create a new {@link Iterator} that will skip over the first toSkip number of elements in this
+     * {@link Iterator} and then iterate over the remaining elements.
      * @param toSkip The number of elements to skip.
-     * @return A new Iterator that will skip over the first toSkip number of elements in this
-     * Iterator and then iterate over the remaining elements.
      */
-    default Iterator<T> skip(int toSkip)
+    public default Iterator<T> skip(int toSkip)
     {
-        return new SkipIterator<>(this, toSkip);
+        return SkipIterator.create(this, toSkip);
     }
 
     /**
-     * Create a new Iterator that will skip over the elements in this Iterator until it finds an
-     * element that makes the provided condition true. The returned Iterator will start at the
-     * element after the element that made the condition true.
-     * @param condition The condition.
-     * @return a new Iterator that will skip over the elements in this Iterator until it finds an
-     * element that makes the provided condition true.
+     * Create a new {@link Iterator} that will skip over the elements in this {@link Iterator} until
+     * it finds an element that makes the provided condition true.
+     * @param condition The condition to run against the values in this {@link Iterator}.
      */
-    default Iterator<T> skipUntil(Function1<T,Boolean> condition)
+    public default Iterator<T> skipUntil(Function1<T,Boolean> condition)
     {
-        return new SkipUntilIterator<>(this, condition);
+        return SkipUntilIterator.create(this, condition);
     }
 
     /**
-     * Create a new Iterator that only returns the values create this Iterator that satisfy the given
-     * condition.
-     * @param condition The condition values must satisfy to be returned create the created Iterator.
-     * @return An Iterator that only returns the values create this Iterator that satisfy the given
-     * condition.
+     * Create a new {@link Iterator} that only returns the values from this {@link Iterator} that
+     * satisfy the given condition.
+     * @param condition The condition values must satisfy to be returned from the created
+     * {@link Iterator}.
      */
-    default Iterator<T> where(Function1<T,Boolean> condition)
+    public default Iterator<T> where(Function1<T,Boolean> condition)
     {
         PreCondition.assertNotNull(condition, "condition");
 
-        return new WhereIterator<>(this, condition);
+        return WhereIterator.create(this, condition);
     }
 
     /**
-     * Convert this Iterator into an Iterator that returns values of type U instead of type T.
-     * @param conversion The function to use to convert values of type T to type U.
-     * @param <U> The type to convert values of type T to.
-     * @return An Iterator that returns values of type U instead of type T.
+     * Convert this {@link Iterator} into an {@link Iterator> that returns values of type {@link U}
+     * instead of type {@link T}.
+     * @param conversion The {@link Function1} to use to convert values of type {@link T} to type
+     * {@link U}.
+     * @param <U> The type to convert values of type {@link T} to.
      */
-    default <U> Iterator<U> map(Function1<T,U> conversion)
+    public default <U> Iterator<U> map(Function1<T,U> conversion)
     {
-        return new MapIterator<>(this, conversion);
+        return MapIterator.create(this, conversion);
     }
 
     /**
-     * Convert this Iterator into an Iterator that only returns the values in this Iterator that are
-     * of type or sub-classes of type U.
+     * Convert this {@link Iterator} into an {@link Iterator} that only returns values that are of
+     * type or sub-classes of type {@link U}.
      * @param type The type to filter the results to.
      * @param <U> The type to return.
-     * @return An Iterator that only returns the values in this Iterator that are of type of
-     * sub-classes of type U.
      */
-    default <U> Iterator<U> instanceOf(Class<U> type)
+    public default <U> Iterator<U> instanceOf(Class<U> type)
     {
-        return new InstanceOfIterator<>(this, type);
+        return InstanceOfIterator.create(this, type);
     }
 
     /**
-     * Create a java.util.Iterator that will iterate over this Iterator.
-     * @return A java.util.Iterator that will iterate over this Iterator.
+     * Create a {@link java.util.Iterator} that will iterate over this {@link Iterator}.
      */
-    default java.util.Iterator<T> iterator()
+    public default java.util.Iterator<T> iterator()
     {
         return IteratorToJavaIteratorAdapter.create(this);
     }
 
     /**
-     * Create an Array from the values in this Iterator.
-     * @return An Array from the values in this Iterator.
+     * Create an {@link Array} from the values in this {@link Iterator}.
      */
-    default Array<T> toArray()
+    public default Array<T> toArray()
     {
         return Array.create(this);
     }
 
     /**
-     * Create a List from the values in this Iterator.
-     * @return A List from the values in this Iterator.
+     * Create a {@link List} from the values in this {@link Iterator}.
      */
-    default List<T> toList()
+    public default List<T> toList()
     {
         return List.create(this);
     }
 
     /**
-     * Create a Set from the values in this Iterator.
-     * @return A Set from the values in this Iterator.
+     * Create a {@link Set} from the values in this {@link Iterator}.
      */
-    default Set<T> toSet()
+    public default Set<T> toSet()
     {
         return Set.create(this);
     }
 
     /**
-     * Create a Map from the values in this Iterator.
-     * @param getKey The function that will select the key from a value.
-     * @param <K> The type of value that will serve as the keys of the map.
-     * @param <V> The type of value that will serve as the values of the map.
-     * @return A Map from the values in this Iterator.
+     * Create a {@link MutableMap} from the values in this {@link Iterator}.
+     * @param getKey The {@link Function1} that will select the key from a value.
+     * @param <K> The type of value that will serve as the keys of the {@link MutableMap}.
+     * @param <V> The type of value that will serve as the values of the {@link MutableMap}.
      */
-    default <K,V> MutableMap<K,V> toMap(Function1<T,K> getKey, Function1<T,V> getValue)
+    public default <K,V> MutableMap<K,V> toMap(Function1<T,K> getKey, Function1<T,V> getValue)
     {
         return Map.create(this, getKey, getValue);
     }
 
     /**
-     * Create a CustomDecorator that will wrap around this Iterator.
-     * @return A CustomDecorator that will wrap around this Iterator.
+     * Create a {@link CustomIterator} that will wrap around this {@link Iterator}.
      */
-    default CustomIterator<T> customize()
+    public default CustomIterator<T> customize()
     {
         return CustomIterator.create(this);
     }
 
     /**
-     * Get an Iterator that will invoke the provided action whenever a new value is iterated to.
-     * @param action The action to run when a new value is iterated to.
-     * @return An Iterator that will invoke the provided action whenever a new value is iterated
-     * to.
+     * Get an {@link Iterator} that will invoke the provided {@link Action0} whenever a new value is
+     * iterated to.
+     * @param action The {@link Action0} to run when a new value is iterated to.
      */
-    default Iterator<T> onValue(Action0 action)
+    public default Iterator<T> onValue(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
@@ -395,12 +461,11 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Get an Iterator that will invoke the provided action whenever a new value is iterated to.
-     * @param action The action to run when a new value is iterated to.
-     * @return An Iterator that will invoke the provided action whenever a new value is iterated
-     * to.
+     * Get an {@link Iterator} that will invoke the provided {@link Action1} whenever a new value is
+     * iterated to.
+     * @param action The {@link Action1} to run when a new value is iterated to.
      */
-    default Iterator<T> onValue(Action1<T> action)
+    public default Iterator<T> onValue(Action1<T> action)
     {
         PreCondition.assertNotNull(action, "action");
 
@@ -417,21 +482,18 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Ignore any errors that occur while iterating.
-     * @return An Iterator that will ignore any errors that occur while iterating.
+     * Get an {@link Iterator} that will ignore any errors that occur while iterating.
      */
-    default Iterator<T> catchError()
+    public default Iterator<T> catchError()
     {
         return this.catchError(Action0.empty);
     }
 
     /**
-     * Run the provided action on any errors that occur while iterating.
-     * @param action The action to run if this Iterator has an error while iterating.
-     * @return An Iterator that will run the provided action on any errors that occur while
-     * iterating.
+     * Run the provided {@link Action0} on any errors that occur while iterating.
+     * @param action The action to run if this {@link Iterator} has an error while iterating.
      */
-    default Iterator<T> catchError(Action0 action)
+    public default Iterator<T> catchError(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
@@ -439,12 +501,11 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Run the provided action on any errors that occur while iterating.
-     * @param action The action to run if this Iterator has an error while iterating.
-     * @return An Iterator that will run the provided action on any errors that occur while
-     * iterating.
+     * Run the provided {@link Action1} on any errors that occur while iterating.
+     * @param action The {@link Action1} to run if this {@link Iterator} has an error while
+     *               iterating.
      */
-    default Iterator<T> catchError(Action1<Throwable> action)
+    public default Iterator<T> catchError(Action1<Throwable> action)
     {
         PreCondition.assertNotNull(action, "action");
 
@@ -458,7 +519,6 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      * Ignore any errors of the provided type that occur while iterating.
      * @param errorType The type of error to catch.
      * @param <TError> The type of error to catch.
-     * @return An Iterator that will ignore any errors of the provided type while iterating.
      */
     default <TError extends Throwable> Iterator<T> catchError(Class<TError> errorType)
     {
@@ -468,13 +528,12 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Run the provided action on any errors of the provided type that occur while iterating.
+     * Run the provided {@link Action0} on any errors of the provided type that occur while
+     * iterating.
      * @param errorType The type of error to catch.
-     * @param action The action to run if this Iterator has an error of the provided type while
-     *               iterating.
+     * @param action The {@link Action0} to run if this {@link Iterator} has an error of the
+     *               provided type while iterating.
      * @param <TError> The type of error to catch.
-     * @return An Iterator that will run the provided action on any errors of the provided type
-     * that occur while iterating.
      */
     default <TError extends Throwable> Iterator<T> catchError(Class<TError> errorType, Action0 action)
     {
@@ -488,15 +547,14 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Run the provided action on any errors of the provided type that occur while iterating.
+     * Run the provided {@link Action1} on any errors of the provided type that occur while
+     * iterating.
      * @param errorType The type of error to catch.
-     * @param action The action to run if this Iterator has an error of the provided type while
-     *               iterating.
+     * @param action The {@link Action1} to run if this {@link Iterator} has an error of the
+     *               provided type while iterating.
      * @param <TError> The type of error to catch.
-     * @return An Iterator that will run the provided action on any errors of the provided type
-     * that occur while iterating.
      */
-    default <TError extends Throwable> Iterator<T> catchError(Class<TError> errorType, Action1<TError> action)
+    public default <TError extends Throwable> Iterator<T> catchError(Class<TError> errorType, Action1<TError> action)
     {
         PreCondition.assertNotNull(errorType, "errorType");
         PreCondition.assertNotNull(action, "action");
@@ -504,12 +562,11 @@ public interface Iterator<T> extends java.lang.Iterable<T>
         return this.customize()
             .setNextFunction((Iterator<T> iterator) ->
             {
-                boolean result;
-                while (true)
+                while (!iterator.hasStarted() || iterator.hasCurrent())
                 {
                     try
                     {
-                        result = iterator.next();
+                        iterator.next();
                         break;
                     }
                     catch (Throwable e)
@@ -525,14 +582,14 @@ public interface Iterator<T> extends java.lang.Iterable<T>
                         }
                     }
                 }
-                return result;
+                return iterator.hasCurrent();
             });
     }
 
     /**
-     * Run the provided action if this Iterator has an error while iterating.
-     * @param action The action to run if this Iterator has an error while iterating.
-     * @return The Iterator that will run the provided action if it has an error while iterating.
+     * Run the provided {@link Action0} if this {@link Iterator} has an error while iterating.
+     * @param action The {@link Action0} to run if this {@link Iterator} has an error while
+     *               iterating.
      */
     default Iterator<T> onError(Action0 action)
     {
@@ -545,11 +602,11 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Run the provided action if this Iterator has an error while iterating.
-     * @param action The action to run if this Iterator has an error while iterating.
-     * @return The Iterator that will run the provided action if it has an error while iterating.
+     * Run the provided {@link Action1} if this {@link Iterator} has an error while iterating.
+     * @param action The {@link Action1} to run if this {@link Iterator} has an error while
+     *               iterating.
      */
-    default Iterator<T> onError(Action1<Throwable> action)
+    public default Iterator<T> onError(Action1<Throwable> action)
     {
         PreCondition.assertNotNull(action, "action");
 
@@ -560,13 +617,13 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Run the provided action if this Iterator has an error of the provided type while iterating.
-     * @param errorType The type of error to run the provided action for.
-     * @param action The action to run if this Iterator has an error of the provided type while iterating.
-     * @return The Iterator that will run the provided action if it has an error of the provided
-     * type while iterating.
+     * Run the provided {@link Action0} if this {@link Iterator} has an error of the provided type
+     * while iterating.
+     * @param errorType The type of error to run the provided {@link Action0} for.
+     * @param action The {@link Action0} to run if this {@link Iterator} has an error of the
+     *               provided type while iterating.
      */
-    default <TError extends Throwable> Iterator<T> onError(Class<TError> errorType, Action0 action)
+    public default <TError extends Throwable> Iterator<T> onError(Class<TError> errorType, Action0 action)
     {
         PreCondition.assertNotNull(errorType, "errorType");
         PreCondition.assertNotNull(action, "action");
@@ -578,13 +635,13 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Run the provided action if this Iterator has an error of the provided type while iterating.
-     * @param errorType The type of error to run the provided action for.
-     * @param action The action to run if this Iterator has an error of the provided type while iterating.
-     * @return The Iterator that will run the provided action if it has an error of the provided
-     * type while iterating.
+     * Run the provided {@link Action1} if this {@link Iterator} has an error of the provided type
+     * while iterating.
+     * @param errorType The type of error to run the provided {@link Action1} for.
+     * @param action The {@link Action1} to run if this {@link Iterator} has an error of the
+     *               provided type while iterating.
      */
-    default <TError extends Throwable> Iterator<T> onError(Class<TError> errorType, Action1<TError> action)
+    public default <TError extends Throwable> Iterator<T> onError(Class<TError> errorType, Action1<TError> action)
     {
         PreCondition.assertNotNull(errorType, "errorType");
         PreCondition.assertNotNull(action, "action");
@@ -601,12 +658,11 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * If this Iterator has an error while iterating, catch it and convert it to the error returned
-     * by the provided function.
-     * @param function The function that will return the new error.
-     * @return The Iterator that will throw new errors.
+     * If this {@link Iterator} has an error while iterating, catch it and convert it to the error
+     * returned by the provided {@link Function0}.
+     * @param function The {@link Function0} that will return the new error.
      */
-    default Iterator<T> convertError(Function0<? extends Throwable> function)
+    public default Iterator<T> convertError(Function0<? extends Throwable> function)
     {
         PreCondition.assertNotNull(function, "function");
 
@@ -617,12 +673,11 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * If this Iterator has an error while iterating, catch it and convert it to the error returned
-     * by the provided function.
-     * @param function The function that will return the new error.
-     * @return The Iterator that will throw new errors.
+     * If this {@link Iterator} has an error while iterating, catch it and convert it to the error
+     * returned by the provided {@link Function1}.
+     * @param function The {@link Function1} that will return the new error.
      */
-    default Iterator<T> convertError(Function1<Throwable,? extends Throwable> function)
+    public default Iterator<T> convertError(Function1<Throwable,? extends Throwable> function)
     {
         PreCondition.assertNotNull(function, "function");
 
@@ -633,13 +688,12 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * If this Iterator has an error of the provided type while iterating, catch it and convert it
-     * to the error returned by the provided function.
+     * If this {@link Iterator} has an error of the provided type while iterating, catch it and
+     * convert it to the error returned by the provided {@link Function0}.
      * @param errorType The type of error to convert.
-     * @param function The function that will return the new error.
-     * @return The Iterator that will throw new errors.
+     * @param function The {@link Function0} that will return the new error.
      */
-    default Iterator<T> convertError(Class<? extends Throwable> errorType, Function0<? extends Throwable> function)
+    public default Iterator<T> convertError(Class<? extends Throwable> errorType, Function0<? extends Throwable> function)
     {
         PreCondition.assertNotNull(errorType, "errorType");
         PreCondition.assertNotNull(function, "function");
@@ -651,13 +705,12 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * If this Iterator has an error of the provided type while iterating, catch it and convert it
-     * to the error returned by the provided function.
+     * If this {@link Iterator} has an error of the provided type while iterating, catch it and
+     * convert it to the error returned by the provided {@link Function1}.
      * @param errorType The type of error to convert.
-     * @param function The function that will return the new error.
-     * @return The Iterator that will throw new errors.
+     * @param function The {@link Function1} that will return the new error.
      */
-    default <TErrorIn extends Throwable> Iterator<T> convertError(Class<TErrorIn> errorType, Function1<TErrorIn,? extends Throwable> function)
+    public default <TErrorIn extends Throwable> Iterator<T> convertError(Class<TErrorIn> errorType, Function1<TErrorIn,? extends Throwable> function)
     {
         PreCondition.assertNotNull(errorType, "errorType");
         PreCondition.assertNotNull(function, "function");
@@ -669,9 +722,9 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Iterate through each of the values in this Iterator.
+     * Iterate through each of the values in this {@link Iterator}.
      */
-    default void await()
+    public default void await()
     {
         while (this.next())
         {
@@ -679,169 +732,11 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create an empty iterator.
-     * @param <T> The type of values to iterate over.
-     * @return The empty iterator.
+     * Get whether the provided {@link Iterator} is null or empty.
+     * @param iterator The {@link Iterator} to check.
      */
-    static <T> Iterator<T> create()
-    {
-        return EmptyIterator.create();
-    }
-
-    /**
-     * Create an iterator for the provided values.
-     * @param values The values to iterate over.
-     * @return The iterator that will iterate over the provided values.
-     */
-    static Iterator<Byte> createFromBytes(byte... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return new ByteArrayIterator(values);
-    }
-
-    /**
-     * Create an Iterator for the provided values.
-     * @param values The values to iterate.
-     * @return The Iterator for the provided values.
-     */
-    static Iterator<Byte> create(byte[] values, int startIndex, int length)
-    {
-        PreCondition.assertNotNull(values, "values");
-        PreCondition.assertStartIndex(startIndex, values.length);
-        PreCondition.assertLength(length, startIndex, values.length);
-
-        return new ByteArrayIterator(values, startIndex, length);
-    }
-
-    /**
-     * Create an iterator for the provided values.
-     * @param values The values to iterate over.
-     * @return The iterator that will iterate over the provided values.
-     */
-    static Iterator<Character> create(char[] values)
-    {
-        return new CharacterArrayIterator(values);
-    }
-
-    /**
-     * Create an iterator for the provided values.
-     * @param values The values to iterate over.
-     * @return The iterator that will iterate over the provided values.
-     */
-    static Iterator<Integer> create(int[] values)
-    {
-        return IntegerArrayIterator.create(values);
-    }
-
-    /**
-     * Create an iterator for the provided values.
-     * @param values The values to iterate over.
-     * @param <T> The type of the values.
-     * @return The iterator that will iterate over the provided values.
-     */
-    @SafeVarargs
-    static <T> Iterator<T> create(T... values)
-    {
-        return Iterable.create(values).iterate();
-    }
-
-    /**
-     * Create an Iterator that will invoke the provided action to determine what its next value(s)
-     * should be.
-     * @param getNextValuesAction The action that will be invoked to determine what the next
-     *                            value(s) for the returned Iterator should be.
-     * @param <T> The type of values returned by the Iterator.
-     * @return An Iterator that will invoke the provided action to determine what its next value(s)
-     * should be.
-     */
-    static <T> Iterator<T> create(Action1<IteratorActions<T>> getNextValuesAction)
-    {
-        PreCondition.assertNotNull(getNextValuesAction, "getNextValuesAction");
-
-        return BasicIterator.create(getNextValuesAction);
-    }
-
-    /**
-     * Create an Iterator that will invoke the provided action to determine what its next value(s)
-     * should be.
-     * @param getNextValuesAction The action that will be invoked to determine what the next
-     *                            value(s) for the returned Iterator should be.
-     * @param <T> The type of values returned by the Iterator.
-     * @return An Iterator that will invoke the provided action to determine what its next value(s)
-     * should be.
-     */
-    static <T> Iterator<T> create(Action2<IteratorActions<T>,Getter<T>> getNextValuesAction)
-    {
-        PreCondition.assertNotNull(getNextValuesAction, "getNextValuesAction");
-
-        return BasicIterator.create(getNextValuesAction);
-    }
-
-    /**
-     * Get whether or not the provided iterator is null or empty.
-     * @param iterator The iterator to check.
-     * @param <T> The type of values in the Iterator.
-     * @return Whether or not the provided iterator is null or empty.
-     */
-    static <T> boolean isNullOrEmpty(Iterator<T> iterator)
+    public static boolean isNullOrEmpty(Iterator<?> iterator)
     {
         return iterator == null || !iterator.any();
-    }
-
-    /**
-     * Get the value in this Iterable that is the maximum based on the provided comparer function.
-     * @param comparer The function to use to compare the values in this Iterable.
-     * @return The maximum value in this Iterable based on the provided comparer function.
-     */
-    default T minimum(Function2<T,T,Comparison> comparer)
-    {
-        PreCondition.assertNotNull(comparer, "comparer");
-
-        T result = null;
-
-        this.start();
-        if (this.hasCurrent())
-        {
-            result = this.getCurrent();
-            while (this.next())
-            {
-                final T current = this.getCurrent();
-                if (comparer.run(current, result) == Comparison.LessThan)
-                {
-                    result = current;
-                }
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Get the value in this Iterable that is the maximum based on the provided comparer function.
-     * @param comparer The function to use to compare the values in this Iterable.
-     * @return The maximum value in this Iterable based on the provided comparer function.
-     */
-    default T maximum(Function2<T,T,Comparison> comparer)
-    {
-        PreCondition.assertNotNull(comparer, "comparer");
-
-        T result = null;
-
-        this.start();
-        if (this.hasCurrent())
-        {
-            result = this.getCurrent();
-            while (this.next())
-            {
-                final T current = this.getCurrent();
-                if (comparer.run(current, result) == Comparison.GreaterThan)
-                {
-                    result = current;
-                }
-            }
-        }
-
-        return result;
     }
 }

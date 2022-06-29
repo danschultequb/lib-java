@@ -642,6 +642,43 @@ public interface Array<T> extends MutableIndexable<T>
     }
 
     /**
+     * Get the String representation of the elements within the provided boolean array.
+     * @param booleanArray The boolean array to convert to a String.
+     * @return The String representation of the elements within the provided boolean array.
+     */
+    public static String toString(boolean[] booleanArray)
+    {
+        final CharacterList builder = CharacterList.create();
+
+        if (booleanArray == null)
+        {
+            builder.addAll("null");
+        }
+        else
+        {
+            builder.add('[');
+
+            boolean addedFirstElement = false;
+            for (final boolean element : booleanArray)
+            {
+                if (!addedFirstElement)
+                {
+                    addedFirstElement = true;
+                }
+                else
+                {
+                    builder.add(',');
+                }
+                builder.addAll(Booleans.toString(element));
+            }
+
+            builder.add(']');
+        }
+
+        return builder.toString(true);
+    }
+
+    /**
      * Get the String representation of the elements within the provided byte array.
      * @param byteArray The byte array to convert to a String.
      * @return The String representation of the elements within the provided byte array.

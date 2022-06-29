@@ -1,20 +1,28 @@
 package qub;
 
-class InstanceOfIterable<TInner,TOuter> implements Iterable<TOuter>
+public class InstanceOfIterable<TInner,TOuter> implements Iterable<TOuter>
 {
     private final Iterable<TInner> innerIterable;
     private final Class<TOuter> type;
 
-    InstanceOfIterable(Iterable<TInner> innerIterable, Class<TOuter> type)
+    private InstanceOfIterable(Iterable<TInner> innerIterable, Class<TOuter> type)
     {
+        PreCondition.assertNotNull(innerIterable, "innerIterable");
+        PreCondition.assertNotNull(type, "type");
+
         this.innerIterable = innerIterable;
         this.type = type;
+    }
+
+    public static <TInner,TOuter> InstanceOfIterable<TInner,TOuter> create(Iterable<TInner> innerIterable, Class<TOuter> type)
+    {
+        return new InstanceOfIterable<>(innerIterable, type);
     }
 
     @Override
     public Iterator<TOuter> iterate()
     {
-        return new InstanceOfIterator<>(innerIterable.iterate(), type);
+        return this.innerIterable.iterate().instanceOf(this.type);
     }
 
     @Override

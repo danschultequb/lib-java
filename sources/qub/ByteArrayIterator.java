@@ -7,32 +7,37 @@ public class ByteArrayIterator implements Iterator<Byte>
     private int currentIndex;
     private final int endIndex;
 
-    public ByteArrayIterator(byte[] bytes)
+    private ByteArrayIterator(byte[] bytes, int startIndex, int length)
     {
-        this(bytes, 0, bytes.length);
-    }
-
-    public ByteArrayIterator(byte[] bytes, int startIndex, int length)
-    {
-        PreCondition.assertNotNull(bytes, "bytes");
-        PreCondition.assertStartIndex(startIndex, bytes.length);
-        PreCondition.assertLength(length, startIndex, bytes.length);
-
         this.bytes = bytes;
         this.currentIndex = startIndex;
         this.endIndex = startIndex + length;
     }
 
+    public static ByteArrayIterator create(byte[] bytes)
+    {
+        return ByteArrayIterator.create(bytes, 0, bytes.length);
+    }
+
+    public static ByteArrayIterator create(byte[] bytes, int startIndex, int length)
+    {
+        PreCondition.assertNotNull(bytes, "bytes");
+        PreCondition.assertStartIndex(startIndex, bytes.length);
+        PreCondition.assertLength(length, startIndex, bytes.length);
+
+        return new ByteArrayIterator(bytes, startIndex, length);
+    }
+
     @Override
     public boolean hasStarted()
     {
-        return hasStarted;
+        return this.hasStarted;
     }
 
     @Override
     public boolean hasCurrent()
     {
-        return hasStarted && currentIndex < endIndex;
+        return this.hasStarted && this.currentIndex < this.endIndex;
     }
 
     @Override
@@ -46,14 +51,14 @@ public class ByteArrayIterator implements Iterator<Byte>
     @Override
     public boolean next()
     {
-        if (!hasStarted)
+        if (!this.hasStarted)
         {
-            hasStarted = true;
+            this.hasStarted = true;
         }
-        else if (currentIndex < endIndex)
+        else if (this.currentIndex < this.endIndex)
         {
-            ++currentIndex;
+            ++this.currentIndex;
         }
-        return currentIndex < endIndex;
+        return this.currentIndex < this.endIndex;
     }
 }

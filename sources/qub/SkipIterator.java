@@ -5,14 +5,14 @@ package qub;
  * iterate over the remaining elements.
  * @param <T> The type of value that this Iterator returns.
  */
-class SkipIterator<T> implements Iterator<T>
+public class SkipIterator<T> implements Iterator<T>
 {
     private final Iterator<T> innerIterator;
     private final int toSkip;
 
     private int skipped;
 
-    SkipIterator(Iterator<T> innerIterator, int toSkip)
+    private SkipIterator(Iterator<T> innerIterator, int toSkip)
     {
         PreCondition.assertNotNull(innerIterator, "innerIterator");
         PreCondition.assertGreaterThanOrEqualTo(toSkip, 0, "toSkip");
@@ -20,6 +20,11 @@ class SkipIterator<T> implements Iterator<T>
         this.innerIterator = innerIterator;
         this.toSkip = toSkip;
         skipped = 0;
+    }
+
+    public static <T> SkipIterator<T> create(Iterator<T> innerIterator, int toSkip)
+    {
+        return new SkipIterator<>(innerIterator, toSkip);
     }
 
     private void skipValues()

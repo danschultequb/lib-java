@@ -323,96 +323,334 @@ public interface ComparerTests
 
             runner.testGroup("minimum(Iterable<T>)", () ->
             {
-                runner.test("with null", (Test test) ->
+                final Action2<Iterable<Distance>,Throwable> minimumErrorTest = (Iterable<Distance> values, Throwable expected) ->
                 {
-                    test.assertThrows(() -> Comparer.minimum(null),
-                        new PreConditionFailure("values cannot be null."));
-                });
+                    runner.test("with " + values, (Test test) ->
+                    {
+                        test.assertThrows(() -> Comparer.minimum(values).await(),
+                            expected);
+                    });
+                };
 
-                runner.test("with empty", (Test test) ->
-                {
-                    test.assertNull(Comparer.minimum(Iterable.<Distance>create()));
-                });
+                minimumErrorTest.run(null, new PreConditionFailure("values cannot be null."));
+                minimumErrorTest.run(Iterable.create(), new EmptyException());
 
-                runner.test("with one value", (Test test) ->
+                final Action2<Iterable<Distance>,Distance> minimumTest = (Iterable<Distance> values, Distance expected) ->
                 {
-                    test.assertEqual(Distance.meters(1), Comparer.minimum(Iterable.create(Distance.meters(1))));
-                });
+                    runner.test("with " + values, (Test test) ->
+                    {
+                        test.assertEqual(expected, Comparer.minimum(values).await());
+                    });
+                };
 
-                runner.test("with two values", (Test test) ->
-                {
-                    test.assertEqual(Distance.meters(1), Comparer.minimum(Iterable.create(Distance.meters(1), Distance.meters(2))));
-                });
-
-                runner.test("with three values", (Test test) ->
-                {
-                    test.assertEqual(Distance.meters(0), Comparer.minimum(Iterable.create(Distance.meters(1), Distance.meters(0), Distance.meters(2))));
-                });
+                minimumTest.run(Iterable.create(1).map(Distance::meters), Distance.meters(1));
+                minimumTest.run(Iterable.create(1, 2).map(Distance::meters), Distance.meters(1));
+                minimumTest.run(Iterable.create(1, 2, 3).map(Distance::meters), Distance.meters(1));
             });
 
-            runner.testGroup("minimum(Iterable<T>,Function2<T,T,Comparison>)", () ->
+            runner.testGroup("minimum(Iterable<T>,CompareFunction<T>)", () ->
             {
-                runner.test("with null values", (Test test) ->
+                final Action4<String,Iterable<Distance>,CompareFunction<Distance>,Throwable> minimumErrorTest = (String testName, Iterable<Distance> values, CompareFunction<Distance> compareFunction, Throwable expected) ->
                 {
-                    test.assertThrows(() -> Comparer.minimum((Iterable<Integer>)null, Integers::compare),
-                        new PreConditionFailure("values cannot be null."));
-                });
+                    runner.test("with " + values, (Test test) ->
+                    {
+                        test.assertThrows(() -> Comparer.minimum(values, compareFunction).await(),
+                            expected);
+                    });
+                };
+
+                minimumErrorTest.run("with null values", null, Comparer::compare, new PreConditionFailure("values cannot be null."));
+                minimumErrorTest.run("with null compare function", Iterable.create(), null, new PreConditionFailure("comparer cannot be null."));
+                minimumErrorTest.run("with empty values", Iterable.create(), Comparer::compare, new EmptyException());
+
+                final Action4<String,Iterable<Distance>,CompareFunction<Distance>,Distance> minimumTest = (String testName, Iterable<Distance> values, CompareFunction<Distance> compareFunction, Distance expected) ->
+                {
+                    runner.test(testName, (Test test) ->
+                    {
+                        test.assertEqual(expected, Comparer.minimum(values, compareFunction).await());
+                    });
+                };
+
+                minimumTest.run(
+                    "with one value and normal comparer",
+                    Iterable.create(1).map(Distance::meters),
+                    Comparer::compare,
+                    Distance.meters(1));
+                minimumTest.run(
+                    "with two values and normal comparer",
+                    Iterable.create(1, 2).map(Distance::meters),
+                    Comparer::compare,
+                    Distance.meters(1));
+                minimumTest.run(
+                    "with three values and normal comparer",
+                    Iterable.create(1, 2, 3).map(Distance::meters),
+                    Comparer::compare,
+                    Distance.meters(1));
+
+                minimumTest.run(
+                    "with one value and reverse comparer",
+                    Iterable.create(1).map(Distance::meters),
+                    (Distance lhs, Distance rhs) -> Comparison.invert(Comparer.compare(lhs, rhs)),
+                    Distance.meters(1));
+                minimumTest.run(
+                    "with two values and reverse comparer",
+                    Iterable.create(1, 2).map(Distance::meters),
+                    (Distance lhs, Distance rhs) -> Comparison.invert(Comparer.compare(lhs, rhs)),
+                    Distance.meters(2));
+                minimumTest.run(
+                    "with three values and reverse comparer",
+                    Iterable.create(1, 2, 3).map(Distance::meters),
+                    (Distance lhs, Distance rhs) -> Comparison.invert(Comparer.compare(lhs, rhs)),
+                    Distance.meters(3));
             });
 
-            runner.testGroup("maximum(T...)", () ->
+            runner.testGroup("minimum(Iterator<T>)", () ->
             {
-                runner.test("with no arguments", (Test test) ->
+                final Action3<String,Iterator<Distance>,Throwable> minimumErrorTest = (String testName, Iterator<Distance> values, Throwable expected) ->
                 {
-                    test.assertNull(Comparer.maximum());
-                });
+                    runner.test(testName, (Test test) ->
+                    {
+                        test.assertThrows(() -> Comparer.minimum(values).await(),
+                            expected);
+                    });
+                };
 
-                runner.test("with one argument", (Test test) ->
-                {
-                    test.assertEqual(Distance.zero, Comparer.maximum(Distance.zero));
-                });
+                minimumErrorTest.run("with null", null, new PreConditionFailure("values cannot be null."));
+                minimumErrorTest.run("with empty", Iterator.create(), new EmptyException());
 
-                runner.test("with multiple arguments", (Test test) ->
+                final Action2<Iterable<Distance>,Distance> minimumTest = (Iterable<Distance> values, Distance expected) ->
                 {
-                    test.assertEqual(Distance.inches(5), Comparer.maximum(Distance.inches(1), Distance.inches(5)));
-                });
+                    runner.test("with " + values, (Test test) ->
+                    {
+                        test.assertEqual(expected, Comparer.minimum(values.iterate()).await());
+                    });
+                };
+
+                minimumTest.run(Iterable.create(1).map(Distance::meters), Distance.meters(1));
+                minimumTest.run(Iterable.create(1, 2).map(Distance::meters), Distance.meters(1));
+                minimumTest.run(Iterable.create(1, 2, 3).map(Distance::meters), Distance.meters(1));
+            });
+
+            runner.testGroup("minimum(Iterator<T>,CompareFunction<T>)", () ->
+            {
+                final Action4<String,Iterator<Distance>,CompareFunction<Distance>,Throwable> minimumErrorTest = (String testName, Iterator<Distance> values, CompareFunction<Distance> compareFunction, Throwable expected) ->
+                {
+                    runner.test("with " + values, (Test test) ->
+                    {
+                        test.assertThrows(() -> Comparer.minimum(values, compareFunction).await(),
+                            expected);
+                    });
+                };
+
+                minimumErrorTest.run("with null values", null, Comparer::compare, new PreConditionFailure("values cannot be null."));
+                minimumErrorTest.run("with null compare function", Iterator.create(), null, new PreConditionFailure("comparer cannot be null."));
+                minimumErrorTest.run("with empty values", Iterator.create(), Comparer::compare, new EmptyException());
+
+                final Action4<String,Iterator<Distance>,CompareFunction<Distance>,Distance> minimumTest = (String testName, Iterator<Distance> values, CompareFunction<Distance> compareFunction, Distance expected) ->
+                {
+                    runner.test(testName, (Test test) ->
+                    {
+                        test.assertEqual(expected, Comparer.minimum(values, compareFunction).await());
+                    });
+                };
+
+                minimumTest.run(
+                    "with one value and normal comparer",
+                    Iterator.create(1).map(Distance::meters),
+                    Comparer::compare,
+                    Distance.meters(1));
+                minimumTest.run(
+                    "with two values and normal comparer",
+                    Iterator.create(1, 2).map(Distance::meters),
+                    Comparer::compare,
+                    Distance.meters(1));
+                minimumTest.run(
+                    "with three values and normal comparer",
+                    Iterator.create(1, 2, 3).map(Distance::meters),
+                    Comparer::compare,
+                    Distance.meters(1));
+
+                minimumTest.run(
+                    "with one value and reverse comparer",
+                    Iterator.create(1).map(Distance::meters),
+                    (Distance lhs, Distance rhs) -> Comparison.invert(Comparer.compare(lhs, rhs)),
+                    Distance.meters(1));
+                minimumTest.run(
+                    "with two values and reverse comparer",
+                    Iterator.create(1, 2).map(Distance::meters),
+                    (Distance lhs, Distance rhs) -> Comparison.invert(Comparer.compare(lhs, rhs)),
+                    Distance.meters(2));
+                minimumTest.run(
+                    "with three values and reverse comparer",
+                    Iterator.create(1, 2, 3).map(Distance::meters),
+                    (Distance lhs, Distance rhs) -> Comparison.invert(Comparer.compare(lhs, rhs)),
+                    Distance.meters(3));
             });
 
             runner.testGroup("maximum(Iterable<T>)", () ->
             {
-                runner.test("with null", (Test test) ->
+                final Action2<Iterable<Distance>,Throwable> maximumErrorTest = (Iterable<Distance> values, Throwable expected) ->
                 {
-                    test.assertThrows(() -> Comparer.maximum((Iterable<Distance>)null),
-                        new PreConditionFailure("values cannot be null."));
-                });
+                    runner.test("with " + values, (Test test) ->
+                    {
+                        test.assertThrows(() -> Comparer.maximum(values).await(),
+                            expected);
+                    });
+                };
 
-                runner.test("with empty", (Test test) ->
-                {
-                    test.assertNull(Comparer.maximum(Iterable.<Distance>create()));
-                });
+                maximumErrorTest.run(null, new PreConditionFailure("values cannot be null."));
+                maximumErrorTest.run(Iterable.create(), new EmptyException());
 
-                runner.test("with one value", (Test test) ->
+                final Action2<Iterable<Distance>,Distance> maximumTest = (Iterable<Distance> values, Distance expected) ->
                 {
-                    test.assertEqual(Distance.meters(1), Comparer.maximum(Iterable.create(Distance.meters(1))));
-                });
+                    runner.test("with " + values, (Test test) ->
+                    {
+                        test.assertEqual(expected, Comparer.maximum(values).await());
+                    });
+                };
 
-                runner.test("with two values", (Test test) ->
-                {
-                    test.assertEqual(Distance.meters(2), Comparer.maximum(Iterable.create(Distance.meters(1), Distance.meters(2))));
-                });
-
-                runner.test("with three values", (Test test) ->
-                {
-                    test.assertEqual(Distance.meters(2), Comparer.maximum(Iterable.create(Distance.meters(2), Distance.meters(0), Distance.meters(1))));
-                });
+                maximumTest.run(Iterable.create(1).map(Distance::meters), Distance.meters(1));
+                maximumTest.run(Iterable.create(1, 2).map(Distance::meters), Distance.meters(2));
+                maximumTest.run(Iterable.create(1, 2, 3).map(Distance::meters), Distance.meters(3));
             });
 
-            runner.testGroup("maximum(Iterable<T>,Function2<T,T,Comparison>)", () ->
+            runner.testGroup("maximum(Iterable<T>,CompareFunction<T>)", () ->
             {
-                runner.test("with null values", (Test test) ->
+                final Action4<String,Iterable<Distance>,CompareFunction<Distance>,Throwable> maximumErrorTest = (String testName, Iterable<Distance> values, CompareFunction<Distance> compareFunction, Throwable expected) ->
                 {
-                    test.assertThrows(() -> Comparer.maximum((Iterable<Integer>)null, Integers::compare),
-                        new PreConditionFailure("values cannot be null."));
-                });
+                    runner.test("with " + values, (Test test) ->
+                    {
+                        test.assertThrows(() -> Comparer.maximum(values, compareFunction).await(),
+                            expected);
+                    });
+                };
+
+                maximumErrorTest.run("with null values", null, Comparer::compare, new PreConditionFailure("values cannot be null."));
+                maximumErrorTest.run("with null compare function", Iterable.create(), null, new PreConditionFailure("comparer cannot be null."));
+                maximumErrorTest.run("with empty values", Iterable.create(), Comparer::compare, new EmptyException());
+
+                final Action4<String,Iterable<Distance>,CompareFunction<Distance>,Distance> maximumTest = (String testName, Iterable<Distance> values, CompareFunction<Distance> compareFunction, Distance expected) ->
+                {
+                    runner.test(testName, (Test test) ->
+                    {
+                        test.assertEqual(expected, Comparer.maximum(values, compareFunction).await());
+                    });
+                };
+
+                maximumTest.run(
+                    "with one value and normal comparer",
+                    Iterable.create(1).map(Distance::meters),
+                    Comparer::compare,
+                    Distance.meters(1));
+                maximumTest.run(
+                    "with two values and normal comparer",
+                    Iterable.create(1, 2).map(Distance::meters),
+                    Comparer::compare,
+                    Distance.meters(2));
+                maximumTest.run(
+                    "with three values and normal comparer",
+                    Iterable.create(1, 2, 3).map(Distance::meters),
+                    Comparer::compare,
+                    Distance.meters(3));
+
+                maximumTest.run(
+                    "with one value and reverse comparer",
+                    Iterable.create(1).map(Distance::meters),
+                    (Distance lhs, Distance rhs) -> Comparison.invert(Comparer.compare(lhs, rhs)),
+                    Distance.meters(1));
+                maximumTest.run(
+                    "with two values and reverse comparer",
+                    Iterable.create(1, 2).map(Distance::meters),
+                    (Distance lhs, Distance rhs) -> Comparison.invert(Comparer.compare(lhs, rhs)),
+                    Distance.meters(1));
+                maximumTest.run(
+                    "with three values and reverse comparer",
+                    Iterable.create(1, 2, 3).map(Distance::meters),
+                    (Distance lhs, Distance rhs) -> Comparison.invert(Comparer.compare(lhs, rhs)),
+                    Distance.meters(1));
+            });
+
+            runner.testGroup("maximum(Iterator<T>)", () ->
+            {
+                final Action3<String,Iterator<Distance>,Throwable> maximumErrorTest = (String testName, Iterator<Distance> values, Throwable expected) ->
+                {
+                    runner.test(testName, (Test test) ->
+                    {
+                        test.assertThrows(() -> Comparer.maximum(values).await(),
+                            expected);
+                    });
+                };
+
+                maximumErrorTest.run("with null", null, new PreConditionFailure("values cannot be null."));
+                maximumErrorTest.run("with empty", Iterator.create(), new EmptyException());
+
+                final Action2<Iterable<Distance>,Distance> maximumTest = (Iterable<Distance> values, Distance expected) ->
+                {
+                    runner.test("with " + values, (Test test) ->
+                    {
+                        test.assertEqual(expected, Comparer.maximum(values.iterate()).await());
+                    });
+                };
+
+                maximumTest.run(Iterable.create(1).map(Distance::meters), Distance.meters(1));
+                maximumTest.run(Iterable.create(1, 2).map(Distance::meters), Distance.meters(2));
+                maximumTest.run(Iterable.create(1, 2, 3).map(Distance::meters), Distance.meters(3));
+            });
+
+            runner.testGroup("maximum(Iterator<T>,CompareFunction<T>)", () ->
+            {
+                final Action4<String,Iterator<Distance>,CompareFunction<Distance>,Throwable> maximumErrorTest = (String testName, Iterator<Distance> values, CompareFunction<Distance> compareFunction, Throwable expected) ->
+                {
+                    runner.test("with " + values, (Test test) ->
+                    {
+                        test.assertThrows(() -> Comparer.maximum(values, compareFunction).await(),
+                            expected);
+                    });
+                };
+
+                maximumErrorTest.run("with null values", null, Comparer::compare, new PreConditionFailure("values cannot be null."));
+                maximumErrorTest.run("with null compare function", Iterator.create(), null, new PreConditionFailure("comparer cannot be null."));
+                maximumErrorTest.run("with empty values", Iterator.create(), Comparer::compare, new EmptyException());
+
+                final Action4<String,Iterator<Distance>,CompareFunction<Distance>,Distance> maximumTest = (String testName, Iterator<Distance> values, CompareFunction<Distance> compareFunction, Distance expected) ->
+                {
+                    runner.test(testName, (Test test) ->
+                    {
+                        test.assertEqual(expected, Comparer.maximum(values, compareFunction).await());
+                    });
+                };
+
+                maximumTest.run(
+                    "with one value and normal comparer",
+                    Iterator.create(1).map(Distance::meters),
+                    Comparer::compare,
+                    Distance.meters(1));
+                maximumTest.run(
+                    "with two values and normal comparer",
+                    Iterator.create(1, 2).map(Distance::meters),
+                    Comparer::compare,
+                    Distance.meters(2));
+                maximumTest.run(
+                    "with three values and normal comparer",
+                    Iterator.create(1, 2, 3).map(Distance::meters),
+                    Comparer::compare,
+                    Distance.meters(3));
+
+                maximumTest.run(
+                    "with one value and reverse comparer",
+                    Iterator.create(1).map(Distance::meters),
+                    (Distance lhs, Distance rhs) -> Comparison.invert(Comparer.compare(lhs, rhs)),
+                    Distance.meters(1));
+                maximumTest.run(
+                    "with two values and reverse comparer",
+                    Iterator.create(1, 2).map(Distance::meters),
+                    (Distance lhs, Distance rhs) -> Comparison.invert(Comparer.compare(lhs, rhs)),
+                    Distance.meters(1));
+                maximumTest.run(
+                    "with three values and reverse comparer",
+                    Iterator.create(1, 2, 3).map(Distance::meters),
+                    (Distance lhs, Distance rhs) -> Comparison.invert(Comparer.compare(lhs, rhs)),
+                    Distance.meters(1));
             });
         });
     }

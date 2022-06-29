@@ -313,91 +313,275 @@ public interface CharacterListTests
                 });
             });
 
-            runner.testGroup("removeFirstCharacters(int)", () ->
+            runner.testGroup("removeFirst(int)", () ->
             {
-                runner.test("with negative", (Test test) ->
+                final Action3<CharacterList,Integer,Throwable> removeFirstErrorTest = (CharacterList list, Integer valuesToRemove, Throwable expected) ->
                 {
-                    final CharacterList list = CharacterList.create('a', 'b', 'c');
-                    test.assertThrows(() -> list.removeFirstCharacters(-2),
-                        new PreConditionFailure("valuesToRemove (-2) must be greater than or equal to 1."));
-                    test.assertEqual(Iterable.create('a', 'b', 'c'), list);
-                });
+                    runner.test("with " + English.andList(list.toString(false), valuesToRemove), (Test test) ->
+                    {
+                        final Iterable<Character> backupList = List.create(list);
+                        test.assertThrows(() -> list.removeFirst(valuesToRemove).await(),
+                            expected);
+                        test.assertEqual(backupList, list);
+                    });
+                };
 
-                runner.test("with zero", (Test test) ->
-                {
-                    final CharacterList list = CharacterList.create('a', 'b', 'c');
-                    test.assertThrows(() -> list.removeFirstCharacters(0),
-                        new PreConditionFailure("valuesToRemove (0) must be greater than or equal to 1."));
-                    test.assertEqual(Iterable.create('a', 'b', 'c'), list);
-                });
+                removeFirstErrorTest.run(CharacterList.create(), -2, new PreConditionFailure("valuesToRemove (-2) must be greater than or equal to 0."));
+                removeFirstErrorTest.run(CharacterList.create(), 1, new EmptyException());
+                removeFirstErrorTest.run(CharacterList.create('a', 'b', 'c'), -2, new PreConditionFailure("valuesToRemove (-2) must be greater than or equal to 0."));
 
-                runner.test("with fewer than count", (Test test) ->
+                final Action4<CharacterList,Integer,Iterable<Character>,Iterable<Character>> removeFirstTest = (CharacterList list, Integer valuesToRemove, Iterable<Character> expectedResult, Iterable<Character> expectedList) ->
                 {
-                    final CharacterList list = CharacterList.create('a', 'b', 'c');
-                    test.assertEqual(Iterable.create('a', 'b'), list.removeFirstCharacters(2));
-                    test.assertEqual(Iterable.create('c'), list);
-                });
+                    runner.test("with " + English.andList(list.toString(false), valuesToRemove), (Test test) ->
+                    {
+                        final CharacterArray removeFirstResult = list.removeFirst(valuesToRemove).await();
+                        test.assertEqual(expectedResult, removeFirstResult);
+                        test.assertEqual(expectedList, list);
+                    });
+                };
 
-                runner.test("with equal to count", (Test test) ->
-                {
-                    final CharacterList list = CharacterList.create('a', 'b', 'c');
-                    test.assertEqual(Iterable.create('a', 'b', 'c'), list.removeFirstCharacters(3));
-                    test.assertEqual(Iterable.create(), list);
-                });
-
-                runner.test("with more than count", (Test test) ->
-                {
-                    final CharacterList list = CharacterList.create('a', 'b', 'c');
-                    test.assertThrows(() -> list.removeFirstCharacters(4),
-                        new PreConditionFailure("length (4) must be between 1 and 3."));
-                    test.assertEqual(Iterable.create('a', 'b', 'c'), list);
-                });
+                removeFirstTest.run(CharacterList.create(), 0, Iterable.create(), Iterable.create());
+                removeFirstTest.run(CharacterList.create('a', 'b', 'c'), 0, Iterable.create(), Iterable.create('a', 'b', 'c'));
+                removeFirstTest.run(CharacterList.create('a', 'b', 'c'), 1, Iterable.create('a'), Iterable.create('b', 'c'));
+                removeFirstTest.run(CharacterList.create('a', 'b', 'c'), 2, Iterable.create('a', 'b'), Iterable.create('c'));
+                removeFirstTest.run(CharacterList.create('a', 'b', 'c'), 3, Iterable.create('a', 'b', 'c'), Iterable.create());
+                removeFirstTest.run(CharacterList.create('a', 'b', 'c'), 4, Iterable.create('a', 'b', 'c'), Iterable.create());
             });
 
-            runner.testGroup("removeFirstCharacters(char[])", () ->
+            runner.testGroup("removeFirst(char[])", () ->
             {
-                runner.test("with null", (Test test) ->
+                final Action3<CharacterList,char[],Throwable> removeFirstErrorTest = (CharacterList list, char[] outputCharacters, Throwable expected) ->
                 {
-                    final CharacterList list = CharacterList.create('a', 'b', 'c');
-                    test.assertThrows(() -> list.removeFirstCharacters((char[])null),
-                        new PreConditionFailure("outputCharacters cannot be null."));
-                    test.assertEqual(Iterable.create('a', 'b', 'c'), list);
-                });
+                    runner.test("with " + English.andList(list, Array.toString(outputCharacters)), (Test test) ->
+                    {
+                        test.assertThrows(() -> list.removeFirst(outputCharacters).await(),
+                            expected);
+                    });
+                };
 
-                runner.test("with empty", (Test test) ->
-                {
-                    final CharacterList list = CharacterList.create('a', 'b', 'c');
-                    test.assertThrows(() -> list.removeFirstCharacters(new char[0]),
-                        new PreConditionFailure("outputCharacters cannot be empty."));
-                    test.assertEqual(Iterable.create('a', 'b', 'c'), list);
-                });
+                removeFirstErrorTest.run(
+                    CharacterList.create(),
+                    null,
+                    new PreConditionFailure("outputCharacters cannot be null."));
+                removeFirstErrorTest.run(
+                    CharacterList.create(),
+                    new char[1],
+                    new EmptyException());
 
-                runner.test("with fewer than count", (Test test) ->
+                final Action5<CharacterList,char[],Integer,char[],Iterable<Character>> removeFirstTest = (CharacterList list, char[] outputCharacters, Integer expectedResult, char[] expectedOutputCharacters, Iterable<Character> expectedList) ->
                 {
-                    final CharacterList list = CharacterList.create('a', 'b', 'c');
-                    final char[] outputCharacters = new char[2];
-                    list.removeFirstCharacters(outputCharacters);
-                    test.assertEqual(Iterable.create('a', 'b'), CharacterList.create(outputCharacters));
-                    test.assertEqual(Iterable.create('c'), list);
-                });
+                    runner.test("with " + English.andList(list, Array.toString(outputCharacters)), (Test test) ->
+                    {
+                        final Integer removeFirstResult = list.removeFirst(outputCharacters).await();
+                        test.assertEqual(expectedResult, removeFirstResult);
+                        test.assertEqual(expectedOutputCharacters, outputCharacters);
+                        test.assertEqual(expectedList, list);
+                    });
+                };
 
-                runner.test("with equal to count", (Test test) ->
-                {
-                    final CharacterList list = CharacterList.create('a', 'b', 'c');
-                    final char[] outputCharacters = new char[3];
-                    list.removeFirstCharacters(outputCharacters);
-                    test.assertEqual(Iterable.create('a', 'b', 'c'), CharacterList.create(outputCharacters));
-                    test.assertEqual(Iterable.create(), list);
-                });
+                removeFirstTest.run(
+                    CharacterList.create(),
+                    new char[0],
+                    0,
+                    new char[0],
+                    Iterable.create());
+                removeFirstTest.run(
+                    CharacterList.create('a', 'b', 'c'),
+                    new char[0],
+                    0,
+                    new char[0],
+                    Iterable.create('a', 'b', 'c'));
+                removeFirstTest.run(
+                    CharacterList.create('a', 'b', 'c'),
+                    new char[1],
+                    1,
+                    new char[] { 'a' },
+                    Iterable.create('b', 'c'));
+                removeFirstTest.run(
+                    CharacterList.create('a', 'b', 'c'),
+                    new char[2],
+                    2,
+                    new char[] { 'a', 'b' },
+                    Iterable.create('c'));
+                removeFirstTest.run(
+                    CharacterList.create('a', 'b', 'c'),
+                    new char[3],
+                    3,
+                    new char[] { 'a', 'b', 'c' },
+                    Iterable.create());
+                removeFirstTest.run(
+                    CharacterList.create('a', 'b', 'c'),
+                    new char[4],
+                    3,
+                    new char[] { 'a', 'b', 'c', '\0' },
+                    Iterable.create());
+                removeFirstTest.run(
+                    CharacterList.create('a', 'b', 'c'),
+                    new char[5],
+                    3,
+                    new char[] { 'a', 'b', 'c', '\0', '\0' },
+                    Iterable.create());
+            });
 
-                runner.test("with more than count", (Test test) ->
+            runner.testGroup("removeFirst(char[],int,int)", () ->
+            {
+                final Action5<CharacterList,char[],Integer,Integer,Throwable> removeFirstErrorTest = (CharacterList list, char[] outputCharacters, Integer startIndex, Integer length, Throwable expected) ->
                 {
-                    final CharacterList list = CharacterList.create('a', 'b', 'c');
-                    final char[] outputCharacters = new char[4];
-                    test.assertThrows(() -> list.removeFirstCharacters(outputCharacters),
-                        new PreConditionFailure("length (4) must be between 1 and 3."));
-                    test.assertEqual(Iterable.create('a', 'b', 'c'), list);
-                });
+                    runner.test("with " + English.andList(list, Array.toString(outputCharacters), startIndex, length), (Test test) ->
+                    {
+                        test.assertThrows(() -> list.removeFirst(outputCharacters, startIndex, length).await(),
+                            expected);
+                    });
+                };
+
+                removeFirstErrorTest.run(
+                    CharacterList.create(),
+                    null,
+                    0,
+                    0,
+                    new PreConditionFailure("outputCharacters cannot be null."));
+                removeFirstErrorTest.run(
+                    CharacterList.create(),
+                    new char[0],
+                    -1,
+                    0,
+                    new PreConditionFailure("startIndex (-1) must be equal to 0."));
+                removeFirstErrorTest.run(
+                    CharacterList.create(),
+                    new char[0],
+                    1,
+                    0,
+                    new PreConditionFailure("startIndex (1) must be equal to 0."));
+                removeFirstErrorTest.run(
+                    CharacterList.create(),
+                    new char[1],
+                    1,
+                    0,
+                    new PreConditionFailure("startIndex (1) must be equal to 0."));
+                removeFirstErrorTest.run(
+                    CharacterList.create(),
+                    new char[2],
+                    2,
+                    0,
+                    new PreConditionFailure("startIndex (2) must be between 0 and 1."));
+                removeFirstErrorTest.run(
+                    CharacterList.create(),
+                    new char[0],
+                    0,
+                    -1,
+                    new PreConditionFailure("length (-1) must be equal to 0."));
+                removeFirstErrorTest.run(
+                    CharacterList.create(),
+                    new char[1],
+                    0,
+                    2,
+                    new PreConditionFailure("length (2) must be between 0 and 1."));
+                removeFirstErrorTest.run(
+                    CharacterList.create(),
+                    new char[1],
+                    0,
+                    1,
+                    new EmptyException());
+
+                final Action7<CharacterList,char[],Integer,Integer,Integer,char[],Iterable<Character>> removeFirstTest = (CharacterList list, char[] outputCharacters, Integer startIndex, Integer length, Integer expectedResult, char[] expectedOutputCharacters, Iterable<Character> expectedList) ->
+                {
+                    runner.test("with " + English.andList(list, Array.toString(outputCharacters), startIndex, length), (Test test) ->
+                    {
+                        final Integer removeFirstResult = list.removeFirst(outputCharacters, startIndex, length).await();
+                        test.assertEqual(expectedResult, removeFirstResult);
+                        test.assertEqual(expectedOutputCharacters, outputCharacters);
+                        test.assertEqual(expectedList, list);
+                    });
+                };
+
+                removeFirstTest.run(
+                    CharacterList.create(),
+                    new char[0],
+                    0,
+                    0,
+                    0,
+                    new char[0],
+                    Iterable.create());
+                removeFirstTest.run(
+                    CharacterList.create('a', 'b', 'c'),
+                    new char[0],
+                    0,
+                    0,
+                    0,
+                    new char[0],
+                    Iterable.create('a', 'b', 'c'));
+                removeFirstTest.run(
+                    CharacterList.create('a', 'b', 'c'),
+                    new char[1],
+                    0,
+                    1,
+                    1,
+                    new char[] { 'a' },
+                    Iterable.create('b', 'c'));
+                removeFirstTest.run(
+                    CharacterList.create('a', 'b', 'c'),
+                    new char[2],
+                    0,
+                    2,
+                    2,
+                    new char[] { 'a', 'b' },
+                    Iterable.create('c'));
+                removeFirstTest.run(
+                    CharacterList.create('a', 'b', 'c'),
+                    new char[3],
+                    0,
+                    3,
+                    3,
+                    new char[] { 'a', 'b', 'c' },
+                    Iterable.create());
+                removeFirstTest.run(
+                    CharacterList.create('a', 'b', 'c'),
+                    new char[3],
+                    1,
+                    2,
+                    2,
+                    new char[] { '\0', 'a', 'b' },
+                    Iterable.create('c'));
+                removeFirstTest.run(
+                    CharacterList.create('a', 'b', 'c'),
+                    new char[4],
+                    0,
+                    4,
+                    3,
+                    new char[] { 'a', 'b', 'c', '\0' },
+                    Iterable.create());
+                removeFirstTest.run(
+                    CharacterList.create('a', 'b', 'c'),
+                    new char[4],
+                    1,
+                    3,
+                    3,
+                    new char[] { '\0', 'a', 'b', 'c' },
+                    Iterable.create());
+                removeFirstTest.run(
+                    CharacterList.create('a', 'b', 'c'),
+                    new char[5],
+                    0,
+                    5,
+                    3,
+                    new char[] { 'a', 'b', 'c', '\0', '\0' },
+                    Iterable.create());
+                removeFirstTest.run(
+                    CharacterList.create('a', 'b', 'c'),
+                    new char[5],
+                    1,
+                    4,
+                    3,
+                    new char[] { '\0', 'a', 'b', 'c', '\0' },
+                    Iterable.create());
+                removeFirstTest.run(
+                    CharacterList.create('a', 'b', 'c'),
+                    new char[5],
+                    2,
+                    3,
+                    3,
+                    new char[] { '\0', '\0', 'a', 'b', 'c' },
+                    Iterable.create());
             });
 
             runner.testGroup("set(int,char)", () ->

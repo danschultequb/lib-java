@@ -33,7 +33,7 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      * Create a List create the values in this Iterable.
      * @return A List create the values in this Iterable.
      */
-    default List<T> toList()
+    public default List<T> toList()
     {
         return List.create(this);
     }
@@ -89,17 +89,17 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      */
     default T first()
     {
-        return iterate().first();
+        return iterate().first().catchError().await();
     }
 
     /**
-     * Get the first value in this Iterable that isMatch the provided condition.
-     * @return The first value of this Iterable that isMatch the provided condition, or null if this
-     * Iterable has no values that match the condition.
+     * Get the first value in this {@link Iterable} that matches the provided condition.
+     * @param condition The condition to run against each of the values in this {@link Iterable}.
+     * @exception NotFoundException if no matching value is found.
      */
-    default T first(Function1<T,Boolean> condition)
+    public default T first(Function1<T,Boolean> condition)
     {
-        return iterate().first(condition);
+        return this.iterate().first(condition).catchError(NotFoundException.class).await();
     }
 
     /**
@@ -108,7 +108,7 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      */
     default T last()
     {
-        return iterate().last();
+        return iterate().last().catchError().await();
     }
 
     /**
@@ -119,7 +119,7 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      */
     default T last(Function1<T,Boolean> condition)
     {
-        return iterate().last(condition);
+        return iterate().last(condition).catchError(NotFoundException.class).await();
     }
 
     /**
@@ -152,7 +152,7 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      */
     default boolean contains(Function1<T,Boolean> condition)
     {
-        return iterate().contains(condition);
+        return iterate().contains(condition).await();
     }
 
     /**
@@ -214,15 +214,13 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create a new Iterable that will skip over the first toSkip number of elements in this
-     * Iterable and then return the remaining elements.
+     * Create a new {@link Iterable} that will skip over the first toSkip number of elements in this
+     * {@link Iterable} and then return the remaining elements.
      * @param toSkip The number of elements to skip.
-     * @return A new Iterable that will skip over the first toSkip number of elements in this
-     * Iterable and then return the remaining elements.
      */
-    default Iterable<T> skip(int toSkip)
+    public default Iterable<T> skip(int toSkip)
     {
-        return new SkipIterable<>(this, toSkip);
+        return SkipIterable.create(this, toSkip);
     }
 
     /**
@@ -231,9 +229,9 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      * @return A new Iterable that will skip over the first element in this Iterable and return the
      * remaining elements.
      */
-    default Iterable<T> skipFirst()
+    public default Iterable<T> skipFirst()
     {
-        return skip(1);
+        return this.skip(1);
     }
 
     /**
@@ -242,102 +240,74 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      * @return A new Iterable that will skip over the last element in this Iterable and return the
      * remaining elements.
      */
-    default Iterable<T> skipLast()
+    public default Iterable<T> skipLast()
     {
-        return skipLast(1);
+        return this.skipLast(1);
     }
 
     /**
-     * Create a new Iterable that will skip over the last toSkip elements in this Iterable and
-     * return the remaining elements.
-     * @param toSkip The number of elements to skip create the end.
-     * @return A new Iterable that will skip over the last toSkip elements in this Iterable and
-     * return the remaining elements.
+     * Create a new {@link Iterable} that will skip over the last toSkip elements in this
+     * {@link Iterable} and return the remaining elements.
+     * @param toSkip The number of elements to skip from the end.
      */
-    default Iterable<T> skipLast(int toSkip)
+    public default Iterable<T> skipLast(int toSkip)
     {
         PreCondition.assertGreaterThanOrEqualTo(toSkip, 0, "toSkip");
 
-        return take(Math.maximum(0, getCount() - toSkip));
+        return this.take(Math.maximum(0, this.getCount() - toSkip));
     }
 
     /**
-     * Create a new Iterator that will skip over the elements in this Iterator until it finds an
-     * element that makes the provided condition true. The returned Iterator will start at the
-     * element after the element that made the condition true.
+     * Create a new {@link Iterable} that will skip over the elements in this {@link Iterable} until
+     * it finds an element that makes the provided condition true. The returned {@link Iterable}
+     * will start at the element after the element that made the condition true.
      * @param condition The condition.
-     * @return a new Iterator that will skip over the elements in this Iterator until it finds an
-     * element that makes the provided condition true.
      */
-    default Iterable<T> skipUntil(Function1<T,Boolean> condition)
+    public default Iterable<T> skipUntil(Function1<T,Boolean> condition)
     {
-        return new SkipUntilIterable<>(this, condition);
+        return SkipUntilIterable.create(this, condition);
     }
 
     /**
-     * Create a new Iterable that only returns the values create this Iterable that satisfy the given
-     * condition.
-     * @param condition The condition values must satisfy to be returned create the created Iterable.
-     * @return An Iterable that only returns the values create this Iterator that satisfy the given
-     * condition.
+     * Create a new {@link Iterable} that only returns the values from this {@link Iterable} that
+     * satisfy the given condition.
+     * @param condition The condition values must satisfy to be returned from the created
+     * {@link Iterable}.
      */
-    default Iterable<T> where(Function1<T,Boolean> condition)
+    public default Iterable<T> where(Function1<T,Boolean> condition)
     {
-        return new WhereIterable<>(this, condition);
+        return WhereIterable.create(this, condition);
     }
 
     /**
-     * Convert this Iterable into an Iterable that returns values of type U instead of type T.
-     * @param conversion The function to use to convert values of type T to type U.
-     * @param <U> The type to convert values of type T to.
-     * @return An Iterable that returns values of type U instead of type T.
+     * Convert this {@link Iterable} into an {@link Iterable} that returns values of type {@link U}
+     * instead of type {@link T}.
+     * @param conversion The {@link Function1} to use to convert values of type {@link T} to type
+     * {@link U}.
+     * @param <U> The type to convert values of type {@link T} to.
      */
-    default <U> Iterable<U> map(Function1<T,U> conversion)
+    public default <U> Iterable<U> map(Function1<T,U> conversion)
     {
-        return new MapIterable<>(this, conversion);
+        return MapIterable.create(this, conversion);
     }
 
     /**
-     * Convert this Iterable into an Iterable that only returns the values in this Iterable that are
-     * of type or sub-classes of type U.
+     * Convert this {@link Iterable} into an {@link Iterable} that only returns values that are of
+     * type or sub-classes of type {@link U}.
      * @param type The type to filter the results to.
      * @param <U> The type to return.
-     * @return An Iterable that only returns the values in this Iterable that are of type or
-     * sub-classes of type U.
      */
-    default <U> Iterable<U> instanceOf(Class<U> type)
+    public default <U> Iterable<U> instanceOf(Class<U> type)
     {
-        return new InstanceOfIterable<>(this, type);
+        return InstanceOfIterable.create(this, type);
     }
 
     /**
-     * Get the value in this Iterable that is the maximum based on the provided comparer function.
-     * @param comparer The function to use to compare the values in this Iterable.
-     * @return The maximum value in this Iterable based on the provided comparer function.
+     * Get whether or this {@link Iterable} contains equal elements in the same order as the
+     * provided {@link Iterable}.
+     * @param rhs The {@link Iterable} to compare against this {@link Iterable}.
      */
-    default T minimum(Function2<T,T,Comparison> comparer)
-    {
-        return this.iterate().minimum(comparer);
-    }
-
-    /**
-     * Get the value in this Iterable that is the maximum based on the provided comparer function.
-     * @param comparer The function to use to compare the values in this Iterable.
-     * @return The maximum value in this Iterable based on the provided comparer function.
-     */
-    default T maximum(Function2<T,T,Comparison> comparer)
-    {
-        return this.iterate().maximum(comparer);
-    }
-
-    /**
-     * Get whether or not this Iterable contains equal elements in the same order as the provided
-     * Iterable.
-     * @param rhs The Iterable to compare against this Iterable.
-     * @return Whether or not this Iterable contains equal elements in the same order as the
-     * provided Iterable.
-     */
-    default boolean equals(Iterable<T> rhs)
+    public default boolean equals(Iterable<T> rhs)
     {
         boolean result = false;
 

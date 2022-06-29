@@ -33,6 +33,14 @@ public class Objects
         {
             result = Array.toString((double[])value);
         }
+        else if (value instanceof char[])
+        {
+            result = Array.toString((char[])value);
+        }
+        else if (value instanceof boolean[])
+        {
+            result = Array.toString((boolean[])value);
+        }
         else if (value instanceof Object[])
         {
             result = Array.toString((Object[])value);

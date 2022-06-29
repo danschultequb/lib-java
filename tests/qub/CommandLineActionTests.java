@@ -2,7 +2,7 @@ package qub;
 
 public interface CommandLineActionTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         PreCondition.assertNotNull(runner, "runner");
 
@@ -420,14 +420,14 @@ public interface CommandLineActionTests
                     test.assertSame(action1, setDefaultActionResult);
                     test.assertTrue(action1.isDefaultAction());
                     test.assertTrue(actions.hasDefaultAction());
-                    test.assertSame(action1, actions.getDefaultAction());
+                    test.assertSame(action1, actions.getDefaultAction().await());
 
                     test.assertThrows(() -> action2.setDefaultAction(),
                         new PreConditionFailure("this.isDefaultAction() || this.parentActions == null || !this.parentActions.hasDefaultAction() cannot be false."));
                     test.assertFalse(action2.isDefaultAction());
                     test.assertTrue(action1.isDefaultAction());
                     test.assertTrue(actions.hasDefaultAction());
-                    test.assertSame(action1, actions.getDefaultAction());
+                    test.assertSame(action1, actions.getDefaultAction().await());
                 });
             });
 

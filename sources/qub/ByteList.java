@@ -9,55 +9,52 @@ public class ByteList implements List<Byte>
     private byte[] bytes;
     private int count;
 
-    public ByteList()
-    {
-        this(64);
-    }
-
-    public ByteList(int capacity)
+    private ByteList(int capacity)
     {
         PreCondition.assertGreaterThanOrEqualTo(capacity, 0, "capacity");
 
         this.bytes = new byte[capacity];
     }
 
-    public ByteList(byte... values)
+    public static ByteList create()
     {
-        this.bytes = new byte[values == null ? 0 : values.length];
-        addAll(values);
+        return ByteList.createWithCapacity(64);
     }
 
-    public ByteList(int... values)
+    public static ByteList createWithCapacity(int capacity)
     {
-        this.bytes = new byte[values == null ? 0 : values.length];
-        addAll(values);
+        return new ByteList(capacity);
     }
 
-    public static ByteList empty()
+    public static ByteList create(byte... values)
     {
-        return new ByteList();
+        PreCondition.assertNotNull(values, "values");
+
+        return ByteList.createWithCapacity(values.length).addAll(values);
     }
 
-    public static ByteList createFromBytes(byte... values)
+    public static ByteList create(int... values)
     {
-        return new ByteList(values);
+        PreCondition.assertNotNull(values, "values");
+
+        return ByteList.createWithCapacity(values.length).addAll(values);
     }
 
-    public static ByteList createFromBytes(int... values)
+    public int getCapacity()
     {
-        return new ByteList(values);
+        return this.bytes.length;
     }
 
     @Override
     public boolean any()
     {
-        return count > 0;
+        return this.count > 0;
     }
 
     @Override
     public int getCount()
     {
-        return count;
+        return this.count;
     }
 
     public ByteList insert(int insertIndex, int value)
@@ -121,6 +118,31 @@ public class ByteList implements List<Byte>
         return this;
     }
 
+    @Override
+    public ByteList addAll(Byte... values)
+    {
+        if (values != null && values.length > 0)
+        {
+            for (final byte value : values)
+            {
+                this.add(value);
+            }
+        }
+        return this;
+    }
+
+    @Override
+    public ByteList addAll(Iterator<? extends Byte> values)
+    {
+        return (ByteList)List.super.addAll(values);
+    }
+
+    @Override
+    public ByteList addAll(Iterable<? extends Byte> values)
+    {
+        return (ByteList)List.super.addAll(values);
+    }
+
     public ByteList add(int value)
     {
         PreCondition.assertByte(value, "value");
@@ -155,62 +177,70 @@ public class ByteList implements List<Byte>
         return result;
     }
 
-    /**
-     * Remove the first bytes from this ByteList as a ByteArray.
-     * @param valuesToRemove The number of bytes to remove from this ByteList.
-     * @return The removed bytes.
-     */
-    public ByteArray removeFirstBytes(int valuesToRemove)
+    @Override
+    public Result<ByteArray> removeFirst(int valuesToRemove)
     {
-        PreCondition.assertNotNullAndNotEmpty(this, "list");
-        PreCondition.assertLength(valuesToRemove, 0, this.getCount());
+        PreCondition.assertGreaterThanOrEqualTo(valuesToRemove, 0, "valuesToRemove");
 
-        final byte[] bytes = new byte[valuesToRemove];
-        this.removeFirstBytes(bytes);
-        return ByteArray.create(bytes);
+        return Result.create(() ->
+        {
+            final byte[] bytes = new byte[valuesToRemove];
+            final int valuesRemoved = this.removeFirst(bytes).await();
+            return ByteArray.create(bytes, 0, valuesRemoved);
+        });
     }
 
     /**
-     * Remove the first bytes from this ByteList and put them into the outputBytes array. There must
-     * be enough bytes in this list to fill the provided array.
+     * Remove the first bytes from this {@link ByteList} and put them into the outputBytes array.
      * @param outputBytes The array to put the bytes into.
+     * @return The number of bytes that were removed from this {@link ByteList}.
+     * @exception EmptyException if this {@link ByteList} is empty.
      */
-    public void removeFirstBytes(byte[] outputBytes)
+    public Result<Integer> removeFirst(byte[] outputBytes)
     {
-        PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
-        PreCondition.assertNotNullAndNotEmpty(this, "list");
-        PreCondition.assertLength(outputBytes.length, 0, this.getCount());
+        PreCondition.assertNotNull(outputBytes, "outputBytes");
 
-        this.removeFirstBytes(outputBytes, 0, outputBytes.length);
+        return this.removeFirst(outputBytes, 0, outputBytes.length);
     }
 
     /**
-     * Remove the first bytes from this ByteList and put them into the outputBytes array.
+     * Remove the first bytes from this {@link ByteList} and put them into the outputBytes array.
      * @param outputBytes The array to put the bytes into.
      * @param startIndex The start index in the array to start putting the bytes to.
      * @param length The number of bytes to remove from the list and put into the array.
+     * @return The number of bytes that were removed from this {@link ByteList}.
+     * @exception EmptyException if this {@link ByteList} is empty.
      */
-    public void removeFirstBytes(byte[] outputBytes, int startIndex, int length)
+    public Result<Integer> removeFirst(byte[] outputBytes, int startIndex, int length)
     {
-        PreCondition.assertNotNullAndNotEmpty(outputBytes, "outputBytes");
+        PreCondition.assertNotNull(outputBytes, "outputBytes");
         PreCondition.assertStartIndex(startIndex, outputBytes.length);
         PreCondition.assertLength(length, startIndex, outputBytes.length);
-        PreCondition.assertNotNullAndNotEmpty(this, "list");
-        PreCondition.assertLength(length, 0, this.getCount());
 
-        Array.copy(bytes, 0, outputBytes, startIndex, length);
-        final int bytesInList = this.getCount();
-        if (length < bytesInList)
+        return Result.create(() ->
         {
-            Array.copy(bytes, length, this.bytes, 0, bytesInList - length);
-        }
-        count -= length;
-    }
+            int result = 0;
 
-    @Override
-    public Iterable<Byte> removeFirst(int valuesToRemove)
-    {
-        return removeFirstBytes(valuesToRemove);
+            if (length >= 1)
+            {
+                if (!this.any())
+                {
+                    throw new EmptyException();
+                }
+
+                result = Math.minimum(this.count, length);
+                Array.copy(this.bytes, 0, outputBytes, startIndex, result);
+                if (result < this.count)
+                {
+                    Array.copy(this.bytes, result, this.bytes, 0, this.count - result);
+                }
+                this.count -= result;
+            }
+
+            PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
+
+            return result;
+        });
     }
 
     public ByteList set(int index, byte value)
@@ -250,7 +280,7 @@ public class ByteList implements List<Byte>
     @Override
     public Iterator<Byte> iterate()
     {
-        return this.count == 0 ? Iterator.create() : new ByteArrayIterator(this.bytes, 0, this.count);
+        return ByteArrayIterator.create(this.bytes, 0, this.count);
     }
 
     @Override

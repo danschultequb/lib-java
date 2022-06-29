@@ -188,6 +188,48 @@ public class PostCondition
     }
 
     /**
+     * Assert that value is less than or equal to upperBound.
+     * @param value The value to ensure is less than or equal to upperBound.
+     * @param upperBound The upper bound to ensure that the value is less than or equal to.
+     * @param variableName The name of the variable that contains the value.
+     */
+    public static void assertLessThanOrEqualTo(int value, int upperBound, String variableName)
+    {
+        if (!Comparer.lessThanOrEqualTo(value, upperBound))
+        {
+            throw new PostConditionFailure(AssertionMessages.lessThanOrEqualTo(value, upperBound, variableName));
+        }
+    }
+
+    /**
+     * Assert that value is less than or equal to upperBound.
+     * @param value The value to ensure is less than or equal to upperBound.
+     * @param upperBound The upper bound to ensure that the value is less than or equal to.
+     * @param variableName The name of the variable that contains the value.
+     */
+    public static void assertLessThanOrEqualTo(long value, long upperBound, String variableName)
+    {
+        if (!Comparer.lessThanOrEqualTo(value, upperBound))
+        {
+            throw new PostConditionFailure(AssertionMessages.lessThanOrEqualTo(value, upperBound, variableName));
+        }
+    }
+
+    /**
+     * Assert that value is less than or equal to upperBound.
+     * @param value The value to ensure is less than or equal to upperBound.
+     * @param upperBound The upper bound to ensure that the value is less than or equal to.
+     * @param variableName The name of the variable that contains the value.
+     */
+    public static <T extends Comparable<T>> void assertLessThanOrEqualTo(T value, T upperBound, String variableName)
+    {
+        if (!Comparer.lessThanOrEqualTo(value, upperBound))
+        {
+            throw new PostConditionFailure(AssertionMessages.lessThanOrEqualTo(value, upperBound, variableName));
+        }
+    }
+
+    /**
      * Assert that value is greater than or equal to lowerBound.
      * @param value The value to ensure is greater than or equal to lowerBound.
      * @param lowerBound The lower bound to ensure that the value is greater than or equal to.
@@ -267,7 +309,7 @@ public class PostCondition
     {
         if (!Comparer.greaterThan(value, lowerBound))
         {
-            throw new PreConditionFailure(AssertionMessages.greaterThan(value, lowerBound, variableName));
+            throw new PostConditionFailure(AssertionMessages.greaterThan(value, lowerBound, variableName));
         }
     }
 
@@ -281,7 +323,7 @@ public class PostCondition
     {
         if (!Comparer.greaterThan(value, lowerBound))
         {
-            throw new PreConditionFailure(AssertionMessages.greaterThan(value, lowerBound, variableName));
+            throw new PostConditionFailure(AssertionMessages.greaterThan(value, lowerBound, variableName));
         }
     }
 

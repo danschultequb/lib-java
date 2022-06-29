@@ -6,13 +6,18 @@ public class SkipUntilIterator<T> implements Iterator<T>
     private final Function1<T,Boolean> condition;
     private boolean hasSkipped;
 
-    public SkipUntilIterator(Iterator<T> iterator, Function1<T,Boolean> condition)
+    private SkipUntilIterator(Iterator<T> iterator, Function1<T,Boolean> condition)
     {
         PreCondition.assertNotNull(iterator, "iterator");
         PreCondition.assertNotNull(condition, "condition");
 
         this.iterator = iterator;
         this.condition = condition;
+    }
+
+    public static <T> SkipUntilIterator<T> create(Iterator<T> iterator, Function1<T,Boolean> condition)
+    {
+        return new SkipUntilIterator<>(iterator, condition);
     }
 
     private void skipToMatch()

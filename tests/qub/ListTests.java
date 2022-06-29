@@ -249,23 +249,26 @@ public interface ListTests
                 runner.test("with empty List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(0);
-                    test.assertThrows(list::removeFirst, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                    test.assertThrows(() -> list.removeFirst().await(),
+                        new EmptyException());
                 });
 
                 runner.test("with single value List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(1);
-                    test.assertEqual(0, list.removeFirst());
-                    test.assertThrows(list::removeFirst, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                    test.assertEqual(0, list.removeFirst().await());
+                    test.assertThrows(() -> list.removeFirst().await(),
+                        new EmptyException());
                 });
 
                 runner.test("with multiple value List", (Test test) ->
                 {
                     final List<Integer> list = createList.run(3);
-                    test.assertEqual(0, list.removeFirst());
-                    test.assertEqual(1, list.removeFirst());
-                    test.assertEqual(2, list.removeFirst());
-                    test.assertThrows(list::removeFirst, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
+                    test.assertEqual(0, list.removeFirst().await());
+                    test.assertEqual(1, list.removeFirst().await());
+                    test.assertEqual(2, list.removeFirst().await());
+                    test.assertThrows(() -> list.removeFirst().await(),
+                        new EmptyException());
                 });
             });
 
@@ -312,13 +315,23 @@ public interface ListTests
 
             runner.testGroup("removeFirst(int)", () ->
             {
-                runner.test("with empty list", (Test test) ->
+                runner.test("with empty list and zero values to remove", (Test test) ->
                 {
                     final List<Integer> list = createList.run(0);
                     if (list != null)
                     {
-                        test.assertThrows(() -> list.removeFirst(0),
-                            new PreConditionFailure("list cannot be empty."));
+                        test.assertEqual(Iterable.create(), list.removeFirst(0).await());
+                        test.assertEqual(Iterable.create(), list);
+                    }
+                });
+
+                runner.test("with empty list and non-zero values to remove", (Test test) ->
+                {
+                    final List<Integer> list = createList.run(0);
+                    if (list != null)
+                    {
+                        test.assertThrows(() -> list.removeFirst(1).await(),
+                            new EmptyException());
                         test.assertEqual(Iterable.create(), list);
                     }
                 });
@@ -327,38 +340,38 @@ public interface ListTests
                 {
                     final List<Integer> list = createList.run(5);
                     test.assertThrows(() -> list.removeFirst(-1),
-                        new PreConditionFailure("valuesToRemove (-1) must be between 1 and 5."));
+                        new PreConditionFailure("valuesToRemove (-1) must be greater than or equal to 0."));
                     test.assertEqual(Iterable.create(0, 1, 2, 3, 4), list);
                 });
 
                 runner.test("with zero", (Test test) ->
                 {
                     final List<Integer> list = createList.run(5);
-                    test.assertThrows(() -> list.removeFirst(0),
-                        new PreConditionFailure("valuesToRemove (0) must be between 1 and 5."));
+                    final Iterable<Integer> removeFirstResult = list.removeFirst(0).await();
+                    test.assertEqual(Iterable.create(), removeFirstResult);
                     test.assertEqual(Iterable.create(0, 1, 2, 3, 4), list);
                 });
 
                 runner.test("with fewer than list count", (Test test) ->
                 {
                     final List<Integer> list = createList.run(5);
-                    test.assertEqual(Iterable.create(0, 1, 2), list.removeFirst(3));
+                    test.assertEqual(Iterable.create(0, 1, 2), list.removeFirst(3).await());
                     test.assertEqual(Iterable.create(3, 4), list);
                 });
 
                 runner.test("with list count", (Test test) ->
                 {
                     final List<Integer> list = createList.run(5);
-                    test.assertEqual(Iterable.create(0, 1, 2, 3, 4), list.removeFirst(5));
+                    test.assertEqual(Iterable.create(0, 1, 2, 3, 4), list.removeFirst(5).await());
                     test.assertEqual(Iterable.create(), list);
                 });
 
                 runner.test("with more than list count", (Test test) ->
                 {
                     final List<Integer> list = createList.run(5);
-                    test.assertThrows(() -> list.removeFirst(6),
-                        new PreConditionFailure("valuesToRemove (6) must be between 1 and 5."));
-                    test.assertEqual(Iterable.create(0, 1, 2, 3, 4), list);
+                    final Iterable<Integer> removeFirstResult = list.removeFirst(6).await();
+                    test.assertEqual(Iterable.create(0, 1, 2, 3, 4), removeFirstResult);
+                    test.assertEqual(Iterable.create(), list);
                 });
             });
 
@@ -539,7 +552,7 @@ public interface ListTests
                 list.clear();
                 test.assertEqual(0, list.getCount());
             });
-            
+
             runner.testGroup("endsWith(T)", () ->
             {
                 runner.test("with empty List and null", (Test test) ->

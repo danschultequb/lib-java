@@ -118,25 +118,27 @@ public class LongList implements List<Long>
 
         return result;
     }
-    
-    
 
     @Override
-    public LongArray removeFirst(int valuesToRemove)
+    public Result<LongArray> removeFirst(int valuesToRemove)
     {
         PreCondition.assertGreaterThanOrEqualTo(valuesToRemove, 0, "valuesToRemove");
 
-        final long[] removedValues = new long[Math.minimum(this.count, valuesToRemove)];
-        this.removeFirst(removedValues);
-        return LongArray.create(removedValues);
+        return Result.create(() ->
+        {
+            final long[] removedValues = new long[Math.minimum(this.count, valuesToRemove)];
+            this.removeFirst(removedValues).await();
+            return LongArray.create(removedValues);
+        });
     }
 
     /**
-     * Remove the first integers from this LongList and put them into the outputLongs array. There must
-     * be enough integers in this list to fill the provided array.
-     * @param outputLongs The array to put the integers into.
+     * Remove the first values from this {@link LongList} and put them into the outputLongs array.
+     * @param outputLongs The array to put the values into.
+     * @return The number of values that were removed.
+     * @exception EmptyException if this {@link LongList} is empty.
      */
-    public int removeFirst(long[] outputLongs)
+    public Result<Integer> removeFirst(long[] outputLongs)
     {
         PreCondition.assertNotNull(outputLongs, "outputLongs");
 
@@ -144,31 +146,35 @@ public class LongList implements List<Long>
     }
 
     /**
-     * Remove the first bytes from this LongList and put them into the outputLongs array.
-     * @param outputLongs The array to put the bytes into.
-     * @param startIndex The start index in the array to start putting the bytes to.
-     * @param length The number of bytes to remove from the list and put into the array.
+     * Remove the first values from this {@link LongList} and put them into the outputLongs array.
+     * @param outputLongs The array to put the values into.
+     * @param startIndex The start index in the array to start putting the values to.
+     * @param length The number of values to remove from the {@link LongList} and put into the
+     *               array.
+     * @return The number of values that were removed.
+     * @exception EmptyException if this {@link LongList} is empty.
      */
-    public int removeFirst(long[] outputLongs, int startIndex, int length)
+    public Result<Integer> removeFirst(long[] outputLongs, int startIndex, int length)
     {
         PreCondition.assertNotNull(outputLongs, "outputLongs");
         PreCondition.assertStartIndex(startIndex, outputLongs.length);
         PreCondition.assertLength(length, startIndex, outputLongs.length);
 
-        final int result = Math.minimum(this.count, length);
-        if (result > 0)
+        return Result.create(() ->
         {
-            Array.copy(this.longs, 0, outputLongs, startIndex, result);
-            if (result < this.count)
+            final int result = Math.minimum(this.count, length);
+            if (result > 0)
             {
-                Array.copy(this.longs, result, this.longs, 0, this.count - result);
+                Array.copy(this.longs, 0, outputLongs, startIndex, result);
+                if (result < this.count)
+                {
+                    Array.copy(this.longs, result, this.longs, 0, this.count - result);
+                }
+                this.count -= result;
             }
-            this.count -= result;
-        }
 
-        PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
-
-        return result;
+            return result;
+        });
     }
 
     public LongList set(int index, Integer value)

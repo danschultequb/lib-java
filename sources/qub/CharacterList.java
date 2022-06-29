@@ -73,29 +73,35 @@ public class CharacterList implements List<Character>
         return this.count;
     }
 
+    /**
+     * Insert the provided value into this {@link CharacterList} at the provided insertIndex.
+     * @param insertIndex The index at which to insert the provided value.
+     * @param value The value to insert into this {@link CharacterList};
+     * @return This object for method chaining.
+     */
     public CharacterList insert(int insertIndex, char value)
     {
-        PreCondition.assertIndexAccess(insertIndex, count + 1, "insertIndex");
+        PreCondition.assertIndexAccess(insertIndex, this.count + 1, "insertIndex");
 
-        if (count == characters.length)
+        if (this.count == this.characters.length)
         {
-            final char[] newCharacters = new char[(characters.length * 2) + 1];
+            final char[] newCharacters = new char[(this.characters.length * 2) + 1];
             if (1 <= insertIndex)
             {
-                Array.copy(characters, 0, newCharacters, 0, insertIndex);
+                Array.copy(this.characters, 0, newCharacters, 0, insertIndex);
             }
-            if (insertIndex <= count - 1)
+            if (insertIndex <= this.count - 1)
             {
-                Array.copy(characters, insertIndex, newCharacters, insertIndex + 1, count - insertIndex);
+                Array.copy(this.characters, insertIndex, newCharacters, insertIndex + 1, this.count - insertIndex);
             }
-            characters = newCharacters;
+            this.characters = newCharacters;
         }
-        else if (insertIndex < count)
+        else if (insertIndex < this.count)
         {
-            Array.shiftRight(characters, insertIndex, count - insertIndex);
+            Array.shiftRight(this.characters, insertIndex, this.count - insertIndex);
         }
-        characters[insertIndex] = value;
-        ++count;
+        this.characters[insertIndex] = value;
+        this.count++;
 
         return this;
     }
@@ -103,20 +109,26 @@ public class CharacterList implements List<Character>
     @Override
     public CharacterList insert(int insertIndex, Character value)
     {
-        PreCondition.assertIndexAccess(insertIndex, count + 1, "insertIndex");
+        PreCondition.assertIndexAccess(insertIndex, this.count + 1, "insertIndex");
         PreCondition.assertNotNull(value, "value");
 
         return this.insert(insertIndex, value.charValue());
     }
 
+    /**
+     * Add the provided value onto the end of this {@link CharacterList}.
+     * @param value The value to add.
+     * @return This object for method chaining.
+     */
     public CharacterList add(char value)
     {
-        return this.insert(count, value);
+        return this.insert(this.count, value);
     }
 
     /**
-     * Add all of the characters in the provided String to this CharacterList.
+     * Add all the characters in the provided {@link String} to this {@link CharacterList}.
      * @param values The characters to add.
+     * @return This object for method chaining.
      */
     public CharacterList addAll(String values)
     {
@@ -126,28 +138,17 @@ public class CharacterList implements List<Character>
     }
 
     /**
-     * Add all of the characters in the provided String to this CharacterList.
+     * Add all the provided characters to this {@link CharacterList}.
      * @param values The characters to add.
-     */
-    public CharacterList addAll(java.lang.StringBuilder values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return this.addAll(values.toString());
-    }
-
-    /**
-     * Add all of the provided characters to this {@link CharacterList}.
-     * @param values The characters to add.
+     * @return This object for method chaining.
      */
     public CharacterList addAll(char... values)
     {
-        if (values != null && values.length > 0)
+        PreCondition.assertNotNull(values, "values");
+
+        for (final char value : values)
         {
-            for (final char value : values)
-            {
-                this.add(value);
-            }
+            this.add(value);
         }
         return this;
     }
@@ -155,70 +156,85 @@ public class CharacterList implements List<Character>
     @Override
     public Character removeAt(int index)
     {
-        PreCondition.assertIndexAccess(index, count, "index");
+        PreCondition.assertIndexAccess(index, this.count, "index");
 
-        final char result = characters[index];
-        if (index < count - 1)
+        final char result = this.characters[index];
+        if (index < this.count - 1)
         {
-            Array.shiftLeft(characters, index, count - index - 1);
+            Array.shiftLeft(this.characters, index, this.count - index - 1);
         }
-        --count;
+        this.count--;
 
         return result;
     }
 
-    /**
-     * Remove the first characters from this CharacterList as a CharacterArray.
-     * @param valuesToRemove The number of characters to remove from this CharacterList.
-     * @return The removed characters.
-     */
-    public CharacterArray removeFirstCharacters(int valuesToRemove)
+    @Override
+    public Result<CharacterArray> removeFirst(int valuesToRemove)
     {
-        PreCondition.assertGreaterThanOrEqualTo(valuesToRemove, 1, "valuesToRemove");
-        PreCondition.assertNotNullAndNotEmpty(this, "list");
-        PreCondition.assertNonEmptyLength(valuesToRemove, 0, getCount());
+        PreCondition.assertGreaterThanOrEqualTo(valuesToRemove, 0, "valuesToRemove");
 
-        final char[] characters = new char[valuesToRemove];
-        this.removeFirstCharacters(characters);
-        return CharacterArray.create(characters);
+        return Result.create(() ->
+        {
+            final char[] characters = new char[valuesToRemove];
+            final int charactersRemoved = this.removeFirst(characters).await();
+            return CharacterArray.create(characters, 0, charactersRemoved);
+        });
     }
 
     /**
-     * Remove the first characters from this CharacterList and put them into the outputCharacters
-     * array. There must be enough characters in this list to fill the provided array.
-     * @param outputCharacters The array to put the characters into.
+     * Remove the first characters from this {@link CharacterList} and put them into the
+     * outputCharacters array.
+     * @param outputCharacters The char[] to put the characters into.
+     * @return The number of characters that were removed and added to the provided
+     * outputCharacters.
      */
-    public void removeFirstCharacters(char[] outputCharacters)
+    public Result<Integer> removeFirst(char[] outputCharacters)
     {
-        PreCondition.assertNotNullAndNotEmpty(outputCharacters, "outputCharacters");
-        PreCondition.assertNotNullAndNotEmpty(this, "list");
-        PreCondition.assertNonEmptyLength(outputCharacters.length, 0, getCount());
+        PreCondition.assertNotNull(outputCharacters, "outputCharacters");
 
-        this.removeFirstCharacters(outputCharacters, 0, outputCharacters.length);
+        return this.removeFirst(outputCharacters, 0, outputCharacters.length);
     }
 
     /**
-     * Remove the first characters from this CharacterList and put them into the outputCharacters
-     * array.
+     * Remove the first characters from this {@link CharacterList} and put them into the
+     * outputCharacters array.
      * @param outputCharacters The array to put the characters into.
      * @param startIndex The start index in the array to start putting the characters to.
      * @param length The number of characters to remove from the list and put into the array.
+     * @return The number of characters that were removed.
+     * @exception EmptyException if length is greater than 0 and this {@link CharacterList} is
+     * empty.
      */
-    public void removeFirstCharacters(char[] outputCharacters, int startIndex, int length)
+    public Result<Integer> removeFirst(char[] outputCharacters, int startIndex, int length)
     {
-        PreCondition.assertNotNullAndNotEmpty(outputCharacters, "outputCharacters");
-        PreCondition.assertNonEmptyStartIndex(startIndex, outputCharacters.length);
-        PreCondition.assertNonEmptyLength(length, startIndex, outputCharacters.length);
-        PreCondition.assertNotNullAndNotEmpty(this, "list");
-        PreCondition.assertLength(length, 0, getCount());
+        PreCondition.assertNotNull(outputCharacters, "outputCharacters");
+        PreCondition.assertStartIndex(startIndex, outputCharacters.length);
+        PreCondition.assertLength(length, startIndex, outputCharacters.length);
 
-        Array.copy(this.characters, 0, outputCharacters, startIndex, length);
-        final int bytesInList = this.getCount();
-        if (length < bytesInList)
+        return Result.create(() ->
         {
-            Array.copy(this.characters, length, this.characters, 0, bytesInList - length);
-        }
-        this.count -= length;
+            int result = 0;
+
+            if (length >= 1)
+            {
+                if (!this.any())
+                {
+                    throw new EmptyException();
+                }
+
+                result = Math.minimum(this.count, length);
+                Array.copy(this.characters, 0, outputCharacters, startIndex, result);
+                if (result < this.count)
+                {
+                    Array.copy(this.characters, result, this.characters, 0, this.count - result);
+                }
+                this.count -= result;
+            }
+
+            PostCondition.assertGreaterThanOrEqualTo(result, 0, "result");
+
+            return result;
+        });
     }
 
     @Override
@@ -227,12 +243,6 @@ public class CharacterList implements List<Character>
         this.count = 0;
 
         return this;
-    }
-
-    @Override
-    public Iterable<Character> removeFirst(int valuesToRemove)
-    {
-        return this.removeFirstCharacters(valuesToRemove);
     }
 
     public CharacterList set(int index, char value)

@@ -2,7 +2,7 @@ package qub;
 
 public interface MutexTests
 {
-    static void test(TestRunner runner, Function1<Clock,Mutex> creator)
+    public static void test(TestRunner runner, Function1<Clock,Mutex> creator)
     {
         runner.testGroup(Mutex.class, () ->
         {
@@ -674,7 +674,7 @@ public interface MutexTests
                                             }
                                             else
                                             {
-                                                final int value = values.removeFirst();
+                                                final int value = values.removeFirst().await();
                                                 removedValueCount.increment();
                                                 sum.plusAssign(value);
                                             }
@@ -750,7 +750,7 @@ public interface MutexTests
                                             }
                                             else
                                             {
-                                                final int value = values.removeFirst();
+                                                final int value = values.removeFirst().await();
                                                 removedValueCount.increment();
                                                 sum.plusAssign(value);
                                             }
@@ -898,7 +898,7 @@ public interface MutexTests
                                             }
                                             else
                                             {
-                                                final int value = values.removeFirst();
+                                                final int value = values.removeFirst().await();
                                                 removedValueCount.increment();
                                                 sum.plusAssign(value);
                                             }
@@ -1028,7 +1028,7 @@ public interface MutexTests
                                             }
                                             else
                                             {
-                                                final int value = values.removeFirst();
+                                                final int value = values.removeFirst().await();
                                                 removedValueCount.increment();
                                                 sum.plusAssign(value);
                                             }

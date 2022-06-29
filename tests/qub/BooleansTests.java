@@ -57,21 +57,17 @@ public interface BooleansTests
 
             runner.testGroup("toString(Boolean)", () ->
             {
-                runner.test("with null", (Test test) ->
+                final Action2<Boolean,String> toStringTest = (Boolean value, String expected) ->
                 {
-                    test.assertThrows(() -> Booleans.toString(null),
-                        new PreConditionFailure("value cannot be null."));
-                });
+                    runner.test("with " + value, (Test test) ->
+                    {
+                        test.assertEqual(expected, Booleans.toString(value));
+                    });
+                };
 
-                runner.test("with true", (Test test) ->
-                {
-                    test.assertEqual("true", Booleans.toString(Boolean.valueOf(true)));
-                });
-
-                runner.test("with false", (Test test) ->
-                {
-                    test.assertEqual("false", Booleans.toString(Boolean.valueOf(false)));
-                });
+                toStringTest.run(null, "null");
+                toStringTest.run(true, "true");
+                toStringTest.run(false, "false");
             });
 
             runner.testGroup("parse(String)", () ->
@@ -85,8 +81,8 @@ public interface BooleansTests
                     });
                 };
 
-                parseErrorTest.run(null, new PreConditionFailure("value cannot be null."));
-                parseErrorTest.run("", new PreConditionFailure("value cannot be empty."));
+                parseErrorTest.run(null, new ParseException("Expected the value (null) to be either \"true\" or \"false\"."));
+                parseErrorTest.run("", new ParseException("Expected the value (\"\") to be either \"true\" or \"false\"."));
                 parseErrorTest.run("True", new ParseException("Expected the value (\"True\") to be either \"true\" or \"false\"."));
                 parseErrorTest.run("falSE", new ParseException("Expected the value (\"falSE\") to be either \"true\" or \"false\"."));
                 parseErrorTest.run("apple", new ParseException("Expected the value (\"apple\") to be either \"true\" or \"false\"."));
@@ -114,8 +110,10 @@ public interface BooleansTests
                     });
                 };
 
-                parseErrorTest.run(null, true, new PreConditionFailure("value cannot be null."));
-                parseErrorTest.run("", true, new PreConditionFailure("value cannot be empty."));
+                parseErrorTest.run(null, true, new ParseException("Expected the value (null) to be either \"true\" or \"false\"."));
+                parseErrorTest.run(null, false, new ParseException("Expected the value (null) to be either \"true\" or \"false\"."));
+                parseErrorTest.run("", true, new ParseException("Expected the value (\"\") to be either \"true\" or \"false\"."));
+                parseErrorTest.run("", false, new ParseException("Expected the value (\"\") to be either \"true\" or \"false\"."));
                 parseErrorTest.run("True", true, new ParseException("Expected the value (\"True\") to be either \"true\" or \"false\"."));
                 parseErrorTest.run("falSE", true, new ParseException("Expected the value (\"falSE\") to be either \"true\" or \"false\"."));
                 parseErrorTest.run("apple", true, new ParseException("Expected the value (\"apple\") to be either \"true\" or \"false\"."));

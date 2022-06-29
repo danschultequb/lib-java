@@ -1,11 +1,11 @@
 package qub;
 
-class MapIterable<TInner,TOuter> implements Iterable<TOuter>
+public class MapIterable<TInner,TOuter> implements Iterable<TOuter>
 {
     private final Iterable<TInner> innerIterable;
     private final Function1<TInner,TOuter> conversion;
 
-    MapIterable(Iterable<TInner> innerIterable, Function1<TInner,TOuter> conversion)
+    private MapIterable(Iterable<TInner> innerIterable, Function1<TInner,TOuter> conversion)
     {
         PreCondition.assertNotNull(innerIterable, "innerIterable");
         PreCondition.assertNotNull(conversion, "conversion");
@@ -14,22 +14,27 @@ class MapIterable<TInner,TOuter> implements Iterable<TOuter>
         this.conversion = conversion;
     }
 
+    public static <TInner,TOuter> MapIterable<TInner,TOuter> create(Iterable<TInner> innerIterable, Function1<TInner,TOuter> conversion)
+    {
+        return new MapIterable<>(innerIterable, conversion);
+    }
+
     @Override
     public Iterator<TOuter> iterate()
     {
-        return new MapIterator<>(innerIterable.iterate(), conversion);
+        return MapIterator.create(this.innerIterable.iterate(), this.conversion);
     }
 
     @Override
     public boolean any()
     {
-        return innerIterable.any();
+        return this.innerIterable.any();
     }
 
     @Override
     public int getCount()
     {
-        return innerIterable.getCount();
+        return this.innerIterable.getCount();
     }
 
     @Override

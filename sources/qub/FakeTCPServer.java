@@ -69,7 +69,8 @@ public class FakeTCPServer implements TCPServer
             {
                 throw new SocketClosedException(new java.net.SocketException("Socket is closed"));
             }
-            return this.clientsToAccept.removeFirst();
+
+            return this.clientsToAccept.removeFirst().await();
         });
     }
 

@@ -14,7 +14,7 @@ public interface ArrayTests
                     result.set(i, i);
                 }
                 PreCondition.assertEqual(count.intValue(), result.getCount(), "result.getCount()");
-                return result; 
+                return result;
             });
 
             runner.testGroup("create(Iterator<T>)", () ->
@@ -163,7 +163,7 @@ public interface ArrayTests
                     test.assertEqual("102", array.get(1));
                 });
             });
-            
+
             runner.testGroup("get()", () ->
             {
                 runner.test("with negative index", (Test test) ->
@@ -172,7 +172,7 @@ public interface ArrayTests
                     test.assertThrows(() -> a.get(-1),
                         new PreConditionFailure("index (-1) must be between 0 and 9."));
                 });
-                
+
                 runner.test("with too large index", (Test test) ->
                 {
                     final Array<Integer> a = Array.createWithLength(10);
@@ -180,7 +180,7 @@ public interface ArrayTests
                         new PreConditionFailure("index (10) must be between 0 and 9."));
                 });
             });
-            
+
             runner.testGroup("set()", () ->
             {
                 runner.test("with negative index", (Test test) ->
@@ -189,14 +189,14 @@ public interface ArrayTests
                     test.assertThrows(() -> a.set(-1, 49),
                         new PreConditionFailure("index (-1) must be between 0 and 9."));
                 });
-                
+
                 runner.test("with too large index", (Test test) ->
                 {
                     final Array<Integer> a = Array.createWithLength(10);
                     test.assertThrows(() -> a.set(10, 48),
                         new PreConditionFailure("index (10) must be between 0 and 9."));
                 });
-                
+
                 runner.test("with indexes in bounds", (Test test) ->
                 {
                     final Array<Integer> a = Array.createWithLength(11);
@@ -206,7 +206,7 @@ public interface ArrayTests
                     }
                 });
             });
-            
+
             runner.testGroup("iterateReverse()", () ->
             {
                 runner.test("with empty Array", (Test test) ->
@@ -299,7 +299,7 @@ public interface ArrayTests
 
                 runner.test("with non-empty ByteList", (Test test) ->
                 {
-                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(ByteList.createFromBytes((byte)0, (byte)1, (byte)2)));
+                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(ByteList.create(0, 1, 2)));
                 });
 
                 runner.test("with null value", (Test test) ->
@@ -542,7 +542,7 @@ public interface ArrayTests
                 test.run(new char[] { 'a' });
                 test.run(new char[] { 'a', 'b', 'c', 'd', 'e' });
             });
-            
+
             runner.testGroup("clone(char[],int,int)", () ->
             {
                 final Action4<char[],Integer,Integer,char[]> cloneTest = (char[] characters, Integer startIndex, Integer length, char[] expectedCharacters) ->

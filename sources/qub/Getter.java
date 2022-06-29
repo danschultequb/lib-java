@@ -7,14 +7,12 @@ package qub;
 public interface Getter<T>
 {
     /**
-     * Get whether or not this object has a value.
-     * @return Whether or not this object has a value.
+     * Get whether this object has a value.
      */
     boolean hasValue();
 
     /**
-     * Get the value that this Getable contains, or null if no value has been set yet.
-     * @return The value that this Getable contains, or null if no value has been set yet.
+     * Get the value that this {@link Getter} contains, or null if no value has been set yet.
      */
     T get();
 }

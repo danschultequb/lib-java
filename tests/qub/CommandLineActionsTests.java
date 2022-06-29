@@ -2,141 +2,302 @@ package qub;
 
 public interface CommandLineActionsTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         PreCondition.assertNotNull(runner, "runner");
 
         runner.testGroup(CommandLineActions.class, () ->
         {
-            runner.test("constructor()", (Test test) ->
+            runner.test("create()", (Test test) ->
             {
                 final CommandLineActions actions = CommandLineActions.create();
                 test.assertNotNull(actions);
+                test.assertNull(actions.getProcess());
                 test.assertNull(actions.getApplicationName());
                 test.assertNull(actions.getApplicationDescription());
+                test.assertThrows(() -> actions.getDefaultAction().await(),
+                    new NotFoundException("No default action was found."));
+            });
+
+            runner.testGroup("setProcess(DesktopProcess)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final CommandLineActions actions = CommandLineActions.create();
+                    test.assertThrows(() -> actions.setProcess(null),
+                        new PreConditionFailure("process cannot be null."));
+                });
+
+                runner.test("with non-null",
+                    (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
+                    (Test test, FakeDesktopProcess process) ->
+                {
+                    final CommandLineActions actions = CommandLineActions.create();
+                    final CommandLineActions setProcessResult = actions.setProcess(process);
+                    test.assertSame(actions, setProcessResult);
+                    test.assertSame(process, actions.getProcess());
+                });
             });
 
             runner.testGroup("setApplicationName(String)", () ->
             {
-                runner.test("with null", (Test test) ->
+                final Action1<String> setApplicationNameTest = (String applicationName) ->
                 {
-                    final CommandLineActions actions = CommandLineActions.create();
-                    test.assertSame(actions, actions.setApplicationName(null));
-                    test.assertEqual(null, actions.getApplicationName());
-                });
+                    runner.test("with " + Strings.escapeAndQuote(applicationName), (Test test) ->
+                    {
+                        final CommandLineActions actions = CommandLineActions.create();
+                        test.assertSame(actions, actions.setApplicationName(applicationName));
+                        test.assertEqual(applicationName, actions.getApplicationName());
+                    });
+                };
 
-                runner.test("with empty", (Test test) ->
-                {
-                    final CommandLineActions actions = CommandLineActions.create();
-                    test.assertSame(actions, actions.setApplicationName(""));
-                    test.assertEqual("", actions.getApplicationName());
-                });
-
-                runner.test("with non-empty", (Test test) ->
-                {
-                    final CommandLineActions actions = CommandLineActions.create();
-                    test.assertSame(actions, actions.setApplicationName("hello there"));
-                    test.assertEqual("hello there", actions.getApplicationName());
-                });
+                setApplicationNameTest.run(null);
+                setApplicationNameTest.run("");
+                setApplicationNameTest.run("hello");
+                setApplicationNameTest.run("hello there");
             });
 
             runner.testGroup("setApplicationDescription(String)", () ->
             {
-                runner.test("with null", (Test test) ->
+                final Action1<String> setApplicationDescriptionTest = (String applicationDescription) ->
                 {
-                    final CommandLineActions actions = CommandLineActions.create();
-                    test.assertSame(actions, actions.setApplicationDescription(null));
-                    test.assertEqual(null, actions.getApplicationDescription());
-                });
+                    runner.test("with " + Strings.escapeAndQuote(applicationDescription), (Test test) ->
+                    {
+                        final CommandLineActions actions = CommandLineActions.create();
+                        test.assertSame(actions, actions.setApplicationDescription(applicationDescription));
+                        test.assertEqual(applicationDescription, actions.getApplicationDescription());
+                    });
+                };
 
-                runner.test("with empty", (Test test) ->
-                {
-                    final CommandLineActions actions = CommandLineActions.create();
-                    test.assertSame(actions, actions.setApplicationDescription(""));
-                    test.assertEqual("", actions.getApplicationDescription());
-                });
-
-                runner.test("with non-empty", (Test test) ->
-                {
-                    final CommandLineActions actions = CommandLineActions.create();
-                    test.assertSame(actions, actions.setApplicationDescription("hello there"));
-                    test.assertEqual("hello there", actions.getApplicationDescription());
-                });
+                setApplicationDescriptionTest.run(null);
+                setApplicationDescriptionTest.run("");
+                setApplicationDescriptionTest.run("hello");
+                setApplicationDescriptionTest.run("hello there");
             });
 
             runner.testGroup("getFullActionName(String)", () ->
             {
-                runner.test("with null", (Test test) ->
+                final Action2<String,Throwable> getFullActionNameErrorTest = (String actionName, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(actionName), (Test test) ->
+                    {
+                        final CommandLineActions actions = CommandLineActions.create();
+                        test.assertThrows(() -> actions.getFullActionName(actionName),
+                            expected);
+                    });
+                };
+
+                getFullActionNameErrorTest.run(null, new PreConditionFailure("actionName cannot be null."));
+                getFullActionNameErrorTest.run("", new PreConditionFailure("actionName cannot be empty."));
+
+                final Action4<String,CommandLineActions,String,String> getFullActionNameTest = (String testName, CommandLineActions actions, String actionName, String expected) ->
+                {
+                    runner.test(testName, (Test test) ->
+                    {
+                        test.assertEqual(expected, actions.getFullActionName(actionName));
+                    });
+                };
+
+                getFullActionNameTest.run("with no application name",
+                    CommandLineActions.create(),
+                    "hello",
+                    "hello");
+                getFullActionNameTest.run("with application name",
+                    CommandLineActions.create().setApplicationName("hello"),
+                    "there",
+                    "hello there");
+                getFullActionNameTest.run("with application name with spaces",
+                    CommandLineActions.create().setApplicationName("hello there my"),
+                    "friend",
+                    "hello there my friend");
+            });
+
+            runner.testGroup("getDefaultAction()", () ->
+            {
+                runner.test("with no actions", (Test test) ->
                 {
                     final CommandLineActions actions = CommandLineActions.create();
-                    test.assertThrows(() -> actions.getFullActionName(null),
-                        new PreConditionFailure("actionName cannot be null."));
+                    test.assertThrows(() -> actions.getDefaultAction().await(),
+                        new NotFoundException("No default action was found."));
                 });
 
-                runner.test("with empty", (Test test) ->
+                runner.test("with one action that isn't the default action", (Test test) ->
                 {
                     final CommandLineActions actions = CommandLineActions.create();
-                    test.assertThrows(() -> actions.getFullActionName(""),
-                        new PreConditionFailure("actionName cannot be empty."));
+                    actions.addAction("hello", (DesktopProcess process) -> {});
+                    test.assertThrows(() -> actions.getDefaultAction().await(),
+                        new NotFoundException("No default action was found."));
                 });
 
-                runner.test("with no application name", (Test test) ->
+                runner.test("with one action that is the default action", (Test test) ->
                 {
                     final CommandLineActions actions = CommandLineActions.create();
-                    test.assertEqual("hello", actions.getFullActionName("hello"));
+                    final CommandLineAction action = actions.addAction("hello", (DesktopProcess process) -> {})
+                        .setDefaultAction();
+                    test.assertSame(action, actions.getDefaultAction().await());
+                });
+            });
+
+            runner.testGroup("hasDefaultAction()", () ->
+            {
+                runner.test("with no actions", (Test test) ->
+                {
+                    final CommandLineActions actions = CommandLineActions.create();
+                    test.assertFalse(actions.hasDefaultAction());
                 });
 
-                runner.test("with application name", (Test test) ->
+                runner.test("with one action that isn't the default action", (Test test) ->
                 {
-                    final CommandLineActions actions = CommandLineActions.create()
-                        .setApplicationName("hello");
-                    test.assertEqual("hello there", actions.getFullActionName("there"));
+                    final CommandLineActions actions = CommandLineActions.create();
+                    actions.addAction("hello", (DesktopProcess process) -> {});
+                    test.assertFalse(actions.hasDefaultAction());
                 });
 
-                runner.test("with application name with spaces", (Test test) ->
+                runner.test("with one action that is the default action", (Test test) ->
                 {
-                    final CommandLineActions actions = CommandLineActions.create()
-                        .setApplicationName("hello there my");
-                    test.assertEqual("hello there my friend", actions.getFullActionName("friend"));
+                    final CommandLineActions actions = CommandLineActions.create();
+                    actions.addAction("hello", (DesktopProcess process) -> {})
+                        .setDefaultAction();
+                    test.assertTrue(actions.hasDefaultAction());
+                });
+            });
+
+            runner.testGroup("getAction(String)", () ->
+            {
+                final Action2<String,Throwable> getActionErrorTest = (String actionName, Throwable expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(actionName), (Test test) ->
+                    {
+                        final CommandLineActions actions = CommandLineActions.create();
+                        test.assertThrows(() -> actions.getAction(actionName),
+                            expected);
+                    });
+                };
+
+                getActionErrorTest.run(null, new PreConditionFailure("actionName cannot be null."));
+                getActionErrorTest.run("", new PreConditionFailure("actionName cannot be empty."));
+
+                runner.test("with no actions", (Test test) ->
+                {
+                    final CommandLineActions actions = CommandLineActions.create();
+                    test.assertThrows(() -> actions.getAction("hello").await(),
+                        new NotFoundException("No action was found with the name \"hello\"."));
+                });
+
+                runner.test("with non-existing action name", (Test test) ->
+                {
+                    final CommandLineActions actions = CommandLineActions.create();
+                    actions.addAction("hello", (DesktopProcess process) -> {});
+                    test.assertThrows(() -> actions.getAction("test").await(),
+                        new NotFoundException("No action was found with the name \"test\"."));
+                });
+
+                runner.test("with existing action name", (Test test) ->
+                {
+                    final CommandLineActions actions = CommandLineActions.create();
+                    final CommandLineAction action = actions.addAction("hello", (DesktopProcess process) -> {});
+                    test.assertSame(action, actions.getAction("hello").await());
+                });
+
+                runner.test("with existing action name with different case", (Test test) ->
+                {
+                    final CommandLineActions actions = CommandLineActions.create();
+                    final CommandLineAction action = actions.addAction("hello", (DesktopProcess process) -> {});
+                    test.assertSame(action, actions.getAction("heLLo").await());
+                });
+
+                runner.test("with existing action alias", (Test test) ->
+                {
+                    final CommandLineActions actions = CommandLineActions.create();
+                    final CommandLineAction action = actions.addAction("hello", (DesktopProcess process) -> {})
+                        .addAlias("there");
+                    test.assertSame(action, actions.getAction("there").await());
+                });
+
+                runner.test("with existing action alias with different case", (Test test) ->
+                {
+                    final CommandLineActions actions = CommandLineActions.create();
+                    final CommandLineAction action = actions.addAction("hello", (DesktopProcess process) -> {})
+                        .addAlias("there");
+                    test.assertSame(action, actions.getAction("TherE").await());
                 });
             });
 
             runner.testGroup("containsActionName(String)", () ->
             {
-                runner.test("with null", (Test test) ->
+                final Action2<String,Throwable> containsActionNameErrorTest = (String actionName, Throwable expected) ->
                 {
-                    final CommandLineActions actions = CommandLineActions.create();
-                    test.assertThrows(() -> actions.containsActionName(null),
-                        new PreConditionFailure("actionName cannot be null."));
-                });
+                    runner.test("with " + Strings.escapeAndQuote(actionName), (Test test) ->
+                    {
+                        final CommandLineActions actions = CommandLineActions.create();
+                        test.assertThrows(() -> actions.containsActionName(actionName),
+                            expected);
+                    });
+                };
 
-                runner.test("with empty", (Test test) ->
-                {
-                    final CommandLineActions actions = CommandLineActions.create();
-                    test.assertThrows(() -> actions.containsActionName(""),
-                        new PreConditionFailure("actionName cannot be empty."));
-                });
+                containsActionNameErrorTest.run(null, new PreConditionFailure("actionName cannot be null."));
+                containsActionNameErrorTest.run("", new PreConditionFailure("actionName cannot be empty."));
 
-                runner.test("with non-existing actionName", (Test test) ->
+                final Action4<String,Function0<CommandLineActions>,String,Boolean> containsActionNameTest = (String testName, Function0<CommandLineActions> actionsCreator, String actionName, Boolean expected) ->
                 {
-                    final CommandLineActions actions = CommandLineActions.create();
-                    test.assertFalse(actions.containsActionName("test"));
-                });
+                    runner.test(testName, (Test test) ->
+                    {
+                        final CommandLineActions actions = actionsCreator.run();
+                        test.assertEqual(expected, actions.containsActionName(actionName));
+                    });
+                };
 
-                runner.test("with existing actionName", (Test test) ->
-                {
-                    final CommandLineActions actions = CommandLineActions.create();
-                    actions.addAction("hello", (DesktopProcess process) -> {});
-                    test.assertTrue(actions.containsActionName("hello"));
-                });
-
-                runner.test("with existing alias actionName", (Test test) ->
-                {
-                    final CommandLineActions actions = CommandLineActions.create();
-                    actions.addAction("hello", (DesktopProcess process) -> {})
-                        .addAlias("there");
-                    test.assertTrue(actions.containsActionName("there"));
-                });
+                containsActionNameTest.run("with no actions",
+                    () -> { return CommandLineActions.create(); },
+                    "test",
+                    false);
+                containsActionNameTest.run("with non-existing actionName",
+                    () ->
+                    {
+                        final CommandLineActions actions = CommandLineActions.create();
+                        actions.addAction("hello", (DesktopProcess process) -> {});
+                        return actions;
+                    },
+                    "test",
+                    false);
+                containsActionNameTest.run("with existing actionName",
+                    () ->
+                    {
+                        final CommandLineActions actions = CommandLineActions.create();
+                        actions.addAction("hello", (DesktopProcess process) -> {});
+                        return actions;
+                    },
+                    "hello",
+                    true);
+                containsActionNameTest.run("with existing actionName with different case",
+                    () ->
+                    {
+                        final CommandLineActions actions = CommandLineActions.create();
+                        actions.addAction("hello", (DesktopProcess process) -> {});
+                        return actions;
+                    },
+                    "HELLO",
+                    true);
+                containsActionNameTest.run("with existing actionName alias",
+                    () ->
+                    {
+                        final CommandLineActions actions = CommandLineActions.create();
+                        actions.addAction("hello", (DesktopProcess process) -> {})
+                            .addAlias("there");
+                        return actions;
+                    },
+                    "there",
+                    true);
+                containsActionNameTest.run("with existing actionName alias with different case",
+                    () ->
+                    {
+                        final CommandLineActions actions = CommandLineActions.create();
+                        actions.addAction("hello", (DesktopProcess process) -> {})
+                            .addAlias("there");
+                        return actions;
+                    },
+                    "THERE",
+                    true);
             });
 
             runner.testGroup("addAction(Action1<CommandLineActions>)", () ->

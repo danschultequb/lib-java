@@ -2,7 +2,7 @@ package qub;
 
 public interface IterableTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(Iterable.class, () ->
         {
@@ -1061,15 +1061,6 @@ public interface IterableTests
                     final Iterable<Integer> iterable = createIterable.run(4);
 
                     test.assertEqual(Iterable.create(0, 1, 2, 3), iterable.instanceOf(Integer.class));
-                });
-            });
-
-            runner.testGroup("minimum()", () ->
-            {
-                runner.test("with null comparer", (Test test) ->
-                {
-                    final Iterable<Integer> iterable = createIterable.run(1);
-                    test.assertThrows(() -> iterable.minimum(null), new PreConditionFailure("comparer cannot be null."));
                 });
             });
 

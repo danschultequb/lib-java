@@ -34,4 +34,33 @@ public enum Comparison
 
         return value < -marginOfError ? LessThan : value <= marginOfError ? Equal : GreaterThan;
     }
+
+    /**
+     * Invert the provided {@link Comparison} value.
+     * @param value The value to invert.
+     */
+    public static Comparison invert(Comparison value)
+    {
+        PreCondition.assertNotNull(value, "value");
+
+        final Comparison result;
+        switch (value)
+        {
+            case LessThan:
+                result = Comparison.GreaterThan;
+                break;
+
+            case GreaterThan:
+                result = Comparison.LessThan;
+                break;
+
+            default:
+                result = value;
+                break;
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
 }

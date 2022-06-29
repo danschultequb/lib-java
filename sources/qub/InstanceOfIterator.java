@@ -1,11 +1,11 @@
 package qub;
 
-class InstanceOfIterator<TInner,TOuter> implements Iterator<TOuter>
+public class InstanceOfIterator<TInner,TOuter> implements Iterator<TOuter>
 {
     private final Iterator<TInner> innerIterator;
     private final Class<TOuter> type;
 
-    InstanceOfIterator(Iterator<TInner> innerIterator, Class<TOuter> type)
+    private InstanceOfIterator(Iterator<TInner> innerIterator, Class<TOuter> type)
     {
         PreCondition.assertNotNull(innerIterator, "innerIterator");
         PreCondition.assertNotNull(type, "type");
@@ -14,20 +14,25 @@ class InstanceOfIterator<TInner,TOuter> implements Iterator<TOuter>
         this.type = type;
     }
 
+    public static <TInner,TOuter> InstanceOfIterator<TInner,TOuter> create(Iterator<TInner> innerIterator, Class<TOuter> type)
+    {
+        return new InstanceOfIterator<>(innerIterator, type);
+    }
+
     private boolean skipToMatch()
     {
         boolean foundMatch = false;
 
-        while (innerIterator.hasCurrent())
+        while (this.innerIterator.hasCurrent())
         {
-            if (Types.instanceOf(innerIterator.getCurrent(), type))
+            if (Types.instanceOf(this.innerIterator.getCurrent(), this.type))
             {
                 foundMatch = true;
                 break;
             }
             else
             {
-                innerIterator.next();
+                this.innerIterator.next();
             }
         }
 
@@ -37,26 +42,26 @@ class InstanceOfIterator<TInner,TOuter> implements Iterator<TOuter>
     @Override
     public boolean hasStarted()
     {
-        return innerIterator.hasStarted();
+        return this.innerIterator.hasStarted();
     }
 
     @Override
     public boolean hasCurrent()
     {
-        return skipToMatch();
+        return this.skipToMatch();
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public TOuter getCurrent()
     {
-        return (TOuter)innerIterator.getCurrent();
+        return (TOuter)this.innerIterator.getCurrent();
     }
 
     @Override
     public boolean next()
     {
-        innerIterator.next();
-        return skipToMatch();
+        this.innerIterator.next();
+        return this.skipToMatch();
     }
 }

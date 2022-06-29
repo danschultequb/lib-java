@@ -1,11 +1,11 @@
 package qub;
 
-class MapIndexable<TInner,TOuter> implements Indexable<TOuter>
+public class MapIndexable<TInner,TOuter> implements Indexable<TOuter>
 {
     private final Indexable<TInner> innerIndexable;
     private final Function1<TInner,TOuter> conversion;
 
-    MapIndexable(Indexable<TInner> innerIndexable, Function1<TInner,TOuter> conversion)
+    private MapIndexable(Indexable<TInner> innerIndexable, Function1<TInner,TOuter> conversion)
     {
         PreCondition.assertNotNull(innerIndexable, "innerIndexable");
         PreCondition.assertNotNull(conversion, "conversion");
@@ -14,22 +14,27 @@ class MapIndexable<TInner,TOuter> implements Indexable<TOuter>
         this.conversion = conversion;
     }
 
+    public static <TInner,TOuter> MapIndexable<TInner,TOuter> create(Indexable<TInner> innerIndexable, Function1<TInner,TOuter> conversion)
+    {
+        return new MapIndexable<>(innerIndexable, conversion);
+    }
+
     @Override
     public Iterator<TOuter> iterate()
     {
-        return new MapIterator<>(innerIndexable.iterate(), conversion);
+        return MapIterator.create(this.innerIndexable.iterate(), this.conversion);
     }
 
     @Override
     public boolean any()
     {
-        return innerIndexable.any();
+        return this.innerIndexable.any();
     }
 
     @Override
     public int getCount()
     {
-        return innerIndexable.getCount();
+        return this.innerIndexable.getCount();
     }
 
     @Override
@@ -37,7 +42,7 @@ class MapIndexable<TInner,TOuter> implements Indexable<TOuter>
     {
         PreCondition.assertIndexAccess(index, getCount());
 
-        return conversion.run(innerIndexable.get(index));
+        return this.conversion.run(this.innerIndexable.get(index));
     }
 
     @Override
