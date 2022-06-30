@@ -2906,6 +2906,13 @@ public interface IteratorTests
                     IteratorTests.assertIterator(test, iterator, false, null);
                     IteratorTests.assertIterator(test, catchErrorIterator, false, null);
 
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(catchErrorIterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, catchErrorIterator, true, i);
+                    }
+
                     for (int i = 0; i < 2; i++)
                     {
                         test.assertFalse(catchErrorIterator.next());
@@ -2930,7 +2937,7 @@ public interface IteratorTests
                     IteratorTests.assertIterator(test, iterator, false, null);
                     IteratorTests.assertIterator(test, catchErrorIterator, false, null);
 
-                    for (int i = 0; i <= 2; i += 2)
+                    for (int i = 0; i < 3; i++)
                     {
                         test.assertTrue(catchErrorIterator.next());
                         IteratorTests.assertIterator(test, iterator, true, i);
@@ -3095,15 +3102,18 @@ public interface IteratorTests
                     IteratorTests.assertIterator(test, iterator, false, null);
                     IteratorTests.assertIterator(test, catchErrorIterator, false, null);
 
-                    test.assertFalse(catchErrorIterator.next());
-                    test.assertEqual(4, counter.get());
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, catchErrorIterator, true, null);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(catchErrorIterator.next());
+                        test.assertEqual(i + 1, counter.get());
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, catchErrorIterator, true, i);
+                    }
 
                     for (int i = 0; i < 2; i++)
                     {
                         test.assertFalse(catchErrorIterator.next());
-                        test.assertEqual(4, counter.get());
+                        test.assertEqual(4 + i, counter.get());
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, catchErrorIterator, true, null);
                     }
@@ -3130,6 +3140,11 @@ public interface IteratorTests
                     test.assertEqual(0, counter.get());
                     IteratorTests.assertIterator(test, iterator, true, 0);
                     IteratorTests.assertIterator(test, catchErrorIterator, true, 0);
+
+                    test.assertTrue(catchErrorIterator.next());
+                    test.assertEqual(1, counter.get());
+                    IteratorTests.assertIterator(test, iterator, true, 1);
+                    IteratorTests.assertIterator(test, catchErrorIterator, true, 1);
 
                     test.assertTrue(catchErrorIterator.next());
                     test.assertEqual(1, counter.get());
@@ -3295,27 +3310,31 @@ public interface IteratorTests
                     IteratorTests.assertIterator(test, iterator, false, null);
                     IteratorTests.assertIterator(test, catchErrorIterator, false, null);
 
-                    test.assertFalse(catchErrorIterator.next());
-                    test.assertEqual(
-                        Iterable.create(
-                            new ParseException("hello there"),
-                            new ParseException("hello there"),
-                            new ParseException("hello there"),
-                            new ParseException("hello there")),
-                        errors);
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, catchErrorIterator, true, null);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(catchErrorIterator.next());
+                        final List<ParseException> expectedErrors = List.create();
+                        for (int j = 0; j <= i; j++)
+                        {
+                            expectedErrors.add(new ParseException("hello there"));
+                        }
+                        test.assertEqual(expectedErrors, errors);
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, catchErrorIterator, true, i);
+                    }
 
                     for (int i = 0; i < 2; i++)
                     {
                         test.assertFalse(catchErrorIterator.next());
-                        test.assertEqual(
-                            Iterable.create(
-                                new ParseException("hello there"),
-                                new ParseException("hello there"),
-                                new ParseException("hello there"),
-                                new ParseException("hello there")),
-                            errors);
+                        final List<ParseException> expectedErrors = List.create(
+                            new ParseException("hello there"),
+                            new ParseException("hello there"),
+                            new ParseException("hello there"));
+                        for (int j = 0; j <= i; j++)
+                        {
+                            expectedErrors.add(new ParseException("hello there"));
+                        }
+                        test.assertEqual(expectedErrors, errors);
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, catchErrorIterator, true, null);
                     }
@@ -3342,6 +3361,14 @@ public interface IteratorTests
                     test.assertEqual(Iterable.create(), errors);
                     IteratorTests.assertIterator(test, iterator, true, 0);
                     IteratorTests.assertIterator(test, catchErrorIterator, true, 0);
+
+                    test.assertTrue(catchErrorIterator.next());
+                    test.assertEqual(
+                        Iterable.create(
+                            new ParseException("hello there")),
+                        errors);
+                    IteratorTests.assertIterator(test, iterator, true, 1);
+                    IteratorTests.assertIterator(test, catchErrorIterator, true, 1);
 
                     test.assertTrue(catchErrorIterator.next());
                     test.assertEqual(
@@ -3451,14 +3478,10 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, catchErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> catchErrorIterator.next(),
-                        new ParseException("hello there"));
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, catchErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(catchErrorIterator.next());
+                        test.assertThrows(() -> catchErrorIterator.next(),
+                            new ParseException("hello there"));
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, catchErrorIterator, true, null);
                     }
@@ -3475,6 +3498,13 @@ public interface IteratorTests
                     final Iterator<Integer> catchErrorIterator = iterator.catchError(NotFoundException.class);
                     IteratorTests.assertIterator(test, iterator, false, null);
                     IteratorTests.assertIterator(test, catchErrorIterator, false, null);
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(catchErrorIterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, catchErrorIterator, true, i);
+                    }
 
                     for (int i = 0; i < 2; i++)
                     {
@@ -3495,6 +3525,13 @@ public interface IteratorTests
                     final Iterator<Integer> catchErrorIterator = iterator.catchError(NotFoundException.class);
                     IteratorTests.assertIterator(test, iterator, false, null);
                     IteratorTests.assertIterator(test, catchErrorIterator, false, null);
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(catchErrorIterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, catchErrorIterator, true, i);
+                    }
 
                     for (int i = 0; i < 2; i++)
                     {
@@ -3531,7 +3568,8 @@ public interface IteratorTests
 
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(catchErrorIterator.next());
+                        test.assertThrows(() -> catchErrorIterator.next(),
+                            new RuntimeException("hello there"));
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, catchErrorIterator, true, null);
                     }
@@ -3590,13 +3628,12 @@ public interface IteratorTests
                     IteratorTests.assertIterator(test, iterator, false, null);
                     IteratorTests.assertIterator(test, catchErrorIterator, false, null);
 
-                    test.assertTrue(catchErrorIterator.next());
-                    IteratorTests.assertIterator(test, iterator, true, 0);
-                    IteratorTests.assertIterator(test, catchErrorIterator, true, 0);
-
-                    test.assertTrue(catchErrorIterator.next());
-                    IteratorTests.assertIterator(test, iterator, true, 2);
-                    IteratorTests.assertIterator(test, catchErrorIterator, true, 2);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(catchErrorIterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, catchErrorIterator, true, i);
+                    }
 
                     for (int i = 0; i < 2; i++)
                     {
@@ -3622,13 +3659,12 @@ public interface IteratorTests
                     IteratorTests.assertIterator(test, iterator, false, null);
                     IteratorTests.assertIterator(test, catchErrorIterator, false, null);
 
-                    test.assertTrue(catchErrorIterator.next());
-                    IteratorTests.assertIterator(test, iterator, true, 0);
-                    IteratorTests.assertIterator(test, catchErrorIterator, true, 0);
-
-                    test.assertTrue(catchErrorIterator.next());
-                    IteratorTests.assertIterator(test, iterator, true, 2);
-                    IteratorTests.assertIterator(test, catchErrorIterator, true, 2);
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(catchErrorIterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, catchErrorIterator, true, i);
+                    }
 
                     for (int i = 0; i < 2; i++)
                     {
@@ -3784,15 +3820,10 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, catchErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> catchErrorIterator.next(),
-                        new ParseException("hello there"));
-                    test.assertEqual(0, counter.get());
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, catchErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(catchErrorIterator.next());
+                        test.assertThrows(() -> catchErrorIterator.next(),
+                            new ParseException("hello there"));
                         test.assertEqual(0, counter.get());
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, catchErrorIterator, true, null);
@@ -3813,10 +3844,18 @@ public interface IteratorTests
                     IteratorTests.assertIterator(test, iterator, false, null);
                     IteratorTests.assertIterator(test, catchErrorIterator, false, null);
 
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(catchErrorIterator.next());
+                        test.assertEqual(i + 1, counter.get());
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, catchErrorIterator, true, i);
+                    }
+
                     for (int i = 0; i < 2; i++)
                     {
                         test.assertFalse(catchErrorIterator.next());
-                        test.assertEqual(4, counter.get());
+                        test.assertEqual(4 + i, counter.get());
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, catchErrorIterator, true, null);
                     }
@@ -3836,10 +3875,18 @@ public interface IteratorTests
                     IteratorTests.assertIterator(test, iterator, false, null);
                     IteratorTests.assertIterator(test, catchErrorIterator, false, null);
 
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(catchErrorIterator.next());
+                        test.assertEqual(i + 1, counter.get());
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, catchErrorIterator, true, i);
+                    }
+
                     for (int i = 0; i < 2; i++)
                     {
                         test.assertFalse(catchErrorIterator.next());
-                        test.assertEqual(4, counter.get());
+                        test.assertEqual(4 + i, counter.get());
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, catchErrorIterator, true, null);
                     }
@@ -3868,15 +3915,10 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, catchErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> catchErrorIterator.next(),
-                        new RuntimeException("hello there"));
-                    test.assertEqual(0, counter.get());
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, catchErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(catchErrorIterator.next());
+                        test.assertThrows(() -> catchErrorIterator.next(),
+                            new RuntimeException("hello there"));
                         test.assertEqual(0, counter.get());
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, catchErrorIterator, true, null);
@@ -3951,6 +3993,11 @@ public interface IteratorTests
 
                     test.assertTrue(catchErrorIterator.next());
                     test.assertEqual(1, counter.get());
+                    IteratorTests.assertIterator(test, iterator, true, 1);
+                    IteratorTests.assertIterator(test, catchErrorIterator, true, 1);
+
+                    test.assertTrue(catchErrorIterator.next());
+                    test.assertEqual(1, counter.get());
                     IteratorTests.assertIterator(test, iterator, true, 2);
                     IteratorTests.assertIterator(test, catchErrorIterator, true, 2);
 
@@ -3985,6 +4032,11 @@ public interface IteratorTests
                     test.assertEqual(0, counter.get());
                     IteratorTests.assertIterator(test, iterator, true, 0);
                     IteratorTests.assertIterator(test, catchErrorIterator, true, 0);
+
+                    test.assertTrue(catchErrorIterator.next());
+                    test.assertEqual(1, counter.get());
+                    IteratorTests.assertIterator(test, iterator, true, 1);
+                    IteratorTests.assertIterator(test, catchErrorIterator, true, 1);
 
                     test.assertTrue(catchErrorIterator.next());
                     test.assertEqual(1, counter.get());
@@ -4152,15 +4204,10 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, catchErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> catchErrorIterator.next(),
-                        new ParseException("hello there"));
-                    test.assertEqual(Iterable.create(), errors);
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, catchErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(catchErrorIterator.next());
+                        test.assertThrows(() -> catchErrorIterator.next(),
+                            new ParseException("hello there"));
                         test.assertEqual(Iterable.create(), errors);
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, catchErrorIterator, true, null);
@@ -4181,16 +4228,31 @@ public interface IteratorTests
                     IteratorTests.assertIterator(test, iterator, false, null);
                     IteratorTests.assertIterator(test, catchErrorIterator, false, null);
 
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(catchErrorIterator.next());
+                        final List<NotFoundException> expectedErrors = List.create();
+                        for (int j = 0; j <= i; j++)
+                        {
+                            expectedErrors.add(new NotFoundException("hello there"));
+                        }
+                        test.assertEqual(expectedErrors, errors);
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, catchErrorIterator, true, i);
+                    }
+
                     for (int i = 0; i < 2; i++)
                     {
                         test.assertFalse(catchErrorIterator.next());
-                        test.assertEqual(
-                            Iterable.create(
-                                new NotFoundException("hello there"),
-                                new NotFoundException("hello there"),
-                                new NotFoundException("hello there"),
-                                new NotFoundException("hello there")),
-                            errors);
+                        final List<NotFoundException> expectedErrors = List.create(
+                            new NotFoundException("hello there"),
+                            new NotFoundException("hello there"),
+                            new NotFoundException("hello there"));
+                        for (int j = 0; j <= i; j++)
+                        {
+                            expectedErrors.add(new NotFoundException("hello there"));
+                        }
+                        test.assertEqual(expectedErrors, errors);
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, catchErrorIterator, true, null);
                     }
@@ -4210,16 +4272,31 @@ public interface IteratorTests
                     IteratorTests.assertIterator(test, iterator, false, null);
                     IteratorTests.assertIterator(test, catchErrorIterator, false, null);
 
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(catchErrorIterator.next());
+                        final List<NotFoundException> expectedErrors = List.create();
+                        for (int j = 0; j <= i; j++)
+                        {
+                            expectedErrors.add(new EmptyException("hello there"));
+                        }
+                        test.assertEqual(expectedErrors, errors);
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, catchErrorIterator, true, i);
+                    }
+
                     for (int i = 0; i < 2; i++)
                     {
                         test.assertFalse(catchErrorIterator.next());
-                        test.assertEqual(
-                            Iterable.create(
-                                new EmptyException("hello there"),
-                                new EmptyException("hello there"),
-                                new EmptyException("hello there"),
-                                new EmptyException("hello there")),
-                            errors);
+                        final List<NotFoundException> expectedErrors = List.create(
+                            new EmptyException("hello there"),
+                            new EmptyException("hello there"),
+                            new EmptyException("hello there"));
+                        for (int j = 0; j <= i; j++)
+                        {
+                            expectedErrors.add(new EmptyException("hello there"));
+                        }
+                        test.assertEqual(expectedErrors, errors);
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, catchErrorIterator, true, null);
                     }
@@ -4248,15 +4325,10 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, catchErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> catchErrorIterator.next(),
-                        new RuntimeException("hello there"));
-                    test.assertEqual(Iterable.create(), errors);
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, catchErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(catchErrorIterator.next());
+                        test.assertThrows(() -> catchErrorIterator.next(),
+                        new RuntimeException("hello there"));
                         test.assertEqual(Iterable.create(), errors);
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, catchErrorIterator, true, null);
@@ -4334,6 +4406,14 @@ public interface IteratorTests
                         Iterable.create(
                             new NotFoundException("hello there")),
                         errors);
+                    IteratorTests.assertIterator(test, iterator, true, 1);
+                    IteratorTests.assertIterator(test, catchErrorIterator, true, 1);
+
+                    test.assertTrue(catchErrorIterator.next());
+                    test.assertEqual(
+                        Iterable.create(
+                            new NotFoundException("hello there")),
+                        errors);
                     IteratorTests.assertIterator(test, iterator, true, 2);
                     IteratorTests.assertIterator(test, catchErrorIterator, true, 2);
 
@@ -4371,6 +4451,14 @@ public interface IteratorTests
                     test.assertEqual(Iterable.create(), errors);
                     IteratorTests.assertIterator(test, iterator, true, 0);
                     IteratorTests.assertIterator(test, catchErrorIterator, true, 0);
+
+                    test.assertTrue(catchErrorIterator.next());
+                    test.assertEqual(
+                        Iterable.create(
+                            new EmptyException("hello there")),
+                        errors);
+                    IteratorTests.assertIterator(test, iterator, true, 1);
+                    IteratorTests.assertIterator(test, catchErrorIterator, true, 1);
 
                     test.assertTrue(catchErrorIterator.next());
                     test.assertEqual(
@@ -4595,16 +4683,11 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, onErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> onErrorIterator.next(),
-                        new ParseException("hello there"));
-                    test.assertEqual(4, counter.get());
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, onErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(onErrorIterator.next());
-                        test.assertEqual(4, counter.get());
+                        test.assertThrows(() -> onErrorIterator.next(),
+                            new ParseException("hello there"));
+                        test.assertEqual(4 + i, counter.get());
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, onErrorIterator, true, null);
                     }
@@ -4822,28 +4905,19 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, onErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> onErrorIterator.next(),
-                        new ParseException("hello there"));
-                    test.assertEqual(
-                        Iterable.create(
-                            new ParseException("hello there"),
-                            new ParseException("hello there"),
-                            new ParseException("hello there"),
-                            new ParseException("hello there")),
-                        errors);
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, onErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(onErrorIterator.next());
-                        test.assertEqual(
-                            Iterable.create(
-                                new ParseException("hello there"),
-                                new ParseException("hello there"),
-                                new ParseException("hello there"),
-                                new ParseException("hello there")),
-                            errors);
+                        test.assertThrows(() -> onErrorIterator.next(),
+                            new ParseException("hello there"));
+                        final List<Throwable> expectedErrors = List.create(
+                            new ParseException("hello there"),
+                            new ParseException("hello there"),
+                            new ParseException("hello there"));
+                        for (int j = 0; j <= i; j++)
+                        {
+                            expectedErrors.add(new ParseException("hello there"));
+                        }
+                        test.assertEqual(expectedErrors, errors);
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, onErrorIterator, true, null);
                     }
@@ -5069,15 +5143,10 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, onErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> onErrorIterator.next(),
-                        new ParseException("hello there"));
-                    test.assertEqual(0, counter.get());
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, onErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(onErrorIterator.next());
+                        test.assertThrows(() -> onErrorIterator.next(),
+                            new ParseException("hello there"));
                         test.assertEqual(0, counter.get());
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, onErrorIterator, true, null);
@@ -5107,16 +5176,11 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, onErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> onErrorIterator.next(),
-                        new NotFoundException("hello there"));
-                    test.assertEqual(4, counter.get());
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, onErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(onErrorIterator.next());
-                        test.assertEqual(4, counter.get());
+                        test.assertThrows(() -> onErrorIterator.next(),
+                            new NotFoundException("hello there"));
+                        test.assertEqual(4 + i, counter.get());
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, onErrorIterator, true, null);
                     }
@@ -5145,16 +5209,11 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, onErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> onErrorIterator.next(),
-                        new EmptyException("hello there"));
-                    test.assertEqual(4, counter.get());
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, onErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(onErrorIterator.next());
-                        test.assertEqual(4, counter.get());
+                        test.assertThrows(() -> onErrorIterator.next(),
+                            new EmptyException("hello there"));
+                        test.assertEqual(4 + i, counter.get());
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, onErrorIterator, true, null);
                     }
@@ -5183,15 +5242,10 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, onErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> onErrorIterator.next(),
-                        new RuntimeException("hello there"));
-                    test.assertEqual(0, counter.get());
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, onErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(onErrorIterator.next());
+                        test.assertThrows(() -> onErrorIterator.next(),
+                            new RuntimeException("hello there"));
                         test.assertEqual(0, counter.get());
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, onErrorIterator, true, null);
@@ -5543,15 +5597,10 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, onErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> onErrorIterator.next(),
-                        new ParseException("hello there"));
-                    test.assertEqual(Iterable.create(), errors);
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, onErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(onErrorIterator.next());
+                        test.assertThrows(() -> onErrorIterator.next(),
+                            new ParseException("hello there"));
                         test.assertEqual(Iterable.create(), errors);
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, onErrorIterator, true, null);
@@ -5581,16 +5630,11 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, onErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> onErrorIterator.next(),
-                        new NotFoundException("hello there"));
-                    test.assertEqual(4, counter.get());
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, onErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(onErrorIterator.next());
-                        test.assertEqual(4, counter.get());
+                        test.assertThrows(() -> onErrorIterator.next(),
+                            new NotFoundException("hello there"));
+                        test.assertEqual(4 + i, counter.get());
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, onErrorIterator, true, null);
                     }
@@ -5619,16 +5663,11 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, onErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> onErrorIterator.next(),
-                        new EmptyException("hello there"));
-                    test.assertEqual(4, counter.get());
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, onErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(onErrorIterator.next());
-                        test.assertEqual(4, counter.get());
+                        test.assertThrows(() -> onErrorIterator.next(),
+                            new EmptyException("hello there"));
+                        test.assertEqual(4 + i, counter.get());
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, onErrorIterator, true, null);
                     }
@@ -5657,15 +5696,10 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, onErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> onErrorIterator.next(),
-                        new RuntimeException("hello there"));
-                    test.assertEqual(0, counter.get());
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, onErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(onErrorIterator.next());
+                        test.assertThrows(() -> onErrorIterator.next(),
+                            new RuntimeException("hello there"));
                         test.assertEqual(0, counter.get());
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, onErrorIterator, true, null);
@@ -5954,14 +5988,10 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, convertErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> convertErrorIterator.next(),
-                        new NotFoundException("abc"));
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, convertErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(convertErrorIterator.next());
+                        test.assertThrows(() -> convertErrorIterator.next(),
+                            new NotFoundException("abc"));
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, convertErrorIterator, true, null);
                     }
@@ -6092,14 +6122,10 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, convertErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> convertErrorIterator.next(),
-                        new NotFoundException("hello there"));
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, convertErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(convertErrorIterator.next());
+                        test.assertThrows(() -> convertErrorIterator.next(),
+                            new NotFoundException("hello there"));
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, convertErrorIterator, true, null);
                     }
@@ -6238,14 +6264,10 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, convertErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> convertErrorIterator.next(),
-                        new ParseException("hello there"));
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, convertErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(convertErrorIterator.next());
+                        test.assertThrows(() -> convertErrorIterator.next(),
+                            new ParseException("hello there"));
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, convertErrorIterator, true, null);
                     }
@@ -6271,14 +6293,10 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, convertErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> convertErrorIterator.next(),
-                        new NotFoundException("abc"));
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, convertErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(convertErrorIterator.next());
+                        test.assertThrows(() -> convertErrorIterator.next(),
+                            new NotFoundException("abc"));
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, convertErrorIterator, true, null);
                     }
@@ -6304,14 +6322,10 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, convertErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> convertErrorIterator.next(),
-                        new NotFoundException("abc"));
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, convertErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(convertErrorIterator.next());
+                        test.assertThrows(() -> convertErrorIterator.next(),
+                            new NotFoundException("abc"));
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, convertErrorIterator, true, null);
                     }
@@ -6337,14 +6351,10 @@ public interface IteratorTests
                         IteratorTests.assertIterator(test, convertErrorIterator, true, i);
                     }
 
-                    test.assertThrows(() -> convertErrorIterator.next(),
-                        new RuntimeException("hello there"));
-                    IteratorTests.assertIterator(test, iterator, true, null);
-                    IteratorTests.assertIterator(test, convertErrorIterator, true, null);
-
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(convertErrorIterator.next());
+                        test.assertThrows(() -> convertErrorIterator.next(),
+                            new RuntimeException("hello there"));
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, convertErrorIterator, true, null);
                     }
@@ -6601,7 +6611,8 @@ public interface IteratorTests
 
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(convertErrorIterator.next());
+                        test.assertThrows(() -> convertErrorIterator.next(),
+                            new ParseException("hello there"));
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, convertErrorIterator, true, null);
                     }
@@ -6634,7 +6645,8 @@ public interface IteratorTests
 
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(convertErrorIterator.next());
+                        test.assertThrows(() -> convertErrorIterator.next(),
+                            new SocketClosedException("hello there"));
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, convertErrorIterator, true, null);
                     }
@@ -6667,7 +6679,8 @@ public interface IteratorTests
 
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(convertErrorIterator.next());
+                        test.assertThrows(() -> convertErrorIterator.next(),
+                            new SocketClosedException("hello there"));
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, convertErrorIterator, true, null);
                     }
@@ -6700,7 +6713,8 @@ public interface IteratorTests
 
                     for (int i = 0; i < 2; i++)
                     {
-                        test.assertFalse(convertErrorIterator.next());
+                        test.assertThrows(() -> convertErrorIterator.next(),
+                            new RuntimeException("hello there"));
                         IteratorTests.assertIterator(test, iterator, true, null);
                         IteratorTests.assertIterator(test, convertErrorIterator, true, null);
                     }
@@ -6940,15 +6954,20 @@ public interface IteratorTests
 
                     for (int i = 0; i < 2; i++)
                     {
-                        resultsIterator.await();
+                        test.assertThrows(() -> resultsIterator.await(),
+                            new ParseException("hello there"));
                         IteratorTests.assertIterator(test, iterator, true, null);
-                        test.assertEqual(
-                            Iterable.create(
+
+                        final List<Object> expectedResults = List.create(
+                            new ParseException("hello there"),
                                 new ParseException("hello there"),
                                 new ParseException("hello there"),
-                                new ParseException("hello there"),
-                                new ParseException("hello there")),
-                            results);
+                                new ParseException("hello there"));
+                        for (int j = 0; j <= i; j++)
+                        {
+                            expectedResults.add(new ParseException("hello there"));
+                        }
+                        test.assertEqual(expectedResults, results);
                     }
                 });
 

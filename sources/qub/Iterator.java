@@ -562,24 +562,20 @@ public interface Iterator<T> extends java.lang.Iterable<T>
         return this.customize()
             .setNextFunction((Iterator<T> iterator) ->
             {
-                while (!iterator.hasStarted() || iterator.hasCurrent())
+                try
                 {
-                    try
+                    iterator.next();
+                }
+                catch (Throwable e)
+                {
+                    final TError error = Exceptions.getInstanceOf(e, errorType);
+                    if (error == null)
                     {
-                        iterator.next();
-                        break;
+                        throw e;
                     }
-                    catch (Throwable e)
+                    else
                     {
-                        final TError error = Exceptions.getInstanceOf(e, errorType);
-                        if (error == null)
-                        {
-                            throw e;
-                        }
-                        else
-                        {
-                            action.run(error);
-                        }
+                        action.run(error);
                     }
                 }
                 return iterator.hasCurrent();
