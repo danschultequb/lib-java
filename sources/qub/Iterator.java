@@ -449,70 +449,61 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
+     * Create a {@link CustomIterator} that will wrap around this {@link Iterator}.
+     * @param nextFunction The {@link Function1} that will be called when the returned
+     *                     {@link CustomIterator}'s next() method is called.
+     */
+    public default CustomIterator<T> customize(Function1<Iterator<T>,Boolean> nextFunction)
+    {
+        return this.customize().setNextFunction(nextFunction);
+    }
+
+    /**
      * Get an {@link Iterator} that will invoke the provided {@link Action0} whenever a new value is
      * iterated to.
-     * @param action The {@link Action0} to run when a new value is iterated to.
+     * @param onValueAction The {@link Action0} to run when a new value is iterated to.
      */
-    public default Iterator<T> onValue(Action0 action)
+    public default OnValueIterator<T> onValue(Action0 onValueAction)
     {
-        PreCondition.assertNotNull(action, "action");
-
-        return this.onValue((T currentValue) -> { action.run(); });
+        return OnValueIterator.create(this, onValueAction);
     }
 
     /**
      * Get an {@link Iterator} that will invoke the provided {@link Action1} whenever a new value is
      * iterated to.
-     * @param action The {@link Action1} to run when a new value is iterated to.
+     * @param onValueAction The {@link Action1} to run when a new value is iterated to.
      */
-    public default Iterator<T> onValue(Action1<T> action)
+    public default OnValueIterator<T> onValue(Action1<T> onValueAction)
     {
-        PreCondition.assertNotNull(action, "action");
-
-        return this.customize()
-            .setNextFunction((Iterator<T> innerIterator) ->
-            {
-                final boolean hasCurrent = innerIterator.next();
-                if (hasCurrent)
-                {
-                    action.run(innerIterator.getCurrent());
-                }
-                return hasCurrent;
-            });
+        return OnValueIterator.create(this, onValueAction);
     }
 
     /**
-     * Get an {@link Iterator} that will ignore any errors that occur while iterating.
+     * Get an {@link CatchErrorIterator} that will ignore any errors that occur while iterating.
      */
-    public default Iterator<T> catchError()
+    public default CatchErrorIterator<T,Throwable> catchError()
     {
-        return this.catchError(Action0.empty);
+        return CatchErrorIterator.create(this);
     }
 
     /**
      * Run the provided {@link Action0} on any errors that occur while iterating.
-     * @param action The action to run if this {@link Iterator} has an error while iterating.
+     * @param catchErrorAction The {@link Action0} to run if this {@link Iterator} has an error
+     *                         while iterating.
      */
-    public default Iterator<T> catchError(Action0 action)
+    public default CatchErrorIterator<T,Throwable> catchError(Action0 catchErrorAction)
     {
-        PreCondition.assertNotNull(action, "action");
-
-        return this.catchError(Throwable.class, action);
+        return CatchErrorIterator.create(this, catchErrorAction);
     }
 
     /**
      * Run the provided {@link Action1} on any errors that occur while iterating.
-     * @param action The {@link Action1} to run if this {@link Iterator} has an error while
-     *               iterating.
+     * @param catchErrorAction The {@link Action1} to run if this {@link Iterator} has an error
+     *                         while iterating.
      */
-    public default Iterator<T> catchError(Action1<Throwable> action)
+    public default CatchErrorIterator<T,Throwable> catchError(Action1<Throwable> catchErrorAction)
     {
-        PreCondition.assertNotNull(action, "action");
-
-        return this.catchError(Throwable.class, (Throwable parentError) ->
-        {
-            action.run(Exceptions.unwrap(parentError));
-        });
+        return CatchErrorIterator.create(this, catchErrorAction);
     }
 
     /**
@@ -520,201 +511,132 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      * @param errorType The type of error to catch.
      * @param <TError> The type of error to catch.
      */
-    default <TError extends Throwable> Iterator<T> catchError(Class<TError> errorType)
+    @Deprecated
+    public default <TError extends Throwable> Iterator<T> catchError(Class<TError> errorType)
     {
-        PreCondition.assertNotNull(errorType, "errorType");
+        return CatchErrorIterator.create(this, errorType);
+    }
 
-        return this.catchError(errorType, Action0.empty);
+    /**
+     * Ignore any errors of the provided type that occur while iterating.
+     * @param errorType The type of error to catch.
+     * @param <TError> The type of error to catch.
+     */
+    public default <TError extends Throwable> CatchErrorIterator<T,TError> catchError2(Class<TError> errorType)
+    {
+        return CatchErrorIterator.create(this, errorType);
     }
 
     /**
      * Run the provided {@link Action0} on any errors of the provided type that occur while
      * iterating.
      * @param errorType The type of error to catch.
-     * @param action The {@link Action0} to run if this {@link Iterator} has an error of the
-     *               provided type while iterating.
+     * @param catchErrorAction The {@link Action0} to run if this {@link Iterator} has an error of
+     *                         the provided type while iterating.
      * @param <TError> The type of error to catch.
      */
-    default <TError extends Throwable> Iterator<T> catchError(Class<TError> errorType, Action0 action)
+    public default <TError extends Throwable> CatchErrorIterator<T,TError> catchError(Class<TError> errorType, Action0 catchErrorAction)
     {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(action, "action");
-
-        return this.catchError(errorType, (TError parentError) ->
-        {
-            action.run();
-        });
+        return CatchErrorIterator.create(this, errorType, catchErrorAction);
     }
 
     /**
      * Run the provided {@link Action1} on any errors of the provided type that occur while
      * iterating.
      * @param errorType The type of error to catch.
-     * @param action The {@link Action1} to run if this {@link Iterator} has an error of the
-     *               provided type while iterating.
+     * @param catchErrorAction The {@link Action1} to run if this {@link Iterator} has an error of
+     *                         the provided type while iterating.
      * @param <TError> The type of error to catch.
      */
-    public default <TError extends Throwable> Iterator<T> catchError(Class<TError> errorType, Action1<TError> action)
+    public default <TError extends Throwable> CatchErrorIterator<T,TError> catchError(Class<TError> errorType, Action1<TError> catchErrorAction)
     {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(action, "action");
-
-        return this.customize()
-            .setNextFunction((Iterator<T> iterator) ->
-            {
-                try
-                {
-                    iterator.next();
-                }
-                catch (Throwable e)
-                {
-                    final TError error = Exceptions.getInstanceOf(e, errorType);
-                    if (error == null)
-                    {
-                        throw e;
-                    }
-                    else
-                    {
-                        action.run(error);
-                    }
-                }
-                return iterator.hasCurrent();
-            });
+        return CatchErrorIterator.create(this, errorType, catchErrorAction);
     }
 
     /**
      * Run the provided {@link Action0} if this {@link Iterator} has an error while iterating.
-     * @param action The {@link Action0} to run if this {@link Iterator} has an error while
+     * @param onErrorAction The {@link Action0} to run if this {@link Iterator} has an error while
      *               iterating.
      */
-    default Iterator<T> onError(Action0 action)
+    public default OnErrorIterator<T,Throwable> onError(Action0 onErrorAction)
     {
-        PreCondition.assertNotNull(action, "action");
-
-        return this.onError((Throwable error) ->
-        {
-            action.run();
-        });
+        return OnErrorIterator.create(this, onErrorAction);
     }
 
     /**
      * Run the provided {@link Action1} if this {@link Iterator} has an error while iterating.
-     * @param action The {@link Action1} to run if this {@link Iterator} has an error while
+     * @param onErrorAction The {@link Action1} to run if this {@link Iterator} has an error while
      *               iterating.
      */
-    public default Iterator<T> onError(Action1<Throwable> action)
+    public default OnErrorIterator<T,Throwable> onError(Action1<Throwable> onErrorAction)
     {
-        PreCondition.assertNotNull(action, "action");
-
-        return this.onError(Throwable.class, (Throwable parentError) ->
-        {
-            action.run(Exceptions.unwrap(parentError));
-        });
+        return OnErrorIterator.create(this, onErrorAction);
     }
 
     /**
      * Run the provided {@link Action0} if this {@link Iterator} has an error of the provided type
      * while iterating.
      * @param errorType The type of error to run the provided {@link Action0} for.
-     * @param action The {@link Action0} to run if this {@link Iterator} has an error of the
+     * @param onErrorAction The {@link Action0} to run if this {@link Iterator} has an error of the
      *               provided type while iterating.
      */
-    public default <TError extends Throwable> Iterator<T> onError(Class<TError> errorType, Action0 action)
+    public default <TError extends Throwable> Iterator<T> onError(Class<TError> errorType, Action0 onErrorAction)
     {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(action, "action");
-
-        return this.onError(errorType, (TError error) ->
-        {
-            action.run();
-        });
+        return OnErrorIterator.create(this, errorType, onErrorAction);
     }
 
     /**
      * Run the provided {@link Action1} if this {@link Iterator} has an error of the provided type
      * while iterating.
      * @param errorType The type of error to run the provided {@link Action1} for.
-     * @param action The {@link Action1} to run if this {@link Iterator} has an error of the
+     * @param onErrorAction The {@link Action1} to run if this {@link Iterator} has an error of the
      *               provided type while iterating.
      */
-    public default <TError extends Throwable> Iterator<T> onError(Class<TError> errorType, Action1<TError> action)
+    public default <TError extends Throwable> Iterator<T> onError(Class<TError> errorType, Action1<TError> onErrorAction)
     {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(action, "action");
-
-        return this.catchError(Throwable.class, (Throwable parentError) ->
-        {
-            final TError expectedError = Exceptions.getInstanceOf(parentError, errorType);
-            if (expectedError != null)
-            {
-                action.run(expectedError);
-            }
-            throw Exceptions.asRuntime(parentError);
-        });
+        return OnErrorIterator.create(this, errorType, onErrorAction);
     }
 
     /**
      * If this {@link Iterator} has an error while iterating, catch it and convert it to the error
      * returned by the provided {@link Function0}.
-     * @param function The {@link Function0} that will return the new error.
+     * @param convertErrorFunction The {@link Function0} that will return the new error.
      */
-    public default Iterator<T> convertError(Function0<? extends Throwable> function)
+    public default ConvertErrorIterator<T,Throwable> convertError(Function0<? extends Throwable> convertErrorFunction)
     {
-        PreCondition.assertNotNull(function, "function");
-
-        return this.catchError(() ->
-        {
-            throw Exceptions.asRuntime(function.run());
-        });
+        return ConvertErrorIterator.create(this, convertErrorFunction);
     }
 
     /**
      * If this {@link Iterator} has an error while iterating, catch it and convert it to the error
      * returned by the provided {@link Function1}.
-     * @param function The {@link Function1} that will return the new error.
+     * @param convertErrorFunction The {@link Function1} that will return the new error.
      */
-    public default Iterator<T> convertError(Function1<Throwable,? extends Throwable> function)
+    public default ConvertErrorIterator<T,Throwable> convertError(Function1<Throwable,? extends Throwable> convertErrorFunction)
     {
-        PreCondition.assertNotNull(function, "function");
-
-        return this.catchError((Throwable error) ->
-        {
-            throw Exceptions.asRuntime(function.run(Exceptions.unwrap(error)));
-        });
+        return ConvertErrorIterator.create(this, convertErrorFunction);
     }
 
     /**
      * If this {@link Iterator} has an error of the provided type while iterating, catch it and
      * convert it to the error returned by the provided {@link Function0}.
      * @param errorType The type of error to convert.
-     * @param function The {@link Function0} that will return the new error.
+     * @param convertErrorFunction The {@link Function0} that will return the new error.
      */
-    public default Iterator<T> convertError(Class<? extends Throwable> errorType, Function0<? extends Throwable> function)
+    public default <TError extends Throwable> ConvertErrorIterator<T,TError> convertError(Class<TError> errorType, Function0<? extends Throwable> convertErrorFunction)
     {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(function, "function");
-
-        return this.catchError(errorType, () ->
-        {
-            throw Exceptions.asRuntime(function.run());
-        });
+        return ConvertErrorIterator.create(this, errorType, convertErrorFunction);
     }
 
     /**
      * If this {@link Iterator} has an error of the provided type while iterating, catch it and
      * convert it to the error returned by the provided {@link Function1}.
      * @param errorType The type of error to convert.
-     * @param function The {@link Function1} that will return the new error.
+     * @param convertErrorFunction The {@link Function1} that will return the new error.
      */
-    public default <TErrorIn extends Throwable> Iterator<T> convertError(Class<TErrorIn> errorType, Function1<TErrorIn,? extends Throwable> function)
+    public default <TError extends Throwable> ConvertErrorIterator<T,TError> convertError(Class<TError> errorType, Function1<TError,? extends Throwable> convertErrorFunction)
     {
-        PreCondition.assertNotNull(errorType, "errorType");
-        PreCondition.assertNotNull(function, "function");
-
-        return this.catchError(errorType, (TErrorIn error) ->
-        {
-            throw Exceptions.asRuntime(function.run(error));
-        });
+        return ConvertErrorIterator.create(this, errorType, convertErrorFunction);
     }
 
     /**

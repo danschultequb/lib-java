@@ -1,25 +1,24 @@
 package qub;
 
 /**
- * An Iterator that will skip over the first toSkip number of elements in this Iterator and then
- * iterate over the remaining elements.
- * @param <T> The type of value that this Iterator returns.
+ * An {@link Iterator} that will skip over the first toSkip number of elements and then iterate over
+ * the remaining elements.
+ * @param <T> The type of values that this {@link Iterator} returns.
  */
-public class SkipIterator<T> implements Iterator<T>
+public class SkipIterator<T> extends IteratorWrapper<T>
 {
-    private final Iterator<T> innerIterator;
     private final int toSkip;
-
     private int skipped;
 
     private SkipIterator(Iterator<T> innerIterator, int toSkip)
     {
+        super(innerIterator);
+
         PreCondition.assertNotNull(innerIterator, "innerIterator");
         PreCondition.assertGreaterThanOrEqualTo(toSkip, 0, "toSkip");
 
-        this.innerIterator = innerIterator;
         this.toSkip = toSkip;
-        skipped = 0;
+        this.skipped = 0;
     }
 
     public static <T> SkipIterator<T> create(Iterator<T> innerIterator, int toSkip)
@@ -29,46 +28,45 @@ public class SkipIterator<T> implements Iterator<T>
 
     private void skipValues()
     {
-        while (skipped < toSkip)
+        while (this.skipped < this.toSkip)
         {
-            if (!innerIterator.next())
+            if (super.next())
             {
-                skipped = toSkip;
+                this.skipped++;
             }
             else
             {
-                ++skipped;
+                break;
             }
         }
     }
 
     @Override
-    public boolean hasStarted()
+    public boolean hasCurrent()
     {
-        return innerIterator.hasStarted();
-    }
-
-    @Override
-    public boolean hasCurrent() {
-        if (innerIterator.hasCurrent())
+        if (super.hasCurrent())
         {
-            skipValues();
+            this.skipValues();
         }
-        return innerIterator.hasCurrent();
+        return super.hasCurrent();
     }
 
     @Override
-    public T getCurrent() {
-        if (innerIterator.hasCurrent())
+    public T getCurrent()
+    {
+        PreCondition.assertTrue(this.hasCurrent(), "this.hasCurrent()");
+
+        if (super.hasCurrent())
         {
-            skipValues();
+            this.skipValues();
         }
-        return innerIterator.getCurrent();
+        return super.getCurrent();
     }
 
     @Override
-    public boolean next() {
-        skipValues();
-        return innerIterator.next();
+    public boolean next()
+    {
+        this.skipValues();
+        return super.next();
     }
 }

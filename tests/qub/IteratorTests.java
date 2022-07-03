@@ -2363,9 +2363,119 @@ public interface IteratorTests
 
             runner.test("customize()", (Test test) ->
             {
-                final CustomIterator<Integer> iterator = createIterator.run(10, false)
-                    .customize();
+                final Iterator<Integer> iterator = createIterator.run(10, false);
+                final CustomIterator<Integer> customIterator = iterator.customize();
+                test.assertNotSame(iterator, customIterator);
                 IteratorTests.assertIterator(test, iterator, false, null);
+                IteratorTests.assertIterator(test, customIterator, false, null);
+
+                for (int i = 0; i < 10; i++)
+                {
+                    test.assertTrue(customIterator.next());
+                    IteratorTests.assertIterator(test, iterator, true, i);
+                    IteratorTests.assertIterator(test, customIterator, true, i);
+                }
+
+                for (int i = 0; i < 2; i++)
+                {
+                    test.assertFalse(customIterator.next());
+                    IteratorTests.assertIterator(test, iterator, true, null);
+                    IteratorTests.assertIterator(test, customIterator, true, null);
+                }
+            });
+
+            runner.testGroup("customize(Function1<Iterator<T>,Boolean>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(10, false);
+                    test.assertThrows(() -> iterator.customize(null),
+                        new PreConditionFailure("nextFunction cannot be null."));
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                });
+
+                runner.test("with function that doesn't invoke innerIterator.next() and returns false", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(10, false);
+                    final CustomIterator<Integer> customIterator = iterator.customize((Iterator<Integer> innerIterator) ->
+                    {
+                        return false;
+                    });
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, customIterator, false, null);
+
+                    test.assertFalse(customIterator.next());
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, customIterator, false, null);
+                });
+
+                runner.test("with function that doesn't invoke innerIterator.next() and returns true", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(10, false);
+                    final CustomIterator<Integer> customIterator = iterator.customize((Iterator<Integer> innerIterator) ->
+                    {
+                        return true;
+                    });
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, customIterator, false, null);
+
+                    test.assertTrue(customIterator.next());
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, customIterator, false, null);
+                });
+
+                runner.test("with function that invokes innerIterator.next() and returns the result", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(10, false);
+                    final CustomIterator<Integer> customIterator = iterator.customize((Iterator<Integer> innerIterator) ->
+                    {
+                        return innerIterator.next();
+                    });
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, customIterator, false, null);
+
+                    for (int i = 0; i < 10; i++)
+                    {
+                        test.assertTrue(customIterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, customIterator, true, i);
+                    }
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(customIterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, null);
+                        IteratorTests.assertIterator(test, customIterator, true, null);
+                    }
+                });
+
+                runner.test("with function that invokes innerIterator.next() and then throws an exception", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(10, false);
+                    final CustomIterator<Integer> customIterator = iterator.customize((Iterator<Integer> innerIterator) ->
+                    {
+                        innerIterator.next();
+                        throw new ParseException("hello");
+                    });
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, customIterator, false, null);
+
+                    for (int i = 0; i < 10; i++)
+                    {
+                        test.assertThrows(() -> customIterator.next(),
+                            new ParseException("hello"));
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, customIterator, true, i);
+                    }
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertThrows(() -> customIterator.next(),
+                            new ParseException("hello"));
+                        IteratorTests.assertIterator(test, iterator, true, null);
+                        IteratorTests.assertIterator(test, customIterator, true, null);
+                    }
+                });
             });
 
             runner.testGroup("onValue(Action0)", () ->
@@ -2374,7 +2484,7 @@ public interface IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     test.assertThrows(() -> iterator.onValue((Action0)null),
-                        new PreConditionFailure("action cannot be null."));
+                        new PreConditionFailure("onValueAction cannot be null."));
                     IteratorTests.assertIterator(test, iterator, false, null);
                 });
 
@@ -2516,8 +2626,8 @@ public interface IteratorTests
 
                 runner.test("with Iterator that always throws", (Test test) ->
                 {
-                    final Iterator<Integer> iterator = createIterator.run(3, false).customize()
-                        .setNextFunction((Iterator<Integer> innerIterator) ->
+                    final Iterator<Integer> iterator = createIterator.run(3, false)
+                        .customize((Iterator<Integer> innerIterator) ->
                         {
                             innerIterator.next();
                             throw new ParseException("hello there");
@@ -2596,7 +2706,7 @@ public interface IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     test.assertThrows(() -> iterator.onValue((Action1<Integer>)null),
-                        new PreConditionFailure("action cannot be null."));
+                        new PreConditionFailure("onValueAction cannot be null."));
                     IteratorTests.assertIterator(test, iterator, false, null);
                 });
 
@@ -2959,7 +3069,7 @@ public interface IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     test.assertThrows(() -> iterator.catchError((Action0)null),
-                        new PreConditionFailure("action cannot be null."));
+                        new PreConditionFailure("catchErrorAction cannot be null."));
                     IteratorTests.assertIterator(test, iterator, false, null);
                 });
 
@@ -3167,7 +3277,7 @@ public interface IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     test.assertThrows(() -> iterator.catchError((Action1<Throwable>)null),
-                        new PreConditionFailure("action cannot be null."));
+                        new PreConditionFailure("catchErrorAction cannot be null."));
                     IteratorTests.assertIterator(test, iterator, false, null);
                 });
 
@@ -3712,6 +3822,327 @@ public interface IteratorTests
                 });
             });
 
+            runner.testGroup("catchError2(Class<TError>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(1, false);
+                    test.assertThrows(() -> iterator.catchError2((Class<NotFoundException>)null),
+                        new PreConditionFailure("errorType cannot be null."));
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                });
+
+                runner.test("with empty Iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(0, false);
+                    if (iterator != null)
+                    {
+                        final Iterator<Integer> catchError2Iterator = iterator.catchError2(NotFoundException.class);
+                        IteratorTests.assertIterator(test, iterator, false, null);
+                        IteratorTests.assertIterator(test, catchError2Iterator, false, null);
+
+                        test.assertFalse(catchError2Iterator.next());
+
+                        IteratorTests.assertIterator(test, iterator, true, null);
+                        IteratorTests.assertIterator(test, catchError2Iterator, true, null);
+                    }
+                });
+
+                runner.test("with one value Iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(1, false);
+                    final Iterator<Integer> catchError2Iterator = iterator.catchError2(NotFoundException.class);
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, catchError2Iterator, false, null);
+
+                    test.assertTrue(catchError2Iterator.next());
+                    IteratorTests.assertIterator(test, iterator, true, 0);
+                    IteratorTests.assertIterator(test, catchError2Iterator, true, 0);
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(catchError2Iterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, null);
+                        IteratorTests.assertIterator(test, catchError2Iterator, true, null);
+                    }
+                });
+
+                runner.test("with two value Iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(2, false);
+                    final Iterator<Integer> catchError2Iterator = iterator.catchError2(NotFoundException.class);
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, catchError2Iterator, false, null);
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertTrue(catchError2Iterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, catchError2Iterator, true, i);
+                    }
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(catchError2Iterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, null);
+                        IteratorTests.assertIterator(test, catchError2Iterator, true, null);
+                    }
+                });
+
+                runner.test("with Iterator that always throws unrelated exception", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(3, false).customize()
+                        .setNextFunction((Iterator<Integer> innerIterator) ->
+                        {
+                            innerIterator.next();
+                            throw new ParseException("hello there");
+                        });
+                    final Iterator<Integer> catchError2Iterator = iterator.catchError2(NotFoundException.class);
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, catchError2Iterator, false, null);
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertThrows(() -> catchError2Iterator.next(),
+                            new ParseException("hello there"));
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, catchError2Iterator, true, i);
+                    }
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertThrows(() -> catchError2Iterator.next(),
+                            new ParseException("hello there"));
+                        IteratorTests.assertIterator(test, iterator, true, null);
+                        IteratorTests.assertIterator(test, catchError2Iterator, true, null);
+                    }
+                });
+
+                runner.test("with Iterator that always throws same type exception", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(3, false).customize()
+                        .setNextFunction((Iterator<Integer> innerIterator) ->
+                        {
+                            innerIterator.next();
+                            throw new NotFoundException("hello there");
+                        });
+                    final Iterator<Integer> catchError2Iterator = iterator.catchError2(NotFoundException.class);
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, catchError2Iterator, false, null);
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(catchError2Iterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, catchError2Iterator, true, i);
+                    }
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(catchError2Iterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, null);
+                        IteratorTests.assertIterator(test, catchError2Iterator, true, null);
+                    }
+                });
+
+                runner.test("with Iterator that always throws derived type exception", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(3, false).customize()
+                        .setNextFunction((Iterator<Integer> innerIterator) ->
+                        {
+                            innerIterator.next();
+                            throw new EmptyException("hello there");
+                        });
+                    final Iterator<Integer> catchError2Iterator = iterator.catchError2(NotFoundException.class);
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, catchError2Iterator, false, null);
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(catchError2Iterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, catchError2Iterator, true, i);
+                    }
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(catchError2Iterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, null);
+                        IteratorTests.assertIterator(test, catchError2Iterator, true, null);
+                    }
+                });
+
+                runner.test("with Iterator that always throws base type exception", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(3, false).customize()
+                        .setNextFunction((Iterator<Integer> innerIterator) ->
+                        {
+                            innerIterator.next();
+                            throw new RuntimeException("hello there");
+                        });
+                    final Iterator<Integer> catchError2Iterator = iterator.catchError2(NotFoundException.class);
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, catchError2Iterator, false, null);
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertThrows(() -> catchError2Iterator.next(),
+                            new RuntimeException("hello there"));
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, catchError2Iterator, true, i);
+                    }
+
+                    test.assertThrows(() -> catchError2Iterator.next(),
+                        new RuntimeException("hello there"));
+                    IteratorTests.assertIterator(test, iterator, true, null);
+                    IteratorTests.assertIterator(test, catchError2Iterator, true, null);
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertThrows(() -> catchError2Iterator.next(),
+                            new RuntimeException("hello there"));
+                        IteratorTests.assertIterator(test, iterator, true, null);
+                        IteratorTests.assertIterator(test, catchError2Iterator, true, null);
+                    }
+                });
+
+                runner.test("with Iterator that sometimes throws unrelated exception", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(3, false).customize()
+                        .setNextFunction((Iterator<Integer> innerIterator) ->
+                        {
+                            final boolean result = innerIterator.next();
+                            if (result && Math.isOdd(innerIterator.getCurrent()))
+                            {
+                                throw new ParseException("hello there");
+                            }
+                            return result;
+                        });
+                    final Iterator<Integer> catchError2Iterator = iterator.catchError2(NotFoundException.class);
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, catchError2Iterator, false, null);
+
+                    test.assertTrue(catchError2Iterator.next());
+                    IteratorTests.assertIterator(test, iterator, true, 0);
+                    IteratorTests.assertIterator(test, catchError2Iterator, true, 0);
+
+                    test.assertThrows(() -> catchError2Iterator.next(),
+                        new ParseException("hello there"));
+                    IteratorTests.assertIterator(test, iterator, true, 1);
+                    IteratorTests.assertIterator(test, catchError2Iterator, true, 1);
+
+                    test.assertTrue(catchError2Iterator.next());
+                    IteratorTests.assertIterator(test, iterator, true, 2);
+                    IteratorTests.assertIterator(test, catchError2Iterator, true, 2);
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(catchError2Iterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, null);
+                        IteratorTests.assertIterator(test, catchError2Iterator, true, null);
+                    }
+                });
+
+                runner.test("with Iterator that sometimes throws same type exception", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(3, false).customize()
+                        .setNextFunction((Iterator<Integer> innerIterator) ->
+                        {
+                            final boolean result = innerIterator.next();
+                            if (result && Math.isOdd(innerIterator.getCurrent()))
+                            {
+                                throw new NotFoundException("hello there");
+                            }
+                            return result;
+                        });
+                    final Iterator<Integer> catchError2Iterator = iterator.catchError2(NotFoundException.class);
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, catchError2Iterator, false, null);
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(catchError2Iterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, catchError2Iterator, true, i);
+                    }
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(catchError2Iterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, null);
+                        IteratorTests.assertIterator(test, catchError2Iterator, true, null);
+                    }
+                });
+
+                runner.test("with Iterator that sometimes throws derived type exception", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(3, false).customize()
+                        .setNextFunction((Iterator<Integer> innerIterator) ->
+                        {
+                            final boolean result = innerIterator.next();
+                            if (result && Math.isOdd(innerIterator.getCurrent()))
+                            {
+                                throw new EmptyException("hello there");
+                            }
+                            return result;
+                        });
+                    final Iterator<Integer> catchError2Iterator = iterator.catchError2(NotFoundException.class);
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, catchError2Iterator, false, null);
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(catchError2Iterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, i);
+                        IteratorTests.assertIterator(test, catchError2Iterator, true, i);
+                    }
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(catchError2Iterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, null);
+                        IteratorTests.assertIterator(test, catchError2Iterator, true, null);
+                    }
+                });
+
+                runner.test("with Iterator that sometimes throws base type exception", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(3, false).customize()
+                        .setNextFunction((Iterator<Integer> innerIterator) ->
+                        {
+                            final boolean result = innerIterator.next();
+                            if (result && Math.isOdd(innerIterator.getCurrent()))
+                            {
+                                throw new RuntimeException("hello there");
+                            }
+                            return result;
+                        });
+                    final Iterator<Integer> catchError2Iterator = iterator.catchError2(NotFoundException.class);
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                    IteratorTests.assertIterator(test, catchError2Iterator, false, null);
+
+                    test.assertTrue(catchError2Iterator.next());
+                    IteratorTests.assertIterator(test, iterator, true, 0);
+                    IteratorTests.assertIterator(test, catchError2Iterator, true, 0);
+
+                    test.assertThrows(() -> catchError2Iterator.next(),
+                        new RuntimeException("hello there"));
+                    IteratorTests.assertIterator(test, iterator, true, 1);
+                    IteratorTests.assertIterator(test, catchError2Iterator, true, 1);
+
+                    test.assertTrue(catchError2Iterator.next());
+                    IteratorTests.assertIterator(test, iterator, true, 2);
+                    IteratorTests.assertIterator(test, catchError2Iterator, true, 2);
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(catchError2Iterator.next());
+                        IteratorTests.assertIterator(test, iterator, true, null);
+                        IteratorTests.assertIterator(test, catchError2Iterator, true, null);
+                    }
+                });
+            });
+
             runner.testGroup("catchError(Class<TError>,Action0)", () ->
             {
                 runner.test("with null errorType", (Test test) ->
@@ -3726,7 +4157,7 @@ public interface IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(1, false);
                     test.assertThrows(() -> iterator.catchError(NotFoundException.class, (Action0)null),
-                        new PreConditionFailure("action cannot be null."));
+                        new PreConditionFailure("catchErrorAction cannot be null."));
                     IteratorTests.assertIterator(test, iterator, false, null);
                 });
 
@@ -4110,7 +4541,7 @@ public interface IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(1, false);
                     test.assertThrows(() -> iterator.catchError(NotFoundException.class, (Action1<NotFoundException>)null),
-                        new PreConditionFailure("action cannot be null."));
+                        new PreConditionFailure("catchErrorAction cannot be null."));
                     IteratorTests.assertIterator(test, iterator, false, null);
                 });
 
@@ -4530,7 +4961,7 @@ public interface IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     test.assertThrows(() -> iterator.onError((Action0)null),
-                        new PreConditionFailure("action cannot be null."));
+                        new PreConditionFailure("onErrorAction cannot be null."));
                     IteratorTests.assertIterator(test, iterator, false, null);
                 });
 
@@ -4743,7 +5174,7 @@ public interface IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     test.assertThrows(() -> iterator.onError((Action1<Throwable>)null),
-                        new PreConditionFailure("action cannot be null."));
+                        new PreConditionFailure("onErrorAction cannot be null."));
                     IteratorTests.assertIterator(test, iterator, false, null);
                 });
 
@@ -4990,7 +5421,7 @@ public interface IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     test.assertThrows(() -> iterator.onError(NotFoundException.class, (Action0)null),
-                        new PreConditionFailure("action cannot be null."));
+                        new PreConditionFailure("onErrorAction cannot be null."));
                     IteratorTests.assertIterator(test, iterator, false, null);
                 });
 
@@ -5439,7 +5870,7 @@ public interface IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     test.assertThrows(() -> iterator.onError(NotFoundException.class, (Action1<NotFoundException>)null),
-                        new PreConditionFailure("action cannot be null."));
+                        new PreConditionFailure("onErrorAction cannot be null."));
                     IteratorTests.assertIterator(test, iterator, false, null);
                 });
 
@@ -5885,7 +6316,7 @@ public interface IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     test.assertThrows(() -> iterator.convertError((Function0<? extends Throwable>)null),
-                        new PreConditionFailure("function cannot be null."));
+                        new PreConditionFailure("convertErrorFunction cannot be null."));
                     IteratorTests.assertIterator(test, iterator, false, null);
                 });
 
@@ -6041,7 +6472,7 @@ public interface IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     test.assertThrows(() -> iterator.convertError((Function1<Throwable,? extends Throwable>)null),
-                        new PreConditionFailure("function cannot be null."));
+                        new PreConditionFailure("convertErrorFunction cannot be null."));
                     IteratorTests.assertIterator(test, iterator, false, null);
                 });
 
@@ -6183,7 +6614,7 @@ public interface IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     test.assertThrows(() -> iterator.convertError(NotFoundException.class, (Function0<? extends Throwable>)null),
-                        new PreConditionFailure("function cannot be null."));
+                        new PreConditionFailure("convertErrorFunction cannot be null."));
                     IteratorTests.assertIterator(test, iterator, false, null);
                 });
 
@@ -6523,7 +6954,7 @@ public interface IteratorTests
                 {
                     final Iterator<Integer> iterator = createIterator.run(5, false);
                     test.assertThrows(() -> iterator.convertError(NotFoundException.class, (Function1<NotFoundException,? extends Throwable>)null),
-                        new PreConditionFailure("function cannot be null."));
+                        new PreConditionFailure("convertErrorFunction cannot be null."));
                     IteratorTests.assertIterator(test, iterator, false, null);
                 });
 

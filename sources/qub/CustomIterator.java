@@ -1,8 +1,7 @@
 package qub;
 
-public class CustomIterator<T> implements Iterator<T>
+public class CustomIterator<T> extends IteratorWrapper<T>
 {
-    private final Iterator<T> innerIterator;
     private Function1<Iterator<T>,Boolean> hasStartedFunction;
     private Function1<Iterator<T>,Boolean> hasCurrentFunction;
     private Function1<Iterator<T>,T> getCurrentFunction;
@@ -10,9 +9,8 @@ public class CustomIterator<T> implements Iterator<T>
 
     private CustomIterator(Iterator<T> innerIterator)
     {
-        PreCondition.assertNotNull(innerIterator, "innerIterator");
+        super(innerIterator);
 
-        this.innerIterator = innerIterator;
         this.hasStartedFunction = Iterator::hasStarted;
         this.hasCurrentFunction = Iterator::hasCurrent;
         this.getCurrentFunction = Iterator::getCurrent;
@@ -27,12 +25,13 @@ public class CustomIterator<T> implements Iterator<T>
     @Override
     public boolean hasStarted()
     {
-        return this.hasStartedFunction.run(this.innerIterator);
+        return this.hasStartedFunction.run(this.getInnerIterator());
     }
 
     /**
-     * Set the function that will be invoked when hasStarted() is called.
-     * @param hasStartedFunction The function that will be invoked when hasStarted() is called.
+     * Set the {@link Function1} that will be invoked when hasStarted() is called.
+     * @param hasStartedFunction The {@link Function1} that will be invoked when hasStarted() is
+     *                           called.
      * @return This object for method chaining.
      */
     public CustomIterator<T> setHasStartedFunction(Function1<Iterator<T>,Boolean> hasStartedFunction)
@@ -47,12 +46,13 @@ public class CustomIterator<T> implements Iterator<T>
     @Override
     public boolean hasCurrent()
     {
-        return this.hasCurrentFunction.run(this.innerIterator);
+        return this.hasCurrentFunction.run(this.getInnerIterator());
     }
 
     /**
-     * Set the function that will be invoked when hasCurrent() is called.
-     * @param hasCurrentFunction The function that will be invoked when hasCurrent() is called.
+     * Set the {@link Function1} that will be invoked when hasCurrent() is called.
+     * @param hasCurrentFunction The {@link Function1} that will be invoked when hasCurrent() is
+     *                           called.
      * @return This object for method chaining.
      */
     public CustomIterator<T> setHasCurrentFunction(Function1<Iterator<T>,Boolean> hasCurrentFunction)
@@ -67,12 +67,13 @@ public class CustomIterator<T> implements Iterator<T>
     @Override
     public T getCurrent()
     {
-        return this.getCurrentFunction.run(this.innerIterator);
+        return this.getCurrentFunction.run(this.getInnerIterator());
     }
 
     /**
-     * Set the function that will be invoked when getCurrent() is called.
-     * @param getCurrentFunction The function that will be invoked when getCurrent() is called.
+     * Set the {@link Function1} that will be invoked when getCurrent() is called.
+     * @param getCurrentFunction The {@link Function1} that will be invoked when getCurrent() is
+     *                           called.
      * @return This object for method chaining.
      */
     public CustomIterator<T> setGetCurrentFunction(Function1<Iterator<T>,T> getCurrentFunction)
@@ -87,12 +88,12 @@ public class CustomIterator<T> implements Iterator<T>
     @Override
     public boolean next()
     {
-        return this.nextFunction.run(this.innerIterator);
+        return this.nextFunction.run(this.getInnerIterator());
     }
 
     /**
-     * Set the function that will be invoked when next() is called.
-     * @param nextFunction The function that will be invoked when next() is called.
+     * Set the {@link Function1} that will be invoked when next() is called.
+     * @param nextFunction The {@link Function1} that will be invoked when next() is called.
      * @return This object for method chaining.
      */
     public CustomIterator<T> setNextFunction(Function1<Iterator<T>,Boolean> nextFunction)
