@@ -511,18 +511,7 @@ public interface Iterator<T> extends java.lang.Iterable<T>
      * @param errorType The type of error to catch.
      * @param <TError> The type of error to catch.
      */
-    @Deprecated
-    public default <TError extends Throwable> Iterator<T> catchError(Class<TError> errorType)
-    {
-        return CatchErrorIterator.create(this, errorType);
-    }
-
-    /**
-     * Ignore any errors of the provided type that occur while iterating.
-     * @param errorType The type of error to catch.
-     * @param <TError> The type of error to catch.
-     */
-    public default <TError extends Throwable> CatchErrorIterator<T,TError> catchError2(Class<TError> errorType)
+    public default <TError extends Throwable> CatchErrorIterator<T,TError> catchError(Class<TError> errorType)
     {
         return CatchErrorIterator.create(this, errorType);
     }
