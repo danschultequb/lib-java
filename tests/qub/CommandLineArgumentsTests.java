@@ -199,8 +199,7 @@ public interface CommandLineArgumentsTests
                 runner.test("with found but different case", (Test test) ->
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create("--abc=20");
-                    test.assertThrows(() -> arguments.getNamedValue("ABC").await(),
-                        new NotFoundException("Could not find command-line arguments with the name \"ABC\"."));
+                    test.assertEqual("20", arguments.getNamedValue("ABC").await());
                 });
             });
 
@@ -242,8 +241,7 @@ public interface CommandLineArgumentsTests
                 runner.test("with found but different case", (Test test) ->
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create("--abc=20");
-                    test.assertThrows(() -> arguments.getNamedValues("ABC").await(),
-                        new NotFoundException("Could not find command-line arguments with the name \"ABC\"."));
+                    test.assertEqual(Iterable.create("20"), arguments.getNamedValues("ABC").await());
                 });
             });
 
@@ -287,8 +285,8 @@ public interface CommandLineArgumentsTests
                 runner.test("with found but different case", (Test test) ->
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create("--abc=20");
-                    test.assertThrows(() -> arguments.removeNamedValue("ABC").await(),
-                        new NotFoundException("Could not find a command-line argument with the name \"ABC\"."));
+                    test.assertEqual("20", arguments.removeNamedValue("ABC").await());
+                    test.assertEqual("[]", arguments.toString());
                 });
             });
 
@@ -332,8 +330,8 @@ public interface CommandLineArgumentsTests
                 runner.test("with found but different case", (Test test) ->
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create("--abc=20");
-                    test.assertThrows(() -> arguments.removeNamedValues("ABC").await(),
-                        new NotFoundException("Could not find a command-line argument with the name \"ABC\"."));
+                    test.assertEqual(Iterable.create("20"), arguments.removeNamedValues("ABC").await());
+                    test.assertEqual("[]", arguments.toString());
                 });
             });
 

@@ -95,8 +95,8 @@ public class CommandLineParameter<T> extends CommandLineParameterBase<T>
 
         if (valueResult == null)
         {
-            final CommandLineArguments arguments = getArguments();
-            String argumentStringValue = arguments.getNamedValue(getName())
+            final CommandLineArguments arguments = this.getArguments();
+            String argumentStringValue = arguments.getNamedValue(this.getName())
                 .catchError(NotFoundException.class)
                 .await();
             if (argumentStringValue == null && !Iterable.isNullOrEmpty(aliases))

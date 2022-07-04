@@ -87,7 +87,7 @@ public class CommandLineArguments implements Indexable<CommandLineArgument>
 
         return Result.create(() ->
         {
-            final CommandLineArgument argument = this.arguments.first((CommandLineArgument arg) -> Comparer.equal(arg.getName(), argumentName));
+            final CommandLineArgument argument = this.arguments.first((CommandLineArgument arg) -> Comparer.equalIgnoreCase(arg.getName(), argumentName));
             if (argument == null)
             {
                 throw new NotFoundException("Could not find command-line arguments with the name " + Strings.escapeAndQuote(argumentName) + ".");
@@ -109,7 +109,7 @@ public class CommandLineArguments implements Indexable<CommandLineArgument>
         return Result.create(() ->
         {
             final Indexable<String> values = this.arguments
-                .where((CommandLineArgument arg) -> Comparer.equal(arg.getName(), argumentName))
+                .where((CommandLineArgument arg) -> Comparer.equalIgnoreCase(arg.getName(), argumentName))
                 .map(CommandLineArgument::getValue)
                 .toList();
             if (Iterable.isNullOrEmpty(values))
@@ -132,7 +132,7 @@ public class CommandLineArguments implements Indexable<CommandLineArgument>
 
         return Result.create(() ->
         {
-            final int index = this.arguments.indexOf((CommandLineArgument argument) -> Comparer.equal(argument.getName(), argumentName));
+            final int index = this.arguments.indexOf((CommandLineArgument argument) -> Comparer.equalIgnoreCase(argument.getName(), argumentName));
             if (index < 0)
             {
                 throw new NotFoundException("Could not find a command-line argument with the name " + Strings.escapeAndQuote(argumentName) + ".");
@@ -157,7 +157,7 @@ public class CommandLineArguments implements Indexable<CommandLineArgument>
         while (index < arguments.getCount())
         {
             final CommandLineArgument argument = arguments.get(index);
-            if (Comparer.equal(argument.getName(), argumentName))
+            if (Comparer.equalIgnoreCase(argument.getName(), argumentName))
             {
                 arguments.removeAt(index);
                 values.add(argument.getValue());
