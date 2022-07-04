@@ -128,6 +128,13 @@ public abstract class ChildProcessParametersDecorator<T extends ChildProcessPara
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    public T redirectOutputTo(ByteWriteStream outputStream)
+    {
+        return (T)ChildProcessParameters.super.redirectOutputTo(outputStream);
+    }
+
+    @Override
     public Action1<ByteReadStream> getErrorStreamHandler()
     {
         return this.innerParameters.getErrorStreamHandler();
@@ -140,5 +147,12 @@ public abstract class ChildProcessParametersDecorator<T extends ChildProcessPara
         this.innerParameters.setErrorStreamHandler(errorStreamHandler);
 
         return (T)this;
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public T redirectErrorTo(ByteWriteStream errorStream)
+    {
+        return (T)ChildProcessParameters.super.redirectErrorTo(errorStream);
     }
 }

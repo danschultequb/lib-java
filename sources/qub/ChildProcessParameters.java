@@ -1,15 +1,14 @@
 package qub;
 
 /**
- * Parameters that can be specified to alter how an executable will be run.
+ * Parameters that can be specified to alter how a child process will be run.
  */
 public interface ChildProcessParameters
 {
     /**
-     * Create a new ExecutableParameters object.
-     * @return The new ExecutableParameters object.
+     * Create a new {@link ChildProcessParameters} object.
      */
-    static ChildProcessParameters create(String executablePath, String... arguments)
+    public static ChildProcessParameters create(String executablePath, String... arguments)
     {
         PreCondition.assertNotNullAndNotEmpty(executablePath, "executablePath");
         PreCondition.assertNotNull(arguments, "arguments");
@@ -18,10 +17,9 @@ public interface ChildProcessParameters
     }
 
     /**
-     * Create a new ExecutableParameters object.
-     * @return The new ExecutableParameters object.
+     * Create a new {@link ChildProcessParameters} object.
      */
-    static ChildProcessParameters create(String executablePath, Iterable<String> arguments)
+    public static ChildProcessParameters create(String executablePath, Iterable<String> arguments)
     {
         PreCondition.assertNotNullAndNotEmpty(executablePath, "executablePath");
         PreCondition.assertNotNull(arguments, "arguments");
@@ -30,10 +28,9 @@ public interface ChildProcessParameters
     }
 
     /**
-     * Create a new ExecutableParameters object.
-     * @return The new ExecutableParameters object.
+     * Create a new {@link ChildProcessParameters} object.
      */
-    static ChildProcessParameters create(Path executablePath, String... arguments)
+    public static ChildProcessParameters create(Path executablePath, String... arguments)
     {
         PreCondition.assertNotNull(executablePath, "executablePath");
         PreCondition.assertNotNull(arguments, "arguments");
@@ -42,10 +39,9 @@ public interface ChildProcessParameters
     }
 
     /**
-     * Create a new ExecutableParameters object.
-     * @return The new ExecutableParameters object.
+     * Create a new {@link ChildProcessParameters} object.
      */
-    static ChildProcessParameters create(Path executablePath, Iterable<String> arguments)
+    public static ChildProcessParameters create(Path executablePath, Iterable<String> arguments)
     {
         PreCondition.assertNotNull(executablePath, "executablePath");
         PreCondition.assertNotNull(arguments, "arguments");
@@ -54,10 +50,9 @@ public interface ChildProcessParameters
     }
 
     /**
-     * Create a new ExecutableParameters object.
-     * @return The new ExecutableParameters object.
+     * Create a new {@link ChildProcessParameters} object.
      */
-    static ChildProcessParameters create(File executableFile, String... arguments)
+    public static ChildProcessParameters create(File executableFile, String... arguments)
     {
         PreCondition.assertNotNull(executableFile, "executableFile");
         PreCondition.assertNotNull(arguments, "arguments");
@@ -66,10 +61,9 @@ public interface ChildProcessParameters
     }
 
     /**
-     * Create a new ExecutableParameters object.
-     * @return The new ExecutableParameters object.
+     * Create a new {@link ChildProcessParameters} object.
      */
-    static ChildProcessParameters create(File executableFile, Iterable<String> arguments)
+    public static ChildProcessParameters create(File executableFile, Iterable<String> arguments)
     {
         PreCondition.assertNotNull(executableFile, "executableFile");
         PreCondition.assertNotNull(arguments, "arguments");
@@ -79,15 +73,13 @@ public interface ChildProcessParameters
 
     /**
      * Get the path to the executable to run.
-     * @return The path to the executable to run.
      */
-    Path getExecutablePath();
+    public Path getExecutablePath();
 
     /**
      * Get the command-line arguments that will be passed to the executable.
-     * @return The command-line arguments that will be passed to the executable.
      */
-    Iterable<String> getArguments();
+    public Iterable<String> getArguments();
 
     /**
      * Insert the provided argument into the list of command-line arguments at the provided index.
@@ -95,7 +87,7 @@ public interface ChildProcessParameters
      * @param argument The argument to insert.
      * @return This object for method chaining.
      */
-    ChildProcessParameters insertArgument(int index, String argument);
+    public ChildProcessParameters insertArgument(int index, String argument);
 
     /**
      * Add the provided argument to the list of command-line arguments that will be passed to the
@@ -103,7 +95,7 @@ public interface ChildProcessParameters
      * @param argument The argument to add.
      * @return This object for method chaining.
      */
-    default ChildProcessParameters addArgument(String argument)
+    public default ChildProcessParameters addArgument(String argument)
     {
         return this.insertArgument(this.getArguments().getCount(), argument);
     }
@@ -113,7 +105,7 @@ public interface ChildProcessParameters
      * @param arguments The arguments to add.
      * @return This object for method chaining.
      */
-    default ChildProcessParameters addArguments(String... arguments)
+    public default ChildProcessParameters addArguments(String... arguments)
     {
         PreCondition.assertNotNull(arguments, "arguments");
 
@@ -130,7 +122,7 @@ public interface ChildProcessParameters
      * @param arguments The arguments to add.
      * @return This object for method chaining.
      */
-    default ChildProcessParameters addArguments(Iterable<String> arguments)
+    public default ChildProcessParameters addArguments(Iterable<String> arguments)
     {
         PreCondition.assertNotNull(arguments, "arguments");
 
@@ -145,17 +137,15 @@ public interface ChildProcessParameters
     /**
      * Get the working folder path that the executable should be run in, or null if no working
      * folder path has been specified.
-     * @return The working folder path that the executable should be run in, or null if no working
-     * folder path has been specified.
      */
-    Path getWorkingFolderPath();
+    public Path getWorkingFolderPath();
 
     /**
      * Set the working folder path that the executable should be run in.
      * @param workingFolderPath The working folder path that the executable should be run in.
      * @return This object for method chaining.
      */
-    default ChildProcessParameters setWorkingFolderPath(String workingFolderPath)
+    public default ChildProcessParameters setWorkingFolderPath(String workingFolderPath)
     {
         PreCondition.assertNotNullAndNotEmpty(workingFolderPath, "workingFolderPath");
 
@@ -167,14 +157,14 @@ public interface ChildProcessParameters
      * @param workingFolderPath The working folder path that the executable should be run in.
      * @return This object for method chaining.
      */
-    ChildProcessParameters setWorkingFolderPath(Path workingFolderPath);
+    public ChildProcessParameters setWorkingFolderPath(Path workingFolderPath);
 
     /**
      * Set the working folder that the executable should be run in.
      * @param workingFolder The working folder that the executable should be run in.
      * @return This object for method chaining.
      */
-    default ChildProcessParameters setWorkingFolder(Folder workingFolder)
+    public default ChildProcessParameters setWorkingFolder(Folder workingFolder)
     {
         PreCondition.assertNotNull(workingFolder, "workingFolder");
 
@@ -183,24 +173,21 @@ public interface ChildProcessParameters
 
     /**
      * Get the input stream that the executable should read from.
-     * @return The input stream that the executable should read from.
      */
-    ByteReadStream getInputStream();
+    public ByteReadStream getInputStream();
 
     /**
      * Set the input stream that the executable should read from.
      * @param inputStream The input stream that the executable should read from.
      * @return This object for method chaining.
      */
-    ChildProcessParameters setInputStream(ByteReadStream inputStream);
+    public ChildProcessParameters setInputStream(ByteReadStream inputStream);
 
     /**
      * Get the function that will be invoked to handle the output stream from the executable, or
      * null if no handler has been assigned.
-     * @return The function that will be invoked to handle the output stream from the executable,
-     * or null if no handler has been assigned.
      */
-    Action1<ByteReadStream> getOutputStreamHandler();
+    public Action1<ByteReadStream> getOutputStreamHandler();
 
     /**
      * Set the function that will be invoked to handle the output stream from the executable.
@@ -208,7 +195,7 @@ public interface ChildProcessParameters
      *                            from the executable.
      * @return This object for method chaining.
      */
-    ChildProcessParameters setOutputStreamHandler(Action1<ByteReadStream> outputStreamHandler);
+    public ChildProcessParameters setOutputStreamHandler(Action1<ByteReadStream> outputStreamHandler);
 
     /**
      * Redirect any bytes written to the child process's output stream to the provided outputStream.
@@ -216,7 +203,7 @@ public interface ChildProcessParameters
      *                     to.
      * @return This object for method chaining.
      */
-    default ChildProcessParameters redirectOutputTo(ByteWriteStream outputStream)
+    public default ChildProcessParameters redirectOutputTo(ByteWriteStream outputStream)
     {
         PreCondition.assertNotNull(outputStream, "outputStream");
 
@@ -229,10 +216,8 @@ public interface ChildProcessParameters
     /**
      * Get the function that will be invoked to handle the error stream from the executable, or
      * null if no handler has been assigned.
-     * @return The function that will be invoked to handle the error stream from the executable, or
-     * null if no handler has been assigned.
      */
-    Action1<ByteReadStream> getErrorStreamHandler();
+    public Action1<ByteReadStream> getErrorStreamHandler();
 
     /**
      * Set the function that will be invoked to handle the error stream from the executable.
@@ -240,7 +225,7 @@ public interface ChildProcessParameters
      *                            the executable.
      * @return This object for method chaining.
      */
-    ChildProcessParameters setErrorStreamHandler(Action1<ByteReadStream> errorStreamHandler);
+    public ChildProcessParameters setErrorStreamHandler(Action1<ByteReadStream> errorStreamHandler);
 
     /**
      * Redirect any bytes written to the child process's error stream to the provided errorStream.
@@ -248,7 +233,7 @@ public interface ChildProcessParameters
      *                     to.
      * @return This object for method chaining.
      */
-    default ChildProcessParameters redirectErrorTo(ByteWriteStream errorStream)
+    public default ChildProcessParameters redirectErrorTo(ByteWriteStream errorStream)
     {
         PreCondition.assertNotNull(errorStream, "errorStream");
 
