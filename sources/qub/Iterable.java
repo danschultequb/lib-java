@@ -433,11 +433,11 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      * @param lessThan The function to use to compare two values.
      * @return The ordered Iterable.
      */
-    default Iterable<T> order(Function2<T,T,Boolean> lessThan)
+    public default Iterable<T> order(Function2<T,T,Boolean> lessThan)
     {
         PreCondition.assertNotNull(lessThan, "lessThan");
 
-        return toArray().sort(lessThan);
+        return this.toList().sort(lessThan);
     }
 
     /**

@@ -647,4 +647,125 @@ public interface Strings
             }
         });
     }
+
+    /**
+     * Get an {@link Iterator} that returns the substrings of the provided value that are separated by the provided separator characters.
+     * @param value
+     * @param separators
+     * @return
+     */
+    public static Iterator<String> iterateSubstrings(String value, char... separators)
+    {
+        return Strings.iterateSubstrings(value, IterateSubstringsOptions.create().setSeparators(separators));
+    }
+
+    public static Iterator<String> iterateSubstrings(String value, String... separators)
+    {
+        return Strings.iterateSubstrings(value, IterateSubstringsOptions.create().setSeparators(separators));
+    }
+
+    public static Iterator<String> iterateSubstrings(String value, Iterable<String> separators)
+    {
+        return Strings.iterateSubstrings(value, IterateSubstringsOptions.create().setSeparators(separators));
+    }
+
+    public static Iterator<String> iterateSubstrings(String value, IterateSubstringsOptions options)
+    {
+        PreCondition.assertNotNull(options, "options");
+
+        Iterator<String> result;
+        if (Strings.isNullOrEmpty(value))
+        {
+            result = Iterator.create();
+        }
+        else
+        {
+            final Iterable<String> separators = options.getSeparators()
+                .where((String separator) -> !Strings.isNullOrEmpty(separator))
+                .toSet();
+            if (Iterable.isNullOrEmpty(separators))
+            {
+                result = Iterator.create(value);
+            }
+            else
+            {
+                final String[] sortedSeparators = new String[separators.getCount()];
+                Array.toArray(separators.order((String lhs, String rhs) -> lhs.length() > rhs.length()), sortedSeparators);
+
+                final int valueLength = value.length();
+                final boolean includeEmptySubstrings = options.getIncludeEmptySubstrings();
+                final boolean includeSeparators = options.getIncludeSeparators();
+                final IntegerValue nextStartIndex = IntegerValue.create(0);
+                result = Iterator.create((IteratorActions<String> actions) ->
+                {
+                    int startIndex = nextStartIndex.getAsInt();
+                    if (startIndex < valueLength)
+                    {
+                        int afterEndIndex = startIndex;
+                        int separatorAfterEndIndex = -1;
+                        while (afterEndIndex < valueLength)
+                        {
+                            for (final String separator : sortedSeparators)
+                            {
+                                if (value.startsWith(separator, afterEndIndex))
+                                {
+                                    separatorAfterEndIndex = afterEndIndex + separator.length();
+                                    break;
+                                }
+                            }
+
+                            if (separatorAfterEndIndex == -1)
+                            {
+                                afterEndIndex++;
+                            }
+                            else if (startIndex == afterEndIndex && !includeEmptySubstrings)
+                            {
+                                startIndex = separatorAfterEndIndex;
+                                afterEndIndex = separatorAfterEndIndex;
+                                separatorAfterEndIndex = -1;
+                            }
+                            else
+                            {
+                                break;
+                            }
+                        }
+
+                        if (startIndex < valueLength)
+                        {
+                            String substring;
+                            if (separatorAfterEndIndex == -1)
+                            {
+                                substring = value.substring(startIndex);
+                                nextStartIndex.set(valueLength);
+                            }
+                            else
+                            {
+                                if (includeSeparators)
+                                {
+                                    afterEndIndex = separatorAfterEndIndex;
+                                }
+                                substring = value.substring(startIndex, afterEndIndex);
+                                nextStartIndex.set(separatorAfterEndIndex);
+                            }
+
+                            actions.returnValue(substring);
+
+                            if (includeEmptySubstrings && separatorAfterEndIndex == valueLength)
+                            {
+                                actions.returnValue("");
+                            }
+                        }
+                        else
+                        {
+                            nextStartIndex.set(valueLength);
+                        }
+                    }
+                });
+            }
+        }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
 }

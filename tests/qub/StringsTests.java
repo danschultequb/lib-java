@@ -2,7 +2,7 @@ package qub;
 
 public interface StringsTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(Strings.class, () ->
         {
@@ -931,6 +931,179 @@ public interface StringsTests
                 iterateLinesTest.run("\n\n\n", true, Iterable.create("\n", "\n", "\n"));
                 iterateLinesTest.run("\r\n\n\r", true, Iterable.create("\r\n", "\n", "\r"));
                 iterateLinesTest.run("a\nb\r\nc\rd", true, Iterable.create("a\n", "b\r\n", "c\rd"));
+            });
+
+            runner.testGroup("iterateSubstrings(String,char...)", () ->
+            {
+                final Action3<String,Iterable<Character>,Iterable<String>> iterateSubstringsTest = (String value, Iterable<Character> separators, Iterable<String> expected) ->
+                {
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(value), separators.map(Characters::escapeAndQuote)), (Test test) ->
+                    {
+                        final Iterator<String> iterateSubstringsResult = Strings.iterateSubstrings(value, Array.toCharArray(separators).await());
+                        IteratorTests.assertIterator(test, iterateSubstringsResult, false, null);
+
+                        test.assertEqual(expected, iterateSubstringsResult.toList());
+                        IteratorTests.assertIterator(test, iterateSubstringsResult, true, null);
+                    });
+                };
+
+                iterateSubstringsTest.run(null, Iterable.create(), Iterable.create());
+                iterateSubstringsTest.run("", Iterable.create(), Iterable.create());
+                iterateSubstringsTest.run("hello", Iterable.create(), Iterable.create("hello"));
+
+                iterateSubstringsTest.run(null, Iterable.create('a'), Iterable.create());
+                iterateSubstringsTest.run("", Iterable.create('a'), Iterable.create());
+                iterateSubstringsTest.run("hello", Iterable.create('a'), Iterable.create("hello"));
+                iterateSubstringsTest.run("abc", Iterable.create('a'), Iterable.create("bc"));
+                iterateSubstringsTest.run("abaca", Iterable.create('a'), Iterable.create("b", "c"));
+                iterateSubstringsTest.run("a", Iterable.create('a'), Iterable.create());
+                iterateSubstringsTest.run("aa", Iterable.create('a'), Iterable.create());
+                iterateSubstringsTest.run("aaa", Iterable.create('a'), Iterable.create());
+                iterateSubstringsTest.run("hello there my friend", Iterable.create('l', 'e', ' '), Iterable.create("h", "o", "th", "r", "my", "fri", "nd"));
+
+                iterateSubstringsTest.run("a\nb\nc", Iterable.create('\r', '\n'), Iterable.create("a", "b", "c"));
+                iterateSubstringsTest.run("\ra\n\nc\r", Iterable.create('\r', '\n'), Iterable.create("a", "c"));
+            });
+
+            runner.testGroup("iterateSubstrings(String,String...)", () ->
+            {
+                final Action3<String,Iterable<String>,Iterable<String>> iterateSubstringsTest = (String value, Iterable<String> separators, Iterable<String> expected) ->
+                {
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(value), separators.map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        final String[] separatorStrings = new String[separators.getCount()];
+                        Array.toArray(separators, separatorStrings);
+                        final Iterator<String> iterateSubstringsResult = Strings.iterateSubstrings(value, separatorStrings);
+                        IteratorTests.assertIterator(test, iterateSubstringsResult, false, null);
+
+                        test.assertEqual(expected, iterateSubstringsResult.toList());
+                        IteratorTests.assertIterator(test, iterateSubstringsResult, true, null);
+                    });
+                };
+
+                iterateSubstringsTest.run(null, Iterable.create(), Iterable.create());
+                iterateSubstringsTest.run("", Iterable.create(), Iterable.create());
+                iterateSubstringsTest.run("hello", Iterable.create(), Iterable.create("hello"));
+
+                iterateSubstringsTest.run(null, Iterable.create((String)null), Iterable.create());
+                iterateSubstringsTest.run("", Iterable.create((String)null), Iterable.create());
+                iterateSubstringsTest.run("hello", Iterable.create((String)null), Iterable.create("hello"));
+
+                iterateSubstringsTest.run(null, Iterable.create(""), Iterable.create());
+                iterateSubstringsTest.run("", Iterable.create(""), Iterable.create());
+                iterateSubstringsTest.run("hello", Iterable.create(""), Iterable.create("hello"));
+
+                iterateSubstringsTest.run(null, Iterable.create("a"), Iterable.create());
+                iterateSubstringsTest.run("", Iterable.create("a"), Iterable.create());
+                iterateSubstringsTest.run("hello", Iterable.create("a"), Iterable.create("hello"));
+                iterateSubstringsTest.run("abc", Iterable.create("a"), Iterable.create("bc"));
+                iterateSubstringsTest.run("abaca", Iterable.create("a"), Iterable.create("b", "c"));
+                iterateSubstringsTest.run("a", Iterable.create("a"), Iterable.create());
+                iterateSubstringsTest.run("aa", Iterable.create("a"), Iterable.create());
+                iterateSubstringsTest.run("aaa", Iterable.create("a"), Iterable.create());
+                iterateSubstringsTest.run("hello there my friend", Iterable.create("l", "e", " "), Iterable.create("h", "o", "th", "r", "my", "fri", "nd"));
+
+                iterateSubstringsTest.run(null, Iterable.create("a", "a"), Iterable.create());
+                iterateSubstringsTest.run("", Iterable.create("a", "a"), Iterable.create());
+                iterateSubstringsTest.run("hello", Iterable.create("a", "a"), Iterable.create("hello"));
+                iterateSubstringsTest.run("abc", Iterable.create("a", "a"), Iterable.create("bc"));
+                iterateSubstringsTest.run("abaca", Iterable.create("a", "a"), Iterable.create("b", "c"));
+                iterateSubstringsTest.run("a", Iterable.create("a", "a"), Iterable.create());
+                iterateSubstringsTest.run("aa", Iterable.create("a", "a"), Iterable.create());
+                iterateSubstringsTest.run("aaa", Iterable.create("a", "a"), Iterable.create());
+                iterateSubstringsTest.run("hello there my friend", Iterable.create("l", "e", " "), Iterable.create("h", "o", "th", "r", "my", "fri", "nd"));
+
+                iterateSubstringsTest.run(null, Iterable.create("aa"), Iterable.create());
+                iterateSubstringsTest.run("", Iterable.create("aa"), Iterable.create());
+                iterateSubstringsTest.run("hello", Iterable.create("aa"), Iterable.create("hello"));
+                iterateSubstringsTest.run("abc", Iterable.create("aa"), Iterable.create("abc"));
+                iterateSubstringsTest.run("abaca", Iterable.create("aa"), Iterable.create("abaca"));
+                iterateSubstringsTest.run("a", Iterable.create("aa"), Iterable.create("a"));
+                iterateSubstringsTest.run("aa", Iterable.create("aa"), Iterable.create());
+                iterateSubstringsTest.run("aaa", Iterable.create("aa"), Iterable.create("a"));
+                iterateSubstringsTest.run("hello there my friend", Iterable.create("ll", "ere", "ie"), Iterable.create("he", "o th", " my fr", "nd"));
+                iterateSubstringsTest.run("hello there my friend", Iterable.create("l", "ere", "ie"), Iterable.create("he", "o th", " my fr", "nd"));
+
+                iterateSubstringsTest.run("a\nb\nc\r\n", Iterable.create("\r", "\n", "\r\n"), Iterable.create("a", "b", "c"));
+                iterateSubstringsTest.run("\ra\n\nc\rd\r\ne", Iterable.create("\r", "\n", "\r\n"), Iterable.create("a", "c", "d", "e"));
+            });
+
+            runner.testGroup("iterateSubstrings(String,IterateSubstringsOptions)", () ->
+            {
+                final Action3<String,IterateSubstringsOptions,Iterable<String>> iterateSubstringsTest = (String value, IterateSubstringsOptions options, Iterable<String> expected) ->
+                {
+                    runner.test("with " + English.andList(Strings.escapeAndQuote(value), options), (Test test) ->
+                    {
+                        final Iterator<String> iterateSubstringsResult = Strings.iterateSubstrings(value, options);
+                        IteratorTests.assertIterator(test, iterateSubstringsResult, false, null);
+
+                        test.assertEqual(expected, iterateSubstringsResult.toList());
+                        IteratorTests.assertIterator(test, iterateSubstringsResult, true, null);
+                    });
+                };
+
+                iterateSubstringsTest.run(null, IterateSubstringsOptions.create(), Iterable.create());
+                iterateSubstringsTest.run("", IterateSubstringsOptions.create(), Iterable.create());
+                iterateSubstringsTest.run("hello", IterateSubstringsOptions.create(), Iterable.create("hello"));
+
+                iterateSubstringsTest.run(null, IterateSubstringsOptions.create().setSeparators("a"), Iterable.create());
+                iterateSubstringsTest.run("", IterateSubstringsOptions.create().setSeparators("a"), Iterable.create());
+                iterateSubstringsTest.run("hello", IterateSubstringsOptions.create().setSeparators("a"), Iterable.create("hello"));
+                iterateSubstringsTest.run("abc", IterateSubstringsOptions.create().setSeparators("a"), Iterable.create("bc"));
+                iterateSubstringsTest.run("abaca", IterateSubstringsOptions.create().setSeparators("a"), Iterable.create("b", "c"));
+                iterateSubstringsTest.run("a", IterateSubstringsOptions.create().setSeparators("a"), Iterable.create());
+                iterateSubstringsTest.run("aa", IterateSubstringsOptions.create().setSeparators("a"), Iterable.create());
+                iterateSubstringsTest.run("aaa", IterateSubstringsOptions.create().setSeparators("a"), Iterable.create());
+                iterateSubstringsTest.run("hello there my friend", IterateSubstringsOptions.create().setSeparators("l", "e", " "), Iterable.create("h", "o", "th", "r", "my", "fri", "nd"));
+                iterateSubstringsTest.run("a\nb\nc\r\n", IterateSubstringsOptions.create().setSeparators("\r", "\n", "\r\n"), Iterable.create("a", "b", "c"));
+                iterateSubstringsTest.run("\ra\n\nc\rd\r\ne", IterateSubstringsOptions.create().setSeparators("\r", "\n", "\r\n"), Iterable.create("a", "c", "d", "e"));
+
+                iterateSubstringsTest.run(null, IterateSubstringsOptions.create().setSeparators("a").setIncludeEmptySubstrings(true), Iterable.create());
+                iterateSubstringsTest.run("", IterateSubstringsOptions.create().setSeparators("a").setIncludeEmptySubstrings(true), Iterable.create());
+                iterateSubstringsTest.run("hello", IterateSubstringsOptions.create().setSeparators("a").setIncludeEmptySubstrings(true), Iterable.create("hello"));
+                iterateSubstringsTest.run("abc", IterateSubstringsOptions.create().setSeparators("a").setIncludeEmptySubstrings(true), Iterable.create("", "bc"));
+                iterateSubstringsTest.run("abaca", IterateSubstringsOptions.create().setSeparators("a").setIncludeEmptySubstrings(true), Iterable.create("", "b", "c", ""));
+                iterateSubstringsTest.run("a", IterateSubstringsOptions.create().setSeparators("a").setIncludeEmptySubstrings(true), Iterable.create("", ""));
+                iterateSubstringsTest.run("aa", IterateSubstringsOptions.create().setSeparators("a").setIncludeEmptySubstrings(true), Iterable.create("", "", ""));
+                iterateSubstringsTest.run("aaa", IterateSubstringsOptions.create().setSeparators("a").setIncludeEmptySubstrings(true), Iterable.create("", "", "", ""));
+                iterateSubstringsTest.run("hello there my friend", IterateSubstringsOptions.create().setSeparators("l", "e", " ").setIncludeEmptySubstrings(true), Iterable.create("h", "", "", "o", "th", "r", "", "my", "fri", "nd"));
+                iterateSubstringsTest.run("a\nb\nc\r\n", IterateSubstringsOptions.create().setSeparators("\r", "\n", "\r\n").setIncludeEmptySubstrings(true), Iterable.create("a", "b", "c", ""));
+                iterateSubstringsTest.run("\ra\n\nc\rd\r\ne", IterateSubstringsOptions.create().setSeparators("\r", "\n", "\r\n").setIncludeEmptySubstrings(true), Iterable.create("", "a", "", "c", "d", "e"));
+
+                iterateSubstringsTest.run(null, IterateSubstringsOptions.create().setSeparators("a").setIncludeSeparators(true), Iterable.create());
+                iterateSubstringsTest.run("", IterateSubstringsOptions.create().setSeparators("a").setIncludeSeparators(true), Iterable.create());
+                iterateSubstringsTest.run("hello", IterateSubstringsOptions.create().setSeparators("a").setIncludeSeparators(true), Iterable.create("hello"));
+                iterateSubstringsTest.run("abc", IterateSubstringsOptions.create().setSeparators("a").setIncludeSeparators(true), Iterable.create("bc"));
+                iterateSubstringsTest.run("abaca", IterateSubstringsOptions.create().setSeparators("a").setIncludeSeparators(true), Iterable.create("ba", "ca"));
+                iterateSubstringsTest.run("a", IterateSubstringsOptions.create().setSeparators("a").setIncludeSeparators(true), Iterable.create());
+                iterateSubstringsTest.run("aa", IterateSubstringsOptions.create().setSeparators("a").setIncludeSeparators(true), Iterable.create());
+                iterateSubstringsTest.run("aaa", IterateSubstringsOptions.create().setSeparators("a").setIncludeSeparators(true), Iterable.create());
+                iterateSubstringsTest.run("hello there my friend", IterateSubstringsOptions.create().setSeparators("l", "e", " ").setIncludeSeparators(true), Iterable.create("he", "o ", "the", "re", "my ", "frie", "nd"));
+                iterateSubstringsTest.run("a\nb\nc\r\n", IterateSubstringsOptions.create().setSeparators("\r", "\n", "\r\n").setIncludeSeparators(true), Iterable.create("a\n", "b\n", "c\r\n"));
+                iterateSubstringsTest.run("\ra\n\nc\rd\r\ne", IterateSubstringsOptions.create().setSeparators("\r", "\n", "\r\n").setIncludeSeparators(true), Iterable.create("a\n", "c\r", "d\r\n", "e"));
+
+                iterateSubstringsTest.run(null, IterateSubstringsOptions.create().setSeparators("a").setIncludeEmptySubstrings(true).setIncludeSeparators(true), Iterable.create());
+                iterateSubstringsTest.run("", IterateSubstringsOptions.create().setSeparators("a").setIncludeEmptySubstrings(true).setIncludeSeparators(true), Iterable.create());
+                iterateSubstringsTest.run("hello", IterateSubstringsOptions.create().setSeparators("a").setIncludeEmptySubstrings(true).setIncludeSeparators(true), Iterable.create("hello"));
+                iterateSubstringsTest.run("abc", IterateSubstringsOptions.create().setSeparators("a").setIncludeEmptySubstrings(true).setIncludeSeparators(true), Iterable.create("a", "bc"));
+                iterateSubstringsTest.run("abaca", IterateSubstringsOptions.create().setSeparators("a").setIncludeEmptySubstrings(true).setIncludeSeparators(true), Iterable.create("a", "ba", "ca", ""));
+                iterateSubstringsTest.run("a", IterateSubstringsOptions.create().setSeparators("a").setIncludeEmptySubstrings(true).setIncludeSeparators(true), Iterable.create("a", ""));
+                iterateSubstringsTest.run("aa", IterateSubstringsOptions.create().setSeparators("a").setIncludeEmptySubstrings(true).setIncludeSeparators(true), Iterable.create("a", "a", ""));
+                iterateSubstringsTest.run("aaa", IterateSubstringsOptions.create().setSeparators("a").setIncludeEmptySubstrings(true).setIncludeSeparators(true), Iterable.create("a", "a", "a", ""));
+                iterateSubstringsTest.run("hello there my friend", IterateSubstringsOptions.create().setSeparators("l", "e", " ").setIncludeEmptySubstrings(true).setIncludeSeparators(true), Iterable.create("he", "l", "l", "o ", "the", "re", " ", "my ", "frie", "nd"));
+                iterateSubstringsTest.run("a\nb\nc\r\n", IterateSubstringsOptions.create().setSeparators("\r", "\n", "\r\n").setIncludeEmptySubstrings(true).setIncludeSeparators(true), Iterable.create("a\n", "b\n", "c\r\n", ""));
+                iterateSubstringsTest.run("\ra\n\nc\rd\r\ne", IterateSubstringsOptions.create().setSeparators("\r", "\n", "\r\n").setIncludeEmptySubstrings(true).setIncludeSeparators(true), Iterable.create("\r", "a\n", "\n", "c\r", "d\r\n", "e"));
+
+                iterateSubstringsTest.run(null, IterateSubstringsOptions.create().setSeparators("aa"), Iterable.create());
+                iterateSubstringsTest.run("", IterateSubstringsOptions.create().setSeparators("aa"), Iterable.create());
+                iterateSubstringsTest.run("hello", IterateSubstringsOptions.create().setSeparators("aa"), Iterable.create("hello"));
+                iterateSubstringsTest.run("abc", IterateSubstringsOptions.create().setSeparators("aa"), Iterable.create("abc"));
+                iterateSubstringsTest.run("abaca", IterateSubstringsOptions.create().setSeparators("aa"), Iterable.create("abaca"));
+                iterateSubstringsTest.run("a", IterateSubstringsOptions.create().setSeparators("aa"), Iterable.create("a"));
+                iterateSubstringsTest.run("aa", IterateSubstringsOptions.create().setSeparators("aa"), Iterable.create());
+                iterateSubstringsTest.run("aaa", IterateSubstringsOptions.create().setSeparators("aa"), Iterable.create("a"));
+                iterateSubstringsTest.run("hello there my friend", IterateSubstringsOptions.create().setSeparators("ll", "ere", "ie"), Iterable.create("he", "o th", " my fr", "nd"));
+                iterateSubstringsTest.run("hello there my friend", IterateSubstringsOptions.create().setSeparators("l", "ere", "ie"), Iterable.create("he", "o th", " my fr", "nd"));
             });
         });
     }
