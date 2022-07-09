@@ -46,7 +46,7 @@ public class CharacterArray implements Array<Character>
     @Override
     public int getCount()
     {
-        return characters.length;
+        return this.characters.length;
     }
 
     /**
@@ -56,9 +56,9 @@ public class CharacterArray implements Array<Character>
      */
     public CharacterArray set(int index, char value)
     {
-        PreCondition.assertIndexAccess(index, getCount(), "index");
+        PreCondition.assertIndexAccess(index, this.getCount(), "index");
 
-        characters[index] = value;
+        this.characters[index] = value;
 
         return this;
     }
@@ -66,10 +66,10 @@ public class CharacterArray implements Array<Character>
     @Override
     public CharacterArray set(int index, Character value)
     {
-        PreCondition.assertIndexAccess(index, getCount(), "index");
+        PreCondition.assertIndexAccess(index, this.getCount(), "index");
         PreCondition.assertNotNull(value, "value");
 
-        characters[index] = value;
+        this.characters[index] = value;
 
         return this;
     }
@@ -77,9 +77,35 @@ public class CharacterArray implements Array<Character>
     @Override
     public Character get(int index)
     {
-        PreCondition.assertIndexAccess(index, getCount(), "index");
+        PreCondition.assertIndexAccess(index, this.getCount(), "index");
 
-        return characters[index];
+        return this.characters[index];
+    }
+
+    /**
+     * Get whether this {@link CharacterArray} contains the provided value.
+     * @param value The value to look for in this {@link CharacterArray}.
+     */
+    public boolean contains(char value)
+    {
+        boolean result = false;
+
+        for (final char c : this.characters)
+        {
+            if (c == value)
+            {
+                result = true;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public boolean contains(Character value)
+    {
+        return value != null && this.contains(value.charValue());
     }
 
     @Override

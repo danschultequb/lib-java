@@ -123,14 +123,13 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Get whether or not this Iterable contains the provided value using the standard equals()
+     * Get whether this {@link Iterable} contains the provided value using the standard equals()
      * method to compare values.
-     * @param value The value to look for in this Iterable.
-     * @return Whether or not this Iterable contains the provided value.
+     * @param value The value to look for in this {@link Iterable}.
      */
-    default boolean contains(T value)
+    public default boolean contains(T value)
     {
-        return contains(value, Comparer::equal);
+        return this.contains(value, Comparer::equal);
     }
 
     /**
@@ -156,39 +155,34 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Get whether or not this Iterable does not contain the provided value.
+     * Get whether this {@link Iterable} does not contain the provided value.
      * @param value The value to look for.
-     * @return Whether or not this Iterable does not contain the provided value.
      */
-    default boolean doesNotContain(T value)
+    public default boolean doesNotContain(T value)
     {
-        return !contains(value);
+        return !this.contains(value);
     }
 
     /**
-     * Get whether or not this Iterable does not contain the provided value using the provided
+     * Get whether this {@link Iterable} does not contain the provided value using the provided
      * comparison function.
      * @param value The value to look for.
-     * @param comparison The function to use to compare the provided value against the values within
-     *                   this Iterable.
-     * @return Whether or not this Iterable does not contain the provided value using the provided
-     * comparison function.
+     * @param comparison The {@link Function2} to use to compare the provided value against the
+     *                   values within this {@link Iterable}.
      */
-    default boolean doesNotContain(T value, Function2<T,T,Boolean> comparison)
+    public default boolean doesNotContain(T value, Function2<T,T,Boolean> comparison)
     {
-        return !contains(value, comparison);
+        return !this.contains(value, comparison);
     }
 
     /**
-     * Get whether or not this Iterable does not contain a value that matches the provided
+     * Get whether this {@link Iterable} does not contain a value that matches the provided
      * condition.
-     * @param condition The function to look for a match for.
-     * @return Whether or not this Iterable does not contain a value that matches the provided
-     * condition.
+     * @param condition The {@link Function1} to look for a match for.
      */
-    default boolean doesNotContain(Function1<T,Boolean> condition)
+    public default boolean doesNotContain(Function1<T,Boolean> condition)
     {
-        return !contains(condition);
+        return !this.contains(condition);
     }
 
     /**

@@ -67,6 +67,23 @@ public class ObjectArray<T> implements Array<T>
     }
 
     @Override
+    public boolean contains(Object value)
+    {
+        boolean result = false;
+
+        for (Object o : this.values)
+        {
+            if (Comparer.equal(o, value))
+            {
+                result = true;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public boolean equals(Object rhs)
     {
         return Iterable.equals(this, rhs);

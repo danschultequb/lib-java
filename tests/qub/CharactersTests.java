@@ -113,6 +113,26 @@ public interface CharactersTests
                 escapeTest.run((char)0xD801, "\\u+D801");
                 escapeTest.run((char)0xDFFE, "\\u+DFFE");
                 escapeTest.run((char)0xDFFF, "\\u+DFFF");
+
+                runner.testGroup("speed tests", () ->
+                {
+                    final Action4<Character,Integer,Duration,String> escapeSpeedTest = (Character character, Integer iterations, Duration maximumDuration, String expected) ->
+                    {
+                        runner.speedTest("with " + Characters.escapeAndQuote(character) + " " + iterations + " times", maximumDuration, (Test test) ->
+                        {
+                            final int iterationsInt = iterations.intValue();
+                            for (int i = 0; i < iterationsInt; i++)
+                            {
+                                test.assertEqual(expected, Characters.escape(character.charValue()));
+                            }
+                        });
+                    };
+
+                    escapeSpeedTest.run('a', 5000000, Duration.seconds(0.25), "a");
+                    escapeSpeedTest.run('\t', 5000000, Duration.seconds(0.25), "\\t");
+                    escapeSpeedTest.run('\'', 5000000, Duration.seconds(0.25), "'");
+                    escapeSpeedTest.run((char)0xD800, 4000000, Duration.seconds(0.25), "\\u+D800");
+                });
             });
 
             runner.testGroup("escape(Character)", () ->

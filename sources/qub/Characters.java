@@ -5,17 +5,22 @@ public interface Characters
     /**
      * The minimum value that a character can have.
      */
-    char minimumValue = java.lang.Character.MIN_VALUE;
+    public static final char minimumValue = java.lang.Character.MIN_VALUE;
 
     /**
      * The maximum value that a character can have.
      */
-    char maximumValue = java.lang.Character.MAX_VALUE;
+    public static final char maximumValue = java.lang.Character.MAX_VALUE;
 
     /**
      * Get the Range of characters that includes all characters.
      */
-    Range<Character> all = Range.between(minimumValue, maximumValue);
+    public static final Range<Character> all = Range.between(minimumValue, maximumValue);
+
+    /**
+     * The characters that have an escape sequence but should not be escaped by default.
+     */
+    public static final CharacterArray defaultCharactersToNotEscape = CharacterArray.create('\'');
 
     /**
      * Get the String representation of the provided character.
@@ -77,7 +82,7 @@ public interface Characters
      */
     static String escape(char character)
     {
-        return Characters.escape(character, CharacterArray.create('\''));
+        return Characters.escape(character, Characters.defaultCharactersToNotEscape);
     }
 
     /**
@@ -89,7 +94,7 @@ public interface Characters
     {
         return character == null
             ? "null"
-            : Characters.escape(character, CharacterArray.create('\''));
+            : Characters.escape(character, Characters.defaultCharactersToNotEscape);
     }
 
     /**
