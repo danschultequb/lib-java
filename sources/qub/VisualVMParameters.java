@@ -87,4 +87,11 @@ public class VisualVMParameters extends ChildProcessParametersDecorator<VisualVM
         }
         return this;
     }
+
+    public VisualVMParameters setSourceRoots(Iterable<String> sourceRoots)
+    {
+        PreCondition.assertNotNull(sourceRoots, "sourceRoots");
+
+        return this.addArgument("--source-roots=" + Strings.escapeAndQuote(Strings.join(';', sourceRoots)));
+    }
 }

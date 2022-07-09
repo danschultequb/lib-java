@@ -56,6 +56,38 @@ public interface VisualVMParametersTests
                 createTest.run(Path.parse("/visual/vm.exe"));
                 createTest.run(Path.parse("\\visual\\vm.exe"));
             });
+
+            runner.testGroup("setSourceRoots(Iterable<String>)", () ->
+            {
+                final Action2<Iterable<String>,Throwable> setSourceRootsErrorTest = (Iterable<String> sourceRoots, Throwable expected) ->
+                {
+                    runner.test("with " + (sourceRoots == null ? "null" : sourceRoots.map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        final VisualVMParameters parameters = VisualVMParameters.create();
+                        test.assertThrows(() -> parameters.setSourceRoots(sourceRoots),
+                            expected);
+                        test.assertEqual(Iterable.create(), parameters.getArguments());
+                    });
+                };
+
+                setSourceRootsErrorTest.run(null, new PreConditionFailure("sourceRoots cannot be null."));
+
+                final Action2<Iterable<String>,Iterable<String>> setSourceRootsTest = (Iterable<String> sourceRoots, Iterable<String> expectedArguments) ->
+                {
+                    runner.test("with " + sourceRoots.map(Strings::escapeAndQuote), (Test test) ->
+                    {
+                        final VisualVMParameters parameters = VisualVMParameters.create();
+                        final VisualVMParameters setSourceRootsResult = parameters.setSourceRoots(sourceRoots);
+                        test.assertSame(parameters, setSourceRootsResult);
+                        test.assertEqual(expectedArguments, parameters.getArguments());
+                    });
+                };
+
+                setSourceRootsTest.run(Iterable.create(), Iterable.create("--source-roots=\"\""));
+                setSourceRootsTest.run(Iterable.create("a"), Iterable.create("--source-roots=\"a\""));
+                setSourceRootsTest.run(Iterable.create("a", "b"), Iterable.create("--source-roots=\"a;b\""));
+                setSourceRootsTest.run(Iterable.create("a", "b", "c"), Iterable.create("--source-roots=\"a;b;c\""));
+            });
         });
     }
 }
