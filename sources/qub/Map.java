@@ -131,13 +131,13 @@ public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
         return result;
     }
 
-    default NotFoundException createNotFoundException(TKey key)
+    public static <TKey> NotFoundException createNotFoundException(TKey key)
     {
-        return new NotFoundException("Could not find the provided key (" + key + ") in this Map.");
+        return new NotFoundException("Could not find the provided key (" + key + ") in this " + Types.getTypeName(Map.class) + ".");
     }
 
-    default Result<TValue> createNotFoundResult(TKey key)
+    public static <TKey,TValue> Result<TValue> createNotFoundResult(TKey key)
     {
-        return Result.error(createNotFoundException(key));
+        return Result.error(Map.createNotFoundException(key));
     }
 }

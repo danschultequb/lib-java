@@ -107,7 +107,7 @@ public interface LockedByteWriteStreamTests
                     test.assertEqual(new byte[] { 17 }, stream.getBytes());
                 });
 
-                final int byteCount = 500000;
+                final int byteCount = 400000;
                 runner.speedTest("with " + byteCount + " bytes", Duration.milliseconds(100), (Test test) ->
                 {
                     final InMemoryByteStream innerStream = InMemoryByteStream.create();

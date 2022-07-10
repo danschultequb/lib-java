@@ -1,12 +1,12 @@
 package qub;
 
-public class ConcurrentHashMapTests
+public interface ConcurrentHashMapTests
 {
     public static void test(TestRunner runner)
     {
         runner.testGroup(ConcurrentHashMap.class, () ->
         {
-            MutableMapTests.test(runner, ConcurrentHashMap::new, false, false);
+            MutableMapTests.test(runner, ConcurrentHashMap::create, false, false);
         });
     }
 }

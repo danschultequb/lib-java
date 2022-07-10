@@ -6,7 +6,7 @@ public interface MutableMapTests
     {
         runner.testGroup(MutableMap.class, () ->
         {
-            runner.test("constructor()", test ->
+            runner.test("creator", test ->
             {
                 final MutableMap<Integer,Boolean> map = creator.run();
                 test.assertEqual(0, map.getCount());
@@ -167,6 +167,23 @@ public interface MutableMapTests
                 });
             });
 
+            runner.testGroup("clear()", () ->
+            {
+                final Action1<MutableMap<Integer,Boolean>> clearTest = (MutableMap<Integer,Boolean> map) ->
+                {
+                    runner.test("with " + map, (Test test) ->
+                    {
+                        final MutableMap<Integer,Boolean> clearResult = map.clear();
+                        test.assertSame(map, clearResult);
+                        test.assertEqual(Map.create(), map);
+                    });
+                };
+
+                clearTest.run(creator.run());
+                clearTest.run(creator.run().set(1, false));
+                clearTest.run(creator.run().set(1, false).set(2, true));
+            });
+
             runner.testGroup("getKeys()", () ->
             {
                 runner.test("with empty map", test ->
@@ -226,6 +243,68 @@ public interface MutableMapTests
                     test.assertEqual(expectedValue, actualValue);
                     test.assertEqual(false, entry.getValue());
                 });
+            });
+
+            runner.testGroup("toString()", () ->
+            {
+                final Action2<MutableMap<Integer,Boolean>,String> toStringTest = (MutableMap<Integer,Boolean> map, String expected) ->
+                {
+                    runner.test("with " + map.toString(), (Test test) ->
+                    {
+                        test.assertEqual(expected, map.toString());
+                    });
+                };
+
+                toStringTest.run(creator.run(), "[]");
+                toStringTest.run(creator.run().set(1, true), "[1:true]");
+                toStringTest.run(creator.run().set(1, true).set(2, false), "[1:true,2:false]");
+                toStringTest.run(creator.run().set(1, true).set(2, false).set(3, true), "[1:true,2:false,3:true]");
+                toStringTest.run(creator.run().set(1, true).set(2, false).set(3, true).set(1, false), "[1:false,2:false,3:true]");
+            });
+
+            runner.testGroup("equals(Object)", () ->
+            {
+                final Action3<MutableMap<Integer,Boolean>,Object,Boolean> equalsTest = (MutableMap<Integer,Boolean> map, Object rhs, Boolean expected) ->
+                {
+                    runner.test("with " + English.andList(map.toString(), Objects.toString(rhs)), (Test test) ->
+                    {
+                        test.assertEqual(expected, map.equals(rhs));
+                    });
+                };
+
+                equalsTest.run(creator.run(), null, false);
+                equalsTest.run(creator.run(), "hello", false);
+                equalsTest.run(creator.run(), creator.run(), true);
+                equalsTest.run(creator.run(), Map.create(), true);
+                equalsTest.run(creator.run().set(1, true), Map.create(), false);
+                equalsTest.run(creator.run().set(1, true), Map.create().set(1, true), true);
+                equalsTest.run(creator.run().set(1, true), Map.create().set(1, false), false);
+                equalsTest.run(creator.run().set(1, true), Map.create().set(2, true), false);
+                equalsTest.run(creator.run().set(1, true), Map.create().set(2, false), false);
+                equalsTest.run(creator.run().set(1, true).set(2, false), Map.create().set(1, true).set(2, false), true);
+                equalsTest.run(creator.run().set(1, true).set(2, false), Map.create().set(2, false).set(1, true), true);
+            });
+
+            runner.testGroup("equals(Map<TKey,TValue>)", () ->
+            {
+                final Action3<MutableMap<Integer,Boolean>,Map<Integer,Boolean>,Boolean> equalsTest = (MutableMap<Integer,Boolean> map, Map<Integer,Boolean> rhs, Boolean expected) ->
+                {
+                    runner.test("with " + English.andList(map.toString(), Objects.toString(rhs)), (Test test) ->
+                    {
+                        test.assertEqual(expected, map.equals(rhs));
+                    });
+                };
+
+                equalsTest.run(creator.run(), null, false);
+                equalsTest.run(creator.run(), creator.run(), true);
+                equalsTest.run(creator.run(), Map.<Integer,Boolean>create(), true);
+                equalsTest.run(creator.run().set(1, true), Map.<Integer,Boolean>create(), false);
+                equalsTest.run(creator.run().set(1, true), Map.<Integer,Boolean>create().set(1, true), true);
+                equalsTest.run(creator.run().set(1, true), Map.<Integer,Boolean>create().set(1, false), false);
+                equalsTest.run(creator.run().set(1, true), Map.<Integer,Boolean>create().set(2, true), false);
+                equalsTest.run(creator.run().set(1, true), Map.<Integer,Boolean>create().set(2, false), false);
+                equalsTest.run(creator.run().set(1, true).set(2, false), Map.<Integer,Boolean>create().set(1, true).set(2, false), true);
+                equalsTest.run(creator.run().set(1, true).set(2, false), Map.<Integer,Boolean>create().set(2, false).set(1, true), true);
             });
         });
     }

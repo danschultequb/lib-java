@@ -5,13 +5,12 @@ public final class CurrentThread
     /**
      * The mapping of thread IDs to registered ResultAsyncSchedulers.
      */
-    private static MutableMap<Long,AsyncScheduler> asyncSchedulers = new ConcurrentHashMap<>();
+    private static final MutableMap<Long,AsyncScheduler> asyncSchedulers = ConcurrentHashMap.create();
 
     /**
      * Get the ID of the current thread.
-     * @return The ID of the current thread.
      */
-    static long getId()
+    public static long getId()
     {
         return java.lang.Thread.currentThread().getId();
     }
@@ -19,18 +18,18 @@ public final class CurrentThread
     /**
      * Yield the current thread's execution so that the scheduler can execute a different thread.
      */
-    static void yield()
+    public static void yield()
     {
         java.lang.Thread.yield();
     }
 
     /**
-     * Set the AsyncScheduler that will be registered with the current thread.
-     * @param asyncRunner The AsyncScheduler that will be registered with the current thread.
+     * Set the {@link AsyncScheduler} that will be registered with the current thread.
+     * @param asyncRunner The {@link AsyncScheduler} that will be registered with the current thread.
      */
-    static void setAsyncRunner(AsyncScheduler asyncRunner)
+    public static void setAsyncRunner(AsyncScheduler asyncRunner)
     {
-        final long currentThreadId = getId();
+        final long currentThreadId = CurrentThread.getId();
         if (asyncRunner == null)
         {
             CurrentThread.asyncSchedulers.remove(currentThreadId)
@@ -44,25 +43,28 @@ public final class CurrentThread
     }
 
     /**
-     * Get the AsyncScheduler that has been registered with the current thread.
-     * @return The AsyncScheduler that has been registered with the current thread.
+     * Get the {@link AsyncScheduler} that has been registered with the current thread.
      */
     static Result<AsyncScheduler> getAsyncRunner()
     {
         final long currentThreadId = getId();
         return CurrentThread.asyncSchedulers.get(currentThreadId)
-            .convertError(NotFoundException.class, () -> new NotFoundException("No AsyncRunner has been registered with thread id " + currentThreadId + "."));
+            .convertError(NotFoundException.class, () ->
+            {
+                return new NotFoundException("No " + Types.getTypeName(AsyncRunner.class) + " has been registered with the current thread (id: " + currentThreadId + ").");
+            });
     }
 
     /**
-     * Run the provided action using the provided ManualAsyncRunner as the current thread's
-     * AsyncRunner. The previous AsyncRunner for the current thread will be returned to the current
-     * thread's AsyncRunner when this function is finished.
-     * @param asyncScheduler The AsyncScheduler to use for the current thread for the duration
-     *                    of the provided action.
-     * @param action The action to run.
+     * Run the provided {@link Action0} using the provided {@link AsyncScheduler} as the current
+     * thread's {@link AsyncRunner}. The previous {@link AsyncRunner} for the current thread will be
+     * restored as the current thread's {@link AsyncRunner} when the provided {@link Action0} is
+     * finished.
+     * @param asyncScheduler The {@link AsyncScheduler} to use for the current thread for the
+     *                       duration of the provided {@link Action0}.
+     * @param action The {@link Action0} to run.
      */
-    static void withAsyncScheduler(AsyncScheduler asyncScheduler, Action0 action)
+    public static void withAsyncScheduler(AsyncScheduler asyncScheduler, Action0 action)
     {
         PreCondition.assertNotNull(asyncScheduler, "asyncScheduler");
         PreCondition.assertNotNull(action, "action");
@@ -79,21 +81,21 @@ public final class CurrentThread
         }
     }
 
-    static void withManualAsyncScheduler(Action1<ManualAsyncRunner> action)
+    public static void withManualAsyncScheduler(Action1<ManualAsyncRunner> action)
     {
         PreCondition.assertNotNull(action, "action");
 
         CurrentThread.withAsyncScheduler(ManualAsyncRunner::create, action::run);
     }
 
-    static void withParallelAsyncScheduler(Action1<ParallelAsyncRunner> action)
+    public static void withParallelAsyncScheduler(Action1<ParallelAsyncRunner> action)
     {
         PreCondition.assertNotNull(action, "action");
 
         CurrentThread.withAsyncScheduler(ParallelAsyncRunner::create, action::run);
     }
 
-    static <T extends AsyncScheduler> void withAsyncScheduler(Function0<T> creator, Action1<T> action)
+    public static <T extends AsyncScheduler> void withAsyncScheduler(Function0<T> creator, Action1<T> action)
     {
         PreCondition.assertNotNull(creator, "creator");
         PreCondition.assertNotNull(action, "action");
@@ -103,11 +105,11 @@ public final class CurrentThread
     }
 
     /**
-     * Run the provided action with a temporary AsyncScheduler that will only exist for the
-     * duration of the action.
-     * @param action The action to run.
+     * Run the provided {@link Action1} with a temporary {@link AsyncScheduler} that will only exist
+     * for the duration of the {@link Action1}.
+     * @param action The {@link Action1} to run.
      */
-    static void withAsyncScheduler(Action1<AsyncScheduler> action)
+    public static void withAsyncScheduler(Action1<AsyncScheduler> action)
     {
         PreCondition.assertNotNull(action, "action");
 

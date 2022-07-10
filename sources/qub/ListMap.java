@@ -1,31 +1,33 @@
 package qub;
 
 /**
- * A Map implementation that stores its entries in a List.
- * @param <TKey> The type of keys that are stored in this Map.
- * @param <TValue> The type of values that are associted with the keys in this Map.
+ * A {@link Map} implementation that stores its entries in a {@link List}.
+ * @param <TKey> The type of keys that are stored in this {@link ListMap}.
+ * @param <TValue> The type of values that are associated with the keys in this {@link ListMap}.
  */
 public class ListMap<TKey,TValue> implements MutableMap<TKey,TValue>
 {
     private final List<MutableMapEntry<TKey,TValue>> entries;
-    private final Function2<TKey,TKey,Boolean> comparer;
+    private final EqualFunction<TKey> equalFunction;
 
     /**
-     * Create a new ListMap that will used the provided function to compare whether or not two keys
-     * are equal.
-     * @param comparer The comparer that will be used to determine whether or not two keys are
-     *                 equal.
+     * Create a new {@link ListMap} that will use the provided {@link EqualFunction} to determine
+     * whether two keys are equal.
+     * @param equalFunction The {@link EqualFunction} that will be used to determine whether two
+     *                      keys are equal.
      */
-    private ListMap(Function2<TKey,TKey,Boolean> comparer)
+    private ListMap(EqualFunction<TKey> equalFunction)
     {
-        PreCondition.assertNotNull(comparer, "comparer");
+        PreCondition.assertNotNull(equalFunction, "equalFunction");
 
-        this.comparer = comparer;
+        this.equalFunction = equalFunction;
         this.entries = List.create();
     }
 
     /**
-     * Create a new ListMap that will compare keys by using their equals() function.
+     * Create a new {@link ListMap} that will compare keys by using the {@link Comparer}.equal()
+     * function.
+     * @param entries The initial entries in the returned {@link ListMap}.
      */
     @SafeVarargs
     public static <TKey,TValue> ListMap<TKey,TValue> create(MapEntry<TKey,TValue>... entries)
@@ -36,7 +38,9 @@ public class ListMap<TKey,TValue> implements MutableMap<TKey,TValue>
     }
 
     /**
-     * Create a new ListMap that will compare keys by using their equals() function.
+     * Create a new {@link ListMap} that will compare keys by using the {@link Comparer}.equal()
+     * function.
+     * @param entries The initial entries in the returned {@link ListMap}.
      */
     public static <TKey,TValue> ListMap<TKey,TValue> create(Iterable<MapEntry<TKey,TValue>> entries)
     {
@@ -46,7 +50,9 @@ public class ListMap<TKey,TValue> implements MutableMap<TKey,TValue>
     }
 
     /**
-     * Create a new ListMap that will compare keys by using their equals() function.
+     * Create a new {@link ListMap} that will compare keys by using the {@link Comparer}.equal()
+     * function.
+     * @param entries The initial entries in the returned {@link ListMap}.
      */
     public static <TKey,TValue> ListMap<TKey,TValue> create(Iterator<MapEntry<TKey,TValue>> entries)
     {
@@ -56,46 +62,49 @@ public class ListMap<TKey,TValue> implements MutableMap<TKey,TValue>
     }
 
     /**
-     * Create a new ListMap that will used the provided function to compare whether or not two keys
-     * are equal.
-     * @param comparer The comparer that will be used to determine whether or not two keys are
-     *                 equal.
+     * Create a new {@link ListMap} that will use the provided {@link EqualFunction} to determine
+     * whether two keys are equal.
+     * @param equalFunction The {@link EqualFunction} that will be used to determine whether two
+     *                      keys are equal.
+     * @param entries The initial entries in the returned {@link ListMap}.
      */
     @SafeVarargs
-    public static <TKey,TValue> ListMap<TKey,TValue> create(Function2<TKey,TKey,Boolean> comparer, MapEntry<TKey,TValue>... entries)
+    public static <TKey,TValue> ListMap<TKey,TValue> create(EqualFunction<TKey> equalFunction, MapEntry<TKey,TValue>... entries)
     {
-        PreCondition.assertNotNull(comparer, "comparer");
+        PreCondition.assertNotNull(equalFunction, "equalFunction");
         PreCondition.assertNotNull(entries, "entries");
 
-        return ListMap.create(comparer, Iterable.create(entries));
+        return ListMap.create(equalFunction, Iterable.create(entries));
     }
 
     /**
-     * Create a new ListMap that will used the provided function to compare whether or not two keys
-     * are equal.
-     * @param comparer The comparer that will be used to determine whether or not two keys are
-     *                 equal.
+     * Create a new {@link ListMap} that will use the provided {@link EqualFunction} to determine
+     * whether two keys are equal.
+     * @param equalFunction The {@link EqualFunction} that will be used to determine whether two
+     *                      keys are equal.
+     * @param entries The initial entries in the returned {@link ListMap}.
      */
-    public static <TKey,TValue> ListMap<TKey,TValue> create(Function2<TKey,TKey,Boolean> comparer, Iterable<MapEntry<TKey,TValue>> entries)
+    public static <TKey,TValue> ListMap<TKey,TValue> create(EqualFunction<TKey> equalFunction, Iterable<MapEntry<TKey,TValue>> entries)
     {
-        PreCondition.assertNotNull(comparer, "comparer");
+        PreCondition.assertNotNull(equalFunction, "equalFunction");
         PreCondition.assertNotNull(entries, "entries");
 
-        return ListMap.create(comparer, entries.iterate());
+        return ListMap.create(equalFunction, entries.iterate());
     }
 
     /**
-     * Create a new ListMap that will used the provided function to compare whether or not two keys
-     * are equal.
-     * @param comparer The comparer that will be used to determine whether or not two keys are
-     *                 equal.
+     * Create a new {@link ListMap} that will use the provided {@link EqualFunction} to determine
+     * whether two keys are equal.
+     * @param equalFunction The {@link EqualFunction} that will be used to determine whether two
+     *                      keys are equal.
+     * @param entries The initial entries in the returned {@link ListMap}.
      */
-    public static <TKey,TValue> ListMap<TKey,TValue> create(Function2<TKey,TKey,Boolean> comparer, Iterator<MapEntry<TKey,TValue>> entries)
+    public static <TKey,TValue> ListMap<TKey,TValue> create(EqualFunction<TKey> equalFunction, Iterator<MapEntry<TKey,TValue>> entries)
     {
-        PreCondition.assertNotNull(comparer, "comparer");
+        PreCondition.assertNotNull(equalFunction, "equalFunction");
         PreCondition.assertNotNull(entries, "entries");
 
-        final ListMap<TKey,TValue> result = new ListMap<>(comparer);
+        final ListMap<TKey,TValue> result = new ListMap<>(equalFunction);
         for (final MapEntry<TKey,TValue> entry : entries)
         {
             result.set(entry);
@@ -113,50 +122,36 @@ public class ListMap<TKey,TValue> implements MutableMap<TKey,TValue>
      */
     private MutableMapEntry<TKey,TValue> getEntry(TKey key)
     {
-        return entries.first(entry -> this.comparer.run(entry.getKey(), key));
-    }
-
-    /**
-     * Clone the contents of this ListMap.
-     * @return A new clone of this ListMap.
-     */
-    public ListMap<TKey,TValue> clone()
-    {
-        final ListMap<TKey,TValue> result = ListMap.create(this.comparer);
-        for (final MapEntry<TKey,TValue> entry : this)
-        {
-            result.set(entry.getKey(), entry.getValue());
-        }
-        return result;
+        return entries.first(entry -> this.equalFunction.run(entry.getKey(), key));
     }
 
     @Override
     public ListMap<TKey,TValue> clear()
     {
-        entries.clear();
+        this.entries.clear();
         return this;
     }
 
     @Override
     public boolean containsKey(TKey key)
     {
-        return getEntry(key) != null;
+        return this.getEntry(key) != null;
     }
 
     @Override
     public Result<TValue> get(TKey key)
     {
-        final MutableMapEntry<TKey,TValue> entry = getEntry(key);
-        return entry != null ? Result.success(entry.getValue()) : createNotFoundResult(key);
+        final MutableMapEntry<TKey,TValue> entry = this.getEntry(key);
+        return entry != null ? Result.success(entry.getValue()) : Map.createNotFoundResult(key);
     }
 
     @Override
     public ListMap<TKey,TValue> set(TKey key, TValue value)
     {
-        final MutableMapEntry<TKey,TValue> entry = getEntry(key);
+        final MutableMapEntry<TKey,TValue> entry = this.getEntry(key);
         if (entry == null)
         {
-            entries.add(new MutableMapEntry<>(key, value));
+            this.entries.add(MapEntry.create(key, value));
         }
         else
         {
@@ -168,26 +163,26 @@ public class ListMap<TKey,TValue> implements MutableMap<TKey,TValue>
     @Override
     public Result<TValue> remove(TKey key)
     {
-        final MapEntry<TKey,TValue> removedEntry = entries.removeFirst(entry -> Comparer.equal(entry.getKey(), key));
-        return removedEntry != null ? Result.success(removedEntry.getValue()) : createNotFoundResult(key);
+        final MapEntry<TKey,TValue> removedEntry = this.entries.removeFirst(entry -> Comparer.equal(entry.getKey(), key));
+        return removedEntry != null ? Result.success(removedEntry.getValue()) : Map.createNotFoundResult(key);
     }
 
     @Override
     public Iterable<TKey> getKeys()
     {
-        return entries.map(MutableMapEntry::getKey);
+        return this.entries.map(MutableMapEntry::getKey);
     }
 
     @Override
     public Iterable<TValue> getValues()
     {
-        return entries.map(MutableMapEntry::getValue);
+        return this.entries.map(MutableMapEntry::getValue);
     }
 
     @Override
     public Iterator<MapEntry<TKey, TValue>> iterate()
     {
-        return entries.iterate().map((MutableMapEntry<TKey, TValue> entry) -> (MapEntry<TKey,TValue>)entry);
+        return this.entries.iterate().map((MutableMapEntry<TKey, TValue> entry) -> entry);
     }
 
     @Override
