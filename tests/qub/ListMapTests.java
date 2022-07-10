@@ -42,7 +42,7 @@ public interface ListMapTests
                     speedTest.run(10, Duration.seconds(0.025));
                     speedTest.run(100, Duration.seconds(0.025));
                     speedTest.run(1000, Duration.seconds(0.04));
-                    speedTest.run(10000, Duration.seconds(3));
+                    speedTest.run(10000, Duration.seconds(4));
                     // speedTest.run(1000000, Duration.seconds(a really long, long time));
                 });
             });

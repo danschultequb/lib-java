@@ -52,20 +52,20 @@ public interface JSONObjectTests
                         object);
                     test.assertEqual(
                         Iterable.create(
+                            JSONProperty.create("work", JSONNull.segment),
                             JSONProperty.create("hello", "there"),
-                            JSONProperty.create("fun", true),
-                            JSONProperty.create("work", JSONNull.segment)),
+                            JSONProperty.create("fun", true)),
                         object.getProperties());
-                    test.assertEqual(Iterable.create("hello", "fun", "work"), object.iteratePropertyNames().toList());
+                    test.assertEqual(Iterable.create("work", "hello", "fun"), object.iteratePropertyNames().toList());
                     test.assertEqual(
                         Iterable.create(
+                            JSONNull.segment,
                             JSONString.get("there"),
-                            JSONBoolean.trueSegment,
-                            JSONNull.segment),
+                            JSONBoolean.trueSegment),
                         object.iteratePropertyValues().toList());
                     test.assertEqual(object.iteratePropertyNames().toList(), object.iterateKeys().toList());
                     test.assertEqual(object.iteratePropertyValues().toList(), object.iterateValues().toList());
-                    test.assertEqual("{\"hello\":\"there\",\"fun\":true,\"work\":null}", object.toString());
+                    test.assertEqual("{\"work\":null,\"hello\":\"there\",\"fun\":true}", object.toString());
                 });
 
                 runner.test("with null array", (Test test) ->
@@ -106,7 +106,7 @@ public interface JSONObjectTests
                             .setBoolean("fun", true)
                             .set("work", JSONNull.segment),
                         object);
-                    test.assertEqual("{\"hello\":\"there\",\"fun\":true,\"work\":null}", object.toString());
+                    test.assertEqual("{\"work\":null,\"hello\":\"there\",\"fun\":true}", object.toString());
                 });
             });
 
@@ -151,11 +151,11 @@ public interface JSONObjectTests
                         object);
                     test.assertEqual(
                         Iterable.create(
+                            JSONProperty.create("work", JSONNull.segment),
                             JSONProperty.create("hello", "there"),
-                            JSONProperty.create("fun", true),
-                            JSONProperty.create("work", JSONNull.segment)),
+                            JSONProperty.create("fun", true)),
                         object.getProperties());
-                    test.assertEqual("{\"hello\":\"there\",\"fun\":true,\"work\":null}", object.toString());
+                    test.assertEqual("{\"work\":null,\"hello\":\"there\",\"fun\":true}", object.toString());
                 });
             });
 

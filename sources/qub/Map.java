@@ -14,7 +14,7 @@ public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
      */
     public static <TKey,TValue> MutableMap<TKey,TValue> create()
     {
-        return Map.create(Iterable.create());
+        return MutableMap.create();
     }
 
     /**
@@ -24,7 +24,7 @@ public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
      */
     public static <TKey,TValue> MutableMap<TKey,TValue> create(Iterable<MapEntry<TKey,TValue>> entries)
     {
-        return Map.create(entries.iterate());
+        return Map.<TKey,TValue>create().setAll(entries);
     }
 
     /**
@@ -34,7 +34,7 @@ public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
      */
     public static <TKey,TValue> MutableMap<TKey,TValue> create(Iterator<MapEntry<TKey,TValue>> entries)
     {
-        return ListMap.create(entries);
+        return Map.<TKey,TValue>create().setAll(entries);
     }
 
     /**

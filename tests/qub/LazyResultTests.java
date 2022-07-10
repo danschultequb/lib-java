@@ -184,14 +184,14 @@ public interface LazyResultTests
                 {
                     final LazyResult<Integer> result = LazyResult.create(() -> 5);
                     result.await();
-                    test.assertEqual("{\"type\":\"LazyResult\",\"isCompleted\":true,\"value\":\"5\"}", result.toString());
+                    test.assertEqual("{\"type\":\"LazyResult\",\"value\":\"5\",\"isCompleted\":true}", result.toString());
                 });
 
                 runner.test("with completed error", (Test test) ->
                 {
                     final LazyResult<Integer> result = LazyResult.create(() -> { throw new EmptyException(); });
                     result.catchError(EmptyException.class).await();
-                    test.assertEqual("{\"type\":\"LazyResult\",\"isCompleted\":true,\"error\":\"qub.AwaitException: qub.EmptyException\"}", result.toString());
+                    test.assertEqual("{\"type\":\"LazyResult\",\"error\":\"qub.AwaitException: qub.EmptyException\",\"isCompleted\":true}", result.toString());
                 });
             });
         });

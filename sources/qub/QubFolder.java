@@ -165,8 +165,8 @@ public class QubFolder extends Folder
 
             if (!Iterable.isNullOrEmpty(projectSignatures))
             {
-                final MutableMap<ProjectSignature,List<Node1<ProjectSignature>>> dependencyPaths = Map.create();
-                final MutableMap<Tuple2<String,String>,List<VersionNumber>> dependencyVersions = Map.create();
+                final MutableMap<ProjectSignature,List<Node1<ProjectSignature>>> dependencyPaths = ListMap.create();
+                final MutableMap<Tuple2<String,String>,List<VersionNumber>> dependencyVersions = ListMap.create();
                 final List<Throwable> dependencyErrors = List.create();
                 Traversal.createDepthFirstSearch((TraversalActions<Node1<ProjectSignature>,Void> actions, Node1<ProjectSignature> currentNode) ->
                 {

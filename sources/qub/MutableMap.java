@@ -8,7 +8,17 @@ package qub;
 public interface MutableMap<TKey,TValue> extends Map<TKey,TValue>
 {
     /**
-     * Remove all of the existing entries create this MutableMap.
+     * Create a new {@link MutableMap}.
+     * @param <TKey> The type of keys stored in the created {@link MutableMap}.
+     * @param <TValue> The type of values stored in the created {@link MutableMap}.
+     */
+    public static <TKey,TValue> MutableMap<TKey,TValue> create()
+    {
+        return HashMap.create();
+    }
+
+    /**
+     * Remove all the existing entries create this MutableMap.
      */
     public MutableMap<TKey,TValue> clear();
 
@@ -58,7 +68,19 @@ public interface MutableMap<TKey,TValue> extends Map<TKey,TValue>
      * Set all of the entries in the provided Iterable as key value pairs in this Map.
      * @param entries The entries to set in this {@link MutableMap}.
      */
-    public default MutableMap<TKey,TValue> setAll(Iterable<MapEntry<TKey,TValue>> entries)
+    public default MutableMap<TKey,TValue> setAll(Iterable<? extends MapEntry<TKey,TValue>> entries)
+    {
+        PreCondition.assertNotNull(entries, "entries");
+
+        return this.setAll(entries.iterate());
+    }
+
+    /**
+     * Set all the entries in the provided {@link Iterator} as key value pairs in this
+     * {@link MutableMap}.
+     * @param entries The entries to set in this {@link MutableMap}.
+     */
+    public default MutableMap<TKey,TValue> setAll(Iterator<? extends MapEntry<TKey,TValue>> entries)
     {
         PreCondition.assertNotNull(entries, "entries");
 

@@ -185,4 +185,10 @@ public abstract class FileSystemEntry
     {
         return this.path.toString();
     }
+
+    @Override
+    public int hashCode()
+    {
+        return this.path.hashCode();
+    }
 }

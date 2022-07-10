@@ -127,6 +127,14 @@ public interface MutableMapTests
                     test.assertEqual(1, map.getCount());
                     test.assertFalse(map.get(15).await());
                 });
+
+                runner.test("with negative key", test ->
+                {
+                    final MutableMap<Integer,Boolean> map = creator.run();
+                    final MutableMap<Integer,Boolean> setResult = map.set(-15, true);
+                    test.assertSame(map, setResult);
+                    test.assertEqual(true, map.get(-15).await());
+                });
             });
 
             runner.testGroup("remove(TKey)", () ->

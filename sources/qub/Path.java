@@ -650,6 +650,12 @@ public class Path implements Comparable<Path>
         return result;
     }
 
+    @Override
+    public int hashCode()
+    {
+        return this.normalize().toString().hashCode();
+    }
+
     /**
      * Get the String representation of this Path.
      * @return The String representation of this Path.
@@ -657,7 +663,7 @@ public class Path implements Comparable<Path>
     @Override
     public String toString()
     {
-        return value;
+        return this.value;
     }
 
     /**

@@ -286,13 +286,11 @@ public class JSONObject implements JSONSegment, MutableMap<String,JSONSegment>
     }
 
     @Override
-    public JSONObject setAll(Iterable<MapEntry<String,JSONSegment>> properties)
+    public JSONObject setAll(Iterable<? extends MapEntry<String,JSONSegment>> properties)
     {
         PreCondition.assertNotNull(properties, "properties");
 
-        MutableMap.super.setAll(properties);
-
-        return this;
+        return (JSONObject)MutableMap.super.setAll(properties);
     }
 
     public JSONObject set(MapEntry<String,JSONSegment> property)

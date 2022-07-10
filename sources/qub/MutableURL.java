@@ -9,11 +9,12 @@ public class MutableURL implements URL
     private String host;
     private Integer port;
     private String path;
-    private final MutableMap<String,String> query = Map.create();
+    private final MutableMap<String,String> query;
     private String fragment;
 
     private MutableURL()
     {
+        this.query = ListMap.create();
     }
 
     public static MutableURL create()
