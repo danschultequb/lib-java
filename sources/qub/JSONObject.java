@@ -42,7 +42,7 @@ public class JSONObject implements JSONSegment, MutableMap<String,JSONSegment>
     {
         PreCondition.assertNotNull(properties, "properties");
 
-        return new JSONObject(JavaConcurrentHashMap.create(properties));
+        return new JSONObject(JavaLinkedHashMap.create(properties));
     }
 
     /**
