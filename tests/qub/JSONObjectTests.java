@@ -2,7 +2,7 @@ package qub;
 
 public interface JSONObjectTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         PreCondition.assertNotNull(runner, "runner");
 
@@ -15,11 +15,11 @@ public interface JSONObjectTests
                     final JSONObject object = JSONObject.create();
                     test.assertNotNull(object);
                     test.assertEqual(Iterable.create(), object.getProperties());
-                    test.assertEqual(Iterable.create(), object.getPropertyNames());
-                    test.assertEqual(Iterable.create(), object.getPropertyValues());
+                    test.assertEqual(Iterable.create(), object.iteratePropertyNames().toList());
+                    test.assertEqual(Iterable.create(), object.iteratePropertyValues().toList());
                     test.assertEqual(Iterable.create(), object.iterate().toList());
-                    test.assertEqual(object.getPropertyNames(), object.getKeys());
-                    test.assertEqual(object.getPropertyValues(), object.getValues());
+                    test.assertEqual(object.iteratePropertyNames().toList(), object.iterateKeys().toList());
+                    test.assertEqual(object.iteratePropertyValues().toList(), object.iterateValues().toList());
                     test.assertEqual("{}", object.toString());
                 });
 
@@ -29,11 +29,11 @@ public interface JSONObjectTests
                     test.assertNotNull(object);
                     test.assertEqual(JSONObject.create().setString("hello", "there"), object);
                     test.assertEqual(Iterable.create(JSONProperty.create("hello", "there")), object.getProperties());
-                    test.assertEqual(Iterable.create("hello"), object.getPropertyNames());
-                    test.assertEqual(Iterable.create(JSONString.get("there")), object.getPropertyValues());
+                    test.assertEqual(Iterable.create("hello"), object.iteratePropertyNames().toList());
+                    test.assertEqual(Iterable.create(JSONString.get("there")), object.iteratePropertyValues().toList());
                     test.assertEqual(Iterable.create(MapEntry.create("hello", JSONString.get("there"))), object.iterate().toList());
-                    test.assertEqual(object.getPropertyNames(), object.getKeys());
-                    test.assertEqual(object.getPropertyValues(), object.getValues());
+                    test.assertEqual(object.iteratePropertyNames().toList(), object.iterateKeys().toList());
+                    test.assertEqual(object.iteratePropertyValues().toList(), object.iterateValues().toList());
                     test.assertEqual("{\"hello\":\"there\"}", object.toString());
                 });
 
@@ -56,15 +56,15 @@ public interface JSONObjectTests
                             JSONProperty.create("fun", true),
                             JSONProperty.create("work", JSONNull.segment)),
                         object.getProperties());
-                    test.assertEqual(Iterable.create("hello", "fun", "work"), object.getPropertyNames());
+                    test.assertEqual(Iterable.create("hello", "fun", "work"), object.iteratePropertyNames().toList());
                     test.assertEqual(
                         Iterable.create(
                             JSONString.get("there"),
                             JSONBoolean.trueSegment,
                             JSONNull.segment),
-                        object.getPropertyValues());
-                    test.assertEqual(object.getPropertyNames(), object.getKeys());
-                    test.assertEqual(object.getPropertyValues(), object.getValues());
+                        object.iteratePropertyValues().toList());
+                    test.assertEqual(object.iteratePropertyNames().toList(), object.iterateKeys().toList());
+                    test.assertEqual(object.iteratePropertyValues().toList(), object.iterateValues().toList());
                     test.assertEqual("{\"hello\":\"there\",\"fun\":true,\"work\":null}", object.toString());
                 });
 

@@ -122,7 +122,7 @@ public class ListMap<TKey,TValue> implements MutableMap<TKey,TValue>
      */
     private MutableMapEntry<TKey,TValue> getEntry(TKey key)
     {
-        return entries.first(entry -> this.equalFunction.run(entry.getKey(), key));
+        return this.entries.first(entry -> this.equalFunction.run(entry.getKey(), key));
     }
 
     @Override
@@ -165,18 +165,6 @@ public class ListMap<TKey,TValue> implements MutableMap<TKey,TValue>
     {
         final MapEntry<TKey,TValue> removedEntry = this.entries.removeFirst(entry -> Comparer.equal(entry.getKey(), key));
         return removedEntry != null ? Result.success(removedEntry.getValue()) : Map.createNotFoundResult(key);
-    }
-
-    @Override
-    public Iterable<TKey> getKeys()
-    {
-        return this.entries.map(MutableMapEntry::getKey);
-    }
-
-    @Override
-    public Iterable<TValue> getValues()
-    {
-        return this.entries.map(MutableMapEntry::getValue);
     }
 
     @Override

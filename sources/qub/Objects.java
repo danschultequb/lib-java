@@ -1,6 +1,6 @@
 package qub;
 
-public class Objects
+public interface Objects
 {
     public static String toString(Object value)
     {

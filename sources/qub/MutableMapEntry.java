@@ -10,7 +10,7 @@ public class MutableMapEntry<TKey,TValue> implements MapEntry<TKey,TValue>
     private final TKey key;
     private TValue value;
 
-    private MutableMapEntry(TKey key, TValue value)
+    protected MutableMapEntry(TKey key, TValue value)
     {
         this.key = key;
         this.value = value;

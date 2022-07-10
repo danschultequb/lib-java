@@ -1,23 +1,22 @@
 package qub;
 
-public interface ConcurrentHashMapTests
+public interface HashMapTests
 {
     public static void test(TestRunner runner)
     {
-        runner.testGroup(ConcurrentHashMap.class, () ->
+        runner.testGroup(HashMap.class, () ->
         {
-            MutableMapTests.test(runner, ConcurrentHashMap::create, false, false);
-        });
+            MutableMapTests.test(runner, HashMap::create, true, true);
 
-        runner.testGroup("set(TKey,TValue)", () ->
+            runner.testGroup("set(TKey,TValue)", () ->
             {
                 runner.testGroup("speed tests", () ->
                 {
                     final Action2<Integer,Duration> noConflictsSpeedTest = (Integer targetCount, Duration expectedDuration) ->
                     {
-                        runner.speedTest("with " + targetCount + " assignments and no conflicts", expectedDuration, (Test test) ->
+                        runner.speedTest("with " + targetCount + " assignments with no key hash code conflicts", expectedDuration, (Test test) ->
                         {
-                            final MutableMap<Integer,Boolean> map = ConcurrentHashMap.create();
+                            final MutableMap<Integer,Boolean> map = HashMap.create();
 
                             for (int i = 0; i < targetCount; i++)
                             {
@@ -45,13 +44,13 @@ public interface ConcurrentHashMapTests
                     noConflictsSpeedTest.run(1000, Duration.seconds(0.025));
                     noConflictsSpeedTest.run(10000, Duration.seconds(0.025));
                     noConflictsSpeedTest.run(100000, Duration.seconds(0.1));
-                    noConflictsSpeedTest.run(1000000, Duration.seconds(0.3));
+                    noConflictsSpeedTest.run(1000000, Duration.seconds(0.4));
 
                     final Action2<Integer,Duration> conflictsSpeedTest = (Integer targetCount, Duration expectedDuration) ->
                     {
                         runner.speedTest("with " + targetCount + " assignments with key hash code conflicts", expectedDuration, (Test test) ->
                         {
-                            final MutableMap<Integer,Boolean> map = ConcurrentHashMap.create();
+                            final MutableMap<Integer,Boolean> map = HashMap.create();
 
                             for (int i = 0; i < targetCount; i++)
                             {
@@ -79,9 +78,10 @@ public interface ConcurrentHashMapTests
                     conflictsSpeedTest.run(100, Duration.seconds(0.025));
                     conflictsSpeedTest.run(1000, Duration.seconds(0.025));
                     conflictsSpeedTest.run(10000, Duration.seconds(0.025));
-                    conflictsSpeedTest.run(100000, Duration.seconds(0.1));
-                    conflictsSpeedTest.run(1000000, Duration.seconds(0.5));
+                    conflictsSpeedTest.run(100000, Duration.seconds(2.5));
+                    // conflictsSpeedTest.run(1000000, Duration.seconds(a really long time));
                 });
             });
+        });
     }
 }

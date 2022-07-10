@@ -237,33 +237,19 @@ public class JSONObject implements JSONSegment, MutableMap<String,JSONSegment>
     }
 
     /**
-     * Get the names of the properties in this JSONObject.
-     * @return The names of the properties in this JSONObject.
+     * Get the names of the properties in this {@link JSONObject}.
      */
-    public Iterable<String> getPropertyNames()
+    public Iterator<String> iteratePropertyNames()
     {
-        return this.properties.getKeys();
-    }
-
-    @Override
-    public Iterable<String> getKeys()
-    {
-        return this.getPropertyNames();
+        return this.properties.iterateKeys();
     }
 
     /**
-     * Get the values of the properties in this JSONObject.
-     * @return The values of the properties in this JSONObject.
+     * Get the values of the properties in this {@link JSONObject}.
      */
-    public Iterable<JSONSegment> getPropertyValues()
+    public Iterator<JSONSegment> iteratePropertyValues()
     {
-        return this.properties.getValues();
-    }
-
-    @Override
-    public Iterable<JSONSegment> getValues()
-    {
-        return this.getPropertyValues();
+        return this.properties.iterateValues();
     }
 
     /**

@@ -8,61 +8,55 @@ package qub;
 public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
 {
     /**
-     * Create a new MutableMap.
-     * @param <TKey> The type of keys stored in the created MutableMap.
-     * @param <TValue> The type of values stored in the created MutableMap.
-     * @return The created MutableMap.
+     * Create a new {@link MutableMap}.
+     * @param <TKey> The type of keys stored in the created {@link MutableMap}.
+     * @param <TValue> The type of values stored in the created {@link MutableMap}.
      */
-    // @SafeVarargs
-    static <TKey,TValue> MutableMap<TKey,TValue> create()
+    public static <TKey,TValue> MutableMap<TKey,TValue> create()
     {
         return Map.create(Iterable.create());
     }
 
     /**
-     * Create a new MutableMap.
-     * @param <TKey> The type of keys stored in the created MutableMap.
-     * @param <TValue> The type of values stored in the created MutableMap.
-     * @return The created MutableMap.
+     * Create a new {@link MutableMap}.
+     * @param <TKey> The type of keys stored in the created {@link MutableMap}.
+     * @param <TValue> The type of values stored in the created {@link MutableMap}.
      */
-    static <TKey,TValue> MutableMap<TKey,TValue> create(Iterable<MapEntry<TKey,TValue>> entries)
+    public static <TKey,TValue> MutableMap<TKey,TValue> create(Iterable<MapEntry<TKey,TValue>> entries)
     {
         return Map.create(entries.iterate());
     }
 
     /**
-     * Create a new MutableMap.
-     * @param <TKey> The type of keys stored in the created MutableMap.
-     * @param <TValue> The type of values stored in the created MutableMap.
-     * @return The created MutableMap.
+     * Create a new {@link MutableMap}.
+     * @param <TKey> The type of keys stored in the created {@link MutableMap}.
+     * @param <TValue> The type of values stored in the created {@link MutableMap}.
      */
-    static <TKey,TValue> MutableMap<TKey,TValue> create(Iterator<MapEntry<TKey,TValue>> entries)
+    public static <TKey,TValue> MutableMap<TKey,TValue> create(Iterator<MapEntry<TKey,TValue>> entries)
     {
         return ListMap.create(entries);
     }
 
     /**
-     * Create a Map from the values in the provided Iterable.
-     * @param getKey The function that will select the key.
-     * @param getValue The function that will select the value.
-     * @param <TKey> The type of value that will serve as the keys of the map.
-     * @param <TValue> The type of value that will serve as the values of the map.
-     * @return A Map from the values in the provided Iterable.
+     * Create a {@link MutableMap} from the values in the provided {@link Iterable}.
+     * @param getKey The {@link Function1} that will select the key.
+     * @param getValue The {@link Function1} that will select the value.
+     * @param <TKey> The type of value that will serve as the keys of the {@link MutableMap}.
+     * @param <TValue> The type of value that will serve as the values of the {@link MutableMap}.
      */
-    static <T,TKey,TValue> MutableMap<TKey,TValue> create(Iterable<T> values, Function1<T,TKey> getKey, Function1<T,TValue> getValue)
+    public static <T,TKey,TValue> MutableMap<TKey,TValue> create(Iterable<T> values, Function1<T,TKey> getKey, Function1<T,TValue> getValue)
     {
         return Map.create(values.iterate(), getKey, getValue);
     }
 
     /**
-     * Create a Map from the values in the provided Iterator.
-     * @param getKey The function that will select the key.
-     * @param getValue The function that will select the value.
-     * @param <TKey> The type of value that will serve as the keys of the map.
-     * @param <TValue> The type of value that will serve as the values of the map.
-     * @return A Map from the values in the provided Iterator.
+     * Create a {@link MutableMap} from the values in the provided {@link Iterator}.
+     * @param getKey The {@link Function1} that will select the key.
+     * @param getValue The {@link Function1} that will select the value.
+     * @param <TKey> The type of value that will serve as the keys of the {@link MutableMap}.
+     * @param <TValue> The type of value that will serve as the values of the {@link MutableMap}.
      */
-    static <T,TKey,TValue> MutableMap<TKey,TValue> create(Iterator<T> values, Function1<T,TKey> getKey, Function1<T,TValue> getValue)
+    public static <T,TKey,TValue> MutableMap<TKey,TValue> create(Iterator<T> values, Function1<T,TKey> getKey, Function1<T,TValue> getValue)
     {
         PreCondition.assertNotNull(getKey, "getKey");
         PreCondition.assertNotNull(getValue, "getValue");
@@ -85,7 +79,7 @@ public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
      * @param key The key to check.
      * @return Whether or not the provided key exists in this Map.
      */
-    boolean containsKey(TKey key);
+    public boolean containsKey(TKey key);
 
     /**
      * Get the value associated with the provided key, or null if the key doesn't exist in the map.
@@ -93,22 +87,26 @@ public interface Map<TKey,TValue> extends Iterable<MapEntry<TKey,TValue>>
      * @return The value associated with the provided key, or null if the key doesn't exist in the
      * map.
      */
-    Result<TValue> get(TKey key);
+    public Result<TValue> get(TKey key);
 
     /**
-     * Get the keys of this Map.
-     * @return The keys of this Map.
+     * Iterate over the keys of this {@link Map}.
      */
-    Iterable<TKey> getKeys();
+    public default Iterator<TKey> iterateKeys()
+    {
+        return this.iterate().map(MapEntry::getKey);
+    }
 
     /**
-     * Get the values of this Map.
-     * @return The values of this Map.
+     * Iterate over the values of this {@link Map}.
      */
-    Iterable<TValue> getValues();
+    public default Iterator<TValue> iterateValues()
+    {
+        return this.iterate().map(MapEntry::getValue);
+    }
 
     @Override
-    default boolean equals(Iterable<MapEntry<TKey,TValue>> rhs)
+    public default boolean equals(Iterable<MapEntry<TKey,TValue>> rhs)
     {
         boolean result = false;
 

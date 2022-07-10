@@ -12,7 +12,7 @@ public interface MutableMapTests
                 test.assertEqual(0, map.getCount());
             });
 
-            runner.testGroup("get()", () ->
+            runner.testGroup("get(TKey)", () ->
             {
                 if (canHandleNullKeys)
                 {
@@ -45,7 +45,7 @@ public interface MutableMapTests
                 });
             });
 
-            runner.testGroup("set()", () ->
+            runner.testGroup("set(TKey,TValue)", () ->
             {
                 if (canHandleNullKeys)
                 {
@@ -129,7 +129,7 @@ public interface MutableMapTests
                 });
             });
 
-            runner.testGroup("remove()", () ->
+            runner.testGroup("remove(TKey)", () ->
             {
                 if (canHandleNullKeys)
                 {
@@ -184,12 +184,12 @@ public interface MutableMapTests
                 clearTest.run(creator.run().set(1, false).set(2, true));
             });
 
-            runner.testGroup("getKeys()", () ->
+            runner.testGroup("iterateKeys()", () ->
             {
                 runner.test("with empty map", test ->
                 {
                     final MutableMap<Integer,Boolean> map = creator.run();
-                    test.assertEqual(Iterable.create(), map.getKeys());
+                    test.assertEqual(Iterable.create(), map.iterateKeys().toList());
                 });
 
                 runner.test("with non-empty map", test ->
@@ -197,16 +197,16 @@ public interface MutableMapTests
                     final MutableMap<Integer,Boolean> map = creator.run();
                     test.assertSame(map, map.set(0, false));
                     test.assertSame(map, map.set(1, true));
-                    test.assertEqual(Iterable.create(0, 1), map.getKeys());
+                    test.assertEqual(Iterable.create(0, 1), map.iterateKeys().toList());
                 });
             });
 
-            runner.testGroup("getValues()", () ->
+            runner.testGroup("iterateValues()", () ->
             {
                 runner.test("with empty map", test ->
                 {
                     final MutableMap<Integer,Boolean> map = creator.run();
-                    test.assertEqual(Iterable.create(), map.getValues());
+                    test.assertEqual(Iterable.create(), map.iterateValues().toList());
                 });
 
                 runner.test("with non-empty map", test ->
@@ -215,7 +215,7 @@ public interface MutableMapTests
                     map.set(0, false);
                     map.set(1, true);
                     map.set(2, false);
-                    test.assertEqual(Iterable.create(false, true, false), map.getValues());
+                    test.assertEqual(Iterable.create(false, true, false), map.iterateValues().toList());
                 });
             });
 

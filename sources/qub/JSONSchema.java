@@ -168,7 +168,7 @@ public class JSONSchema extends JSONObjectWrapperBase
         if (propertiesJson != null)
         {
             result = Map.create();
-            for (final String propertyName : propertiesJson.getPropertyNames())
+            for (final String propertyName : propertiesJson.iteratePropertyNames())
             {
                 final JSONObject propertyJson = propertiesJson.getObject(propertyName)
                     .catchError()
@@ -208,15 +208,14 @@ public class JSONSchema extends JSONObjectWrapperBase
     }
 
     /**
-     * Get the names of the properties that this JSONSchema has defined.
-     * @return The names of the properties that this JSONSchema has defined;
+     * Get the names of the properties that this {@link JSONSchema} has defined.
      */
-    public Iterable<String> getPropertyNames()
+    public Iterator<String> iteratePropertyNames()
     {
         final JSONObject propertiesJson = this.json.getObject(JSONSchema.propertiesPropertyName)
             .catchError()
             .await();
-        return propertiesJson == null ? Iterable.create() : propertiesJson.getPropertyNames();
+        return propertiesJson == null ? Iterator.create() : propertiesJson.iteratePropertyNames();
     }
 
     /**
@@ -432,7 +431,7 @@ public class JSONSchema extends JSONObjectWrapperBase
         if (definitionsJson != null)
         {
             result = Map.create();
-            for (final String definitionName : definitionsJson.getPropertyNames())
+            for (final String definitionName : definitionsJson.iteratePropertyNames())
             {
                 final JSONObject definitionJson = definitionsJson.getObject(definitionName)
                     .catchError()
@@ -472,15 +471,14 @@ public class JSONSchema extends JSONObjectWrapperBase
     }
 
     /**
-     * Get the names of the definitions that this JSONSchema has defined.
-     * @return The names of the definitions that this JSONSchema has defined;
+     * Get the names of the definitions that this {@link JSONSchema} has defined.
      */
-    public Iterable<String> getDefinitionNames()
+    public Iterator<String> iterateDefinitionNames()
     {
         final JSONObject definitionsJson = this.json.getObject(JSONSchema.definitionsPropertyName)
             .catchError()
             .await();
-        return definitionsJson == null ? Iterable.create() : definitionsJson.getPropertyNames();
+        return definitionsJson == null ? Iterator.create() : definitionsJson.iteratePropertyNames();
     }
 
     /**

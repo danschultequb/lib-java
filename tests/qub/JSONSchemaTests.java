@@ -2,7 +2,7 @@ package qub;
 
 public interface JSONSchemaTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         PreCondition.assertNotNull(runner, "runner");
 
@@ -1010,19 +1010,19 @@ public interface JSONSchemaTests
                 });
             });
 
-            runner.testGroup("getPropertyNames()", () ->
+            runner.testGroup("iteratePropertyNames()", () ->
             {
                 runner.test("with no properties set", (Test test) ->
                 {
                     final JSONSchema schema = JSONSchema.create();
-                    test.assertEqual(Iterable.create(), schema.getPropertyNames());
+                    test.assertEqual(Iterable.create(), schema.iteratePropertyNames().toList());
                 });
 
                 runner.test("with empty properties set", (Test test) ->
                 {
                     final JSONSchema schema = JSONSchema.create()
                         .setProperties(Map.create());
-                    test.assertEqual(Iterable.create(), schema.getPropertyNames());
+                    test.assertEqual(Iterable.create(), schema.iteratePropertyNames().toList());
                 });
 
                 runner.test("with properties set", (Test test) ->
@@ -1030,7 +1030,7 @@ public interface JSONSchemaTests
                     final JSONSchema schema = JSONSchema.create()
                         .addProperty("a", JSONSchema.create().setType(JSONSchemaType.Array))
                         .addProperty("b", JSONSchema.create().setType(JSONSchemaType.Integer));
-                    test.assertEqual(Iterable.create("a", "b"), schema.getPropertyNames());
+                    test.assertEqual(Iterable.create("a", "b"), schema.iteratePropertyNames().toList());
                 });
             });
 
@@ -1481,19 +1481,19 @@ public interface JSONSchemaTests
                 });
             });
 
-            runner.testGroup("getDefinitionNames()", () ->
+            runner.testGroup("iterateDefinitionNames()", () ->
             {
                 runner.test("with no definitions set", (Test test) ->
                 {
                     final JSONSchema schema = JSONSchema.create();
-                    test.assertEqual(Iterable.create(), schema.getDefinitionNames());
+                    test.assertEqual(Iterable.create(), schema.iterateDefinitionNames().toList());
                 });
 
                 runner.test("with empty definitions set", (Test test) ->
                 {
                     final JSONSchema schema = JSONSchema.create()
                         .setDefinitions(Map.create());
-                    test.assertEqual(Iterable.create(), schema.getDefinitionNames());
+                    test.assertEqual(Iterable.create(), schema.iterateDefinitionNames().toList());
                 });
 
                 runner.test("with definitions set", (Test test) ->
@@ -1501,7 +1501,7 @@ public interface JSONSchemaTests
                     final JSONSchema schema = JSONSchema.create()
                         .addDefinition("a", JSONSchema.create().setType(JSONSchemaType.Array))
                         .addDefinition("b", JSONSchema.create().setType(JSONSchemaType.Integer));
-                    test.assertEqual(Iterable.create("a", "b"), schema.getDefinitionNames());
+                    test.assertEqual(Iterable.create("a", "b"), schema.iterateDefinitionNames().toList());
                 });
             });
 

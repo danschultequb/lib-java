@@ -977,4 +977,14 @@ public interface Comparer<T> extends Function2<T,T,Comparison>
 
         return result;
     }
+
+    public static boolean isNull(Object rhs)
+    {
+        return rhs == null;
+    }
+
+    public static boolean isNotNull(Object rhs)
+    {
+        return rhs != null;
+    }
 }
