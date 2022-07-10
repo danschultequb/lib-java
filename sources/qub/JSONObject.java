@@ -7,11 +7,14 @@ public class JSONObject implements JSONSegment, MutableMap<String,JSONSegment>
 {
     private final MutableMap<String,JSONSegment> properties;
 
-    private JSONObject(MutableMap<String,JSONSegment> properties)
+    private JSONObject()
     {
-        PreCondition.assertNotNull(properties, "properties");
+        this.properties = JavaLinkedHashMap.create();
+    }
 
-        this.properties = properties;
+    public static JSONObject create()
+    {
+        return new JSONObject();
     }
 
     public static JSONObject create(JSONProperty... properties)
@@ -25,24 +28,19 @@ public class JSONObject implements JSONSegment, MutableMap<String,JSONSegment>
     {
         PreCondition.assertNotNull(properties, "properties");
 
-        return JSONObject.create(properties.iterate());
+        return JSONObject.create().setAll(properties);
     }
 
     public static JSONObject create(Iterator<JSONProperty> properties)
     {
         PreCondition.assertNotNull(properties, "properties");
 
-        return JSONObject.create(
-            properties.toMap(
-                JSONProperty::getName,
-                JSONProperty::getValue));
+        return JSONObject.create().setAll(properties);
     }
 
     public static JSONObject create(Map<String,JSONSegment> properties)
     {
-        PreCondition.assertNotNull(properties, "properties");
-
-        return new JSONObject(JavaLinkedHashMap.create(properties));
+        return JSONObject.create().setAll(properties);
     }
 
     /**
@@ -287,6 +285,14 @@ public class JSONObject implements JSONSegment, MutableMap<String,JSONSegment>
 
     @Override
     public JSONObject setAll(Iterable<? extends MapEntry<String,JSONSegment>> properties)
+    {
+        PreCondition.assertNotNull(properties, "properties");
+
+        return (JSONObject)MutableMap.super.setAll(properties);
+    }
+
+    @Override
+    public JSONObject setAll(Iterator<? extends MapEntry<String, JSONSegment>> properties)
     {
         PreCondition.assertNotNull(properties, "properties");
 

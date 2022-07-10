@@ -315,7 +315,7 @@ public interface JSON
 
             JSON.takeCurrent(tokenizer);
 
-            final List<JSONProperty> properties = List.create();
+            final JSONObject result = JSONObject.create();
             JSONToken rightCurlyBracket = null;
             boolean expectProperty = true;
             while (tokenizer.hasCurrent() && rightCurlyBracket == null)
@@ -327,14 +327,14 @@ public interface JSON
                         {
                             throw new ParseException("Expected object property separator (',') or right curly bracket ('}').");
                         }
-                        properties.addAll(JSON.parseObjectProperty(tokenizer).await());
+                        result.set(JSON.parseObjectProperty(tokenizer).await());
                         expectProperty = false;
                         break;
 
                     case Comma:
                         if (expectProperty)
                         {
-                            if (properties.any())
+                            if (result.any())
                             {
                                 throw new ParseException("Expected quoted-string object property name.");
                             }
@@ -348,7 +348,7 @@ public interface JSON
                         break;
 
                     case RightCurlyBracket:
-                        if (properties.any() && expectProperty)
+                        if (result.any() && expectProperty)
                         {
                             throw new ParseException("Expected quoted-string object property name.");
                         }
@@ -356,7 +356,7 @@ public interface JSON
                         break;
 
                     default:
-                        if (properties.any())
+                        if (result.any())
                         {
                             if (expectProperty)
                             {
@@ -374,7 +374,7 @@ public interface JSON
                 }
             }
 
-            if (properties.any() && expectProperty)
+            if (result.any() && expectProperty)
             {
                 throw new ParseException("Missing object property.");
             }
@@ -383,7 +383,7 @@ public interface JSON
                 throw new ParseException("Missing object right curly bracket ('}').");
             }
 
-            return JSONObject.create(properties);
+            return result;
         });
     }
 
