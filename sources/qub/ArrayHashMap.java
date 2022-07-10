@@ -1,62 +1,62 @@
 package qub;
 
-public class HashMap<TKey,TValue> implements MutableMap<TKey,TValue>
+public class ArrayHashMap<TKey,TValue> implements MutableMap<TKey,TValue>
 {
     private static final int defaultInitialCapacity = 10;
 
     private Array<HashMapEntry<TKey,TValue>> entries;
 
-    private HashMap(int initialCapacity)
+    private ArrayHashMap(int initialCapacity)
     {
         this.entries = Array.createWithLength(initialCapacity);
     }
 
-    public static <TKey,TValue> HashMap<TKey,TValue> create()
+    public static <TKey,TValue> ArrayHashMap<TKey,TValue> create()
     {
-        return HashMap.createWithCapacity(HashMap.defaultInitialCapacity);
+        return ArrayHashMap.createWithCapacity(ArrayHashMap.defaultInitialCapacity);
     }
 
-    public static <TKey,TValue> HashMap<TKey,TValue> createWithCapacity(int initialCapacity)
+    public static <TKey,TValue> ArrayHashMap<TKey,TValue> createWithCapacity(int initialCapacity)
     {
         PreCondition.assertGreaterThanOrEqualTo(initialCapacity, 1, "initialCapacity");
 
-        return new HashMap<>(initialCapacity);
+        return new ArrayHashMap<>(initialCapacity);
     }
 
     /**
-     * Create a new {@link HashMap} with the provided initial entries.
-     * @param entries The initial entries in the returned {@link HashMap}.
+     * Create a new {@link ArrayHashMap} with the provided initial entries.
+     * @param entries The initial entries in the returned {@link ArrayHashMap}.
      */
     @SafeVarargs
-    public static <TKey,TValue> HashMap<TKey,TValue> create(MapEntry<TKey,TValue>... entries)
+    public static <TKey,TValue> ArrayHashMap<TKey,TValue> create(MapEntry<TKey,TValue>... entries)
     {
         PreCondition.assertNotNull(entries, "entries");
 
-        return HashMap.create(Iterable.create(entries));
+        return ArrayHashMap.create(Iterable.create(entries));
     }
 
     /**
-     * Create a new {@link HashMap} with the provided initial entries.
-     * @param entries The initial entries in the returned {@link HashMap}.
+     * Create a new {@link ArrayHashMap} with the provided initial entries.
+     * @param entries The initial entries in the returned {@link ArrayHashMap}.
      */
-    public static <TKey,TValue> HashMap<TKey,TValue> create(Iterable<MapEntry<TKey,TValue>> entries)
+    public static <TKey,TValue> ArrayHashMap<TKey,TValue> create(Iterable<MapEntry<TKey,TValue>> entries)
     {
         PreCondition.assertNotNull(entries, "entries");
 
-        final int initialCapacity = Math.maximum(HashMap.defaultInitialCapacity, entries.getCount());
-        return HashMap.<TKey,TValue>createWithCapacity(initialCapacity)
+        final int initialCapacity = Math.maximum(ArrayHashMap.defaultInitialCapacity, entries.getCount());
+        return ArrayHashMap.<TKey,TValue>createWithCapacity(initialCapacity)
             .setAll(entries.iterate());
     }
 
     /**
-     * Create a new {@link HashMap} with the provided initial entries.
-     * @param entries The initial entries in the returned {@link HashMap}.
+     * Create a new {@link ArrayHashMap} with the provided initial entries.
+     * @param entries The initial entries in the returned {@link ArrayHashMap}.
      */
-    public static <TKey,TValue> HashMap<TKey,TValue> create(Iterator<MapEntry<TKey,TValue>> entries)
+    public static <TKey,TValue> ArrayHashMap<TKey,TValue> create(Iterator<MapEntry<TKey,TValue>> entries)
     {
         PreCondition.assertNotNull(entries, "entries");
 
-        return HashMap.<TKey,TValue>create().setAll(entries);
+        return ArrayHashMap.<TKey,TValue>create().setAll(entries);
     }
 
     @Override
@@ -142,9 +142,9 @@ public class HashMap<TKey,TValue> implements MutableMap<TKey,TValue>
     }
 
     @Override
-    public HashMap<TKey, TValue> set(MapEntry<TKey, TValue> entry)
+    public ArrayHashMap<TKey, TValue> set(MapEntry<TKey, TValue> entry)
     {
-        return (HashMap<TKey,TValue>)MutableMap.super.set(entry);
+        return (ArrayHashMap<TKey,TValue>)MutableMap.super.set(entry);
     }
 
     private static <TKey,TValue> boolean setEntry(Array<HashMapEntry<TKey,TValue>> entries, HashMapEntry<TKey,TValue> entry)
@@ -188,17 +188,17 @@ public class HashMap<TKey,TValue> implements MutableMap<TKey,TValue>
     }
 
     @Override
-    public HashMap<TKey, TValue> set(TKey key, TValue value)
+    public ArrayHashMap<TKey, TValue> set(TKey key, TValue value)
     {
         final HashMapEntry<TKey,TValue> entry = HashMapEntry.create(key, value);
-        if (!HashMap.setEntry(this.entries, entry))
+        if (!ArrayHashMap.setEntry(this.entries, entry))
         {
             final Array<HashMapEntry<TKey,TValue>> newEntries = Array.createWithLength((this.entries.getCount() * 2) + 1);
             for (final HashMapEntry<TKey,TValue> existingEntry : this.entries)
             {
-                HashMap.setEntry(newEntries, existingEntry);
+                ArrayHashMap.setEntry(newEntries, existingEntry);
             }
-            HashMap.setEntry(newEntries, entry);
+            ArrayHashMap.setEntry(newEntries, entry);
 
             this.entries = newEntries;
         }
@@ -206,15 +206,15 @@ public class HashMap<TKey,TValue> implements MutableMap<TKey,TValue>
     }
 
     @Override
-    public HashMap<TKey, TValue> setAll(Iterable<? extends MapEntry<TKey, TValue>> mapEntries)
+    public ArrayHashMap<TKey, TValue> setAll(Iterable<? extends MapEntry<TKey, TValue>> mapEntries)
     {
-        return (HashMap<TKey,TValue>)MutableMap.super.setAll(mapEntries);
+        return (ArrayHashMap<TKey,TValue>)MutableMap.super.setAll(mapEntries);
     }
 
     @Override
-    public HashMap<TKey, TValue> setAll(Iterator<? extends MapEntry<TKey, TValue>> mapEntries)
+    public ArrayHashMap<TKey, TValue> setAll(Iterator<? extends MapEntry<TKey, TValue>> mapEntries)
     {
-        return (HashMap<TKey,TValue>)MutableMap.super.setAll(mapEntries);
+        return (ArrayHashMap<TKey,TValue>)MutableMap.super.setAll(mapEntries);
     }
 
     @Override

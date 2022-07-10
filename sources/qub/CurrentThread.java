@@ -5,7 +5,7 @@ public final class CurrentThread
     /**
      * The mapping of thread IDs to registered ResultAsyncSchedulers.
      */
-    private static final MutableMap<Long,AsyncScheduler> asyncSchedulers = ConcurrentHashMap.create();
+    private static final MutableMap<Long,AsyncScheduler> asyncSchedulers = JavaConcurrentHashMap.create();
 
     /**
      * Get the ID of the current thread.

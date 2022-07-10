@@ -8,7 +8,7 @@ public interface MapIterableTests
         {
             IterableTests.test(runner, (Integer count) ->
             {
-                final List<String> innerIterable = new ArrayList<>();
+                final List<String> innerIterable = List.create();
                 for (int i = 0; i < count; ++i)
                 {
                     innerIterable.add(Integer.toString(i));

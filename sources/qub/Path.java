@@ -672,7 +672,7 @@ public class Path implements Comparable<Path>
      */
     public Indexable<String> getSegments()
     {
-        final ArrayList<String> result = new ArrayList<>();
+        final List<String> result = List.create();
         final Path normalizedPath = normalize();
         final String normalizedPathString = normalizedPath.toString();
         final int normalizedPathStringLength = normalizedPathString.length();

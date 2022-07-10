@@ -14,7 +14,7 @@ public interface MutableMap<TKey,TValue> extends Map<TKey,TValue>
      */
     public static <TKey,TValue> MutableMap<TKey,TValue> create()
     {
-        return HashMap.create();
+        return JavaLinkedHashMap.create();
     }
 
     /**

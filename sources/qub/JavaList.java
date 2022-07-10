@@ -6,6 +6,8 @@ public class JavaList<T> implements List<T>
 
     protected JavaList(java.util.List<T> list)
     {
+        PreCondition.assertNotNull(list, "list");
+
         this.list = list;
     }
 

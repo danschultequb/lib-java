@@ -35,11 +35,11 @@ public interface List<T> extends MutableIndexable<T>
      * @param <T> The Type of elements contained by the created List.
      * @return The created List.
      */
-    static <T> List<T> create(Iterator<T> initialValues)
+    public static <T> List<T> create(Iterator<T> initialValues)
     {
         PreCondition.assertNotNull(initialValues, "initialValues");
 
-        final ArrayList<T> result = new ArrayList<>();
+        final List<T> result = JavaArrayList.create();
         result.addAll(initialValues);
 
         PostCondition.assertNotNull(result, "result");
