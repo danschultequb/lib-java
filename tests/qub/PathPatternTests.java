@@ -2,7 +2,7 @@ package qub;
 
 public interface PathPatternTests
 {
-    static void test(final TestRunner runner)
+    public static void test(final TestRunner runner)
     {
         runner.testGroup(PathPattern.class, () ->
         {
@@ -28,11 +28,11 @@ public interface PathPatternTests
                         test.assertTrue(pattern.isMatch(pathString1));
                     });
                 };
-                
+
                 parsePathTest.run("/folder/subfolder");
                 parsePathTest.run("*700");
             });
-            
+
             runner.testGroup("parse(String)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -51,7 +51,7 @@ public interface PathPatternTests
                         test.assertTrue(pattern.isMatch(pathString));
                     });
                 };
-                
+
                 parseStringTest.run("");
                 parseStringTest.run("abcd");
                 parseStringTest.run("\\");
@@ -62,7 +62,7 @@ public interface PathPatternTests
                 parseStringTest.run("**test");
                 parseStringTest.run("*700");
             });
-            
+
             runner.testGroup("isMatch(String)", () ->
             {
                 final Action3<String,String[],String[]> isMatchTest = (String pattern, String[] matches, String[] nonMatches) ->
@@ -170,6 +170,11 @@ public interface PathPatternTests
 
                 test.assertTrue(pattern.equals(pattern));
                 test.assertTrue(pattern.equals(PathPattern.parse(pattern.toString())));
+            });
+
+            runner.test("hashCode()", (Test test) ->
+            {
+                test.assertEqual(PathPattern.parse("a/b/c").hashCode(), PathPattern.parse("a/b/c").hashCode());
             });
         });
     }

@@ -95,6 +95,12 @@ public class PathPattern
         return rhs != null && originalString.equals(rhs.originalString);
     }
 
+    @Override
+    public int hashCode()
+    {
+        return this.originalString.hashCode();
+    }
+
     /**
      * Parse the provided path into a PathPattern.
      * @param path The path to parse.
