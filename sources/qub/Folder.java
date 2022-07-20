@@ -249,7 +249,7 @@ public class Folder extends FileSystemEntry
     {
         PreCondition.assertNotNull(relativeFolderPath, "relativeFolderPath");
         PreCondition.assertFalse(relativeFolderPath.isRooted(), "relativeFolderPath.isRooted()");
-        
+
         final Path childFolderPath = this.getChildPath(relativeFolderPath);
         final FileSystem fileSystem = this.getFileSystem();
         return fileSystem.createFolder(childFolderPath);
@@ -467,7 +467,7 @@ public class Folder extends FileSystemEntry
 
     private Path getChildPath(Path relativePath)
     {
-        return this.getPath().concatenateSegment(relativePath);
+        return this.getPath().concatenateSegments(relativePath);
     }
 
     @Override

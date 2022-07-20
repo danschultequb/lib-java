@@ -1,17 +1,19 @@
 package qub;
 
 /**
- * The path to a file system entry (Root, File, or Folder).
+ * The {@link Path} to a {@link FileSystemEntry} (such as {@link Root}, {@link File}, or
+ * {@link Folder}).
  */
 public class Path implements Comparable<Path>
 {
     private final String value;
     private Path normalizedPath;
+    private Indexable<String> segments;
 
     /**
-     * Create a new Path object create the provided value.
-     * @param value The String representation of this Path.
-     * @param normalized Whether or not this Path is normalized.
+     * Create a new {@link Path} object from the provided value.
+     * @param value The {@link String} representation of this {@link Path}.
+     * @param normalized Whether this {@link Path} is normalized.
      */
     private Path(String value, boolean normalized)
     {
@@ -20,9 +22,8 @@ public class Path implements Comparable<Path>
     }
 
     /**
-     * Parse a Path object create the provided pathString.
-     * @param pathString The String representation of a Path.
-     * @return The parsed Path object, or null if the provided pathString couldn't be parsed.
+     * Parse a {@link Path} object from the provided pathString.
+     * @param pathString The {@link String} representation of the {@link Path} to return.
      */
     public static Path parse(String pathString)
     {
@@ -32,8 +33,7 @@ public class Path implements Comparable<Path>
     }
 
     /**
-     * Get the number of characters in this Path.
-     * @return The number of characters in this Path.
+     * Get the number of characters in this {@link Path}.
      */
     public int length()
     {
@@ -41,8 +41,7 @@ public class Path implements Comparable<Path>
     }
 
     /**
-     * Get the value of the last segment of this path.
-     * @return The value of the last segment of this path.
+     * Get the value of the last segment of this {@link Path}.
      */
     public String getName()
     {
@@ -50,8 +49,9 @@ public class Path implements Comparable<Path>
     }
 
     /**
-     * Get the value of the last segment of this path without a file extension.
-     * @return The value of the last segment of this path without a file extension.
+     * Get the value of the last segment of this {@link Path} without a file extension. If this
+     * {@link Path} is definitely a folder path (ends with a '/' or '\'), then just the name of this
+     * {@link Path} will be returned since it doesn't have a "file extension".
      */
     public String getNameWithoutFileExtension()
     {
@@ -59,8 +59,7 @@ public class Path implements Comparable<Path>
     }
 
     /**
-     * Get whether or not this Path has a file extension.
-     * @return Whether or not this Path has a file extension.
+     * Get whether this {@link Path} has a file extension.
      */
     public boolean hasFileExtension()
     {
@@ -68,48 +67,60 @@ public class Path implements Comparable<Path>
     }
 
     /**
-     * Get the file extension (including the period) of this Path. If no file extension exists on
-     * this Path, then null will be returned.
-     * @return The file extension (including the period) of this Path.
+     * Get this {@link Path}'s file extension (including the period). If no file extension exists on
+     * this {@link Path}, then null will be returned.
      */
     public String getFileExtension()
     {
         String result;
-        final Path normalizedPath = normalize();
-        final String lastSegment = normalizedPath.getSegments().last();
-        final int lastPeriodIndex = lastSegment.lastIndexOf('.');
-        if (lastPeriodIndex == -1)
+        if (this.endsWith('/') || this.endsWith('\\'))
         {
             result = null;
         }
         else
         {
-            result = lastSegment.substring(lastPeriodIndex);
+            final Path normalizedPath = normalize();
+            final String lastSegment = normalizedPath.getSegments().last();
+            final int lastPeriodIndex = lastSegment.lastIndexOf('.');
+            if (lastPeriodIndex == -1)
+            {
+                result = null;
+            }
+            else
+            {
+                result = lastSegment.substring(lastPeriodIndex);
+            }
         }
         return result;
     }
 
     /**
-     * Set the file extension for this Path.
-     * @param fileExtension The new file extension for this Path.
+     * Get a {@link Path} that is equal to this {@link Path} except the file extension has been
+     * changed to the provided file extension. This function will fail if this {@link Path} ends
+     * with '/' or '\'. If the provided fileExtension is null or empty, then the returned
+     * {@link Path} will not have a file extension.
+     * @param fileExtension The file extension for the returned {@link Path}.
      */
     public Path changeFileExtension(String fileExtension)
     {
-        PreCondition.assertFalse(endsWith('/'), "endsWith('/')");
-        PreCondition.assertFalse(endsWith('\\'), "endsWith('\\')");
+        PreCondition.assertFalse(this.endsWith('/'), "this.endsWith('/')");
+        PreCondition.assertFalse(this.endsWith('\\'), "this.endsWith('\\')");
 
-        if (fileExtension == null)
+        if (fileExtension != null)
         {
-            fileExtension = "";
-        }
-        else if (fileExtension.length() > 0 && !fileExtension.startsWith("."))
-        {
-            fileExtension = '.' + fileExtension;
+            if (fileExtension.isEmpty())
+            {
+                fileExtension = null;
+            }
+            else if (!fileExtension.startsWith("."))
+            {
+                fileExtension = '.' + fileExtension;
+            }
         }
 
         Path result;
 
-        final String currentFileExtension = getFileExtension();
+        final String currentFileExtension = this.getFileExtension();
         if (Comparer.equal(currentFileExtension, fileExtension))
         {
             result = this;
@@ -117,9 +128,9 @@ public class Path implements Comparable<Path>
         else
         {
             final int currentFileExtensionLength = Strings.getLength(currentFileExtension);
-            final int currentPathLength = length();
+            final int currentPathLength = this.length();
             final String pathWithoutFileExtension = toString().substring(0, currentPathLength - currentFileExtensionLength);
-            final String pathWithNewFileExtension = pathWithoutFileExtension + fileExtension;
+            final String pathWithNewFileExtension = pathWithoutFileExtension + (fileExtension == null ? "" : fileExtension);
             result = Path.parse(pathWithNewFileExtension);
         }
 
@@ -129,9 +140,8 @@ public class Path implements Comparable<Path>
     }
 
     /**
-     * Get a Path that is this path without a file extension. If this path doesn't have a file
-     * extension, then this path will be returned.
-     * @return This path without a file extension.
+     * Get a {@link Path} that is this {@link Path} without a file extension. If this {@link Path}
+     * doesn't have a file extension, then this {@link Path} will be returned.
      */
     public Path withoutFileExtension()
     {
@@ -157,9 +167,8 @@ public class Path implements Comparable<Path>
     }
 
     /**
-     * Get a Path that is this path without a root. If this path doesn't have a root, then this path
-     * will be returned.
-     * @return This path without a root.
+     * Get a {@link Path} that is this {@link Path} without a {@link Root}. If this {@link Path}
+     * doesn't have a {@link Root}, then this {@link Path} will be returned.
      */
     public Result<Path> withoutRoot()
     {
@@ -191,73 +200,68 @@ public class Path implements Comparable<Path>
     }
 
     /**
-     * Return a Path that is the result of concatenating the provided String onto the end of this
-     * Path.
-     * @param toConcatenate The String to concatenate onto the end of this Path.
-     * @return A Path that is the result of concatenating the provided String onto the end of this
-     * Path.
+     * Return a {@link Path} that is the result of concatenating the provided {@link String} onto
+     * the end of this {@link Path}.
+     * @param toConcatenate The {@link String} to concatenate onto the end of this {@link Path}.
      */
     public Path concatenate(String toConcatenate)
     {
         PreCondition.assertNotNullAndNotEmpty(toConcatenate, "toConcatenate");
 
-        return concatenate(Path.parse(toConcatenate));
+        return Path.parse(this.value + toConcatenate);
     }
 
     /**
-     * Return a Path that is the result of concatenating the provided String onto the end of this
-     * Path.
-     * @param toConcatenate The String to concatenate onto the end of this Path.
-     * @return A Path that is the result of concatenating the provided String onto the end of this
-     * Path.
+     * Return a {@link Path} that is the result of concatenating the provided {@link Path}'s
+     * {@link String} representation onto the end of this {@link Path}.
+     * @param toConcatenate The {@link Path} to concatenate onto the end of this {@link Path}.
      */
     public Path concatenate(Path toConcatenate)
     {
         PreCondition.assertNotNull(toConcatenate, "toConcatenate");
-        PreCondition.assertFalse(toConcatenate.isRooted(), "toConcatenate.isRooted()");
 
-        return new Path(value + toConcatenate.toString(), false);
+        return this.concatenate(toConcatenate.toString());
+    }
+
+    /**
+     * Return a {@link Path} that is the result of concatenating the provided {@link Path}'s
+     * {@link String} representation onto the end of this {@link Path}. If this {@link Path} doesn't
+     * end with a '/' or '\' character, then a '/' character will be inserted between this
+     * {@link Path} and the provided {@link Path} in the resulting {@link Path}.
+     * @param segmentsToConcatenate The {@link Path} to concatenate onto the end of this
+     * {@link Path}.
+     */
+    public Path concatenateSegments(String segmentsToConcatenate)
+    {
+        PreCondition.assertNotNullAndNotEmpty(segmentsToConcatenate, "segmentsToConcatenate");
+
+        return concatenateSegments(Path.parse(segmentsToConcatenate));
     }
 
     /**
      * Return a Path that is the result of concatenating the provided String onto the end of this
      * Path, after ensuring that the this Path ends with a slash.
-     * @param segmentToConcatenate The String to concatenate onto the end of this Path.
+     * @param segmentsToConcatenate The String to concatenate onto the end of this Path.
      * @return A Path that is the result of concatenating the provided String onto the end of this
      * Path.
      */
-    public Path concatenateSegment(String segmentToConcatenate)
+    public Path concatenateSegments(Path segmentsToConcatenate)
     {
-        PreCondition.assertNotNullAndNotEmpty(segmentToConcatenate, "segmentToConcatenate");
-
-        return concatenateSegment(Path.parse(segmentToConcatenate));
-    }
-
-    /**
-     * Return a Path that is the result of concatenating the provided String onto the end of this
-     * Path, after ensuring that the this Path ends with a slash.
-     * @param segmentToConcatenate The String to concatenate onto the end of this Path.
-     * @return A Path that is the result of concatenating the provided String onto the end of this
-     * Path.
-     */
-    public Path concatenateSegment(Path segmentToConcatenate)
-    {
-        PreCondition.assertNotNull(segmentToConcatenate, "segmentToConcatenate");
-        PreCondition.assertFalse(segmentToConcatenate.isRooted(), "segmentToConcatenate.isRooted()");
+        PreCondition.assertNotNull(segmentsToConcatenate, "segmentsToConcatenate");
+        PreCondition.assertFalse(segmentsToConcatenate.isRooted(), "segmentsToConcatenate.isRooted()");
 
         String resultPathString = this.value;
         if (!resultPathString.endsWith("/") && !resultPathString.endsWith("\\"))
         {
             resultPathString += "/";
         }
-        resultPathString += segmentToConcatenate;
+        resultPathString += segmentsToConcatenate;
         return new Path(resultPathString, false);
     }
 
     /**
-     * Get whether this Path starts with the provided prefix.
-     * @param prefix The prefix to check against this Path.
-     * @return Whether this Path starts with the provided prefix.
+     * Get whether this {@link Path} starts with the provided prefix.
+     * @param prefix The prefix to check against this {@link Path}.
      */
     public boolean startsWith(char prefix)
     {
@@ -265,9 +269,8 @@ public class Path implements Comparable<Path>
     }
 
     /**
-     * Get whether this Path starts with the provided prefix.
-     * @param prefix The prefix to check against this Path.
-     * @return Whether this Path starts with the provided prefix.
+     * Get whether this {@link Path} starts with the provided prefix.
+     * @param prefix The prefix to check against this {@link Path}.
      */
     public boolean startsWith(Character prefix)
     {
@@ -277,9 +280,8 @@ public class Path implements Comparable<Path>
     }
 
     /**
-     * Get whether this Path starts with the provided prefix.
-     * @param prefix The prefix to check against this Path.
-     * @return Whether this Path starts with the provided prefix.
+     * Get whether this {@link Path} starts with the provided prefix.
+     * @param prefix The prefix to check against this {@link Path}.
      */
     public boolean startsWith(String prefix)
     {
@@ -289,89 +291,81 @@ public class Path implements Comparable<Path>
     }
 
     /**
-     * Get whether this Path starts with the provided prefix.
-     * @param prefix The prefix to check against this Path.
-     * @return Whether this Path starts with the provided prefix.
+     * Get whether this {@link Path} starts with the provided prefix.
+     * @param prefix The prefix to check against this {@link Path}.
      */
     public boolean startsWith(Path prefix)
     {
         PreCondition.assertNotNull(prefix, "prefix");
 
-        return this.normalize().startsWith(prefix.normalize().toString());
+        return this.startsWith(prefix.toString());
     }
 
     /**
-     * Get whether or not this Path ends with the provided suffix.
-     * @param suffix The suffix to check against this Path.
-     * @return Whether or not this Path ends with the provided suffix.
+     * Get whether this {@link Path} ends with the provided suffix.
+     * @param suffix The suffix to check against this {@link Path}.
      */
     public boolean endsWith(char suffix)
     {
-        return value.endsWith(Characters.toString(suffix));
+        return this.endsWith(Characters.toString(suffix));
     }
 
     /**
-     * Get whether or not this Path ends with the provided suffix.
-     * @param suffix The suffix to check against this Path.
-     * @return Whether or not this Path ends with the provided suffix.
+     * Get whether this {@link Path} ends with the provided suffix.
+     * @param suffix The suffix to check against this {@link Path}.
      */
     public boolean endsWith(Character suffix)
     {
         PreCondition.assertNotNull(suffix, "suffix");
 
-        return value.endsWith(Characters.toString(suffix));
+        return this.endsWith(Characters.toString(suffix));
     }
 
     /**
-     * Get whether or not this Path ends with the provided suffix.
-     * @param suffix The suffix to check against this Path.
-     * @return Whether or not this Path ends with the provided suffix.
+     * Get whether this {@link Path} ends with the provided suffix.
+     * @param suffix The suffix to check against this {@link Path}.
      */
     public boolean endsWith(String suffix)
     {
         PreCondition.assertNotNullAndNotEmpty(suffix, "suffix");
 
-        return value.endsWith(suffix);
+        return this.value.endsWith(suffix);
     }
 
     /**
-     * Get whether this Path ends with the provided suffix.
-     * @param suffix The suffix to check against this Path.
-     * @return Whether this Path ends with the provided suffix.
+     * Get whether this {@link Path} ends with the provided suffix.
+     * @param suffix The suffix to check against this {@link Path}.
      */
     public boolean endsWith(Path suffix)
     {
         PreCondition.assertNotNull(suffix, "suffix");
 
-        return this.normalize().endsWith(suffix.normalize().toString());
+        return this.endsWith(suffix.toString());
     }
 
     /**
-     * Get whether or not this Path contains the provided value.
-     * @param value The value to look for in this Path.
-     * @return Whether or not this Path contains the provided value.
+     * Get whether this {@link Path} contains the provided value.
+     * @param value The value to look for in this {@link Path}.
      */
     public boolean contains(char value)
     {
-        return this.value.contains(Characters.toString(value));
+        return this.contains(Characters.toString(value));
     }
 
     /**
-     * Get whether or not this Path contains the provided value.
-     * @param value The value to look for in this Path.
-     * @return Whether or not this Path contains the provided value.
+     * Get whether this {@link Path} contains the provided value.
+     * @param value The value to look for in this {@link Path}.
      */
     public boolean contains(Character value)
     {
         PreCondition.assertNotNull(value, "value");
 
-        return this.value.contains(Characters.toString(value));
+        return this.contains(Characters.toString(value));
     }
 
     /**
-     * Get whether or not this Path contains the provided value.
-     * @param value The value to look for in this Path.
-     * @return Whether or not this Path contains the provided value.
+     * Get whether this {@link Path} contains the provided value.
+     * @param value The value to look for in this {@link Path}.
      */
     public boolean contains(String value)
     {
@@ -381,41 +375,39 @@ public class Path implements Comparable<Path>
     }
 
     /**
-     * Get whether or not this Path contains the provided value.
-     * @param value The value to look for in this Path.
-     * @return Whether or not this Path contains the provided value.
+     * Get whether this {@link Path} contains the provided value.
+     * @param value The value to look for in this {@link Path}.
      */
     public boolean contains(Path value)
     {
         PreCondition.assertNotNull(value, "value");
 
-        return this.normalize().contains(value.normalize().toString());
+        return this.contains(value.toString());
     }
 
     /**
-     * Get whether or not this Path begins with a root.
-     * @return Whether or not this Path begins with a root.
+     * Get whether this {@link Path} begins with a root.
      */
     public boolean isRooted()
     {
-        final Path normalizedPath = normalize();
-        final Indexable<String> segments = normalizedPath.getSegments();
+        final Indexable<String> segments = this.getSegments();
         final String firstSegment = segments.first();
         return firstSegment.equals("/") || (firstSegment.endsWith(":") && !firstSegment.equals(":"));
     }
 
     /**
-     * If this Path is rooted, get the name of this Path's root. If this Path is not rooted, then
-     * return null.
-     * @return The name of this Path's root if the Path is rooted, null otherwise.
+     * Get the {@link Path} to this {@link Path}'s root.
      */
     public Result<Path> getRoot()
     {
-        return isRooted() ?
-           Result.success(Path.parse(getSegments().first())) :
+        return this.isRooted() ?
+           Result.success(Path.parse(this.getSegments().first())) :
            Result.error(new NotFoundException("Could not find a root on the path " + Strings.escapeAndQuote(this) + "."));
     }
 
+    /**
+     * Get the {@link Path} to this {@link Path}'s parent folder.
+     */
     public Result<Path> getParent()
     {
         return Result.create(() ->
@@ -451,39 +443,31 @@ public class Path implements Comparable<Path>
     }
 
     /**
-     * Get this Path relative to the provided Folder's path. If this path does not begin with the
-     * provided path, then this Path will be returned.
-     * @param folder The folder to make a relative version of this Path against.
-     * @return The relative version of this Path against the provided folder's path, or this Path if
-     * this Path doesn't start with the provided basePath.
+     * Get this {@link Path} relative to the provided {@link Folder}'s {@link Path}.
+     * @param folder The {@link Folder} to make a relative version of this {@link Path} against.
      */
     public Path relativeTo(Folder folder)
     {
         PreCondition.assertNotNull(folder, "folder");
 
-        return relativeTo(folder.getPath());
+        return this.relativeTo(folder.getPath());
     }
 
     /**
-     * Get this Path relative to the provided Root's path. If this path does not begin with the
-     * provided path, then this Path will be returned.
-     * @param root The root to make a relative version of this Path against.
-     * @return The relative version of this Path against the provided root's path, or this Path if
-     * this Path doesn't start with the provided basePath.
+     * Get this {@link Path} relative to the provided {@link Root}'s {@link Path}.
+     * @param root The {@link Root} to make a relative version of this {@link Path} against.
      */
     public Path relativeTo(Root root)
     {
         PreCondition.assertNotNull(root, "root");
 
-        return relativeTo(root.getPath());
+        return this.relativeTo(root.getPath());
     }
 
     /**
-     * Get this Path relative to the provided Path. If this path does not begin with the provided
-     * path, then this Path will be returned.
-     * @param basePath The path to make a relative version of this Path against.
-     * @return The relative version of this Path against the provided basePath, or this Path if this
-     * Path doesn't start with the provided basePath.
+     * Get this {@link Path} relative to the provided {@link String} path.
+     * @param basePath The {@link String} path to make a relative version of this {@link Path}
+     *                 against.
      */
     public Path relativeTo(String basePath)
     {
@@ -493,11 +477,8 @@ public class Path implements Comparable<Path>
     }
 
     /**
-     * Get this Path relative to the provided Path. If this path does not begin with the provided
-     * path, then this Path will be returned.
-     * @param basePath The path to make a relative version of this Path against.
-     * @return The relative version of this Path against the provided basePath, or this Path if this
-     * Path doesn't start with the provided basePath.
+     * Get this {@link Path} relative to the provided {@link Path}.
+     * @param basePath The {@link Path} to make a relative version of this {@link Path} against.
      */
     public Path relativeTo(Path basePath)
     {
@@ -507,7 +488,7 @@ public class Path implements Comparable<Path>
         PreCondition.assertEqual(this.getRoot().await(), basePath.getRoot().await(), "basePath.getRoot().await()");
         PreCondition.check(!this.equals(basePath, false), AssertionMessages.notEqual(this, basePath, "basePath"));
 
-        Path result = this;
+        Path result;
         if (this.equals(basePath))
         {
             result = Path.parse(".");
@@ -549,7 +530,7 @@ public class Path implements Comparable<Path>
                 }
                 relativePathStringBuilder.append(segment);
             }
-            result = parse(relativePathStringBuilder.toString());
+            result = Path.parse(relativePathStringBuilder.toString());
         }
         return result;
     }
@@ -561,153 +542,52 @@ public class Path implements Comparable<Path>
      */
     public Path normalize()
     {
-        if (normalizedPath == null)
+        if (this.normalizedPath == null)
         {
-            final StringBuilder normalizedPathStringBuilder = new StringBuilder();
+            final CharacterList normalizedPathString = CharacterList.create();
 
-            final int valueLength = value.length();
+            final int valueLength = this.value.length();
             boolean previousCharacterWasSlash = false;
             for (int i = 0; i < valueLength; ++i)
             {
-                final char c = value.charAt(i);
+                final char c = this.value.charAt(i);
                 if (c == '/' || c == '\\')
                 {
                     if (!previousCharacterWasSlash)
                     {
                         previousCharacterWasSlash = true;
-                        normalizedPathStringBuilder.append('/');
+                        normalizedPathString.add('/');
                     }
                 }
                 else
                 {
                     previousCharacterWasSlash = false;
-                    normalizedPathStringBuilder.append(c);
+                    normalizedPathString.add(c);
                 }
             }
 
-            String normalizedPathString = normalizedPathStringBuilder.toString();
-            if (normalizedPathString.endsWith(":") && !normalizedPathString.contains("/"))
+            if (normalizedPathString.endsWith(":") && !normalizedPathString.contains('/'))
             {
-                normalizedPathString += "/";
+                normalizedPathString.add('/');
             }
 
-            if (normalizedPathString.equals(value))
+            final String normalizedPathStringString = normalizedPathString.toString();
+            if (normalizedPathStringString.equals(this.value))
             {
-                normalizedPath = this;
+                this.normalizedPath = this;
             }
             else
             {
-                normalizedPath = new Path(normalizedPathString, true);
+                this.normalizedPath = new Path(normalizedPathStringString, true);
             }
         }
-        return normalizedPath;
-    }
-
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return (rhs instanceof Path && this.equals((Path)rhs)) ||
-            (rhs instanceof String && this.equals((String)rhs));
-    }
-
-    public boolean equals(String rhs)
-    {
-        return !Strings.isNullOrEmpty(rhs) && this.equals(Path.parse(rhs));
-    }
-
-    public boolean equals(Path rhs)
-    {
-        return this.equals(rhs, true);
-    }
-
-    public boolean equals(Path rhs, boolean checkTrailingSlash)
-    {
-        boolean result = false;
-
-        if (rhs != null)
-        {
-            final Path resolvedLhs = this.resolve().await();
-            String resolvedLhsString = resolvedLhs.toString();
-            final Path resolvedRhs = rhs.resolve().await();
-            String resolvedRhsString = resolvedRhs.toString();
-            result = resolvedLhsString.equals(resolvedRhsString);
-            if (!result && !checkTrailingSlash)
-            {
-                if (resolvedLhs.endsWith('/'))
-                {
-                    resolvedLhsString = resolvedLhsString.substring(0, resolvedLhsString.length() - 1);
-                }
-
-                if (resolvedRhs.endsWith('/'))
-                {
-                    resolvedRhsString = resolvedRhsString.substring(0, resolvedRhsString.length() - 1);
-                }
-
-                result = resolvedLhsString.equals(resolvedRhsString);
-            }
-        }
-
-        return result;
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return this.normalize().toString().hashCode();
+        return this.normalizedPath;
     }
 
     /**
-     * Get the String representation of this Path.
-     * @return The String representation of this Path.
-     */
-    @Override
-    public String toString()
-    {
-        return this.value;
-    }
-
-    /**
-     * Get the segments (root, folders, and/or file) of this Path.
-     * @return The segments (root, folders, and/or file) of this Path.
-     */
-    public Indexable<String> getSegments()
-    {
-        final List<String> result = List.create();
-        final Path normalizedPath = normalize();
-        final String normalizedPathString = normalizedPath.toString();
-        final int normalizedPathStringLength = normalizedPathString.length();
-
-        int currentSlashIndex = -1;
-        if (normalizedPathStringLength > 0 && normalizedPathString.charAt(0) == '/')
-        {
-            result.add("/");
-            currentSlashIndex = 0;
-        }
-
-        while(true)
-        {
-            final int segmentStartIndex = currentSlashIndex + 1;
-            currentSlashIndex = normalizedPathString.indexOf('/', segmentStartIndex);
-            if (currentSlashIndex == -1)
-            {
-                if (segmentStartIndex < normalizedPathStringLength)
-                {
-                    result.add(normalizedPathString.substring(segmentStartIndex));
-                }
-                break;
-            }
-            else
-            {
-                result.add(normalizedPathString.substring(segmentStartIndex, currentSlashIndex));
-            }
-        }
-
-        return result;
-    }
-
-    /**
-     * Resolve any current path (.) or parent path (..) segments in this Path.
-     * @return
+     * Return a copy of this {@link Path} where any current path (.) or parent path (..) segments
+     * have been resolved. If this {@link Path} doesn't contain any current path (.) or parent path
+     * (..) segments, then this {@link Path} will be returned.
      */
     public Result<Path> resolve()
     {
@@ -763,17 +643,29 @@ public class Path implements Comparable<Path>
         return result;
     }
 
-    public Result<Path> resolve(String relativePathString)
+    /**
+     * Get a resolved {@link Path} that is the result of resolving the provided {@link String}
+     * relativePath against this {@link Path}.
+     * @param relativePath The relative path to resolve against this {@link Path}.
+     */
+    public Result<Path> resolve(String relativePath)
     {
-        return resolve(Path.parse(relativePathString));
+        PreCondition.assertNotNullAndNotEmpty(relativePath, "relativePath");
+
+        return resolve(Path.parse(relativePath));
     }
 
+    /**
+     * Get a resolved {@link Path} that is the result of resolving the provided relative
+     * {@link Path} against this {@link Path}.
+     * @param relativePath The relative {@link Path} to resolve against this {@link Path}.
+     */
     public Result<Path> resolve(Path relativePath)
     {
         PreCondition.assertNotNull(relativePath, "relativePath");
         PreCondition.assertFalse(relativePath.isRooted(), "relativePath.isRooted()");
 
-        final Path concatenatedPath = this.concatenateSegment(relativePath);
+        final Path concatenatedPath = this.concatenateSegments(relativePath);
         return concatenatedPath.resolve();
     }
 
@@ -854,11 +746,116 @@ public class Path implements Comparable<Path>
         return possibleAncestorPath.isAncestorOf(this);
     }
 
+    /**
+     * Get the segments (root, folders, and/or file) of this {@link Path}.
+     */
+    public Indexable<String> getSegments()
+    {
+        if (this.segments == null)
+        {
+            final List<String> result = List.create();
+            final Path normalizedPath = this.normalize();
+            final String normalizedPathString = normalizedPath.toString();
+            final int normalizedPathStringLength = normalizedPathString.length();
+
+            int currentSlashIndex = -1;
+            if (normalizedPathStringLength > 0 && normalizedPathString.charAt(0) == '/')
+            {
+                result.add("/");
+                currentSlashIndex = 0;
+            }
+
+            while (true)
+            {
+                final int segmentStartIndex = currentSlashIndex + 1;
+                currentSlashIndex = normalizedPathString.indexOf('/', segmentStartIndex);
+                if (currentSlashIndex == -1)
+                {
+                    if (segmentStartIndex < normalizedPathStringLength)
+                    {
+                        result.add(normalizedPathString.substring(segmentStartIndex));
+                    }
+                    break;
+                }
+                else
+                {
+                    result.add(normalizedPathString.substring(segmentStartIndex, currentSlashIndex));
+                }
+            }
+
+            this.segments = result;
+        }
+        return this.segments;
+    }
+
     @Override
     public Comparison compareWith(Path value)
     {
         return value == null
             ? Comparison.GreaterThan
             : Strings.compare(this.normalize().toString(), value.normalize().toString());
+    }
+
+    @Override
+    public boolean equals(Object rhs)
+    {
+        return (rhs instanceof Path && this.equals((Path)rhs)) ||
+            (rhs instanceof String && this.equals((String)rhs));
+    }
+
+    public boolean equals(String rhs)
+    {
+        return !Strings.isNullOrEmpty(rhs) && this.equals(Path.parse(rhs));
+    }
+
+    public boolean equals(Path rhs)
+    {
+        return this.equals(rhs, true);
+    }
+
+    public boolean equals(Path rhs, boolean checkTrailingSlash)
+    {
+        boolean result = false;
+
+        if (rhs != null)
+        {
+            final Path resolvedLhs = this.resolve().await();
+            String resolvedLhsString = resolvedLhs.toString();
+            final Path resolvedRhs = rhs.resolve().await();
+            String resolvedRhsString = resolvedRhs.toString();
+            result = resolvedLhsString.equals(resolvedRhsString);
+            if (!result && !checkTrailingSlash)
+            {
+                if (resolvedLhs.endsWith('/'))
+                {
+                    resolvedLhsString = resolvedLhsString.substring(0, resolvedLhsString.length() - 1);
+                }
+
+                if (resolvedRhs.endsWith('/'))
+                {
+                    resolvedRhsString = resolvedRhsString.substring(0, resolvedRhsString.length() - 1);
+                }
+
+                result = resolvedLhsString.equals(resolvedRhsString);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return this.normalize().toString().hashCode();
+    }
+
+    /**
+     * Get the String representation of this Path.
+     * @return The String representation of this Path.
+     */
+    @Override
+    public String toString()
+    {
+        return this.value;
     }
 }

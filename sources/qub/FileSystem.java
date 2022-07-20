@@ -51,7 +51,7 @@ public interface FileSystem
      * @param rootPath The Path to the Root to return.
      * @return The Root with the provided Path.
      */
-    default Result<Root> getRoot(Path rootPath)
+    public default Result<Root> getRoot(Path rootPath)
     {
         FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
@@ -940,7 +940,7 @@ public interface FileSystem
         FileSystem.validateRootedFolderPath(destinationFolderPath, "destinationFolderPath");
 
         final String fileName = sourceFilePath.getSegments().last();
-        final Path destinationFilePath = destinationFolderPath.concatenateSegment(fileName);
+        final Path destinationFilePath = destinationFolderPath.concatenateSegments(fileName);
         return copyFileTo(sourceFilePath, destinationFilePath);
     }
 

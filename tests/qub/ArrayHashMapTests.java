@@ -78,7 +78,7 @@ public interface ArrayHashMapTests
                     conflictsSpeedTest.run(100, Duration.seconds(0.025));
                     conflictsSpeedTest.run(1000, Duration.seconds(0.025));
                     conflictsSpeedTest.run(10000, Duration.seconds(0.025));
-                    conflictsSpeedTest.run(100000, Duration.seconds(3));
+                    conflictsSpeedTest.run(100000, Duration.seconds(3.5));
                     // conflictsSpeedTest.run(1000000, Duration.seconds(a really long time));
                 });
             });

@@ -5,7 +5,7 @@ public interface JavaFileSystemTests
     static void test(TestRunner runner)
     {
         final String tempFolderPathString = System.getProperty("java.io.tmpdir");
-        final Path tempFolderPath = Path.parse(tempFolderPathString).concatenateSegment("qub-tests");
+        final Path tempFolderPath = Path.parse(tempFolderPathString).concatenateSegments("qub-tests");
         final IntegerValue testNumber = new IntegerValue(0);
 
         final Value<FolderFileSystem> folderFileSystem = Value.create();
@@ -23,7 +23,7 @@ public interface JavaFileSystemTests
         {
             FileSystemTests.test(runner, (Clock clock) ->
             {
-                final Path testFolderPath = tempFolderPath.concatenateSegment(testNumber.increment().toString());
+                final Path testFolderPath = tempFolderPath.concatenateSegments(testNumber.increment().toString());
                 folderFileSystem.set(FolderFileSystem.get(JavaFileSystem.create(), testFolderPath));
                 if (folderFileSystem.get().exists().await())
                 {

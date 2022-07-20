@@ -180,13 +180,13 @@ public class InMemoryFileSystem implements FileSystem
                 .order((InMemoryFolder lhs, InMemoryFolder rhs) ->
                     Strings.lessThan(lhs.getName(), rhs.getName()))
                 .map((InMemoryFolder childFolder) ->
-                    new Folder(this, rootedFolderPath.concatenateSegment(childFolder.getName()))));
+                    new Folder(this, rootedFolderPath.concatenateSegments(childFolder.getName()))));
 
             entries.addAll(folder.getFiles()
                 .order((InMemoryFile lhs, InMemoryFile rhs) ->
                     Strings.lessThan(lhs.getName(), rhs.getName()))
                 .map((InMemoryFile childFile) ->
-                    new File(this, rootedFolderPath.concatenateSegment(childFile.getName()))));
+                    new File(this, rootedFolderPath.concatenateSegments(childFile.getName()))));
 
             return entries.iterate();
         });

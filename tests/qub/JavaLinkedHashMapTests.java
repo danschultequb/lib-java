@@ -78,9 +78,9 @@ public interface JavaLinkedHashMapTests
                 conflictsSpeedTest.run(10, Duration.seconds(0.0125));
                 conflictsSpeedTest.run(100, Duration.seconds(0.0125));
                 conflictsSpeedTest.run(1000, Duration.seconds(0.0125));
-                conflictsSpeedTest.run(10000, Duration.seconds(0.0125));
+                conflictsSpeedTest.run(10000, Duration.seconds(0.02));
                 conflictsSpeedTest.run(100000, Duration.seconds(0.05));
-                conflictsSpeedTest.run(1000000, Duration.seconds(0.25));
+                conflictsSpeedTest.run(1000000, Duration.seconds(0.4));
             });
         });
     }
