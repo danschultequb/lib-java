@@ -118,15 +118,8 @@ public class CommandLineActions
      */
     public Result<CommandLineAction> getDefaultAction()
     {
-        return Result.create(() ->
-        {
-            final CommandLineAction result = this.actions.first(CommandLineAction::isDefaultAction);
-            if (result == null)
-            {
-                throw new NotFoundException("No default action was found.");
-            }
-            return result;
-        });
+        return this.actions.first(CommandLineAction::isDefaultAction)
+            .convertError(NotFoundException.class, () -> new NotFoundException("No default action was found."));
     }
 
     /**
@@ -144,16 +137,8 @@ public class CommandLineActions
     {
         PreCondition.assertNotNullAndNotEmpty(actionName, "actionName");
 
-        return Result.create(() ->
-        {
-            final CommandLineAction matchingAction = this.actions
-                .first((CommandLineAction action) -> action.containsActionName(actionName, false));
-            if (matchingAction == null)
-            {
-                throw new NotFoundException("No action was found with the name " + Strings.escapeAndQuote(actionName) + ".");
-            }
-            return matchingAction;
-        });
+        return this.actions.first((CommandLineAction action) -> action.containsActionName(actionName, false))
+            .convertError(NotFoundException.class, () -> new NotFoundException("No action was found with the name " + Strings.escapeAndQuote(actionName) + "."));
     }
 
     /**

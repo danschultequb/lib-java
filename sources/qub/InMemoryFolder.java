@@ -99,9 +99,9 @@ public class InMemoryFolder
      * @return The child folder that has the provided name, or null if no child folder has the
      * provided name.
      */
-    public InMemoryFolder getFolder(String folderName)
+    public Result<InMemoryFolder> getFolder(String folderName)
     {
-        return folders.first(folder -> folder.getName().equals(folderName));
+        return this.folders.first(folder -> folder.getName().equals(folderName));
     }
 
     /**
@@ -112,7 +112,7 @@ public class InMemoryFolder
      */
     public boolean createFolder(String folderName)
     {
-        InMemoryFolder inMemoryFolder = getFolder(folderName);
+        InMemoryFolder inMemoryFolder = this.getFolder(folderName).catchError(NotFoundException.class).await();
         final boolean result = (inMemoryFolder == null);
         if (result)
         {
@@ -151,24 +151,22 @@ public class InMemoryFolder
     }
 
     /**
-     * Get the file of this InMemoryFolder that has the provided name. If no file has the provided
-     * name, then null will be returned.
+     * Get the {@link InMemoryFile} of this {@link InMemoryFolder} that has the provided name.
      * @param fileName The name of the file to return.
-     * @return The file that has the provide dname, or null if no file has the provided name.
      */
-    public InMemoryFile getFile(final String fileName)
+    public Result<InMemoryFile> getFile(final String fileName)
     {
-        return files.first((InMemoryFile file) -> file.getName().equals(fileName));
+        return this.files.first((InMemoryFile file) -> file.getName().equals(fileName));
     }
 
     public boolean createFile(String fileName)
     {
-        InMemoryFile inMemoryFile = getFile(fileName);
+        InMemoryFile inMemoryFile = this.getFile(fileName).catchError(NotFoundException.class).await();
         final boolean result = (inMemoryFile == null);
         if (result)
         {
             inMemoryFile = new InMemoryFile(fileName, clock);
-            files.add(inMemoryFile);
+            this.files.add(inMemoryFile);
         }
 
         return result;
@@ -176,14 +174,7 @@ public class InMemoryFolder
 
     public boolean deleteFile(final String fileName)
     {
-        final int indexToRemove = files.indexOf(new Function1<InMemoryFile,Boolean>()
-        {
-            @Override
-            public Boolean run(InMemoryFile file)
-            {
-                return file.getName().equalsIgnoreCase(fileName);
-            }
-        });
+        final int indexToRemove = this.files.indexOf((InMemoryFile file) -> file.getName().equalsIgnoreCase(fileName));
 
         boolean result = false;
         if (indexToRemove != -1)
@@ -201,12 +192,12 @@ public class InMemoryFolder
 
     public Iterable<InMemoryFolder> getFolders()
     {
-        return folders;
+        return this.folders;
     }
 
     public Iterable<InMemoryFile> getFiles()
     {
-        return files;
+        return this.files;
     }
 
     /**

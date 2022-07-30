@@ -939,7 +939,7 @@ public interface FileSystem
         FileSystem.validateRootedFilePath(sourceFilePath, "sourceFilePath");
         FileSystem.validateRootedFolderPath(destinationFolderPath, "destinationFolderPath");
 
-        final String fileName = sourceFilePath.getSegments().last();
+        final String fileName = sourceFilePath.getSegments().last().await();
         final Path destinationFilePath = destinationFolderPath.concatenateSegments(fileName);
         return copyFileTo(sourceFilePath, destinationFilePath);
     }

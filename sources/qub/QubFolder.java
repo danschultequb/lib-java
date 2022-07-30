@@ -229,7 +229,7 @@ public class QubFolder extends Folder
                                 indentedErrorMessage.setCurrentIndent(Strings.repeat(' ', numberString.length()));
 
                                 final List<ProjectSignature> dependencyPath = List.create();
-                                Node1<ProjectSignature> dependencyNode = dependencyPaths.get(dependencySignature).await().first();
+                                Node1<ProjectSignature> dependencyNode = dependencyPaths.get(dependencySignature).await().first().await();
                                 // Skip the first node because that's the dependency itself (not the path to the dependency).
                                 dependencyNode = dependencyNode.getNode1();
                                 while (dependencyNode != null)

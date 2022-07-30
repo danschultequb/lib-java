@@ -181,7 +181,7 @@ public interface CommandLineArgumentsTests
                 {
                     final CommandLineArguments arguments = CommandLineArguments.create();
                     test.assertThrows(() -> arguments.getNamedValue("abc").await(),
-                        new NotFoundException("Could not find command-line arguments with the name \"abc\"."));
+                        new NotFoundException("Could not find a command-line argument with the name \"abc\"."));
                 });
 
                 runner.test("with found", (Test test) ->

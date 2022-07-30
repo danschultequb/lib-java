@@ -183,7 +183,7 @@ public class StateMachine
         {
             final char currentValueElement = values.takeCurrent();
 
-            final Set<PossibleMatch> nextMatches = Set.create();
+            final MutableSet<PossibleMatch> nextMatches = Set2.create();
             for (final PossibleMatch currentMatch : currentMatches)
             {
                 final Iterable<PossibleMatch> nextMatchesFromCurrent = currentMatch.getNextMatches(currentValueElement);

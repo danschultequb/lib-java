@@ -21,15 +21,15 @@ public interface English
         final int valuesCount = values.getCount();
         if (valuesCount == 1)
         {
-            builder.addAll(Objects.toString(values.first()));
+            builder.addAll(Objects.toString(values.first().await()));
         }
         else if (valuesCount == 2)
         {
-            builder.addAll(Objects.toString(values.first()));
+            builder.addAll(Objects.toString(values.first().await()));
             builder.add(' ');
             builder.addAll(listType);
             builder.add(' ');
-            builder.addAll(Objects.toString(values.last()));
+            builder.addAll(Objects.toString(values.last().await()));
         }
         else if (valuesCount >= 3)
         {

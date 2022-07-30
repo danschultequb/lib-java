@@ -1023,7 +1023,7 @@ public class Test
                     stream.writeLine(",").await();
                 }
                 stream.write(indent).await();
-                stream.writeLine(Strings.escapeAndQuote(lines.last())).await();
+                stream.writeLine(Strings.escapeAndQuote(lines.last().await())).await();
             }
             stream.write("]").await();
         }

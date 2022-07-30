@@ -1,5 +1,6 @@
 package qub;
 
+@Deprecated
 public class ListSet<T> implements Set<T>
 {
     private final List<T> values;

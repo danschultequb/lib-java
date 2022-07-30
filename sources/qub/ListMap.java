@@ -122,7 +122,9 @@ public class ListMap<TKey,TValue> implements MutableMap<TKey,TValue>
      */
     private MutableMapEntry<TKey,TValue> getEntry(TKey key)
     {
-        return this.entries.first(entry -> this.equalFunction.run(entry.getKey(), key));
+        return this.entries.first(entry -> this.equalFunction.run(entry.getKey(), key))
+            .catchError(NotFoundException.class)
+            .await();
     }
 
     @Override

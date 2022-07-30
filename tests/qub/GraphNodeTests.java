@@ -2,7 +2,7 @@ package qub;
 
 public interface GraphNodeTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(GraphNode.class, () ->
         {
@@ -24,7 +24,7 @@ public interface GraphNodeTests
                     test.assertNotNull(node);
                     test.assertFalse(graph.containsNode(node));
                     test.assertEqual(value, node.getValue());
-                    test.assertEqual(Iterable.create(), node.getLinkedNodes());
+                    test.assertEqual(Iterable.create(), node.iterateLinkedNodes().toList());
                 });
 
                 runner.test("with graph that already contains the provided value", (Test test) ->
@@ -40,14 +40,14 @@ public interface GraphNodeTests
                 });
             });
 
-            runner.testGroup("getLinkedNodes()", () ->
+            runner.testGroup("iterateLinkedNodes().toList()", () ->
             {
                 runner.test("with no other nodes", (Test test) ->
                 {
                     final MutableGraph<Integer> graph = Graph.create();
                     final GraphNode<Integer> node = graph.createNode(20);
 
-                    test.assertEqual(Iterable.create(), node.getLinkedNodes());
+                    test.assertEqual(Iterable.create(), node.iterateLinkedNodes().toList());
                 });
 
                 runner.test("with another non-linked node", (Test test) ->
@@ -56,8 +56,8 @@ public interface GraphNodeTests
                     final GraphNode<Integer> node1 = graph.createNode(1);
                     final GraphNode<Integer> node2 = graph.createNode(2);
 
-                    test.assertEqual(Iterable.create(), node1.getLinkedNodes());
-                    test.assertEqual(Iterable.create(), node2.getLinkedNodes());
+                    test.assertEqual(Iterable.create(), node1.iterateLinkedNodes().toList());
+                    test.assertEqual(Iterable.create(), node2.iterateLinkedNodes().toList());
                 });
 
                 runner.test("with another linked node", (Test test) ->
@@ -67,8 +67,8 @@ public interface GraphNodeTests
                     final MutableGraphNode<Integer> node2 = graph.createNode(2);
                     node1.addLinkToNode(node2);
 
-                    test.assertEqual(Iterable.create(node2), node1.getLinkedNodes());
-                    test.assertEqual(Iterable.create(), node2.getLinkedNodes());
+                    test.assertEqual(Iterable.create(node2), node1.iterateLinkedNodes().toList());
+                    test.assertEqual(Iterable.create(), node2.iterateLinkedNodes().toList());
                 });
             });
 

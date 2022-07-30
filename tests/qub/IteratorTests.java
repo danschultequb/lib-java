@@ -428,7 +428,7 @@ public interface IteratorTests
                             else
                             {
                                 test.assertTrue(currentValue.hasValue());
-                                test.assertEqual(values.first() - 1, currentValue.get());
+                                test.assertEqual(values.first().await() - 1, currentValue.get());
                             }
 
                             actions.returnValue(values.removeFirst().await());
@@ -479,7 +479,7 @@ public interface IteratorTests
                             else
                             {
                                 test.assertTrue(currentValue.hasValue());
-                                test.assertEqual(values.first() - 1, currentValue.get());
+                                test.assertEqual(values.first().await() - 1, currentValue.get());
                             }
                             actions.returnValues(values);
                             values.clear();
@@ -525,7 +525,7 @@ public interface IteratorTests
                             else
                             {
                                 test.assertTrue(currentValue.hasValue());
-                                test.assertEqual(values.first() - 1, currentValue.get());
+                                test.assertEqual(values.first().await() - 1, currentValue.get());
                             }
                             actions.returnValues(values.removeFirst(3).await());
                         }
@@ -2294,27 +2294,27 @@ public interface IteratorTests
                     final Iterator<Integer> iterator = createIterator.run(0, false);
                     if (iterator != null)
                     {
-                        test.assertEqual(Set.create(), iterator.toSet());
+                        test.assertEqual(Set2.create(), iterator.toSet());
                     }
                 });
 
                 runner.test("with one value", (Test test) ->
                 {
                     final Iterator<Integer> iterator = createIterator.run(1, false);
-                    test.assertEqual(Set.create(0), iterator.toSet());
+                    test.assertEqual(Set2.create(0), iterator.toSet());
                 });
 
                 runner.test("with two values", (Test test) ->
                 {
                     final Iterator<Integer> iterator = createIterator.run(2, false);
-                    test.assertEqual(Set.create(0, 1), iterator.toSet());
+                    test.assertEqual(Set2.create(0, 1), iterator.toSet());
                 });
 
                 runner.test("with repeated values", (Test test) ->
                 {
                     final Iterator<Integer> iterator = createIterator.run(10, false)
                         .map((Integer value) -> value % 3);
-                    test.assertEqual(Set.create(0, 1, 2), iterator.toSet());
+                    test.assertEqual(Set2.create(0, 1, 2), iterator.toSet());
                 });
             });
 

@@ -2,7 +2,7 @@ package qub;
 
 public interface MutableGraphNodeTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(MutableGraphNode.class, () ->
         {
@@ -24,7 +24,7 @@ public interface MutableGraphNodeTests
                     test.assertNotNull(node);
                     test.assertFalse(graph.containsNode(node));
                     test.assertEqual(value, node.getValue());
-                    test.assertEqual(Iterable.create(), node.getLinkedNodes());
+                    test.assertEqual(Iterable.create(), node.iterateLinkedNodes().toList());
                 });
 
                 runner.test("with graph that already contains the provided value", (Test test) ->
@@ -58,8 +58,8 @@ public interface MutableGraphNodeTests
 
                     final MutableGraphNode<Integer> addLinkToValueResult = node1.addLinkToValue(2);
                     test.assertSame(node1, addLinkToValueResult);
-                    test.assertEqual(Iterable.create(node2), node1.getLinkedNodes());
-                    test.assertEqual(Iterable.create(), node2.getLinkedNodes());
+                    test.assertEqual(Iterable.create(node2), node1.iterateLinkedNodes().toList());
+                    test.assertEqual(Iterable.create(), node2.iterateLinkedNodes().toList());
                 });
 
                 runner.test("with already-linked value in graph", (Test test) ->
@@ -71,8 +71,8 @@ public interface MutableGraphNodeTests
 
                     test.assertThrows(() -> node1.addLinkToValue(2),
                         new PreConditionFailure("this.isLinkedTo(value) cannot be true."));
-                    test.assertEqual(Iterable.create(node2), node1.getLinkedNodes());
-                    test.assertEqual(Iterable.create(), node2.getLinkedNodes());
+                    test.assertEqual(Iterable.create(node2), node1.iterateLinkedNodes().toList());
+                    test.assertEqual(Iterable.create(), node2.iterateLinkedNodes().toList());
                 });
             });
 
@@ -96,8 +96,8 @@ public interface MutableGraphNodeTests
 
                     test.assertThrows(() -> node1.addLinkToNode(node2),
                         new PreConditionFailure("this.graph.containsNode(node) cannot be false."));
-                    test.assertEqual(Iterable.create(), node1.getLinkedNodes());
-                    test.assertEqual(Iterable.create(), node2.getLinkedNodes());
+                    test.assertEqual(Iterable.create(), node1.iterateLinkedNodes().toList());
+                    test.assertEqual(Iterable.create(), node2.iterateLinkedNodes().toList());
                 });
 
                 runner.test("with not-yet-linked node in graph", (Test test) ->
@@ -108,8 +108,8 @@ public interface MutableGraphNodeTests
 
                     final MutableGraphNode<Integer> addLinkToValueResult = node1.addLinkToNode(node2);
                     test.assertSame(node1, addLinkToValueResult);
-                    test.assertEqual(Iterable.create(node2), node1.getLinkedNodes());
-                    test.assertEqual(Iterable.create(), node2.getLinkedNodes());
+                    test.assertEqual(Iterable.create(node2), node1.iterateLinkedNodes().toList());
+                    test.assertEqual(Iterable.create(), node2.iterateLinkedNodes().toList());
                 });
 
                 runner.test("with already-linked node in graph", (Test test) ->
@@ -121,8 +121,8 @@ public interface MutableGraphNodeTests
 
                     test.assertThrows(() -> node1.addLinkToNode(node2),
                             new PreConditionFailure("this.isLinkedTo(node) cannot be true."));
-                    test.assertEqual(Iterable.create(node2), node1.getLinkedNodes());
-                    test.assertEqual(Iterable.create(), node2.getLinkedNodes());
+                    test.assertEqual(Iterable.create(node2), node1.iterateLinkedNodes().toList());
+                    test.assertEqual(Iterable.create(), node2.iterateLinkedNodes().toList());
                 });
             });
         });

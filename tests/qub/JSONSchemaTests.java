@@ -206,7 +206,7 @@ public interface JSONSchemaTests
                     test.assertNull(schema.getAdditionalProperties());
                     test.assertNull(schema.getDefinitions());
                     test.assertNull(schema.getDescription());
-                    test.assertEqual(Set.create(), schema.getEnum());
+                    test.assertEqual(Iterable.create(), schema.getEnum());
                     test.assertNull(schema.getItems());
                     test.assertNull(schema.getRequired());
                     test.assertNull(schema.getMinLength());
@@ -227,7 +227,7 @@ public interface JSONSchemaTests
                     test.assertNull(schema.getAdditionalProperties());
                     test.assertNull(schema.getDefinitions());
                     test.assertNull(schema.getDescription());
-                    test.assertEqual(Set.create((Object)null), schema.getEnum());
+                    test.assertEqual(Iterable.create((Object)null), schema.getEnum());
                     test.assertNull(schema.getItems());
                     test.assertNull(schema.getRequired());
                     test.assertNull(schema.getMinLength());
@@ -248,7 +248,7 @@ public interface JSONSchemaTests
                     test.assertNull(schema.getAdditionalProperties());
                     test.assertNull(schema.getDefinitions());
                     test.assertNull(schema.getDescription());
-                    test.assertEqual(Set.create("hello"), schema.getEnum());
+                    test.assertEqual(Iterable.create("hello"), schema.getEnum());
                     test.assertNull(schema.getItems());
                     test.assertNull(schema.getRequired());
                     test.assertNull(schema.getMinLength());
@@ -290,7 +290,7 @@ public interface JSONSchemaTests
                     test.assertNull(schema.getAdditionalProperties());
                     test.assertNull(schema.getDefinitions());
                     test.assertNull(schema.getDescription());
-                    test.assertEqual(Set.create(true), schema.getEnum());
+                    test.assertEqual(Iterable.create(true), schema.getEnum());
                     test.assertNull(schema.getItems());
                     test.assertNull(schema.getRequired());
                     test.assertNull(schema.getMinLength());

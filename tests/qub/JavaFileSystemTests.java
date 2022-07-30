@@ -2,7 +2,7 @@ package qub;
 
 public interface JavaFileSystemTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         final String tempFolderPathString = System.getProperty("java.io.tmpdir");
         final Path tempFolderPath = Path.parse(tempFolderPathString).concatenateSegments("qub-tests");
@@ -38,9 +38,6 @@ public interface JavaFileSystemTests
                 final JavaFileSystem fileSystem = JavaFileSystem.create();
                 final Iterable<Root> roots = fileSystem.getRoots().await();
                 test.assertNotNullAndNotEmpty(roots);
-
-                final Array<Root> rootsArray = roots.toArray();
-                test.assertNotNullAndNotEmpty(rootsArray);
             });
 
             runner.testGroup("getRootTotalDataSize(Path)", () ->
@@ -55,7 +52,7 @@ public interface JavaFileSystemTests
                 runner.test("with existing root path", (Test test) ->
                 {
                     final JavaFileSystem fileSystem = JavaFileSystem.create();
-                    final Root root = fileSystem.getRoots().await().first();
+                    final Root root = fileSystem.getRoots().await().first().await();
                     final DataSize rootTotalDataSize = fileSystem.getRootTotalDataSize(root.getPath()).await();
                     test.assertNotNull(rootTotalDataSize);
                     test.assertEqual(DataSizeUnit.Bytes, rootTotalDataSize.getUnits());
@@ -75,7 +72,7 @@ public interface JavaFileSystemTests
                 runner.test("with existing root path", (Test test) ->
                 {
                     final JavaFileSystem fileSystem = JavaFileSystem.create();
-                    final Root root = fileSystem.getRoots().await().first();
+                    final Root root = fileSystem.getRoots().await().first().await();
                     final DataSize rootUnusedDataSize = fileSystem.getRootUnusedDataSize(root.getPath()).await();
                     test.assertNotNull(rootUnusedDataSize);
                     test.assertEqual(DataSizeUnit.Bytes, rootUnusedDataSize.getUnits());
@@ -95,7 +92,7 @@ public interface JavaFileSystemTests
                 runner.test("with existing root path", (Test test) ->
                 {
                     final JavaFileSystem fileSystem = JavaFileSystem.create();
-                    final Root root = fileSystem.getRoots().await().first();
+                    final Root root = fileSystem.getRoots().await().first().await();
                     final DataSize rootUnusedDataSize = fileSystem.getRootUsedDataSize(root.getPath()).await();
                     test.assertNotNull(rootUnusedDataSize);
                     test.assertEqual(DataSizeUnit.Bytes, rootUnusedDataSize.getUnits());

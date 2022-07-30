@@ -85,7 +85,7 @@ public interface CharacterToUnicodeCodePointIteratorTests
                         else
                         {
                             test.assertTrue(iterator.hasCurrent());
-                            test.assertEqual(expected.first(), iterator.getCurrent());
+                            test.assertEqual(expected.first().await(), iterator.getCurrent());
                         }
 
                         for (final Integer expectedCodePoint : expected.skipFirst())

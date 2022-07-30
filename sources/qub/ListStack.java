@@ -125,14 +125,7 @@ public class ListStack<T> implements Stack<T>
     @Override
     public Result<T> peek()
     {
-        return Result.create(() ->
-        {
-            if (!this.any())
-            {
-                throw new EmptyException();
-            }
-            return this.values.last();
-        });
+        return this.values.last();
     }
 
     @Override

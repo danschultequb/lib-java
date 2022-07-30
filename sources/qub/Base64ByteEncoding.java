@@ -37,7 +37,7 @@ public class Base64ByteEncoding implements ByteEncoding
     {
         PreCondition.assertNotNull(table, "table");
         PreCondition.assertEqual(64, table.length, "table.length");
-        PreCondition.assertEqual(64, Set.create(ByteArray.create(table)).getCount(), "Set.create(ByteArray.create(table)).getCount()");
+        PreCondition.assertEqual(64, Set2.create(ByteArray.create(table)).getCount(), "Set.create(ByteArray.create(table)).getCount()");
         PreCondition.assertFalse(ByteArray.create(table).contains(padding), "ByteArray.create(table).contains(padding)");
 
         this.table = ByteArray.create(table);

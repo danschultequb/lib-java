@@ -6,6 +6,47 @@ public interface IterableTests
     {
         runner.testGroup(Iterable.class, () ->
         {
+            runner.testGroup("create(T...)", () ->
+            {
+                runner.test("with no arguments", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = Iterable.create();
+                    test.assertNotNull(iterable);
+                    test.assertEqual(0, iterable.getCount());
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = Iterable.create(5);
+                    test.assertNotNull(iterable);
+                    test.assertEqual(1, iterable.getCount());
+                    test.assertEqual(5, iterable.first().await());
+                    test.assertEqual(5, iterable.last().await());
+                });
+
+                runner.test("with two values", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = Iterable.create(5, 10);
+                    test.assertNotNull(iterable);
+                    test.assertEqual(2, iterable.getCount());
+                    test.assertEqual(5, iterable.first().await());
+                    test.assertEqual(10, iterable.last().await());
+                });
+
+                runner.test("with null array", (Test test) ->
+                {
+                    test.assertThrows(() -> Iterable.create((Integer[])null),
+                        new PreConditionFailure("values cannot be null."));
+                });
+
+                runner.test("with empty array", (Test test) ->
+                {
+                    final Iterable<Integer> iterable = Iterable.create(new Integer[0]);
+                    test.assertNotNull(iterable);
+                    test.assertEqual(0, iterable.getCount());
+                });
+            });
+
             runner.testGroup("toString(Iterable<T>)", () ->
             {
                 runner.test("with null", (Test test) ->
@@ -225,27 +266,27 @@ public interface IterableTests
                     final Iterable<Integer> iterable = createIterable.run(0);
                     if (iterable != null)
                     {
-                        test.assertEqual(Set.create(), iterable.toSet());
+                        test.assertEqual(Set2.create(), iterable.toSet());
                     }
                 });
 
                 runner.test("with one value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(1);
-                    test.assertEqual(Set.create(0), iterable.toSet());
+                    test.assertEqual(Set2.create(0), iterable.toSet());
                 });
 
                 runner.test("with two values", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(2);
-                    test.assertEqual(Set.create(0, 1), iterable.toSet());
+                    test.assertEqual(Set2.create(0, 1), iterable.toSet());
                 });
 
                 runner.test("with repeated values", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(10)
                         .map((Integer value) -> value % 3);
-                    test.assertEqual(Set.create(0, 1, 2), iterable.toSet());
+                    test.assertEqual(Set2.create(0, 1, 2), iterable.toSet());
                 });
             });
 
@@ -401,14 +442,15 @@ public interface IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        test.assertNull(iterable.first());
+                        test.assertThrows(() -> iterable.first().await(),
+                            new EmptyException());
                     }
                 });
 
                 runner.test("with non-empty Iterable", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(3);
-                    test.assertEqual(0, iterable.first());
+                    test.assertEqual(0, iterable.first().await());
                 });
 
                 runner.test("with empty Iterable and null condition", (Test test) ->
@@ -418,14 +460,16 @@ public interface IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        test.assertThrows(() -> iterable.first(null), new PreConditionFailure("condition cannot be null."));
+                        test.assertThrows(() -> iterable.first(null),
+                            new PreConditionFailure("condition cannot be null."));
                     }
                 });
 
                 runner.test("with non-empty Iterable and null condition", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(4);
-                    test.assertThrows(() -> iterable.first(null), new PreConditionFailure("condition cannot be null."));
+                    test.assertThrows(() -> iterable.first(null),
+                        new PreConditionFailure("condition cannot be null."));
                 });
 
                 runner.test("with empty Iterable and non-null condition", (Test test) ->
@@ -435,20 +479,22 @@ public interface IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        test.assertNull(iterable.first(Math::isOdd));
+                        test.assertThrows(() -> iterable.first(Math::isOdd).await(),
+                            new NotFoundException("Could not find a value in this Iterable that matches the provided condition."));
                     }
                 });
 
                 runner.test("with non-empty Iterable and non-matching condition", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(1);
-                    test.assertNull(iterable.first(Math::isOdd));
+                    test.assertThrows(() -> iterable.first(Math::isOdd).await(),
+                        new NotFoundException("Could not find a value in this Iterable that matches the provided condition."));
                 });
 
                 runner.test("with non-empty Iterable and matching condition", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(1);
-                    test.assertEqual(0, iterable.first(Math::isEven));
+                    test.assertEqual(0, iterable.first(Math::isEven).await());
                 });
             });
 
@@ -461,14 +507,15 @@ public interface IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        test.assertNull(iterable.last());
+                        test.assertThrows(() -> iterable.last().await(),
+                            new EmptyException());
                     }
                 });
 
                 runner.test("with non-empty Iterable", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(3);
-                    test.assertEqual(2, iterable.last());
+                    test.assertEqual(2, iterable.last().await());
                 });
 
                 runner.test("with empty Iterable and null condition", (Test test) ->
@@ -495,20 +542,22 @@ public interface IterableTests
                     // an Iterable with 0 elements is requested.
                     if (iterable != null)
                     {
-                        test.assertNull(iterable.last(Math::isOdd));
+                        test.assertThrows(() -> iterable.last(Math::isOdd).await(),
+                            new NotFoundException("Could not find a value in this Iterable that matches the provided condition."));
                     }
                 });
 
                 runner.test("with non-empty Iterable and non-matching condition", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(1);
-                    test.assertNull(iterable.last(Math::isOdd));
+                    test.assertThrows(() -> iterable.last(Math::isOdd).await(),
+                        new NotFoundException("Could not find a value in this Iterable that matches the provided condition."));
                 });
 
                 runner.test("with non-empty Iterable and matching condition", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(5);
-                    test.assertEqual(3, iterable.last(Math::isOdd));
+                    test.assertEqual(3, iterable.last(Math::isOdd).await());
                 });
             });
 

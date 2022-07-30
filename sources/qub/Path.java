@@ -45,7 +45,7 @@ public class Path implements Comparable<Path>
      */
     public String getName()
     {
-        return this.getSegments().last();
+        return this.getSegments().last().await();
     }
 
     /**
@@ -79,8 +79,8 @@ public class Path implements Comparable<Path>
         }
         else
         {
-            final Path normalizedPath = normalize();
-            final String lastSegment = normalizedPath.getSegments().last();
+            final Path normalizedPath = this.normalize();
+            final String lastSegment = normalizedPath.getSegments().last().await();
             final int lastPeriodIndex = lastSegment.lastIndexOf('.');
             if (lastPeriodIndex == -1)
             {
@@ -391,8 +391,8 @@ public class Path implements Comparable<Path>
     public boolean isRooted()
     {
         final Indexable<String> segments = this.getSegments();
-        final String firstSegment = segments.first();
-        return firstSegment.equals("/") || (firstSegment.endsWith(":") && !firstSegment.equals(":"));
+        final String firstSegment = segments.first().catchError().await();
+        return firstSegment != null && (firstSegment.equals("/") || (firstSegment.endsWith(":") && !firstSegment.equals(":")));
     }
 
     /**
@@ -401,7 +401,7 @@ public class Path implements Comparable<Path>
     public Result<Path> getRoot()
     {
         return this.isRooted() ?
-           Result.success(Path.parse(this.getSegments().first())) :
+           Result.success(Path.parse(this.getSegments().first().await())) :
            Result.error(new NotFoundException("Could not find a root on the path " + Strings.escapeAndQuote(this) + "."));
     }
 

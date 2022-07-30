@@ -1,5 +1,8 @@
 package qub;
 
+/**
+ * A {@link RuntimeException} that can contain multiple {@link Throwable} errors.
+ */
 public class ErrorIterable extends RuntimeException implements Iterable<Throwable>
 {
     private final Iterable<Throwable> errors;
@@ -38,7 +41,7 @@ public class ErrorIterable extends RuntimeException implements Iterable<Throwabl
         final RuntimeException result;
         if (errorList.getCount() == 1)
         {
-            result = Exceptions.asRuntime(errorList.first());
+            result = Exceptions.asRuntime(errorList.first().await());
         }
         else
         {

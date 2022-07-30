@@ -10,7 +10,7 @@ public class State
     private boolean endState;
     private boolean trackValues;
     private final List<StateTransition> transitions;
-    private final Set<State> instantNextStates;
+    private final MutableSet<State> instantNextStates;
 
     /**
      * Create a new State with the provided name.
@@ -22,7 +22,7 @@ public class State
 
         this.name = name;
         this.transitions = List.create();
-        this.instantNextStates = Set.create();
+        this.instantNextStates = Set2.create();
     }
 
     /**

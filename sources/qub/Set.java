@@ -4,8 +4,18 @@ package qub;
  * An {@link Iterable} that cannot contain duplicate values.
  * @param <T> The type of values stored in this {@link Set}.
  */
+@Deprecated
 public interface Set<T> extends Iterable<T>
 {
+    /**
+     * Create a new empty {@link Set}.
+     * @param <T> The type of values that will be stored in the created {@link Set}.
+     */
+    public static <T> Set<T> create()
+    {
+        return ListSet.create();
+    }
+
     /**
      * Create a new {@link Set} from the provided values.
      * @param initialValues The initial values for the resulting {@link Set} to contain.
@@ -40,7 +50,7 @@ public interface Set<T> extends Iterable<T>
     {
         PreCondition.assertNotNull(initialValues, "initialValues");
 
-        final Set<T> result = ListSet.create();
+        final Set<T> result = Set.create();
         result.addAll(initialValues);
         return result;
     }

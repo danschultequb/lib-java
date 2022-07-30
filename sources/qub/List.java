@@ -9,7 +9,7 @@ public interface List<T> extends MutableIndexable<T>
      * @return The created List.
      */
     @SafeVarargs
-    static <T> List<T> create(T... initialValues)
+    public static <T> List<T> create(T... initialValues)
     {
         PreCondition.assertNotNull(initialValues, "initialValues");
 
@@ -37,14 +37,7 @@ public interface List<T> extends MutableIndexable<T>
      */
     public static <T> List<T> create(Iterator<T> initialValues)
     {
-        PreCondition.assertNotNull(initialValues, "initialValues");
-
-        final List<T> result = JavaArrayList.create();
-        result.addAll(initialValues);
-
-        PostCondition.assertNotNull(result, "result");
-
-        return result;
+        return JavaArrayList.create(initialValues);
     }
 
     /**

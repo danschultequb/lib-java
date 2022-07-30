@@ -6,7 +6,19 @@ public interface MutableSetTests
     {
         runner.testGroup(MutableSet.class, () ->
         {
+            runner.test("create()", (Test test) ->
+            {
+                final MutableSet<Boolean> set = MutableSet.create();
+                test.assertNotNull(set);
+                test.assertEqual(Iterable.create(), set);
+            });
 
+            runner.test("create(T...)", (Test test) ->
+            {
+                final MutableSet<String> set = MutableSet.create("a", "b", "c");
+                test.assertNotNull(set);
+                test.assertEqual(Iterable.create("a", "b", "c"), set);
+            });
         });
     }
 
@@ -14,7 +26,7 @@ public interface MutableSetTests
     {
         runner.testGroup(MutableSet.class, () ->
         {
-            // SetTests.test(runner, creator);
+            Set2Tests.test(runner, creator);
 
             runner.testGroup("add()", () ->
             {
@@ -104,28 +116,29 @@ public interface MutableSetTests
                 runner.test("with null", (Test test) ->
                 {
                     final MutableSet<Integer> set = creator.run(0);
-                    set.addAll((Iterator<Integer>)null);
+                    test.assertThrows(() -> set.addAll((Iterator<Integer>)null),
+                        new PreConditionFailure("values cannot be null."));
                     test.assertEqual(0, set.getCount());
                 });
 
                 runner.test("with empty", (Test test) ->
                 {
                     final MutableSet<Integer> set = creator.run(0);
-                    set.addAll(Iterator.create());
+                    test.assertFalse(set.addAll(Iterator.create()));
                     test.assertEqual(0, set.getCount());
                 });
 
                 runner.test("with non-empty", (Test test) ->
                 {
                     final MutableSet<Integer> set = creator.run(0);
-                    set.addAll(Iterator.create(1, 2, 3));
+                    test.assertTrue(set.addAll(Iterator.create(1, 2, 3)));
                     test.assertEqual(Iterable.create(1, 2, 3), set);
                 });
 
                 runner.test("with non-empty with duplicates", (Test test) ->
                 {
                     final MutableSet<Integer> set = creator.run(0);
-                    set.addAll(Iterator.create(1, 2, 2, 1));
+                    test.assertTrue(set.addAll(Iterator.create(1, 2, 2, 1)));
                     test.assertEqual(Iterable.create(1, 2), set);
                 });
             });
@@ -135,7 +148,8 @@ public interface MutableSetTests
                 runner.test("with null", (Test test) ->
                 {
                     final MutableSet<Integer> set = creator.run(0);
-                    set.addAll((Iterable<Integer>)null);
+                    test.assertThrows(() -> set.addAll((Iterable<Integer>)null),
+                        new PreConditionFailure("values cannot be null."));
                     test.assertEqual(0, set.getCount());
                 });
 

@@ -152,28 +152,46 @@ public interface Set2<T> extends Iterable<T>
     public static <T> boolean equals(Set2<T> lhs, Object rhs)
     {
         boolean result = (lhs == rhs);
-        if (!result && lhs != null)
+        if (!result && lhs != null && rhs instanceof Iterable)
         {
-            result = rhs instanceof Set2
-                ? lhs.equals((Set2<T>)rhs)
-                : Iterable.equals(lhs, rhs);
+            result = lhs.equals((Iterable<T>)rhs);
         }
         return result;
     }
 
     /**
-     * Get whether or not this Set equals the provided Set.
-     * @param rhs The Set to compare against this Set.
-     * @return Whether or not this Set equals the provided Set.
+     * Get whether this {@link Set2} is equal to the provided {@link Iterable} rhs. If the provided
+     * {@link Iterable} is actually a {@link Set2}, then this {@link Set2} will be compared against
+     * the provided {@link Set2} using {@link Set2} comparison. If the provided {@link Iterable} is
+     * not a {@link Set2}, then standard {@link Iterable} comparison will be used instead.
+     * @param rhs The {@link Object} to compare against the {@link Set2} lhs.
+     */
+    public default boolean equals(Iterable<T> rhs)
+    {
+        boolean result = (this == rhs);
+        if (!result)
+        {
+            result = rhs instanceof Set2
+                ? this.equals((Set2<T>)rhs)
+                : Iterable.super.equals(rhs);
+        }
+        return result;
+    }
+
+    /**
+     * Get whether this {@link Set2} equals the provided {@link Set2}.
+     * @param rhs The {@link Set2} to compare against this {@link Set2}.
      */
     public default boolean equals(Set2<T> rhs)
     {
         boolean result = false;
         if (rhs != null)
         {
+            int lhsCount = 0;
             result = true;
             for (final T value : this)
             {
+                lhsCount++;
                 if (!rhs.contains(value))
                 {
                     result = false;
@@ -182,7 +200,7 @@ public interface Set2<T> extends Iterable<T>
             }
             if (result)
             {
-                result = getCount() == rhs.getCount();
+                result = (lhsCount == rhs.getCount());
             }
         }
         return result;

@@ -179,7 +179,7 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     /**
      * Get the first value in this {@link Iterator}. This may advance the {@link Iterator} once if
      * it hasn't been started yet.
-     * @exception EmptyException if the {@link Iterator} is empty.
+     * @exception EmptyException if this {@link Iterator} is empty.
      */
     public default Result<T> first()
     {
@@ -228,7 +228,7 @@ public interface Iterator<T> extends java.lang.Iterable<T>
 
     /**
      * Get the last value in this {@link Iterator}.
-     * @exception EmptyException if the {@link Iterator} is empty.
+     * @exception EmptyException if this {@link Iterator} is empty.
      */
     public default Result<T> last()
     {
@@ -422,11 +422,11 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create a {@link Set} from the values in this {@link Iterator}.
+     * Create a {@link Set2} from the values in this {@link Iterator}.
      */
-    public default Set<T> toSet()
+    public default Set2<T> toSet()
     {
-        return Set.create(this);
+        return Set2.create(this);
     }
 
     /**

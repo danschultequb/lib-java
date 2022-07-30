@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A collection of String arguments that are passed to an application on the command line.
+ * A collection of {@link String} arguments that are passed to an application on the command line.
  */
 public class CommandLineArguments implements Indexable<CommandLineArgument>
 {
@@ -78,22 +78,14 @@ public class CommandLineArguments implements Indexable<CommandLineArgument>
     /**
      * Get the first value of the command line argument with the provided name.
      * @param argumentName The name of the argument to get the value of.
-     * @return The value of the command line argument or a NotFoundException if no matching argument
-     * is found.
      */
     public Result<String> getNamedValue(String argumentName)
     {
         PreCondition.assertNotNullAndNotEmpty(argumentName, "argumentName");
 
-        return Result.create(() ->
-        {
-            final CommandLineArgument argument = this.arguments.first((CommandLineArgument arg) -> Comparer.equalIgnoreCase(arg.getName(), argumentName));
-            if (argument == null)
-            {
-                throw new NotFoundException("Could not find command-line arguments with the name " + Strings.escapeAndQuote(argumentName) + ".");
-            }
-            return argument.getValue();
-        });
+        return this.arguments.first((CommandLineArgument arg) -> Comparer.equalIgnoreCase(arg.getName(), argumentName))
+            .convertError(NotFoundException.class, () -> new NotFoundException("Could not find a command-line argument with the name " + Strings.escapeAndQuote(argumentName) + "."))
+            .then(CommandLineArgument::getValue);
     }
 
     /**

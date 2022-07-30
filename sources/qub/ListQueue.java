@@ -58,13 +58,6 @@ public class ListQueue<T> implements Queue<T>
     @Override
     public Result<T> peek()
     {
-        return Result.create(() ->
-        {
-            if (!this.any())
-            {
-                throw new EmptyException();
-            }
-            return this.values.first();
-        });
+        return this.values.first();
     }
 }

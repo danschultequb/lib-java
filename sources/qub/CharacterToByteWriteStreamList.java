@@ -41,12 +41,10 @@ public class CharacterToByteWriteStreamList implements CharacterToByteWriteStrea
     @Override
     public CharacterEncoding getCharacterEncoding()
     {
-        CharacterEncoding result = null;
-        if (this.innerStreams.any())
-        {
-            result = this.innerStreams.first().getCharacterEncoding();
-        }
-        return result;
+        return this.innerStreams.first()
+            .then(CharacterToByteWriteStream::getCharacterEncoding)
+            .catchError()
+            .await();
     }
 
     @Override

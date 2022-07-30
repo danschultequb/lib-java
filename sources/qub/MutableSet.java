@@ -102,7 +102,7 @@ public interface MutableSet<T> extends Set2<T>
      */
     public static <T> MutableSet<T> create(EqualFunction<T> equalFunction)
     {
-        return null;
+        return ListSet2.create(equalFunction);
     }
 
     /**

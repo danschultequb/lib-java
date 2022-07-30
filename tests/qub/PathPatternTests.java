@@ -148,7 +148,7 @@ public interface PathPatternTests
                     final Iterable<Match> matches = pattern.getMatches("appb");
                     test.assertNotNull(matches);
                     test.assertEqual(1, matches.getCount());
-                    final Match match = matches.first();
+                    final Match match = matches.first().await();
                     test.assertNotNull(match);
                     test.assertEqual(Strings.iterable("appb"), match.getValues());
                     test.assertEqual(0, match.getStartIndex());

@@ -97,14 +97,12 @@ public interface Stack<T>
 
     /**
      * Remove and return the most recently pushed value.
-     * @return The most recently pushed value.
      * @exception EmptyException if the {@link Stack} is empty.
      */
     public Result<T> pop();
 
     /**
      * Get the most recently pushed value.
-     * @return The most recently pushed value.
      * @exception EmptyException if the {@link Stack} is empty.
      */
     public Result<T> peek();

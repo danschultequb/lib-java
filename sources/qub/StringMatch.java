@@ -72,11 +72,11 @@ public class StringMatch implements PossibleMatch
         matchString.add(value);
         if (currentState.shouldTrackValues())
         {
-            if (!trackedValues.any() || !trackedValues.last().isOpen())
+            if (!trackedValues.any() || !trackedValues.last().await().isOpen())
             {
                 trackedValues.add(new TrackedValue(currentState));
             }
-            trackedValues.last().add(value);
+            trackedValues.last().await().add(value);
         }
     }
 
@@ -87,7 +87,7 @@ public class StringMatch implements PossibleMatch
         this.currentState = currentState;
         if (trackedValues.any())
         {
-            final TrackedValue lastTrackedValue = trackedValues.last();
+            final TrackedValue lastTrackedValue = trackedValues.last().await();
             if (lastTrackedValue.getState() != currentState)
             {
                 lastTrackedValue.close();
@@ -100,18 +100,18 @@ public class StringMatch implements PossibleMatch
     {
         final List<PossibleMatch> result = List.create();
 
-        final Iterable<State> nextStates = currentState.getNextStates(value);
+        final Iterable<State> nextStates = this.currentState.getNextStates(value);
         if (nextStates.any())
         {
             for (final State nextState : nextStates.skipLast())
             {
-                final StringMatch newMatch = new StringMatch(startIndex, nextState, matchString, trackedValues);
+                final StringMatch newMatch = new StringMatch(this.startIndex, nextState, this.matchString, this.trackedValues);
                 newMatch.add(value);
                 result.add(newMatch);
             }
 
-            setCurrentState(nextStates.last());
-            add(value);
+            this.setCurrentState(nextStates.last().await());
+            this.add(value);
             result.add(this);
         }
 

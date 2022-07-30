@@ -27,7 +27,7 @@ public class File extends FileSystemEntry
      */
     public String getNameWithoutFileExtension()
     {
-        return this.getPath().withoutFileExtension().getSegments().last();
+        return this.getPath().withoutFileExtension().getSegments().last().await();
     }
 
     public Path relativeTo(Path path)

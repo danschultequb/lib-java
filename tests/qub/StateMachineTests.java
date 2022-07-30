@@ -1,6 +1,6 @@
 package qub;
 
-public class StateMachineTests
+public interface StateMachineTests
 {
     public static void test(TestRunner runner)
     {
@@ -296,7 +296,7 @@ public class StateMachineTests
                     final Iterable<Match> matches = stateMachine.getMatches("abcxyz");
                     test.assertNotNull(matches);
                     test.assertEqual(1, matches.getCount());
-                    test.assertEqual(Iterable.create(), matches.first().getTrackedValues());
+                    test.assertEqual(Iterable.create(), matches.first().await().getTrackedValues());
                 });
 
                 runner.test("and " + Strings.escapeAndQuote("abcxyxxyz"), (Test test) ->
@@ -307,7 +307,7 @@ public class StateMachineTests
                     test.assertEqual(1, matches.getCount());
                     final Array<Iterable<Character>> expectedTrackedValues = Array.createWithLength(1);
                     expectedTrackedValues.set(0, Strings.iterable("xyx"));
-                    test.assertEqual(expectedTrackedValues, matches.first().getTrackedValues());
+                    test.assertEqual(expectedTrackedValues, matches.first().await().getTrackedValues());
                 });
 
                 runner.test("and " + Strings.escapeAndQuote("abcxy"), (Test test) ->

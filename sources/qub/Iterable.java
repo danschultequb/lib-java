@@ -2,18 +2,17 @@ package qub;
 
 /**
  * An interface of a collection that can have its contents iterated through multiple times.
- * @param <T> The type of value that this Iterable contains.
+ * @param <T> The type of value that this {@link Iterable} contains.
  */
 public interface Iterable<T> extends java.lang.Iterable<T>
 {
     /**
-     * Create a new Iterable create the provided values.
-     * @param values The values to convert to an Iterable.
-     * @param <T> The type of values in the created Iterable.
-     * @return The created Iterable.
+     * Create a new {@link Iterable} from the provided values.
+     * @param values The values to convert to an {@link Iterable}.
+     * @param <T> The type of values in the created {@link Iterable}.
      */
     @SafeVarargs
-    static <T> Iterable<T> create(T... values)
+    public static <T> Iterable<T> create(T... values)
     {
         PreCondition.assertNotNull(values, "values");
 
@@ -21,8 +20,7 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create an Array create the values in this Iterable.
-     * @return An Array create the values in this Iterable.
+     * Create a new {@link Array} from the values in this {@link Iterable}.
      */
     default Array<T> toArray()
     {
@@ -30,8 +28,7 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create a List create the values in this Iterable.
-     * @return A List create the values in this Iterable.
+     * Create a new {@link List} from the values in this {@link Iterable}.
      */
     public default List<T> toList()
     {
@@ -39,57 +36,67 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create a Set create the values in this Iterable.
-     * @return A Set create the values in this Iterable.
+     * Create a new {@link Set2} from the values in this {@link Iterable}.
      */
-    default Set<T> toSet()
+    public default Set2<T> toSet()
     {
-        return Set.create(this);
+        return Set2.create(this);
     }
 
     /**
-     * Create a Map from the values in this Iterator.
-     * @param getKey The function that will select the key from a value.
-     * @param <K> The type of value that will serve as the keys of the map.
-     * @param <V> The type of value that will serve as the values of the map.
-     * @return A Map from the values in this Iterator.
+     * Create a new {@link MutableMap} from the values in this {@link Iterable}. The entry values in
+     * the new {@link MutableMap} will be the values in this {@link Iterable}.
+     * @param getKey The {@link Function1} that will select an entry's key from a value from this
+     *               {@link Iterable}.
+     * @param <K> The type of value that will serve as the keys of the {@link MutableMap}.
      */
-    default <K,V> MutableMap<K,V> toMap(Function1<T,K> getKey, Function1<T,V> getValue)
+    public default <K> MutableMap<K,T> toMap(Function1<T,K> getKey)
+    {
+        return this.toMap(getKey, (T value) -> value);
+    }
+
+    /**
+     * Create a new {@link MutableMap} from the values in this {@link Iterable}.
+     * @param getKey The {@link Function1} that will select an entry's key from a value from this
+     *               {@link Iterable}.
+     * @param getValue The {@link Function1} that will select an entry's value from a value from
+     *                 this {@link Iterable}.
+     * @param <K> The type of value that will serve as the keys of the {@link MutableMap}.
+     * @param <V> The type of value that will serve as the values of the {@link MutableMap}.
+     */
+    public default <K,V> MutableMap<K,V> toMap(Function1<T,K> getKey, Function1<T,V> getValue)
     {
         return Map.create(this, getKey, getValue);
     }
 
     /**
-     * Get an Iterator that will iterate over the contents of this Iterable.
-     * @return An Iterator that will iterate over the contents of this Iterable.
+     * Get an {@link Iterator} that will iterate over the contents of this {@link Iterable}.
      */
-    Iterator<T> iterate();
+    public Iterator<T> iterate();
 
     /**
-     * Get whether or not this Iterable contains any values.
-     * @return Whether or not this Iterable contains any values.
+     * Get whether this {@link Iterable} contains any values.
      */
-    default boolean any()
+    public default boolean any()
     {
-        return iterate().any();
+        return this.iterate().any();
     }
 
     /**
-     * Get the number of values that are in this Iterable.
-     * @return The number of values that are in this Iterable.
+     * Get the number of values that are in this {@link Iterable}.
      */
-    default int getCount()
+    public default int getCount()
     {
-        return iterate().getCount();
+        return this.iterate().getCount();
     }
 
     /**
-     * Get the first value in this Iterable.
-     * @return The first value of this Iterable, or null if this Iterable is empty.
+     * Get the first value in this {@link Iterable}.
+     * @exception EmptyException if this {@link Iterable} is empty.
      */
-    default T first()
+    public default Result<T> first()
     {
-        return iterate().first().catchError().await();
+        return this.iterate().first();
     }
 
     /**
@@ -97,34 +104,39 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      * @param condition The condition to run against each of the values in this {@link Iterable}.
      * @exception NotFoundException if no matching value is found.
      */
-    public default T first(Function1<T,Boolean> condition)
+    public default Result<T> first(Function1<T,Boolean> condition)
     {
-        return this.iterate().first(condition).catchError(NotFoundException.class).await();
+        PreCondition.assertNotNull(condition, "condition");
+
+        return this.iterate().first(condition)
+            .convertError(NotFoundException.class, () -> new NotFoundException("Could not find a value in this " + Types.getTypeName(Iterable.class) + " that matches the provided condition."));
     }
 
     /**
-     * Get the last value in this Iterable.
-     * @return The last value in this Iterable, or null if this Iterable is empty.
+     * Get the last value in this {@link Iterable}.
+     * @exception EmptyException if this {@link Iterable} is empty.
      */
-    default T last()
+    public default Result<T> last()
     {
-        return iterate().last().catchError().await();
+        return this.iterate().last();
     }
 
     /**
-     * Get the last value in this Iterable that isMatch the provided condition.
-     * @param condition The condition to run against each of the values in this Iterable.
-     * @return The last value of this Iterable that isMatch the provided condition, or null if this
-     * Iterable has no values that match the condition.
+     * Get the last value in this {@link Iterable} that matches the provided condition.
+     * @param condition The condition to run against each of the values in this {@link Iterable}.
+     * @exception NotFoundException if no value is found.
      */
-    default T last(Function1<T,Boolean> condition)
+    public default Result<T> last(Function1<T,Boolean> condition)
     {
-        return iterate().last(condition).catchError(NotFoundException.class).await();
+        PreCondition.assertNotNull(condition, "condition");
+
+        return this.iterate().last(condition)
+            .convertError(NotFoundException.class, () -> new NotFoundException("Could not find a value in this " + Types.getTypeName(Iterable.class) + " that matches the provided condition."));
     }
 
     /**
-     * Get whether this {@link Iterable} contains the provided value using the standard equals()
-     * method to compare values.
+     * Get whether this {@link Iterable} contains the provided value using {@link Comparer}'s
+     * equal(T,T) function to compare values.
      * @param value The value to look for in this {@link Iterable}.
      */
     public default boolean contains(T value)
@@ -136,12 +148,12 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      * Get whether or not this Iterable contains the provided value using the provided comparison
      * method to compare values.
      * @param value The value to look for in this Iterable.
-     * @param comparison The comparison function to use to compare values.
+     * @param equalFunction The comparison function to use to compare values.
      * @return Whether or not this Iterable contains the provided value.
      */
-    default boolean contains(T value, Function2<T,T,Boolean> comparison)
+    public default boolean contains(T value, EqualFunction<T> equalFunction)
     {
-        return contains((T existingValue) -> comparison.run(value, existingValue));
+        return this.contains((T existingValue) -> equalFunction.run(value, existingValue));
     }
 
     /**
@@ -167,12 +179,12 @@ public interface Iterable<T> extends java.lang.Iterable<T>
      * Get whether this {@link Iterable} does not contain the provided value using the provided
      * comparison function.
      * @param value The value to look for.
-     * @param comparison The {@link Function2} to use to compare the provided value against the
+     * @param equalFunction The {@link Function2} to use to compare the provided value against the
      *                   values within this {@link Iterable}.
      */
-    public default boolean doesNotContain(T value, Function2<T,T,Boolean> comparison)
+    public default boolean doesNotContain(T value, EqualFunction<T> equalFunction)
     {
-        return !this.contains(value, comparison);
+        return !this.contains(value, equalFunction);
     }
 
     /**
@@ -330,23 +342,21 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create a java.util.Iterator that will iterate over this Iterable.
-     * @return A java.util.Iterator that will iterate over this Iterable.
+     * Create a {@link java.util.Iterator} that will iterate over this {@link Iterable}.
      */
-    default java.util.Iterator<T> iterator()
+    public default java.util.Iterator<T> iterator()
     {
-        return iterate().iterator();
+        return this.iterate().iterator();
     }
 
     /**
-     * Get whether or not the lhs Iterable contains equal elements in the same order as the provided
-     * rhs Iterable.
-     * @param rhs The Iterable to compare against this Iterable.
-     * @return Whether or not this Iterable contains equal elements in the same order as the
-     * provided Iterable.
+     * Get whether the lhs {@link Iterable} contains equal elements in the same order as the
+     * provided rhs {@link Iterable}.
+     * @param lhs The left-hand-side {@link Iterable} in the comparison.
+     * @param rhs The right-hand-side {@link Iterable} in the comparison.
      */
     @SuppressWarnings("unchecked")
-    static <T> boolean equals(Iterable<T> lhs, Object rhs)
+    public static <T> boolean equals(Iterable<T> lhs, Object rhs)
     {
         PreCondition.assertNotNull(lhs, "lhs");
 
@@ -354,12 +364,11 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Get whether or not the provided Iterable is null or empty.
-     * @param value The Iterable to check.
-     * @param <T> The type of values contained by the Iterable.
-     * @return Whether or not the Iterable is null or empty.
+     * Get whether the provided {@link Iterable} is null or empty.
+     * @param value The {@link Iterable} to check.
+     * @param <T> The type of values contained by the {@link Iterable}.
      */
-    static <T> boolean isNullOrEmpty(Iterable<T> value)
+    public static <T> boolean isNullOrEmpty(Iterable<T> value)
     {
         return value == null || !value.any();
     }

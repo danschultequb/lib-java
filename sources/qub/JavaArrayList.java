@@ -15,4 +15,43 @@ public class JavaArrayList<T> extends JavaList<T>
     {
         return new JavaArrayList<>();
     }
+
+    @SafeVarargs
+    public static <T> JavaArrayList<T> create(T... initialValues)
+    {
+        PreCondition.assertNotNull(initialValues, "initialValues");
+
+        final JavaArrayList<T> result = JavaArrayList.create();
+        result.addAll(initialValues);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(initialValues.length, result.getCount(), "result.getCount()");
+
+        return result;
+    }
+
+    public static <T> JavaArrayList<T> create(Iterable<T> initialValues)
+    {
+        PreCondition.assertNotNull(initialValues, "initialValues");
+
+        final JavaArrayList<T> result = JavaArrayList.create();
+        result.addAll(initialValues);
+
+        PostCondition.assertNotNull(result, "result");
+        PostCondition.assertEqual(initialValues.getCount(), result.getCount(), "result.getCount()");
+
+        return result;
+    }
+
+    public static <T> JavaArrayList<T> create(Iterator<T> initialValues)
+    {
+        PreCondition.assertNotNull(initialValues, "initialValues");
+
+        final JavaArrayList<T> result = JavaArrayList.create();
+        result.addAll(initialValues);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
 }

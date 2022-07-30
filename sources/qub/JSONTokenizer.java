@@ -158,11 +158,9 @@ public class JSONTokenizer implements Iterator<JSONToken>
                     if (JSONTokenizer.isLetter(this.characters.getCurrent()))
                     {
                         final String tokenText = this.readLiteral();
-                        this.current = JSONTokenizer.literalTokens.first((JSONToken token) -> token.getText().equals(tokenText));
-                        if (this.current == null)
-                        {
-                            throw new ParseException("Unrecognized JSONToken literal: " + tokenText);
-                        }
+                        this.current = JSONTokenizer.literalTokens.first((JSONToken token) -> token.getText().equals(tokenText))
+                            .convertError(NotFoundException.class, () -> new ParseException("Unrecognized " + Types.getTypeName(JSONToken.class) + " literal: " + tokenText))
+                            .await();
                     }
                     else if (this.characters.getCurrent() == '-' || JSONTokenizer.isDigit(this.characters.getCurrent()))
                     {

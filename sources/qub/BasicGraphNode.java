@@ -45,9 +45,9 @@ public class BasicGraphNode<T> implements MutableGraphNode<T>
     }
 
     @Override
-    public Iterable<GraphNode<T>> getLinkedNodes()
+    public Iterator<GraphNode<T>> iterateLinkedNodes()
     {
-        return this.linkedNodes;
+        return this.linkedNodes.iterate();
     }
 
     @Override
