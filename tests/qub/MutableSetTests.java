@@ -26,7 +26,7 @@ public interface MutableSetTests
     {
         runner.testGroup(MutableSet.class, () ->
         {
-            Set2Tests.test(runner, creator);
+            SetTests.test(runner, creator);
 
             runner.testGroup("add()", () ->
             {

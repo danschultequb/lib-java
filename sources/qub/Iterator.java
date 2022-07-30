@@ -422,11 +422,11 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create a {@link Set2} from the values in this {@link Iterator}.
+     * Create a {@link Set} from the values in this {@link Iterator}.
      */
-    public default Set2<T> toSet()
+    public default Set<T> toSet()
     {
-        return Set2.create(this);
+        return Set.create(this);
     }
 
     /**

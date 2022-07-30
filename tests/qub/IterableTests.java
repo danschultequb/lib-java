@@ -266,27 +266,27 @@ public interface IterableTests
                     final Iterable<Integer> iterable = createIterable.run(0);
                     if (iterable != null)
                     {
-                        test.assertEqual(Set2.create(), iterable.toSet());
+                        test.assertEqual(Set.create(), iterable.toSet());
                     }
                 });
 
                 runner.test("with one value", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(1);
-                    test.assertEqual(Set2.create(0), iterable.toSet());
+                    test.assertEqual(Set.create(0), iterable.toSet());
                 });
 
                 runner.test("with two values", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(2);
-                    test.assertEqual(Set2.create(0, 1), iterable.toSet());
+                    test.assertEqual(Set.create(0, 1), iterable.toSet());
                 });
 
                 runner.test("with repeated values", (Test test) ->
                 {
                     final Iterable<Integer> iterable = createIterable.run(10)
                         .map((Integer value) -> value % 3);
-                    test.assertEqual(Set2.create(0, 1, 2), iterable.toSet());
+                    test.assertEqual(Set.create(0, 1, 2), iterable.toSet());
                 });
             });
 

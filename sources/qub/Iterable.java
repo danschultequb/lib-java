@@ -36,11 +36,11 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Create a new {@link Set2} from the values in this {@link Iterable}.
+     * Create a new {@link Set} from the values in this {@link Iterable}.
      */
-    public default Set2<T> toSet()
+    public default Set<T> toSet()
     {
-        return Set2.create(this);
+        return Set.create(this);
     }
 
     /**

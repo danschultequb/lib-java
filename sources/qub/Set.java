@@ -1,140 +1,181 @@
 package qub;
 
-/**
- * An {@link Iterable} that cannot contain duplicate values.
- * @param <T> The type of values stored in this {@link Set}.
- */
-@Deprecated
 public interface Set<T> extends Iterable<T>
 {
     /**
-     * Create a new empty {@link Set}.
-     * @param <T> The type of values that will be stored in the created {@link Set}.
+     * Create a new empty {@link MutableSet}.
+     * @param <T> The type of values contained by the {@link MutableSet}.
      */
-    public static <T> Set<T> create()
+    public static <T> MutableSet<T> create()
     {
-        return ListSet.create();
+        return MutableSet.create();
     }
 
     /**
-     * Create a new {@link Set} from the provided values.
-     * @param initialValues The initial values for the resulting {@link Set} to contain.
-     * @param <T> The type of elements contained by the created {@link Set}.
+     * Create a new {@link MutableSet} with the provided initialValues.
+     * @param <T> The type of elements contained by the created {@link MutableSet}.
+     * @param initialValues The initial values that will be added to the {@link MutableSet}.
      */
     @SafeVarargs
-    public static <T> Set<T> create(T... initialValues)
+    public static <T> MutableSet<T> create(T... initialValues)
     {
         PreCondition.assertNotNull(initialValues, "initialValues");
 
-        return Set.create(Iterable.create(initialValues));
+        return MutableSet.create(initialValues);
     }
 
     /**
-     * Create a new {@link Set} from the provided values.
-     * @param initialValues The initial values for the resulting {@link Set} to contain.
-     * @param <T> The type of elements contained by the created {@link Set}.
+     * Create a new {@link MutableSet} with the provided initialValues.
+     * @param <T> The type of elements contained by the created {@link MutableSet}.
+     * @param initialValues The initial values that will be added to the {@link MutableSet}.
      */
-    public static <T> Set<T> create(Iterable<T> initialValues)
+    public static <T> MutableSet<T> create(Iterable<T> initialValues)
     {
         PreCondition.assertNotNull(initialValues, "initialValues");
 
-        return Set.create(initialValues.iterate());
+        return MutableSet.create(initialValues);
     }
 
     /**
-     * Create a new {@link Set} from the provided values.
-     * @param initialValues The initial values for the resulting {@link Set} to contain.
-     * @param <T> The type of elements contained by the created {@link Set}.
+     * Create a new {@link MutableSet} with the provided initialValues.
+     * @param <T> The type of elements contained by the created {@link MutableSet}.
+     * @param initialValues The initial values that will be added to the {@link MutableSet}.
      */
-    public static <T> Set<T> create(Iterator<T> initialValues)
+    public static <T> MutableSet<T> create(Iterator<T> initialValues)
     {
         PreCondition.assertNotNull(initialValues, "initialValues");
 
-        final Set<T> result = Set.create();
-        result.addAll(initialValues);
-        return result;
+        return MutableSet.create(initialValues);
     }
 
     /**
-     * Add the provided value to this {@link Set} if it doesn't already exist.
-     * @param value The value to add.
+     * Create a new empty {@link MutableSet}.
+     * @param <T> The type of elements contained by the created {@link MutableSet}.
+     * @param compareFunction The {@link CompareFunction} that will be used to compare values in
+     *                        the {@link MutableSet}.
      */
-    public Set<T> add(T value);
-
-    /**
-     * Add the provided values to this {@link Set}.
-     * @param values The values to add.
-     */
-    @SuppressWarnings("unchecked")
-    public default Set<T> addAll(T... values)
+    public static <T> MutableSet<T> create(CompareFunction<T> compareFunction)
     {
-        if (values != null && values.length > 0)
-        {
-            for (final T value : values)
-            {
-                add(value);
-            }
-        }
-        return this;
+        return MutableSet.create(compareFunction);
     }
 
     /**
-     * Add the provided values to this {@link Set}.
-     * @param values The values to add.
+     * Create a new {@link MutableSet}.
+     * @param <T> The type of elements contained by the created {@link MutableSet}.
+     * @param compareFunction The {@link CompareFunction} that will be used to compare values in
+     *                        the {@link MutableSet}.
+     * @param initialValues The initial values that will be added to the {@link MutableSet}.
      */
-    public default Set<T> addAll(Iterator<T> values)
+    @SafeVarargs
+    public static <T> MutableSet<T> create(CompareFunction<T> compareFunction, T... initialValues)
     {
-        if (!Iterator.isNullOrEmpty(values))
-        {
-            for (final T value : values)
-            {
-                add(value);
-            }
-        }
-        return this;
+        return MutableSet.create(compareFunction, initialValues);
     }
 
     /**
-     * Add the provided values to this {@link Set}.
-     * @param values The values to add.
+     * Create a new {@link MutableSet}.
+     * @param <T> The type of elements contained by the created {@link MutableSet}.
+     * @param compareFunction The {@link CompareFunction} that will be used to compare values in
+     *                        the {@link MutableSet}.
+     * @param initialValues The initial values that will be added to the {@link MutableSet}.
      */
-    public default Set<T> addAll(Iterable<T> values)
+    public static <T> MutableSet<T> create(CompareFunction<T> compareFunction, Iterable<T> initialValues)
     {
-        if (!Iterable.isNullOrEmpty(values))
-        {
-            for (final T value : values)
-            {
-                add(value);
-            }
-        }
-        return this;
+        return MutableSet.create(compareFunction, initialValues);
     }
 
     /**
-     * Remove the value from this {@link Set} that is equal to the provided value.
-     * @param value The value to remove.
-     * @exception NotFoundException if the value isn't found.
+     * Create a new {@link MutableSet}.
+     * @param <T> The type of elements contained by the created {@link MutableSet}.
+     * @param compareFunction The {@link CompareFunction} that will be used to compare values in
+     *                        the {@link MutableSet}.
+     * @param initialValues The initial values that will be added to the {@link MutableSet}.
      */
-    public Result<Void> remove(T value);
+    public static <T> MutableSet<T> create(CompareFunction<T> compareFunction, Iterator<T> initialValues)
+    {
+        return MutableSet.create(compareFunction, initialValues);
+    }
 
     /**
-     * Remove the elements from this Set.
-     * @return This object for method chaining.
+     * Create a new {@link MutableSet}.
+     * @param <T> The type of elements contained by the created {@link MutableSet}.
+     * @param equalFunction The {@link EqualFunction} that will be used to compare values in this
+     * {@link Set}.
      */
-    public Set<T> clear();
+    public static <T> MutableSet<T> create(EqualFunction<T> equalFunction)
+    {
+        return MutableSet.create(equalFunction);
+    }
 
     /**
-     * Get whether the lhs {@link Set} contains equal elements as the provided rhs {@link Object}.
-     * @param rhs The {@link Object} to compare against this {@link Set}.
+     * Create a new {@link MutableSet}.
+     * @param <T> The type of elements contained by the created {@link MutableSet}.
+     * @param equalFunction The {@link EqualFunction} that will be used to compare values in this
+     *                      {@link MutableSet}.
+     * @param initialValues The initial values that will be added to the {@link MutableSet}.
+     */
+    @SafeVarargs
+    public static <T> MutableSet<T> create(EqualFunction<T> equalFunction, T... initialValues)
+    {
+        return MutableSet.create(equalFunction, initialValues);
+    }
+
+    /**
+     * Create a new {@link MutableSet}.
+     * @param <T> The type of elements contained by the created {@link MutableSet}.
+     * @param equalFunction The {@link EqualFunction} that will be used to compare values in this
+     *                      {@link MutableSet}.
+     * @param initialValues The initial values that will be added to the {@link MutableSet}.
+     */
+    public static <T> MutableSet<T> create(EqualFunction<T> equalFunction, Iterable<T> initialValues)
+    {
+        return MutableSet.create(equalFunction, initialValues);
+    }
+
+    /**
+     * Create a new {@link MutableSet}.
+     * @param <T> The type of elements contained by the created {@link MutableSet}.
+     * @param equalFunction The {@link EqualFunction} that will be used to compare values in this
+     *                      {@link MutableSet}.
+     * @param initialValues The initial values that will be added to the {@link MutableSet}.
+     */
+    public static <T> MutableSet<T> create(EqualFunction<T> equalFunction, Iterator<T> initialValues)
+    {
+        return MutableSet.create(equalFunction, initialValues);
+    }
+
+    /**
+     * Get whether the {@link Set} lhs is equal to the provided {@link Object} rhs.
+     * @param rhs The {@link Object} to compare against the {@link Set} lhs.
      */
     @SuppressWarnings("unchecked")
     public static <T> boolean equals(Set<T> lhs, Object rhs)
     {
-        PreCondition.assertNotNull(lhs, "lhs");
+        boolean result = (lhs == rhs);
+        if (!result && lhs != null && rhs instanceof Iterable)
+        {
+            result = lhs.equals((Iterable<T>)rhs);
+        }
+        return result;
+    }
 
-        return rhs instanceof Set
-            ? lhs.equals((Set<T>)rhs)
-            : Iterable.equals(lhs, rhs);
+    /**
+     * Get whether this {@link Set} is equal to the provided {@link Iterable} rhs. If the provided
+     * {@link Iterable} is actually a {@link Set}, then this {@link Set} will be compared against
+     * the provided {@link Set} using {@link Set} comparison. If the provided {@link Iterable} is
+     * not a {@link Set}, then standard {@link Iterable} comparison will be used instead.
+     * @param rhs The {@link Object} to compare against the {@link Set} lhs.
+     */
+    public default boolean equals(Iterable<T> rhs)
+    {
+        boolean result = (this == rhs);
+        if (!result)
+        {
+            result = rhs instanceof Set
+                ? this.equals((Set<T>)rhs)
+                : Iterable.super.equals(rhs);
+        }
+        return result;
     }
 
     /**
@@ -143,16 +184,23 @@ public interface Set<T> extends Iterable<T>
      */
     public default boolean equals(Set<T> rhs)
     {
-        boolean result = rhs != null && this.getCount() == rhs.getCount();
-        if (result)
+        boolean result = false;
+        if (rhs != null)
         {
+            int lhsCount = 0;
+            result = true;
             for (final T value : this)
             {
+                lhsCount++;
                 if (!rhs.contains(value))
                 {
                     result = false;
                     break;
                 }
+            }
+            if (result)
+            {
+                result = (lhsCount == rhs.getCount());
             }
         }
         return result;

@@ -1,10 +1,10 @@
 package qub;
 
 /**
- * A {@link Set2} that can have its contents changed.
+ * A {@link Set} that can have its contents changed.
  * @param <T> The type of value stored in this {@link MutableSet}.
  */
-public interface MutableSet<T> extends Set2<T>
+public interface MutableSet<T> extends Set<T>
 {
     /**
      * Create a new {@link MutableSet}.
@@ -102,7 +102,7 @@ public interface MutableSet<T> extends Set2<T>
      */
     public static <T> MutableSet<T> create(EqualFunction<T> equalFunction)
     {
-        return ListSet2.create(equalFunction);
+        return ListSet.create(equalFunction);
     }
 
     /**

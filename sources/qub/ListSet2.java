@@ -4,6 +4,7 @@ package qub;
  * A {@link ListSet2} that maintains the order that values are added to it.
  * @param <T> The type of value that this {@link ListSet2} contains.
  */
+@Deprecated
 public class ListSet2<T> implements MutableSet<T>
 {
     private final EqualFunction<T> equalFunction;
@@ -192,15 +193,15 @@ public class ListSet2<T> implements MutableSet<T>
         return this.values.hashCode();
     }
 
-    @Override
-    public boolean equals(Object rhs)
-    {
-        return Set2.equals(this, rhs);
-    }
-
-    @Override
-    public String toString()
-    {
-        return Set2.toString(this);
-    }
+//    @Override
+//    public boolean equals(Object rhs)
+//    {
+//        return Set2.equals(this, rhs);
+//    }
+//
+//    @Override
+//    public String toString()
+//    {
+//        return Set2.toString(this);
+//    }
 }

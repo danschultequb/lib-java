@@ -22,7 +22,7 @@ public class State
 
         this.name = name;
         this.transitions = List.create();
-        this.instantNextStates = Set2.create();
+        this.instantNextStates = Set.create();
     }
 
     /**

@@ -1,5 +1,6 @@
 package qub;
 
+@Deprecated
 public interface Set2<T> extends Iterable<T>
 {
     /**

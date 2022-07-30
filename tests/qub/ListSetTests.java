@@ -1,14 +1,14 @@
 package qub;
 
-public interface ListSet2Tests
+public interface ListSetTests
 {
     public static void test(TestRunner runner)
     {
-        runner.testGroup(ListSet2.class, () ->
+        runner.testGroup(ListSet.class, () ->
         {
             MutableSetTests.test(runner, (Integer valueCount) ->
             {
-                final ListSet2<Integer> result = ListSet2.create();
+                final ListSet<Integer> result = ListSet.create();
                 if (valueCount != null && valueCount > 0)
                 {
                     for (int i = 0; i < valueCount; i++)
