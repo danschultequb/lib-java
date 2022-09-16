@@ -1,16 +1,16 @@
 package qub;
 
 /**
- * The FileSystem class provides access to files, folders, and roots within a device's file system.
+ * The {@link FileSystem} class provides access to {@link File}s, {@link Folder}s, and {@link Root}s
+ * within a device's file system.
  */
 public interface FileSystem
 {
     /**
-     * Get whether or not a Root exists in this FileSystem with the provided path.
-     * @param rootPath The path to the Root.
-     * @return Whether or not a Root exists in this FileSystem with the provided path.
+     * Get whether a {@link Root} exists in this {@link FileSystem} with the provided path.
+     * @param rootPath The path to the {@link Root}.
      */
-    default Result<Boolean> rootExists(String rootPath)
+    public default Result<Boolean> rootExists(String rootPath)
     {
         FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
@@ -18,11 +18,10 @@ public interface FileSystem
     }
 
     /**
-     * Get whether or not a Root exists in this FileSystem with the provided path.
-     * @param rootPath The path to the Root.
-     * @return Whether or not a Root exists in this FileSystem with the provided path.
+     * Get whether a {@link Root} exists in this {@link FileSystem} with the provided {@link Path}.
+     * @param rootPath The {@link Path} to the {@link Root}.
      */
-    default Result<Boolean> rootExists(Path rootPath)
+    public default Result<Boolean> rootExists(Path rootPath)
     {
         FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
@@ -854,7 +853,7 @@ public interface FileSystem
      * @param destinationFile The file to copy to.
      * @return The result of copying the file.
      */
-    default Result<Void> copyFileTo(Path sourceFilePath, File destinationFile)
+    public default Result<Void> copyFileTo(Path sourceFilePath, File destinationFile)
     {
         FileSystem.validateRootedFilePath(sourceFilePath, "sourceFilePath");
         PreCondition.assertNotNull(destinationFile, "destinationFile");
@@ -868,7 +867,7 @@ public interface FileSystem
      * @param destinationFilePath The path to copy the file to.
      * @return The result of copying the file.
      */
-    default Result<Void> copyFileTo(Path sourceFilePath, Path destinationFilePath)
+    public default Result<Void> copyFileTo(Path sourceFilePath, Path destinationFilePath)
     {
         FileSystem.validateRootedFilePath(sourceFilePath, "sourceFilePath");
         FileSystem.validateRootedFilePath(destinationFilePath, "destinationFilePath");
@@ -889,7 +888,7 @@ public interface FileSystem
      * @param destinationFolder The folder that the file will be copied to.
      * @return The result of copying the file.
      */
-    default Result<Void> copyFileToFolder(File sourceFile, Folder destinationFolder)
+    public default Result<Void> copyFileToFolder(File sourceFile, Folder destinationFolder)
     {
         PreCondition.assertNotNull(sourceFile, "sourceFile");
         PreCondition.assertNotNull(destinationFolder, "destinationFolder");
@@ -904,7 +903,7 @@ public interface FileSystem
      * @param destinationFolderPath The folder path that the file will be copied to.
      * @return The result of copying the file.
      */
-    default Result<Void> copyFileToFolder(File sourceFile, Path destinationFolderPath)
+    public default Result<Void> copyFileToFolder(File sourceFile, Path destinationFolderPath)
     {
         PreCondition.assertNotNull(sourceFile, "sourceFile");
         PreCondition.assertNotNull(destinationFolderPath, "destinationFolderPath");
@@ -919,7 +918,7 @@ public interface FileSystem
      * @param destinationFolder The folder that the file will be copied to.
      * @return The result of copying the file.
      */
-    default Result<Void> copyFileToFolder(Path sourceFilePath, Folder destinationFolder)
+    public default Result<Void> copyFileToFolder(Path sourceFilePath, Folder destinationFolder)
     {
         FileSystem.validateRootedFilePath(sourceFilePath, "sourceFilePath");
         PreCondition.assertNotNull(destinationFolder, "destinationFolder");
@@ -934,7 +933,7 @@ public interface FileSystem
      * @param destinationFolderPath The folder that the file will be copied to.
      * @return The result of copying the file.
      */
-    default Result<Void> copyFileToFolder(Path sourceFilePath, Path destinationFolderPath)
+    public default Result<Void> copyFileToFolder(Path sourceFilePath, Path destinationFolderPath)
     {
         FileSystem.validateRootedFilePath(sourceFilePath, "sourceFilePath");
         FileSystem.validateRootedFolderPath(destinationFolderPath, "destinationFolderPath");
@@ -944,19 +943,30 @@ public interface FileSystem
         return copyFileTo(sourceFilePath, destinationFilePath);
     }
 
-    static void validateRootedFolderPath(String rootedFolderPath)
+    /**
+     * Validate that the provided rootedFolderPath {@link String} is a rooted folder path.
+     * @param rootedFolderPath The {@link String} path to validate.
+     */
+    public static void validateRootedFolderPath(String rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath, "rootedFolderPath");
+        FileSystem.validateRootedFolderPath(rootedFolderPath, "rootedFolderPath");
     }
 
-    static void validateRootedFolderPath(String rootedFolderPath, String expressionName)
+    /**
+     * Validate that the provided rootedFolderPath {@link String} is a rooted folder path. If the
+     * provided {@link String} is not a rooted folder path, then an error will be thrown using the
+     * provided expressionName.
+     * @param rootedFolderPath The {@link String} path to validate.
+     */
+    public static void validateRootedFolderPath(String rootedFolderPath, String expressionName)
     {
         PreCondition.assertNotNullAndNotEmpty(rootedFolderPath, expressionName);
+        FileSystem.validateRootedFolderPath(Path.parse(rootedFolderPath), expressionName);
     }
 
-    static void validateRootedFolderPath(Path rootedFolderPath)
+    public static void validateRootedFolderPath(Path rootedFolderPath)
     {
-        validateRootedFolderPath(rootedFolderPath, "rootedFolderPath");
+        FileSystem.validateRootedFolderPath(rootedFolderPath, "rootedFolderPath");
     }
 
     static void validateRootedFolderPath(Path rootedFolderPath, String expressionName)

@@ -1,7 +1,8 @@
 package qub;
 
 /**
- * A FileSystem implementation that interacts with a typical Windows, Linux, or MacOS device.
+ * A {@link FileSystem} implementation that interacts with a typical Windows, Linux, or MacOS
+ * device.
  */
 public class JavaFileSystem implements FileSystem
 {

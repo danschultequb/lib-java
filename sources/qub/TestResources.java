@@ -79,6 +79,13 @@ public class TestResources extends BasicDisposable
         return this.process.getRandom();
     }
 
+    public Synchronization getSynchronization()
+    {
+        PreCondition.assertNotDisposed(this, "this");
+
+        return this.process.getSynchronization();
+    }
+
     public FileSystem getFileSystem()
     {
         PreCondition.assertNotDisposed(this, "this");
