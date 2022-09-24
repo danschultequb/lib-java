@@ -34,103 +34,136 @@ public class InMemoryFileSystem implements FileSystem
 
     private Result<InMemoryRoot> getInMemoryRoot(Path inMemoryRootPath)
     {
-        return roots.first((InMemoryRoot inMemoryRoot) -> inMemoryRoot.getPath().equals(inMemoryRootPath))
+        return this.roots.first((InMemoryRoot inMemoryRoot) -> inMemoryRoot.getPath().equals(inMemoryRootPath))
             .convertError(NotFoundException.class, () -> new RootNotFoundException(inMemoryRootPath));
     }
 
     private Result<InMemoryFolder> getInMemoryFolder(Path inMemoryFolderPath)
     {
-        return inMemoryFolderPath.resolve()
-            .then((Path resolvedInMemoryFolderPath) ->
+        return Result.create(() ->
+        {
+            final Path resolvedInMemoryFolderPath = inMemoryFolderPath.resolve().await();
+            final Iterator<String> folderPathSegments = resolvedInMemoryFolderPath.getSegments().iterate();
+            final String rootPath = folderPathSegments.first().await();
+            InMemoryFolder folder = this.getInMemoryRoot(rootPath).await();
+
+            while (folderPathSegments.next())
             {
-                final Iterator<String> folderPathSegments = resolvedInMemoryFolderPath.getSegments().iterate();
-                final String rootPath = folderPathSegments.first().await();
-                InMemoryFolder folder = this.getInMemoryRoot(rootPath).await();
+                folder = folder.getFolder(folderPathSegments.getCurrent())
+                    .convertError(NotFoundException.class, () -> new FolderNotFoundException(inMemoryFolderPath))
+                    .await();
+            }
 
-                while (folder != null && folderPathSegments.next())
-                {
-                    folder = folder.getFolder(folderPathSegments.getCurrent())
-                        .catchError(NotFoundException.class)
-                        .await();
-                }
-
-                if (folder == null)
-                {
-                    throw new FolderNotFoundException(inMemoryFolderPath);
-                }
-                return folder;
-            });
+            return folder;
+        });
     }
 
-    private Result<Boolean> createInMemoryFolder(Path inMemoryFolderPath)
+    private Result<InMemoryFolder> createInMemoryFolder(Path inMemoryFolderPath)
     {
-        return inMemoryFolderPath.resolve()
-            .then((Path resolvedInMemoryFolderPath) ->
+        return Result.create(() ->
+        {
+            final Path resolvedInMemoryFolderPath = inMemoryFolderPath.resolve().await();
+
+            final Iterator<String> folderPathSegments = resolvedInMemoryFolderPath.getSegments().iterate();
+            folderPathSegments.start();
+
+            final String rootName = folderPathSegments.takeCurrent();
+            InMemoryFolder result = this.getInMemoryRoot(rootName).await();
+
+            if (!folderPathSegments.hasCurrent())
             {
-                boolean createdFolder = false;
-                final Iterator<String> folderPathSegments = resolvedInMemoryFolderPath.getSegments().iterate();
-                InMemoryFolder folder = this.getInMemoryRoot(folderPathSegments.first().await()).await();
-                while (folderPathSegments.next())
+                throw new FolderAlreadyExistsException(inMemoryFolderPath);
+            }
+
+            while (folderPathSegments.hasCurrent())
+            {
+                final String folderName = folderPathSegments.takeCurrent();
+                InMemoryFolder childFolder = result.createFolder(folderName)
+                    .catchError(FolderAlreadyExistsException.class)
+                    .await();
+                if (childFolder == null)
                 {
-                    final String folderName = folderPathSegments.getCurrent();
-                    createdFolder = folder.createFolder(folderName);
-                    folder = folder.getFolder(folderName).await();
+                    if (folderPathSegments.hasCurrent())
+                    {
+                        // If the folderPathSegments has a current segment, then we're not at the
+                        // last folder segment to create. This means that we can just get the next
+                        // folder segment and continue on.
+                        childFolder = result.getFolder(folderName).await();
+                    }
+                    else
+                    {
+                        // If we don't have another segment to create, then that means that the
+                        // folder we intended to create already exists.
+                        throw new FolderAlreadyExistsException(inMemoryFolderPath);
+                    }
                 }
-                return createdFolder;
-            });
+                result = childFolder;
+            }
+
+            PostCondition.assertNotNull(result, "result");
+
+            return result;
+        });
     }
 
     private Result<InMemoryFile> getInMemoryFile(Path filePath)
     {
-        return filePath.resolve()
-            .then((Path resolvedRootedFilePath) -> this.getInMemoryFolder(resolvedRootedFilePath.getParent().await()).await())
-            .convertError(FolderNotFoundException.class, () -> new FileNotFoundException(filePath))
-            .then((InMemoryFolder inMemoryFolder) ->
-            {
-                final String fileName = filePath.getSegments().last().await();
-                final InMemoryFile inMemoryFile = inMemoryFolder.getFile(fileName).catchError(NotFoundException.class).await();
-                if (inMemoryFile == null)
-                {
-                    throw new FileNotFoundException(filePath.resolve().await());
-                }
-                return inMemoryFile;
-            });
+        return Result.create(() ->
+        {
+            final Path resolvedRootedFilePath = filePath.resolve().await();
+            final InMemoryFolder inMemoryFolder = this.getInMemoryFolder(resolvedRootedFilePath.getParent().await())
+                .convertError(FolderNotFoundException.class, () -> new FileNotFoundException(filePath))
+                .await();
+            final String fileName = resolvedRootedFilePath.getSegments().last().await();
+            return inMemoryFolder.getFile(fileName)
+                .convertError(NotFoundException.class, () -> new FileNotFoundException(filePath))
+                .await();
+        });
     }
 
     public Result<Void> setFileCanDelete(String rootedFilePath, boolean canDelete)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return setFileCanDelete(Path.parse(rootedFilePath), canDelete);
+        return this.setFileCanDelete(Path.parse(rootedFilePath), canDelete);
     }
 
     public Result<Void> setFileCanDelete(Path rootedFilePath, boolean canDelete)
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return getInMemoryFile(rootedFilePath)
-            .then((InMemoryFile inMemoryFile) -> inMemoryFile.setCanDelete(canDelete));
+        return Result.create(() ->
+        {
+            final InMemoryFile inMemoryFile = this.getInMemoryFile(rootedFilePath).await();
+            inMemoryFile.setCanDelete(canDelete);
+        });
     }
 
     public Result<Void> setFolderCanDelete(String rootedFolderPath, boolean canDelete)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return setFolderCanDelete(Path.parse(rootedFolderPath), canDelete);
+        return this.setFolderCanDelete(Path.parse(rootedFolderPath), canDelete);
     }
 
     public Result<Void> setFolderCanDelete(Path rootedFolderPath, boolean canDelete)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getInMemoryFolder(rootedFolderPath)
-            .then((InMemoryFolder inMemoryFolder) -> inMemoryFolder.setCanDelete(canDelete));
+        return Result.create(() ->
+        {
+            final InMemoryFolder inMemoryFolder = this.getInMemoryFolder(rootedFolderPath).await();
+            inMemoryFolder.setCanDelete(canDelete);
+        });
     }
 
     @Override
     public Result<Iterable<Root>> getRoots()
     {
-        return Result.success(roots.map((InMemoryRoot inMemoryRoot) -> new Root(this, inMemoryRoot.getPath())));
+        return Result.create(() ->
+        {
+            return this.roots.map((InMemoryRoot inMemoryRoot) -> Root.create(this, inMemoryRoot.getPath()));
+        });
     }
 
     @Override
@@ -172,7 +205,7 @@ public class InMemoryFileSystem implements FileSystem
                 .order((InMemoryFolder lhs, InMemoryFolder rhs) ->
                     Strings.lessThan(lhs.getName(), rhs.getName()))
                 .map((InMemoryFolder childFolder) ->
-                    new Folder(this, rootedFolderPath.concatenateSegments(childFolder.getName()))));
+                    Folder.create(this, rootedFolderPath.concatenateSegments(childFolder.getName()))));
 
             entries.addAll(folder.getFiles()
                 .order((InMemoryFile lhs, InMemoryFile rhs) ->
@@ -189,7 +222,7 @@ public class InMemoryFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
-        return getInMemoryFolder(rootedFolderPath)
+        return this.getInMemoryFolder(rootedFolderPath)
             .then(() -> true)
             .catchError(FolderNotFoundException.class, () -> false);
     }
@@ -201,15 +234,8 @@ public class InMemoryFileSystem implements FileSystem
 
         return Result.create(() ->
         {
-            final Path resolvedRootedFolderPath = rootedFolderPath.resolve().await();
-            final Path rootPath = resolvedRootedFolderPath.getRoot().await();
-            this.getInMemoryRoot(rootPath).await();
-            if (!Booleans.isTrue(this.createInMemoryFolder(resolvedRootedFolderPath).await()))
-            {
-                throw new FolderAlreadyExistsException(resolvedRootedFolderPath);
-            }
-
-            return this.getFolder(resolvedRootedFolderPath).await();
+            this.createInMemoryFolder(rootedFolderPath).await();
+            return this.getFolder(rootedFolderPath).await();
         });
     }
 
@@ -225,11 +251,11 @@ public class InMemoryFileSystem implements FileSystem
                 .convertError(NotFoundException.class, () -> new IllegalArgumentException("Cannot delete a root folder (" + resolvedRootedFolderPath + ")."))
                 .await();
             final InMemoryFolder parentFolder = this.getInMemoryFolder(parentFolderPath)
-                .convertError(FolderNotFoundException.class, () -> new FolderNotFoundException(resolvedRootedFolderPath))
+                .convertError(FolderNotFoundException.class, () -> new FolderNotFoundException(rootedFolderPath))
                 .await();
             if (!parentFolder.deleteFolder(resolvedRootedFolderPath.getSegments().last().await()))
             {
-                throw new FolderNotFoundException(resolvedRootedFolderPath);
+                throw new FolderNotFoundException(rootedFolderPath);
             }
         });
     }
@@ -251,25 +277,17 @@ public class InMemoryFileSystem implements FileSystem
 
         return Result.create(() ->
         {
-            final Path rootPath = rootedFilePath.getRoot().await();
-            if (this.getInMemoryRoot(rootPath) == null)
-            {
-                throw new RootNotFoundException(rootPath);
-            }
-
             final Path parentFolderPath = rootedFilePath.getParent().await();
-            this.createInMemoryFolder(parentFolderPath).await();
-
-            return this.getInMemoryFolder(parentFolderPath)
-                .then((InMemoryFolder parentFolder) ->
-                {
-                    if (!parentFolder.createFile(rootedFilePath.getSegments().last().await()))
-                    {
-                        throw new FileAlreadyExistsException(rootedFilePath);
-                    }
-                    return this.getFile(rootedFilePath).await();
-                })
+            final InMemoryFolder parentFolder = this.createInMemoryFolder(parentFolderPath)
+                .catchError(FolderAlreadyExistsException.class, () -> this.getInMemoryFolder(parentFolderPath).await())
                 .await();
+
+            final String fileName = rootedFilePath.getSegments().last().await();
+            parentFolder.createFile(fileName)
+                .convertError(FileAlreadyExistsException.class, () -> new FileAlreadyExistsException(rootedFilePath))
+                .await();
+
+            return this.getFile(rootedFilePath).await();
         });
     }
 
@@ -278,19 +296,18 @@ public class InMemoryFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return rootedFilePath.resolve()
-            .then((Path resolvedRootedFilePath) ->
-            {
-                return this.getInMemoryFolder(resolvedRootedFilePath.getParent().await())
-                    .then((InMemoryFolder parentFolder) ->
-                    {
-                        if (!parentFolder.deleteFile(resolvedRootedFilePath.getSegments().last().await()))
-                        {
-                            throw new FileNotFoundException(resolvedRootedFilePath);
-                        }
-                    })
-                    .await();
-            });
+        return Result.create(() ->
+        {
+            final Path resolvedRootedFilePath = rootedFilePath.resolve().await();
+
+            final Path parentFolderPath = resolvedRootedFilePath.getParent().await();
+            final InMemoryFolder parentFolder = this.getInMemoryFolder(parentFolderPath).await();
+
+            final String fileName = resolvedRootedFilePath.getName();
+            parentFolder.deleteFile(fileName)
+                .convertError(FileNotFoundException.class, () -> new FileNotFoundException(rootedFilePath))
+                .await();
+        });
     }
 
     @Override
@@ -298,13 +315,11 @@ public class InMemoryFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return rootedFilePath.resolve()
-            .then((Path resolvedRootedFilePath) ->
-            {
-                return this.getInMemoryFile(resolvedRootedFilePath)
-                    .then(InMemoryFile::getLastModified)
-                    .await();
-            });
+        return Result.create(() ->
+        {
+            final InMemoryFile inMemoryFile = this.getInMemoryFile(rootedFilePath).await();
+            return inMemoryFile.getLastModified();
+        });
     }
 
     @Override
@@ -312,13 +327,11 @@ public class InMemoryFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return rootedFilePath.resolve()
-            .then((Path resolvedRootedFilePath) ->
-            {
-                return this.getInMemoryFile(resolvedRootedFilePath)
-                    .then(InMemoryFile::getContentsDataSize)
-                    .await();
-            });
+        return Result.create(() ->
+        {
+            final InMemoryFile inMemoryFile = this.getInMemoryFile(rootedFilePath).await();
+            return inMemoryFile.getContentsDataSize();
+        });
     }
 
     @Override
@@ -326,8 +339,11 @@ public class InMemoryFileSystem implements FileSystem
     {
         FileSystem.validateRootedFilePath(rootedFilePath);
 
-        return this.getInMemoryFile(rootedFilePath)
-            .then(InMemoryFile::getContentsReadStream);
+        return Result.create(() ->
+        {
+            final InMemoryFile inMemoryFile = this.getInMemoryFile(rootedFilePath).await();
+            return inMemoryFile.getContentsReadStream();
+        });
     }
 
     @Override
@@ -339,26 +355,25 @@ public class InMemoryFileSystem implements FileSystem
         return Result.create(() ->
         {
             final Path resolvedRootedFilePath = rootedFilePath.resolve().await();
-            final InMemoryFile inMemoryFile = this.getInMemoryFile(resolvedRootedFilePath)
-                    .catchError(FileNotFoundException.class, () ->
-                    {
-                        final Path parentFolderPath = rootedFilePath.getParent().await();
-                        this.createInMemoryFolder(parentFolderPath).await();
-                        final InMemoryFolder parentFolder = this.getInMemoryFolder(parentFolderPath).await();
-                        parentFolder.createFile(resolvedRootedFilePath.getSegments().last().await());
-                        return this.getInMemoryFile(resolvedRootedFilePath).await();
-                    })
+            InMemoryFile inMemoryFile = this.getInMemoryFile(resolvedRootedFilePath)
+                .catchError(FileNotFoundException.class)
+                .await();
+            if (inMemoryFile == null)
+            {
+                final Path parentFolderPath = rootedFilePath.getParent().await();
+                final InMemoryFolder parentFolder = this.getInMemoryFolder(parentFolderPath)
+                    .catchError(FolderNotFoundException.class, () -> this.createInMemoryFolder(parentFolderPath).await())
                     .await();
+                final String fileName = resolvedRootedFilePath.getSegments().last().await();
+                inMemoryFile = parentFolder.createFile(fileName).await();
+            }
             return inMemoryFile.getContentByteWriteStream(openWriteType);
         });
     }
 
     /**
-     * Create a new Root in this FileSystem and returns whether or not this function created the
-     * Root.
-     * @param rootPath The String representation of the path to the Root to create in this
-     *                 FileSystem.
-     * @return Whether or not this function created the Root.
+     * Create and return a new {@link Root} in this {@link InMemoryFileSystem}.
+     * @param rootPath The path {@link String} to the {@link Root} to create.
      */
     public Result<Root> createRoot(String rootPath)
     {
@@ -368,11 +383,10 @@ public class InMemoryFileSystem implements FileSystem
     }
 
     /**
-     * Create a new Root in this FileSystem and returns whether or not this function created the
-     * Root.
-     * @param rootPath The String representation of the path to the Root to create in this
-     *                 FileSystem.
-     * @return Whether or not this function created the Root.
+     * Create and return a new {@link Root} in this {@link InMemoryFileSystem} with the provided
+     * total {@link DataSize}.
+     * @param rootPath The path {@link String} to the {@link Root} to create.
+     * @param rootTotalDataSize The total {@link DataSize} of the {@link Root} to create.
      */
     public Result<Root> createRoot(String rootPath, DataSize rootTotalDataSize)
     {
@@ -384,11 +398,8 @@ public class InMemoryFileSystem implements FileSystem
     }
 
     /**
-     * Create a new Root in this FileSystem and returns whether or not this function created the
-     * Root.
-     * @param rootPath The String representation of the path to the Root to create in this
-     *                 FileSystem.
-     * @return Whether or not this function created the Root.
+     * Create and return a new {@link Root} in this {@link InMemoryFileSystem}.
+     * @param rootPath The {@link Path} to the {@link Root} to create.
      */
     public Result<Root> createRoot(Path rootPath)
     {
@@ -398,11 +409,10 @@ public class InMemoryFileSystem implements FileSystem
     }
 
     /**
-     * Create a new Root in this FileSystem and returns whether or not this function created the
-     * Root.
-     * @param rootPath The String representation of the path to the Root to create in this
-     *                 FileSystem.
-     * @return Whether or not this function created the Root.
+     * Create and return a new {@link Root} in this {@link InMemoryFileSystem} with the provided
+     * total {@link DataSize}.
+     * @param rootPath The {@link Path} to the {@link Root} to create.
+     * @param rootTotalDataSize The total {@link DataSize} of the {@link Root} to create.
      */
     public Result<Root> createRoot(Path rootPath, DataSize rootTotalDataSize)
     {
@@ -417,17 +427,20 @@ public class InMemoryFileSystem implements FileSystem
     {
         FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
-        Result<Root> result;
-        rootPath = rootPath.getRoot().await();
-        if (this.getInMemoryRoot(rootPath).catchError(RootNotFoundException.class).await() != null)
+        return Result.create(() ->
         {
-            result = Result.error(new RootAlreadyExistsException(rootPath));
-        }
-        else
-        {
-            roots.add(new InMemoryRoot(rootPath.getRoot().await().toString(), clock, rootTotalDataSize));
-            result = getRoot(rootPath);
-        }
-        return result;
+            final Path trimmedRootPath = rootPath.getRoot().await();
+            final InMemoryRoot inMemoryRoot = this.getInMemoryRoot(trimmedRootPath)
+                .catchError(RootNotFoundException.class)
+                .await();
+            if (inMemoryRoot != null)
+            {
+                throw new RootAlreadyExistsException(rootPath);
+            }
+
+            this.roots.add(InMemoryRoot.create(trimmedRootPath.toString(), this.clock, rootTotalDataSize));
+
+            return this.getRoot(trimmedRootPath).await();
+        });
     }
 }

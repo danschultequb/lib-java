@@ -38,7 +38,7 @@ public interface FileSystem
      * @param rootPath The path to the Root to return.
      * @return The Root with the provided path.
      */
-    default Result<Root> getRoot(String rootPath)
+    public default Result<Root> getRoot(String rootPath)
     {
         FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
@@ -55,7 +55,7 @@ public interface FileSystem
         FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
         return rootPath.getRoot()
-            .then((Path root) -> new Root(this, root));
+            .then((Path root) -> Root.create(this, root));
     }
 
     /**
@@ -385,7 +385,7 @@ public interface FileSystem
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
         return rootedFolderPath.resolve()
-            .then((Path resolvedRootedFolderPath) -> new Folder(this, resolvedRootedFolderPath));
+            .then((Path resolvedRootedFolderPath) -> Folder.create(this, resolvedRootedFolderPath));
     }
 
     /**

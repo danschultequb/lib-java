@@ -1,10 +1,11 @@
 package qub;
 
 /**
- * A folder within an InMemoryFileSystem.
+ * An {@link InMemoryFolder} within an {@link InMemoryFileSystem}.
  */
 public class InMemoryFolder
 {
+    private final InMemoryFolder parentFolder;
     private final String name;
     private final Clock clock;
     private final List<InMemoryFolder> folders;
@@ -12,15 +13,12 @@ public class InMemoryFolder
 
     private boolean canDelete;
 
-    /**
-     * Create a new InMemoryFolder with the provided name.
-     * @param name The name of the new InMemoryFolder.
-     */
-    public InMemoryFolder(String name, Clock clock)
+    protected InMemoryFolder(InMemoryFolder parentFolder, String name, Clock clock)
     {
         PreCondition.assertNotNullAndNotEmpty(name, "name");
         PreCondition.assertNotNull(clock, "clock");
 
+        this.parentFolder = parentFolder;
         this.name = name;
         this.clock = clock;
         this.folders = List.create();
@@ -29,63 +27,97 @@ public class InMemoryFolder
     }
 
     /**
-     * Get the name of this folder.
-     * @return The name of this folder.
+     * Create a new {@link InMemoryFolder} with the provided name.
+     * @param parentFolder The parent {@link InMemoryFolder} of the new {@link InMemoryFolder}, or
+     *                     null if the new {@link InMemoryFolder} is an {@link InMemoryRoot}.
+     * @param name The name of the new {@link InMemoryFolder}.
+     * @param clock The {@link Clock} that will be used to get the current time when
+     * {@link InMemoryFile}s are created and modified.
      */
-    public String getName()
+    public static InMemoryFolder create(InMemoryFolder parentFolder, String name, Clock clock)
     {
-        return name;
+        return new InMemoryFolder(parentFolder, name, clock);
     }
 
     /**
-     * Get whether or not this folder can be deleted.
-     * @return Whether or not this folder can be deleted.
+     * Get the parent {@link InMemoryFolder} of this {@link InMemoryFolder}.
      */
-    public boolean canDelete()
+    public InMemoryFolder getParentFolder()
     {
-        return canDelete;
+        return this.parentFolder;
     }
 
     /**
-     * Get whether or not this folder can be deleted based on its own canDelete property as well as
-     * the canDelete properties of all of its child entries.
-     * @return Whether or not this folder can be deleted based on its own canDelete property as well
-     * as the canDelete properties of all of its child entries.
+     * Get the {@link InMemoryRoot} that contains this {@link InMemoryFolder}.
      */
-    public boolean canDeleteRecursively()
+    public InMemoryRoot getRoot()
     {
-        boolean result = canDelete();
+        InMemoryRoot result = null;
 
-        if (result)
+        InMemoryFolder current = this;
+        while (current != null)
         {
-            for (final InMemoryFile file : files)
+            if (current instanceof InMemoryRoot)
             {
-                if (!file.canDelete())
-                {
-                    result = false;
-                    break;
-                }
+                result = (InMemoryRoot)current;
+                break;
             }
-
-            if (result)
+            else
             {
-                for (final InMemoryFolder folder : folders)
-                {
-                    if (!folder.canDeleteRecursively())
-                    {
-                        result = false;
-                        break;
-                    }
-                }
+                current = current.getParentFolder();
             }
         }
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    public Path getPath()
+    {
+        final List<String> pathParts = List.create();
+
+        InMemoryFolder current = this;
+        while (current != null)
+        {
+            final String name = current.getName();
+            if (!name.endsWith("/") && !name.endsWith("\\"))
+            {
+                pathParts.insert(0, "/");
+            }
+            pathParts.insert(0, name);
+
+            current = current.getParentFolder();
+        }
+
+        final String pathString = Strings.join(pathParts);
+        final Path result = Path.parse(pathString);
+
+        PostCondition.assertNotNull(result, "result");
 
         return result;
     }
 
     /**
-     * Set whether or not this folder is canDelete.
-     * @param canDelete Whether or not this folder is canDelete.
+     * Get the name of this {@link InMemoryFolder}.
+     */
+    public String getName()
+    {
+        return this.name;
+    }
+
+    /**
+     * Get whether this {@link InMemoryFolder} can be deleted.
+     */
+    public boolean canDelete()
+    {
+        return this.canDelete &&
+            !this.files.contains((InMemoryFile file) -> !file.canDelete()) &&
+            !this.folders.contains((InMemoryFolder folder) -> !folder.canDelete());
+    }
+
+    /**
+     * Set whether this {@link InMemoryFolder} can be deleted.
      */
     public void setCanDelete(boolean canDelete)
     {
@@ -96,31 +128,35 @@ public class InMemoryFolder
      * Get the child folder of this InMemoryFolder that has the provided name. If no child folder
      * has the provided name, then null will be returned.
      * @param folderName The name of the child folder to return.
-     * @return The child folder that has the provided name, or null if no child folder has the
-     * provided name.
      */
     public Result<InMemoryFolder> getFolder(String folderName)
     {
-        return this.folders.first(folder -> folder.getName().equals(folderName));
+        return this.folders.first(folder -> folder.getName().equals(folderName))
+            .convertError(NotFoundException.class, () -> new FolderNotFoundException(this.getPath().concatenateSegments(folderName)));
     }
 
     /**
-     * Create a folder within this folder with the provided name. Return whether or not this
-     * function created the folder.
+     * Create and return an {@link InMemoryFolder} within this {@link InMemoryFolder} with the
+     * provided name.
      * @param folderName The name of the child folder to create.
-     * @return Whether or not the child folder was created by this function.
      */
-    public boolean createFolder(String folderName)
+    public Result<InMemoryFolder> createFolder(String folderName)
     {
-        InMemoryFolder inMemoryFolder = this.getFolder(folderName).catchError(NotFoundException.class).await();
-        final boolean result = (inMemoryFolder == null);
-        if (result)
+        return Result.create(() ->
         {
-            inMemoryFolder = new InMemoryFolder(folderName, clock);
-            folders.add(inMemoryFolder);
-        }
+            final InMemoryFolder existingFolder = this.getFolder(folderName).catchError(NotFoundException.class).await();
+            if (existingFolder != null)
+            {
+                throw new FolderAlreadyExistsException(this.getPath().concatenateSegments(folderName));
+            }
 
-        return result;
+            final InMemoryFolder result = InMemoryFolder.create(this, folderName, clock);
+            this.folders.add(result);
+
+            PostCondition.assertNotNull(result, "result");
+
+            return result;
+        });
     }
 
     /**
@@ -139,7 +175,7 @@ public class InMemoryFolder
             if (folderIndex != -1)
             {
                 final InMemoryFolder folder = folders.get(folderIndex);
-                if (folder.canDeleteRecursively())
+                if (folder.canDelete())
                 {
                     result = true;
                     folders.removeAt(folderIndex);
@@ -154,57 +190,81 @@ public class InMemoryFolder
      * Get the {@link InMemoryFile} of this {@link InMemoryFolder} that has the provided name.
      * @param fileName The name of the file to return.
      */
-    public Result<InMemoryFile> getFile(final String fileName)
+    public Result<InMemoryFile> getFile(String fileName)
     {
         return this.files.first((InMemoryFile file) -> file.getName().equals(fileName));
     }
 
-    public boolean createFile(String fileName)
+    /**
+     * Create a new {@link InMemoryFile} in this {@link InMemoryFolder} with the provided name.
+     * @param fileName The name of the {@link InMemoryFile} to create.
+     */
+    public Result<InMemoryFile> createFile(String fileName)
     {
-        InMemoryFile inMemoryFile = this.getFile(fileName).catchError(NotFoundException.class).await();
-        final boolean result = (inMemoryFile == null);
-        if (result)
+        return Result.create(() ->
         {
-            inMemoryFile = new InMemoryFile(fileName, clock);
-            this.files.add(inMemoryFile);
-        }
-
-        return result;
-    }
-
-    public boolean deleteFile(final String fileName)
-    {
-        final int indexToRemove = this.files.indexOf((InMemoryFile file) -> file.getName().equalsIgnoreCase(fileName));
-
-        boolean result = false;
-        if (indexToRemove != -1)
-        {
-            final InMemoryFile file = files.get(indexToRemove);
-            if (file.canDelete())
+            final InMemoryFile existingFile = this.getFile(fileName).catchError(NotFoundException.class).await();
+            if (existingFile != null)
             {
-                files.removeAt(indexToRemove);
-                result = true;
+                throw new FileAlreadyExistsException(this.getPath().concatenateSegments(fileName));
             }
-        }
 
-        return result;
+            final InMemoryFile result = InMemoryFile.create(fileName, clock);
+            this.files.add(result);
+
+            PostCondition.assertNotNull(result, "result");
+
+            return result;
+        });
     }
 
+    /**
+     * Delete the {@link InMemoryFile} in this {@link InMemoryFolder} with the provided name.
+     * @param fileName The name of the {@link InMemoryFile} to delete.
+     */
+    public Result<Void> deleteFile(String fileName)
+    {
+        return Result.create(() ->
+        {
+            boolean deletedFile = false;
+
+            final int indexToRemove = this.files.indexOf((InMemoryFile file) -> file.getName().equalsIgnoreCase(fileName));
+            if (indexToRemove != -1)
+            {
+                final InMemoryFile file = this.files.get(indexToRemove);
+                if (file.canDelete())
+                {
+                    this.files.removeAt(indexToRemove);
+                    deletedFile = true;
+                }
+            }
+
+            if (!deletedFile)
+            {
+                throw new FileNotFoundException(this.getPath().concatenateSegments(fileName));
+            }
+        });
+    }
+
+    /**
+     * Get the {@link InMemoryFolder}s in this {@link InMemoryFolder}.
+     */
     public Iterable<InMemoryFolder> getFolders()
     {
         return this.folders;
     }
 
+    /**
+     * Get the {@link InMemoryFile}s in this {@link InMemoryFolder}.
+     */
     public Iterable<InMemoryFile> getFiles()
     {
         return this.files;
     }
 
     /**
-     * Get the total data size that is contained by all of the files in this folder and in any
-     * subfolders.
-     * @return The total data size that is contained by all of the files in this folder and in any
-     * subfolders.
+     * Get the total {@link DataSize} that is contained by the {@link InMemoryFile}s in this
+     * {@link InMemoryFolder} and in any subfolders.
      */
     public DataSize getUsedDataSize()
     {

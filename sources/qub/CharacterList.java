@@ -116,6 +116,39 @@ public class CharacterList implements List<Character>
     }
 
     /**
+     * Insert all the characters in the provided {@link String} to this {@link CharacterList} at the provided index.
+     * @param insertIndex The index to insert the characters into.
+     * @param values The characters to add.
+     * @return This object for method chaining.
+     */
+    public CharacterList insertAll(int insertIndex, char... values)
+    {
+        PreCondition.assertIndexAccess(insertIndex, this.count + 1, "insertIndex");
+        PreCondition.assertNotNull(values, "values");
+
+        for (int i = 0; i < values.length; i++)
+        {
+            this.insert(insertIndex + i, values[i]);
+        }
+
+        return this;
+    }
+
+    /**
+     * Insert all the characters in the provided {@link String} to this {@link CharacterList} at the provided index.
+     * @param insertIndex The index to insert the characters into.
+     * @param values The characters to add.
+     * @return This object for method chaining.
+     */
+    public CharacterList insertAll(int insertIndex, String values)
+    {
+        PreCondition.assertIndexAccess(insertIndex, this.count + 1, "insertIndex");
+        PreCondition.assertNotNull(values, "values");
+
+        return this.insertAll(insertIndex, values.toCharArray());
+    }
+
+    /**
      * Add the provided value onto the end of this {@link CharacterList}.
      * @param value The value to add.
      * @return This object for method chaining.

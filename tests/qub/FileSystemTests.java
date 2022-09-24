@@ -2,7 +2,7 @@ package qub;
 
 public interface FileSystemTests
 {
-    static void test(TestRunner runner, Function1<Clock,FileSystem> creator)
+    public static void test(TestRunner runner, Function1<Clock,FileSystem> creator)
     {
         runner.testGroup(FileSystem.class, () ->
         {
@@ -2036,7 +2036,7 @@ public interface FileSystemTests
                     "/a/..",
                     null,
                     "/",
-                    new FolderAlreadyExistsException("/"));
+                    new FolderAlreadyExistsException("/a/.."));
             });
 
             runner.testGroup("createFolder(Path)", () ->
@@ -2095,7 +2095,7 @@ public interface FileSystemTests
                     "/a/..",
                     null,
                     "/",
-                    new FolderAlreadyExistsException("/"));
+                    new FolderAlreadyExistsException("/a/.."));
             });
 
             runner.testGroup("deleteFolder(String)", () ->
@@ -2133,7 +2133,14 @@ public interface FileSystemTests
                     });
                 };
 
-                deleteFolderTest.run("/folder", null, new FolderNotFoundException("/folder"));
+                deleteFolderTest.run(
+                    "/folder",
+                    null,
+                    new FolderNotFoundException("/folder"));
+                deleteFolderTest.run(
+                    "/folder/subfolder/./a/",
+                    null,
+                    new FolderNotFoundException("/folder/subfolder/./a/"));
                 deleteFolderTest.run(
                     "/folder",
                     (FileSystem fileSystem) -> fileSystem.createFolder("/folder").await(),
@@ -2191,7 +2198,14 @@ public interface FileSystemTests
                     });
                 };
 
-                deleteFolderTest.run("/folder", null, new FolderNotFoundException("/folder"));
+                deleteFolderTest.run(
+                    "/folder",
+                    null,
+                    new FolderNotFoundException("/folder"));
+                deleteFolderTest.run(
+                    "/folder/subfolder/./a/",
+                    null,
+                    new FolderNotFoundException("/folder/subfolder/./a/"));
                 deleteFolderTest.run(
                     "/folder",
                     (FileSystem fileSystem) -> fileSystem.createFolder("/folder").await(),
@@ -2466,8 +2480,21 @@ public interface FileSystemTests
                     });
                 };
 
-                createFileTest.run("/`~!@#$%^&()-_=+[]{};',.txt", null, "/`~!@#$%^&()-_=+[]{};',.txt", null);
-                createFileTest.run("/things.txt", null, "/things.txt", null);
+                createFileTest.run(
+                    "/`~!@#$%^&()-_=+[]{};',.txt",
+                    null,
+                    "/`~!@#$%^&()-_=+[]{};',.txt",
+                    null);
+                createFileTest.run(
+                    "/things.txt",
+                    null,
+                    "/things.txt",
+                    null);
+                createFileTest.run(
+                    "G:\\things.txt",
+                    null,
+                    "G:/things.txt",
+                    new RootNotFoundException("G:"));
                 createFileTest.run(
                     "/things.txt",
                     (FileSystem fileSystem) -> fileSystem.createFile("/things.txt").await(),
@@ -2480,6 +2507,16 @@ public interface FileSystemTests
                     new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 createFileTest.run(
                     "/a/../file.txt",
+                    null,
+                    "/file.txt",
+                    null);
+                createFileTest.run(
+                    "/a/file.txt",
+                    null,
+                    "/a/file.txt",
+                    null);
+                createFileTest.run(
+                    "\\file.txt",
                     null,
                     "/file.txt",
                     null);
@@ -2529,8 +2566,21 @@ public interface FileSystemTests
                     });
                 };
 
-                createFileTest.run("/`~!@#$%^&()-_=+[]{};',.txt", null, "/`~!@#$%^&()-_=+[]{};',.txt", null);
-                createFileTest.run("/things.txt", null, "/things.txt", null);
+                createFileTest.run(
+                    "/`~!@#$%^&()-_=+[]{};',.txt",
+                    null,
+                    "/`~!@#$%^&()-_=+[]{};',.txt",
+                    null);
+                createFileTest.run(
+                    "/things.txt",
+                    null,
+                    "/things.txt",
+                    null);
+                createFileTest.run(
+                    "G:\\things.txt",
+                    null,
+                    "G:/things.txt",
+                    new RootNotFoundException("G:"));
                 createFileTest.run(
                     "/things.txt",
                     (FileSystem fileSystem) -> fileSystem.createFile("/things.txt").await(),
@@ -2543,6 +2593,16 @@ public interface FileSystemTests
                     new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 createFileTest.run(
                     "/a/../file.txt",
+                    null,
+                    "/file.txt",
+                    null);
+                createFileTest.run(
+                    "/a/file.txt",
+                    null,
+                    "/a/file.txt",
+                    null);
+                createFileTest.run(
+                    "\\file.txt",
                     null,
                     "/file.txt",
                     null);
@@ -2595,7 +2655,7 @@ public interface FileSystemTests
                 deleteFileTest.run(
                     "/a/../file.txt",
                     null,
-                    new FileNotFoundException("/file.txt"));
+                    new FileNotFoundException("/a/../file.txt"));
             });
 
             runner.testGroup("getFileLastModified(String)", () ->
@@ -2645,7 +2705,7 @@ public interface FileSystemTests
                     "/a/../file.txt",
                     null,
                     null,
-                    new FileNotFoundException("/file.txt"));
+                    new FileNotFoundException("/a/../file.txt"));
 
                 runner.test("with existing rooted path",
                     (TestResources resources) -> Tuple.create(resources.getClock()),
@@ -2711,7 +2771,7 @@ public interface FileSystemTests
                     "/a/../file.txt",
                     null,
                     null,
-                    new FileNotFoundException("/file.txt"));
+                    new FileNotFoundException("/a/../file.txt"));
 
                 runner.test("with existing rooted path",
                     (TestResources resources) -> Tuple.create(resources.getClock()),
@@ -2873,7 +2933,8 @@ public interface FileSystemTests
                 runner.test("with non-existing rooted path", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(null);
-                    test.assertThrows(() -> fileSystem.getFileContent("/thing.txt").await(), new FileNotFoundException("/thing.txt"));
+                    test.assertThrows(() -> fileSystem.getFileContent("/thing.txt").await(),
+                        new FileNotFoundException("/thing.txt"));
                 });
 
                 runner.test("with existing rooted path with no contents", (Test test) ->
@@ -2887,13 +2948,15 @@ public interface FileSystemTests
                 runner.test("with rooted path resolved outside the root", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(null);
-                    test.assertThrows(() -> fileSystem.getFileContent("/../thing.txt").await(), new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
+                    test.assertThrows(() -> fileSystem.getFileContent("/../thing.txt").await(),
+                        new IllegalArgumentException("Cannot resolve a rooted path outside of its root."));
                 });
 
                 runner.test("with rooted path resolved inside the root", (Test test) ->
                 {
                     FileSystem fileSystem = creator.run(null);
-                    test.assertThrows(() -> fileSystem.getFileContent("/a/../thing.txt").await(), new FileNotFoundException("/thing.txt"));
+                    test.assertThrows(() -> fileSystem.getFileContent("/a/../thing.txt").await(),
+                        new FileNotFoundException("/a/../thing.txt"));
                 });
             });
 
@@ -2902,13 +2965,15 @@ public interface FileSystemTests
                 runner.test("with null path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(null);
-                    test.assertThrows(() -> fileSystem.getFileContent((Path)null), new PreConditionFailure("rootedFilePath cannot be null."));
+                    test.assertThrows(() -> fileSystem.getFileContent((Path)null),
+                        new PreConditionFailure("rootedFilePath cannot be null."));
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(null);
-                    test.assertThrows(() -> fileSystem.getFileContent(Path.parse("thing.txt")), new PreConditionFailure("rootedFilePath.isRooted() cannot be false."));
+                    test.assertThrows(() -> fileSystem.getFileContent(Path.parse("thing.txt")),
+                        new PreConditionFailure("rootedFilePath.isRooted() cannot be false."));
                 });
 
                 runner.test("with non-existing rooted path", (Test test) ->
@@ -2937,7 +3002,7 @@ public interface FileSystemTests
                 {
                     FileSystem fileSystem = creator.run(null);
                     test.assertThrows(() -> fileSystem.getFileContent("/a/../thing.txt").await(),
-                        new FileNotFoundException("/thing.txt"));
+                        new FileNotFoundException("/a/../thing.txt"));
                 });
             });
 
@@ -3350,7 +3415,7 @@ public interface FileSystemTests
 
                     test.assertThrows(() -> fileSystem.setFileContents("/A.txt", null).await(),
                         new PreConditionFailure("content cannot be null."));
-                    
+
                     test.assertFalse(fileSystem.fileExists("/A.txt").await());
                 });
 
@@ -3358,7 +3423,7 @@ public interface FileSystemTests
                 {
                     final FileSystem fileSystem = creator.run(null);
                     fileSystem.setFileContents("/A.txt", new byte[] { 0, 1 }).await();
-                    
+
                     test.assertThrows(() -> fileSystem.setFileContents("/A.txt", null).await(),
                         new PreConditionFailure("content cannot be null."));
 
@@ -3369,9 +3434,9 @@ public interface FileSystemTests
                 runner.test("with non-existing rooted path and empty contents", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(null);
-                    
+
                     fileSystem.setFileContents("/A.txt", new byte[0]).await();
-                    
+
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
                     test.assertEqual(new byte[0], fileSystem.getFileContent("/A.txt").await());
                 });
@@ -3382,7 +3447,7 @@ public interface FileSystemTests
                     fileSystem.setFileContents("/A.txt", new byte[] { 0, 1 }).await();
 
                     fileSystem.setFileContents("/A.txt", new byte[0]).await();
-                    
+
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
                     test.assertEqual(new byte[0], fileSystem.getFileContent("/A.txt").await());
                 });
@@ -3392,7 +3457,7 @@ public interface FileSystemTests
                     final FileSystem fileSystem = creator.run(null);
 
                     fileSystem.setFileContents("/A.txt", new byte[] { 0, 1, 2 }).await();
-                    
+
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
                     test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/A.txt").await());
                 });
@@ -3400,9 +3465,9 @@ public interface FileSystemTests
                 runner.test("with non-existing rooted path with non-existing parent folder and non-empty contents", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(null);
-                    
+
                     fileSystem.setFileContents("/folder/A.txt", new byte[] { 0, 1, 2 }).await();
-                    
+
                     test.assertTrue(fileSystem.folderExists("/folder").await());
                     test.assertTrue(fileSystem.fileExists("/folder/A.txt").await());
                     test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/folder/A.txt").await());
@@ -3414,7 +3479,7 @@ public interface FileSystemTests
                     fileSystem.createFile("/A.txt");
 
                     fileSystem.setFileContents("/A.txt", new byte[] { 0, 1, 2 }).await();
-                    
+
                     test.assertTrue(fileSystem.fileExists("/A.txt").await());
                     test.assertEqual(new byte[] { 0, 1, 2 }, fileSystem.getFileContent("/A.txt").await());
                 });
@@ -3452,10 +3517,10 @@ public interface FileSystemTests
                 runner.test("with non-existing rooted path and null contents", (Test test) ->
                 {
                     final FileSystem fileSystem = creator.run(null);
-                    
+
                     test.assertThrows(() -> fileSystem.setFileContents(Path.parse("/A.txt"), null).await(),
                         new PreConditionFailure("content cannot be null."));
-                    
+
                     test.assertFalse(fileSystem.fileExists("/A.txt").await());
                 });
 

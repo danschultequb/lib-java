@@ -1,35 +1,46 @@
 package qub;
 
 /**
- * A Root within an InMemoryFileSystem.
+ * An {@link InMemoryRoot} within an {@link InMemoryFileSystem}.
  */
-class InMemoryRoot extends InMemoryFolder
+public class InMemoryRoot extends InMemoryFolder
 {
     private final DataSize totalDataSize;
 
-    /**
-     * Create a new InMemoryRoot with the provided name/path.
-     * @param name The name/path for the new InMemoryRoot.
-     */
-    public InMemoryRoot(String name, Clock clock)
+    private InMemoryRoot(String name, Clock clock, DataSize totalDataSize)
     {
-        this(name, clock, null);
-    }
+        super(null, name, clock);
 
-    /**
-     * Create a new InMemoryRoot with the provided name/path.
-     * @param name The name/path for the new InMemoryRoot.
-     */
-    public InMemoryRoot(String name, Clock clock, DataSize totalDataSize)
-    {
-        super(name, clock);
+        PreCondition.assertNullOrGreaterThan(totalDataSize, DataSize.bytes(0), "totalDataSize");
 
         this.totalDataSize = totalDataSize;
     }
 
     /**
-     * Get the path to this InMemoryRoot.
-     * @return The path to this InMemoryRoot.
+     * Create a new {@link InMemoryRoot} with the provided name/path.
+     * @param name The name/path for the new {@link InMemoryRoot}.
+     * @param clock The {@link Clock} that will be used to get the current time when
+     * {@link InMemoryFile}s are created and modified.
+     */
+    public static InMemoryRoot create(String name, Clock clock)
+    {
+        return InMemoryRoot.create(name, clock, null);
+    }
+
+    /**
+     * Create a new {@link InMemoryRoot} with the provided name/path.
+     * @param name The name/path for the new {@link InMemoryRoot}.
+     * @param clock The {@link Clock} that will be used to get the current time when
+     * {@link InMemoryFile}s are created and modified.
+     * @param totalDataSize The total {@link DataSize} of the new {@link InMemoryRoot}.
+     */
+    public static InMemoryRoot create(String name, Clock clock, DataSize totalDataSize)
+    {
+        return new InMemoryRoot(name, clock, totalDataSize);
+    }
+
+    /**
+     * Get the path to this {@link InMemoryRoot}.
      */
     public Path getPath()
     {
@@ -37,8 +48,7 @@ class InMemoryRoot extends InMemoryFolder
     }
 
     /**
-     * Get the total data size of this InMemoryRoot object.
-     * @return The total data size of this InMemoryRoot object.
+     * Get the total {@link DataSize} of this {@link InMemoryRoot}.
      */
     public DataSize getTotalDataSize()
     {
@@ -46,11 +56,11 @@ class InMemoryRoot extends InMemoryFolder
     }
 
     /**
-     * Get the total unused/free data size of this InMemoryRoot object.
-     * @return The total unused/free data size of this InMemoryRoot object.
+     * Get the total unused/free {@link DataSize} of this {@link InMemoryRoot}.
      */
     public DataSize getUnusedDataSize()
     {
-        return this.getTotalDataSize().minus(this.getUsedDataSize());
+        final DataSize totalDataSize = this.getTotalDataSize();
+        return totalDataSize == null ? null : totalDataSize.minus(this.getUsedDataSize());
     }
 }

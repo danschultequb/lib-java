@@ -1,18 +1,23 @@
 package qub;
 
 /**
- * A Folder within a FileSystem.
+ * A {@link Folder} within a {@link FileSystem}.
  */
 public class Folder extends FileSystemEntry
 {
-    /**
-     * Create a new Folder reference.
-     * @param fileSystem The FileSystem that contains this Folder.
-     * @param folderPath The Path to this Folder.
-     */
-    public Folder(FileSystem fileSystem, Path folderPath)
+    protected Folder(FileSystem fileSystem, Path folderPath)
     {
         super(fileSystem, Folder.normalizeFolderPath(folderPath));
+    }
+
+    /**
+     * Create a new {@link Folder} reference.
+     * @param fileSystem The {@link FileSystem} that contains this {@link Folder}.
+     * @param folderPath The Path to this Folder.
+     */
+    public static Folder create(FileSystem fileSystem, Path folderPath)
+    {
+        return new Folder(fileSystem, folderPath);
     }
 
     private static Path normalizeFolderPath(Path folderPath)

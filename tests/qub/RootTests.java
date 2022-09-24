@@ -2,29 +2,29 @@ package qub;
 
 public interface RootTests
 {
-    static void test(final TestRunner runner)
+    public static void test(final TestRunner runner)
     {
         runner.testGroup(Root.class, () ->
         {
-            runner.testGroup("constructor(FileSystem,Path)", () ->
+            runner.testGroup("create(FileSystem,Path)", () ->
             {
                 runner.test("with null fileSystem", (Test test) ->
                 {
-                    test.assertThrows(() -> new Root(null, Path.parse("/path/to/root/")),
+                    test.assertThrows(() -> Root.create(null, Path.parse("/path/to/root/")),
                         new PreConditionFailure("fileSystem cannot be null."));
                 });
 
                 runner.test("with null path", (Test test) ->
                 {
                     final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
-                    test.assertThrows(() -> new Root(fileSystem, null),
+                    test.assertThrows(() -> Root.create(fileSystem, null),
                         new PreConditionFailure("rootPath cannot be null."));
                 });
 
                 runner.test("with relative path", (Test test) ->
                 {
                     final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
-                    test.assertThrows(() -> new Root(fileSystem, Path.parse("hello")),
+                    test.assertThrows(() -> Root.create(fileSystem, Path.parse("hello")),
                         new PreConditionFailure("rootPath.isRooted() cannot be false."));
                 });
 
@@ -32,7 +32,7 @@ public interface RootTests
                 {
                     final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                     final Path path = Path.parse("/path/to/root/");
-                    final Root root = new Root(fileSystem, path);
+                    final Root root = Root.create(fileSystem, path);
                     test.assertNotNull(root);
                     test.assertEqual(path, root.getPath());
                 });

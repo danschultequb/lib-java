@@ -1,5 +1,8 @@
 package qub;
 
+/**
+ * An in-memory representation of a {@link FileSystem} file.
+ */
 public class InMemoryFile
 {
     private final Clock clock;
@@ -8,7 +11,7 @@ public class InMemoryFile
     private byte[] contents;
     private DateTime lastModified;
 
-    public InMemoryFile(String name, Clock clock)
+    private InMemoryFile(String name, Clock clock)
     {
         PreCondition.assertNotNullAndNotEmpty(name, "name");
         PreCondition.assertNotNull(clock, "clock");
@@ -20,43 +23,58 @@ public class InMemoryFile
         this.lastModified = clock.getCurrentDateTime();
     }
 
-    public String getName()
+    /**
+     * Create a new {@link InMemoryFile}.
+     * @param name The name of the new {@link InMemoryFile}.
+     * @param clock The {@link Clock} that will be used to update the {@link InMemoryFile}'s
+     *              timestamp when the {@link InMemoryFile} changes.
+     */
+    public static InMemoryFile create(String name, Clock clock)
     {
-        return name;
+        return new InMemoryFile(name, clock);
     }
 
     /**
-     * Get whether or not this file can be deleted.
-     * @return Whether or not this file can be deleted.
+     * Get the name of this {@link InMemoryFile}.
+     */
+    public String getName()
+    {
+        return this.name;
+    }
+
+    /**
+     * Get this {@link InMemoryFile} can be deleted.
      */
     public boolean canDelete()
     {
-        return canDelete;
+        return this.canDelete;
     }
 
     /**
-     * Set whether or not this file can be deleted.
-     * @param canDelete Whether or not this file can be deleted.
+     * Set whether this {@link InMemoryFile} can be deleted.
+     * @param canDelete Whether this {@link InMemoryFile} can be deleted.
      */
-    public void setCanDelete(boolean canDelete)
+    public InMemoryFile setCanDelete(boolean canDelete)
     {
         this.canDelete = canDelete;
+        return this;
     }
 
     /**
-     * Get a ByteReadStream that reads create the contents of this InMemoryFile.
-     * @return A ByteReadStream that reads create the contents of this InMemoryFile.
+     * Get a {@link CharacterToByteReadStream} that reads create the contents of this
+     * {@link InMemoryFile}.
      */
     public CharacterToByteReadStream getContentsReadStream()
     {
         return CharacterToByteReadStream.create(ByteReadStream.create(this.contents));
     }
 
-    public BufferedByteWriteStream getContentsByteWriteStream()
-    {
-        return this.getContentByteWriteStream(OpenWriteType.CreateOrOverwrite);
-    }
-
+    /**
+     * Get a {@link BufferedByteWriteStream} that can be used to write to the contents of this
+     * {@link InMemoryFile}.
+     * @param openWriteType How the new content that is written will interact with the existing
+     *                      (or non-existing) contents of this {@link InMemoryFile}.
+     */
     public BufferedByteWriteStream getContentByteWriteStream(OpenWriteType openWriteType)
     {
         PreCondition.assertNotNull(openWriteType, "openWriteType");
@@ -68,14 +86,14 @@ public class InMemoryFile
             switch (openWriteType)
             {
                 case CreateOrOverwrite:
-                    this.contents =  writtenBytes == null ? new byte[0] : writtenBytes;
+                    this.contents = writtenBytes == null ? new byte[0] : writtenBytes;
                     break;
 
                 case CreateOrAppend:
                     this.contents = Array.mergeBytes(Iterable.create(this.contents, writtenBytes));
                     break;
             }
-            this.lastModified = clock.getCurrentDateTime();
+            this.lastModified = this.clock.getCurrentDateTime();
         });
 
         PostCondition.assertNotNull(result, "result");
@@ -83,14 +101,16 @@ public class InMemoryFile
         return ByteWriteStream.buffer(result);
     }
 
+    /**
+     * Get the most recent {@link DateTime} that this {@link InMemoryFile} was modified.
+     */
     public DateTime getLastModified()
     {
-        return lastModified;
+        return this.lastModified;
     }
 
     /**
-     * Get the amount of data contained by this file.
-     * @return The amount of data contained by this file.
+     * Get the {@link DataSize} of the content in this {@link InMemoryFile}.
      */
     public DataSize getContentsDataSize()
     {

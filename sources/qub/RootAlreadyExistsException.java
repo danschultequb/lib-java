@@ -4,6 +4,11 @@ public class RootAlreadyExistsException extends RuntimeException
 {
     private final Path rootPath;
 
+    public RootAlreadyExistsException(String rootPath)
+    {
+        this(Path.parse(rootPath));
+    }
+
     public RootAlreadyExistsException(Path rootPath)
     {
         super(RootAlreadyExistsException.createMessage(rootPath));
