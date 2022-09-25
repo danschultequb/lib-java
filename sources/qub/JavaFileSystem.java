@@ -16,20 +16,25 @@ public class JavaFileSystem implements FileSystem
     }
 
     @Override
-    public Result<Iterable<Root>> getRoots()
+    public Iterator<Root> iterateRoots()
     {
-        return Result.create(() ->
+        final List<Root> rootList = List.create();
+
+        final java.lang.Iterable<java.nio.file.Path> rootPaths = java.nio.file.FileSystems.getDefault().getRootDirectories();
+        for (final java.nio.file.Path rootPath : rootPaths)
         {
-            return Iterable.create(java.io.File.listRoots())
-                .map((java.io.File root) ->
-                {
-                    final String rootPathString = root.getAbsolutePath();
-                    final String trimmedRootPathString = rootPathString.equals("/")
-                        ? rootPathString
-                        : rootPathString.substring(0, rootPathString.length() - 1);
-                    return getRoot(trimmedRootPathString).await();
-                });
-        });
+            final String rootPathString = rootPath.toString();
+            final String trimmedRootPathString = rootPathString.equals("/")
+                ? rootPathString
+                : rootPathString.substring(0, rootPathString.length() - 1);
+            rootList.add(this.getRoot(trimmedRootPathString).await());
+        }
+
+        final Iterator<Root> result = rootList.iterate();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
     }
 
     @Override

@@ -97,9 +97,9 @@ public class FolderFileSystem implements FileSystem
     }
 
     @Override
-    public Result<Iterable<Root>> getRoots()
+    public Iterator<Root> iterateRoots()
     {
-        return Result.success(Iterable.create(Root.create(this, Path.parse("/"))));
+        return Iterator.create(Root.create(this, Path.parse("/")));
     }
 
     @Override

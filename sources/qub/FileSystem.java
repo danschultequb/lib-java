@@ -25,18 +25,20 @@ public interface FileSystem
     {
         FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
-        return this.getRoots()
-            .then((Iterable<Root> roots) ->
-            {
-                final Path root = rootPath.getRoot().await();
-                return roots.map(Root::getPath).contains(root);
-            });
+        return Result.create(() ->
+        {
+            final Path realRootPath = rootPath.getRoot().await();
+            return this.iterateRoots()
+                .map(Root::getPath)
+                .contains(realRootPath)
+                .await();
+        });
     }
 
     /**
-     * Get a reference to a Root with the provided path. The returned Root may or may not exist.
-     * @param rootPath The path to the Root to return.
-     * @return The Root with the provided path.
+     * Get a reference to a {@link Root} with the provided path {@link String}. The returned
+     * {@link Root} may or may not exist.
+     * @param rootPath The path {@link String} to the {@link Root} to return.
      */
     public default Result<Root> getRoot(String rootPath)
     {
@@ -46,30 +48,30 @@ public interface FileSystem
     }
 
     /**
-     * Get a reference to a Root with the provided Path. The returned Root may or may not exist.
-     * @param rootPath The Path to the Root to return.
-     * @return The Root with the provided Path.
+     * Get a reference to a {@link Root} with the provided {@link Path}. The returned {@link Root}
+     * may or may not exist.
+     * @param rootPath The {@link Path} to the {@link Root} to return.
      */
     public default Result<Root> getRoot(Path rootPath)
     {
         FileSystem.validateRootedFolderPath(rootPath, "rootPath");
 
-        return rootPath.getRoot()
-            .then((Path root) -> Root.create(this, root));
+        return Result.create(() ->
+        {
+            return Root.create(this, rootPath.getRoot().await());
+        });
     }
 
     /**
-     * Get the roots of this FileSystem.
-     * @return The roots of this FileSystem.
+     * Get an {@link Iterator} that will iterate over the {@link Root}s of this {@link FileSystem}.
      */
-    Result<Iterable<Root>> getRoots();
+    public Iterator<Root> iterateRoots();
 
     /**
-     * Get the total data size that the root at the provided path can contain.
-     * @param rootPath The path to the root.
-     * @return The total data size that the root at the provided path can contain.
+     * Get the total {@link DataSize} that the {@link Root} at the provided path can contain.
+     * @param rootPath The path {@link String} to the {@link Root}.
      */
-    default Result<DataSize> getRootTotalDataSize(String rootPath)
+    public default Result<DataSize> getRootTotalDataSize(String rootPath)
     {
         PreCondition.assertNotNullAndNotEmpty(rootPath, "rootPath");
 
@@ -77,18 +79,18 @@ public interface FileSystem
     }
 
     /**
-     * Get the total data size that the root at the provided path can contain.
-     * @param rootPath The path to the root.
-     * @return The total data size that the root at the provided path can contain.
+     * Get the total {@link DataSize} that the {@link Root} at the provided {@link Path} can
+     * contain.
+     * @param rootPath The {@link Path} to the {@link Root}.
      */
-    Result<DataSize> getRootTotalDataSize(Path rootPath);
+    public Result<DataSize> getRootTotalDataSize(Path rootPath);
 
     /**
-     * Get the amount of data that the root at the provided path is not using.
-     * @param rootPath The path to the root.
-     * @return The amount of data size that the root at the provided path is not using.
+     * Get the {@link DataSize} that the {@link Root} at the provided path {@link String} is not
+     * using.
+     * @param rootPath The path {@link String} to the {@link Root}.
      */
-    default Result<DataSize> getRootUnusedDataSize(String rootPath)
+    public default Result<DataSize> getRootUnusedDataSize(String rootPath)
     {
         PreCondition.assertNotNullAndNotEmpty(rootPath, "rootPath");
 
@@ -405,7 +407,7 @@ public interface FileSystem
      * @param rootedFolderPath The path to the Folder.
      * @return Whether or not a Folder exists in this FileSystem with the provided path.
      */
-    Result<Boolean> folderExists(Path rootedFolderPath);
+    public Result<Boolean> folderExists(Path rootedFolderPath);
 
     /**
      * Create a folder at the provided path and return whether or not this function created the
@@ -413,7 +415,7 @@ public interface FileSystem
      * @param rootedFolderPath The path to the folder to create.
      * @return Whether or not this function created the folder.
      */
-    default Result<Folder> createFolder(String rootedFolderPath)
+    public default Result<Folder> createFolder(String rootedFolderPath)
     {
         FileSystem.validateRootedFolderPath(rootedFolderPath);
 
@@ -426,7 +428,7 @@ public interface FileSystem
      * @param rootedFolderPath The path to the folder to create.
      * @return Whether or not this function created the folder.
      */
-    Result<Folder> createFolder(Path rootedFolderPath);
+    public Result<Folder> createFolder(Path rootedFolderPath);
 
     /**
      * Delete the folder at the provided path and return whether this function deleted the folder.

@@ -69,10 +69,29 @@ public interface FileSystemTests
                 test.assertEqual("/", root.toString());
             });
 
-            runner.test("getRoots()", (Test test) ->
+            runner.test("iterateRoots()", (Test test) ->
             {
                 final FileSystem fileSystem = creator.run(null);
-                test.assertNotNullAndNotEmpty(fileSystem.getRoots().await());
+
+                final Iterator<Root> roots = fileSystem.iterateRoots();
+                test.assertNotNull(roots);
+                test.assertFalse(roots.hasStarted());
+                test.assertFalse(roots.hasCurrent());
+
+                test.assertTrue(roots.next());
+                test.assertTrue(roots.hasStarted());
+                test.assertTrue(roots.hasCurrent());
+                test.assertTrue(roots.getCurrent().exists().await());
+
+                while (roots.next())
+                {
+                    test.assertTrue(roots.hasStarted());
+                    test.assertTrue(roots.hasCurrent());
+                    test.assertTrue(roots.getCurrent().exists().await());
+                }
+
+                test.assertTrue(roots.hasStarted());
+                test.assertFalse(roots.hasCurrent());
             });
 
             runner.testGroup("getRootTotalDataSize(String)", () ->

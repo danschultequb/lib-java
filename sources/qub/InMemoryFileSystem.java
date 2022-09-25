@@ -158,12 +158,11 @@ public class InMemoryFileSystem implements FileSystem
     }
 
     @Override
-    public Result<Iterable<Root>> getRoots()
+    public Iterator<Root> iterateRoots()
     {
-        return Result.create(() ->
-        {
-            return this.roots.map((InMemoryRoot inMemoryRoot) -> Root.create(this, inMemoryRoot.getPath()));
-        });
+        return this.roots
+            .iterate()
+            .map((InMemoryRoot inMemoryRoot) -> Root.create(this, inMemoryRoot.getPath()));
     }
 
     @Override

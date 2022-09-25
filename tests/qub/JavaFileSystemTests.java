@@ -33,13 +33,6 @@ public interface JavaFileSystemTests
                 return folderFileSystem.get();
             });
 
-            runner.test("getRoots()", (Test test) ->
-            {
-                final JavaFileSystem fileSystem = JavaFileSystem.create();
-                final Iterable<Root> roots = fileSystem.getRoots().await();
-                test.assertNotNullAndNotEmpty(roots);
-            });
-
             runner.testGroup("getRootTotalDataSize(Path)", () ->
             {
                 runner.test("with non-existing root path", (Test test) ->
@@ -52,7 +45,7 @@ public interface JavaFileSystemTests
                 runner.test("with existing root path", (Test test) ->
                 {
                     final JavaFileSystem fileSystem = JavaFileSystem.create();
-                    final Root root = fileSystem.getRoots().await().first().await();
+                    final Root root = fileSystem.iterateRoots().first().await();
                     final DataSize rootTotalDataSize = fileSystem.getRootTotalDataSize(root.getPath()).await();
                     test.assertNotNull(rootTotalDataSize);
                     test.assertEqual(DataSizeUnit.Bytes, rootTotalDataSize.getUnits());
@@ -72,7 +65,7 @@ public interface JavaFileSystemTests
                 runner.test("with existing root path", (Test test) ->
                 {
                     final JavaFileSystem fileSystem = JavaFileSystem.create();
-                    final Root root = fileSystem.getRoots().await().first().await();
+                    final Root root = fileSystem.iterateRoots().first().await();
                     final DataSize rootUnusedDataSize = fileSystem.getRootUnusedDataSize(root.getPath()).await();
                     test.assertNotNull(rootUnusedDataSize);
                     test.assertEqual(DataSizeUnit.Bytes, rootUnusedDataSize.getUnits());
@@ -92,7 +85,7 @@ public interface JavaFileSystemTests
                 runner.test("with existing root path", (Test test) ->
                 {
                     final JavaFileSystem fileSystem = JavaFileSystem.create();
-                    final Root root = fileSystem.getRoots().await().first().await();
+                    final Root root = fileSystem.iterateRoots().first().await();
                     final DataSize rootUnusedDataSize = fileSystem.getRootUsedDataSize(root.getPath()).await();
                     test.assertNotNull(rootUnusedDataSize);
                     test.assertEqual(DataSizeUnit.Bytes, rootUnusedDataSize.getUnits());

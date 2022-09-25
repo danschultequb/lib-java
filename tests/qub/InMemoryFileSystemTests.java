@@ -177,7 +177,7 @@ public interface InMemoryFileSystemTests
                         final InMemoryFileSystem fileSystem = InMemoryFileSystem.create();
                         test.assertThrows(() -> fileSystem.createRoot(rootPath).await(),
                             expected);
-                        test.assertEqual(Iterable.create(), fileSystem.getRoots().await());
+                        test.assertEqual(Iterable.create(), fileSystem.iterateRoots().toList());
                     });
                 };
 
@@ -220,7 +220,7 @@ public interface InMemoryFileSystemTests
                     test.assertThrows(() -> fileSystem.createRoot("C:/").await(),
                         new RootAlreadyExistsException("C:/"));
 
-                    test.assertEqual(Iterable.create("C:/"), fileSystem.getRoots().await().map(Root::toString));
+                    test.assertEqual(Iterable.create("C:/"), fileSystem.iterateRoots().map(Root::toString).toList());
                 });
 
                 runner.test("with \"C:/cats\" when \"C:/\" already exists", (Test test) ->
@@ -231,7 +231,7 @@ public interface InMemoryFileSystemTests
                     test.assertThrows(() -> fileSystem.createRoot("C:/cats").await(),
                         new RootAlreadyExistsException("C:/cats"));
 
-                    test.assertEqual(Iterable.create("C:/"), fileSystem.getRoots().await().map(Root::toString));
+                    test.assertEqual(Iterable.create("C:/"), fileSystem.iterateRoots().map(Root::toString).toList());
                 });
             });
         });
