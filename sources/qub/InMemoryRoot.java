@@ -5,14 +5,17 @@ package qub;
  */
 public class InMemoryRoot extends InMemoryFolder
 {
+    private final Clock clock;
     private final DataSize totalDataSize;
 
     private InMemoryRoot(String name, Clock clock, DataSize totalDataSize)
     {
-        super(null, name, clock);
+        super(null, name);
 
+        PreCondition.assertNotNull(clock, "clock");
         PreCondition.assertNullOrGreaterThan(totalDataSize, DataSize.bytes(0), "totalDataSize");
 
+        this.clock = clock;
         this.totalDataSize = totalDataSize;
     }
 
@@ -45,6 +48,15 @@ public class InMemoryRoot extends InMemoryFolder
     public Path getPath()
     {
         return Path.parse(this.getName());
+    }
+
+    /**
+     * Get the current {@link DateTime} from the {@link Clock} that has been assigned to this
+     * {@link InMemoryRoot}.
+     */
+    public DateTime getCurrentDateTime()
+    {
+        return this.clock.getCurrentDateTime();
     }
 
     /**

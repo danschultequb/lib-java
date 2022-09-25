@@ -5,33 +5,46 @@ package qub;
  */
 public class InMemoryFile
 {
-    private final Clock clock;
+    private final InMemoryFolder parentFolder;
     private final String name;
     private boolean canDelete;
     private byte[] contents;
     private DateTime lastModified;
 
-    private InMemoryFile(String name, Clock clock)
+    private InMemoryFile(InMemoryFolder parentFolder, String name)
     {
+        PreCondition.assertNotNull(parentFolder, "parentFolder");
         PreCondition.assertNotNullAndNotEmpty(name, "name");
-        PreCondition.assertNotNull(clock, "clock");
 
+        this.parentFolder = parentFolder;
         this.name = name;
-        this.clock = clock;
         this.canDelete = true;
         this.contents = new byte[0];
-        this.lastModified = clock.getCurrentDateTime();
+        this.lastModified = this.getCurrentDateTime();
     }
 
     /**
      * Create a new {@link InMemoryFile}.
+     * @param parentFolder The {@link InMemoryFolder} that contains the new {@link InMemoryFile}.
      * @param name The name of the new {@link InMemoryFile}.
-     * @param clock The {@link Clock} that will be used to update the {@link InMemoryFile}'s
-     *              timestamp when the {@link InMemoryFile} changes.
      */
-    public static InMemoryFile create(String name, Clock clock)
+    public static InMemoryFile create(InMemoryFolder parentFolder, String name)
     {
-        return new InMemoryFile(name, clock);
+        return new InMemoryFile(parentFolder, name);
+    }
+
+    private InMemoryRoot getRoot()
+    {
+        final InMemoryRoot result = this.parentFolder.getRoot();
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    private DateTime getCurrentDateTime()
+    {
+        return this.getRoot().getCurrentDateTime();
     }
 
     /**
@@ -93,7 +106,7 @@ public class InMemoryFile
                     this.contents = Array.mergeBytes(Iterable.create(this.contents, writtenBytes));
                     break;
             }
-            this.lastModified = this.clock.getCurrentDateTime();
+            this.lastModified = this.getCurrentDateTime();
         });
 
         PostCondition.assertNotNull(result, "result");

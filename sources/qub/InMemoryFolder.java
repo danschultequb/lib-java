@@ -7,20 +7,17 @@ public class InMemoryFolder
 {
     private final InMemoryFolder parentFolder;
     private final String name;
-    private final Clock clock;
     private final List<InMemoryFolder> folders;
     private final List<InMemoryFile> files;
 
     private boolean canDelete;
 
-    protected InMemoryFolder(InMemoryFolder parentFolder, String name, Clock clock)
+    protected InMemoryFolder(InMemoryFolder parentFolder, String name)
     {
         PreCondition.assertNotNullAndNotEmpty(name, "name");
-        PreCondition.assertNotNull(clock, "clock");
 
         this.parentFolder = parentFolder;
         this.name = name;
-        this.clock = clock;
         this.folders = List.create();
         this.files = List.create();
         this.canDelete = true;
@@ -31,12 +28,11 @@ public class InMemoryFolder
      * @param parentFolder The parent {@link InMemoryFolder} of the new {@link InMemoryFolder}, or
      *                     null if the new {@link InMemoryFolder} is an {@link InMemoryRoot}.
      * @param name The name of the new {@link InMemoryFolder}.
-     * @param clock The {@link Clock} that will be used to get the current time when
      * {@link InMemoryFile}s are created and modified.
      */
-    public static InMemoryFolder create(InMemoryFolder parentFolder, String name, Clock clock)
+    public static InMemoryFolder create(InMemoryFolder parentFolder, String name)
     {
-        return new InMemoryFolder(parentFolder, name, clock);
+        return new InMemoryFolder(parentFolder, name);
     }
 
     /**
@@ -150,7 +146,7 @@ public class InMemoryFolder
                 throw new FolderAlreadyExistsException(this.getPath().concatenateSegments(folderName));
             }
 
-            final InMemoryFolder result = InMemoryFolder.create(this, folderName, clock);
+            final InMemoryFolder result = InMemoryFolder.create(this, folderName);
             this.folders.add(result);
 
             PostCondition.assertNotNull(result, "result");
@@ -209,7 +205,7 @@ public class InMemoryFolder
                 throw new FileAlreadyExistsException(this.getPath().concatenateSegments(fileName));
             }
 
-            final InMemoryFile result = InMemoryFile.create(fileName, clock);
+            final InMemoryFile result = InMemoryFile.create(this, fileName);
             this.files.add(result);
 
             PostCondition.assertNotNull(result, "result");
