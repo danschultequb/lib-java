@@ -1,59 +1,59 @@
 package qub;
 
 /**
- * A synchronization primitive that permits a thread to lock a section of code so that only a single
- * thread will enter at a time.
+ * A {@link Synchronization} primitive that permits a {@link Thread} to lock a section of code so
+ * that only a single {@link Thread} will enter at a time.
  */
 public interface Mutex
 {
     /**
-     * Get whether or not this Mutex is currently acquired.
-     * @return Whether or not this Mutex is currently acquired.
+     * Get whether this {@link Mutex} is acquired.
      */
     boolean isAcquired();
 
     /**
-     * Get whether or not this Mutex is currently acquired by the current thread.
-     * @return Whether or not this Mutex is currently acquired by the current thread.
+     * Get whether this {@link Mutex} is acquired by the {@link CurrentThread}.
      */
     boolean isAcquiredByCurrentThread();
 
     /**
-     * Acquire this mutex. If the mutex is already acquired, this thread will block until the owning
-     * thread releases this mutex and this thread acquires the mutex.
+     * Acquire this {@link Mutex}. If the {@link Mutex} is already acquired, the
+     * {@link CurrentThread} will block until the owning {@link Thread} releases this {@link Mutex}.
      */
     Result<Void> acquire();
 
     /**
-     * Acquire this mutex. If the mutex is already acquired, this thread will block until the owning
-     * thread releases this mutex and this thread acquires the mutex.
+     * Acquire this {@link Mutex}. If the {@link Mutex} is already acquired, the
+     * {@link CurrentThread} will block for the provided {@link Duration} for the owning
+     * {@link Thread} to release this {@link Mutex}. If the owning {@link Thread} doesn't release
+     * this {@link Mutex} in time, then a {@link TimeoutException} will be returned.
      */
     Result<Void> acquire(Duration durationTimeout);
 
     /**
-     * Acquire this mutex. If the mutex is already acquired, this thread will block until the owning
-     * thread releases this mutex and this thread acquires the mutex.
+     * Acquire this {@link Mutex}. If the {@link Mutex} is already acquired, the
+     * {@link CurrentThread} will until the provided {@link DateTime} for the owning {@link Thread}
+     * to release this {@link Mutex}. If the owning {@link Thread} doesn't release this
+     * {@link Mutex} in time, then a {@link TimeoutException} will be returned.
      */
     Result<Void> acquire(DateTime dateTimeTimeout);
 
     /**
-     * Attempt to acquire this SpinMutex and return whether or not it was acquired.
-     * @return Whether or not the SpinMutex was acquired.
+     * Try to acquire this {@link Mutex} and return whether it was acquired.
      */
     Result<Boolean> tryAcquire();
 
     /**
-     * Release this SpinMutex so that other threads can acquire it.
-     * @return Whether or not this SpinMutex was released.
+     * Release this {@link Mutex} so that other {@link Thread}s can acquire it.
      */
     Result<Void> release();
 
     /**
-     * Run the provided action after this Mutex has been acquired and automatically release the
-     * Mutex when the action completes.
-     * @param action The action to run after acquiring this Mutex.
+     * Run the provided {@link Action0} after this {@link Mutex} has been acquired. This
+     * {@link Mutex} will automatically be released when the {@link Action0} completes.
+     * @param action The {@link Action0} to run after acquiring this {@link Mutex}.
      */
-    default Result<Void> criticalSection(Action0 action)
+    public default Result<Void> criticalSection(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
