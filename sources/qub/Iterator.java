@@ -646,4 +646,16 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     {
         return iterator == null || !iterator.any();
     }
+
+    /**
+     * Get a new {@link Iterator} that concatenates the provided {@link Iterator} onto the end of
+     * this {@link Iterator}.
+     * @param iterator The {@link Iterator} to concatenate onto the end of this {@link Iterator}.
+     */
+    public default Iterator<T> concatenate(Iterator<T> iterator)
+    {
+        PreCondition.assertNotNull(iterator, "iterator");
+
+        return ConcatenateIterator.create(Iterator.create(this, iterator));
+    }
 }

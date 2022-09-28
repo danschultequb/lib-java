@@ -51,7 +51,7 @@ public class ArrayIterator<T> implements Iterator<T>
     @Override
     public boolean hasCurrent()
     {
-        return hasStarted && currentIndex != endIndex;
+        return this.hasStarted && this.currentIndex != this.endIndex;
     }
 
     @Override

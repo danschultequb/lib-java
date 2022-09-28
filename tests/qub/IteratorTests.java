@@ -7185,6 +7185,389 @@ public interface IteratorTests
                     }
                 });
             });
+
+            runner.testGroup("concatenate(Iterator<T>)", () ->
+            {
+                runner.test("with empty non-started Iterator and null", (Test test) ->
+                {
+                    final Iterator<Integer> iterator = createIterator.run(0, false);
+                    IteratorTests.assertIterator(test, iterator, false, null);
+
+                    test.assertThrows(() -> iterator.concatenate(null),
+                        new PreConditionFailure("iterator cannot be null."));
+                    IteratorTests.assertIterator(test, iterator, false, null);
+                });
+
+                runner.test("with empty non-started Iterator and empty non-started Iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator1 = createIterator.run(0, false);
+                    IteratorTests.assertIterator(test, iterator1, false, null);
+
+                    final Iterator<Integer> iterator2 = createIterator.run(0, false);
+                    IteratorTests.assertIterator(test, iterator2, false, null);
+
+                    final Iterator<Integer> concatenatedIterator = iterator1.concatenate(iterator2);
+                    IteratorTests.assertIterator(test, iterator1, false, null);
+                    IteratorTests.assertIterator(test, iterator2, false, null);
+                    IteratorTests.assertIterator(test, concatenatedIterator, false, null);
+
+                    test.assertFalse(concatenatedIterator.next());
+                    IteratorTests.assertIterator(test, iterator1, true, null);
+                    IteratorTests.assertIterator(test, iterator2, true, null);
+                    IteratorTests.assertIterator(test, concatenatedIterator, true, null);
+                });
+
+                runner.test("with empty non-started Iterator and non-empty non-started Iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator1 = createIterator.run(0, false);
+                    IteratorTests.assertIterator(test, iterator1, false, null);
+
+                    final Iterator<Integer> iterator2 = createIterator.run(3, false);
+                    IteratorTests.assertIterator(test, iterator2, false, null);
+
+                    final Iterator<Integer> concatenatedIterator = iterator1.concatenate(iterator2);
+                    IteratorTests.assertIterator(test, iterator1, false, null);
+                    IteratorTests.assertIterator(test, iterator2, false, null);
+                    IteratorTests.assertIterator(test, concatenatedIterator, false, null);
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, null);
+                        IteratorTests.assertIterator(test, iterator2, true, i);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, i);
+                    }
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, null);
+                        IteratorTests.assertIterator(test, iterator2, true, null);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, null);
+                    }
+                });
+
+                runner.test("with empty non-started Iterator and non-empty started Iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator1 = createIterator.run(0, false);
+                    IteratorTests.assertIterator(test, iterator1, false, null);
+
+                    final Iterator<Integer> iterator2 = createIterator.run(3, true);
+                    IteratorTests.assertIterator(test, iterator2, true, 0);
+
+                    final Iterator<Integer> concatenatedIterator = iterator1.concatenate(iterator2);
+                    IteratorTests.assertIterator(test, iterator1, false, null);
+                    IteratorTests.assertIterator(test, iterator2, true, 0);
+                    IteratorTests.assertIterator(test, concatenatedIterator, false, null);
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, null);
+                        IteratorTests.assertIterator(test, iterator2, true, i);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, i);
+                    }
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, null);
+                        IteratorTests.assertIterator(test, iterator2, true, null);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, null);
+                    }
+                });
+
+                runner.test("with empty started Iterator and empty non-started Iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator1 = createIterator.run(0, true);
+                    IteratorTests.assertIterator(test, iterator1, true, null);
+
+                    final Iterator<Integer> iterator2 = createIterator.run(0, false);
+                    IteratorTests.assertIterator(test, iterator2, false, null);
+
+                    final Iterator<Integer> concatenatedIterator = iterator1.concatenate(iterator2);
+                    IteratorTests.assertIterator(test, iterator1, true, null);
+                    IteratorTests.assertIterator(test, iterator2, false, null);
+                    IteratorTests.assertIterator(test, concatenatedIterator, false, null);
+
+                    test.assertFalse(concatenatedIterator.next());
+                    IteratorTests.assertIterator(test, iterator1, true, null);
+                    IteratorTests.assertIterator(test, iterator2, true, null);
+                    IteratorTests.assertIterator(test, concatenatedIterator, true, null);
+                });
+
+                runner.test("with empty started Iterator and non-empty non-started Iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator1 = createIterator.run(0, true);
+                    IteratorTests.assertIterator(test, iterator1, true, null);
+
+                    final Iterator<Integer> iterator2 = createIterator.run(3, false);
+                    IteratorTests.assertIterator(test, iterator2, false, null);
+
+                    final Iterator<Integer> concatenatedIterator = iterator1.concatenate(iterator2);
+                    IteratorTests.assertIterator(test, iterator1, true, null);
+                    IteratorTests.assertIterator(test, iterator2, false, null);
+                    IteratorTests.assertIterator(test, concatenatedIterator, false, null);
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, null);
+                        IteratorTests.assertIterator(test, iterator2, true, i);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, i);
+                    }
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, null);
+                        IteratorTests.assertIterator(test, iterator2, true, null);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, null);
+                    }
+                });
+
+                runner.test("with empty started Iterator and non-empty started Iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator1 = createIterator.run(0, true);
+                    IteratorTests.assertIterator(test, iterator1, true, null);
+
+                    final Iterator<Integer> iterator2 = createIterator.run(3, true);
+                    IteratorTests.assertIterator(test, iterator2, true, 0);
+
+                    final Iterator<Integer> concatenatedIterator = iterator1.concatenate(iterator2);
+                    IteratorTests.assertIterator(test, iterator1, true, null);
+                    IteratorTests.assertIterator(test, iterator2, true, 0);
+                    IteratorTests.assertIterator(test, concatenatedIterator, false, null);
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, null);
+                        IteratorTests.assertIterator(test, iterator2, true, i);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, i);
+                    }
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, null);
+                        IteratorTests.assertIterator(test, iterator2, true, null);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, null);
+                    }
+                });
+
+                runner.test("with non-empty non-started Iterator and empty non-started Iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator1 = createIterator.run(2, false);
+                    IteratorTests.assertIterator(test, iterator1, false, null);
+
+                    final Iterator<Integer> iterator2 = createIterator.run(0, false);
+                    IteratorTests.assertIterator(test, iterator2, false, null);
+
+                    final Iterator<Integer> concatenatedIterator = iterator1.concatenate(iterator2);
+                    IteratorTests.assertIterator(test, iterator1, false, null);
+                    IteratorTests.assertIterator(test, iterator2, false, null);
+                    IteratorTests.assertIterator(test, concatenatedIterator, false, null);
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertTrue(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, i);
+                        IteratorTests.assertIterator(test, iterator2, false, null);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, i);
+                    }
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, null);
+                        IteratorTests.assertIterator(test, iterator2, true, null);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, null);
+                    }
+                });
+
+                runner.test("with non-empty non-started Iterator and non-empty non-started Iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator1 = createIterator.run(2, false);
+                    IteratorTests.assertIterator(test, iterator1, false, null);
+
+                    final Iterator<Integer> iterator2 = createIterator.run(3, false);
+                    IteratorTests.assertIterator(test, iterator2, false, null);
+
+                    final Iterator<Integer> concatenatedIterator = iterator1.concatenate(iterator2);
+                    IteratorTests.assertIterator(test, iterator1, false, null);
+                    IteratorTests.assertIterator(test, iterator2, false, null);
+                    IteratorTests.assertIterator(test, concatenatedIterator, false, null);
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertTrue(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, i);
+                        IteratorTests.assertIterator(test, iterator2, false, null);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, i);
+                    }
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, null);
+                        IteratorTests.assertIterator(test, iterator2, true, i);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, i);
+                    }
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, null);
+                        IteratorTests.assertIterator(test, iterator2, true, null);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, null);
+                    }
+                });
+
+                runner.test("with non-empty non-started Iterator and non-empty started Iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator1 = createIterator.run(2, false);
+                    IteratorTests.assertIterator(test, iterator1, false, null);
+
+                    final Iterator<Integer> iterator2 = createIterator.run(3, true);
+                    IteratorTests.assertIterator(test, iterator2, true, 0);
+
+                    final Iterator<Integer> concatenatedIterator = iterator1.concatenate(iterator2);
+                    IteratorTests.assertIterator(test, iterator1, false, null);
+                    IteratorTests.assertIterator(test, iterator2, true, 0);
+                    IteratorTests.assertIterator(test, concatenatedIterator, false, null);
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertTrue(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, i);
+                        IteratorTests.assertIterator(test, iterator2, true, 0);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, i);
+                    }
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, null);
+                        IteratorTests.assertIterator(test, iterator2, true, i);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, i);
+                    }
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, null);
+                        IteratorTests.assertIterator(test, iterator2, true, null);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, null);
+                    }
+                });
+
+                runner.test("with non-empty started Iterator and empty non-started Iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator1 = createIterator.run(2, true);
+                    IteratorTests.assertIterator(test, iterator1, true, 0);
+
+                    final Iterator<Integer> iterator2 = createIterator.run(0, false);
+                    IteratorTests.assertIterator(test, iterator2, false, null);
+
+                    final Iterator<Integer> concatenatedIterator = iterator1.concatenate(iterator2);
+                    IteratorTests.assertIterator(test, iterator1, true, 0);
+                    IteratorTests.assertIterator(test, iterator2, false, null);
+                    IteratorTests.assertIterator(test, concatenatedIterator, false, null);
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertTrue(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, i);
+                        IteratorTests.assertIterator(test, iterator2, false, null);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, i);
+                    }
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, null);
+                        IteratorTests.assertIterator(test, iterator2, true, null);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, null);
+                    }
+                });
+
+                runner.test("with non-empty started Iterator and non-empty non-started Iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator1 = createIterator.run(2, true);
+                    IteratorTests.assertIterator(test, iterator1, true, 0);
+
+                    final Iterator<Integer> iterator2 = createIterator.run(3, false);
+                    IteratorTests.assertIterator(test, iterator2, false, null);
+
+                    final Iterator<Integer> concatenatedIterator = iterator1.concatenate(iterator2);
+                    IteratorTests.assertIterator(test, iterator1, true, 0);
+                    IteratorTests.assertIterator(test, iterator2, false, null);
+                    IteratorTests.assertIterator(test, concatenatedIterator, false, null);
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertTrue(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, i);
+                        IteratorTests.assertIterator(test, iterator2, false, null);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, i);
+                    }
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, null);
+                        IteratorTests.assertIterator(test, iterator2, true, i);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, i);
+                    }
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, null);
+                        IteratorTests.assertIterator(test, iterator2, true, null);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, null);
+                    }
+                });
+
+                runner.test("with non-empty started Iterator and non-empty started Iterator", (Test test) ->
+                {
+                    final Iterator<Integer> iterator1 = createIterator.run(2, true);
+                    IteratorTests.assertIterator(test, iterator1, true, 0);
+
+                    final Iterator<Integer> iterator2 = createIterator.run(3, true);
+                    IteratorTests.assertIterator(test, iterator2, true, 0);
+
+                    final Iterator<Integer> concatenatedIterator = iterator1.concatenate(iterator2);
+                    IteratorTests.assertIterator(test, iterator1, true, 0);
+                    IteratorTests.assertIterator(test, iterator2, true, 0);
+                    IteratorTests.assertIterator(test, concatenatedIterator, false, null);
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertTrue(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, i);
+                        IteratorTests.assertIterator(test, iterator2, true, 0);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, i);
+                    }
+
+                    for (int i = 0; i < 3; i++)
+                    {
+                        test.assertTrue(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, null);
+                        IteratorTests.assertIterator(test, iterator2, true, i);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, i);
+                    }
+
+                    for (int i = 0; i < 2; i++)
+                    {
+                        test.assertFalse(concatenatedIterator.next());
+                        IteratorTests.assertIterator(test, iterator1, true, null);
+                        IteratorTests.assertIterator(test, iterator2, true, null);
+                        IteratorTests.assertIterator(test, concatenatedIterator, true, null);
+                    }
+                });
+            });
         });
     }
 

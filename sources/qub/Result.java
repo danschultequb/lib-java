@@ -1,31 +1,35 @@
 package qub;
 
+/**
+ * The result of performing an operation.
+ * @param <T> The type of value that is contained by the {@link Result}.
+ */
 public interface Result<T>
 {
     /**
-     * Create a new empty successful Result.
-     * @param <U> The type of value the Result should contain.
+     * Create a new empty successful {@link Result}.
+     * @param <U> The type of value the {@link Result} contains.
      */
-    static <U> Result<U> create()
+    public static <U> Result<U> create()
     {
         return Result.create(() -> null);
     }
 
     /**
-     * Create a new successful Result that contains the provided value.
-     * @param value The value the Result should contain.
+     * Create a new successful {@link Result} that contains the provided value.
+     * @param value The value the {@link Result} contains.
      * @param <U> The type of the value.
      */
-    static <U> Result<U> success(U value)
+    public static <U> Result<U> success(U value)
     {
         return Result.create(() -> value);
     }
 
     /**
-     * Create a new Result by synchronously running the provided Action and returning the result.
-     * @param action The action to run.
+     * Create a new {@link Result} that runs the provided {@link Action0}.
+     * @param action The {@link Action0} to run.
      */
-    static Result<Void> create(Action0 action)
+    public static Result<Void> create(Action0 action)
     {
         PreCondition.assertNotNull(action, "action");
 
@@ -37,11 +41,11 @@ public interface Result<T>
     }
 
     /**
-     * Create a new Result by synchronously running the provided Function and returning the result.
-     * @param function The function to run.
-     * @param <U> The type of value the function will return.
+     * Create a new {@link Result} that runs the provided {@link Function0} and returns the result.
+     * @param function The {@link Function0} to run.
+     * @param <U> The type of value the {@link Function0} returns.
      */
-    static <U> Result<U> create(Function0<U> function)
+    public static <U> Result<U> create(Function0<U> function)
     {
         PreCondition.assertNotNull(function, "function");
 
@@ -49,15 +53,14 @@ public interface Result<T>
     }
 
     /**
-     * Create a new Result by synchronously running the provided action with the provided disposable
-     * value. When the action is completed, the disposable will be disposed.
-     * @param disposableFunction The function that will provided the disposable to dispose when the
-     *                           action is completed.
-     * @param action The action to run.
-     * @param <T> The type of the disposable.
-     * @return The new result.
+     * Create a new {@link Result} that runs the provided {@link Action1} with the
+     * {@link Disposable} returned by the provided {@link Function0}. When the {@link Action1} is
+     * complete, then the {@link Disposable} value will be disposed.
+     * @param disposableFunction The function that will create the {@link Disposable}.
+     * @param action The {@link Action1} to run.
+     * @param <T> The type of the {@link Disposable}.
      */
-    static <T extends Disposable> Result<Void> createUsing(Function0<T> disposableFunction, Action1<T> action)
+    public static <T extends Disposable> Result<Void> createUsing(Function0<T> disposableFunction, Action1<T> action)
     {
         PreCondition.assertNotNull(disposableFunction, "disposableFunction");
         PreCondition.assertNotNull(action, "action");
