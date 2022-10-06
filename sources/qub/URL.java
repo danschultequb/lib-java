@@ -11,79 +11,99 @@ public interface URL
     }
 
     /**
-     * Create a clone of this URL.
-     * @return A new clone of this URL.
+     * Create a clone of this {@link URL}.
      */
-    MutableURL clone();
+    public MutableURL clone();
 
     /**
-     * Get the scheme (or protocol) of this URL.
-     * @return The scheme (or protocol) of this URL.
+     * Get the scheme (or protocol) of this {@link URL}.
      */
-    String getScheme();
+    public Result<String> getScheme();
 
     /**
-     * Get the host of this URL.
-     * @return The host of this URL.
+     * Get the host of this {@link URL}.
      */
-    String getHost();
+    public Result<String> getHost();
 
     /**
-     * Get the port of this URL.
-     * @return The port of this URL.
+     * Get the port of this {@link URL}.
      */
-    Integer getPort();
+    public Result<Integer> getPort();
 
     /**
-     * Get the path of this URL.
-     * @return The path of this URL.
+     * Get the path of this {@link URL}.
      */
-    String getPath();
+    public Result<String> getPath();
 
     /**
-     * Get the query string of this URL.
-     * @return The query string of this URL.
+     * Get the query string of this {@link URL}.
      */
-    String getQueryString();
+    public Result<String> getQueryString();
 
     /**
-     * Get the query parameters of this URL.
-     * @return The query parameters of this URL.
+     * Get the query parameters of this {@link URL}.
      */
-    Map<String,String> getQueryParameters();
+    public Map<String,String> getQueryParameters();
 
     /**
-     * Get the value for the query parameter with the provided name. If the no query parameter
-     * exists with the provided name, then null will be returned.
+     * Get the value for the query parameter with the provided name.
      * @param queryParameterName The name of the query parameter.
-     * @return The value for the query parameter with the provided name, or null if no query
-     * parameter exists with the provided name.
      */
-    Result<String> getQueryParameter(String queryParameterName);
+    public Result<String> getQueryParameter(String queryParameterName);
 
     /**
-     * Get the fragment of this URL.
-     * @return The fragment of this URL.
+     * Get the fragment of this {@link URL}.
      */
-    String getFragment();
+    public Result<String> getFragment();
 
-    static boolean equals(URL url, Object rhs)
+    /**
+     * Get whether the provided {@link URL} is equal to the provided {@link Object}.
+     * @param url The {@link URL} to compare against the {@link Object}.
+     * @param rhs The {@link Object} to compare against the {@link URL}.
+     */
+    public static boolean equals(URL url, Object rhs)
     {
         return url == rhs || (url != null && rhs instanceof URL && url.equals((URL)rhs));
     }
 
-    default boolean equals(URL rhs)
+    /**
+     * Get whether this {@link URL} is equal to the provided {@link URL}.
+     * @param rhs The {@link URL} to compare against this {@link URL}.
+     */
+    public default boolean equals(URL rhs)
     {
-        return rhs != null &&
-            Comparer.equal(this.getScheme(), rhs.getScheme()) &&
-            Comparer.equal(this.getHost(), rhs.getHost()) &&
-            Comparer.equal(this.getPort(), rhs.getPort()) &&
-            Comparer.equal(this.getPath(), rhs.getPath()) &&
-            Comparer.equal(this.getQueryParameters(), rhs.getQueryParameters()) &&
-            Comparer.equal(this.getFragment(), rhs.getFragment());
+        boolean result = false;
+        if (rhs != null)
+        {
+            result =
+                Comparer.equal(
+                    this.getScheme().catchError(NotFoundException.class).await(),
+                    rhs.getScheme().catchError(NotFoundException.class).await()) &&
+                Comparer.equal(
+                    this.getHost().catchError(NotFoundException.class).await(),
+                    rhs.getHost().catchError(NotFoundException.class).await()) &&
+                Comparer.equal(
+                    this.getPort().catchError(NotFoundException.class).await(),
+                    rhs.getPort().catchError(NotFoundException.class).await()) &&
+                Comparer.equal(
+                    this.getPath().catchError(NotFoundException.class).await(),
+                    rhs.getPath().catchError(NotFoundException.class).await()) &&
+                Comparer.equal(this.getQueryParameters(), rhs.getQueryParameters()) &&
+                Comparer.equal(
+                    this.getFragment().catchError(NotFoundException.class).await(),
+                    rhs.getFragment().catchError(NotFoundException.class).await());
+        }
+        return result;
     }
 
-    static void encodePath(String path, CharacterList output)
+    /**
+     * Encode the provided path {@link String} and add the result to the provided
+     * {@link CharacterList}.
+     * @param path The path {@link String} to encode.
+     * @param output The {@link CharacterList} where the encoded path {@link String} will be added
+     *               to.
+     */
+    public static void encodePath(String path, CharacterList output)
     {
         PreCondition.assertNotNull(output, "output");
 
@@ -119,7 +139,29 @@ public interface URL
         }
     }
 
-    static void encodeQuery(String query, CharacterList output)
+    /**
+     * Encode the provided path {@link String}
+     * @param path The path {@link String} to encode.
+     */
+    public static String encodePath(String path)
+    {
+        final CharacterList list = CharacterList.create();
+        URL.encodePath(path, list);
+        final String result = list.toString(true);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * Encode the provided query {@link String} and add the result to the provided
+     * {@link CharacterList}.
+     * @param query The query {@link String} to encode.
+     * @param output The {@link CharacterList} where the encoded query {@link String} will be added
+     *               to.
+     */
+    public static void encodeQuery(String query, CharacterList output)
     {
         PreCondition.assertNotNull(output, "output");
 
@@ -151,7 +193,29 @@ public interface URL
         }
     }
 
-    static void encodeFragment(String fragment, CharacterList output)
+    /**
+     * Encode the provided query {@link String}
+     * @param query The query {@link String} to encode.
+     */
+    public static String encodeQuery(String query)
+    {
+        final CharacterList list = CharacterList.create();
+        URL.encodeQuery(query, list);
+        final String result = list.toString(true);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    /**
+     * Encode the provided fragment {@link String} and add the result to the provided
+     * {@link CharacterList}.
+     * @param fragment The fragment {@link String} to encode.
+     * @param output The {@link CharacterList} where the encoded fragment {@link String} will be
+     *               added to.
+     */
+    public static void encodeFragment(String fragment, CharacterList output)
     {
         PreCondition.assertNotNull(output, "output");
 
@@ -183,43 +247,66 @@ public interface URL
         }
     }
 
-    default String toString(boolean percentEncode)
+    /**
+     * Encode the provided fragment {@link String}
+     * @param fragment The fragment {@link String} to encode.
+     */
+    public static String encodeFragment(String fragment)
+    {
+        final CharacterList list = CharacterList.create();
+        URL.encodeFragment(fragment, list);
+        final String result = list.toString(true);
+
+        PostCondition.assertNotNull(result, "result");
+
+        return result;
+    }
+
+    public default String toString(boolean percentEncode)
     {
         return URL.toString(this, percentEncode);
     }
 
-    static String toString(URL url)
+    public static String toString(URL url)
     {
         return URL.toString(url, false);
     }
 
-    static String toString(URL url, boolean percentEncode)
+    public static String toString(URL url, boolean percentEncode)
     {
         PreCondition.assertNotNull(url, "url");
 
         final CharacterList list = CharacterList.create();
 
-        final String scheme = url.getScheme();
+        final String scheme = url.getScheme()
+            .catchError(NotFoundException.class)
+            .await();
         if (!Strings.isNullOrEmpty(scheme))
         {
             list.addAll(scheme);
             list.addAll("://");
         }
 
-        final String host = url.getHost();
+        final String host = url.getHost()
+            .catchError(NotFoundException.class)
+            .await();
         if (!Strings.isNullOrEmpty(host))
         {
             list.addAll(host);
         }
 
-        final Integer port = url.getPort();
+        final Integer port = url.getPort()
+            .catchError(NotFoundException.class)
+            .await();
         if (port != null)
         {
             list.add(':');
             list.addAll(Integers.toString(port));
         }
 
-        final String path = url.getPath();
+        final String path = url.getPath()
+            .catchError(NotFoundException.class)
+            .await();
         if (!Strings.isNullOrEmpty(path))
         {
             if (!path.startsWith("/"))
@@ -237,7 +324,9 @@ public interface URL
             }
         }
 
-        final String query = url.getQueryString();
+        final String query = url.getQueryString()
+            .catchError(NotFoundException.class)
+            .await();
         if (!Strings.isNullOrEmpty(query))
         {
             if (!query.startsWith("?"))
@@ -255,7 +344,9 @@ public interface URL
             }
         }
 
-        final String fragment = url.getFragment();
+        final String fragment = url.getFragment()
+            .catchError(NotFoundException.class)
+            .await();
         if (!Strings.isNullOrEmpty(fragment))
         {
             if (!fragment.startsWith("#"))
@@ -281,11 +372,10 @@ public interface URL
     }
 
     /**
-     * Parse the provided urlString into a URL object.
-     * @param urlString The string to parse into a URL.
-     * @return The parsed URL.
+     * Parse the provided url {@link String} into a {@link URL}.
+     * @param urlString The url {@link String} to parse into a {@link URL}.
      */
-    static Result<MutableURL> parse(String urlString)
+    public static Result<MutableURL> parse(String urlString)
     {
         PreCondition.assertNotNullAndNotEmpty(urlString, "urlString");
 
@@ -357,7 +447,7 @@ public interface URL
                                 break;
 
                             default:
-                                throw new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because the scheme (" + result.getScheme() + ") must be followed by \"://\".");
+                                throw new IllegalArgumentException("Could not parse \"" + urlString + "\" into a URL because the scheme (" + result.getScheme().await() + ") must be followed by \"://\".");
                         }
                         break;
 
@@ -555,7 +645,7 @@ public interface URL
     /**
      * The different states of parsing a URL.
      */
-    enum URLParseState
+    public enum URLParseState
     {
         SchemeOrHost,
         SchemeOrHostWithColon,

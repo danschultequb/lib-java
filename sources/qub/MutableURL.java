@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A class that represents a mutable URL (uniform resource locator).
+ * A class that represents a mutable {@link URL} (uniform resource locator).
  */
 public class MutableURL implements URL
 {
@@ -25,25 +25,37 @@ public class MutableURL implements URL
     @Override
     public MutableURL clone()
     {
-        final MutableURL result = new MutableURL();
-        result.scheme = this.scheme;
-        result.host = this.host;
-        result.port = this.port;
-        result.path = this.path;
-        result.query.setAll(this.query);
-        result.fragment = this.fragment;
-        return result;
+        return MutableURL.create()
+            .setScheme(this.scheme)
+            .setHost(this.host)
+            .setPort(this.port)
+            .setPath(this.path)
+            .setQueryParameters(this.query)
+            .setFragment(this.fragment);
+    }
+
+    private static <T> Result<T> getValue(T value, String valueName)
+    {
+        return Result.create(() ->
+        {
+            if (value == null)
+            {
+                throw new NotFoundException("No " + valueName + " was found.");
+            }
+            return value;
+        });
     }
 
     @Override
-    public String getScheme()
+    public Result<String> getScheme()
     {
-        return scheme;
+        return MutableURL.getValue(this.scheme, "scheme/protocol");
     }
 
     /**
-     * Set the scheme (or protocol) of this MutableURL.
-     * @param scheme The scheme (or protocol) of this MutableURL.
+     * Set the scheme (or protocol) of this {@link MutableURL}.
+     * @param scheme The new scheme (or protocol) of this {@link MutableURL}.
+     * @return This object for method chaining.
      */
     public MutableURL setScheme(String scheme)
     {
@@ -52,14 +64,15 @@ public class MutableURL implements URL
     }
 
     @Override
-    public String getHost()
+    public Result<String> getHost()
     {
-        return host;
+        return MutableURL.getValue(this.host, "host");
     }
 
     /**
-     * Set the host of this MutableURL.
-     * @param host The host of this MutableURL.
+     * Set the host of this {@link MutableURL}.
+     * @param host The new host of this {@link MutableURL}.
+     * @return This object for method chaining.
      */
     public MutableURL setHost(String host)
     {
@@ -68,14 +81,15 @@ public class MutableURL implements URL
     }
 
     @Override
-    public Integer getPort()
+    public Result<Integer> getPort()
     {
-        return port;
+        return MutableURL.getValue(this.port, "port");
     }
 
     /**
-     * Set the port of this MutableURL.
-     * @param port The port of this MutableURL.
+     * Set the port of this {@link MutableURL}.
+     * @param port The new port of this {@link MutableURL}.
+     * @return This object for method chaining.
      */
     public MutableURL setPort(Integer port)
     {
@@ -84,14 +98,15 @@ public class MutableURL implements URL
     }
 
     @Override
-    public String getPath()
+    public Result<String> getPath()
     {
-        return path;
+        return MutableURL.getValue(this.path, "path");
     }
 
     /**
-     * Set the path of this MutableURL.
-     * @param path The path of this MutableURL.
+     * Set the path of this {@link MutableURL}.
+     * @param path The new path of this {@link MutableURL}.
+     * @return This object for method chaining.
      */
     public MutableURL setPath(String path)
     {
@@ -100,39 +115,42 @@ public class MutableURL implements URL
     }
 
     @Override
-    public String getQueryString()
+    public Result<String> getQueryString()
     {
-        String result;
-        if (!query.any())
+        return Result.create(() ->
         {
-            result = null;
-        }
-        else
-        {
-            final StringBuilder builder = new StringBuilder();
+            if (!query.any())
+            {
+                throw new NotFoundException("No query string was found.");
+            }
+
+            final CharacterList list = CharacterList.create();
             for (final MapEntry<String,String> queryParameter : query)
             {
-                if (builder.length() > 0)
+                if (list.any())
                 {
-                    builder.append('&');
+                    list.add('&');
                 }
 
                 final String queryParameterName = queryParameter.getKey();
-                builder.append(queryParameterName);
+                list.addAll(queryParameterName);
 
                 final String queryParameterValue = queryParameter.getValue();
                 if (queryParameterValue != null)
                 {
-                    builder.append('=');
+                    list.add('=');
                     if (!queryParameterValue.isEmpty())
                     {
-                        builder.append(queryParameterValue);
+                        list.addAll(queryParameterValue);
                     }
                 }
             }
-            result = builder.toString();
-        }
-        return result;
+            final String result = list.toString(true);
+
+            PostCondition.assertNotNullAndNotEmpty(result, "result");
+
+            return result;
+        });
     }
 
     /**
@@ -165,7 +183,7 @@ public class MutableURL implements URL
                     {
                         if (queryParameterName.length() > 0)
                         {
-                            query.set(queryParameterName.toString(), null);
+                            this.query.set(queryParameterName.toString(), null);
                             queryParameterName.setLength(0);
                             queryParameterValue.setLength(0);
                         }
@@ -181,7 +199,7 @@ public class MutableURL implements URL
                     {
                         if (queryParameterName.length() > 0)
                         {
-                            query.set(queryParameterName.toString(), queryParameterValue.toString());
+                            this.query.set(queryParameterName.toString(), queryParameterValue.toString());
                             queryParameterName.setLength(0);
                             queryParameterValue.setLength(0);
                         }
@@ -197,11 +215,11 @@ public class MutableURL implements URL
             {
                 if (currentState == QueryParseState.QueryParameterName)
                 {
-                    query.set(queryParameterName.toString(), null);
+                    this.query.set(queryParameterName.toString(), null);
                 }
                 else
                 {
-                    query.set(queryParameterName.toString(), queryParameterValue.toString());
+                    this.query.set(queryParameterName.toString(), queryParameterValue.toString());
                 }
             }
         }
@@ -227,11 +245,11 @@ public class MutableURL implements URL
     @Override
     public Result<String> getQueryParameter(String queryParameterName)
     {
-        return query.get(queryParameterName);
+        return this.query.get(queryParameterName);
     }
 
     /**
-     * Set the provided query parameter in this MutableURLs query string.
+     * Set the provided query parameter in this {@link MutableURL}'s query string.
      * @param queryParameterName The name of the query parameter.
      * @param queryParameterValue The value of the query parameter.
      */
@@ -239,20 +257,20 @@ public class MutableURL implements URL
     {
         PreCondition.assertNotNullAndNotEmpty(queryParameterName, "queryParameterName");
 
-        query.set(queryParameterName, queryParameterValue);
+        this.query.set(queryParameterName, queryParameterValue);
 
         return this;
     }
 
     @Override
-    public String getFragment()
+    public Result<String> getFragment()
     {
-        return fragment;
+        return MutableURL.getValue(this.fragment, "fragment");
     }
 
     /**
-     * Set the fragment of this MutableURL.
-     * @param fragment The fragment of this MutableURL.
+     * Set the fragment of this {@link MutableURL}.
+     * @param fragment The new fragment of this {@link MutableURL}.
      */
     public MutableURL setFragment(String fragment)
     {

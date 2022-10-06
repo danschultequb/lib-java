@@ -2,19 +2,26 @@ package qub;
 
 public interface MutableURLTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(MutableURL.class, () ->
         {
             runner.test("create()", (Test test) ->
             {
                 final MutableURL url = MutableURL.create();
-                test.assertNull(url.getScheme());
-                test.assertNull(url.getHost());
-                test.assertNull(url.getPort());
-                test.assertNull(url.getPath());
-                test.assertNull(url.getQueryString());
-                test.assertNull(url.getFragment());
+                test.assertThrows(() -> url.getScheme().await(),
+                    new NotFoundException("No scheme/protocol was found."));
+                test.assertThrows(() -> url.getHost().await(),
+                    new NotFoundException("No host was found."));
+                test.assertThrows(() -> url.getPort().await(),
+                    new NotFoundException("No port was found."));
+                test.assertThrows(() -> url.getPath().await(),
+                    new NotFoundException("No path was found."));
+                test.assertThrows(() -> url.getQueryString().await(),
+                    new NotFoundException("No query string was found."));
+                test.assertEqual(Map.create(), url.getQueryParameters());
+                test.assertThrows(() -> url.getFragment().await(),
+                    new NotFoundException("No fragment was found."));
                 test.assertEqual("", url.toString());
             });
 
@@ -27,7 +34,16 @@ public interface MutableURLTests
                         final MutableURL url = MutableURL.create();
                         final MutableURL setSchemeResult = url.setScheme(scheme);
                         test.assertSame(url, setSchemeResult);
-                        test.assertEqual(Strings.isNullOrEmpty(scheme) ? null : scheme, url.getScheme());
+                        final Result<String> getSchemeResult = url.getScheme();
+                        if (Strings.isNullOrEmpty(scheme))
+                        {
+                            test.assertThrows(() -> getSchemeResult.await(),
+                                new NotFoundException("No scheme/protocol was found."));
+                        }
+                        else
+                        {
+                            test.assertEqual(scheme, getSchemeResult.await());
+                        }
                     });
                 };
 
@@ -45,7 +61,15 @@ public interface MutableURLTests
                         final MutableURL url = MutableURL.create();
                         final MutableURL setHostResult = url.setHost(host);
                         test.assertSame(url, setHostResult);
-                        test.assertEqual(Strings.isNullOrEmpty(host) ? null : host, url.getHost());
+                        if (Strings.isNullOrEmpty(host))
+                        {
+                            test.assertThrows(() -> url.getHost().await(),
+                                new NotFoundException("No host was found."));
+                        }
+                        else
+                        {
+                            test.assertEqual(host, url.getHost().await());
+                        }
                     });
                 };
 
@@ -63,7 +87,16 @@ public interface MutableURLTests
                         final MutableURL url = MutableURL.create();
                         final MutableURL setPortResult = url.setPort(port);
                         test.assertSame(url, setPortResult);
-                        test.assertEqual(port, url.getPort());
+                        final Result<Integer> getPortResult = url.getPort();
+                        if (port == null)
+                        {
+                            test.assertThrows(() -> getPortResult.await(),
+                                new NotFoundException("No port was found."));
+                        }
+                        else
+                        {
+                            test.assertEqual(port, getPortResult.await());
+                        }
                     });
                 };
 
@@ -85,7 +118,17 @@ public interface MutableURLTests
                         final MutableURL url = MutableURL.create();
                         final MutableURL setPathResult = url.setPath(path);
                         test.assertSame(url, setPathResult);
-                        test.assertEqual(Strings.isNullOrEmpty(path) ? null : path, url.getPath());
+
+                        final Result<String> getPathResult = url.getPath();
+                        if (Strings.isNullOrEmpty(path))
+                        {
+                            test.assertThrows(() -> getPathResult.await(),
+                                new NotFoundException("No path was found."));
+                        }
+                        else
+                        {
+                            test.assertEqual(path, getPathResult.await());
+                        }
                     });
                 };
 
@@ -105,7 +148,9 @@ public interface MutableURLTests
                     final MutableURL url = MutableURL.create();
                     final MutableURL setQueryResult = url.setQueryString(null);
                     test.assertSame(url, setQueryResult);
-                    test.assertNull(url.getQueryString());
+                    test.assertThrows(() -> url.getQueryString().await(),
+                        new NotFoundException("No query string was found."));
+                    test.assertEqual(Map.create(), url.getQueryParameters());
                 });
 
                 runner.test("with \"\"", (Test test) ->
@@ -113,7 +158,9 @@ public interface MutableURLTests
                     final MutableURL url = MutableURL.create();
                     final MutableURL setQueryResult = url.setQueryString("");
                     test.assertSame(url, setQueryResult);
-                    test.assertNull(url.getQueryString());
+                    test.assertThrows(() -> url.getQueryString().await(),
+                        new NotFoundException("No query string was found."));
+                    test.assertEqual(Map.create(), url.getQueryParameters());
                 });
 
                 runner.test("with \"?\"", (Test test) ->
@@ -121,7 +168,9 @@ public interface MutableURLTests
                     final MutableURL url = MutableURL.create();
                     final MutableURL setQueryResult = url.setQueryString("?");
                     test.assertSame(url, setQueryResult);
-                    test.assertNull(url.getQueryString());
+                    test.assertThrows(() -> url.getQueryString().await(),
+                        new NotFoundException("No query string was found."));
+                    test.assertEqual(Map.create(), url.getQueryParameters());
                 });
 
                 runner.test("with \"a\"", (Test test) ->
@@ -129,7 +178,7 @@ public interface MutableURLTests
                     final MutableURL url = MutableURL.create();
                     final MutableURL setQueryResult = url.setQueryString("a");
                     test.assertSame(url, setQueryResult);
-                    test.assertEqual("a", url.getQueryString());
+                    test.assertEqual("a", url.getQueryString().await());
                     test.assertNull(url.getQueryParameter("a").await());
                 });
 
@@ -138,7 +187,7 @@ public interface MutableURLTests
                     final MutableURL url = MutableURL.create();
                     final MutableURL setQueryResult = url.setQueryString("a=");
                     test.assertSame(url, setQueryResult);
-                    test.assertEqual("a=", url.getQueryString());
+                    test.assertEqual("a=", url.getQueryString().await());
                     test.assertEqual("", url.getQueryParameter("a").await());
                 });
 
@@ -147,7 +196,7 @@ public interface MutableURLTests
                     final MutableURL url = MutableURL.create();
                     final MutableURL setQueryResult = url.setQueryString("a=b");
                     test.assertSame(url, setQueryResult);
-                    test.assertEqual("a=b", url.getQueryString());
+                    test.assertEqual("a=b", url.getQueryString().await());
                     test.assertEqual("b", url.getQueryParameter("a").await());
                 });
 
@@ -156,7 +205,8 @@ public interface MutableURLTests
                     final MutableURL url = MutableURL.create();
                     final MutableURL setQueryResult = url.setQueryString("&");
                     test.assertSame(url, setQueryResult);
-                    test.assertNull(url.getQueryString());
+                    test.assertThrows(() -> url.getQueryString().await(),
+                        new NotFoundException("No query string was found."));
                 });
 
                 runner.test("with \"a&\"", (Test test) ->
@@ -164,7 +214,7 @@ public interface MutableURLTests
                     final MutableURL url = MutableURL.create();
                     final MutableURL setQueryResult = url.setQueryString("a&");
                     test.assertSame(url, setQueryResult);
-                    test.assertEqual("a", url.getQueryString());
+                    test.assertEqual("a", url.getQueryString().await());
                     test.assertNull(url.getQueryParameter("a").await());
                 });
 
@@ -173,7 +223,7 @@ public interface MutableURLTests
                     final MutableURL url = MutableURL.create();
                     final MutableURL setQueryResult = url.setQueryString("a=b&");
                     test.assertSame(url, setQueryResult);
-                    test.assertEqual("a=b", url.getQueryString());
+                    test.assertEqual("a=b", url.getQueryString().await());
                     test.assertEqual("b", url.getQueryParameter("a").await());
                 });
 
@@ -182,7 +232,7 @@ public interface MutableURLTests
                     final MutableURL url = MutableURL.create();
                     final MutableURL setQueryResult = url.setQueryString("a=b&c");
                     test.assertSame(url, setQueryResult);
-                    test.assertEqual("a=b&c", url.getQueryString());
+                    test.assertEqual("a=b&c", url.getQueryString().await());
                     test.assertEqual("b", url.getQueryParameter("a").await());
                     test.assertNull(url.getQueryParameter("c").await());
                 });
@@ -192,7 +242,7 @@ public interface MutableURLTests
                     final MutableURL url = MutableURL.create();
                     final MutableURL setQueryResult = url.setQueryString("a=b&c&");
                     test.assertSame(url, setQueryResult);
-                    test.assertEqual("a=b&c", url.getQueryString());
+                    test.assertEqual("a=b&c", url.getQueryString().await());
                     test.assertEqual("b", url.getQueryParameter("a").await());
                     test.assertNull(url.getQueryParameter("c").await());
                 });
@@ -202,7 +252,7 @@ public interface MutableURLTests
                     final MutableURL url = MutableURL.create();
                     final MutableURL setQueryResult = url.setQueryString("a=b&c=&");
                     test.assertSame(url, setQueryResult);
-                    test.assertEqual("a=b&c=", url.getQueryString());
+                    test.assertEqual("a=b&c=", url.getQueryString().await());
                     test.assertEqual("b", url.getQueryParameter("a").await());
                     test.assertEqual("", url.getQueryParameter("c").await());
                 });
@@ -212,7 +262,9 @@ public interface MutableURLTests
                     final MutableURL url = MutableURL.create();
                     final MutableURL setQueryResult = url.setQueryString("=bad&");
                     test.assertSame(url, setQueryResult);
-                    test.assertNull(url.getQueryString());
+                    test.assertThrows(() -> url.getQueryString().await(),
+                        new NotFoundException("No query string was found."));
+                    test.assertEqual(Map.create(), url.getQueryParameters());
                 });
             });
 
@@ -225,7 +277,9 @@ public interface MutableURLTests
                         final MutableURL url = MutableURL.create();
                         test.assertThrows(() -> url.setQueryParameter(queryParameterName, queryParameterValue),
                             expected);
-                        test.assertNull(url.getQueryString());
+                        test.assertThrows(() -> url.getQueryString().await(),
+                            new NotFoundException("No query string was found."));
+                        test.assertEqual(Map.create(), url.getQueryParameters());
                     });
                 };
 
@@ -261,7 +315,17 @@ public interface MutableURLTests
                         final MutableURL url = MutableURL.create();
                         final MutableURL setFragmentResult = url.setFragment(fragment);
                         test.assertSame(url, setFragmentResult);
-                        test.assertEqual(Strings.isNullOrEmpty(fragment) ? null : fragment, url.getFragment());
+
+                        final Result<String> getFragmentResult = url.getFragment();
+                        if (Strings.isNullOrEmpty(fragment))
+                        {
+                            test.assertThrows(() -> getFragmentResult.await(),
+                                new NotFoundException("No fragment was found."));
+                        }
+                        else
+                        {
+                            test.assertEqual(fragment, getFragmentResult.await());
+                        }
                     });
                 };
 

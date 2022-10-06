@@ -2,19 +2,26 @@ package qub;
 
 public interface URLTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(URL.class, () ->
         {
             runner.test("create()", (Test test) ->
             {
                 final MutableURL url = URL.create();
-                test.assertNull(url.getScheme());
-                test.assertNull(url.getHost());
-                test.assertNull(url.getPort());
-                test.assertNull(url.getPath());
-                test.assertNull(url.getQueryString());
-                test.assertNull(url.getFragment());
+                test.assertThrows(() -> url.getScheme().await(),
+                    new NotFoundException("No scheme/protocol was found."));
+                test.assertThrows(() -> url.getHost().await(),
+                    new NotFoundException("No host was found."));
+                test.assertThrows(() -> url.getPort().await(),
+                    new NotFoundException("No port was found."));
+                test.assertThrows(() -> url.getPath().await(),
+                    new NotFoundException("No path was found."));
+                test.assertThrows(() -> url.getQueryString().await(),
+                    new NotFoundException("No query string was found."));
+                test.assertEqual(Map.create(), url.getQueryParameters());
+                test.assertThrows(() -> url.getFragment().await(),
+                    new NotFoundException("No fragment was found."));
                 test.assertEqual("", url.toString());
             });
 
@@ -27,6 +34,40 @@ public interface URLTests
                         final CharacterList output = CharacterList.create();
                         URL.encodePath(path, output);
                         test.assertEqual(expected, output.toString());
+                    });
+                };
+
+                encodePathTest.run(null, "");
+                encodePathTest.run("", "");
+                encodePathTest.run("abc", "abc");
+                encodePathTest.run("" + (char)0x00, "%00");
+                encodePathTest.run("\t", "%09");
+                encodePathTest.run("\r", "%0D");
+                encodePathTest.run("\n", "%0A");
+                encodePathTest.run("" + (char)0x10, "%10");
+                encodePathTest.run("" + (char)0x1F, "%1F");
+                encodePathTest.run(" ", "%20");
+                encodePathTest.run("\"", "%22");
+                encodePathTest.run("#", "%23");
+                encodePathTest.run("<", "%3C");
+                encodePathTest.run(">", "%3E");
+                encodePathTest.run("?", "%3F");
+                encodePathTest.run("`", "%60");
+                encodePathTest.run("{", "%7B");
+                encodePathTest.run("}", "%7D");
+                encodePathTest.run("" + (char)0x7E, "~");
+                encodePathTest.run("" + (char)0x7F, "%7F");
+                encodePathTest.run("\"", "%22");
+                encodePathTest.run("'", "'");
+            });
+
+            runner.testGroup("encodePath(String)", () ->
+            {
+                final Action2<String,String> encodePathTest = (String path, String expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(path), (Test test) ->
+                    {
+                        test.assertEqual(expected, URL.encodePath(path));
                     });
                 };
 
@@ -90,6 +131,40 @@ public interface URLTests
                 encodeQueryTest.run("'", "'");
             });
 
+            runner.testGroup("encodeQuery(String)", () ->
+            {
+                final Action2<String,String> encodeQueryTest = (String query, String expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(query), (Test test) ->
+                    {
+                        test.assertEqual(expected, URL.encodeQuery(query));
+                    });
+                };
+
+                encodeQueryTest.run(null, "");
+                encodeQueryTest.run("", "");
+                encodeQueryTest.run("abc", "abc");
+                encodeQueryTest.run("" + (char)0x00, "%00");
+                encodeQueryTest.run("\t", "%09");
+                encodeQueryTest.run("\r", "%0D");
+                encodeQueryTest.run("\n", "%0A");
+                encodeQueryTest.run("" + (char)0x10, "%10");
+                encodeQueryTest.run("" + (char)0x1F, "%1F");
+                encodeQueryTest.run(" ", "%20");
+                encodeQueryTest.run("\"", "%22");
+                encodeQueryTest.run("#", "%23");
+                encodeQueryTest.run("<", "%3C");
+                encodeQueryTest.run(">", "%3E");
+                encodeQueryTest.run("?", "?");
+                encodeQueryTest.run("`", "`");
+                encodeQueryTest.run("{", "{");
+                encodeQueryTest.run("}", "}");
+                encodeQueryTest.run("" + (char)0x7E, "~");
+                encodeQueryTest.run("" + (char)0x7F, "%7F");
+                encodeQueryTest.run("\"", "%22");
+                encodeQueryTest.run("'", "'");
+            });
+
             runner.testGroup("encodeFragment(String,CharacterList)", () ->
             {
                 final Action2<String,String> encodeFragmentTest = (String fragment, String expected) ->
@@ -99,6 +174,40 @@ public interface URLTests
                         final CharacterList output = CharacterList.create();
                         URL.encodeFragment(fragment, output);
                         test.assertEqual(expected, output.toString());
+                    });
+                };
+
+                encodeFragmentTest.run(null, "");
+                encodeFragmentTest.run("", "");
+                encodeFragmentTest.run("abc", "abc");
+                encodeFragmentTest.run("" + (char)0x00, "%00");
+                encodeFragmentTest.run("\t", "%09");
+                encodeFragmentTest.run("\r", "%0D");
+                encodeFragmentTest.run("\n", "%0A");
+                encodeFragmentTest.run("" + (char)0x10, "%10");
+                encodeFragmentTest.run("" + (char)0x1F, "%1F");
+                encodeFragmentTest.run(" ", "%20");
+                encodeFragmentTest.run("\"", "%22");
+                encodeFragmentTest.run("#", "#");
+                encodeFragmentTest.run("<", "%3C");
+                encodeFragmentTest.run(">", "%3E");
+                encodeFragmentTest.run("?", "?");
+                encodeFragmentTest.run("`", "%60");
+                encodeFragmentTest.run("{", "{");
+                encodeFragmentTest.run("}", "}");
+                encodeFragmentTest.run("" + (char)0x7E, "~");
+                encodeFragmentTest.run("" + (char)0x7F, "%7F");
+                encodeFragmentTest.run("\"", "%22");
+                encodeFragmentTest.run("'", "'");
+            });
+
+            runner.testGroup("encodeFragment(String)", () ->
+            {
+                final Action2<String,String> encodeFragmentTest = (String fragment, String expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(fragment), (Test test) ->
+                    {
+                        test.assertEqual(expected, URL.encodeFragment(fragment));
                     });
                 };
 

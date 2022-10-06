@@ -2,7 +2,7 @@ package qub;
 
 public interface DNSTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(DNS.class, () ->
         {
@@ -15,7 +15,7 @@ public interface DNSTests
         });
     }
 
-    static void test(TestRunner runner, Function0<DNS> creator)
+    public static void test(TestRunner runner, Function0<DNS> creator)
     {
         runner.testGroup(DNS.class, () ->
         {
