@@ -16,9 +16,19 @@ public interface URL
     public MutableURL clone();
 
     /**
+     * Get whether this {@link URL} has a scheme/protocol.
+     */
+    public boolean hasScheme();
+
+    /**
      * Get the scheme (or protocol) of this {@link URL}.
      */
     public Result<String> getScheme();
+
+    /**
+     * Get whether this {@link URL} has a host.
+     */
+    public boolean hasHost();
 
     /**
      * Get the host of this {@link URL}.
@@ -26,14 +36,29 @@ public interface URL
     public Result<String> getHost();
 
     /**
+     * Get whether this {@link URL} has a port.
+     */
+    public boolean hasPort();
+
+    /**
      * Get the port of this {@link URL}.
      */
     public Result<Integer> getPort();
 
     /**
+     * Get whether this {@link URL} has a path.
+     */
+    public boolean hasPath();
+
+    /**
      * Get the path of this {@link URL}.
      */
     public Result<String> getPath();
+
+    /**
+     * Get whether this {@link URL} has a query {@link String}.
+     */
+    public boolean hasQueryString();
 
     /**
      * Get the query string of this {@link URL}.
@@ -50,6 +75,11 @@ public interface URL
      * @param queryParameterName The name of the query parameter.
      */
     public Result<String> getQueryParameter(String queryParameterName);
+
+    /**
+     * Get whether this {@link URL} has a fragment.
+     */
+    public boolean hasFragment();
 
     /**
      * Get the fragment of this {@link URL}.

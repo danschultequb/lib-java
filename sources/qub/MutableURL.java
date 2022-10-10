@@ -47,6 +47,12 @@ public class MutableURL implements URL
     }
 
     @Override
+    public boolean hasScheme()
+    {
+        return this.scheme != null;
+    }
+
+    @Override
     public Result<String> getScheme()
     {
         return MutableURL.getValue(this.scheme, "scheme/protocol");
@@ -61,6 +67,12 @@ public class MutableURL implements URL
     {
         this.scheme = Strings.isNullOrEmpty(scheme) ? null : scheme;
         return this;
+    }
+
+    @Override
+    public boolean hasHost()
+    {
+        return this.host != null;
     }
 
     @Override
@@ -81,6 +93,12 @@ public class MutableURL implements URL
     }
 
     @Override
+    public boolean hasPort()
+    {
+        return this.port != null;
+    }
+
+    @Override
     public Result<Integer> getPort()
     {
         return MutableURL.getValue(this.port, "port");
@@ -95,6 +113,12 @@ public class MutableURL implements URL
     {
         this.port = port;
         return this;
+    }
+
+    @Override
+    public boolean hasPath()
+    {
+        return this.path != null;
     }
 
     @Override
@@ -115,17 +139,23 @@ public class MutableURL implements URL
     }
 
     @Override
+    public boolean hasQueryString()
+    {
+        return this.query.any();
+    }
+
+    @Override
     public Result<String> getQueryString()
     {
         return Result.create(() ->
         {
-            if (!query.any())
+            if (!this.query.any())
             {
                 throw new NotFoundException("No query string was found.");
             }
 
             final CharacterList list = CharacterList.create();
-            for (final MapEntry<String,String> queryParameter : query)
+            for (final MapEntry<String,String> queryParameter : this.query)
             {
                 if (list.any())
                 {
@@ -154,8 +184,8 @@ public class MutableURL implements URL
     }
 
     /**
-     * Set the query string of this MutableURL.
-     * @param queryString The query string of this MutableURL.
+     * Set the query {@link String} of this {@link MutableURL}.
+     * @param queryString The query string of this {@link MutableURL}.
      */
     public MutableURL setQueryString(String queryString)
     {
@@ -260,6 +290,12 @@ public class MutableURL implements URL
         this.query.set(queryParameterName, queryParameterValue);
 
         return this;
+    }
+
+    @Override
+    public boolean hasFragment()
+    {
+        return this.fragment != null;
     }
 
     @Override

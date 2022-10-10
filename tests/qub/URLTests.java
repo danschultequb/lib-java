@@ -11,17 +11,23 @@ public interface URLTests
                 final MutableURL url = URL.create();
                 test.assertThrows(() -> url.getScheme().await(),
                     new NotFoundException("No scheme/protocol was found."));
+                test.assertFalse(url.hasScheme());
                 test.assertThrows(() -> url.getHost().await(),
                     new NotFoundException("No host was found."));
+                test.assertFalse(url.hasHost());
                 test.assertThrows(() -> url.getPort().await(),
                     new NotFoundException("No port was found."));
+                test.assertFalse(url.hasPort());
                 test.assertThrows(() -> url.getPath().await(),
                     new NotFoundException("No path was found."));
+                test.assertFalse(url.hasPath());
                 test.assertThrows(() -> url.getQueryString().await(),
                     new NotFoundException("No query string was found."));
+                test.assertFalse(url.hasQueryString());
                 test.assertEqual(Map.create(), url.getQueryParameters());
                 test.assertThrows(() -> url.getFragment().await(),
                     new NotFoundException("No fragment was found."));
+                test.assertFalse(url.hasFragment());
                 test.assertEqual("", url.toString());
             });
 
