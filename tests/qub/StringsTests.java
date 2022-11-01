@@ -1105,6 +1105,42 @@ public interface StringsTests
                 iterateSubstringsTest.run("hello there my friend", IterateSubstringsOptions.create().setSeparators("ll", "ere", "ie"), Iterable.create("he", "o th", " my fr", "nd"));
                 iterateSubstringsTest.run("hello there my friend", IterateSubstringsOptions.create().setSeparators("l", "ere", "ie"), Iterable.create("he", "o th", " my fr", "nd"));
             });
+
+            runner.testGroup("toLowerCase(String)", () ->
+            {
+                final Action2<String,String> toLowerCaseTest = (String value, String expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(value), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.toLowerCase(value));
+                    });
+                };
+
+                toLowerCaseTest.run(null, null);
+                toLowerCaseTest.run("", "");
+                toLowerCaseTest.run("a", "a");
+                toLowerCaseTest.run("A", "a");
+                toLowerCaseTest.run("b", "b");
+                toLowerCaseTest.run("B", "b");
+            });
+
+            runner.testGroup("toUpperCase(String)", () ->
+            {
+                final Action2<String,String> toUpperCaseTest = (String value, String expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(value), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.toUpperCase(value));
+                    });
+                };
+
+                toUpperCaseTest.run(null, null);
+                toUpperCaseTest.run("", "");
+                toUpperCaseTest.run("a", "A");
+                toUpperCaseTest.run("A", "A");
+                toUpperCaseTest.run("b", "B");
+                toUpperCaseTest.run("B", "B");
+            });
         });
     }
 }

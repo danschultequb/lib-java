@@ -10,7 +10,7 @@ public interface Strings
      * @param text The text to create an Iterable for.
      * @return The Iterable over the characters in the provided text.
      */
-    static Iterable<Character> iterable(String text)
+    public static Iterable<Character> iterable(String text)
     {
         final CharacterList result = CharacterList.create();
         if (!Strings.isNullOrEmpty(text))
@@ -28,7 +28,7 @@ public interface Strings
      * @param text The text to iterate.
      * @return The Iterator over the characters in the provided text.
      */
-    static Iterator<Character> iterate(String text)
+    public static Iterator<Character> iterate(String text)
     {
         return StringIterator.create(text);
     }
@@ -38,17 +38,17 @@ public interface Strings
      * @param value The value.
      * @return The number of characters.
      */
-    static int getLength(String value)
+    public static int getLength(String value)
     {
         return value == null ? 0 : value.length();
     }
 
-    static boolean startsWith(String text, String prefix)
+    public static boolean startsWith(String text, String prefix)
     {
         return !Strings.isNullOrEmpty(text) && !Strings.isNullOrEmpty(prefix) && text.startsWith(prefix);
     }
 
-    static boolean startsWith(String text, String prefix, CharacterComparer characterComparer)
+    public static boolean startsWith(String text, String prefix, CharacterComparer characterComparer)
     {
         PreCondition.assertNotNull(characterComparer, "characterComparer");
 
@@ -79,7 +79,7 @@ public interface Strings
      * @param suffix The suffix to check for.
      * @return Whether or not the provided text ends with the provided suffix.
      */
-    static boolean endsWith(String text, char suffix)
+    public static boolean endsWith(String text, char suffix)
     {
         return Strings.endsWith(text, Characters.toString(suffix));
     }
@@ -767,5 +767,23 @@ public interface Strings
         PostCondition.assertNotNull(result, "result");
 
         return result;
+    }
+
+    /**
+     * Get the lower-cased version of the provided {@link String} value.
+     * @param value The {@link String} value to get the lower-cased version of.
+     */
+    public static String toLowerCase(String value)
+    {
+        return value == null ? null : value.toLowerCase();
+    }
+
+    /**
+     * Get the upper-cased version of the provided {@link String} value.
+     * @param value The {@link String} value to get the upper-cased version of.
+     */
+    public static String toUpperCase(String value)
+    {
+        return value == null ? null : value.toUpperCase();
     }
 }

@@ -269,11 +269,24 @@ public interface TestRunner
     <T1,T2,T3> void testGroup(String testGroupName, Skip skip, Function1<TestResources,Tuple3<T1,T2,T3>> resourcesFunction, Action3<T1,T2,T3> testGroupAction);
 
     /**
+     * Run the test with the provided test class's name and action.
+     * @param testClass The test class whose name will be the name of the test.
+     * @param testAction The action for the test.
+     */
+    public default void test(Class<?> testClass, Action1<Test> testAction)
+    {
+        PreCondition.assertNotNull(testClass, "testClass");
+        PreCondition.assertNotNull(testAction, "testAction");
+
+        this.test(Types.getTypeName(testClass), null, testAction);
+    }
+
+    /**
      * Run the test with the provided name and action.
      * @param testName The name of the test.
      * @param testAction The action for the test.
      */
-    default void test(String testName, Action1<Test> testAction)
+    public default void test(String testName, Action1<Test> testAction)
     {
         this.test(testName, null, testAction);
     }

@@ -2,7 +2,7 @@ package qub;
 
 public interface BasicTestRunnerTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(BasicTestRunner.class, () ->
         {
@@ -395,6 +395,48 @@ public interface BasicTestRunnerTests
                         test.assertEqual(
                             Iterable.create(MapEntry.create(3, TestGroup.create("abc", null, null))),
                             afterTestGroup);
+                    }
+                });
+            });
+
+            runner.testGroup("test(Class<?>,Action1<Test>)", () ->
+            {
+                runner.test("with null testClass", (Test test) ->
+                {
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
+                        test.assertThrows(() -> btr.test((Class<?>)null, null),
+                            new PreConditionFailure("testClass cannot be null."));
+                    }
+                });
+
+                runner.test("with null testAction", (Test test) ->
+                {
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
+                        test.assertThrows(() -> btr.test(BasicTestRunnerTests.class, null),
+                            new PreConditionFailure("testAction cannot be null."));
+                    }
+                });
+
+                runner.test("with valid arguments", (Test test) ->
+                {
+                    try (final FakeDesktopProcess process = FakeDesktopProcess.create())
+                    {
+                        final List<Test> tests = List.create();
+                        final BasicTestRunner btr = BasicTestRunner.create(process);
+                        btr.afterTest(tests::add);
+                        final IntegerValue counter = IntegerValue.create(0);
+
+                        btr.test(BasicTestRunnerTests.class, (Test fakeTest) -> { counter.increment(); });
+
+                        test.assertEqual(1, tests.getCount());
+                        final Test fakeTest = tests.first().await();
+                        test.assertNotNull(fakeTest);
+                        test.assertEqual(Types.getTypeName(BasicTestRunnerTests.class), fakeTest.getName());
+                        test.assertEqual(1, counter.get());
                     }
                 });
             });
