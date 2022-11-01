@@ -2,7 +2,7 @@ package qub;
 
 public interface CharactersTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(Characters.class, () ->
         {
@@ -276,6 +276,40 @@ public interface CharactersTests
                 {
                     test.assertEqual("a--b--c", Characters.join("--", Iterable.create('a', 'b', 'c')));
                 });
+            });
+
+            runner.testGroup("toLowerCase(char)", () ->
+            {
+                final Action2<Character,Character> toLowerCaseTest = (Character value, Character expected) ->
+                {
+                    runner.test("with " + Characters.escapeAndQuote(value), (Test test) ->
+                    {
+                        test.assertEqual(expected, Characters.toLowerCase(value));
+                    });
+                };
+
+                toLowerCaseTest.run('a', 'a');
+                toLowerCaseTest.run('A', 'a');
+                toLowerCaseTest.run('1', '1');
+                toLowerCaseTest.run(' ', ' ');
+                toLowerCaseTest.run('.', '.');
+            });
+
+            runner.testGroup("toUpperCase(char)", () ->
+            {
+                final Action2<Character,Character> toUpperCaseTest = (Character value, Character expected) ->
+                {
+                    runner.test("with " + Characters.escapeAndQuote(value), (Test test) ->
+                    {
+                        test.assertEqual(expected, Characters.toUpperCase(value));
+                    });
+                };
+
+                toUpperCaseTest.run('a', 'A');
+                toUpperCaseTest.run('A', 'A');
+                toUpperCaseTest.run('1', '1');
+                toUpperCaseTest.run(' ', ' ');
+                toUpperCaseTest.run('.', '.');
             });
         });
     }

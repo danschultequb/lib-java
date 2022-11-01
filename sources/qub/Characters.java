@@ -271,29 +271,35 @@ public interface Characters
     /**
      * Get the lower-cased version of the provided character.
      * @param value The character.
-     * @return The lower-cased version of the provided character.
      */
-    static char toLowerCase(char value)
+    public static char toLowerCase(char value)
     {
         return java.lang.Character.toLowerCase(value);
     }
 
     /**
-     * Get whether or not the provided value is a letter.
-     * @param value The value to check.
-     * @return Whether or not the provided value is a letter.
+     * Get the upper-cased version of the provided character.
+     * @param value The character.
      */
-    static boolean isLetter(char value)
+    public static char toUpperCase(char value)
+    {
+        return java.lang.Character.toUpperCase(value);
+    }
+
+    /**
+     * Get whether the provided value is a letter.
+     * @param value The value to check.
+     */
+    public static boolean isLetter(char value)
     {
         return java.lang.Character.isLetter(value);
     }
 
     /**
-     * Get whether or not the provided value is a digit.
+     * Get whether the provided value is a digit.
      * @param value The value to check.
-     * @return Whether or not the provided value is a digit.
      */
-    static boolean isDigit(char value)
+    public static boolean isDigit(char value)
     {
         return java.lang.Character.isDigit(value);
     }

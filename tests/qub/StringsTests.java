@@ -1141,6 +1141,26 @@ public interface StringsTests
                 toUpperCaseTest.run("b", "B");
                 toUpperCaseTest.run("B", "B");
             });
+
+            runner.testGroup("toCamelCase(String)", () ->
+            {
+                final Action2<String,String> toCamelCaseTest = (String value, String expected) ->
+                {
+                    runner.test("with " + Strings.escapeAndQuote(value), (Test test) ->
+                    {
+                        test.assertEqual(expected, Strings.toCamelCase(value));
+                    });
+                };
+
+                toCamelCaseTest.run(null, null);
+                toCamelCaseTest.run("", "");
+                toCamelCaseTest.run("a", "a");
+                toCamelCaseTest.run("A", "a");
+                toCamelCaseTest.run("b", "b");
+                toCamelCaseTest.run("B", "b");
+                toCamelCaseTest.run("apples and bananas", "applesAndBananas");
+                toCamelCaseTest.run("Send HTTP Request", "sendHTTPRequest");
+            });
         });
     }
 }

@@ -786,4 +786,48 @@ public interface Strings
     {
         return value == null ? null : value.toUpperCase();
     }
+
+    /**
+     * Get the <a href="https://en.wikipedia.org/wiki/Camel_case">camel-case</a> version of the
+     * provided {@link String} value.
+     * @param value The value to get the <a href="https://en.wikipedia.org/wiki/Camel_case">camel-case</a>
+     *              version of.
+     */
+    public static String toCamelCase(String value)
+    {
+        String result = value;
+        if (!Strings.isNullOrEmpty(result))
+        {
+            final CharacterList resultList = CharacterList.create();
+            boolean capitalizeNextCharacter = false;
+            for (final char c : Strings.iterate(value))
+            {
+                if (Characters.isWhitespace(c))
+                {
+                    capitalizeNextCharacter = true;
+                }
+                else
+                {
+                    char characterToAdd;
+                    if (!resultList.any())
+                    {
+                        characterToAdd = Characters.toLowerCase(c);
+                    }
+                    else if (capitalizeNextCharacter)
+                    {
+                        characterToAdd = Characters.toUpperCase(c);
+                    }
+                    else
+                    {
+                        characterToAdd = c;
+                    }
+                    resultList.add(characterToAdd);
+
+                    capitalizeNextCharacter = false;
+                }
+            }
+            result = resultList.toString(true);
+        }
+        return result;
+    }
 }
