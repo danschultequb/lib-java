@@ -8,26 +8,25 @@ public interface Clock
 {
     /**
      * Get the current time zone offset.
-     * @return The current time zone offset.
      */
-    default Duration getCurrentOffset()
+    public default Duration getCurrentOffset()
     {
         return this.getCurrentDateTime().getOffset();
     }
 
     /**
-     * Get a DateTime object for the current date and time.
-     * @return A DateTime object for the current date and time.
+     * Get a {@link DateTime} object for the current date and time.
      */
-    DateTime getCurrentDateTime();
+    public DateTime getCurrentDateTime();
 
     /**
-     * Run the provided action on the main AsyncRunner after the provided date and time.
-     * @param dateTime The date and time that the provided action will be run after.
-     * @param action The action to run after the date and time.
+     * Run the provided {@link Action0} on the {@link CurrentThread}'s {@link AsyncRunner} after the
+     * provided date and time.
+     * @param dateTime The {@link DateTime} that the provided {@link Action0} will be run after.
+     * @param action The {@link Action0} to run after the provided {@link DateTime}.
      * @return The AsyncAction associated with the scheduled action.
      */
-    Result<Void> scheduleAt(DateTime dateTime, Action0 action);
+    public Result<Void> scheduleAt(DateTime dateTime, Action0 action);
 
     /**
      * Run the provided action on the main AsyncRunner after the provided duration of time.
@@ -35,7 +34,7 @@ public interface Clock
      * @param action The action to run after the duration.
      * @return The AsyncAction associated with the scheduled action.
      */
-    default Result<Void> scheduleAfter(Duration duration, Action0 action)
+    public default Result<Void> scheduleAfter(Duration duration, Action0 action)
     {
         PreCondition.assertNotNull(duration, "duration");
         PreCondition.assertNotNull(action, "action");
@@ -48,7 +47,7 @@ public interface Clock
      * @param duration The duration to delay the current thread.
      * @return The result of delaying the current thread.
      */
-    default Result<Void> delay(Duration duration)
+    public default Result<Void> delay(Duration duration)
     {
         PreCondition.assertNotNull(duration, "duration");
 
@@ -60,7 +59,7 @@ public interface Clock
      * @param dateTime The date and time to delay the current thread until.
      * @return The result of delaying the current thread.
      */
-    default Result<Void> delayUntil(DateTime dateTime)
+    public default Result<Void> delayUntil(DateTime dateTime)
     {
         PreCondition.assertNotNull(dateTime, "dateTime");
 

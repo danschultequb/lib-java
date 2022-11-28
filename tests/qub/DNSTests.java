@@ -19,7 +19,7 @@ public interface DNSTests
     {
         runner.testGroup(DNS.class, () ->
         {
-            runner.testGroup("resolveHost(String)", runner.skip("Ignored due to bad internet connection"), () ->
+            runner.testGroup("resolveHost(String)", () ->
             {
                 final Action2<String,Throwable> resolveHostErrorTest = (String host, Throwable expected) ->
                 {

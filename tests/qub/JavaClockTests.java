@@ -2,7 +2,7 @@ package qub;
 
 public interface JavaClockTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(JavaClock.class,
             (TestResources resources) -> Tuple.create(resources.getParallelAsyncRunner()),

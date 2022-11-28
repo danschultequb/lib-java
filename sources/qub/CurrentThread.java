@@ -24,6 +24,29 @@ public final class CurrentThread
     }
 
     /**
+     * Cause the {@link CurrentThread} to pause execution for the provided {@link Duration}.
+     * @param duration The {@link Duration} to pause the {@link CurrentThread}'s execution.
+     */
+    public static Result<Void> sleep(Duration duration)
+    {
+        PreCondition.assertNotNull(duration, "duration");
+        PreCondition.assertGreaterThanOrEqualTo(duration, Duration.zero, "duration");
+
+        return Result.create(() ->
+        {
+            final long milliseconds = (long)duration.toMilliseconds().getValue();
+            try
+            {
+                java.lang.Thread.sleep(milliseconds);
+            }
+            catch (java.lang.InterruptedException e)
+            {
+                throw Exceptions.asRuntime(e);
+            }
+        });
+    }
+
+    /**
      * Set the {@link AsyncScheduler} that will be registered with the current thread.
      * @param asyncRunner The {@link AsyncScheduler} that will be registered with the current thread.
      */
@@ -45,7 +68,7 @@ public final class CurrentThread
     /**
      * Get the {@link AsyncScheduler} that has been registered with the current thread.
      */
-    static Result<AsyncScheduler> getAsyncRunner()
+    public static Result<AsyncScheduler> getAsyncRunner()
     {
         final long currentThreadId = getId();
         return CurrentThread.asyncSchedulers.get(currentThreadId)

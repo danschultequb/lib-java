@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A Clock implementation that uses the real date and time.
+ * A {@link Clock} implementation that uses the real date and time.
  */
 public class JavaClock implements Clock
 {
@@ -41,18 +41,20 @@ public class JavaClock implements Clock
         PreCondition.assertNotNull(dateTime, "dateTime");
         PreCondition.assertNotNull(action, "action");
 
-        return Result.create(() ->
-        {
-            if (this.getCurrentDateTime().lessThan(dateTime))
+        return CurrentThread.getAsyncRunner().await()
+            .schedule(() ->
             {
-                this.parallelAsyncRunner.schedule(() ->
+                if (this.getCurrentDateTime().lessThan(dateTime))
                 {
-                    while (this.getCurrentDateTime().lessThan(dateTime))
+                    this.parallelAsyncRunner.schedule(() ->
                     {
-                    }
-                }).await();
-            }
-            action.run();
-        });
+                        while (this.getCurrentDateTime().lessThan(dateTime))
+                        {
+                            CurrentThread.yield();
+                        }
+                    }).await();
+                }
+                action.run();
+            });
     }
 }
