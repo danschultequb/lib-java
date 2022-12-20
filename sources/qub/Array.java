@@ -7,38 +7,37 @@ package qub;
 public interface Array<T> extends MutableIndexable<T>
 {
     @Override
-    default boolean any()
+    public default boolean any()
     {
         return 1 <= getCount();
     }
 
     @Override
-    default ArrayIterator<T> iterate()
+    public default ArrayIterator<T> iterate()
     {
         return ArrayIterator.create(this);
     }
 
-    default ArrayIterator<T> iterateReverse()
+    public default ArrayIterator<T> iterateReverse()
     {
         return ArrayIterator.createReverse(this);
     }
 
     /**
-     * Create a new array with the provided number of elements.
+     * Create a new {@link Array} with the provided number of elements.
      * @param length The number of elements.
-     * @return The new array.
      */
-    static <T> Array<T> createWithLength(int length)
+    public static <T> Array<T> createWithLength(int length)
     {
         return ObjectArray.createWithLength(length);
     }
 
     /**
-     * Create an Array create the provided values.
-     * @param values The values to initialize the array with.
+     * Create an {@link Array} from the provided values.
+     * @param values The values to initialize the {@link Array} with.
      */
     @SafeVarargs
-    static <T> Array<T> create(T... values)
+    public static <T> Array<T> create(T... values)
     {
         PreCondition.assertNotNull(values, "values");
 
@@ -46,10 +45,10 @@ public interface Array<T> extends MutableIndexable<T>
     }
 
     /**
-     * Create an Array create the provided values.
-     * @param values The values to initialize the array with.
+     * Create an {@link Array} from the provided values.
+     * @param values The values to initialize the {@link Array} with.
      */
-    static <T> Array<T> create(Iterator<T> values)
+    public static <T> Array<T> create(Iterator<T> values)
     {
         PreCondition.assertNotNull(values, "values");
 
@@ -57,8 +56,8 @@ public interface Array<T> extends MutableIndexable<T>
     }
 
     /**
-     * Create an Array create the provided values.
-     * @param values The values to initialize the array with.
+     * Create an {@link Array} from the provided values.
+     * @param values The values to initialize the {@link Array} with.
      */
     public static <T> Array<T> create(Iterable<T> values)
     {
@@ -78,8 +77,8 @@ public interface Array<T> extends MutableIndexable<T>
 
     /**
      * Create a new {@link T}[] from the provided values.
-     * @param values The values to put into an array.
-     * @param <T> The type of value stored in the array.
+     * @param values The values to put into a primitive array.
+     * @param <T> The type of value stored in the primitive array.
      */
     public static <T> int toArray(Iterable<T> values, T[] output)
     {
@@ -987,33 +986,31 @@ public interface Array<T> extends MutableIndexable<T>
     }
 
     /**
-     * Get the String representation of the elements within the provided T array.
-     * @param array The T array to convert to a String.
-     * @return The String representation of the elements within the provided T array.
+     * Get the {@link String} representation of the elements within the provided primitive array.
+     * @param array The primitive array to convert to a {@link String}.
      */
-    static <T> String toString(T[] array)
+    public static <T> String toString(T[] array)
     {
-        return Array.toString(array, Objects::toString);
+        return Array.toString(array, (T element) -> { return Objects.toString(element); });
     }
 
     /**
-     * Get the String representation of the elements within the provided T array.
-     * @param array The T array to convert to a String.
-     * @return The String representation of the elements within the provided T array.
+     * Get the {@link String} representation of the elements within the provided primitive array.
+     * @param array The primitive array to convert to a {@link String}.
      */
-    static <T> String toString(T[] array, Function1<T,String> transform)
+    public static <T> String toString(T[] array, Function1<T,String> transform)
     {
         PreCondition.assertNotNull(transform, "transform");
 
-        final CharacterList builder = CharacterList.create();
+        final CharacterList list = CharacterList.create();
 
         if (array == null)
         {
-            builder.addAll("null");
+            list.addAll("null");
         }
         else
         {
-            builder.add('[');
+            list.add('[');
 
             boolean addedFirstElement = false;
             for (final T element : array)
@@ -1024,16 +1021,16 @@ public interface Array<T> extends MutableIndexable<T>
                 }
                 else
                 {
-                    builder.add(',');
+                    list.add(',');
                 }
 
-                builder.addAll(transform.run(element));
+                list.addAll(transform.run(element));
             }
 
-            builder.add(']');
+            list.add(']');
         }
 
-        return builder.toString(true);
+        return list.toString(true);
     }
 
     /**

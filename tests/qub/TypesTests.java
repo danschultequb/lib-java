@@ -298,6 +298,154 @@ public class TypesTests
                 });
             });
 
+            runner.testGroup("getMethod0(Class<TType>,String)", () ->
+            {
+                runner.test("with null type", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(null, "hello"),
+                        new PreConditionFailure("type cannot be null."));
+                });
+
+                runner.test("with null methodName", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, null),
+                        new PreConditionFailure("methodName cannot be null."));
+                });
+
+                runner.test("with empty methodName", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, ""),
+                        new PreConditionFailure("methodName cannot be empty."));
+                });
+
+                runner.test("with non-existing method", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, "blah").await(),
+                        new NotFoundException("Could not find a method with the signature qub.TypesTests.blah() -> ?."));
+                });
+
+                runner.test("with existing static method with different parameter types", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, "staticAdd1").await(),
+                        new NotFoundException("Could not find a method with the signature qub.TypesTests.staticAdd1() -> ?."));
+                });
+
+                runner.test("with existing member method", (Test test) ->
+                {
+                    final Method0<TypesTests,?> method = Types.getMethod0(TypesTests.class, "memberGet6").await();
+                    test.assertNotNull(method);
+                    test.assertSame(TypesTests.class, method.getType());
+                    test.assertEqual(6, method.run(new TypesTests()));
+                });
+
+                runner.test("with existing static method with return type", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, "staticGet5").await(),
+                        new NotFoundException("Could not find a method with the signature qub.TypesTests.staticGet5() -> ?."));
+                });
+
+                runner.test("with existing static method with void return type", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, "staticPrimitiveEmpty").await(),
+                        new NotFoundException("Could not find a method with the signature qub.TypesTests.staticPrimitiveEmpty() -> ?."));
+                });
+            });
+
+            runner.testGroup("getMethod0(Class<TType>,String,Class<TReturn>)", () ->
+            {
+                runner.test("with null type", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(null, "hello", int.class),
+                        new PreConditionFailure("type cannot be null."));
+                });
+
+                runner.test("with null methodName", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, null, int.class),
+                        new PreConditionFailure("methodName cannot be null."));
+                });
+
+                runner.test("with empty methodName", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, "", int.class),
+                        new PreConditionFailure("methodName cannot be empty."));
+                });
+
+                runner.test("with null return type", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, "blah", null).await(),
+                        new PreConditionFailure("returnType cannot be null."));
+                });
+
+                runner.test("with non-existing method", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, "blah", int.class).await(),
+                        new NotFoundException("Could not find a member method with the signature qub.TypesTests.blah() -> int."));
+                });
+
+                runner.test("with existing member method with different return type", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, "memberGet6", char.class).await(),
+                        new NotFoundException("Could not find a member method with the signature qub.TypesTests.memberGet6() -> char."));
+                });
+
+                runner.test("with existing member method with wrong boxed return type", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, "memberGet6", Integer.class).await(),
+                        new NotFoundException("Could not find a member method with the signature qub.TypesTests.memberGet6() -> java.lang.Integer."));
+                });
+
+                runner.test("with existing member method with same return type", (Test test) ->
+                {
+                    final Method0<TypesTests,Integer> method = Types.getMethod0(TypesTests.class, "memberGet6", int.class).await();
+                    test.assertNotNull(method);
+                    test.assertSame(TypesTests.class, method.getType());
+                    test.assertEqual(6, method.run(new TypesTests()));
+                });
+
+                runner.test("with existing static method with different parameter types", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, "staticAdd1", int.class).await(),
+                        new NotFoundException("Could not find a member method with the signature qub.TypesTests.staticAdd1() -> int."));
+                });
+
+                runner.test("with existing static method with wrong return type", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, "staticGet5", char.class).await(),
+                        new NotFoundException("Could not find a member method with the signature qub.TypesTests.staticGet5() -> char."));
+                });
+
+                runner.test("with existing static method with return type", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, "staticGet5", int.class).await(),
+                        new NotFoundException("Could not find a member method with the signature qub.TypesTests.staticGet5() -> int."));
+                });
+
+                runner.test("with existing static method with wrong boxed void return type", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, "staticPrimitiveEmpty", Void.class).await(),
+                        new NotFoundException("Could not find a member method with the signature qub.TypesTests.staticPrimitiveEmpty() -> java.lang.Void."));
+                });
+
+                runner.test("with existing static method with correct primitive void return type", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, "staticPrimitiveEmpty", void.class).await(),
+                        new NotFoundException("Could not find a member method with the signature qub.TypesTests.staticPrimitiveEmpty() -> void."));
+                });
+
+                runner.test("with existing static method with wrong primitive void return type", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, "staticBoxedEmpty", void.class).await(),
+                        new NotFoundException("Could not find a member method with the signature qub.TypesTests.staticBoxedEmpty() -> void."));
+                });
+
+                runner.test("with existing static method with correct boxed void return type", (Test test) ->
+                {
+                    test.assertThrows(() -> Types.getMethod0(TypesTests.class, "staticBoxedEmpty", Void.class).await(),
+                        new NotFoundException("Could not find a member method with the signature qub.TypesTests.staticBoxedEmpty() -> java.lang.Void."));
+                });
+            });
+
             runner.testGroup("getStaticMethod0(Class<TType>,String)", () ->
             {
                 runner.test("with null type", (Test test) ->

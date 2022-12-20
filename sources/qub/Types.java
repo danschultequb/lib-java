@@ -104,6 +104,61 @@ public interface Types
     }
 
     /**
+     * Get the method on the provided type with the provided name and return type.
+     * @param type The type to get the method from.
+     * @param methodName The name of the method.
+     * @param <TType> The type to get the method from.
+     * @exception NotFoundException if the method is not found.
+     */
+    public static <TType> Result<Method0<TType,?>> getMethod0(Class<TType> type, String methodName)
+    {
+        PreCondition.assertNotNull(type, "type");
+        PreCondition.assertNotNullAndNotEmpty(methodName, "methodName");
+
+        return Result.create(() ->
+        {
+            final java.lang.reflect.Method rawMethod = Types.getMethod(type, methodName, Iterable.create())
+                .catchError(NotFoundException.class)
+                .await();
+            if (rawMethod == null || Types.isStaticMethod(rawMethod))
+            {
+                throw new NotFoundException("Could not find a method with the signature " + Types.getMethodSignature(type, methodName) + ".");
+            }
+            return Method0.create(type, rawMethod);
+        });
+    }
+
+    /**
+     * Get the method on the provided type with the provided name and return type.
+     * @param type The type to get the method from.
+     * @param methodName The name of the method.
+     * @param returnType The return type of the method.
+     * @param <TType> The type to get the method from.
+     * @param <TReturn> The return type of the method.
+     * @exception NotFoundException if the method is not found.
+     */
+    public static <TType,TReturn> Result<Method0<TType,TReturn>> getMethod0(Class<TType> type, String methodName, Class<TReturn> returnType)
+    {
+        PreCondition.assertNotNull(type, "type");
+        PreCondition.assertNotNullAndNotEmpty(methodName, "methodName");
+        PreCondition.assertNotNull(returnType, "returnType");
+
+        return Result.create(() ->
+        {
+            final java.lang.reflect.Method rawMethod = Types.getMethod(type, methodName, Iterable.create())
+                .catchError(NotFoundException.class)
+                .await();
+            if (rawMethod == null ||
+                Types.isStaticMethod(rawMethod) ||
+                rawMethod.getReturnType() != returnType)
+            {
+                throw new NotFoundException("Could not find a member method with the signature " + Types.getMethodSignature(type, methodName, Iterable.create(), returnType) + ".");
+            }
+            return Method0.create(type, rawMethod);
+        });
+    }
+
+    /**
      * Get the static method on the provided type with the provided name and return type.
      * @param type The type to get the static method from.
      * @param methodName The name of the static method.

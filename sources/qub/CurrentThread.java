@@ -12,7 +12,7 @@ public final class CurrentThread
      */
     public static long getId()
     {
-        return java.lang.Thread.currentThread().getId();
+        return java.lang.Thread.currentThread().threadId();
     }
 
     /**

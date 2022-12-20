@@ -37,7 +37,7 @@ public class SpinMutex implements Mutex
     @Override
     public boolean isAcquiredByCurrentThread()
     {
-        return this.acquiredByThreadId.get() == Thread.currentThread().getId();
+        return this.acquiredByThreadId.get() == CurrentThread.getId();
     }
 
     @Override
@@ -45,7 +45,7 @@ public class SpinMutex implements Mutex
     {
         return Result.create(() ->
         {
-            final long threadId = Thread.currentThread().getId();
+            final long threadId = CurrentThread.getId();
             while (!this.acquiredByThreadId.compareAndSet(-1, threadId))
             {
                 while (this.isAcquired())
@@ -92,7 +92,7 @@ public class SpinMutex implements Mutex
     {
         return Result.create(() ->
         {
-            final long threadId = Thread.currentThread().getId();
+            final long threadId = CurrentThread.getId();
             return this.acquiredByThreadId.compareAndSet(-1, threadId);
         });
     }
