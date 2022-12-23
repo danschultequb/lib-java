@@ -21,6 +21,12 @@ public class JavaHashSet<T> implements MutableSet<T>
     }
 
     @Override
+    public boolean contains(T value)
+    {
+        return this.javaSet.contains(value);
+    }
+
+    @Override
     public boolean add(T value)
     {
         return this.javaSet.add(value);
