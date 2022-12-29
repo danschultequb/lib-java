@@ -239,11 +239,33 @@ public class PreCondition
         }
     }
 
+    /**
+     * Assert that the two provided references point to the same object.
+     * @param expectedValue The first reference.
+     * @param value The second reference.
+     * @param expressionName The name of the expression that produced the second reference.
+     * @param <T> The type of values that the references point to.
+     */
     public static <T> void assertSame(T expectedValue, T value, String expressionName)
     {
         if (expectedValue != value)
         {
             throw new PreConditionFailure(AssertionMessages.same(expectedValue, value, expressionName));
+        }
+    }
+
+    /**
+     * Assert that the two provided references do not point to the same object.
+     * @param expectedValue The first reference.
+     * @param value The second reference.
+     * @param expressionName The name of the expression that produced the second reference.
+     * @param <T> The type of values that the references point to.
+     */
+    public static <T> void assertNotSame(T expectedValue, T value, String expressionName)
+    {
+        if (expectedValue == value)
+        {
+            throw new PreConditionFailure(AssertionMessages.notSame(expectedValue, value, expressionName));
         }
     }
 

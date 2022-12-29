@@ -25,27 +25,32 @@ public interface AssertionMessages
         return expressionName + " cannot be null.";
     }
 
-    static String notEmpty(String expressionName)
+    public static String notEmpty(String expressionName)
     {
         return expressionName + " cannot be empty.";
     }
 
-    static String nullOrNotEmpty(String value, String expressionName)
+    public static String nullOrNotEmpty(String value, String expressionName)
     {
         return expressionName + " (" + Strings.escapeAndQuote(value) + ") must be either null or not empty.";
     }
 
-    static <T> String same(T expectedValue, T value, String expressionName)
+    public static <T> String same(T expectedValue, T value, String expressionName)
     {
         return expressionName + " (" + value + ") must be the same object as " + expectedValue + ".";
     }
 
-    static <T> String equal(T expectedValue, T value, String expressionName)
+    public static <T> String notSame(T expectedValue, T value, String expressionName)
+    {
+        return expressionName + " (" + value + ") must not be the same object as " + expectedValue + ".";
+    }
+
+    public static <T> String equal(T expectedValue, T value, String expressionName)
     {
         return expressionName + " (" + value + ") must be " + expectedValue + ".";
     }
 
-    static <T> String equal(T expectedValue, T value, T marginOfError, String expressionName)
+    public static <T> String equal(T expectedValue, T value, T marginOfError, String expressionName)
     {
         return expressionName + " (" + value + ") must be " + expectedValue + " (+/- " + marginOfError + ").";
     }

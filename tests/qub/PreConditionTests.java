@@ -2,7 +2,7 @@ package qub;
 
 public interface PreConditionTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(PreCondition.class, () ->
         {
@@ -30,6 +30,74 @@ public interface PreConditionTests
                 };
 
                 assertNotNullAndNotEmptyTest.run(new long[1], "a");
+            });
+
+            runner.testGroup("assertSame(T,T,String)", () ->
+            {
+                runner.test("with same reference", (Test test) ->
+                {
+                    final Integer value = 5;
+                    PreCondition.assertSame(value, value, "value");
+                });
+
+                runner.test("with not same reference", (Test test) ->
+                {
+                    @SuppressWarnings("removal")
+                    final Integer value1 = new Integer(5);
+                    @SuppressWarnings("removal")
+                    final Integer value2 = new Integer(5);
+                    test.assertThrows(() -> PreCondition.assertSame(value1, value2, "value2"),
+                        new PreConditionFailure("value2 (5) must be the same object as 5."));
+                });
+
+                runner.test("with constant String references", (Test test) ->
+                {
+                    final String value1 = "hello";
+                    final String value2 = "hello";
+                    PreCondition.assertSame(value1, value2, "value2");
+                });
+
+                runner.test("with constant Integer references", (Test test) ->
+                {
+                    final Integer value1 = 5;
+                    final Integer value2 = 5;
+                    PreCondition.assertSame(value1, value2, "value2");
+                });
+            });
+
+            runner.testGroup("assertNotSame(T,T,String)", () ->
+            {
+                runner.test("with same reference", (Test test) ->
+                {
+                    final Integer value = 5;
+                    test.assertThrows(() -> PreCondition.assertNotSame(value, value, "value"),
+                        new PreConditionFailure("value (5) must not be the same object as 5."));
+                });
+
+                runner.test("with not same reference", (Test test) ->
+                {
+                    @SuppressWarnings("removal")
+                    final Integer value1 = new Integer(5);
+                    @SuppressWarnings("removal")
+                    final Integer value2 = new Integer(5);
+                    PreCondition.assertNotSame(value1, value2, "value2");
+                });
+
+                runner.test("with constant String references", (Test test) ->
+                {
+                    final String value1 = "hello";
+                    final String value2 = "hello";
+                    test.assertThrows(() -> PreCondition.assertNotSame(value1, value2, "value2"),
+                        new PreConditionFailure("value2 (hello) must not be the same object as hello."));
+                });
+
+                runner.test("with constant Integer references", (Test test) ->
+                {
+                    final Integer value1 = 5;
+                    final Integer value2 = 5;
+                    test.assertThrows(() -> PreCondition.assertNotSame(value1, value2, "value2"),
+                        new PreConditionFailure("value2 (5) must not be the same object as 5."));
+                });
             });
 
             runner.testGroup("assertEqual(char,char,String)", () ->
