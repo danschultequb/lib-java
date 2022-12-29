@@ -6,6 +6,34 @@ public interface PreConditionTests
     {
         runner.testGroup(PreCondition.class, () ->
         {
+            runner.testGroup("assertCondition(boolean,String)", () ->
+            {
+                final Action3<Boolean,String,Throwable> assertConditionErrorTest = (Boolean condition, String message, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(condition, Strings.escapeAndQuote(message)), (Test test) ->
+                    {
+                        test.assertThrows(() -> PreCondition.assertCondition(condition, message),
+                            expected);
+                    });
+                };
+
+                assertConditionErrorTest.run(false, null, new PreConditionFailure(null));
+                assertConditionErrorTest.run(false, "", new PreConditionFailure(""));
+                assertConditionErrorTest.run(false, "hello", new PreConditionFailure("hello"));
+
+                final Action2<Boolean,String> assertConditionTest = (Boolean condition, String message) ->
+                {
+                    runner.test("with " + English.andList(condition, Strings.escapeAndQuote(message)), (Test test) ->
+                    {
+                        PreCondition.assertCondition(condition, message);
+                    });
+                };
+
+                assertConditionTest.run(true, null);
+                assertConditionTest.run(true, "");
+                assertConditionTest.run(true, "hello");
+            });
+
             runner.testGroup("assertNotNullAndNotEmpty(long[],String)", () ->
             {
                 final Action3<long[],String,Throwable> assertNotNullAndNotEmptyErrorTest = (long[] array, String expressionName, Throwable expected) ->

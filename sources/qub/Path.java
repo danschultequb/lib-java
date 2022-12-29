@@ -486,7 +486,7 @@ public class Path implements Comparable<Path>
         PreCondition.assertTrue(basePath.isRooted(), "basePath.isRooted()");
         PreCondition.assertTrue(this.isRooted(), "this.isRooted()");
         PreCondition.assertEqual(this.getRoot().await(), basePath.getRoot().await(), "basePath.getRoot().await()");
-        PreCondition.check(!this.equals(basePath, false), AssertionMessages.notEqual(this, basePath, "basePath"));
+        PreCondition.assertCondition(!this.equals(basePath, false), AssertionMessages.notEqual(this, basePath, "basePath"));
 
         Path result;
         if (this.equals(basePath))

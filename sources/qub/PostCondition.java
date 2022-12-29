@@ -6,6 +6,19 @@ package qub;
 public class PostCondition
 {
     /**
+     * Assert that the provided condition is true.
+     * @param condition The condition that must be true.
+     * @param message The message to show if the provided condition is not true.
+     */
+    public static void assertCondition(boolean condition, String message)
+    {
+        if (!condition)
+        {
+            throw new PostConditionFailure(message);
+        }
+    }
+
+    /**
      * Assert that the provided value is false.
      * @param value The value that must be false.
      * @param message The error message if value is not false.

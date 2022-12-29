@@ -6,6 +6,34 @@ public interface PostConditionTests
     {
         runner.testGroup(PostCondition.class, () ->
         {
+            runner.testGroup("assertCondition(boolean,String)", () ->
+            {
+                final Action3<Boolean,String,Throwable> assertConditionErrorTest = (Boolean condition, String message, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(condition, Strings.escapeAndQuote(message)), (Test test) ->
+                    {
+                        test.assertThrows(() -> PostCondition.assertCondition(condition, message),
+                            expected);
+                    });
+                };
+
+                assertConditionErrorTest.run(false, null, new PostConditionFailure(null));
+                assertConditionErrorTest.run(false, "", new PostConditionFailure(""));
+                assertConditionErrorTest.run(false, "hello", new PostConditionFailure("hello"));
+
+                final Action2<Boolean,String> assertConditionTest = (Boolean condition, String message) ->
+                {
+                    runner.test("with " + English.andList(condition, Strings.escapeAndQuote(message)), (Test test) ->
+                    {
+                        PostCondition.assertCondition(condition, message);
+                    });
+                };
+
+                assertConditionTest.run(true, null);
+                assertConditionTest.run(true, "");
+                assertConditionTest.run(true, "hello");
+            });
+
             runner.testGroup("assertSame(T,T,String)", () ->
             {
                 runner.test("with same reference", (Test test) ->

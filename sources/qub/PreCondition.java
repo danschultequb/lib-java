@@ -6,22 +6,13 @@ package qub;
 public class PreCondition
 {
     /**
-     * Throw a PreConditionFailure with the provided message.
-     * @param message The message to use.
+     * Assert that the provided condition is true.
+     * @param condition The condition that must be true.
+     * @param message The message to show if the provided condition is not true.
      */
-    public static void fail(String message)
+    public static void assertCondition(boolean condition, String message)
     {
-        throw new PreConditionFailure(message);
-    }
-
-    /**
-     * Assert that the provided value is true.
-     * @param value The value that must be true.
-     * @param message The message to show if the provided value is not true.
-     */
-    public static void check(boolean value, String message)
-    {
-        if (!value)
+        if (!condition)
         {
             throw new PreConditionFailure(message);
         }
