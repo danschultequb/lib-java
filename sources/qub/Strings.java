@@ -563,7 +563,7 @@ public interface Strings
         });
     }
 
-    static Comparison compare(String lhs, String rhs)
+    public static Comparison compare(String lhs, String rhs)
     {
         Comparison result;
         if (lhs == rhs)
@@ -680,18 +680,16 @@ public interface Strings
         }
         else
         {
-            final Iterable<String> separators = options.getSeparators()
+            final Set<String> separators = options.getSeparators()
                 .where((String separator) -> !Strings.isNullOrEmpty(separator))
+                .order((String lhs, String rhs) -> rhs.length() - lhs.length())
                 .toSet();
-            if (Iterable.isNullOrEmpty(separators))
+            if (!separators.any())
             {
                 result = Iterator.create(value);
             }
             else
             {
-                final String[] sortedSeparators = new String[separators.getCount()];
-                Array.toArray(separators.order((String lhs, String rhs) -> lhs.length() > rhs.length()), sortedSeparators);
-
                 final int valueLength = value.length();
                 final boolean includeEmptySubstrings = options.getIncludeEmptySubstrings();
                 final boolean includeSeparators = options.getIncludeSeparators();
@@ -705,7 +703,7 @@ public interface Strings
                         int separatorAfterEndIndex = -1;
                         while (afterEndIndex < valueLength)
                         {
-                            for (final String separator : sortedSeparators)
+                            for (final String separator : separators)
                             {
                                 if (value.startsWith(separator, afterEndIndex))
                                 {

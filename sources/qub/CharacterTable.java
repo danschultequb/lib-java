@@ -13,8 +13,7 @@ public class CharacterTable
     }
 
     /**
-     * Create a new CharacterTable.
-     * @return A new CharacterTable.
+     * Create a new {@link CharacterTable}.
      */
     public static CharacterTable create()
     {
@@ -72,9 +71,12 @@ public class CharacterTable
     {
         PreCondition.assertNotNull(format, "format");
 
-        final InMemoryCharacterToByteStream characterStream = InMemoryCharacterToByteStream.create();
-        this.toString(characterStream, format).await();
-        return characterStream.getText().await();
+        final CharacterList list = CharacterList.create();
+        try (final CharacterListWriteStream writeStream = CharacterListWriteStream.create(list))
+        {
+            this.toString(writeStream, format).await();
+        }
+        return list.toString(true);
     }
 
     /**

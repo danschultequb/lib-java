@@ -2,7 +2,7 @@ package qub;
 
 /**
  * A list of bytes. Internally this uses a primitive byte[] to store bytes, so it should be more
- * efficient than using a generic List<Byte>.
+ * efficient than using a generic {@link List}&lt;{@link Byte}&gt;.
  */
 public class ByteList implements List<Byte>
 {
@@ -18,26 +18,12 @@ public class ByteList implements List<Byte>
 
     public static ByteList create()
     {
-        return ByteList.createWithCapacity(64);
+        return ByteList.create(64);
     }
 
-    public static ByteList createWithCapacity(int capacity)
+    public static ByteList create(int capacity)
     {
         return new ByteList(capacity);
-    }
-
-    public static ByteList create(byte... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return ByteList.createWithCapacity(values.length).addAll(values);
-    }
-
-    public static ByteList create(int... values)
-    {
-        PreCondition.assertNotNull(values, "values");
-
-        return ByteList.createWithCapacity(values.length).addAll(values);
     }
 
     public int getCapacity()
@@ -59,7 +45,7 @@ public class ByteList implements List<Byte>
 
     public ByteList insert(int insertIndex, int value)
     {
-        PreCondition.assertIndexAccess(insertIndex, count + 1, "insertIndex");
+        PreCondition.assertIndexAccess(insertIndex, this.count + 1, "insertIndex");
         PreCondition.assertByte(value, "value");
 
         return this.insert(insertIndex, (byte)value);
@@ -67,27 +53,27 @@ public class ByteList implements List<Byte>
 
     public ByteList insert(int insertIndex, byte value)
     {
-        PreCondition.assertIndexAccess(insertIndex, count + 1, "insertIndex");
+        PreCondition.assertIndexAccess(insertIndex, this.count + 1, "insertIndex");
 
-        if (count == bytes.length)
+        if (this.count == this.bytes.length)
         {
-            final byte[] newBytes = new byte[(bytes.length * 2) + 1];
+            final byte[] newBytes = new byte[(this.bytes.length * 2) + 1];
             if (1 <= insertIndex)
             {
-                Array.copy(bytes, 0, newBytes, 0, insertIndex);
+                Array.copy(this.bytes, 0, newBytes, 0, insertIndex);
             }
-            if (insertIndex <= count - 1)
+            if (insertIndex <= this.count - 1)
             {
-                Array.copy(bytes, insertIndex, newBytes, insertIndex + 1, count - insertIndex);
+                Array.copy(this.bytes, insertIndex, newBytes, insertIndex + 1, this.count - insertIndex);
             }
-            bytes = newBytes;
+            this.bytes = newBytes;
         }
-        else if (insertIndex < count)
+        else if (insertIndex < this.count)
         {
-            Array.shiftRight(bytes, insertIndex, count - insertIndex);
+            Array.shiftRight(this.bytes, insertIndex, this.count - insertIndex);
         }
-        bytes[insertIndex] = value;
-        ++count;
+        this.bytes[insertIndex] = value;
+        this.count++;
 
         return this;
     }
@@ -95,7 +81,7 @@ public class ByteList implements List<Byte>
     @Override
     public ByteList insert(int insertIndex, Byte value)
     {
-        PreCondition.assertIndexAccess(insertIndex, count + 1, "insertIndex");
+        PreCondition.assertIndexAccess(insertIndex, this.count + 1, "insertIndex");
         PreCondition.assertNotNull(value, "value");
 
         return this.insert(insertIndex, value.byteValue());
@@ -103,19 +89,28 @@ public class ByteList implements List<Byte>
 
     public ByteList add(byte value)
     {
-        return this.insert(count, value);
+        return this.insert(this.count, value);
+    }
+
+    public ByteList addAll(byte[] values, int startIndex, int length)
+    {
+        PreCondition.assertNotNull(values, "values");
+        PreCondition.assertStartIndex(startIndex, values.length);
+        PreCondition.assertLength(length, startIndex, values.length);
+
+        for (int i = 0; i < length; i++)
+        {
+            this.add(values[startIndex + i]);
+        }
+
+        return this;
     }
 
     public ByteList addAll(byte... values)
     {
-        if (values != null && values.length > 0)
-        {
-            for (final byte value : values)
-            {
-                this.add(value);
-            }
-        }
-        return this;
+        PreCondition.assertNotNull(values, "values");
+
+        return this.addAll(values, 0, values.length);
     }
 
     @Override
@@ -165,14 +160,14 @@ public class ByteList implements List<Byte>
     @Override
     public Byte removeAt(int index)
     {
-        PreCondition.assertIndexAccess(index, count, "index");
+        PreCondition.assertIndexAccess(index, this.count, "index");
 
-        final byte result = bytes[index];
-        if (index < count - 1)
+        final byte result = this.bytes[index];
+        if (index < this.count - 1)
         {
-            Array.shiftLeft(bytes, index, count - index - 1);
+            Array.shiftLeft(this.bytes, index, this.count - index - 1);
         }
-        --count;
+        this.count--;
 
         return result;
     }
@@ -245,16 +240,16 @@ public class ByteList implements List<Byte>
 
     public ByteList set(int index, byte value)
     {
-        PreCondition.assertIndexAccess(index, count, "index");
+        PreCondition.assertIndexAccess(index, this.count, "index");
 
-        bytes[index] = value;
+        this.bytes[index] = value;
 
         return this;
     }
 
     public ByteList set(int index, int value)
     {
-        PreCondition.assertIndexAccess(index, count, "index");
+        PreCondition.assertIndexAccess(index, this.count, "index");
         PreCondition.assertByte(value, "value");
 
         return this.set(index, (byte)value);
@@ -263,7 +258,7 @@ public class ByteList implements List<Byte>
     @Override
     public ByteList set(int index, Byte value)
     {
-        PreCondition.assertIndexAccess(index, count, "index");
+        PreCondition.assertIndexAccess(index, this.count, "index");
         PreCondition.assertNotNull(value, "value");
 
         return this.set(index, value.byteValue());
@@ -272,9 +267,9 @@ public class ByteList implements List<Byte>
     @Override
     public Byte get(int index)
     {
-        PreCondition.assertIndexAccess(index, count, "index");
+        PreCondition.assertIndexAccess(index, this.count, "index");
 
-        return bytes[index];
+        return this.bytes[index];
     }
 
     @Override
@@ -296,11 +291,10 @@ public class ByteList implements List<Byte>
     }
 
     /**
-     * Get a byte[] representation of this ByteList.
-     * @return The byte[].
+     * Get a byte[] representation of this {@link ByteList}.
      */
     public byte[] toByteArray()
     {
-        return Array.clone(this.bytes, 0, this.count);
+        return Arrays.clone(this.bytes, 0, this.count);
     }
 }

@@ -417,30 +417,29 @@ public interface Iterable<T> extends java.lang.Iterable<T>
     }
 
     /**
-     * Order the values in the provided Iterable. This will create a copy of the provided Iterable
-     * and will leave the original Iterable unchanged.
-     * @param values The values to order.
-     * @param <T> The type of values to order.
-     * @return The ordered Iterable.
+     * Order the values in this {@link Iterable}. This will sort a copy of this {@link Iterable} and
+     * will leave this {@link Iterable} unchanged.
+     * @param comparer The {@link Function2} comparer to use to compare two values.
      */
-    static <T extends Comparable<T>, U extends T> Iterable<U> order(Iterable<U> values)
+    public default Indexable<T> order(Function2<T,T,Integer> comparer)
     {
-        PreCondition.assertNotNull(values, "values");
+        PreCondition.assertNotNull(comparer, "comparer");
 
-        return values.order(Comparer::lessThan);
+        return this.order(Comparer.create(comparer));
     }
 
     /**
-     * Order the values in this Iterable. This will create a copy of this Iterable and will leave
-     * the original Iterable unchanged.
-     * @param lessThan The function to use to compare two values.
-     * @return The ordered Iterable.
+     * Order the values in this {@link Iterable}. This will sort a copy of this {@link Iterable} and
+     * will leave this {@link Iterable} unchanged.
+     * @param comparer The {@link Comparer} to use to compare two values.
      */
-    public default Iterable<T> order(Function2<T,T,Boolean> lessThan)
+    public default Indexable<T> order(Comparer<T> comparer)
     {
-        PreCondition.assertNotNull(lessThan, "lessThan");
+        PreCondition.assertNotNull(comparer, "comparer");
 
-        return this.toList().sort(lessThan);
+        final MutableIndexable<T> result = MutableIndexable.create(this);
+        result.sort(comparer);
+        return result;
     }
 
     /**

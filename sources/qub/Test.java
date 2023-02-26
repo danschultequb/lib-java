@@ -981,7 +981,7 @@ public class Test
 
         if (!Comparer.equal(expected, lines))
         {
-            final InMemoryCharacterToByteStream stream = InMemoryCharacterToByteStream.create();
+            final CharacterListWriteStream stream = CharacterListWriteStream.create();
             if (!Strings.isNullOrEmpty(message))
             {
                 stream.write("Message:  ").await();
@@ -993,7 +993,7 @@ public class Test
             stream.writeLine().await();
             Test.writeLines(stream, "Actual:   " + (stringsAreEqual ? Types.getFullTypeName(lines) : ""), lines);
 
-            throw new TestError(this.getFullName(), stream.getText().await());
+            throw new TestError(this.getFullName(), stream.toString());
         }
     }
 
@@ -1514,7 +1514,7 @@ public class Test
 
     private static String getErrorMessage(String messageFromTest, Object expected, Object actual)
     {
-        final InMemoryCharacterStream stream = InMemoryCharacterStream.create();
+        final CharacterListWriteStream stream = CharacterListWriteStream.create();
         if (!Strings.isNullOrEmpty(messageFromTest))
         {
             stream.writeLine("Message:  " + messageFromTest).await();
@@ -1525,7 +1525,7 @@ public class Test
         stream.writeLine("Expected: " + Test.addTypeIfNeeded(expected, actual, expectedString, actualString)).await();
         stream.write("Actual:   " + Test.addTypeIfNeeded(actual, expected, actualString, expectedString)).await();
 
-        final String result = stream.getText().await();
+        final String result = stream.toString();
 
         PostCondition.assertNotNullAndNotEmpty(result, "result");
 
@@ -1534,7 +1534,7 @@ public class Test
 
     private static String toString(Object value)
     {
-        final InMemoryCharacterToByteStream stream = InMemoryCharacterToByteStream.create();
+        final CharacterListWriteStream stream = CharacterListWriteStream.create();
         if (value instanceof String)
         {
             stream.write(Strings.escapeAndQuote(Objects.toString(value))).await();
@@ -1569,7 +1569,7 @@ public class Test
                 }
             }
         }
-        final String result = stream.getText().await();
+        final String result = stream.toString();
 
         PostCondition.assertNotNullAndNotEmpty(result, "result");
 

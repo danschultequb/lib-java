@@ -4,7 +4,7 @@ package qub;
  * A {@link Value} type that lazily creates its value.
  * @param <T> The type of value returned by this {@link LazyValue}.
  */
-public class LazyValue<T> implements Value<T>
+public class LazyValue<T> implements Value.Typed<T,LazyValue<T>>
 {
     private Function0<T> creator;
     private boolean hasCreatorRun;
@@ -40,7 +40,6 @@ public class LazyValue<T> implements Value<T>
 
     /**
      * Whether the creator function has been run.
-     * @return Whether the creator function has been run.
      */
     public boolean hasCreatorRun()
     {
@@ -76,11 +75,11 @@ public class LazyValue<T> implements Value<T>
         return this.set(() -> value);
     }
 
-    public LazyValue<T> set(Function0<T> creator)
+    public LazyValue<T> set(Function0<? extends T> creator)
     {
         PreCondition.assertNotNull(creator, "creator");
 
-        this.creator = creator;
+        this.creator = creator::run;
         this.hasCreatorRun = false;
         this.value = null;
 
@@ -88,7 +87,7 @@ public class LazyValue<T> implements Value<T>
     }
 
     @Override
-    public T getOrSet(Function0<T> creator)
+    public T getOrSet(Function0<? extends T> creator)
     {
         PreCondition.assertNotNull(creator, "creator");
 

@@ -414,6 +414,17 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     }
 
     /**
+     * Get a char[] from the values in the provided {@link Iterator}.
+     * @param iterator The {@link Iterator} to get the values from.
+     */
+    public static char[] toCharacterArray(Iterator<? extends Character> iterator)
+    {
+        final CharacterList list = CharacterList.create();
+        list.addAll(iterator);
+        return list.toCharArray();
+    }
+
+    /**
      * Create a {@link List} from the values in this {@link Iterator}.
      */
     public default List<T> toList()
@@ -427,6 +438,32 @@ public interface Iterator<T> extends java.lang.Iterable<T>
     public default Set<T> toSet()
     {
         return Set.create(this);
+    }
+
+    /**
+     * Order the values in this {@link Iterable}. This will sort a copy of this {@link Iterable} and
+     * will leave this {@link Iterable} unchanged.
+     * @param comparer The {@link Function2} comparer to use to compare two values.
+     */
+    public default Iterable<T> order(Function2<T,T,Integer> comparer)
+    {
+        PreCondition.assertNotNull(comparer, "comparer");
+
+        return this.order(Comparer.create(comparer));
+    }
+
+    /**
+     * Order the values in this {@link Iterable}. This will sort a copy of this {@link Iterable} and
+     * will leave this {@link Iterable} unchanged.
+     * @param comparer The {@link Comparer} to use to compare two values.
+     */
+    public default Iterable<T> order(Comparer<T> comparer)
+    {
+        PreCondition.assertNotNull(comparer, "comparer");
+
+        final MutableIndexable<T> result = MutableIndexable.create(this);
+        result.sort(comparer);
+        return result;
     }
 
     /**

@@ -330,7 +330,7 @@ public class CommandLineActions
                 {
                     final CharacterTable actionsTable = CharacterTable.create();
                     final Iterable<CommandLineAction> orderedActions = this.actions
-                        .order((CommandLineAction lhs, CommandLineAction rhs) -> Strings.lessThan(lhs.getName(), rhs.getName()));
+                        .order((CommandLineAction lhs, CommandLineAction rhs) -> Strings.compare(lhs.getName(), rhs.getName()));
                     for (final CommandLineAction action : orderedActions)
                     {
                         String actionNameCellText = action.getName();

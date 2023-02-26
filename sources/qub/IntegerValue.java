@@ -5,23 +5,15 @@ public class IntegerValue implements Value<java.lang.Integer>, Comparable<java.l
     private final java.util.concurrent.atomic.AtomicInteger value;
     private volatile boolean hasValue;
 
-    public IntegerValue()
+    private IntegerValue()
     {
         this.value = new java.util.concurrent.atomic.AtomicInteger();
         this.hasValue = false;
     }
 
-    public IntegerValue(int value)
+    private IntegerValue(int value)
     {
         this.value = new java.util.concurrent.atomic.AtomicInteger(value);
-        this.hasValue = true;
-    }
-
-    public IntegerValue(java.lang.Integer value)
-    {
-        PreCondition.assertNotNull(value, "value");
-
-        this.value = new java.util.concurrent.atomic.AtomicInteger(value.intValue());
         this.hasValue = true;
     }
 
@@ -39,7 +31,7 @@ public class IntegerValue implements Value<java.lang.Integer>, Comparable<java.l
     {
         PreCondition.assertNotNull(value, "value");
 
-        return new IntegerValue(value);
+        return new IntegerValue(value.intValue());
     }
 
     public int getAsInt()

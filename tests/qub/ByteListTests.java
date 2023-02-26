@@ -21,7 +21,7 @@ public interface ByteListTests
                 {
                     runner.test("with " + capacity, (Test test) ->
                     {
-                        test.assertThrows(() -> ByteList.createWithCapacity(capacity),
+                        test.assertThrows(() -> ByteList.create(capacity),
                             expected);
                     });
                 };
@@ -32,7 +32,7 @@ public interface ByteListTests
                 {
                     runner.test("with " + capacity, (Test test) ->
                     {
-                        final ByteList list = ByteList.createWithCapacity(capacity);
+                        final ByteList list = ByteList.create(capacity);
                         test.assertNotNull(list);
                         test.assertEqual(capacity, list.getCapacity());
                         test.assertEqual(0, list.getCount());

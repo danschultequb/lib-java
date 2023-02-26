@@ -6,23 +6,31 @@ package qub;
 public interface JSONSegment
 {
     /**
-     * Get the String representation of this JSONSegment using the provided format.
-     * @param format The format to use when converting this JSONSegment to a string.
-     * @return The number of characters that were written.
+     * Get the {@link String} representation of this {@link JSONSegment} using the provided
+     * {@link JSONFormat}.
+     * @param format The {@link JSONFormat} to use when converting this {@link JSONSegment} to a
+     *               {@link String}.
      */
-    default String toString(JSONFormat format)
+    public default String toString(JSONFormat format)
     {
         PreCondition.assertNotNull(format, "format");
 
-        return JSONSegment.toString((IndentedCharacterWriteStream stream) -> this.toString(stream, format));
+        final CharacterList list = CharacterList.create();
+        try (final CharacterListWriteStream writeStream = CharacterListWriteStream.create(list))
+        {
+            this.toString(writeStream, format).await();
+        }
+        return list.toString();
     }
 
     /**
-     * Write the String representation of this JSONSegment to the provided stream.
-     * @param stream The stream to write the String representation of this JSONSegment to.
+     * Write the {@link String} representation of this {@link JSONSegment} to the provided
+     * {@link CharacterWriteStream}.
+     * @param stream The {@link CharacterWriteStream} to write the {@link String} representation of
+     *               this {@link JSONSegment} to.
      * @return The number of characters that were written.
      */
-    default Result<Integer> toString(CharacterWriteStream stream)
+    public default Result<Integer> toString(CharacterWriteStream stream)
     {
         PreCondition.assertNotNull(stream, "stream");
 
@@ -30,22 +38,27 @@ public interface JSONSegment
     }
 
     /**
-     * Write the String representation of this JSONSegment to the provided stream.
-     * @param stream The stream to write the String representation of this JSONSegment to.
+     * Write the {@link String} representation of this {@link JSONSegment} to the provided
+     * {@link IndentedCharacterWriteStream}.
+     * @param stream The {@link IndentedCharacterWriteStream} to write the {@link String}
+     *               representation of this {@link JSONSegment} to.
      * @return The number of characters that were written.
      */
-    default Result<Integer> toString(IndentedCharacterWriteStream stream)
+    public default Result<Integer> toString(IndentedCharacterWriteStream stream)
     {
         return this.toString(stream, JSONFormat.consise);
     }
 
     /**
-     * Write the String representation of this JSONSegment to the provided stream.
-     * @param stream The stream to write the String representation of this JSONSegment to.
-     * @param format The format to use when converting this JSONSegment to a string.
+     * Write the {@link String} representation of this {@link JSONSegment} to the provided
+     * {@link CharacterWriteStream}.
+     * @param stream The {@link CharacterWriteStream} to write the {@link String} representation of
+     *               this {@link JSONSegment} to.
+     * @param format The {@link JSONFormat} to use when converting this {@link JSONSegment} to a
+     * {@link String}.
      * @return The number of characters that were written.
      */
-    default Result<Integer> toString(CharacterWriteStream stream, JSONFormat format)
+    public default Result<Integer> toString(CharacterWriteStream stream, JSONFormat format)
     {
         PreCondition.assertNotNull(stream, "stream");
 
@@ -53,38 +66,39 @@ public interface JSONSegment
     }
 
     /**
-     * Write the String representation of this JSONSegment to the provided stream.
-     * @param stream The stream to write the String representation of this JSONSegment to.
-     * @param format The format to use when converting this JSONSegment to a string.
+     * Write the {@link String} representation of this {@link JSONSegment} to the provided
+     * {@link IndentedCharacterWriteStream}.
+     * @param stream The {@link IndentedCharacterWriteStream} to write the {@link String}
+     *               representation of this {@link JSONSegment} to.
+     * @param format The {@link JSONFormat} to use when converting this {@link JSONSegment} to a
+     * {@link String}.
      * @return The number of characters that were written.
      */
-    Result<Integer> toString(IndentedCharacterWriteStream stream, JSONFormat format);
+    public Result<Integer> toString(IndentedCharacterWriteStream stream, JSONFormat format);
 
     /**
      * Get the String representation of the provided JSONSegment.
      * @param segment The JSONSegment to get the String representation of.
      * @return The String representation of the provided JSONSegment.
      */
-    static String toString(JSONSegment segment)
+    public static String toString(JSONSegment segment)
     {
         return JSONSegment.toString((Function1<IndentedCharacterWriteStream,Result<Integer>>)segment::toString);
     }
 
-    static String toString(Function1<IndentedCharacterWriteStream,Result<Integer>> toStringFunction)
+    public static String toString(Function1<IndentedCharacterWriteStream,Result<Integer>> toStringFunction)
     {
         PreCondition.assertNotNull(toStringFunction, "toStringFunction");
 
-        final InMemoryCharacterToByteStream characterStream = InMemoryCharacterToByteStream.create();
-        final IndentedCharacterWriteStream indentedStream = IndentedCharacterWriteStream.create(characterStream);
-        toStringFunction.run(indentedStream).await();
-        final String result = characterStream.getText().await();
-
-        PostCondition.assertNotNullAndNotEmpty(result, "result");
-
-        return result;
+        final CharacterList list = CharacterList.create();
+        try (final CharacterListWriteStream writeStream = CharacterListWriteStream.create(list))
+        {
+            toStringFunction.run(IndentedCharacterWriteStream.create(writeStream)).await();
+        }
+        return list.toString(true);
     }
 
-    static String toString(Function2<IndentedCharacterWriteStream,JSONFormat,Result<Integer>> toStringFunction)
+    public static String toString(Function2<IndentedCharacterWriteStream,JSONFormat,Result<Integer>> toStringFunction)
     {
         PreCondition.assertNotNull(toStringFunction, "toStringFunction");
 

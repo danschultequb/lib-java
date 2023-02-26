@@ -2,7 +2,7 @@ package qub;
 
 /**
  * A list of characters. Internally this uses a primitive char[] to store characters, so it should
- * be more efficient than using a generic List&lt;Character&gt;.
+ * be more efficient than using a generic {@link List}&lt;{@link Character}&gt;.
  */
 public class CharacterList implements List<Character>
 {

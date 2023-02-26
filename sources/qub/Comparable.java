@@ -6,7 +6,7 @@ package qub;
  */
 public interface Comparable<T> extends java.lang.Comparable<T>
 {
-    default int compareTo(T rhs)
+    public default int compareTo(T rhs)
     {
         int result = 0;
         switch (this.compareWith(rhs))

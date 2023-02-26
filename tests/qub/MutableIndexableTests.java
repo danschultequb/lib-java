@@ -1,6 +1,6 @@
 package qub;
 
-public class MutableIndexableTests
+public interface MutableIndexableTests
 {
     public static void test(TestRunner runner, Function1<Integer,MutableIndexable<Integer>> creator)
     {
@@ -82,116 +82,65 @@ public class MutableIndexableTests
                 });
             });
 
-            runner.testGroup("sort(MutableIndexable<T>)", () ->
+            runner.testGroup("sort(Function2<T,T,Integer>)", () ->
             {
-                runner.test("with null values", (Test test) ->
+                runner.test("with null comparer", (Test test) ->
                 {
-                    test.assertThrows(() -> MutableIndexable.sort((MutableIndexable<Distance>)null), new PreConditionFailure("values cannot be null."));
+                    final MutableIndexable<Integer> values = MutableIndexable.create();
+                    test.assertThrows(() -> values.sort((Function2<Integer,Integer,Integer>)null),
+                        new PreConditionFailure("comparer cannot be null."));
                 });
 
                 runner.test("with empty values", (Test test) ->
                 {
-                    final MutableIndexable<Distance> values = Array.create();
-                    test.assertSame(values, MutableIndexable.sort(values));
+                    final MutableIndexable<Integer> values = MutableIndexable.create();
+                    test.assertSame(values, values.sort(Integer::compare));
                 });
 
                 runner.test("with one value", (Test test) ->
                 {
-                    final MutableIndexable<Distance> values = Array.create(Distance.feet(1));
-                    test.assertSame(values, MutableIndexable.sort(values));
-                    test.assertEqual(Iterable.create(Distance.feet(1)), values);
+                    final MutableIndexable<Integer> values = MutableIndexable.create(1);
+                    test.assertSame(values, values.sort(Integer::compare));
+                    test.assertEqual(Iterable.create(1), values);
                 });
 
                 runner.test("with two values in sorted order", (Test test) ->
                 {
-                    final MutableIndexable<Distance> values = Array.create(Distance.feet(1), Distance.inches(13));
-                    test.assertSame(values, MutableIndexable.sort(values));
-                    test.assertEqual(Iterable.create(Distance.feet(1), Distance.inches(13)), values);
+                    final MutableIndexable<Integer> values = MutableIndexable.create(1, 13);
+                    test.assertSame(values, values.sort(Integer::compare));
+                    test.assertEqual(Iterable.create(1, 13), values);
                 });
 
                 runner.test("with two values in reverse-sorted order", (Test test) ->
                 {
-                    final MutableIndexable<Distance> values = Array.create(Distance.feet(10), Distance.inches(1));
-                    test.assertSame(values, MutableIndexable.sort(values));
-                    test.assertEqual(Iterable.create(Distance.inches(1), Distance.feet(10)), values);
+                    final MutableIndexable<Integer> values = MutableIndexable.create(10, 1);
+                    final MutableIndexable<Integer> sortResult = values.sort(Integer::compare);
+                    test.assertSame(values, sortResult);
+                    test.assertEqual(Iterable.create(1, 10), values);
                 });
 
                 runner.test("with three values in sorted order", (Test test) ->
                 {
-                    final MutableIndexable<Distance> values = Array.create(Distance.feet(1), Distance.inches(13), Distance.miles(0.1));
-                    test.assertSame(values, MutableIndexable.sort(values));
-                    test.assertEqual(Iterable.create(Distance.feet(1), Distance.inches(13), Distance.miles(0.1)), values);
+                    final MutableIndexable<Integer> values = MutableIndexable.create(1, 2, 3);
+                    final MutableIndexable<Integer> sortResult = values.sort(Integer::compare);
+                    test.assertSame(values, sortResult);
+                    test.assertEqual(Iterable.create(1, 2, 3), values);
                 });
 
                 runner.test("with three values in reverse-sorted order", (Test test) ->
                 {
-                    final MutableIndexable<Distance> values = Array.create(Distance.miles(0.5), Distance.feet(10), Distance.inches(1));
-                    test.assertSame(values, MutableIndexable.sort(values));
-                    test.assertEqual(Iterable.create(Distance.inches(1), Distance.feet(10), Distance.miles(0.5)), values);
+                    final MutableIndexable<Integer> values = MutableIndexable.create(3, 2, 1);
+                    final MutableIndexable<Integer> sortResult = values.sort(Integer::compare);
+                    test.assertSame(values, sortResult);
+                    test.assertEqual(Iterable.create(1, 2, 3), values);
                 });
 
                 runner.test("with three values in mixed-sorted order", (Test test) ->
                 {
-                    final MutableIndexable<Distance> values = Array.create(Distance.feet(10), Distance.miles(2), Distance.inches(1));
-                    test.assertSame(values, MutableIndexable.sort(values));
-                    test.assertEqual(Iterable.create(Distance.inches(1), Distance.feet(10), Distance.miles(2)), values);
-                });
-            });
-
-            runner.testGroup("sort(Function2<T,T,Boolean>)", () ->
-            {
-                runner.test("with null values", (Test test) ->
-                {
-                    final MutableIndexable<Integer> values = Array.create();
-                    test.assertThrows(() -> values.sort((Function2<Integer,Integer,Boolean>)null), new PreConditionFailure("lessThan cannot be null."));
-                });
-
-                runner.test("with empty values", (Test test) ->
-                {
-                    final MutableIndexable<Distance> values = Array.create();
-                    test.assertSame(values, values.sort(Comparer::lessThan));
-                });
-
-                runner.test("with one value", (Test test) ->
-                {
-                    final MutableIndexable<Distance> values = Array.create(Distance.feet(1));
-                    test.assertSame(values, values.sort(Comparer::lessThan));
-                    test.assertEqual(Iterable.create(Distance.feet(1)), values);
-                });
-
-                runner.test("with two values in sorted order", (Test test) ->
-                {
-                    final MutableIndexable<Distance> values = Array.create(Distance.feet(1), Distance.inches(13));
-                    test.assertSame(values, values.sort(Comparer::lessThan));
-                    test.assertEqual(Iterable.create(Distance.feet(1), Distance.inches(13)), values);
-                });
-
-                runner.test("with two values in reverse-sorted order", (Test test) ->
-                {
-                    final MutableIndexable<Distance> values = Array.create(Distance.feet(10), Distance.inches(1));
-                    test.assertSame(values, values.sort(Comparer::lessThan));
-                    test.assertEqual(Iterable.create(Distance.inches(1), Distance.feet(10)), values);
-                });
-
-                runner.test("with three values in sorted order", (Test test) ->
-                {
-                    final MutableIndexable<Distance> values = Array.create(Distance.feet(1), Distance.inches(13), Distance.miles(0.1));
-                    test.assertSame(values, values.sort(Comparer::lessThan));
-                    test.assertEqual(Iterable.create(Distance.feet(1), Distance.inches(13), Distance.miles(0.1)), values);
-                });
-
-                runner.test("with three values in reverse-sorted order", (Test test) ->
-                {
-                    final MutableIndexable<Distance> values = Array.create(Distance.miles(0.5), Distance.feet(10), Distance.inches(1));
-                    test.assertSame(values, values.sort(Comparer::lessThan));
-                    test.assertEqual(Iterable.create(Distance.inches(1), Distance.feet(10), Distance.miles(0.5)), values);
-                });
-
-                runner.test("with three values in mixed-sorted order", (Test test) ->
-                {
-                    final MutableIndexable<Distance> values = Array.create(Distance.feet(10), Distance.miles(2), Distance.inches(1));
-                    test.assertSame(values, values.sort(Comparer::lessThan));
-                    test.assertEqual(Iterable.create(Distance.inches(1), Distance.feet(10), Distance.miles(2)), values);
+                    final MutableIndexable<Integer> values = MutableIndexable.create(2, 3, 1);
+                    final MutableIndexable<Integer> sortResult = values.sort(Integer::compare);
+                    test.assertSame(values, sortResult);
+                    test.assertEqual(Iterable.create(1, 2, 3), values);
                 });
             });
         });

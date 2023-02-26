@@ -5,6 +5,19 @@ package qub;
  */
 public interface Comparer<T> extends Function2<T,T,Comparison>
 {
+    /**
+     * Create a {@link Comparer} object from the provided {@link Integer} result comparison
+     * function.
+     * @param comparer The java.lang.Comparable compatible function to convert.
+     * @param <T> The type of values to compare.
+     */
+    public static <T> Comparer<T> create(Function2<T,T,Integer> comparer)
+    {
+        PreCondition.assertNotNull(comparer, "comparer");
+
+        return (T lhs, T rhs) -> Comparison.create(comparer.run(lhs, rhs));
+    }
+
     static Comparison compare(int lhs, int rhs)
     {
         return Integers.compare(lhs, rhs);

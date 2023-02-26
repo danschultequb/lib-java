@@ -48,11 +48,11 @@ public class TestError extends RuntimeException
 
         final String result;
 
-        try (final InMemoryCharacterToByteStream characterStream = InMemoryCharacterToByteStream.create())
+        try (final CharacterListWriteStream stream = CharacterListWriteStream.create())
         {
-            characterStream.writeLine(testScope).await();
-            characterStream.writeLine(errorMessage).await();
-            result = characterStream.getText().await();
+            stream.writeLine(testScope).await();
+            stream.writeLine(errorMessage).await();
+            result = stream.toString();
         }
 
         PostCondition.assertNotNullAndNotEmpty(result, "result");

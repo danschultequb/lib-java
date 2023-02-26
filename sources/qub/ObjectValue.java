@@ -22,6 +22,11 @@ public class ObjectValue<T> implements Value<T>
         return new ObjectValue<>();
     }
 
+    public static <T> ObjectValue<T> create(T value)
+    {
+        return new ObjectValue<>(value);
+    }
+
     @Override
     public ObjectValue<T> set(T value)
     {

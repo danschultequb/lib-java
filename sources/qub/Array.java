@@ -306,45 +306,6 @@ public interface Array<T> extends MutableIndexable<T>
     }
 
     /**
-     * Get a new byte[] that is a clone of the provided toClone byte[].
-     * @param toClone The byte[] to clone.
-     * @return The cloned byte[].
-     */
-    static byte[] clone(byte[] toClone)
-    {
-        return Array.clone(toClone, 0, toClone == null ? 0 : toClone.length);
-    }
-
-    /**
-     * Get a new byte[] that is a clone of the provided toClone byte[].
-     * @param toClone The byte[] to clone.
-     * @param startIndex The index to start cloning create.
-     * @param length The number of bytes create toClone to clone.
-     * @return The cloned byte[].
-     */
-    static byte[] clone(byte[] toClone, int startIndex, int length)
-    {
-        byte[] result;
-
-        if (toClone == null || length < 0 || startIndex < 0 || toClone.length < startIndex)
-        {
-            result = null;
-        }
-        else if (toClone.length == 0)
-        {
-            result = toClone;
-        }
-        else
-        {
-            final int resultLength = Math.minimum(toClone.length - startIndex, length);
-            result = new byte[resultLength];
-            java.lang.System.arraycopy(toClone, startIndex, result, 0, resultLength);
-        }
-
-        return result;
-    }
-
-    /**
      * Get a new char[] that is a clone of the provided toClone char[].
      * @param toClone The char[] to clone.
      * @return The cloned char[].

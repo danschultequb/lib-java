@@ -2,7 +2,7 @@ package qub;
 
 public interface LockedTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(Locked.class, () ->
         {
@@ -137,7 +137,7 @@ public interface LockedTests
                     }
                     final List<Integer> values = Result.await(tasks).toList();
                     test.assertEqual(taskCount, values.getCount());
-                    values.sort(Comparer::lessThan);
+                    values.sort(Integer::compare);
                     for (int i = 0; i < taskCount; ++i)
                     {
                         test.assertEqual(i + 1, values.get(i));

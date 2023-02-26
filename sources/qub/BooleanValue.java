@@ -1,6 +1,6 @@
 package qub;
 
-public class BooleanValue implements Value<java.lang.Boolean>
+public class BooleanValue implements Value.Typed<java.lang.Boolean,BooleanValue>
 {
     private final java.util.concurrent.atomic.AtomicBoolean value;
     private volatile boolean hasValue;

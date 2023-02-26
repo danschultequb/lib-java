@@ -93,4 +93,25 @@ public interface DisposableTests
             });
         });
     }
+
+    public static void test(TestRunner runner, Function0<? extends Disposable> creator)
+    {
+        runner.testGroup(Disposable.class, () ->
+        {
+            runner.test("dispose()", (Test test) ->
+            {
+                try (final Disposable disposable = creator.run())
+                {
+                    test.assertNotNull(disposable, "disposable");
+                    test.assertFalse(disposable.isDisposed());
+
+                    test.assertTrue(disposable.dispose().await());
+                    test.assertTrue(disposable.isDisposed());
+
+                    test.assertFalse(disposable.dispose().await());
+                    test.assertTrue(disposable.isDisposed());
+                }
+            });
+        });
+    }
 }

@@ -443,7 +443,7 @@ public class CharacterTableFormat
             result.add(':');
             result.add('{');
 
-            final Iterable<Integer> columnIndexes = this.columnHorizontalAlignment.iterateKeys().toList().order(Comparer::lessThan);
+            final Iterable<Integer> columnIndexes = this.columnHorizontalAlignment.iterateKeys().order(Integer::compareTo);
             for (final Integer columnIndex : columnIndexes)
             {
                 CharacterTableFormat.addProperty(result, Integers.toString(columnIndex), this.getColumnHorizontalAlignment(columnIndex).await());
