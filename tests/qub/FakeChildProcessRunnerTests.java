@@ -2,7 +2,7 @@ package qub;
 
 public interface FakeChildProcessRunnerTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(FakeChildProcessRunnerTests.class, () ->
         {
@@ -181,7 +181,7 @@ public interface FakeChildProcessRunnerTests
                     (TestResources resources) -> Tuple.create(resources.createFakeDesktopProcess()),
                     (Test test, FakeDesktopProcess process) ->
                 {
-                    final IntegerValue value = new IntegerValue(10);
+                    final IntegerValue value = IntegerValue.create(10);
                     final FakeChildProcessRunner processRunner = FakeChildProcessRunner.create(process)
                         .add(FakeChildProcessRun.create("/executable/file")
                             .setAction((FakeDesktopProcess childProcess) ->

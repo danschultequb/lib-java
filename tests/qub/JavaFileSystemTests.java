@@ -6,7 +6,7 @@ public interface JavaFileSystemTests
     {
         final String tempFolderPathString = System.getProperty("java.io.tmpdir");
         final Path tempFolderPath = Path.parse(tempFolderPathString).concatenateSegments("qub-tests");
-        final IntegerValue testNumber = new IntegerValue(0);
+        final IntegerValue testNumber = IntegerValue.create(0);
 
         final Value<FolderFileSystem> folderFileSystem = Value.create();
 

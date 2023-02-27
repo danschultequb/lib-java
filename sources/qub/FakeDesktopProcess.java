@@ -99,7 +99,7 @@ public class FakeDesktopProcess extends DesktopProcessBase<FakeDesktopProcess>
             return result;
         });
         this.setEnvironmentVariables(EnvironmentVariables.create());
-        this.setSynchronization(new Synchronization());
+        this.setSynchronization(Synchronization::create);
         this.setRandom(new JavaRandom());
         this.setDisplays(Iterable.create(new Display(1000, 1000, 100, 100)));
         this.setMainClassFullName("fake.MainClassFullName");

@@ -299,7 +299,7 @@ public interface ArrayTests
 
                 runner.test("with non-empty ByteList", (Test test) ->
                 {
-                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(ByteList.create(0, 1, 2)));
+                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(ByteList.create().addAll(0, 1, 2)));
                 });
 
                 runner.test("with null value", (Test test) ->
@@ -466,7 +466,7 @@ public interface ArrayTests
                 {
                     runner.test("with " + (bytes == null ? "null byte[]" : ("byte[" + bytes.length + "]")), (Test test) ->
                     {
-                        final byte[] clonedBytes = Array.clone(bytes);
+                        final byte[] clonedBytes = Arrays.clone(bytes);
                         if (bytes == null || bytes.length == 0)
                         {
                             test.assertSame(bytes, clonedBytes);
@@ -491,7 +491,7 @@ public interface ArrayTests
                 {
                     runner.test("with " + (bytes == null ? "null byte[]" : ("byte[" + bytes.length + "]")) + " at " + startIndex + " for " + length + " length", (Test test) ->
                     {
-                        final byte[] clonedBytes = Array.clone(bytes, startIndex, length);
+                        final byte[] clonedBytes = Arrays.clone(bytes, startIndex, length);
                         test.assertEqual(expectedBytes, clonedBytes);
                     });
                 };
@@ -698,8 +698,8 @@ public interface ArrayTests
                 {
                     runner.test("copy " + Array.toString(copyFrom) + " at index " + copyFromStartIndex + " to " + Array.toString(copyTo) + " at index " + copyToStartIndex + " for length " + length, (Test test) ->
                     {
-                        final byte[] copyFromClone = Array.clone(copyFrom);
-                        final byte[] copyToClone = Array.clone(copyTo);
+                        final byte[] copyFromClone = Arrays.clone(copyFrom);
+                        final byte[] copyToClone = Arrays.clone(copyTo);
 
                         test.assertThrows(() -> Array.copy(copyFrom, copyFromStartIndex, copyTo, copyToStartIndex, length), expectedError);
 
@@ -721,7 +721,7 @@ public interface ArrayTests
                 {
                     runner.test("copy " + Array.toString(copyFrom) + " at index " + copyFromStartIndex + " to " + Array.toString(copyTo) + " at index " + copyToStartIndex + " for length " + length, (Test test) ->
                     {
-                        final byte[] copyFromClone = Array.clone(copyFrom);
+                        final byte[] copyFromClone = Arrays.clone(copyFrom);
 
                         Array.copy(copyFrom, copyFromStartIndex, copyTo, copyToStartIndex, length);
 
@@ -1575,7 +1575,7 @@ public interface ArrayTests
                 {
                     runner.test("with " + English.andList(values == null ? null : ByteArray.create(values), startIndex, valuesToShift), (Test test) ->
                     {
-                        final byte[] valuesBackup = values == null ? null : Array.clone(values);
+                        final byte[] valuesBackup = values == null ? null : Arrays.clone(values);
 
                         test.assertThrows(() -> Array.shiftLeft(values, startIndex, valuesToShift),
                             expected);
@@ -1655,7 +1655,7 @@ public interface ArrayTests
                 {
                     runner.test("with " + English.andList(values == null ? null : ByteArray.create(values), startIndex, valuesToShift), (Test test) ->
                     {
-                        final byte[] valuesBackup = values == null ? null : Array.clone(values);
+                        final byte[] valuesBackup = values == null ? null : Arrays.clone(values);
 
                         test.assertThrows(() -> Array.shiftRight(values, startIndex, valuesToShift),
                             expected);

@@ -2,9 +2,9 @@ package qub;
 
 public interface TCPEchoServerTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
-        final IntegerValue port = new IntegerValue(14000);
+        final IntegerValue port = IntegerValue.create(14000);
 
         runner.testGroup(TCPEchoServer.class, () ->
         {

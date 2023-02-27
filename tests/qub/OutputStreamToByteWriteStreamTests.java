@@ -2,7 +2,7 @@ package qub;
 
 public interface OutputStreamToByteWriteStreamTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(OutputStreamToByteWriteStream.class, () ->
         {
@@ -123,7 +123,7 @@ public interface OutputStreamToByteWriteStreamTests
                         if (outputStream instanceof java.io.ByteArrayOutputStream)
                         {
                             final java.io.ByteArrayOutputStream byteArrayOutputStream = (java.io.ByteArrayOutputStream)outputStream;
-                            final byte[] expectedWrittenBytes = length <= 0 ? new byte[0] : Array.clone(toWrite, startIndex, length);
+                            final byte[] expectedWrittenBytes = length <= 0 ? new byte[0] : Arrays.clone(toWrite, startIndex, length);
                             test.assertEqual(expectedWrittenBytes, byteArrayOutputStream.toByteArray());
                         }
                     });

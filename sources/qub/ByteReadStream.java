@@ -39,7 +39,7 @@ public interface ByteReadStream extends Disposable
             final byte[] bytes = new byte[bytesToRead];
             final int bytesRead = this.readBytes(bytes).await();
             return bytesRead < bytesToRead
-                ? Array.clone(bytes, 0, bytesRead)
+                ? Arrays.clone(bytes, 0, bytesRead)
                 : bytes;
         });
     }

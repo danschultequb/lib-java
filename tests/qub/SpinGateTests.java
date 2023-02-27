@@ -2,7 +2,7 @@ package qub;
 
 public interface SpinGateTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(SpinGate.class, () ->
         {

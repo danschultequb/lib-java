@@ -2,7 +2,7 @@ package qub;
 
 public interface FakeChildProcessRunTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(FakeChildProcessRun.class, () ->
         {
@@ -454,7 +454,7 @@ public interface FakeChildProcessRunTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    final IntegerValue value = new IntegerValue(5);
+                    final IntegerValue value = IntegerValue.create(5);
                     test.assertSame(fakeProcessRun, fakeProcessRun.setAction(() -> { value.set(20); }));
                     test.assertNotNull(fakeProcessRun.getAction());
                     try (final FakeDesktopProcess childProcess = FakeDesktopProcess.create())
@@ -496,7 +496,7 @@ public interface FakeChildProcessRunTests
                 runner.test("with non-null", (Test test) ->
                 {
                     final FakeChildProcessRun fakeProcessRun = creator.run("exe");
-                    final IntegerValue value = new IntegerValue(5);
+                    final IntegerValue value = IntegerValue.create(5);
                     final FakeChildProcessRun setActionResult = fakeProcessRun.setAction((FakeDesktopProcess childProcess) ->
                     {
                         value.set(20);

@@ -241,7 +241,7 @@ public interface BasicTestRunnerTests
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
                         final BasicTestRunner btr = BasicTestRunner.create(process);
-                        final IntegerValue counter = new IntegerValue(0);
+                        final IntegerValue counter = IntegerValue.create(0);
                         final Value<Integer> value = Value.create(0);
                         final MutableMap<Integer, TestGroup> beforeTestGroup = Map.create();
                         final MutableMap<Integer, TestGroup> afterTestGroupSkipped = Map.create();
@@ -287,7 +287,7 @@ public interface BasicTestRunnerTests
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
                         final BasicTestRunner btr = BasicTestRunner.create(process);
-                        final IntegerValue counter = new IntegerValue(0);
+                        final IntegerValue counter = IntegerValue.create(0);
                         final IntegerValue value = IntegerValue.create(0);
                         final MutableMap<Integer, TestGroup> beforeTestGroup = Map.create();
                         final MutableMap<Integer, TestGroup> afterTestGroupSkipped = Map.create();
@@ -373,7 +373,7 @@ public interface BasicTestRunnerTests
                     try (final FakeDesktopProcess process = FakeDesktopProcess.create())
                     {
                         final BasicTestRunner btr = BasicTestRunner.create(process);
-                        final IntegerValue counter = new IntegerValue(0);
+                        final IntegerValue counter = IntegerValue.create(0);
                         final Value<Integer> value = Value.create(0);
                         final MutableMap<Integer, TestGroup> beforeTestGroup = Map.create();
                         btr.beforeTestGroup((TestGroup tg) ->

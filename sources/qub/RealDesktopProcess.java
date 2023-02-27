@@ -79,7 +79,7 @@ public class RealDesktopProcess extends DesktopProcessBase<RealDesktopProcess>
             }
             return environmentVariables;
         });
-        this.setSynchronization(() -> new Synchronization());
+        this.setSynchronization(Synchronization::create);
         this.setClock(() -> JavaClock.create(this.getParallelAsyncRunner()));
         this.setDisplays(() ->
         {
