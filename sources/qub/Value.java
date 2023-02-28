@@ -102,6 +102,11 @@ public interface Value<T> extends Getter<T>, Setter<T>
         return this.get();
     }
 
+    /**
+     * A version of a {@link Value} that returns its own type from chainable methods.
+     * @param <T> The type of value stored in this {@link Value.Typed}.
+     * @param <ValueT> The real type of this {@link Value.Typed}.
+     */
     public static interface Typed<T,ValueT extends Value<T>> extends Value<T>
     {
         @Override

@@ -1,73 +1,42 @@
 package qub;
 
-public class MutableSize2Distance extends Size2Base<Distance> implements MutableSize2<Distance>, Size2Distance
+/**
+ * A {@link Size2Distance} object that can change its width and height values.
+ */
+public interface MutableSize2Distance extends MutableSize2<Distance>, Size2Distance
 {
-    private Distance width;
-    private Distance height;
-
-    private MutableSize2Distance(Distance width, Distance height)
-    {
-        PreCondition.assertNotNull(width, "width");
-        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
-        PreCondition.assertNotNull(height, "height");
-        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
-
-        this.width = width;
-        this.height = height;
-    }
-
     public static MutableSize2Distance create()
     {
-        return MutableSize2Distance.create(Distance.zero, Distance.zero);
+        return BasicMutableSize2Distance.create();
     }
 
     public static MutableSize2Distance create(Distance width, Distance height)
     {
-        return new MutableSize2Distance(width, height);
+        return BasicMutableSize2Distance.create(width, height);
     }
 
     @Override
-    public Distance getWidth()
-    {
-        return this.width;
-    }
-
-    public MutableSize2Distance setWidth(Distance width)
-    {
-        PreCondition.assertNotNull(width, "width");
-        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
-
-        this.width = width;
-
-        return this;
-    }
+    public MutableSize2Distance setWidth(Distance width);
 
     @Override
-    public Distance getHeight()
+    public MutableSize2Distance setHeight(Distance height);
+
+    @Override
+    public MutableSize2Distance set(Distance width, Distance height);
+
+    /**
+     * A version of a {@link MutableSize2Distance} that returns its own type from chainable methods.
+     * @param <T> The real type of this {@link MutableSize2Distance.Typed}.
+     */
+    public static interface Typed<T extends MutableSize2Distance> extends MutableSize2Distance
     {
-        return this.height;
-    }
+        @Override
+        public T setWidth(Distance width);
 
-    public MutableSize2Distance setHeight(Distance height)
-    {
-        PreCondition.assertNotNull(height, "height");
-        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
+        @Override
+        public T setHeight(Distance height);
 
-        this.height = height;
-
-        return this;
-    }
-
-    public MutableSize2Distance set(Distance width, Distance height)
-    {
-        PreCondition.assertNotNull(width, "width");
-        PreCondition.assertGreaterThanOrEqualTo(width, Distance.zero, "width");
-        PreCondition.assertNotNull(height, "height");
-        PreCondition.assertGreaterThanOrEqualTo(height, Distance.zero, "height");
-
-        this.width = width;
-        this.height = height;
-
-        return this;
+        @Override
+        public T set(Distance width, Distance height);
     }
 }

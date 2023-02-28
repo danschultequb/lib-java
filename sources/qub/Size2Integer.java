@@ -1,5 +1,8 @@
 package qub;
 
+/**
+ * A {@link Size2} that contains {@link Integer} components.
+ */
 public interface Size2Integer extends Size2<Integer>
 {
     public static MutableSize2Integer create()
@@ -13,18 +16,18 @@ public interface Size2Integer extends Size2<Integer>
     }
 
     @Override
-    default Integer getWidth()
+    public default Integer getWidth()
     {
         return this.getWidthAsInt();
     }
 
-    int getWidthAsInt();
+    public int getWidthAsInt();
 
     @Override
-    default Integer getHeight()
+    public default Integer getHeight()
     {
         return this.getHeightAsInt();
     }
 
-    int getHeightAsInt();
+    public int getHeightAsInt();
 }

@@ -2,7 +2,7 @@ package qub;
 
 public interface MutableSize2DistanceTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(MutableSize2Distance.class, () ->
         {

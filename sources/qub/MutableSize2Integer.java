@@ -1,86 +1,57 @@
 package qub;
 
-public class MutableSize2Integer extends Size2Base<Integer> implements MutableSize2<Integer>, Size2Integer
+/**
+ * A {@link Size2Integer} object that can change its width and height values.
+ */
+public interface MutableSize2Integer extends MutableSize2<Integer>, Size2Integer
 {
-    private int width;
-    private int height;
-
-    private MutableSize2Integer(int width, int height)
-    {
-        PreCondition.assertGreaterThanOrEqualTo(width, 0, "width");
-        PreCondition.assertGreaterThanOrEqualTo(height, 0, "height");
-
-        this.width = width;
-        this.height = height;
-    }
-
     public static MutableSize2Integer create()
     {
-        return MutableSize2Integer.create(0, 0);
+        return BasicMutableSize2Integer.create();
     }
 
     public static MutableSize2Integer create(int width, int height)
     {
-        return new MutableSize2Integer(width, height);
+        return BasicMutableSize2Integer.create(width, height);
     }
 
     @Override
-    public MutableSize2Integer setWidth(Integer width)
-    {
-        PreCondition.assertNotNull(width, "width");
+    public MutableSize2Integer setWidth(Integer width);
 
-        return this.setWidth(width.intValue());
-    }
-
-    public MutableSize2Integer setWidth(int width)
-    {
-        PreCondition.assertGreaterThanOrEqualTo(width, 0, "width");
-
-        this.width = width;
-
-        return this;
-    }
+    public MutableSize2Integer setWidth(int width);
 
     @Override
-    public MutableSize2Integer setHeight(Integer height)
-    {
-        PreCondition.assertNotNull(height, "height");
+    public MutableSize2Integer setHeight(Integer height);
 
-        return this.setHeight(height.intValue());
-    }
-
-    public MutableSize2Integer setHeight(int height)
-    {
-        PreCondition.assertGreaterThanOrEqualTo(height, 0, "height");
-
-        this.height = height;
-
-        return this;
-    }
+    public MutableSize2Integer setHeight(int height);
 
     @Override
-    public MutableSize2Integer set(Integer width, Integer height)
+    public MutableSize2Integer set(Integer width, Integer height);
+
+    public MutableSize2Integer set(int width, int height);
+
+    /**
+     * A version of a {@link MutableSize2Integer} that returns its own type from chainable methods.
+     * @param <T> The real type of this {@link MutableSize2Integer.Typed}.
+     */
+    public static interface Typed<T extends MutableSize2Integer> extends MutableSize2Integer
     {
-        PreCondition.assertNotNull(width, "width");
-        PreCondition.assertGreaterThanOrEqualTo(width, 0, "width");
-        PreCondition.assertNotNull(height, "height");
-        PreCondition.assertGreaterThanOrEqualTo(height, 0, "height");
+        @Override
+        public T setWidth(Integer width);
 
-        this.width = width;
-        this.height = height;
+        @Override
+        public T setWidth(int width);
 
-        return this;
-    }
+        @Override
+        public T setHeight(Integer height);
 
-    @Override
-    public int getWidthAsInt()
-    {
-        return this.width;
-    }
+        @Override
+        public T setHeight(int height);
 
-    @Override
-    public int getHeightAsInt()
-    {
-        return this.height;
+        @Override
+        public T set(Integer width, Integer height);
+
+        @Override
+        public T set(int width, int height);
     }
 }
