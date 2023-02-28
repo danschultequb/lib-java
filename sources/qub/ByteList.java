@@ -9,26 +9,98 @@ public class ByteList implements List<Byte>
     private byte[] bytes;
     private int count;
 
-    private ByteList(int capacity)
+    private ByteList()
     {
-        PreCondition.assertGreaterThanOrEqualTo(capacity, 0, "capacity");
-
-        this.bytes = new byte[capacity];
     }
 
     public static ByteList create()
     {
-        return ByteList.create(64);
+        return new ByteList();
     }
 
-    public static ByteList create(int capacity)
+    /**
+     * Create a new {@link ByteList} with the provided initial values.
+     * @param initialValues The initial values to add.
+     */
+    public static ByteList create(byte... initialValues)
     {
-        return new ByteList(capacity);
+        PreCondition.assertNotNull(initialValues, "initialValues");
+
+        return ByteList.create()
+            .setCapacity(initialValues.length)
+            .addAll(initialValues);
     }
 
+    /**
+     * Create a new {@link ByteList} with the provided initial values.
+     * @param initialValues The initial values to add.
+     */
+    public static ByteList create(Iterator<Byte> initialValues)
+    {
+        PreCondition.assertNotNull(initialValues, "initialValues");
+
+        return ByteList.create()
+            .addAll(initialValues);
+    }
+
+    /**
+     * Create a new {@link ByteList} with the provided initial values.
+     * @param initialValues The initial values to add.
+     */
+    public static ByteList create(Iterable<Byte> initialValues)
+    {
+        PreCondition.assertNotNull(initialValues, "initialValues");
+
+        return ByteList.create()
+            .addAll(initialValues);
+    }
+
+    /**
+     * Create a new {@link ByteList} with the provided initial values.
+     * @param initialValues The initial values to add.
+     */
+    public static ByteList create(int... initialValues)
+    {
+        PreCondition.assertNotNull(initialValues, "initialValues");
+
+        return ByteList.create()
+            .setCapacity(initialValues.length)
+            .addAll(initialValues);
+    }
+
+    /**
+     * Set the current capacity of this {@link ByteList}. If more values than the provided capacity
+     * are added to this {@link ByteList}, then the capacity will still grow (this isn't a maximum
+     * capacity).
+     * @param capacity The current capacity of this {@link ByteList}.
+     * @return This object for method chaining.
+     */
+    public ByteList setCapacity(int capacity)
+    {
+        PreCondition.assertGreaterThanOrEqualTo(capacity, this.getCount(), "capacity");
+
+        final int currentCapacity = this.getCapacity();
+        if (currentCapacity != capacity)
+        {
+            final byte[] newBytes = new byte[capacity];
+            if (currentCapacity > 0)
+            {
+                Array.copy(this.bytes, 0, newBytes, 0, this.getCount());
+            }
+            this.bytes = newBytes;
+        }
+
+        return this;
+    }
+
+    /**
+     * Get the current capacity of this {@link ByteList}. If more values than the current capacity
+     * are added to this {@link ByteList}, then the capacity will grow.
+     * @return
+     */
     public int getCapacity()
     {
-        return this.bytes.length;
+        return this.bytes == null ? 0 : this.bytes.length;
     }
 
     @Override
@@ -55,16 +127,17 @@ public class ByteList implements List<Byte>
     {
         PreCondition.assertIndexAccess(insertIndex, this.count + 1, "insertIndex");
 
-        if (this.count == this.bytes.length)
+        final int currentCapacity = this.getCapacity();
+        if (this.count == currentCapacity)
         {
-            final byte[] newBytes = new byte[(this.bytes.length * 2) + 1];
+            final byte[] newBytes = new byte[(currentCapacity * 2) + 1];
             if (1 <= insertIndex)
             {
                 Array.copy(this.bytes, 0, newBytes, 0, insertIndex);
             }
-            if (insertIndex <= this.count - 1)
+            if (insertIndex <= currentCapacity - 1)
             {
-                Array.copy(this.bytes, insertIndex, newBytes, insertIndex + 1, this.count - insertIndex);
+                Array.copy(this.bytes, insertIndex, newBytes, insertIndex + 1, currentCapacity - insertIndex);
             }
             this.bytes = newBytes;
         }
@@ -275,7 +348,9 @@ public class ByteList implements List<Byte>
     @Override
     public Iterator<Byte> iterate()
     {
-        return ByteArrayIterator.create(this.bytes, 0, this.count);
+        return this.bytes == null
+            ? EmptyIterator.create()
+            : ByteArrayIterator.create(this.bytes, 0, this.count);
     }
 
     @Override
@@ -295,6 +370,8 @@ public class ByteList implements List<Byte>
      */
     public byte[] toByteArray()
     {
-        return Arrays.clone(this.bytes, 0, this.count);
+        return this.bytes == null
+            ? new byte[0]
+            : Arrays.clone(this.bytes, 0, this.count);
     }
 }

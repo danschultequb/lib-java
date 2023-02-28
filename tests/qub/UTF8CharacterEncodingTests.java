@@ -2,7 +2,7 @@ package qub;
 
 public interface UTF8CharacterEncodingTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         CharacterEncodingTests.test(runner, UTF8CharacterEncoding::new);
 

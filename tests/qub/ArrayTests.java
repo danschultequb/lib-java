@@ -299,7 +299,7 @@ public interface ArrayTests
 
                 runner.test("with non-empty ByteList", (Test test) ->
                 {
-                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(ByteList.create().addAll(0, 1, 2)));
+                    test.assertEqual(new byte[] { 0, 1, 2 }, Array.toByteArray(ByteList.create(0, 1, 2)));
                 });
 
                 runner.test("with null value", (Test test) ->
@@ -458,64 +458,6 @@ public interface ArrayTests
                     test.assertThrows(() -> Array.toIntArray(Iterable.create(0, 1, null)).await(),
                         new NullPointerException("The 2 element cannot be null."));
                 });
-            });
-
-            runner.testGroup("clone(byte[])", () ->
-            {
-                final Action1<byte[]> cloneTest = (byte[] bytes) ->
-                {
-                    runner.test("with " + (bytes == null ? "null byte[]" : ("byte[" + bytes.length + "]")), (Test test) ->
-                    {
-                        final byte[] clonedBytes = Arrays.clone(bytes);
-                        if (bytes == null || bytes.length == 0)
-                        {
-                            test.assertSame(bytes, clonedBytes);
-                        }
-                        else
-                        {
-                            test.assertEqual(bytes, clonedBytes);
-                            test.assertNotSame(bytes, clonedBytes);
-                        }
-                    });
-                };
-
-                cloneTest.run(null);
-                cloneTest.run(new byte[0]);
-                cloneTest.run(new byte[] { 0 });
-                cloneTest.run(new byte[] { 0, 1, 2, 3, 4 });
-            });
-
-            runner.testGroup("clone(byte[],int,int)", () ->
-            {
-                final Action4<byte[],Integer,Integer,byte[]> cloneTest = (byte[] bytes, Integer startIndex, Integer length, byte[] expectedBytes) ->
-                {
-                    runner.test("with " + (bytes == null ? "null byte[]" : ("byte[" + bytes.length + "]")) + " at " + startIndex + " for " + length + " length", (Test test) ->
-                    {
-                        final byte[] clonedBytes = Arrays.clone(bytes, startIndex, length);
-                        test.assertEqual(expectedBytes, clonedBytes);
-                    });
-                };
-
-                cloneTest.run(null, -1, -2, null);
-                cloneTest.run(null, -1, 0, null);
-                cloneTest.run(null, -1, 2, null);
-                cloneTest.run(null, 0, -2, null);
-                cloneTest.run(null, 0, 0, null);
-                cloneTest.run(null, 0, 2, null);
-                cloneTest.run(null, 1, -2, null);
-                cloneTest.run(null, 1, 0, null);
-                cloneTest.run(null, 1, 2, null);
-                cloneTest.run(new byte[0], -1, -2, null);
-                cloneTest.run(new byte[0], -1, 0, null);
-                cloneTest.run(new byte[0], -1, 2, null);
-                cloneTest.run(new byte[0], 0, -2, null);
-                cloneTest.run(new byte[0], 0, 0, new byte[0]);
-                cloneTest.run(new byte[0], 0, 2, new byte[0]);
-                cloneTest.run(new byte[0], 1, -2, null);
-                cloneTest.run(new byte[0], 1, 0, null);
-                cloneTest.run(new byte[0], 1, 2, null);
-                cloneTest.run(new byte[] { 0, 1, 2 }, 0, 3, new byte[] { 0, 1, 2 });
-                cloneTest.run(new byte[] { 0, 1, 2 }, 1, 1, new byte[] { 1 });
             });
 
             runner.testGroup("clone(char[])", () ->

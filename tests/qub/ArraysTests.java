@@ -37,6 +37,23 @@ public interface ArraysTests
                 anyTest.run(new String[] { "a", "b", "c" }, true);
             });
 
+            runner.testGroup("clone(byte[])", () ->
+            {
+                final Action1<byte[]> cloneTest = (byte[] values) ->
+                {
+                    runner.test("with " + Array.toString(values), (Test test) ->
+                    {
+                        final byte[] result = Arrays.clone(values);
+                        test.assertEqual(values, result);
+                        test.assertNotSame(values, result);
+                    });
+                };
+
+                cloneTest.run(new byte[] {});
+                cloneTest.run(new byte[] { 1 });
+                cloneTest.run(new byte[] { 1, 2, 3 });
+            });
+
             runner.testGroup("clone(byte[],int,int)", () ->
             {
                 final Action4<byte[],Integer,Integer,byte[]> cloneTest = (byte[] values, Integer startIndex, Integer length, byte[] expected) ->

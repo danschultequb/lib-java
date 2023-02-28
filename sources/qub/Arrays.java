@@ -49,10 +49,6 @@ public interface Arrays
         {
             result = null;
         }
-        else if (toClone.length == 0)
-        {
-            result = toClone;
-        }
         else
         {
             final int resultLength = Math.minimum(toClone.length - startIndex, length);

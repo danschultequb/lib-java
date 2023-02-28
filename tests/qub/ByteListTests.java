@@ -10,41 +10,83 @@ public interface ByteListTests
             {
                 final ByteList list = ByteList.create();
                 test.assertNotNull(list);
-                test.assertEqual(64, list.getCapacity());
+                test.assertEqual(0, list.getCapacity());
                 test.assertEqual(0, list.getCount());
                 test.assertEqual(Iterable.create(), list);
             });
 
-            runner.testGroup("createWithCapacity(int)", () ->
+            runner.testGroup("create(byte...)", () ->
             {
-                final Action2<Integer,Throwable> createWithCapacityErrorTest = (Integer capacity, Throwable expected) ->
+                runner.test("with null", (Test test) ->
                 {
-                    runner.test("with " + capacity, (Test test) ->
+                    test.assertThrows(() -> ByteList.create((byte[])null),
+                        new PreConditionFailure("initialValues cannot be null."));
+                });
+
+                runner.test("with empty", (Test test) ->
+                {
+                    final ByteList list = ByteList.create(new byte[0]);
+                    test.assertEqual(Iterable.create(), list);
+                });
+
+                runner.test("with one value", (Test test) ->
+                {
+                    final ByteList list = ByteList.create((byte)1);
+                    test.assertEqual(Iterable.create((byte)1), list);
+                });
+
+                runner.test("with multiple values", (Test test) ->
+                {
+                    final ByteList list = ByteList.create((byte)1, (byte)2, (byte)3);
+                    test.assertEqual(Iterable.create((byte)1, (byte)2, (byte)3), list);
+                });
+            });
+
+            runner.testGroup("setCapacity(int)", () ->
+            {
+                final Action3<ByteList,Integer,Throwable> setCapacityErrorTest = (ByteList list, Integer capacity, Throwable expected) ->
+                {
+                    runner.test("with " + English.andList(list, capacity), (Test test) ->
                     {
-                        test.assertThrows(() -> ByteList.create(capacity),
+                        final int currentCapacity = list.getCapacity();
+                        test.assertThrows(() -> list.setCapacity(capacity),
                             expected);
+                        test.assertEqual(currentCapacity, list.getCapacity());
                     });
                 };
 
-                createWithCapacityErrorTest.run(-1, new PreConditionFailure("capacity (-1) must be greater than or equal to 0."));
+                setCapacityErrorTest.run(
+                    ByteList.create(),
+                    -1,
+                    new PreConditionFailure("capacity (-1) must be greater than or equal to 0."));
+                setCapacityErrorTest.run(
+                    ByteList.create(1),
+                    -1,
+                    new PreConditionFailure("capacity (-1) must be greater than or equal to 1."));
+                setCapacityErrorTest.run(
+                    ByteList.create(1, 2),
+                    0,
+                    new PreConditionFailure("capacity (0) must be greater than or equal to 2."));
 
-                final Action1<Integer> createWithCapacityTest = (Integer capacity) ->
+                final Action2<ByteList,Integer> setCapacityTest = (ByteList list, Integer capacity) ->
                 {
-                    runner.test("with " + capacity, (Test test) ->
+                    runner.test("with " + English.andList(list, capacity), (Test test) ->
                     {
-                        final ByteList list = ByteList.create(capacity);
-                        test.assertNotNull(list);
+                        final byte[] bytes = list.toByteArray();
+                        final ByteList setCapacityResult = list.setCapacity(capacity);
+                        test.assertSame(list, setCapacityResult);
                         test.assertEqual(capacity, list.getCapacity());
-                        test.assertEqual(0, list.getCount());
-                        test.assertEqual(Iterable.create(), list);
+                        test.assertEqual(bytes, list.toByteArray());
                     });
                 };
 
-                createWithCapacityTest.run(0);
-                createWithCapacityTest.run(1);
-                createWithCapacityTest.run(5);
-                createWithCapacityTest.run(10);
-                createWithCapacityTest.run(100);
+                setCapacityTest.run(ByteList.create(), 0);
+                setCapacityTest.run(ByteList.create(), 1);
+                setCapacityTest.run(ByteList.create(), 10);
+                setCapacityTest.run(ByteList.create(), 100);
+                setCapacityTest.run(ByteList.create(1, 2, 3), 3);
+                setCapacityTest.run(ByteList.create(1, 2, 3), 4);
+                setCapacityTest.run(ByteList.create(1, 2, 3), 100);
             });
 
             runner.testGroup("insert(int,int)", () ->
@@ -87,30 +129,30 @@ public interface ByteListTests
 
                 runner.test("with zero index on non-empty list", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     list.insert(0, 7);
-                    test.assertEqual(ByteList.create().addAll(7, 1, 2, 3), list);
+                    test.assertEqual(ByteList.create(7, 1, 2, 3), list);
                 });
 
                 runner.test("with positive index less than count on non-empty list", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     list.insert(2, (byte)7);
-                    test.assertEqual(ByteList.create().addAll(1, 2, 7, 3), list);
+                    test.assertEqual(ByteList.create(1, 2, 7, 3), list);
                 });
 
                 runner.test("with positive index equal to count on non-empty list", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     list.insert(3, (byte)7);
-                    test.assertEqual(ByteList.create().addAll(1, 2, 3, 7), list);
+                    test.assertEqual(ByteList.create(1, 2, 3, 7), list);
                 });
 
                 runner.test("with positive index greater than count on non-empty list", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     test.assertThrows(() -> list.insert(4, (byte)7), new PreConditionFailure("insertIndex (4) must be between 0 and 3."));
-                    test.assertEqual(ByteList.create().addAll(1, 2, 3), list);
+                    test.assertEqual(ByteList.create(1, 2, 3), list);
                 });
             });
 
@@ -140,38 +182,38 @@ public interface ByteListTests
 
                 runner.test("with zero index on non-empty list", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     list.insert(0, (byte)7);
-                    test.assertEqual(ByteList.create().addAll(7, 1, 2, 3), list);
+                    test.assertEqual(ByteList.create(7, 1, 2, 3), list);
                 });
 
                 runner.test("with positive index less than count on non-empty list", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     list.insert(2, (byte)7);
-                    test.assertEqual(ByteList.create().addAll(1, 2, 7, 3), list);
+                    test.assertEqual(ByteList.create(1, 2, 7, 3), list);
                 });
 
                 runner.test("with positive index equal to count on non-empty list", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     list.insert(3, (byte)7);
-                    test.assertEqual(ByteList.create().addAll(1, 2, 3, 7), list);
+                    test.assertEqual(ByteList.create(1, 2, 3, 7), list);
                 });
 
                 runner.test("with positive index greater than count on non-empty list", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     test.assertThrows(() -> list.insert(4, (byte)7), new PreConditionFailure("insertIndex (4) must be between 0 and 3."));
-                    test.assertEqual(ByteList.create().addAll(1, 2, 3), list);
+                    test.assertEqual(ByteList.create(1, 2, 3), list);
                 });
 
                 runner.test("with index less than count when the list doesn't need to grow", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     list.add(4); // Initiate growth.
                     list.insert(0, 0);
-                    test.assertEqual(ByteList.create().addAll(0, 1, 2, 3, 4), list);
+                    test.assertEqual(ByteList.create(0, 1, 2, 3, 4), list);
                 });
             });
 
@@ -208,38 +250,38 @@ public interface ByteListTests
 
                 runner.test("with zero index on non-empty list", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     list.insert(0, Byte.valueOf((byte)7));
-                    test.assertEqual(ByteList.create().addAll(7, 1, 2, 3), list);
+                    test.assertEqual(ByteList.create(7, 1, 2, 3), list);
                 });
 
                 runner.test("with positive index less than count on non-empty list", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     list.insert(2, Byte.valueOf((byte)7));
-                    test.assertEqual(ByteList.create().addAll(1, 2, 7, 3), list);
+                    test.assertEqual(ByteList.create(1, 2, 7, 3), list);
                 });
 
                 runner.test("with positive index equal to count on non-empty list", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     list.insert(3, Byte.valueOf((byte)7));
-                    test.assertEqual(ByteList.create().addAll(1, 2, 3, 7), list);
+                    test.assertEqual(ByteList.create(1, 2, 3, 7), list);
                 });
 
                 runner.test("with positive index greater than count on non-empty list", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     test.assertThrows(() -> list.insert(4, Byte.valueOf((byte)7)), new PreConditionFailure("insertIndex (4) must be between 0 and 3."));
-                    test.assertEqual(ByteList.create().addAll(1, 2, 3), list);
+                    test.assertEqual(ByteList.create(1, 2, 3), list);
                 });
 
                 runner.test("with index less than count when the list doesn't need to grow", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     list.add(4); // Initiate growth.
                     list.insert(0, Byte.valueOf((byte)0));
-                    test.assertEqual(ByteList.create().addAll(0, 1, 2, 3, 4), list);
+                    test.assertEqual(ByteList.create(0, 1, 2, 3, 4), list);
                 });
             });
 
@@ -249,7 +291,7 @@ public interface ByteListTests
                 {
                     runner.test("with " + English.andList(list, index), (Test test) ->
                     {
-                        final ByteList backupList = ByteList.create().addAll(list);
+                        final ByteList backupList = ByteList.create(list);
                         test.assertThrows(() -> list.removeAt(index),
                             expected);
                         test.assertEqual(backupList, list);
@@ -259,9 +301,9 @@ public interface ByteListTests
                 removeAtErrorTest.run(ByteList.create(), -1, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                 removeAtErrorTest.run(ByteList.create(), 0, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
                 removeAtErrorTest.run(ByteList.create(), 1, new PreConditionFailure("Indexable length (0) must be greater than or equal to 1."));
-                removeAtErrorTest.run(ByteList.create().addAll(1, 2, 3), -1, new PreConditionFailure("index (-1) must be between 0 and 2."));
-                removeAtErrorTest.run(ByteList.create().addAll(1, 2, 3), 3, new PreConditionFailure("index (3) must be between 0 and 2."));
-                removeAtErrorTest.run(ByteList.create().addAll(1, 2, 3), 4, new PreConditionFailure("index (4) must be between 0 and 2."));
+                removeAtErrorTest.run(ByteList.create(1, 2, 3), -1, new PreConditionFailure("index (-1) must be between 0 and 2."));
+                removeAtErrorTest.run(ByteList.create(1, 2, 3), 3, new PreConditionFailure("index (3) must be between 0 and 2."));
+                removeAtErrorTest.run(ByteList.create(1, 2, 3), 4, new PreConditionFailure("index (4) must be between 0 and 2."));
 
                 final Action4<ByteList,Integer,Byte,Iterable<Byte>> removeAtTest = (ByteList list, Integer index, Byte expectedResult, Iterable<Byte> expectedList) ->
                 {
@@ -273,9 +315,9 @@ public interface ByteListTests
                     });
                 };
 
-                removeAtTest.run(ByteList.create().addAll(1, 2, 3), 0, (byte)1, ByteList.create().addAll(2, 3));
-                removeAtTest.run(ByteList.create().addAll(1, 2, 3, 4, 5, 6), 1, (byte)2, ByteList.create().addAll(1, 3, 4, 5, 6));
-                removeAtTest.run(ByteList.create().addAll(1, 2, 3), 2, (byte)3, ByteList.create().addAll(1, 2));
+                removeAtTest.run(ByteList.create(1, 2, 3), 0, (byte)1, ByteList.create(2, 3));
+                removeAtTest.run(ByteList.create(1, 2, 3, 4, 5, 6), 1, (byte)2, ByteList.create(1, 3, 4, 5, 6));
+                removeAtTest.run(ByteList.create(1, 2, 3), 2, (byte)3, ByteList.create(1, 2));
             });
 
             runner.testGroup("removeFirst(int)", () ->
@@ -293,7 +335,7 @@ public interface ByteListTests
 
                 removeFirstErrorTest.run(ByteList.create(), -2, new PreConditionFailure("valuesToRemove (-2) must be greater than or equal to 0."));
                 removeFirstErrorTest.run(ByteList.create(), 1, new EmptyException());
-                removeFirstErrorTest.run(ByteList.create().addAll(1, 2, 3), -2, new PreConditionFailure("valuesToRemove (-2) must be greater than or equal to 0."));
+                removeFirstErrorTest.run(ByteList.create(1, 2, 3), -2, new PreConditionFailure("valuesToRemove (-2) must be greater than or equal to 0."));
 
                 final Action4<ByteList,Integer,ByteArray,ByteList> removeFirstTest = (ByteList list, Integer valuesToRemove, ByteArray expectedResult, ByteList expectedList) ->
                 {
@@ -306,11 +348,11 @@ public interface ByteListTests
                 };
 
                 removeFirstTest.run(ByteList.create(), 0, ByteArray.create(), ByteList.create());
-                removeFirstTest.run(ByteList.create().addAll(1, 2, 3), 0, ByteArray.create(), ByteList.create().addAll(1, 2, 3));
-                removeFirstTest.run(ByteList.create().addAll(1, 2, 3), 1, ByteArray.create(1), ByteList.create().addAll(2, 3));
-                removeFirstTest.run(ByteList.create().addAll(1, 2, 3), 2, ByteArray.create(1, 2), ByteList.create(3));
-                removeFirstTest.run(ByteList.create().addAll(1, 2, 3), 3, ByteArray.create(1, 2, 3), ByteList.create());
-                removeFirstTest.run(ByteList.create().addAll(1, 2, 3), 4, ByteArray.create(1, 2, 3), ByteList.create());
+                removeFirstTest.run(ByteList.create(1, 2, 3), 0, ByteArray.create(), ByteList.create(1, 2, 3));
+                removeFirstTest.run(ByteList.create(1, 2, 3), 1, ByteArray.create(1), ByteList.create(2, 3));
+                removeFirstTest.run(ByteList.create(1, 2, 3), 2, ByteArray.create(1, 2), ByteList.create(3));
+                removeFirstTest.run(ByteList.create(1, 2, 3), 3, ByteArray.create(1, 2, 3), ByteList.create());
+                removeFirstTest.run(ByteList.create(1, 2, 3), 4, ByteArray.create(1, 2, 3), ByteList.create());
             });
 
             runner.testGroup("removeFirst(byte[])", () ->
@@ -351,37 +393,37 @@ public interface ByteListTests
                     new byte[0],
                     ByteList.create());
                 removeFirstTest.run(
-                    ByteList.create().addAll(1, 2, 3),
+                    ByteList.create(1, 2, 3),
                     new byte[0],
                     0,
                     new byte[0],
-                    ByteList.create().addAll(1, 2, 3));
+                    ByteList.create(1, 2, 3));
                 removeFirstTest.run(
-                    ByteList.create().addAll(1, 2, 3),
+                    ByteList.create(1, 2, 3),
                     new byte[1],
                     1,
                     new byte[] { 1 },
-                    ByteList.create().addAll(2, 3));
+                    ByteList.create(2, 3));
                 removeFirstTest.run(
-                    ByteList.create().addAll(1, 2, 3),
+                    ByteList.create(1, 2, 3),
                     new byte[2],
                     2,
                     new byte[] { 1, 2 },
                     ByteList.create(3));
                 removeFirstTest.run(
-                    ByteList.create().addAll(1, 2, 3),
+                    ByteList.create(1, 2, 3),
                     new byte[3],
                     3,
                     new byte[] { 1, 2, 3 },
                     ByteList.create());
                 removeFirstTest.run(
-                    ByteList.create().addAll(1, 2, 3),
+                    ByteList.create(1, 2, 3),
                     new byte[4],
                     3,
                     new byte[] { 1, 2, 3, '\0' },
                     ByteList.create());
                 removeFirstTest.run(
-                    ByteList.create().addAll(1, 2, 3),
+                    ByteList.create(1, 2, 3),
                     new byte[5],
                     3,
                     new byte[] { 1, 2, 3, '\0', '\0' },
@@ -468,23 +510,23 @@ public interface ByteListTests
                     new byte[0],
                     ByteList.create());
                 removeFirstTest.run(
-                    ByteList.create().addAll(1, 2, 3),
+                    ByteList.create(1, 2, 3),
                     new byte[0],
                     0,
                     0,
                     0,
                     new byte[0],
-                    ByteList.create().addAll(1, 2, 3));
+                    ByteList.create(1, 2, 3));
                 removeFirstTest.run(
-                    ByteList.create().addAll(1, 2, 3),
+                    ByteList.create(1, 2, 3),
                     new byte[1],
                     0,
                     1,
                     1,
                     new byte[] { 1 },
-                    ByteList.create().addAll(2, 3));
+                    ByteList.create(2, 3));
                 removeFirstTest.run(
-                    ByteList.create().addAll(1, 2, 3),
+                    ByteList.create(1, 2, 3),
                     new byte[2],
                     0,
                     2,
@@ -492,7 +534,7 @@ public interface ByteListTests
                     new byte[] { 1, 2 },
                     ByteList.create(3));
                 removeFirstTest.run(
-                    ByteList.create().addAll(1, 2, 3),
+                    ByteList.create(1, 2, 3),
                     new byte[3],
                     0,
                     3,
@@ -500,7 +542,7 @@ public interface ByteListTests
                     new byte[] { 1, 2, 3 },
                     ByteList.create());
                 removeFirstTest.run(
-                    ByteList.create().addAll(1, 2, 3),
+                    ByteList.create(1, 2, 3),
                     new byte[3],
                     1,
                     2,
@@ -508,7 +550,7 @@ public interface ByteListTests
                     new byte[] { '\0', 1, 2 },
                     ByteList.create(3));
                 removeFirstTest.run(
-                    ByteList.create().addAll(1, 2, 3),
+                    ByteList.create(1, 2, 3),
                     new byte[4],
                     0,
                     4,
@@ -516,7 +558,7 @@ public interface ByteListTests
                     new byte[] { 1, 2, 3, '\0' },
                     ByteList.create());
                 removeFirstTest.run(
-                    ByteList.create().addAll(1, 2, 3),
+                    ByteList.create(1, 2, 3),
                     new byte[4],
                     1,
                     3,
@@ -524,7 +566,7 @@ public interface ByteListTests
                     new byte[] { '\0', 1, 2, 3 },
                     ByteList.create());
                 removeFirstTest.run(
-                    ByteList.create().addAll(1, 2, 3),
+                    ByteList.create(1, 2, 3),
                     new byte[5],
                     0,
                     5,
@@ -532,7 +574,7 @@ public interface ByteListTests
                     new byte[] { 1, 2, 3, '\0', '\0' },
                     ByteList.create());
                 removeFirstTest.run(
-                    ByteList.create().addAll(1, 2, 3),
+                    ByteList.create(1, 2, 3),
                     new byte[5],
                     1,
                     4,
@@ -540,7 +582,7 @@ public interface ByteListTests
                     new byte[] { '\0', 1, 2, 3, '\0' },
                     ByteList.create());
                 removeFirstTest.run(
-                    ByteList.create().addAll(1, 2, 3),
+                    ByteList.create(1, 2, 3),
                     new byte[5],
                     2,
                     3,
@@ -553,37 +595,37 @@ public interface ByteListTests
             {
                 runner.test("with negative index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     test.assertThrows(() -> list.set(-1, (byte)5), new PreConditionFailure("index (-1) must be between 0 and 2."));
-                    test.assertEqual(ByteList.create().addAll(1, 2, 3), list);
+                    test.assertEqual(ByteList.create(1, 2, 3), list);
                 });
 
                 runner.test("with zero index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     list.set(0, (byte)5);
-                    test.assertEqual(ByteList.create().addAll(5, 2, 3), list);
+                    test.assertEqual(ByteList.create(5, 2, 3), list);
                 });
 
                 runner.test("with count - 1 index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     list.set(2, (byte)5);
-                    test.assertEqual(ByteList.create().addAll(1, 2, 5), list);
+                    test.assertEqual(ByteList.create(1, 2, 5), list);
                 });
 
                 runner.test("with count index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     test.assertThrows(() -> list.set(3, (byte)5), new PreConditionFailure("index (3) must be between 0 and 2."));
-                    test.assertEqual(ByteList.create().addAll(1, 2, 3), list);
+                    test.assertEqual(ByteList.create(1, 2, 3), list);
                 });
 
                 runner.test("with count + 1 index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     test.assertThrows(() -> list.set(4, (byte)5), new PreConditionFailure("index (4) must be between 0 and 2."));
-                    test.assertEqual(ByteList.create().addAll(1, 2, 3), list);
+                    test.assertEqual(ByteList.create(1, 2, 3), list);
                 });
             });
 
@@ -591,37 +633,37 @@ public interface ByteListTests
             {
                 runner.test("with negative index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     test.assertThrows(() -> list.set(-1, 5), new PreConditionFailure("index (-1) must be between 0 and 2."));
-                    test.assertEqual(ByteList.create().addAll(1, 2, 3), list);
+                    test.assertEqual(ByteList.create(1, 2, 3), list);
                 });
 
                 runner.test("with zero index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     list.set(0, 5);
-                    test.assertEqual(ByteList.create().addAll(5, 2, 3), list);
+                    test.assertEqual(ByteList.create(5, 2, 3), list);
                 });
 
                 runner.test("with count - 1 index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     list.set(2, 5);
-                    test.assertEqual(ByteList.create().addAll(1, 2, 5), list);
+                    test.assertEqual(ByteList.create(1, 2, 5), list);
                 });
 
                 runner.test("with count index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     test.assertThrows(() -> list.set(3, 5), new PreConditionFailure("index (3) must be between 0 and 2."));
-                    test.assertEqual(ByteList.create().addAll(1, 2, 3), list);
+                    test.assertEqual(ByteList.create(1, 2, 3), list);
                 });
 
                 runner.test("with count + 1 index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     test.assertThrows(() -> list.set(4, 5), new PreConditionFailure("index (4) must be between 0 and 2."));
-                    test.assertEqual(ByteList.create().addAll(1, 2, 3), list);
+                    test.assertEqual(ByteList.create(1, 2, 3), list);
                 });
             });
 
@@ -629,37 +671,37 @@ public interface ByteListTests
             {
                 runner.test("with negative index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     test.assertThrows(() -> list.set(-1, Byte.valueOf((byte)5)), new PreConditionFailure("index (-1) must be between 0 and 2."));
-                    test.assertEqual(ByteList.create().addAll(1, 2, 3), list);
+                    test.assertEqual(ByteList.create(1, 2, 3), list);
                 });
 
                 runner.test("with zero index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     list.set(0, Byte.valueOf((byte)5));
-                    test.assertEqual(ByteList.create().addAll(5, 2, 3), list);
+                    test.assertEqual(ByteList.create(5, 2, 3), list);
                 });
 
                 runner.test("with count - 1 index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     list.set(2, Byte.valueOf((byte)5));
-                    test.assertEqual(ByteList.create().addAll(1, 2, 5), list);
+                    test.assertEqual(ByteList.create(1, 2, 5), list);
                 });
 
                 runner.test("with count index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     test.assertThrows(() -> list.set(3, Byte.valueOf((byte)5)), new PreConditionFailure("index (3) must be between 0 and 2."));
-                    test.assertEqual(ByteList.create().addAll(1, 2, 3), list);
+                    test.assertEqual(ByteList.create(1, 2, 3), list);
                 });
 
                 runner.test("with count + 1 index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     test.assertThrows(() -> list.set(4, Byte.valueOf((byte)5)), new PreConditionFailure("index (4) must be between 0 and 2."));
-                    test.assertEqual(ByteList.create().addAll(1, 2, 3), list);
+                    test.assertEqual(ByteList.create(1, 2, 3), list);
                 });
             });
 
@@ -667,31 +709,31 @@ public interface ByteListTests
             {
                 runner.test("with negative index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     test.assertThrows(() -> list.get(-1), new PreConditionFailure("index (-1) must be between 0 and 2."));
                 });
 
                 runner.test("with zero index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     test.assertEqual(1, list.get(0));
                 });
 
                 runner.test("with count - 1 index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     test.assertEqual(3, list.get(2));
                 });
 
                 runner.test("with count index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     test.assertThrows(() -> list.get(3), new PreConditionFailure("index (3) must be between 0 and 2."));
                 });
 
                 runner.test("with count + 1 index", (Test test) ->
                 {
-                    final ByteList list = ByteList.create().addAll(1, 2, 3);
+                    final ByteList list = ByteList.create(1, 2, 3);
                     test.assertThrows(() -> list.get(4), new PreConditionFailure("index (4) must be between 0 and 2."));
                 });
             });
@@ -705,12 +747,12 @@ public interface ByteListTests
 
                 runner.test("with one value", (Test test) ->
                 {
-                    test.assertEqual("[11]", ByteList.create().addAll(11).toString());
+                    test.assertEqual("[11]", ByteList.create(11).toString());
                 });
 
                 runner.test("with two values", (Test test) ->
                 {
-                    test.assertEqual("[11,20]", ByteList.create().addAll(11, 20).toString());
+                    test.assertEqual("[11,20]", ByteList.create(11, 20).toString());
                 });
             });
         });

@@ -5,11 +5,16 @@ package qub;
  */
 public class Synchronization
 {
-    /**
-     * Create a new Synchronization factory.
-     */
-    public Synchronization()
+    private Synchronization()
     {
+    }
+
+    /**
+     * Create a new {@link Synchronization} factory.
+     */
+    public static Synchronization create()
+    {
+        return new Synchronization();
     }
 
     /**

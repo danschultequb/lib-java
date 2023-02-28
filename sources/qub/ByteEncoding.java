@@ -142,13 +142,7 @@ public interface ByteEncoding
 
         return Result.create(() ->
         {
-            final ByteList list = ByteList.create();
-            list.addAll(this.iterateDecodedBytes(encodedBytes));
-            final byte[] result = list.toByteArray();
-
-            PostCondition.assertNotNull(result, "result");
-
-            return result;
+            return Array.toByteArray(this.iterateDecodedBytes(encodedBytes));
         });
     }
 
