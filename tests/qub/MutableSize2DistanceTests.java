@@ -125,6 +125,26 @@ public interface MutableSize2DistanceTests
                 setTest.run(MutableSize2Distance.create(Distance.zero, Distance.zero), Distance.miles(7), Distance.feet(1));
             });
 
+            runner.testGroup("set(Size2<Distance>)", () ->
+            {
+                final Action2<MutableSize2Distance,Size2<Distance>> setTest = (MutableSize2Distance size, Size2<Distance> newSize) ->
+                {
+                    runner.test("with " + English.andList(size, newSize), (Test test) ->
+                    {
+                        final MutableSize2Distance setResult = size.set(newSize);
+                        test.assertSame(size, setResult);
+                        test.assertEqual(newSize.getWidth(), size.getWidth());
+                        test.assertEqual(newSize.getHeight(), size.getHeight());
+                    });
+                };
+
+                setTest.run(MutableSize2Distance.create(Distance.zero, Distance.zero), Size2Distance.zero);
+                setTest.run(MutableSize2Distance.create(Distance.feet(1), Distance.feet(1.5)), Size2.create(Distance.inches(12), Distance.inches(18)));
+                setTest.run(MutableSize2Distance.create(Distance.zero, Distance.zero), Size2.create(Distance.inches(2), Distance.zero));
+                setTest.run(MutableSize2Distance.create(Distance.zero, Distance.zero), Size2.create(Distance.zero, Distance.feet(1)));
+                setTest.run(MutableSize2Distance.create(Distance.zero, Distance.zero), Size2.create(Distance.miles(7), Distance.feet(1)));
+            });
+
             runner.testGroup("toString()", () ->
             {
                 final Action2<MutableSize2Distance,String> toStringTest = (MutableSize2Distance size, String expected) ->

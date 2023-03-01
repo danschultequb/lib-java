@@ -16,13 +16,25 @@ public interface MutableSize2Distance extends MutableSize2<Distance>, Size2Dista
     }
 
     @Override
-    public MutableSize2Distance setWidth(Distance width);
+    public default MutableSize2Distance setWidth(Distance width)
+    {
+        return (MutableSize2Distance)MutableSize2.super.setWidth(width);
+    }
 
     @Override
-    public MutableSize2Distance setHeight(Distance height);
+    public default MutableSize2Distance setHeight(Distance height)
+    {
+        return (MutableSize2Distance)MutableSize2.super.setHeight(height);
+    }
 
     @Override
     public MutableSize2Distance set(Distance width, Distance height);
+
+    @Override
+    public default MutableSize2Distance set(Size2<Distance> size)
+    {
+        return (MutableSize2Distance)MutableSize2.super.set(size);
+    }
 
     /**
      * A version of a {@link MutableSize2Distance} that returns its own type from chainable methods.
@@ -31,12 +43,27 @@ public interface MutableSize2Distance extends MutableSize2<Distance>, Size2Dista
     public static interface Typed<T extends MutableSize2Distance> extends MutableSize2Distance
     {
         @Override
-        public T setWidth(Distance width);
+        @SuppressWarnings("unchecked")
+        public default T setWidth(Distance width)
+        {
+            return (T)MutableSize2Distance.super.setWidth(width);
+        }
 
         @Override
-        public T setHeight(Distance height);
+        @SuppressWarnings("unchecked")
+        public default T setHeight(Distance height)
+        {
+            return (T)MutableSize2Distance.super.setHeight(height);
+        }
 
         @Override
         public T set(Distance width, Distance height);
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public default T set(Size2<Distance> size)
+        {
+            return (T)MutableSize2Distance.super.set(size);
+        }
     }
 }

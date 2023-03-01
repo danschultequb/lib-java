@@ -5,6 +5,11 @@ package qub;
  */
 public interface Size2Integer extends Size2<Integer>
 {
+    /**
+     * An empty {@link Size2Integer}.
+     */
+    public static final Size2Integer zero = Size2Integer.create(0, 0);
+
     public static MutableSize2Integer create()
     {
         return MutableSize2Integer.create();

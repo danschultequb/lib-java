@@ -25,6 +25,16 @@ public interface MutableSize2Tests
                         new PreConditionFailure("height cannot be null."));
                 });
             });
+
+            runner.testGroup("set(Size2<T>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final MutableSize2<?> size = creator.run();
+                    test.assertThrows(() -> size.set(null),
+                        new PreConditionFailure("size cannot be null."));
+                });
+            });
         });
     }
 }
