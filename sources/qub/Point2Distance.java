@@ -12,8 +12,16 @@ public interface Point2Distance extends Point2<Distance>
         return MutablePoint2Distance.create(Distance.zero, Distance.zero);
     }
 
-    static MutablePoint2Distance create(Distance x, Distance y)
+    public static MutablePoint2Distance create(Distance x, Distance y)
     {
         return MutablePoint2Distance.create(x, y);
+    }
+
+    @Override
+    public default JSONObject toJson()
+    {
+        return JSONObject.create()
+            .setString(Point2.xPropertyName, this.getX().toString())
+            .setString(Point2.yPropertyName, this.getY().toString());
     }
 }

@@ -6,27 +6,33 @@ package qub;
  */
 public interface Point2<T>
 {
-    static MutablePoint2Integer create(int x, int y)
+    public static final String xPropertyName = "x";
+    public static final String yPropertyName = "y";
+
+    public static MutablePoint2Integer create(int x, int y)
     {
         return Point2Integer.create(x, y);
     }
 
-    static MutablePoint2Distance create(Distance x, Distance y)
+    public static MutablePoint2Distance create(Distance x, Distance y)
     {
         return Point2Distance.create(x, y);
     }
 
     /**
-     * Get the x-coordinate of the {@link Point2}.
-     * @return The x-coordinate of the {@link Point2}.
+     * Get the x-coordinate of this {@link Point2}.
      */
-    T getX();
+    public T getX();
 
     /**
-     * Get the y-coordinate of the {@link Point2}.
-     * @return The y-coordinate of the {@link Point2}.
+     * Get the y-coordinate of this {@link Point2}.
      */
-    T getY();
+    public T getY();
+
+    /**
+     * Get the JSON representation of this {@link Point2}.
+     */
+    public JSONObject toJson();
 
     /**
      * Get the {@link String} representation of the provided {@link Point2}.
@@ -34,14 +40,11 @@ public interface Point2<T>
      * @param <T> The type of values stored in the {@link Point2}.
      * @return The {@link String} representation of the provided {@link Point2}.
      */
-    static <T> String toString(Point2<T> point)
+    public static <T> String toString(Point2<T> point)
     {
         PreCondition.assertNotNull(point, "point");
 
-        return JSONObject.create()
-            .setString("x", point.getX().toString())
-            .setString("y", point.getY().toString())
-            .toString();
+        return point.toJson().toString();
     }
 
     /**

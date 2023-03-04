@@ -18,26 +18,32 @@ public interface Point2Integer extends Point2<Integer>
     }
 
     @Override
-    default Integer getX()
+    public default Integer getX()
     {
         return this.getXAsInt();
     }
 
     /**
      * Get the x-coordinate of this {@link Point2Integer}.
-     * @return The x-coordinate of the {@link Point2Integer}.
      */
-    int getXAsInt();
+    public int getXAsInt();
 
     @Override
-    default Integer getY()
+    public default Integer getY()
     {
         return this.getYAsInt();
     }
 
     /**
      * Get the y-coordinate of the {@link Point2Integer}.
-     * @return The y-coordinate of the {@link Point2Integer}.
      */
-    int getYAsInt();
+    public int getYAsInt();
+
+    @Override
+    public default JSONObject toJson()
+    {
+        return JSONObject.create()
+            .setNumber(Point2.xPropertyName, this.getXAsInt())
+            .setNumber(Point2.yPropertyName, this.getYAsInt());
+    }
 }

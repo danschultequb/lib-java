@@ -2,7 +2,7 @@ package qub;
 
 public interface Point2Tests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         runner.testGroup(Point2.class, () ->
         {
@@ -13,7 +13,7 @@ public interface Point2Tests
                 test.assertEqual(1, point.getX());
                 test.assertEqual(2, point.getY());
 
-                test.assertEqual("{\"x\":\"1\",\"y\":\"2\"}", point.toString());
+                test.assertEqual("{\"x\":1,\"y\":2}", point.toString());
 
                 test.assertEqual(7, point.hashCode());
 
