@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A collection of functions that help when interacting with Strings.
+ * A collection of functions that help when interacting with {@link String}s.
  */
 public interface Strings
 {
