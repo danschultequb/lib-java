@@ -1,7 +1,7 @@
 package qub;
 
 /**
- * A collection of functions that help in interacting with Function objects.
+ * A collection of functions that help in interacting with function objects.
  */
 public interface Functions
 {
