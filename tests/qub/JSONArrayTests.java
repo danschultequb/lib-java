@@ -2,7 +2,7 @@ package qub;
 
 public interface JSONArrayTests
 {
-    static void test(TestRunner runner)
+    public static void test(TestRunner runner)
     {
         PreCondition.assertNotNull(runner, "runner");
 
@@ -177,7 +177,7 @@ public interface JSONArrayTests
             {
                 final Action4<JSONArray,Integer,JSONSegment,Throwable> insertErrorTest = (JSONArray array, Integer index, JSONSegment element, Throwable expected) ->
                 {
-                    runner.test("with " + array + ", " + index + ", and " + element, (Test test) ->
+                    runner.test("with " + English.andList(array, index, element), (Test test) ->
                     {
                         test.assertThrows(() -> array.insert(index, element), expected);
                     });
@@ -190,7 +190,7 @@ public interface JSONArrayTests
 
                 final Action4<JSONArray,Integer,JSONSegment,JSONArray> insertTest = (JSONArray array, Integer index, JSONSegment element, JSONArray expected) ->
                 {
-                    runner.test("with " + array + ", " + index + ", and " + element, (Test test) ->
+                    runner.test("with " + English.andList(array, index, element), (Test test) ->
                     {
                         final JSONArray insertResult = array.insert(index, element);
                         test.assertSame(array, insertResult);
@@ -201,6 +201,206 @@ public interface JSONArrayTests
                 insertTest.run(JSONArray.create(), 0, JSONBoolean.falseSegment, JSONArray.create(JSONBoolean.falseSegment));
                 insertTest.run(JSONArray.create(JSONNull.segment), 0, JSONBoolean.falseSegment, JSONArray.create(JSONBoolean.falseSegment, JSONNull.segment));
                 insertTest.run(JSONArray.create(JSONNull.segment), 1, JSONBoolean.falseSegment, JSONArray.create(JSONNull.segment, JSONBoolean.falseSegment));
+            });
+
+            runner.testGroup("add(JSONSegment)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final JSONArray array = JSONArray.create();
+                    test.assertThrows(() -> array.add(null),
+                        new PreConditionFailure("value cannot be null."));
+                    test.assertEqual(JSONArray.create(), array);
+                });
+
+                final Action3<JSONArray,JSONSegment,JSONArray> addTest = (JSONArray array, JSONSegment value, JSONArray expected) ->
+                {
+                    runner.test("with " + English.andList(array, value), (Test test) ->
+                    {
+                        final JSONArray addResult = array.add(value);
+                        test.assertSame(array, addResult);
+                        test.assertEqual(expected, array);
+                    });
+                };
+
+                addTest.run(
+                    JSONArray.create(),
+                    JSONNumber.create(1),
+                    JSONArray.create(JSONNumber.create(1)));
+                addTest.run(
+                    JSONArray.create(JSONNumber.create(1)),
+                    JSONNumber.create(2),
+                    JSONArray.create(JSONNumber.create(1), JSONNumber.create(2)));
+            });
+
+            runner.testGroup("addString(String)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final JSONArray array = JSONArray.create();
+                    test.assertThrows(() -> array.addString(null),
+                        new PreConditionFailure("value cannot be null."));
+                    test.assertEqual(JSONArray.create(), array);
+                });
+            });
+
+            runner.testGroup("addStrings(String...)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final JSONArray array = JSONArray.create();
+                    test.assertThrows(() -> array.addStrings((String[])null),
+                        new PreConditionFailure("values cannot be null."));
+                    test.assertEqual(JSONArray.create(), array);
+                });
+            });
+
+            runner.testGroup("addStrings(Iterable<String>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final JSONArray array = JSONArray.create();
+                    test.assertThrows(() -> array.addStrings((Iterable<String>)null),
+                        new PreConditionFailure("values cannot be null."));
+                    test.assertEqual(JSONArray.create(), array);
+                });
+            });
+
+            runner.testGroup("addNumber(long)", () ->
+            {
+                final Action3<JSONArray,Long,JSONArray> addNumberTest = (JSONArray array, Long value, JSONArray expected) ->
+                {
+                    runner.test("with " + English.andList(array, value), (Test test) ->
+                    {
+                        final JSONArray addNumberResult = array.addNumber(value);
+                        test.assertSame(array, addNumberResult);
+                        test.assertEqual(expected, array);
+                    });
+                };
+
+                addNumberTest.run(
+                    JSONArray.create(),
+                    5L,
+                    JSONArray.create(JSONNumber.create(5)));
+                addNumberTest.run(
+                    JSONArray.create(JSONNumber.create(5)),
+                    10L,
+                    JSONArray.create(JSONNumber.create(5), JSONNumber.create(10)));
+            });
+
+            runner.testGroup("addNumbers(long...)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final JSONArray array = JSONArray.create();
+                    test.assertThrows(() -> array.addNumbers((long[])null),
+                        new PreConditionFailure("values cannot be null."));
+                    test.assertEqual(JSONArray.create(), array);
+                });
+
+                runner.test("with one int value", (Test test) ->
+                {
+                    final JSONArray array = JSONArray.create();
+                    final JSONArray addNumbersResult = array.addNumbers(1);
+                    test.assertSame(array, addNumbersResult);
+                    test.assertEqual(
+                        JSONArray.create(JSONNumber.create(1)),
+                        array);
+                });
+
+                runner.test("with two int values", (Test test) ->
+                {
+                    final JSONArray array = JSONArray.create().addNumber(1);
+                    final JSONArray addNumbersResult = array.addNumbers(2, 3);
+                    test.assertSame(array, addNumbersResult);
+                    test.assertEqual(
+                        JSONArray.create(
+                            JSONNumber.create(1),
+                            JSONNumber.create(2),
+                            JSONNumber.create(3)),
+                        array);
+                });
+            });
+
+            runner.testGroup("addNumbers(double...)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final JSONArray array = JSONArray.create();
+                    test.assertThrows(() -> array.addNumbers((double[])null),
+                        new PreConditionFailure("values cannot be null."));
+                    test.assertEqual(JSONArray.create(), array);
+                });
+
+                runner.test("with one float value", (Test test) ->
+                {
+                    final JSONArray array = JSONArray.create();
+                    final JSONArray addNumbersResult = array.addNumbers(1f);
+                    test.assertSame(array, addNumbersResult);
+                    test.assertEqual(
+                        JSONArray.create(JSONNumber.create(1.0)),
+                        array);
+                });
+
+                runner.test("with two float values", (Test test) ->
+                {
+                    final JSONArray array = JSONArray.create().addNumber(1f);
+                    final JSONArray addNumbersResult = array.addNumbers(2f, 3f);
+                    test.assertSame(array, addNumbersResult);
+                    test.assertEqual(
+                        JSONArray.create(
+                            JSONNumber.create(1.0),
+                            JSONNumber.create(2.0),
+                            JSONNumber.create(3.0)),
+                        array);
+                });
+            });
+
+            runner.testGroup("addNumbers(Iterable<? extends Number>)", () ->
+            {
+                runner.test("with null", (Test test) ->
+                {
+                    final JSONArray array = JSONArray.create();
+                    test.assertThrows(() -> array.addNumbers((Iterable<? extends Number>)null),
+                        new PreConditionFailure("values cannot be null."));
+                    test.assertEqual(JSONArray.create(), array);
+                });
+
+                runner.test("with one float value", (Test test) ->
+                {
+                    final JSONArray array = JSONArray.create();
+                    final JSONArray addNumbersResult = array.addNumbers(Iterable.create(1f));
+                    test.assertSame(array, addNumbersResult);
+                    test.assertEqual(
+                        JSONArray.create(JSONNumber.create(1.0)),
+                        array);
+                });
+
+                runner.test("with two float values", (Test test) ->
+                {
+                    final JSONArray array = JSONArray.create().addNumber(1f);
+                    final JSONArray addNumbersResult = array.addNumbers(Iterable.create(2f, 3f));
+                    test.assertSame(array, addNumbersResult);
+                    test.assertEqual(
+                        JSONArray.create(
+                            JSONNumber.create(1.0),
+                            JSONNumber.create(2.0),
+                            JSONNumber.create(3.0)),
+                        array);
+                });
+
+                runner.test("with one float value and one byte", (Test test) ->
+                {
+                    final JSONArray array = JSONArray.create().addNumber(1f);
+                    final JSONArray addNumbersResult = array.addNumbers(Iterable.create(2f, (byte)3));
+                    test.assertSame(array, addNumbersResult);
+                    test.assertEqual(
+                        JSONArray.create(
+                            JSONNumber.create(1.0),
+                            JSONNumber.create(2.0),
+                            JSONNumber.create(3)),
+                        array);
+                });
             });
 
             runner.testGroup("removeAt(int)", () ->

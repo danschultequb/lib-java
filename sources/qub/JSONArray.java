@@ -133,15 +133,32 @@ public class JSONArray implements JSONSegment, List<JSONSegment>
         return this.add(JSONString.get(value));
     }
 
-    public JSONArray addNumber(long value)
+    public JSONArray addStrings(String... values)
     {
-        return this.add(JSONNumber.create(value));
+        PreCondition.assertNotNull(values, "values");
+
+        for (final String value : values)
+        {
+            this.addString(value);
+        }
+
+        return this;
     }
 
-    public JSONArray addNumber(String value)
+    public JSONArray addStrings(Iterable<String> values)
     {
-        PreCondition.assertNotNullAndNotEmpty(value, "value");
+        PreCondition.assertNotNull(values, "values");
 
+        for (final String value : values)
+        {
+            this.addString(value);
+        }
+
+        return this;
+    }
+
+    public JSONArray addNumber(long value)
+    {
         return this.add(JSONNumber.create(value));
     }
 
@@ -150,9 +167,76 @@ public class JSONArray implements JSONSegment, List<JSONSegment>
         return this.add(JSONNumber.create(value));
     }
 
+    public JSONArray addNumbers(long... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        for (final long value : values)
+        {
+            this.addNumber(value);
+        }
+
+        return this;
+    }
+
+    public JSONArray addNumbers(double... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        for (final double value : values)
+        {
+            this.addNumber(value);
+        }
+
+        return this;
+    }
+
+    public JSONArray addNumbers(Iterable<? extends Number> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        for (final Number value : values)
+        {
+            if (value instanceof Double || value instanceof Float)
+            {
+                this.addNumber(value.doubleValue());
+            }
+            else
+            {
+                this.addNumber(value.longValue());
+            }
+        }
+
+        return this;
+    }
+
     public JSONArray addBoolean(boolean value)
     {
         return this.add(JSONBoolean.get(value));
+    }
+
+    public JSONArray addBooleans(boolean... values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        for (final boolean value : values)
+        {
+            this.addBoolean(value);
+        }
+
+        return this;
+    }
+
+    public JSONArray addBooleans(Iterable<Boolean> values)
+    {
+        PreCondition.assertNotNull(values, "values");
+
+        for (final boolean value : values)
+        {
+            this.addBoolean(value);
+        }
+
+        return this;
     }
 
     @Override
