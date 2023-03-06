@@ -63,6 +63,25 @@ public interface Value<T> extends Getter<T>, Setter<T>
     }
 
     /**
+     * Create a new {@link DynamicValue} object that stores the provided type.
+     * @param <T> The type that the created {@link DynamicValue} will contain.
+     */
+    public static <T> DynamicValue<T> createDynamic()
+    {
+        return DynamicValue.create();
+    }
+
+    /**
+     * Create a new {@link DynamicValue} object that stores the provided type.
+     * @param initialValue The initial value to store in the new {@link DynamicValue}.
+     * @param <T> The type that the created {@link DynamicValue} will contain.
+     */
+    public static <T> DynamicValue<T> createDynamic(T initialValue)
+    {
+        return DynamicValue.create(initialValue);
+    }
+
+    /**
      * Clear any value that has been assigned to this object.
      */
     public Value<T> clear();
