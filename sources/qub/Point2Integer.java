@@ -17,6 +17,20 @@ public interface Point2Integer extends Point2<Integer>
         return MutablePoint2Integer.create(x, y);
     }
 
+    public static MutablePoint2Integer create(Point2<Integer> point)
+    {
+        PreCondition.assertNotNull(point, "point");
+
+        return MutablePoint2Integer.create(point.getX(), point.getY());
+    }
+
+    public static MutablePoint2Integer create(Point2Integer point)
+    {
+        PreCondition.assertNotNull(point, "point");
+
+        return MutablePoint2Integer.create(point.getXAsInt(), point.getYAsInt());
+    }
+
     @Override
     public default Integer getX()
     {

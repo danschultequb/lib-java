@@ -14,6 +14,20 @@ public interface Point2<T>
         return Point2Integer.create(x, y);
     }
 
+    public static MutablePoint2Integer create(Point2<Integer> point)
+    {
+        PreCondition.assertNotNull(point, "point");
+
+        return Point2Integer.create(point.getX(), point.getY());
+    }
+
+    public static MutablePoint2Integer create(Point2Integer point)
+    {
+        PreCondition.assertNotNull(point, "point");
+
+        return Point2Integer.create(point.getXAsInt(), point.getYAsInt());
+    }
+
     public static MutablePoint2Distance create(Distance x, Distance y)
     {
         return Point2Distance.create(x, y);

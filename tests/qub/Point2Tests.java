@@ -31,6 +31,56 @@ public interface Point2Tests
                 test.assertFalse(point.equals(Point2.create(4, 5)));
             });
 
+            runner.test("create(Point2<Integer>)", (Test test) ->
+            {
+                final MutablePoint2Integer point = Point2.create((Point2<Integer>)Point2.create(1, 2));
+                test.assertNotNull(point);
+                test.assertEqual(1, point.getX());
+                test.assertEqual(2, point.getY());
+
+                test.assertEqual("{\"x\":1,\"y\":2}", point.toString());
+
+                test.assertEqual(7, point.hashCode());
+
+                test.assertFalse(point.equals((Object)null));
+                test.assertFalse(point.equals((Object)"hello"));
+                test.assertTrue(point.equals((Object)Point2.create(1, 2)));
+                test.assertFalse(point.equals((Object)Point2.create(2, 2)));
+                test.assertFalse(point.equals((Object)Point2.create(1, 3)));
+                test.assertFalse(point.equals((Object)Point2.create(4, 5)));
+
+                test.assertFalse(point.equals((Point2<Integer>)null));
+                test.assertTrue(point.equals(Point2.create(1, 2)));
+                test.assertFalse(point.equals(Point2.create(2, 2)));
+                test.assertFalse(point.equals(Point2.create(1, 3)));
+                test.assertFalse(point.equals(Point2.create(4, 5)));
+            });
+
+            runner.test("create(Point2Integer)", (Test test) ->
+            {
+                final MutablePoint2Integer point = Point2.create((Point2Integer)Point2.create(1, 2));
+                test.assertNotNull(point);
+                test.assertEqual(1, point.getX());
+                test.assertEqual(2, point.getY());
+
+                test.assertEqual("{\"x\":1,\"y\":2}", point.toString());
+
+                test.assertEqual(7, point.hashCode());
+
+                test.assertFalse(point.equals((Object)null));
+                test.assertFalse(point.equals((Object)"hello"));
+                test.assertTrue(point.equals((Object)Point2.create(1, 2)));
+                test.assertFalse(point.equals((Object)Point2.create(2, 2)));
+                test.assertFalse(point.equals((Object)Point2.create(1, 3)));
+                test.assertFalse(point.equals((Object)Point2.create(4, 5)));
+
+                test.assertFalse(point.equals((Point2<Integer>)null));
+                test.assertTrue(point.equals(Point2.create(1, 2)));
+                test.assertFalse(point.equals(Point2.create(2, 2)));
+                test.assertFalse(point.equals(Point2.create(1, 3)));
+                test.assertFalse(point.equals(Point2.create(4, 5)));
+            });
+
             runner.testGroup("create(Distance,Distance)", () ->
             {
                 final Action3<Distance,Distance,Throwable> createErrorTest = (Distance x, Distance y, Throwable expected) ->

@@ -21,6 +21,20 @@ public class MutablePoint2Integer extends Point2Base<Integer> implements Mutable
         return new MutablePoint2Integer(x, y);
     }
 
+    public static MutablePoint2Integer create(Point2<Integer> point)
+    {
+        PreCondition.assertNotNull(point, "point");
+
+        return MutablePoint2Integer.create(point.getX(), point.getY());
+    }
+
+    public static MutablePoint2Integer create(Point2Integer point)
+    {
+        PreCondition.assertNotNull(point, "point");
+
+        return MutablePoint2Integer.create(point.getXAsInt(), point.getYAsInt());
+    }
+
     @Override
     public int getXAsInt()
     {
