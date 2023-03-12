@@ -2038,6 +2038,69 @@ public interface TestTests
                 assertNotSameTest.run(new String("hello"), new String("hello"), null);
             });
 
+            runner.testGroup("assertNullOrNotSame(T,T)", () ->
+            {
+                final Action3<String,String,Throwable> assertNullOrNotSameErrorTest = (String expected, String actual, Throwable expectedError) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(expected, actual).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        final Test t = TestTests.createTest("abc");
+                        test.assertThrows(() -> t.assertNullOrNotSame(expected, actual), expectedError);
+                    });
+                };
+
+                assertNullOrNotSameErrorTest.run("hello", "hello", new TestError("abc", TestTests.createErrorMessage(
+                    "Expected: \"not hello\"",
+                    "Actual:   \"hello\"")));
+
+                Action2<String,String> assertNullOrNotSameTest = (String expected, String actual) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(expected, actual).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        final Test t = TestTests.createTest("abc");
+                        t.assertNullOrNotSame(expected, actual);
+                    });
+                };
+
+                assertNullOrNotSameTest.run(null, null);
+                assertNullOrNotSameTest.run("hello", null);
+                assertNullOrNotSameTest.run(null, "there");
+                assertNullOrNotSameTest.run("hello", "there");
+                assertNullOrNotSameTest.run(new String("hello"), new String("hello"));
+            });
+
+            runner.testGroup("assertNullOrNotSame(T,T,String)", () ->
+            {
+                final Action4<String,String,String,Throwable> assertNullOrNotSameErrorTest = (String expected, String actual, String message, Throwable expectedError) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(expected, actual, message).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        final Test t = TestTests.createTest("abc");
+                        test.assertThrows(() -> t.assertNullOrNotSame(expected, actual, message), expectedError);
+                    });
+                };
+
+                assertNullOrNotSameErrorTest.run("hello", "hello", "my message", new TestError("abc", TestTests.createErrorMessage(
+                    "Message:  my message",
+                    "Expected: \"not hello\"",
+                    "Actual:   \"hello\"")));
+
+                Action3<String,String,String> assertNullOrNotSameTest = (String expected, String actual, String message) ->
+                {
+                    runner.test("with " + English.andList(Iterable.create(expected, actual, message).map(Strings::escapeAndQuote)), (Test test) ->
+                    {
+                        final Test t = TestTests.createTest("abc");
+                        t.assertNullOrNotSame(expected, actual, message);
+                    });
+                };
+
+                assertNullOrNotSameTest.run(null, null, "my message");
+                assertNullOrNotSameTest.run("hello", null, "my message");
+                assertNullOrNotSameTest.run(null, "there", "my message");
+                assertNullOrNotSameTest.run("hello", "there", "my message");
+                assertNullOrNotSameTest.run(new String("hello"), new String("hello"), "my message");
+            });
+
             runner.testGroup("assertLessThan(T,T)", () ->
             {
                 Action3<Distance,Distance,Throwable> assertLessThanTest = (Distance value, Distance upperBound, Throwable expectedError) ->

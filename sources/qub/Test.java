@@ -1113,6 +1113,35 @@ public class Test
         }
     }
 
+    /**
+     * Assert that the provided values are null or don't point to the same object. If they aren't
+     * null and point to the same object, then a {@link TestError} will be thrown.
+     * @param lhs The first value to compare.
+     * @param rhs The second value to compare.
+     * @param <T> The type of values to compare.
+     */
+    public <T> void assertNullOrNotSame(T lhs, T rhs)
+    {
+        this.assertNullOrNotSame(lhs, rhs, null);
+    }
+
+    /**
+     * Assert that the provided values are null or don't point to the same object. If they aren't
+     * null and point to the same object, then a {@link TestError} will be thrown with the provided
+     * message.
+     * @param lhs The first value to compare.
+     * @param rhs The second value to compare.
+     * @param message The message to show if the values are the same.
+     * @param <T> The type of values to compare.
+     */
+    public <T> void assertNullOrNotSame(T lhs, T rhs, String message)
+    {
+        if (lhs != null && rhs != null && Comparer.same(lhs, rhs))
+        {
+            throw new TestError(this.getFullName(), Test.getErrorMessage(message, "not " + lhs, rhs));
+        }
+    }
+
     public <T extends Comparable<T>> void assertLessThan(T value, T upperBound)
     {
         assertLessThan(value, upperBound, null);
